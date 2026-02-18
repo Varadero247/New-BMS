@@ -51,7 +51,7 @@ describe('Software Validation Routes (IEC 62304)', () => {
     it('should create a software project', async () => {
       (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.softwareProject.create as jest.Mock).mockResolvedValue({
-        id: 'sw-1', refNumber: 'SW-2602-0001', ...validBody, status: 'ACTIVE',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'SW-2602-0001', ...validBody, status: 'ACTIVE',
       });
 
       const res = await request(app).post('/api/software/projects').send(validBody);
@@ -120,7 +120,7 @@ describe('Software Validation Routes (IEC 62304)', () => {
 
   describe('GET /api/software/projects', () => {
     it('should list software projects', async () => {
-      (mockPrisma.softwareProject.findMany as jest.Mock).mockResolvedValue([{ id: 'sw-1' }]);
+      (mockPrisma.softwareProject.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/software/projects');
@@ -149,36 +149,36 @@ describe('Software Validation Routes (IEC 62304)', () => {
   describe('GET /api/software/projects/:id', () => {
     it('should get project with SOUP items and anomalies', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sw-1', deletedAt: null, soupItems: [], anomalies: [], phases: [],
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, soupItems: [], anomalies: [], phases: [],
       });
 
-      const res = await request(app).get('/api/software/projects/sw-1');
+      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/software/projects/fake');
+      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sw-1', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
       });
 
-      const res = await request(app).get('/api/software/projects/sw-1');
+      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(404);
     });
   });
 
   describe('POST /api/software/projects/:id/soup', () => {
     it('should add a SOUP item', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.soupItem.create as jest.Mock).mockResolvedValue({ id: 'soup-1' });
 
-      const res = await request(app).post('/api/software/projects/sw-1/soup').send({
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000001/soup').send({
         title: 'React', version: '18.2.0',
       });
       expect(res.status).toBe(201);
@@ -187,31 +187,31 @@ describe('Software Validation Routes (IEC 62304)', () => {
     it('should return 404 if project not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/software/projects/fake/soup').send({
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000099/soup').send({
         title: 'React', version: '18.2.0',
       });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for missing title', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/software/projects/sw-1/soup').send({ version: '1.0' });
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000001/soup').send({ version: '1.0' });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for missing version', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/software/projects/sw-1/soup').send({ title: 'React' });
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000001/soup').send({ title: 'React' });
       expect(res.status).toBe(400);
     });
 
     it('should accept optional fields', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.soupItem.create as jest.Mock).mockResolvedValue({ id: 'soup-2' });
 
-      const res = await request(app).post('/api/software/projects/sw-1/soup').send({
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000001/soup').send({
         title: 'OpenSSL', version: '3.0.0',
         vendor: 'OpenSSL Project',
         intendedUse: 'TLS encryption',
@@ -224,12 +224,12 @@ describe('Software Validation Routes (IEC 62304)', () => {
 
   describe('PUT /api/software/projects/:id/phase/:phase', () => {
     it('should update a phase document', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.softwarePhaseDoc.upsert as jest.Mock).mockResolvedValue({
         phase: 'REQUIREMENTS', status: 'IN_PROGRESS',
       });
 
-      const res = await request(app).put('/api/software/projects/sw-1/phase/REQUIREMENTS').send({
+      const res = await request(app).put('/api/software/projects/00000000-0000-0000-0000-000000000001/phase/REQUIREMENTS').send({
         content: 'Requirements spec v1',
         status: 'IN_PROGRESS',
       });
@@ -239,14 +239,14 @@ describe('Software Validation Routes (IEC 62304)', () => {
     it('should return 404 if project not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/software/projects/fake/phase/REQUIREMENTS').send({});
+      const res = await request(app).put('/api/software/projects/00000000-0000-0000-0000-000000000099/phase/REQUIREMENTS').send({});
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for invalid phase', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).put('/api/software/projects/sw-1/phase/INVALID_PHASE').send({});
+      const res = await request(app).put('/api/software/projects/00000000-0000-0000-0000-000000000001/phase/INVALID_PHASE').send({});
       expect(res.status).toBe(400);
     });
   });
@@ -258,47 +258,47 @@ describe('Software Validation Routes (IEC 62304)', () => {
     };
 
     it('should report an anomaly', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.softwareAnomaly.create as jest.Mock).mockResolvedValue({
         id: 'anm-1', refNumber: 'SW-ANM-2602-0001', severity: 'MINOR',
       });
 
-      const res = await request(app).post('/api/software/projects/sw-1/anomalies').send(validAnomaly);
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies').send(validAnomaly);
       expect(res.status).toBe(201);
     });
 
     it('should return 404 if project not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/software/projects/fake/anomalies').send(validAnomaly);
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000099/anomalies').send(validAnomaly);
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for missing title', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/software/projects/sw-1/anomalies').send({
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies').send({
         description: 'Some desc',
       });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for missing description', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/software/projects/sw-1/anomalies').send({
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies').send({
         title: 'Some title',
       });
       expect(res.status).toBe(400);
     });
 
     it('should accept CRITICAL severity', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.softwareAnomaly.create as jest.Mock).mockResolvedValue({ id: 'anm-2' });
 
-      const res = await request(app).post('/api/software/projects/sw-1/anomalies').send({
+      const res = await request(app).post('/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies').send({
         ...validAnomaly, severity: 'CRITICAL',
       });
       expect(res.status).toBe(201);
@@ -307,11 +307,11 @@ describe('Software Validation Routes (IEC 62304)', () => {
 
   describe('GET /api/software/projects/:id/anomalies', () => {
     it('should list anomalies for a project', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.softwareAnomaly.findMany as jest.Mock).mockResolvedValue([{ id: 'anm-1' }]);
       (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(1);
 
-      const res = await request(app).get('/api/software/projects/sw-1/anomalies');
+      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies');
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
     });
@@ -319,16 +319,16 @@ describe('Software Validation Routes (IEC 62304)', () => {
     it('should return 404 if project not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/software/projects/fake/anomalies');
+      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000099/anomalies');
       expect(res.status).toBe(404);
     });
 
     it('should support pagination', async () => {
-      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: 'sw-1', deletedAt: null });
+      (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.softwareAnomaly.findMany as jest.Mock).mockResolvedValue([]);
       (mockPrisma.softwareAnomaly.count as jest.Mock).mockResolvedValue(30);
 
-      const res = await request(app).get('/api/software/projects/sw-1/anomalies?page=2&limit=10');
+      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000001/anomalies?page=2&limit=10');
       expect(res.status).toBe(200);
       expect(res.body.meta.page).toBe(2);
     });

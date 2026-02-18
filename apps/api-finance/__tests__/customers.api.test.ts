@@ -153,7 +153,7 @@ describe('GET /api/customers/:id', () => {
   it('should return 404 when customer not found', async () => {
     (prisma as any).finCustomer.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/customers/nonexistent');
+    const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -266,7 +266,7 @@ describe('PUT /api/customers/:id', () => {
   it('should return 404 when customer not found', async () => {
     (prisma as any).finCustomer.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/customers/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).put('/api/customers/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -310,7 +310,7 @@ describe('DELETE /api/customers/:id', () => {
   it('should return 404 when customer not found', async () => {
     (prisma as any).finCustomer.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/customers/nonexistent');
+    const res = await request(app).delete('/api/customers/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);

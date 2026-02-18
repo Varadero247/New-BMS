@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/environmental-monitoring', () => {
   it('should return records with pagination', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([{ id: 'em-1', location: 'Zone A' }]);
+    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', location: 'Zone A' }]);
     (prisma as any).fsEnvironmentalMonitoring.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/environmental-monitoring');
@@ -91,7 +91,7 @@ describe('GET /api/environmental-monitoring', () => {
 
 describe('POST /api/environmental-monitoring', () => {
   it('should create an environmental monitoring record', async () => {
-    const created = { id: 'em-1', location: 'Zone A', testType: 'SWAB' };
+    const created = { id: '00000000-0000-0000-0000-000000000001', location: 'Zone A', testType: 'SWAB' };
     (prisma as any).fsEnvironmentalMonitoring.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/environmental-monitoring').send({
@@ -120,27 +120,27 @@ describe('POST /api/environmental-monitoring', () => {
 
 describe('GET /api/environmental-monitoring/:id', () => {
   it('should return a record by id', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: 'em-1' });
+    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).get('/api/environmental-monitoring/em-1');
+    const res = await request(app).get('/api/environmental-monitoring/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('em-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/environmental-monitoring/non-existent');
+    const res = await request(app).get('/api/environmental-monitoring/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('PUT /api/environmental-monitoring/:id', () => {
   it('should update a record', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: 'em-1' });
-    (prisma as any).fsEnvironmentalMonitoring.update.mockResolvedValue({ id: 'em-1', result: 'Positive' });
+    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsEnvironmentalMonitoring.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', result: 'Positive' });
 
-    const res = await request(app).put('/api/environmental-monitoring/em-1').send({ result: 'Positive' });
+    const res = await request(app).put('/api/environmental-monitoring/00000000-0000-0000-0000-000000000001').send({ result: 'Positive' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -148,24 +148,24 @@ describe('PUT /api/environmental-monitoring/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/environmental-monitoring/non-existent').send({ result: 'Positive' });
+    const res = await request(app).put('/api/environmental-monitoring/00000000-0000-0000-0000-000000000099').send({ result: 'Positive' });
     expect(res.status).toBe(404);
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: 'em-1' });
+    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).put('/api/environmental-monitoring/em-1').send({ testType: 'INVALID' });
+    const res = await request(app).put('/api/environmental-monitoring/00000000-0000-0000-0000-000000000001').send({ testType: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
 
 describe('DELETE /api/environmental-monitoring/:id', () => {
   it('should soft delete a record', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: 'em-1' });
-    (prisma as any).fsEnvironmentalMonitoring.update.mockResolvedValue({ id: 'em-1' });
+    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsEnvironmentalMonitoring.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).delete('/api/environmental-monitoring/em-1');
+    const res = await request(app).delete('/api/environmental-monitoring/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -173,14 +173,14 @@ describe('DELETE /api/environmental-monitoring/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/environmental-monitoring/non-existent');
+    const res = await request(app).delete('/api/environmental-monitoring/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('GET /api/environmental-monitoring/out-of-spec', () => {
   it('should return out-of-spec records', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([{ id: 'em-1', withinSpec: false }]);
+    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', withinSpec: false }]);
     (prisma as any).fsEnvironmentalMonitoring.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/environmental-monitoring/out-of-spec');

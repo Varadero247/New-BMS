@@ -89,7 +89,7 @@ describe('GET /api/benchmarks/:module', () => {
   it('should return empty arrays for unknown module', async () => {
     (prisma as any).analyticsKpi.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/benchmarks/UNKNOWN');
+    const res = await request(app).get('/api/benchmarks/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(200);
     expect(res.body.data.industry).toHaveLength(0);

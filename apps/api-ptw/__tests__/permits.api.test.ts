@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/permits', () => {
   it('should return permits', async () => {
-    (prisma as any).ptwPermit.findMany.mockResolvedValue([{ id: '1', title: 'Test' }]);
+    (prisma as any).ptwPermit.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Test' }]);
     (prisma as any).ptwPermit.count.mockResolvedValue(1);
     const res = await request(app).get('/api/permits');
     expect(res.status).toBe(200);
@@ -26,21 +26,21 @@ describe('GET /api/permits', () => {
 describe('GET /api/permits/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).ptwPermit.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/permits/nope');
+    const res = await request(app).get('/api/permits/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).ptwPermit.findFirst.mockResolvedValue({ id: '1' });
-    const res = await request(app).get('/api/permits/1');
+    (prisma as any).ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).get('/api/permits/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 });
 
 describe('POST /api/permits', () => {
   it('should create', async () => {
     (prisma as any).ptwPermit.count.mockResolvedValue(0);
-    (prisma as any).ptwPermit.create.mockResolvedValue({ id: '1', title: 'New' });
+    (prisma as any).ptwPermit.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
     const res = await request(app).post('/api/permits').send({ title: 'New' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -49,18 +49,18 @@ describe('POST /api/permits', () => {
 
 describe('PUT /api/permits/:id', () => {
   it('should update', async () => {
-    (prisma as any).ptwPermit.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).ptwPermit.update.mockResolvedValue({ id: '1', title: 'Updated' });
-    const res = await request(app).put('/api/permits/1').send({ title: 'Updated' });
+    (prisma as any).ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).ptwPermit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app).put('/api/permits/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
 });
 
 describe('DELETE /api/permits/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).ptwPermit.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).ptwPermit.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/permits/1');
+    (prisma as any).ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).ptwPermit.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/permits/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });

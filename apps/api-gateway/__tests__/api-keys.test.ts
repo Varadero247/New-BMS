@@ -91,7 +91,7 @@ describe('API Keys Routes', () => {
     });
 
     it('returns 404 for non-existent key', async () => {
-      const res = await request(app).delete('/api/admin/api-keys/nonexistent-id');
+      const res = await request(app).delete('/api/admin/api-keys/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

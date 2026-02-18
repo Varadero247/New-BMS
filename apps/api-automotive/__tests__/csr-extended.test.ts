@@ -71,7 +71,7 @@ describe('CSR Routes', () => {
 
   describe('GET /api/csr/gaps', () => {
     it('should list non-compliant CSRs', async () => {
-      (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ id: 'csr-1', complianceStatus: 'PARTIAL' }]);
+      (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', complianceStatus: 'PARTIAL' }]);
       (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/csr/gaps');
@@ -101,7 +101,7 @@ describe('CSR Routes', () => {
 
   describe('GET /api/csr/oems/:oem', () => {
     it('should list CSRs for a specific OEM', async () => {
-      (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ id: 'csr-1', oem: 'BMW' }]);
+      (mockPrisma.csrRequirement.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', oem: 'BMW' }]);
       (mockPrisma.csrRequirement.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/csr/oems/BMW');
@@ -145,10 +145,10 @@ describe('CSR Routes', () => {
 
   describe('PUT /api/csr/:id/status', () => {
     it('should update compliance status', async () => {
-      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: 'csr-1' });
-      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: 'csr-1', complianceStatus: 'COMPLIANT' });
+      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', complianceStatus: 'COMPLIANT' });
 
-      const res = await request(app).put('/api/csr/csr-1/status').send({ complianceStatus: 'COMPLIANT' });
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000001/status').send({ complianceStatus: 'COMPLIANT' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -156,46 +156,46 @@ describe('CSR Routes', () => {
     it('should return 404 if not found', async () => {
       (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/csr/fake/status').send({ complianceStatus: 'COMPLIANT' });
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000099/status').send({ complianceStatus: 'COMPLIANT' });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for invalid complianceStatus', async () => {
-      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: 'csr-1' });
+      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-      const res = await request(app).put('/api/csr/csr-1/status').send({ complianceStatus: 'INVALID' });
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000001/status').send({ complianceStatus: 'INVALID' });
       expect(res.status).toBe(400);
     });
 
     it('should accept PARTIAL status', async () => {
-      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: 'csr-1' });
-      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: 'csr-1', complianceStatus: 'PARTIAL' });
+      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', complianceStatus: 'PARTIAL' });
 
-      const res = await request(app).put('/api/csr/csr-1/status').send({ complianceStatus: 'PARTIAL' });
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000001/status').send({ complianceStatus: 'PARTIAL' });
       expect(res.status).toBe(200);
     });
 
     it('should accept NON_COMPLIANT status', async () => {
-      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: 'csr-1' });
-      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: 'csr-1', complianceStatus: 'NON_COMPLIANT' });
+      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', complianceStatus: 'NON_COMPLIANT' });
 
-      const res = await request(app).put('/api/csr/csr-1/status').send({ complianceStatus: 'NON_COMPLIANT' });
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000001/status').send({ complianceStatus: 'NON_COMPLIANT' });
       expect(res.status).toBe(200);
     });
 
     it('should accept NOT_ASSESSED status', async () => {
-      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: 'csr-1' });
-      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: 'csr-1', complianceStatus: 'NOT_ASSESSED' });
+      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', complianceStatus: 'NOT_ASSESSED' });
 
-      const res = await request(app).put('/api/csr/csr-1/status').send({ complianceStatus: 'NOT_ASSESSED' });
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000001/status').send({ complianceStatus: 'NOT_ASSESSED' });
       expect(res.status).toBe(200);
     });
 
     it('should accept optional gapNotes', async () => {
-      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: 'csr-1' });
-      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: 'csr-1' });
+      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-      const res = await request(app).put('/api/csr/csr-1/status').send({
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000001/status').send({
         complianceStatus: 'PARTIAL',
         gapNotes: 'Need to implement PPAP process',
       });
@@ -203,10 +203,10 @@ describe('CSR Routes', () => {
     });
 
     it('should accept optional actionRequired', async () => {
-      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: 'csr-1' });
-      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: 'csr-1' });
+      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.csrRequirement.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-      const res = await request(app).put('/api/csr/csr-1/status').send({
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000001/status').send({
         complianceStatus: 'NON_COMPLIANT',
         actionRequired: 'Implement SPC for critical characteristics',
       });
@@ -214,10 +214,10 @@ describe('CSR Routes', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: 'csr-1' });
+      (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
       (mockPrisma.csrRequirement.update as jest.Mock).mockRejectedValue(new Error('DB'));
 
-      const res = await request(app).put('/api/csr/csr-1/status').send({ complianceStatus: 'COMPLIANT' });
+      const res = await request(app).put('/api/csr/00000000-0000-0000-0000-000000000001/status').send({ complianceStatus: 'COMPLIANT' });
       expect(res.status).toBe(500);
     });
   });

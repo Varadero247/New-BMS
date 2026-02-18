@@ -359,7 +359,7 @@ describe('Evidence Pack API', () => {
 
     it('should return 404 for non-existent pack', async () => {
       const res = await request(app)
-        .get('/api/evidence-pack/non-existent-id');
+        .get('/api/evidence-pack/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -388,7 +388,7 @@ describe('Evidence Pack API', () => {
   describe('GET /api/evidence-pack/:id/download', () => {
     it('should return 404 for non-existent pack', async () => {
       const res = await request(app)
-        .get('/api/evidence-pack/non-existent-id/download');
+        .get('/api/evidence-pack/00000000-0000-0000-0000-000000000099/download');
 
       expect(res.status).toBe(404);
     });

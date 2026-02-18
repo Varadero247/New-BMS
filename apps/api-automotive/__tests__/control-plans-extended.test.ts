@@ -50,7 +50,7 @@ describe('Control Plan Routes', () => {
     it('should create a control plan', async () => {
       (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.controlPlan.create as jest.Mock).mockResolvedValue({
-        id: 'cp-1', refNumber: 'CP-2602-0001', ...validBody, planType: 'PROTOTYPE', status: 'DRAFT',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'CP-2602-0001', ...validBody, planType: 'PROTOTYPE', status: 'DRAFT',
       });
 
       const res = await request(app).post('/api/control-plans').send(validBody);
@@ -117,7 +117,7 @@ describe('Control Plan Routes', () => {
 
   describe('GET /api/control-plans', () => {
     it('should list control plans', async () => {
-      (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([{ id: 'cp-1' }]);
+      (mockPrisma.controlPlan.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.controlPlan.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/control-plans');
@@ -156,18 +156,18 @@ describe('Control Plan Routes', () => {
   describe('GET /api/control-plans/:id', () => {
     it('should get control plan with characteristics', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({
-        id: 'cp-1', characteristics: [],
+        id: '00000000-0000-0000-0000-000000000001', characteristics: [],
       });
 
-      const res = await request(app).get('/api/control-plans/cp-1');
+      const res = await request(app).get('/api/control-plans/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('cp-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/control-plans/fake');
+      const res = await request(app).get('/api/control-plans/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -186,42 +186,42 @@ describe('Control Plan Routes', () => {
     };
 
     it('should add a characteristic', async () => {
-      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'cp-1', deletedAt: null });
+      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.controlPlanChar.create as jest.Mock).mockResolvedValue({ id: 'ch-1', ...validChar });
 
-      const res = await request(app).post('/api/control-plans/cp-1/characteristics').send(validChar);
+      const res = await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000001/characteristics').send(validChar);
       expect(res.status).toBe(201);
     });
 
     it('should return 404 for non-existent plan', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/control-plans/fake/characteristics').send(validChar);
+      const res = await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000099/characteristics').send(validChar);
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for missing processNumber', async () => {
-      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'cp-1', deletedAt: null });
+      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const { processNumber, ...noProcess } = validChar;
-      const res = await request(app).post('/api/control-plans/cp-1/characteristics').send(noProcess);
+      const res = await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000001/characteristics').send(noProcess);
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for invalid characteristicType', async () => {
-      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'cp-1', deletedAt: null });
+      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/control-plans/cp-1/characteristics').send({
+      const res = await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000001/characteristics').send({
         ...validChar, characteristicType: 'INVALID',
       });
       expect(res.status).toBe(400);
     });
 
     it('should accept PROCESS characteristicType', async () => {
-      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'cp-1', deletedAt: null });
+      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.controlPlanChar.create as jest.Mock).mockResolvedValue({ id: 'ch-2' });
 
-      const res = await request(app).post('/api/control-plans/cp-1/characteristics').send({
+      const res = await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000001/characteristics').send({
         ...validChar, characteristicType: 'PROCESS',
       });
       expect(res.status).toBe(201);
@@ -230,24 +230,24 @@ describe('Control Plan Routes', () => {
 
   describe('POST /api/control-plans/:id/approve', () => {
     it('should approve a control plan', async () => {
-      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'cp-1', deletedAt: null, status: 'DRAFT' });
-      (mockPrisma.controlPlan.update as jest.Mock).mockResolvedValue({ id: 'cp-1', status: 'APPROVED' });
+      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null, status: 'DRAFT' });
+      (mockPrisma.controlPlan.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
 
-      const res = await request(app).post('/api/control-plans/cp-1/approve').send({});
+      const res = await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000001/approve').send({});
       expect(res.status).toBe(200);
     });
 
     it('should return 400 for already approved plan', async () => {
-      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'cp-1', deletedAt: null, status: 'APPROVED' });
+      (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null, status: 'APPROVED' });
 
-      const res = await request(app).post('/api/control-plans/cp-1/approve').send({});
+      const res = await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000001/approve').send({});
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent plan', async () => {
       (mockPrisma.controlPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/control-plans/fake/approve').send({});
+      const res = await request(app).post('/api/control-plans/00000000-0000-0000-0000-000000000099/approve').send({});
       expect(res.status).toBe(404);
     });
   });

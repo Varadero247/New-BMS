@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/portal/approvals', () => {
   it('should list approvals', async () => {
-    const items = [{ id: 'ap-1', type: 'ORDER', status: 'PENDING' }];
+    const items = [{ id: '00000000-0000-0000-0000-000000000001', type: 'ORDER', status: 'PENDING' }];
     (prisma as any).portalApproval.findMany.mockResolvedValue(items);
     (prisma as any).portalApproval.count.mockResolvedValue(1);
 
@@ -77,7 +77,7 @@ describe('GET /api/portal/approvals', () => {
 
 describe('POST /api/portal/approvals', () => {
   it('should create an approval request', async () => {
-    const approval = { id: 'ap-1', type: 'ORDER', referenceId: 'ord-1', status: 'PENDING' };
+    const approval = { id: '00000000-0000-0000-0000-000000000001', type: 'ORDER', referenceId: 'ord-1', status: 'PENDING' };
     (prisma as any).portalApproval.create.mockResolvedValue(approval);
 
     const res = await request(app)
@@ -107,22 +107,22 @@ describe('POST /api/portal/approvals', () => {
 
 describe('PUT /api/portal/approvals/:id/approve', () => {
   it('should approve a pending approval', async () => {
-    const approval = { id: 'ap-1', status: 'PENDING', notes: null };
+    const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
     (prisma as any).portalApproval.findFirst.mockResolvedValue(approval);
     (prisma as any).portalApproval.update.mockResolvedValue({ ...approval, status: 'APPROVED' });
 
     const res = await request(app)
-      .put('/api/portal/approvals/ap-1/approve')
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/approve')
       .send({});
 
     expect(res.status).toBe(200);
   });
 
   it('should return 400 if not pending', async () => {
-    (prisma as any).portalApproval.findFirst.mockResolvedValue({ id: 'ap-1', status: 'APPROVED' });
+    (prisma as any).portalApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
 
     const res = await request(app)
-      .put('/api/portal/approvals/ap-1/approve')
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/approve')
       .send({});
 
     expect(res.status).toBe(400);
@@ -133,7 +133,7 @@ describe('PUT /api/portal/approvals/:id/approve', () => {
     (prisma as any).portalApproval.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/portal/approvals/nonexistent/approve')
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000099/approve')
       .send({});
 
     expect(res.status).toBe(404);
@@ -142,22 +142,22 @@ describe('PUT /api/portal/approvals/:id/approve', () => {
 
 describe('PUT /api/portal/approvals/:id/reject', () => {
   it('should reject a pending approval', async () => {
-    const approval = { id: 'ap-1', status: 'PENDING', notes: null };
+    const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
     (prisma as any).portalApproval.findFirst.mockResolvedValue(approval);
     (prisma as any).portalApproval.update.mockResolvedValue({ ...approval, status: 'REJECTED' });
 
     const res = await request(app)
-      .put('/api/portal/approvals/ap-1/reject')
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/reject')
       .send({ notes: 'Not acceptable' });
 
     expect(res.status).toBe(200);
   });
 
   it('should return 400 if not pending for reject', async () => {
-    (prisma as any).portalApproval.findFirst.mockResolvedValue({ id: 'ap-1', status: 'REJECTED' });
+    (prisma as any).portalApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'REJECTED' });
 
     const res = await request(app)
-      .put('/api/portal/approvals/ap-1/reject')
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/reject')
       .send({});
 
     expect(res.status).toBe(400);
@@ -167,7 +167,7 @@ describe('PUT /api/portal/approvals/:id/reject', () => {
     (prisma as any).portalApproval.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/portal/approvals/nonexistent/reject')
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000099/reject')
       .send({});
 
     expect(res.status).toBe(404);

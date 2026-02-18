@@ -282,7 +282,7 @@ describe('InfoSec Audits API', () => {
     it('should return 404 when audit not found', async () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/audits/nonexistent');
+      const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -316,7 +316,7 @@ describe('InfoSec Audits API', () => {
     it('should return 404 when audit not found', async () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/audits/nonexistent/checklist');
+      const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000099/checklist');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -382,7 +382,7 @@ describe('InfoSec Audits API', () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .post('/api/audits/nonexistent/findings')
+        .post('/api/audits/00000000-0000-0000-0000-000000000099/findings')
         .send({ clause: '6.1', type: 'NONCONFORMITY_MINOR', description: 'Test' });
 
       expect(res.status).toBe(404);
@@ -437,7 +437,7 @@ describe('InfoSec Audits API', () => {
       (mockPrisma.isAudit.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/audits/nonexistent/complete')
+        .put('/api/audits/00000000-0000-0000-0000-000000000099/complete')
         .send({ summary: 'Done' });
 
       expect(res.status).toBe(404);

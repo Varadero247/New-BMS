@@ -46,7 +46,7 @@ beforeEach(() => {
 
 describe('Quality Audits API Routes', () => {
   const mockAudit = {
-    id: 'audit-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     referenceNumber: 'QMS-AUD-2026-001',
     title: 'Internal QMS Audit',
     auditType: 'INTERNAL',
@@ -163,17 +163,17 @@ describe('Quality Audits API Routes', () => {
     it('should return a single audit', async () => {
       mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
 
-      const res = await request(app).get('/api/audits/audit-uuid-1');
+      const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('audit-uuid-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when audit not found', async () => {
       mockPrisma.qualAudit.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/audits/nonexistent');
+      const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -182,7 +182,7 @@ describe('Quality Audits API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.qualAudit.findFirst.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/audits/audit-uuid-1');
+      const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -195,7 +195,7 @@ describe('Quality Audits API Routes', () => {
       mockPrisma.qualAudit.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/audits/audit-uuid-1')
+        .put('/api/audits/00000000-0000-0000-0000-000000000001')
         .send({ status: 'IN_PROGRESS' });
 
       expect(res.status).toBe(200);
@@ -206,7 +206,7 @@ describe('Quality Audits API Routes', () => {
       mockPrisma.qualAudit.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/audits/nonexistent')
+        .put('/api/audits/00000000-0000-0000-0000-000000000099')
         .send({ status: 'COMPLETED' });
 
       expect(res.status).toBe(404);
@@ -216,7 +216,7 @@ describe('Quality Audits API Routes', () => {
       mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
 
       const res = await request(app)
-        .put('/api/audits/audit-uuid-1')
+        .put('/api/audits/00000000-0000-0000-0000-000000000001')
         .send({ status: 'INVALID_STATUS' });
 
       expect(res.status).toBe(400);
@@ -227,7 +227,7 @@ describe('Quality Audits API Routes', () => {
       mockPrisma.qualAudit.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/audits/audit-uuid-1')
+        .put('/api/audits/00000000-0000-0000-0000-000000000001')
         .send({ title: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -239,7 +239,7 @@ describe('Quality Audits API Routes', () => {
       mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
       mockPrisma.qualAudit.update.mockResolvedValue({ ...mockAudit, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/audits/audit-uuid-1');
+      const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -249,7 +249,7 @@ describe('Quality Audits API Routes', () => {
     it('should return 404 when audit not found', async () => {
       mockPrisma.qualAudit.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/audits/nonexistent');
+      const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -258,7 +258,7 @@ describe('Quality Audits API Routes', () => {
       mockPrisma.qualAudit.findFirst.mockResolvedValue(mockAudit);
       mockPrisma.qualAudit.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/audits/audit-uuid-1');
+      const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });

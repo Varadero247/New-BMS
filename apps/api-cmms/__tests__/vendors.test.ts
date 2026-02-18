@@ -29,7 +29,7 @@ app.use('/api/vendors', vendorsRouter);
 app.use('/api/contracts', vendorsRouter);
 
 const mockVendor = {
-  id: 'vendor-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'Acme Maintenance Co.',
   code: 'ACME-001',
   contactName: 'Jane Doe',
@@ -47,7 +47,7 @@ const mockVendor = {
 };
 
 const mockContract = {
-  id: 'contract-1',
+  id: '00000000-0000-0000-0000-000000000001',
   vendorId: 'vendor-1',
   assetId: null,
   contractNumber: 'SC-001',
@@ -138,15 +138,15 @@ describe('Vendors Routes', () => {
     it('should return a vendor by ID', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue({ ...mockVendor, serviceContracts: [] });
 
-      const res = await request(app).get('/api/vendors/vendor-1');
+      const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('vendor-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent vendor', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/vendors/non-existent');
+      const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -156,14 +156,14 @@ describe('Vendors Routes', () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
       prisma.cmmsVendor.update.mockResolvedValue({ ...mockVendor, name: 'Updated' });
 
-      const res = await request(app).put('/api/vendors/vendor-1').send({ name: 'Updated' });
+      const res = await request(app).put('/api/vendors/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent vendor', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/vendors/non-existent').send({ name: 'Updated' });
+      const res = await request(app).put('/api/vendors/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -173,7 +173,7 @@ describe('Vendors Routes', () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
       prisma.cmmsVendor.update.mockResolvedValue({ ...mockVendor, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/vendors/vendor-1');
+      const res = await request(app).delete('/api/vendors/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -181,7 +181,7 @@ describe('Vendors Routes', () => {
     it('should return 404 for non-existent vendor', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/vendors/non-existent');
+      const res = await request(app).delete('/api/vendors/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -191,7 +191,7 @@ describe('Vendors Routes', () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
       prisma.cmmsServiceContract.findMany.mockResolvedValue([mockContract]);
 
-      const res = await request(app).get('/api/vendors/vendor-1/contracts');
+      const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000001/contracts');
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(1);
     });
@@ -199,7 +199,7 @@ describe('Vendors Routes', () => {
     it('should return 404 for non-existent vendor', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/vendors/non-existent/contracts');
+      const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000099/contracts');
       expect(res.status).toBe(404);
     });
   });
@@ -209,7 +209,7 @@ describe('Vendors Routes', () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
       prisma.cmmsServiceContract.create.mockResolvedValue(mockContract);
 
-      const res = await request(app).post('/api/vendors/vendor-1/contracts').send({
+      const res = await request(app).post('/api/vendors/00000000-0000-0000-0000-000000000001/contracts').send({
         contractNumber: 'SC-001',
         title: 'Annual HVAC Maintenance',
         startDate: '2026-01-01',
@@ -222,7 +222,7 @@ describe('Vendors Routes', () => {
     it('should return 404 for non-existent vendor', async () => {
       prisma.cmmsVendor.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).post('/api/vendors/non-existent/contracts').send({
+      const res = await request(app).post('/api/vendors/00000000-0000-0000-0000-000000000099/contracts').send({
         contractNumber: 'SC-001',
         title: 'Test',
         startDate: '2026-01-01',
@@ -233,7 +233,7 @@ describe('Vendors Routes', () => {
     });
 
     it('should return 400 for invalid contract data', async () => {
-      const res = await request(app).post('/api/vendors/vendor-1/contracts').send({});
+      const res = await request(app).post('/api/vendors/00000000-0000-0000-0000-000000000001/contracts').send({});
       expect(res.status).toBe(400);
     });
   });
@@ -243,14 +243,14 @@ describe('Vendors Routes', () => {
       prisma.cmmsServiceContract.findFirst.mockResolvedValue(mockContract);
       prisma.cmmsServiceContract.update.mockResolvedValue({ ...mockContract, title: 'Updated' });
 
-      const res = await request(app).put('/api/contracts/contracts/contract-1').send({ title: 'Updated' });
+      const res = await request(app).put('/api/contracts/contracts/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent contract', async () => {
       prisma.cmmsServiceContract.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/contracts/contracts/non-existent').send({ title: 'Updated' });
+      const res = await request(app).put('/api/contracts/contracts/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
       expect(res.status).toBe(404);
     });
   });

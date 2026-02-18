@@ -16,11 +16,11 @@ jest.mock('@ims/monitoring', () => ({
 }));
 
 const mockListRules = jest.fn().mockReturnValue([
-  { id: 'rule-1', name: 'Critical NCR → Auto-CAPA', description: 'Auto-creates CAPA', enabled: false, isBuiltIn: true },
+  { id: '00000000-0000-0000-0000-000000000001', name: 'Critical NCR → Auto-CAPA', description: 'Auto-creates CAPA', enabled: false, isBuiltIn: true },
 ]);
 const mockEnableRule = jest.fn().mockReturnValue(true);
 const mockDisableRule = jest.fn().mockReturnValue(true);
-const mockGetRuleById = jest.fn().mockReturnValue({ id: 'rule-1', name: 'Critical NCR → Auto-CAPA' });
+const mockGetRuleById = jest.fn().mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Critical NCR → Auto-CAPA' });
 const mockGetExecutionLog = jest.fn().mockReturnValue([]);
 
 jest.mock('@ims/automation-rules', () => ({
@@ -54,7 +54,7 @@ describe('Automation Rules Routes', () => {
 
   describe('POST /api/automation-rules/:id/enable', () => {
     it('enables a rule', async () => {
-      const res = await request(app).post('/api/automation-rules/rule-1/enable');
+      const res = await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000001/enable');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -62,14 +62,14 @@ describe('Automation Rules Routes', () => {
     it('returns 404 for non-existent rule', async () => {
       mockEnableRule.mockReturnValueOnce(false);
       mockGetRuleById.mockReturnValueOnce(undefined);
-      const res = await request(app).post('/api/automation-rules/nonexistent/enable');
+      const res = await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000099/enable');
       expect(res.status).toBe(404);
     });
   });
 
   describe('POST /api/automation-rules/:id/disable', () => {
     it('disables a rule', async () => {
-      const res = await request(app).post('/api/automation-rules/rule-1/disable');
+      const res = await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000001/disable');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -80,7 +80,7 @@ describe('Automation Rules Routes', () => {
       mockGetExecutionLog.mockReturnValue([
         { id: 'log-1', ruleId: 'rule-1', status: 'SUCCESS', executedAt: new Date().toISOString() },
       ]);
-      const res = await request(app).get('/api/automation-rules/rule-1/log');
+      const res = await request(app).get('/api/automation-rules/00000000-0000-0000-0000-000000000001/log');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

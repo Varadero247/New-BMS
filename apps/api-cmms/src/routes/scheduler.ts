@@ -3,10 +3,12 @@ import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-cmms');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);

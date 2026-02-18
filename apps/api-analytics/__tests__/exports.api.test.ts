@@ -44,7 +44,7 @@ beforeEach(() => {
 describe('GET /api/exports', () => {
   it('should return a list of exports with pagination', async () => {
     const exports = [
-      { id: 'exp-1', name: 'Safety Export', status: 'COMPLETED', format: 'CSV' },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Safety Export', status: 'COMPLETED', format: 'CSV' },
       { id: 'exp-2', name: 'Quality Export', status: 'QUEUED', format: 'EXCEL' },
     ];
     (prisma as any).analyticsExport.findMany.mockResolvedValue(exports);
@@ -121,18 +121,18 @@ describe('POST /api/exports', () => {
 // ===================================================================
 describe('GET /api/exports/:id', () => {
   it('should return an export by ID', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue({ id: 'exp-1', name: 'Test' });
+    (prisma as any).analyticsExport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
 
-    const res = await request(app).get('/api/exports/exp-1');
+    const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('exp-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent export', async () => {
     (prisma as any).analyticsExport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/exports/nonexistent');
+    const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -143,10 +143,10 @@ describe('GET /api/exports/:id', () => {
 // ===================================================================
 describe('DELETE /api/exports/:id', () => {
   it('should soft delete an export', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue({ id: 'exp-1' });
-    (prisma as any).analyticsExport.update.mockResolvedValue({ id: 'exp-1', deletedAt: new Date() });
+    (prisma as any).analyticsExport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsExport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/exports/exp-1');
+    const res = await request(app).delete('/api/exports/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Export deleted');
@@ -155,7 +155,7 @@ describe('DELETE /api/exports/:id', () => {
   it('should return 404 for non-existent export', async () => {
     (prisma as any).analyticsExport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/exports/nonexistent');
+    const res = await request(app).delete('/api/exports/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -167,10 +167,10 @@ describe('DELETE /api/exports/:id', () => {
 describe('GET /api/exports/:id/download', () => {
   it('should return download URL for completed export', async () => {
     (prisma as any).analyticsExport.findFirst.mockResolvedValue({
-      id: 'exp-1', name: 'Test Export', status: 'COMPLETED', format: 'CSV', fileUrl: 'https://storage.example.com/export.csv',
+      id: '00000000-0000-0000-0000-000000000001', name: 'Test Export', status: 'COMPLETED', format: 'CSV', fileUrl: 'https://storage.example.com/export.csv',
     });
 
-    const res = await request(app).get('/api/exports/exp-1/download');
+    const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000001/download');
 
     expect(res.status).toBe(200);
     expect(res.body.data.downloadUrl).toBe('https://storage.example.com/export.csv');
@@ -179,10 +179,10 @@ describe('GET /api/exports/:id/download', () => {
 
   it('should return 400 for non-completed export', async () => {
     (prisma as any).analyticsExport.findFirst.mockResolvedValue({
-      id: 'exp-1', status: 'QUEUED', format: 'CSV',
+      id: '00000000-0000-0000-0000-000000000001', status: 'QUEUED', format: 'CSV',
     });
 
-    const res = await request(app).get('/api/exports/exp-1/download');
+    const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000001/download');
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('NOT_READY');
@@ -191,17 +191,17 @@ describe('GET /api/exports/:id/download', () => {
   it('should return 404 for non-existent export', async () => {
     (prisma as any).analyticsExport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/exports/nonexistent/download');
+    const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000099/download');
 
     expect(res.status).toBe(404);
   });
 
   it('should return 404 when file URL missing', async () => {
     (prisma as any).analyticsExport.findFirst.mockResolvedValue({
-      id: 'exp-1', status: 'COMPLETED', format: 'CSV', fileUrl: null,
+      id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED', format: 'CSV', fileUrl: null,
     });
 
-    const res = await request(app).get('/api/exports/exp-1/download');
+    const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000001/download');
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NO_FILE');

@@ -51,7 +51,7 @@ app.use('/api/partners', partnersRouter);
 beforeEach(() => { jest.clearAllMocks(); });
 
 const mockPartner = {
-  id: 'partner-1',
+  id: '00000000-0000-0000-0000-000000000001',
   accountId: 'acc-1',
   tier: 'TIER_1_REFERRAL',
   status: 'ACTIVE',
@@ -303,17 +303,17 @@ describe('GET /api/partners/:id', () => {
   it('should return partner detail', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
 
-    const res = await request(app).get('/api/partners/partner-1');
+    const res = await request(app).get('/api/partners/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('partner-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/partners/nonexistent');
+    const res = await request(app).get('/api/partners/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -321,7 +321,7 @@ describe('GET /api/partners/:id', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).crmPartner.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/partners/partner-1');
+    const res = await request(app).get('/api/partners/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -340,7 +340,7 @@ describe('PUT /api/partners/:id/tier', () => {
       commissionRate: 32.5,
     });
 
-    const res = await request(app).put('/api/partners/partner-1/tier').send({
+    const res = await request(app).put('/api/partners/00000000-0000-0000-0000-000000000001/tier').send({
       tier: 'TIER_2_COSELL',
     });
 
@@ -359,7 +359,7 @@ describe('PUT /api/partners/:id/tier', () => {
   it('should return 400 for missing tier', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
 
-    const res = await request(app).put('/api/partners/partner-1/tier').send({});
+    const res = await request(app).put('/api/partners/00000000-0000-0000-0000-000000000001/tier').send({});
 
     expect(res.status).toBe(400);
   });
@@ -367,7 +367,7 @@ describe('PUT /api/partners/:id/tier', () => {
   it('should return 400 for invalid tier', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
 
-    const res = await request(app).put('/api/partners/partner-1/tier').send({
+    const res = await request(app).put('/api/partners/00000000-0000-0000-0000-000000000001/tier').send({
       tier: 'INVALID',
     });
 
@@ -377,7 +377,7 @@ describe('PUT /api/partners/:id/tier', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/partners/nonexistent/tier').send({
+    const res = await request(app).put('/api/partners/00000000-0000-0000-0000-000000000099/tier').send({
       tier: 'TIER_2_COSELL',
     });
 
@@ -393,11 +393,11 @@ describe('POST /api/partners/:id/referrals', () => {
   it('should log deal referral and create commission', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
     (prisma as any).crmDeal.findFirst.mockResolvedValue(mockDeal);
-    (prisma as any).crmReferral.create.mockResolvedValue({ id: 'ref-1', partnerId: 'partner-1', dealId: 'deal-1', commissionAmount: 2500 });
+    (prisma as any).crmReferral.create.mockResolvedValue({ id: 'ref-1', partnerId: '00000000-0000-0000-0000-000000000001', dealId: 'deal-1', commissionAmount: 2500 });
     (prisma as any).crmPartner.update.mockResolvedValue({});
     (prisma as any).crmCommission.create.mockResolvedValue({ id: 'comm-1' });
 
-    const res = await request(app).post('/api/partners/partner-1/referrals').send({
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000001/referrals').send({
       dealId: 'deal-1',
     });
 
@@ -414,7 +414,7 @@ describe('POST /api/partners/:id/referrals', () => {
   it('should return 400 for missing dealId', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
 
-    const res = await request(app).post('/api/partners/partner-1/referrals').send({});
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000001/referrals').send({});
 
     expect(res.status).toBe(400);
   });
@@ -422,7 +422,7 @@ describe('POST /api/partners/:id/referrals', () => {
   it('should return 404 when partner not found', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/partners/nonexistent/referrals').send({
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000099/referrals').send({
       dealId: 'deal-1',
     });
 
@@ -433,7 +433,7 @@ describe('POST /api/partners/:id/referrals', () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
     (prisma as any).crmDeal.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/partners/partner-1/referrals').send({
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000001/referrals').send({
       dealId: 'nonexistent',
     });
 
@@ -445,7 +445,7 @@ describe('POST /api/partners/:id/referrals', () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(mockDeal);
     (prisma as any).crmReferral.create.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/partners/partner-1/referrals').send({
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000001/referrals').send({
       dealId: 'deal-1',
     });
 
@@ -465,7 +465,7 @@ describe('GET /api/partners/:id/commissions', () => {
     ]);
     (prisma as any).crmCommission.count.mockResolvedValue(1);
 
-    const res = await request(app).get('/api/partners/partner-1/commissions');
+    const res = await request(app).get('/api/partners/00000000-0000-0000-0000-000000000001/commissions');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -478,7 +478,7 @@ describe('GET /api/partners/:id/commissions', () => {
     (prisma as any).crmCommission.findMany.mockResolvedValue([]);
     (prisma as any).crmCommission.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/partners/partner-1/commissions');
+    const res = await request(app).get('/api/partners/00000000-0000-0000-0000-000000000001/commissions');
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(0);
@@ -487,7 +487,7 @@ describe('GET /api/partners/:id/commissions', () => {
   it('should return 404 when partner not found', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/partners/nonexistent/commissions');
+    const res = await request(app).get('/api/partners/00000000-0000-0000-0000-000000000099/commissions');
 
     expect(res.status).toBe(404);
   });
@@ -504,7 +504,7 @@ describe('POST /api/partners/:id/commissions/pay', () => {
     (prisma as any).crmCommission.update.mockResolvedValue({});
     (prisma as any).crmPartner.update.mockResolvedValue({});
 
-    const res = await request(app).post('/api/partners/partner-1/commissions/pay').send({
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000001/commissions/pay').send({
       commissionIds: ['comm-1'],
     });
 
@@ -516,7 +516,7 @@ describe('POST /api/partners/:id/commissions/pay', () => {
   it('should return 400 for missing commissionIds', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
 
-    const res = await request(app).post('/api/partners/partner-1/commissions/pay').send({});
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000001/commissions/pay').send({});
 
     expect(res.status).toBe(400);
   });
@@ -524,7 +524,7 @@ describe('POST /api/partners/:id/commissions/pay', () => {
   it('should return 400 for empty commissionIds array', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
 
-    const res = await request(app).post('/api/partners/partner-1/commissions/pay').send({
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000001/commissions/pay').send({
       commissionIds: [],
     });
 
@@ -534,7 +534,7 @@ describe('POST /api/partners/:id/commissions/pay', () => {
   it('should return 404 when partner not found', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/partners/nonexistent/commissions/pay').send({
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000099/commissions/pay').send({
       commissionIds: ['comm-1'],
     });
 
@@ -545,7 +545,7 @@ describe('POST /api/partners/:id/commissions/pay', () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
     (prisma as any).crmCommission.findMany.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/partners/partner-1/commissions/pay').send({
+    const res = await request(app).post('/api/partners/00000000-0000-0000-0000-000000000001/commissions/pay').send({
       commissionIds: ['comm-1'],
     });
 

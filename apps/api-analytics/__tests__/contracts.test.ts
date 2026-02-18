@@ -37,7 +37,7 @@ beforeEach(() => {
 describe('GET /api/contracts', () => {
   it('lists contracts with pagination', async () => {
     (prisma.contract.findMany as jest.Mock).mockResolvedValue([
-      { id: 'c-1', name: 'HubSpot CRM', vendor: 'HubSpot', status: 'ACTIVE' },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'HubSpot CRM', vendor: 'HubSpot', status: 'ACTIVE' },
     ]);
     (prisma.contract.count as jest.Mock).mockResolvedValue(1);
 
@@ -88,10 +88,10 @@ describe('GET /api/contracts/seed', () => {
 describe('GET /api/contracts/:id', () => {
   it('returns a single contract', async () => {
     (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
-      id: 'c-1', name: 'AWS', vendor: 'Amazon', status: 'ACTIVE', deletedAt: null,
+      id: '00000000-0000-0000-0000-000000000001', name: 'AWS', vendor: 'Amazon', status: 'ACTIVE', deletedAt: null,
     });
 
-    const res = await request(app).get('/api/contracts/c-1');
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.data.contract.name).toBe('AWS');
   });
@@ -99,16 +99,16 @@ describe('GET /api/contracts/:id', () => {
   it('returns 404 for missing contract', async () => {
     (prisma.contract.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/contracts/nonexistent');
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 
   it('returns contract data with all fields', async () => {
     (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
-      id: 'c-1', name: 'AWS', vendor: 'Amazon', status: 'ACTIVE',
+      id: '00000000-0000-0000-0000-000000000001', name: 'AWS', vendor: 'Amazon', status: 'ACTIVE',
     });
 
-    const res = await request(app).get('/api/contracts/c-1');
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.data.contract.vendor).toBe('Amazon');
   });
@@ -134,10 +134,10 @@ describe('POST /api/contracts', () => {
 
 describe('PATCH /api/contracts/:id', () => {
   it('updates contract fields', async () => {
-    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: 'c-1', deletedAt: null });
-    (prisma.contract.update as jest.Mock).mockResolvedValue({ id: 'c-1', status: 'EXPIRING_SOON' });
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+    (prisma.contract.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'EXPIRING_SOON' });
 
-    const res = await request(app).patch('/api/contracts/c-1').send({ status: 'EXPIRING_SOON' });
+    const res = await request(app).patch('/api/contracts/00000000-0000-0000-0000-000000000001').send({ status: 'EXPIRING_SOON' });
     expect(res.status).toBe(200);
     expect(prisma.contract.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ status: 'EXPIRING_SOON' }) })
@@ -147,25 +147,25 @@ describe('PATCH /api/contracts/:id', () => {
   it('returns 404 for missing contract', async () => {
     (prisma.contract.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).patch('/api/contracts/nonexistent').send({ status: 'ACTIVE' });
+    const res = await request(app).patch('/api/contracts/00000000-0000-0000-0000-000000000099').send({ status: 'ACTIVE' });
     expect(res.status).toBe(404);
   });
 });
 
 describe('DELETE /api/contracts/:id', () => {
   it('hard-deletes a contract', async () => {
-    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: 'c-1', name: 'Old Contract' });
-    (prisma.contract.delete as jest.Mock).mockResolvedValue({ id: 'c-1' });
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Old Contract' });
+    (prisma.contract.delete as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).delete('/api/contracts/c-1');
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect((prisma.contract as any).delete).toHaveBeenCalledWith({ where: { id: 'c-1' } });
+    expect((prisma.contract as any).delete).toHaveBeenCalledWith({ where: { id: '00000000-0000-0000-0000-000000000001' } });
   });
 
   it('returns 404 for non-existent contract', async () => {
     (prisma.contract.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/contracts/nonexistent');
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -176,7 +176,7 @@ describe('Contract expiry job', () => {
       prisma: {
         contract: {
           findMany: jest.fn().mockResolvedValue([
-            { id: 'c-1', name: 'Expired', endDate: new Date('2020-01-01'), status: 'ACTIVE' },
+            { id: '00000000-0000-0000-0000-000000000001', name: 'Expired', endDate: new Date('2020-01-01'), status: 'ACTIVE' },
           ]),
           update: jest.fn().mockResolvedValue({}),
         },

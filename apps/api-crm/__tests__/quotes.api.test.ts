@@ -42,7 +42,7 @@ app.use('/api/quotes', quotesRouter);
 beforeEach(() => { jest.clearAllMocks(); });
 
 const mockQuote = {
-  id: 'quote-1',
+  id: '00000000-0000-0000-0000-000000000001',
   refNumber: 'QUO-2602-0001',
   title: 'Enterprise Proposal',
   dealId: 'deal-1',
@@ -289,18 +289,18 @@ describe('GET /api/quotes/:id', () => {
   it('should return quote with lines', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
 
-    const res = await request(app).get('/api/quotes/quote-1');
+    const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('quote-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     expect(res.body.data.lines).toHaveLength(1);
   });
 
   it('should return 404 when not found', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/quotes/nonexistent');
+    const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -309,7 +309,7 @@ describe('GET /api/quotes/:id', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).crmQuote.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/quotes/quote-1');
+    const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -324,7 +324,7 @@ describe('PUT /api/quotes/:id', () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
     (prisma as any).crmQuote.update.mockResolvedValue({ ...mockQuote, notes: 'Updated' });
 
-    const res = await request(app).put('/api/quotes/quote-1').send({ notes: 'Updated' });
+    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000001').send({ notes: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -333,7 +333,7 @@ describe('PUT /api/quotes/:id', () => {
   it('should return 400 when not in DRAFT status', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
 
-    const res = await request(app).put('/api/quotes/quote-1').send({ notes: 'Updated' });
+    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000001').send({ notes: 'Updated' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toContain('DRAFT');
@@ -342,7 +342,7 @@ describe('PUT /api/quotes/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/quotes/nonexistent').send({ notes: 'Updated' });
+    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000099').send({ notes: 'Updated' });
 
     expect(res.status).toBe(404);
   });
@@ -357,7 +357,7 @@ describe('PUT /api/quotes/:id', () => {
       lines: [{ description: 'New item', quantity: 5, unitPrice: 100 }],
     });
 
-    const res = await request(app).put('/api/quotes/quote-1').send({
+    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000001').send({
       lines: [{ description: 'New item', quantity: 5, unitPrice: 100, discount: 0, taxRate: 20 }],
     });
 
@@ -368,7 +368,7 @@ describe('PUT /api/quotes/:id', () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
     (prisma as any).crmQuote.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/quotes/quote-1').send({ notes: 'Test' });
+    const res = await request(app).put('/api/quotes/00000000-0000-0000-0000-000000000001').send({ notes: 'Test' });
 
     expect(res.status).toBe(500);
   });
@@ -383,7 +383,7 @@ describe('POST /api/quotes/:id/send', () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
     (prisma as any).crmQuote.update.mockResolvedValue({ ...mockQuote, status: 'SENT', sentAt: new Date() });
 
-    const res = await request(app).post('/api/quotes/quote-1/send');
+    const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/send');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -393,7 +393,7 @@ describe('POST /api/quotes/:id/send', () => {
   it('should return 400 when quote is not DRAFT', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
 
-    const res = await request(app).post('/api/quotes/quote-1/send');
+    const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/send');
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toContain('DRAFT');
@@ -402,7 +402,7 @@ describe('POST /api/quotes/:id/send', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/quotes/nonexistent/send');
+    const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000099/send');
 
     expect(res.status).toBe(404);
   });
@@ -411,7 +411,7 @@ describe('POST /api/quotes/:id/send', () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
     (prisma as any).crmQuote.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/quotes/quote-1/send');
+    const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/send');
 
     expect(res.status).toBe(500);
   });
@@ -430,7 +430,7 @@ describe('POST /api/quotes/:id/accept', () => {
       acceptedAt: new Date(),
     });
 
-    const res = await request(app).post('/api/quotes/quote-1/accept');
+    const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/accept');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -440,7 +440,7 @@ describe('POST /api/quotes/:id/accept', () => {
   it('should return 400 when quote is not SENT', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote); // DRAFT status
 
-    const res = await request(app).post('/api/quotes/quote-1/accept');
+    const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/accept');
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toContain('SENT');
@@ -449,7 +449,7 @@ describe('POST /api/quotes/:id/accept', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/quotes/nonexistent/accept');
+    const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000099/accept');
 
     expect(res.status).toBe(404);
   });
@@ -458,7 +458,7 @@ describe('POST /api/quotes/:id/accept', () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
     (prisma as any).crmQuote.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/quotes/quote-1/accept');
+    const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/accept');
 
     expect(res.status).toBe(500);
   });
@@ -472,7 +472,7 @@ describe('GET /api/quotes/:id/pdf', () => {
   it('should return a real PDF binary with correct headers', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, lines: [] });
 
-    const res = await request(app).get('/api/quotes/quote-1/pdf');
+    const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001/pdf');
 
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toMatch(/application\/pdf/);
@@ -485,7 +485,7 @@ describe('GET /api/quotes/:id/pdf', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/quotes/nonexistent/pdf');
+    const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000099/pdf');
 
     expect(res.status).toBe(404);
   });
@@ -493,7 +493,7 @@ describe('GET /api/quotes/:id/pdf', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).crmQuote.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/quotes/quote-1/pdf');
+    const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001/pdf');
 
     expect(res.status).toBe(500);
   });

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const createDataRequestSchema = z.object({
   type: z.enum(['ACCESS', 'RECTIFICATION', 'ERASURE', 'PORTABILITY', 'RESTRICTION', 'OBJECTION'], {
@@ -20,6 +21,7 @@ const updateDataRequestStatusSchema = z.object({
 const logger = createLogger('dsars');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
   RECEIVED: ['VERIFIED', 'REJECTED'],

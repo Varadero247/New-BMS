@@ -98,7 +98,7 @@ describe('Aerospace Configuration Management API Routes', () => {
   describe('GET /api/configuration/baselines', () => {
     const mockBaselines = [
       {
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         refNumber: 'CB-001',
         title: 'Functional Baseline',
         description: 'System-level functional baseline',
@@ -212,7 +212,7 @@ describe('Aerospace Configuration Management API Routes', () => {
 
   describe('GET /api/configuration/baselines/:id', () => {
     const mockBaseline = {
-      id: 'bl-001',
+      id: '00000000-0000-0000-0000-000000000001',
       refNumber: 'CB-001',
       title: 'Functional Baseline',
       description: 'System-level functional baseline',
@@ -228,12 +228,12 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce(mockBaseline);
 
       const response = await request(app)
-        .get('/api/configuration/baselines/bl-001')
+        .get('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('bl-001');
+      expect(response.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
       expect(response.body.data.items).toHaveLength(2);
     });
 
@@ -241,7 +241,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/configuration/baselines/nonexistent-id')
+        .get('/api/configuration/baselines/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -256,7 +256,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       });
 
       const response = await request(app)
-        .get('/api/configuration/baselines/bl-001')
+        .get('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -267,7 +267,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/configuration/baselines/bl-001')
+        .get('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -384,7 +384,7 @@ describe('Aerospace Configuration Management API Routes', () => {
 
   describe('PUT /api/configuration/baselines/:id', () => {
     const existingBaseline = {
-      id: 'bl-001',
+      id: '00000000-0000-0000-0000-000000000001',
       refNumber: 'CB-001',
       title: 'Functional Baseline',
       description: 'Original description',
@@ -403,7 +403,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/configuration/baselines/bl-001')
+        .put('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Functional Baseline', status: 'APPROVED' });
 
@@ -416,7 +416,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/configuration/baselines/nonexistent-id')
+        .put('/api/configuration/baselines/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -431,7 +431,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/configuration/baselines/bl-001')
+        .put('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -443,7 +443,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce(existingBaseline);
 
       const response = await request(app)
-        .put('/api/configuration/baselines/bl-001')
+        .put('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -455,7 +455,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/configuration/baselines/bl-001')
+        .put('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -467,18 +467,18 @@ describe('Aerospace Configuration Management API Routes', () => {
   describe('DELETE /api/configuration/baselines/:id', () => {
     it('should soft-delete a baseline and return 204', async () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.configBaseline.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
-        .delete('/api/configuration/baselines/bl-001')
+        .delete('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.configBaseline.update).toHaveBeenCalledWith({
-        where: { id: 'bl-001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: { deletedAt: expect.any(Date) },
       });
     });
@@ -487,7 +487,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/configuration/baselines/nonexistent-id')
+        .delete('/api/configuration/baselines/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -496,12 +496,12 @@ describe('Aerospace Configuration Management API Routes', () => {
 
     it('should return 404 when baseline is already soft-deleted', async () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: new Date(),
       });
 
       const response = await request(app)
-        .delete('/api/configuration/baselines/bl-001')
+        .delete('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -512,7 +512,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/configuration/baselines/bl-001')
+        .delete('/api/configuration/baselines/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -538,7 +538,7 @@ describe('Aerospace Configuration Management API Routes', () => {
 
     it('should create a configuration item successfully', async () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.configItem.create as jest.Mock).mockResolvedValueOnce({
@@ -572,7 +572,7 @@ describe('Aerospace Configuration Management API Routes', () => {
 
     it('should return 404 when referenced baseline is soft-deleted', async () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: new Date(),
       });
 
@@ -613,7 +613,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       delete (payloadNoStatus as any).status;
 
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.configItem.create as jest.Mock).mockResolvedValueOnce({
@@ -636,7 +636,7 @@ describe('Aerospace Configuration Management API Routes', () => {
 
     it('should handle database errors gracefully', async () => {
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.configItem.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
@@ -653,7 +653,7 @@ describe('Aerospace Configuration Management API Routes', () => {
 
   describe('PUT /api/configuration/items/:id', () => {
     const existingItem = {
-      id: 'item-001',
+      id: '00000000-0000-0000-0000-000000000001',
       partNumber: 'PN-12345',
       nomenclature: 'Landing Gear Strut',
       revision: 'A',
@@ -670,7 +670,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/configuration/items/item-001')
+        .put('/api/configuration/items/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ revision: 'B', status: 'PENDING_CHANGE' });
 
@@ -696,7 +696,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configItem.findUnique as jest.Mock).mockResolvedValueOnce(existingItem);
 
       const response = await request(app)
-        .put('/api/configuration/items/item-001')
+        .put('/api/configuration/items/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'BOGUS_STATUS' });
 
@@ -708,7 +708,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.configItem.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/configuration/items/item-001')
+        .put('/api/configuration/items/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ revision: 'C' });
 
@@ -827,7 +827,7 @@ describe('Aerospace Configuration Management API Routes', () => {
   describe('GET /api/configuration/changes', () => {
     const mockECPs = [
       {
-        id: 'ecp-001',
+        id: '00000000-0000-0000-0000-000000000001',
         refNumber: 'ECP-2602-0001',
         title: 'Actuator Redesign',
         status: 'PROPOSED',
@@ -908,7 +908,7 @@ describe('Aerospace Configuration Management API Routes', () => {
 
   describe('PUT /api/configuration/changes/:id/approve', () => {
     const existingECP = {
-      id: 'ecp-001',
+      id: '00000000-0000-0000-0000-000000000001',
       refNumber: 'ECP-2602-0001',
       title: 'Actuator Redesign',
       status: 'PROPOSED',
@@ -926,7 +926,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/configuration/changes/ecp-001/approve')
+        .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({
           ccbDecision: 'APPROVE',
@@ -937,7 +937,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(mockPrisma.engineeringChangeProposal.update).toHaveBeenCalledWith({
-        where: { id: 'ecp-001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           status: 'CCB_APPROVED',
           ccbDecision: 'APPROVE',
@@ -954,7 +954,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       });
 
       await request(app)
-        .put('/api/configuration/changes/ecp-001/approve')
+        .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({
           ccbDecision: 'REJECT',
@@ -963,7 +963,7 @@ describe('Aerospace Configuration Management API Routes', () => {
         });
 
       expect(mockPrisma.engineeringChangeProposal.update).toHaveBeenCalledWith({
-        where: { id: 'ecp-001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           status: 'CCB_REJECTED',
         }),
@@ -979,7 +979,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       });
 
       await request(app)
-        .put('/api/configuration/changes/ecp-001/approve')
+        .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({
           ccbDecision: 'DEFER',
@@ -988,7 +988,7 @@ describe('Aerospace Configuration Management API Routes', () => {
         });
 
       expect(mockPrisma.engineeringChangeProposal.update).toHaveBeenCalledWith({
-        where: { id: 'ecp-001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           status: 'UNDER_REVIEW',
         }),
@@ -1004,7 +1004,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       });
 
       await request(app)
-        .put('/api/configuration/changes/ecp-001/approve')
+        .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({
           ccbDecision: 'APPROVE_WITH_CONDITIONS',
@@ -1013,7 +1013,7 @@ describe('Aerospace Configuration Management API Routes', () => {
         });
 
       expect(mockPrisma.engineeringChangeProposal.update).toHaveBeenCalledWith({
-        where: { id: 'ecp-001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           status: 'CCB_APPROVED',
         }),
@@ -1039,7 +1039,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(existingECP);
 
       const response = await request(app)
-        .put('/api/configuration/changes/ecp-001/approve')
+        .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({
           ccbDecision: 'APPROVE',
@@ -1054,7 +1054,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockResolvedValueOnce(existingECP);
 
       const response = await request(app)
-        .put('/api/configuration/changes/ecp-001/approve')
+        .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({
           ccbDecision: 'MAYBE',
@@ -1069,7 +1069,7 @@ describe('Aerospace Configuration Management API Routes', () => {
       (mockPrisma.engineeringChangeProposal.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/configuration/changes/ecp-001/approve')
+        .put('/api/configuration/changes/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token')
         .send({
           ccbDecision: 'APPROVE',
@@ -1097,7 +1097,7 @@ describe('Aerospace Configuration Management API Routes', () => {
     it('should create an FCA successfully', async () => {
       (mockPrisma.configAudit.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.configAudit.create as jest.Mock).mockResolvedValueOnce({
@@ -1161,7 +1161,7 @@ describe('Aerospace Configuration Management API Routes', () => {
     it('should handle database errors gracefully', async () => {
       (mockPrisma.configAudit.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'bl-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.configAudit.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));

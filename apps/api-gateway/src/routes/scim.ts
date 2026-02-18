@@ -4,9 +4,9 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { type AuthRequest } from '@ims/auth';
 
-
 const logger = createLogger('api-gateway:scim');
 const router = Router();
+// SCIM uses external IdP-assigned IDs (arbitrary strings, not UUIDs) — no UUID validation
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 

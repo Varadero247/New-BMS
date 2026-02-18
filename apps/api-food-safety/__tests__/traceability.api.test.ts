@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/traceability', () => {
   it('should return traceability records with pagination', async () => {
-    (prisma as any).fsTraceability.findMany.mockResolvedValue([{ id: 't-1', productName: 'Product A' }]);
+    (prisma as any).fsTraceability.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', productName: 'Product A' }]);
     (prisma as any).fsTraceability.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/traceability');
@@ -81,7 +81,7 @@ describe('GET /api/traceability', () => {
 
 describe('POST /api/traceability', () => {
   it('should create a traceability record', async () => {
-    const created = { id: 't-1', productName: 'Product A', batchNumber: 'B001' };
+    const created = { id: '00000000-0000-0000-0000-000000000001', productName: 'Product A', batchNumber: 'B001' };
     (prisma as any).fsTraceability.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/traceability').send({
@@ -110,27 +110,27 @@ describe('POST /api/traceability', () => {
 
 describe('GET /api/traceability/:id', () => {
   it('should return a traceability record by id', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue({ id: 't-1' });
+    (prisma as any).fsTraceability.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).get('/api/traceability/t-1');
+    const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('t-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsTraceability.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/traceability/non-existent');
+    const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('PUT /api/traceability/:id', () => {
   it('should update a traceability record', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue({ id: 't-1' });
-    (prisma as any).fsTraceability.update.mockResolvedValue({ id: 't-1', status: 'DISTRIBUTED' });
+    (prisma as any).fsTraceability.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsTraceability.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'DISTRIBUTED' });
 
-    const res = await request(app).put('/api/traceability/t-1').send({ status: 'DISTRIBUTED' });
+    const res = await request(app).put('/api/traceability/00000000-0000-0000-0000-000000000001').send({ status: 'DISTRIBUTED' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -138,17 +138,17 @@ describe('PUT /api/traceability/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsTraceability.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/traceability/non-existent').send({ status: 'DISTRIBUTED' });
+    const res = await request(app).put('/api/traceability/00000000-0000-0000-0000-000000000099').send({ status: 'DISTRIBUTED' });
     expect(res.status).toBe(404);
   });
 });
 
 describe('DELETE /api/traceability/:id', () => {
   it('should soft delete a traceability record', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue({ id: 't-1' });
-    (prisma as any).fsTraceability.update.mockResolvedValue({ id: 't-1' });
+    (prisma as any).fsTraceability.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsTraceability.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).delete('/api/traceability/t-1');
+    const res = await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -156,14 +156,14 @@ describe('DELETE /api/traceability/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsTraceability.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/traceability/non-existent');
+    const res = await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('GET /api/traceability/batch/:batchNumber', () => {
   it('should return a traceability record by batch number', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue({ id: 't-1', batchNumber: 'B001' });
+    (prisma as any).fsTraceability.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', batchNumber: 'B001' });
 
     const res = await request(app).get('/api/traceability/batch/B001');
     expect(res.status).toBe(200);
@@ -173,7 +173,7 @@ describe('GET /api/traceability/batch/:batchNumber', () => {
   it('should return 404 for non-existent batch', async () => {
     (prisma as any).fsTraceability.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/traceability/batch/NONEXISTENT');
+    const res = await request(app).get('/api/traceability/batch/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 

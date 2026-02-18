@@ -57,7 +57,7 @@ describe('POST /api/template-generator', () => {
   it('should generate a quality procedure template from prompt', async () => {
     mockCount.mockResolvedValue(0);
     mockCreate.mockResolvedValue({
-      id: 'tpl-1',
+      id: '00000000-0000-0000-0000-000000000001',
       docNumber: 'PRO-100',
       title: 'Quality Inspection Procedure',
       category: 'PROCEDURE',
@@ -296,7 +296,7 @@ describe('POST /api/template-generator', () => {
 describe('GET /api/template-generator', () => {
   it('should list generated templates', async () => {
     mockFindMany.mockResolvedValue([
-      { id: 'tpl-1', docNumber: 'PRO-100', title: 'Test', category: 'PROCEDURE' },
+      { id: '00000000-0000-0000-0000-000000000001', docNumber: 'PRO-100', title: 'Test', category: 'PROCEDURE' },
     ]);
     mockCount.mockResolvedValue(1);
 
@@ -326,13 +326,13 @@ describe('GET /api/template-generator', () => {
 describe('GET /api/template-generator/:id', () => {
   it('should return a specific template with parsed configJson', async () => {
     mockFindUnique.mockResolvedValue({
-      id: 'tpl-1',
+      id: '00000000-0000-0000-0000-000000000001',
       docNumber: 'PRO-100',
       title: 'Test',
       configJson: JSON.stringify({ sections: [] }),
     });
 
-    const res = await request(app).get('/api/template-generator/tpl-1');
+    const res = await request(app).get('/api/template-generator/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.configJson.sections).toBeDefined();
@@ -341,7 +341,7 @@ describe('GET /api/template-generator/:id', () => {
   it('should return 404 for unknown template', async () => {
     mockFindUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/template-generator/unknown');
+    const res = await request(app).get('/api/template-generator/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -349,9 +349,9 @@ describe('GET /api/template-generator/:id', () => {
 
 describe('DELETE /api/template-generator/:id', () => {
   it('should delete a template', async () => {
-    mockUpdate.mockResolvedValue({ id: 'tpl-1' });
+    mockUpdate.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).delete('/api/template-generator/tpl-1');
+    const res = await request(app).delete('/api/template-generator/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Template deleted');

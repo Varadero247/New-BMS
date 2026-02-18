@@ -15,8 +15,8 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('POST /api/approval/:id/approve', () => {
   it('should approve a supplier', async () => {
-    (prisma as any).suppSupplier.update.mockResolvedValue({ id: '1', status: 'APPROVED' });
-    const res = await request(app).post('/api/approval/1/approve');
+    (prisma as any).suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.status).toBe('APPROVED');
@@ -24,7 +24,7 @@ describe('POST /api/approval/:id/approve', () => {
 
   it('should return 500 on error when approving', async () => {
     (prisma as any).suppSupplier.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).post('/api/approval/1/approve');
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -33,8 +33,8 @@ describe('POST /api/approval/:id/approve', () => {
 
 describe('POST /api/approval/:id/suspend', () => {
   it('should suspend a supplier', async () => {
-    (prisma as any).suppSupplier.update.mockResolvedValue({ id: '1', status: 'SUSPENDED' });
-    const res = await request(app).post('/api/approval/1/suspend');
+    (prisma as any).suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SUSPENDED' });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/suspend');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.status).toBe('SUSPENDED');
@@ -42,7 +42,7 @@ describe('POST /api/approval/:id/suspend', () => {
 
   it('should return 500 on error when suspending', async () => {
     (prisma as any).suppSupplier.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).post('/api/approval/1/suspend');
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/suspend');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

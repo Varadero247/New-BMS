@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/obligations', () => {
   it('should return list of obligations with pagination', async () => {
-    (prisma as any).regObligation.findMany.mockResolvedValue([{ id: '1', title: 'Annual Report' }]);
+    (prisma as any).regObligation.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Annual Report' }]);
     (prisma as any).regObligation.count.mockResolvedValue(1);
     const res = await request(app).get('/api/obligations');
     expect(res.status).toBe(200);
@@ -33,7 +33,7 @@ describe('GET /api/obligations', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).regObligation.findMany.mockResolvedValue([{ id: '1', title: 'Emissions Report' }]);
+    (prisma as any).regObligation.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Emissions Report' }]);
     (prisma as any).regObligation.count.mockResolvedValue(1);
     const res = await request(app).get('/api/obligations?search=Emissions');
     expect(res.status).toBe(200);
@@ -61,16 +61,16 @@ describe('GET /api/obligations', () => {
 
 describe('GET /api/obligations/:id', () => {
   it('should return an obligation by id', async () => {
-    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '1', title: 'Annual Report' });
-    const res = await request(app).get('/api/obligations/1');
+    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Annual Report' });
+    const res = await request(app).get('/api/obligations/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 if obligation not found', async () => {
     (prisma as any).regObligation.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/obligations/nonexistent');
+    const res = await request(app).get('/api/obligations/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -78,7 +78,7 @@ describe('GET /api/obligations/:id', () => {
 
   it('should return 500 on database error', async () => {
     (prisma as any).regObligation.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/obligations/1');
+    const res = await request(app).get('/api/obligations/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
@@ -87,7 +87,7 @@ describe('GET /api/obligations/:id', () => {
 describe('POST /api/obligations', () => {
   it('should create a new obligation', async () => {
     (prisma as any).regObligation.count.mockResolvedValue(0);
-    (prisma as any).regObligation.create.mockResolvedValue({ id: '1', title: 'Annual Report', referenceNumber: 'ROB-2026-0001' });
+    (prisma as any).regObligation.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Annual Report', referenceNumber: 'ROB-2026-0001' });
     const res = await request(app).post('/api/obligations').send({ title: 'Annual Report' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -131,34 +131,34 @@ describe('POST /api/obligations', () => {
 
 describe('PUT /api/obligations/:id', () => {
   it('should update an existing obligation', async () => {
-    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '1', title: 'Old Title' });
-    (prisma as any).regObligation.update.mockResolvedValue({ id: '1', title: 'Updated Title' });
-    const res = await request(app).put('/api/obligations/1').send({ title: 'Updated Title' });
+    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old Title' });
+    (prisma as any).regObligation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated Title' });
+    const res = await request(app).put('/api/obligations/00000000-0000-0000-0000-000000000001').send({ title: 'Updated Title' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.title).toBe('Updated Title');
   });
 
   it('should update status field', async () => {
-    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '1', status: 'PENDING' });
-    (prisma as any).regObligation.update.mockResolvedValue({ id: '1', status: 'COMPLETE' });
-    const res = await request(app).put('/api/obligations/1').send({ status: 'COMPLETE' });
+    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PENDING' });
+    (prisma as any).regObligation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETE' });
+    const res = await request(app).put('/api/obligations/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETE' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 if obligation not found for update', async () => {
     (prisma as any).regObligation.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/obligations/nonexistent').send({ title: 'New' });
+    const res = await request(app).put('/api/obligations/00000000-0000-0000-0000-000000000099').send({ title: 'New' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).regObligation.update.mockRejectedValue(new Error('Update failed'));
-    const res = await request(app).put('/api/obligations/1').send({ title: 'Updated' });
+    const res = await request(app).put('/api/obligations/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -167,9 +167,9 @@ describe('PUT /api/obligations/:id', () => {
 
 describe('DELETE /api/obligations/:id', () => {
   it('should soft delete an obligation', async () => {
-    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '1', title: 'Annual Report' });
-    (prisma as any).regObligation.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/obligations/1');
+    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Annual Report' });
+    (prisma as any).regObligation.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/obligations/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toContain('deleted successfully');
@@ -177,16 +177,16 @@ describe('DELETE /api/obligations/:id', () => {
 
   it('should return 404 if obligation not found for delete', async () => {
     (prisma as any).regObligation.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/obligations/nonexistent');
+    const res = await request(app).delete('/api/obligations/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).regObligation.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).regObligation.update.mockRejectedValue(new Error('Delete failed'));
-    const res = await request(app).delete('/api/obligations/1');
+    const res = await request(app).delete('/api/obligations/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

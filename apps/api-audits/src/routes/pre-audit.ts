@@ -2,9 +2,11 @@ import { Router, Request, Response } from 'express';
 import { authenticate } from '@ims/auth';
 import { prisma } from '../prisma';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-audits');
 
 const router = Router();
+router.param('id', validateIdParam());
 
 // ---------------------------------------------------------------------------
 // Data-driven recommendation generator

@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/competencies', () => {
   it('should return competencies', async () => {
-    (prisma as any).trainCompetency.findMany.mockResolvedValue([{ id: '1', name: 'Safety Awareness' }]);
+    (prisma as any).trainCompetency.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', name: 'Safety Awareness' }]);
     (prisma as any).trainCompetency.count.mockResolvedValue(1);
     const res = await request(app).get('/api/competencies');
     expect(res.status).toBe(200);
@@ -44,23 +44,23 @@ describe('GET /api/competencies', () => {
 
 describe('GET /api/competencies/:id', () => {
   it('should return competency by id', async () => {
-    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '1', name: 'Safety Awareness' });
-    const res = await request(app).get('/api/competencies/1');
+    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Safety Awareness' });
+    const res = await request(app).get('/api/competencies/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).trainCompetency.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/competencies/nope');
+    const res = await request(app).get('/api/competencies/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on error', async () => {
     (prisma as any).trainCompetency.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/competencies/1');
+    const res = await request(app).get('/api/competencies/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
@@ -69,7 +69,7 @@ describe('GET /api/competencies/:id', () => {
 describe('POST /api/competencies', () => {
   it('should create a competency', async () => {
     (prisma as any).trainCompetency.count.mockResolvedValue(0);
-    (prisma as any).trainCompetency.create.mockResolvedValue({ id: '1', name: 'New Competency' });
+    (prisma as any).trainCompetency.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'New Competency' });
     const res = await request(app).post('/api/competencies').send({ name: 'New Competency' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -114,30 +114,30 @@ describe('POST /api/competencies', () => {
 
 describe('PUT /api/competencies/:id', () => {
   it('should update a competency', async () => {
-    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '1', name: 'Old' });
-    (prisma as any).trainCompetency.update.mockResolvedValue({ id: '1', name: 'Updated' });
-    const res = await request(app).put('/api/competencies/1').send({ name: 'Updated' });
+    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Old' });
+    (prisma as any).trainCompetency.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    const res = await request(app).put('/api/competencies/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).trainCompetency.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/competencies/nope').send({ name: 'Updated' });
+    const res = await request(app).put('/api/competencies/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 400 on invalid requiredLevel', async () => {
-    const res = await request(app).put('/api/competencies/1').send({ requiredLevel: 'INVALID' });
+    const res = await request(app).put('/api/competencies/00000000-0000-0000-0000-000000000001').send({ requiredLevel: 'INVALID' });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).trainCompetency.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).put('/api/competencies/1').send({ name: 'Updated' });
+    const res = await request(app).put('/api/competencies/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
@@ -145,9 +145,9 @@ describe('PUT /api/competencies/:id', () => {
 
 describe('DELETE /api/competencies/:id', () => {
   it('should soft delete a competency', async () => {
-    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).trainCompetency.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/competencies/1');
+    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).trainCompetency.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/competencies/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toContain('deleted');
@@ -155,15 +155,15 @@ describe('DELETE /api/competencies/:id', () => {
 
   it('should return 404 if not found', async () => {
     (prisma as any).trainCompetency.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/competencies/nope');
+    const res = await request(app).delete('/api/competencies/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).trainCompetency.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).trainCompetency.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).delete('/api/competencies/1');
+    const res = await request(app).delete('/api/competencies/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });

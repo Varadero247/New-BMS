@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 const mockSocial = {
-  id: 'soc-1',
+  id: '00000000-0000-0000-0000-000000000001',
   category: 'DIVERSITY',
   metric: 'Gender Diversity Ratio',
   value: 0.45,
@@ -134,15 +134,15 @@ describe('GET /api/social/:id', () => {
   it('should return a single social metric', async () => {
     (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(mockSocial);
 
-    const res = await request(app).get('/api/social/soc-1');
+    const res = await request(app).get('/api/social/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('soc-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/social/nonexistent');
+    const res = await request(app).get('/api/social/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -152,7 +152,7 @@ describe('PUT /api/social/:id', () => {
     (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(mockSocial);
     (prisma.esgSocialMetric.update as jest.Mock).mockResolvedValue({ ...mockSocial, value: 0.5 });
 
-    const res = await request(app).put('/api/social/soc-1').send({ value: 0.5 });
+    const res = await request(app).put('/api/social/00000000-0000-0000-0000-000000000001').send({ value: 0.5 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -160,12 +160,12 @@ describe('PUT /api/social/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/social/nonexistent').send({ value: 0.5 });
+    const res = await request(app).put('/api/social/00000000-0000-0000-0000-000000000099').send({ value: 0.5 });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/social/soc-1').send({ category: 'INVALID' });
+    const res = await request(app).put('/api/social/00000000-0000-0000-0000-000000000001').send({ category: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -175,7 +175,7 @@ describe('DELETE /api/social/:id', () => {
     (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(mockSocial);
     (prisma.esgSocialMetric.update as jest.Mock).mockResolvedValue({ ...mockSocial, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/social/soc-1');
+    const res = await request(app).delete('/api/social/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -183,7 +183,7 @@ describe('DELETE /api/social/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgSocialMetric.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/social/nonexistent');
+    const res = await request(app).delete('/api/social/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

@@ -146,7 +146,7 @@ describe('GET /api/meters/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/meters/nonexistent');
+    const res = await request(app).get('/api/meters/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -166,7 +166,7 @@ describe('PUT /api/meters/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/meters/nonexistent').send({ name: 'X' });
+    const res = await request(app).put('/api/meters/00000000-0000-0000-0000-000000000099').send({ name: 'X' });
 
     expect(res.status).toBe(404);
   });
@@ -186,7 +186,7 @@ describe('DELETE /api/meters/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/meters/nonexistent');
+    const res = await request(app).delete('/api/meters/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -207,7 +207,7 @@ describe('GET /api/meters/:id/readings', () => {
   it('should return 404 if meter not found', async () => {
     (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/meters/nonexistent/readings');
+    const res = await request(app).get('/api/meters/00000000-0000-0000-0000-000000000099/readings');
 
     expect(res.status).toBe(404);
   });

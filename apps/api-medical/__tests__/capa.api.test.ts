@@ -56,7 +56,7 @@ beforeEach(() => {
 
 describe('Medical CAPA API Routes', () => {
   const mockCapa = {
-    id: 'capa-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     refNumber: 'CAPA-2601-0001',
     title: 'Fix device failure',
     capaType: 'CORRECTIVE',
@@ -150,17 +150,17 @@ describe('Medical CAPA API Routes', () => {
     it('should return a single CAPA', async () => {
       mockPrisma.medCapa.findUnique.mockResolvedValue(mockCapa);
 
-      const res = await request(app).get('/api/capa/capa-uuid-1');
+      const res = await request(app).get('/api/capa/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('capa-uuid-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when CAPA not found', async () => {
       mockPrisma.medCapa.findUnique.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/capa/nonexistent');
+      const res = await request(app).get('/api/capa/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -170,7 +170,7 @@ describe('Medical CAPA API Routes', () => {
     it('should return 404 when CAPA is soft-deleted', async () => {
       mockPrisma.medCapa.findUnique.mockResolvedValue({ ...mockCapa, deletedAt: new Date() });
 
-      const res = await request(app).get('/api/capa/capa-uuid-1');
+      const res = await request(app).get('/api/capa/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -179,7 +179,7 @@ describe('Medical CAPA API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.medCapa.findUnique.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/capa/capa-uuid-1');
+      const res = await request(app).get('/api/capa/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -241,7 +241,7 @@ describe('Medical CAPA API Routes', () => {
       mockPrisma.medCapa.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/capa/capa-uuid-1')
+        .put('/api/capa/00000000-0000-0000-0000-000000000001')
         .send({ status: 'INVESTIGATION' });
 
       expect(res.status).toBe(200);
@@ -253,7 +253,7 @@ describe('Medical CAPA API Routes', () => {
       mockPrisma.medCapa.findUnique.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/capa/nonexistent')
+        .put('/api/capa/00000000-0000-0000-0000-000000000099')
         .send({ status: 'CLOSED' });
 
       expect(res.status).toBe(404);
@@ -264,7 +264,7 @@ describe('Medical CAPA API Routes', () => {
       mockPrisma.medCapa.findUnique.mockResolvedValue(mockCapa);
 
       const res = await request(app)
-        .put('/api/capa/capa-uuid-1')
+        .put('/api/capa/00000000-0000-0000-0000-000000000001')
         .send({ status: 'INVALID_STATUS' });
 
       expect(res.status).toBe(400);
@@ -276,7 +276,7 @@ describe('Medical CAPA API Routes', () => {
       mockPrisma.medCapa.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/capa/capa-uuid-1')
+        .put('/api/capa/00000000-0000-0000-0000-000000000001')
         .send({ title: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -289,7 +289,7 @@ describe('Medical CAPA API Routes', () => {
       mockPrisma.medCapa.findUnique.mockResolvedValue(mockCapa);
       mockPrisma.medCapa.update.mockResolvedValue({ ...mockCapa, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/capa/capa-uuid-1');
+      const res = await request(app).delete('/api/capa/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(204);
     });
@@ -297,7 +297,7 @@ describe('Medical CAPA API Routes', () => {
     it('should return 404 when CAPA not found', async () => {
       mockPrisma.medCapa.findUnique.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/capa/nonexistent');
+      const res = await request(app).delete('/api/capa/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -307,7 +307,7 @@ describe('Medical CAPA API Routes', () => {
       mockPrisma.medCapa.findUnique.mockResolvedValue(mockCapa);
       mockPrisma.medCapa.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/capa/capa-uuid-1');
+      const res = await request(app).delete('/api/capa/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);

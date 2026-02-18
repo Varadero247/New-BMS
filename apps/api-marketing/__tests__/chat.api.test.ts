@@ -97,7 +97,7 @@ describe('POST /api/chat/message', () => {
   it('returns 400 for missing message', async () => {
     const res = await request(app)
       .post('/api/chat/message')
-      .send({ sessionId: 'session-1' });
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001' });
 
     expect(res.status).toBe(400);
   });
@@ -107,7 +107,7 @@ describe('POST /api/chat/message', () => {
 
     const res = await request(app)
       .post('/api/chat/message')
-      .send({ sessionId: 'nonexistent', message: 'hello' });
+      .send({ sessionId: '00000000-0000-0000-0000-000000000099', message: 'hello' });
 
     expect(res.status).toBe(404);
   });
@@ -119,7 +119,7 @@ describe('POST /api/chat/message', () => {
 
     const res = await request(app)
       .post('/api/chat/message')
-      .send({ sessionId: 'session-1', message: 'I need ISO 9001 help' });
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'I need ISO 9001 help' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -139,7 +139,7 @@ describe('POST /api/chat/message', () => {
 
     const res = await request(app)
       .post('/api/chat/message')
-      .send({ sessionId: 'session-1', message: 'hello' });
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'hello' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('AI response');
@@ -161,7 +161,7 @@ describe('POST /api/chat/message', () => {
 
     const res = await request(app)
       .post('/api/chat/message')
-      .send({ sessionId: 'session-1', message: 'my email is jane@test.com' });
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'my email is jane@test.com' });
 
     expect(res.body.data.captured).toBe(true);
     expect(res.body.data.message).not.toContain('CAPTURE:');
@@ -183,7 +183,7 @@ describe('POST /api/chat/message', () => {
 
     const res = await request(app)
       .post('/api/chat/message')
-      .send({ sessionId: 'session-1', message: 'test' });
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'test' });
 
     expect(res.body.data.message).not.toContain('CAPTURE');
     delete process.env.ANTHROPIC_API_KEY;
@@ -192,7 +192,7 @@ describe('POST /api/chat/message', () => {
   it('rejects messages over 2000 characters', async () => {
     const res = await request(app)
       .post('/api/chat/message')
-      .send({ sessionId: 'session-1', message: 'a'.repeat(2001) });
+      .send({ sessionId: '00000000-0000-0000-0000-000000000001', message: 'a'.repeat(2001) });
 
     expect(res.status).toBe(400);
   });
@@ -207,7 +207,7 @@ describe('GET /api/chat/session/:id', () => {
     const session = { ...mockSession, messages: JSON.stringify([{ role: 'assistant', content: 'Hi' }]) };
     (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(session);
 
-    const res = await request(app).get('/api/chat/session/session-1');
+    const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.messages).toEqual([{ role: 'assistant', content: 'Hi' }]);
@@ -216,7 +216,7 @@ describe('GET /api/chat/session/:id', () => {
   it('returns 404 for non-existent session', async () => {
     (prisma.mktChatSession.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/chat/session/nonexistent');
+    const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

@@ -28,7 +28,7 @@ app.use(express.json());
 app.use('/api/requests', requestsRouter);
 
 const mockRequest = {
-  id: 'req-1',
+  id: '00000000-0000-0000-0000-000000000001',
   number: 'MR-2602-1234',
   title: 'Fix leaking pipe',
   description: 'Water leaking from pipe in room 201',
@@ -127,15 +127,15 @@ describe('Requests Routes', () => {
     it('should return a request by ID', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
 
-      const res = await request(app).get('/api/requests/req-1');
+      const res = await request(app).get('/api/requests/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('req-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent request', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/requests/non-existent');
+      const res = await request(app).get('/api/requests/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -145,14 +145,14 @@ describe('Requests Routes', () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
       prisma.cmmsRequest.update.mockResolvedValue({ ...mockRequest, title: 'Updated' });
 
-      const res = await request(app).put('/api/requests/req-1').send({ title: 'Updated' });
+      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent request', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/requests/non-existent').send({ title: 'Updated' });
+      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -163,7 +163,7 @@ describe('Requests Routes', () => {
       prisma.cmmsWorkOrder.create.mockResolvedValue({ id: 'wo-new', number: 'WO-2602-9999' });
       prisma.cmmsRequest.update.mockResolvedValue({ ...mockRequest, status: 'APPROVED', workOrderId: 'wo-new' });
 
-      const res = await request(app).put('/api/requests/req-1/approve');
+      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001/approve');
       expect(res.status).toBe(200);
       expect(res.body.data.request).toBeDefined();
       expect(res.body.data.workOrder).toBeDefined();
@@ -172,14 +172,14 @@ describe('Requests Routes', () => {
     it('should return 400 for non-NEW request', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue({ ...mockRequest, status: 'APPROVED' });
 
-      const res = await request(app).put('/api/requests/req-1/approve');
+      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001/approve');
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent request', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/requests/non-existent/approve');
+      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000099/approve');
       expect(res.status).toBe(404);
     });
 
@@ -187,7 +187,7 @@ describe('Requests Routes', () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
       prisma.cmmsWorkOrder.create.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).put('/api/requests/req-1/approve');
+      const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001/approve');
       expect(res.status).toBe(500);
     });
   });
@@ -197,7 +197,7 @@ describe('Requests Routes', () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(mockRequest);
       prisma.cmmsRequest.update.mockResolvedValue({ ...mockRequest, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/requests/req-1');
+      const res = await request(app).delete('/api/requests/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -205,7 +205,7 @@ describe('Requests Routes', () => {
     it('should return 404 for non-existent request', async () => {
       prisma.cmmsRequest.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/requests/non-existent');
+      const res = await request(app).delete('/api/requests/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

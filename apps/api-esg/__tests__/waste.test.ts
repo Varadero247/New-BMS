@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 const mockWaste = {
-  id: 'wst-1',
+  id: '00000000-0000-0000-0000-000000000001',
   wasteType: 'HAZARDOUS',
   quantity: 500,
   unit: 'kg',
@@ -136,15 +136,15 @@ describe('GET /api/waste/:id', () => {
   it('should return a single waste record', async () => {
     (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
 
-    const res = await request(app).get('/api/waste/wst-1');
+    const res = await request(app).get('/api/waste/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('wst-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/waste/nonexistent');
+    const res = await request(app).get('/api/waste/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -154,7 +154,7 @@ describe('PUT /api/waste/:id', () => {
     (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
     (prisma.esgWaste.update as jest.Mock).mockResolvedValue({ ...mockWaste, quantity: 600 });
 
-    const res = await request(app).put('/api/waste/wst-1').send({ quantity: 600 });
+    const res = await request(app).put('/api/waste/00000000-0000-0000-0000-000000000001').send({ quantity: 600 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -162,12 +162,12 @@ describe('PUT /api/waste/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/waste/nonexistent').send({ quantity: 600 });
+    const res = await request(app).put('/api/waste/00000000-0000-0000-0000-000000000099').send({ quantity: 600 });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/waste/wst-1').send({ wasteType: 'INVALID' });
+    const res = await request(app).put('/api/waste/00000000-0000-0000-0000-000000000001').send({ wasteType: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -177,7 +177,7 @@ describe('DELETE /api/waste/:id', () => {
     (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(mockWaste);
     (prisma.esgWaste.update as jest.Mock).mockResolvedValue({ ...mockWaste, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/waste/wst-1');
+    const res = await request(app).delete('/api/waste/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -185,7 +185,7 @@ describe('DELETE /api/waste/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/waste/nonexistent');
+    const res = await request(app).delete('/api/waste/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

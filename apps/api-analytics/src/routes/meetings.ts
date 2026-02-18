@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const createMeetingSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -18,6 +19,7 @@ const updateMeetingSchema = createMeetingSchema.partial();
 const logger = createLogger('meetings');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ---------------------------------------------------------------------------
 // GET / — List meetings with pagination, filter by type, sort by date desc

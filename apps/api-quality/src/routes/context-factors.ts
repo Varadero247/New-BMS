@@ -4,10 +4,12 @@ import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { requirePermission } from '@ims/rbac';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-quality');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // Context factors are stored as QualIssue records with bias = MIXED and a special prefix.
 // This provides a dedicated endpoint for the Context of the Organisation (ISO 9001 Clause 4.1).

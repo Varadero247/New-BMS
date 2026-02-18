@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 
 const logger = createLogger('api-marketing:chat');
 const router = Router();
+router.param('id', validateIdParam());
 
 const SYSTEM_PROMPT = `You are Aria, a friendly sales assistant for Nexara IMS — the world's most comprehensive Integrated Management System platform covering 12 ISO standards with AI-native features. Your job is to qualify website visitors and capture their contact details.
 

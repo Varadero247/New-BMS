@@ -44,7 +44,7 @@ beforeEach(() => {
 describe('GET /api/datasets', () => {
   it('should return a list of datasets with pagination', async () => {
     const datasets = [
-      { id: 'ds-1', name: 'Safety Data', source: 'HEALTH_SAFETY', isActive: true },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Safety Data', source: 'HEALTH_SAFETY', isActive: true },
       { id: 'ds-2', name: 'Quality Data', source: 'QUALITY', isActive: true },
     ];
     (prisma as any).analyticsDataset.findMany.mockResolvedValue(datasets);
@@ -120,18 +120,18 @@ describe('POST /api/datasets', () => {
 // ===================================================================
 describe('GET /api/datasets/:id', () => {
   it('should return a dataset by ID', async () => {
-    (prisma as any).analyticsDataset.findFirst.mockResolvedValue({ id: 'ds-1', name: 'Test' });
+    (prisma as any).analyticsDataset.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
 
-    const res = await request(app).get('/api/datasets/ds-1');
+    const res = await request(app).get('/api/datasets/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('ds-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent dataset', async () => {
     (prisma as any).analyticsDataset.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/datasets/nonexistent');
+    const res = await request(app).get('/api/datasets/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -142,10 +142,10 @@ describe('GET /api/datasets/:id', () => {
 // ===================================================================
 describe('PUT /api/datasets/:id', () => {
   it('should update a dataset', async () => {
-    (prisma as any).analyticsDataset.findFirst.mockResolvedValue({ id: 'ds-1' });
-    (prisma as any).analyticsDataset.update.mockResolvedValue({ id: 'ds-1', name: 'Updated' });
+    (prisma as any).analyticsDataset.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsDataset.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
 
-    const res = await request(app).put('/api/datasets/ds-1').send({ name: 'Updated' });
+    const res = await request(app).put('/api/datasets/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated');
@@ -154,7 +154,7 @@ describe('PUT /api/datasets/:id', () => {
   it('should return 404 for non-existent dataset', async () => {
     (prisma as any).analyticsDataset.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/datasets/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).put('/api/datasets/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
   });
@@ -165,10 +165,10 @@ describe('PUT /api/datasets/:id', () => {
 // ===================================================================
 describe('DELETE /api/datasets/:id', () => {
   it('should soft delete a dataset', async () => {
-    (prisma as any).analyticsDataset.findFirst.mockResolvedValue({ id: 'ds-1' });
-    (prisma as any).analyticsDataset.update.mockResolvedValue({ id: 'ds-1', deletedAt: new Date() });
+    (prisma as any).analyticsDataset.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsDataset.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/datasets/ds-1');
+    const res = await request(app).delete('/api/datasets/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Dataset deleted');
@@ -177,7 +177,7 @@ describe('DELETE /api/datasets/:id', () => {
   it('should return 404 for non-existent dataset', async () => {
     (prisma as any).analyticsDataset.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/datasets/nonexistent');
+    const res = await request(app).delete('/api/datasets/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -188,10 +188,10 @@ describe('DELETE /api/datasets/:id', () => {
 // ===================================================================
 describe('POST /api/datasets/:id/refresh', () => {
   it('should refresh a dataset', async () => {
-    (prisma as any).analyticsDataset.findFirst.mockResolvedValue({ id: 'ds-1' });
-    (prisma as any).analyticsDataset.update.mockResolvedValue({ id: 'ds-1', lastRefreshed: new Date(), rowCount: 500 });
+    (prisma as any).analyticsDataset.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsDataset.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', lastRefreshed: new Date(), rowCount: 500 });
 
-    const res = await request(app).post('/api/datasets/ds-1/refresh');
+    const res = await request(app).post('/api/datasets/00000000-0000-0000-0000-000000000001/refresh');
 
     expect(res.status).toBe(200);
     expect(res.body.data.lastRefreshed).toBeDefined();
@@ -200,7 +200,7 @@ describe('POST /api/datasets/:id/refresh', () => {
   it('should return 404 for non-existent dataset', async () => {
     (prisma as any).analyticsDataset.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/datasets/nonexistent/refresh');
+    const res = await request(app).post('/api/datasets/00000000-0000-0000-0000-000000000099/refresh');
 
     expect(res.status).toBe(404);
   });

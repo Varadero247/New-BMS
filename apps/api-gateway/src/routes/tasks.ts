@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import {
   createTask,
   getTasks,
@@ -14,6 +15,7 @@ import { z } from 'zod';
 
 const logger = createLogger('api-gateway:tasks');
 const router = Router();
+router.param('id', validateIdParam());
 
 // ============================================
 // Validation schemas

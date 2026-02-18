@@ -3,10 +3,12 @@ import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { type AuthRequest } from '@ims/auth';
+import { validateIdParam } from '@ims/shared';
 
 
 const logger = createLogger('api-partners:deals');
 const router = Router();
+router.param('id', validateIdParam());
 
 const createDealSchema = z.object({
   companyName: z.string().trim().min(1).max(200),

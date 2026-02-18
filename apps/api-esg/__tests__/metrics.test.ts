@@ -41,7 +41,7 @@ beforeEach(() => {
 });
 
 const mockMetric = {
-  id: 'met-1',
+  id: '00000000-0000-0000-0000-000000000001',
   frameworkId: 'fw-1',
   category: 'ENVIRONMENTAL',
   subcategory: 'Emissions',
@@ -76,7 +76,7 @@ describe('GET /api/metrics/:id/data-points', () => {
     (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([mockDataPoint]);
     (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(1);
 
-    const res = await request(app).get('/api/metrics/met-1/data-points');
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(1);
@@ -86,7 +86,7 @@ describe('GET /api/metrics/:id/data-points', () => {
   it('should return 404 if metric not found', async () => {
     (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/metrics/nonexistent/data-points');
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000099/data-points');
     expect(res.status).toBe(404);
   });
 
@@ -95,7 +95,7 @@ describe('GET /api/metrics/:id/data-points', () => {
     (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(50);
 
-    const res = await request(app).get('/api/metrics/met-1/data-points?page=2&limit=10');
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points?page=2&limit=10');
     expect(prisma.esgDataPoint.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ skip: 10, take: 10 })
     );
@@ -106,7 +106,7 @@ describe('GET /api/metrics/:id/data-points', () => {
     (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
     (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(0);
 
-    const res = await request(app).get('/api/metrics/met-1/data-points');
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
     expect(res.body.data).toHaveLength(0);
   });
 });
@@ -116,7 +116,7 @@ describe('POST /api/metrics/:id/data-points', () => {
     (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
     (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue(mockDataPoint);
 
-    const res = await request(app).post('/api/metrics/met-1/data-points').send({
+    const res = await request(app).post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points').send({
       periodStart: '2026-01-01',
       periodEnd: '2026-03-31',
       value: 1500,
@@ -130,7 +130,7 @@ describe('POST /api/metrics/:id/data-points', () => {
   it('should return 404 if metric not found', async () => {
     (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).post('/api/metrics/nonexistent/data-points').send({
+    const res = await request(app).post('/api/metrics/00000000-0000-0000-0000-000000000099/data-points').send({
       periodStart: '2026-01-01',
       periodEnd: '2026-03-31',
       value: 1500,
@@ -143,7 +143,7 @@ describe('POST /api/metrics/:id/data-points', () => {
   it('should return 400 for missing required fields', async () => {
     (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
 
-    const res = await request(app).post('/api/metrics/met-1/data-points').send({
+    const res = await request(app).post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points').send({
       periodStart: '2026-01-01',
     });
 
@@ -155,7 +155,7 @@ describe('POST /api/metrics/:id/data-points', () => {
     (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
     (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue(mockDataPoint);
 
-    const res = await request(app).post('/api/metrics/met-1/data-points').send({
+    const res = await request(app).post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points').send({
       periodStart: '2026-01-01',
       periodEnd: '2026-03-31',
       value: 1500,

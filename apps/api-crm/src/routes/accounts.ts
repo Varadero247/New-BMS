@@ -5,10 +5,12 @@ import { prisma } from '../prisma';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createServiceHeaders } from '@ims/service-auth';
+import { validateIdParam } from '@ims/shared';
 
 const FINANCE_SERVICE_URL = process.env.FINANCE_SERVICE_URL || 'http://localhost:4013';
 
 const router = Router();
+router.param('id', validateIdParam());
 const logger = createLogger('api-crm:accounts');
 
 router.use(authenticate);

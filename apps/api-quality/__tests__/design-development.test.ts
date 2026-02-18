@@ -586,7 +586,7 @@ describe('Quality Design & Development API Routes', () => {
 
     it('should return 400 for invalid stage name', async () => {
       const response = await request(app)
-        .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/BOGUS/approve')
+        .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/00000000-0000-0000-0000-000000000099/approve')
         .set('Authorization', 'Bearer token')
         .send({});
 

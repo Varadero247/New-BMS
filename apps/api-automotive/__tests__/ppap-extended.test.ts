@@ -52,7 +52,7 @@ describe('PPAP Routes', () => {
     it('should create a PPAP project with 18 elements', async () => {
       (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
-        const created = { id: 'pp-1', refNumber: 'PPAP-2602-0001', ...validBody, submissionLevel: 3, status: 'DRAFT', elements: [], submissions: [] };
+        const created = { id: '00000000-0000-0000-0000-000000000001', refNumber: 'PPAP-2602-0001', ...validBody, submissionLevel: 3, status: 'DRAFT', elements: [], submissions: [] };
         return cb({
           ppapProject: {
             create: jest.fn().mockResolvedValue(created),
@@ -119,7 +119,7 @@ describe('PPAP Routes', () => {
 
   describe('GET /api/ppap', () => {
     it('should list PPAP projects', async () => {
-      (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValue([{ id: 'pp-1' }]);
+      (mockPrisma.ppapProject.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.ppapProject.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/ppap');
@@ -166,90 +166,90 @@ describe('PPAP Routes', () => {
   describe('GET /api/ppap/:id', () => {
     it('should get PPAP project with elements', async () => {
       (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({
-        id: 'pp-1', partNumber: 'PN-001', elements: [], submissions: [],
+        id: '00000000-0000-0000-0000-000000000001', partNumber: 'PN-001', elements: [], submissions: [],
       });
 
-      const res = await request(app).get('/api/ppap/pp-1');
+      const res = await request(app).get('/api/ppap/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('pp-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent', async () => {
       (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/ppap/fake');
+      const res = await request(app).get('/api/ppap/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
 
   describe('PUT /api/ppap/:id/elements/:elementNumber', () => {
     it('should update element status', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: 'pp-1', deletedAt: null });
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.ppapElement.findFirst as jest.Mock).mockResolvedValue({ id: 'el-1', elementNumber: 1 });
       (mockPrisma.ppapElement.update as jest.Mock).mockResolvedValue({ id: 'el-1', status: 'COMPLETED' });
 
-      const res = await request(app).put('/api/ppap/pp-1/elements/1').send({ status: 'COMPLETED' });
+      const res = await request(app).put('/api/ppap/00000000-0000-0000-0000-000000000001/elements/1').send({ status: 'COMPLETED' });
       expect(res.status).toBe(200);
     });
 
     it('should return 400 for element number 0', async () => {
-      const res = await request(app).put('/api/ppap/pp-1/elements/0').send({ status: 'COMPLETED' });
+      const res = await request(app).put('/api/ppap/00000000-0000-0000-0000-000000000001/elements/0').send({ status: 'COMPLETED' });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for element number 19', async () => {
-      const res = await request(app).put('/api/ppap/pp-1/elements/19').send({ status: 'COMPLETED' });
+      const res = await request(app).put('/api/ppap/00000000-0000-0000-0000-000000000001/elements/19').send({ status: 'COMPLETED' });
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent project', async () => {
       (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/ppap/fake/elements/1').send({ status: 'COMPLETED' });
+      const res = await request(app).put('/api/ppap/00000000-0000-0000-0000-000000000099/elements/1').send({ status: 'COMPLETED' });
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for non-existent element', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: 'pp-1', deletedAt: null });
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.ppapElement.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/ppap/pp-1/elements/1').send({ status: 'COMPLETED' });
+      const res = await request(app).put('/api/ppap/00000000-0000-0000-0000-000000000001/elements/1').send({ status: 'COMPLETED' });
       expect(res.status).toBe(404);
     });
 
     it('should accept NOT_APPLICABLE status', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: 'pp-1', deletedAt: null });
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.ppapElement.findFirst as jest.Mock).mockResolvedValue({ id: 'el-1' });
       (mockPrisma.ppapElement.update as jest.Mock).mockResolvedValue({ id: 'el-1', status: 'NOT_APPLICABLE' });
 
-      const res = await request(app).put('/api/ppap/pp-1/elements/1').send({ status: 'NOT_APPLICABLE' });
+      const res = await request(app).put('/api/ppap/00000000-0000-0000-0000-000000000001/elements/1').send({ status: 'NOT_APPLICABLE' });
       expect(res.status).toBe(200);
     });
 
     it('should return 400 for invalid status', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: 'pp-1', deletedAt: null });
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.ppapElement.findFirst as jest.Mock).mockResolvedValue({ id: 'el-1' });
 
-      const res = await request(app).put('/api/ppap/pp-1/elements/1').send({ status: 'INVALID' });
+      const res = await request(app).put('/api/ppap/00000000-0000-0000-0000-000000000001/elements/1').send({ status: 'INVALID' });
       expect(res.status).toBe(400);
     });
   });
 
   describe('POST /api/ppap/:id/psw', () => {
     it('should submit a PSW', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: 'pp-1', deletedAt: null, submissionLevel: 3 });
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null, submissionLevel: 3 });
       (mockPrisma.ppapSubmission.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.ppapSubmission.create as jest.Mock).mockResolvedValue({ id: 'psw-1', pswNumber: 'PSW-2602-0001', status: 'SUBMITTED' });
-      (mockPrisma.ppapProject.update as jest.Mock).mockResolvedValue({ id: 'pp-1', status: 'SUBMITTED' });
+      (mockPrisma.ppapProject.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SUBMITTED' });
 
-      const res = await request(app).post('/api/ppap/pp-1/psw').send({});
+      const res = await request(app).post('/api/ppap/00000000-0000-0000-0000-000000000001/psw').send({});
       expect(res.status).toBe(201);
     });
 
     it('should return 404 for non-existent project', async () => {
       (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/ppap/fake/psw').send({});
+      const res = await request(app).post('/api/ppap/00000000-0000-0000-0000-000000000099/psw').send({});
       expect(res.status).toBe(404);
     });
   });
@@ -257,7 +257,7 @@ describe('PPAP Routes', () => {
   describe('GET /api/ppap/:id/readiness', () => {
     it('should return readiness check', async () => {
       (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({
-        id: 'pp-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
         elements: [
           { elementNumber: 1, elementName: 'Design Records', status: 'COMPLETED' },
           { elementNumber: 2, elementName: 'Auth Changes', status: 'NOT_STARTED' },
@@ -265,7 +265,7 @@ describe('PPAP Routes', () => {
         ],
       });
 
-      const res = await request(app).get('/api/ppap/pp-1/readiness');
+      const res = await request(app).get('/api/ppap/00000000-0000-0000-0000-000000000001/readiness');
       expect(res.status).toBe(200);
       expect(res.body.data.totalElements).toBe(3);
       expect(res.body.data.completed).toBe(1);
@@ -278,38 +278,38 @@ describe('PPAP Routes', () => {
     it('should return 404 for non-existent project', async () => {
       (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/ppap/fake/readiness');
+      const res = await request(app).get('/api/ppap/00000000-0000-0000-0000-000000000099/readiness');
       expect(res.status).toBe(404);
     });
   });
 
   describe('POST /api/ppap/:id/submit-level', () => {
     it('should set submission level', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: 'pp-1', deletedAt: null });
-      (mockPrisma.ppapProject.update as jest.Mock).mockResolvedValue({ id: 'pp-1', submissionLevel: 4 });
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.ppapProject.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', submissionLevel: 4 });
 
-      const res = await request(app).post('/api/ppap/pp-1/submit-level').send({ level: 4 });
+      const res = await request(app).post('/api/ppap/00000000-0000-0000-0000-000000000001/submit-level').send({ level: 4 });
       expect(res.status).toBe(200);
     });
 
     it('should return 400 for level 0', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: 'pp-1', deletedAt: null });
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/ppap/pp-1/submit-level').send({ level: 0 });
+      const res = await request(app).post('/api/ppap/00000000-0000-0000-0000-000000000001/submit-level').send({ level: 0 });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for level 6', async () => {
-      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: 'pp-1', deletedAt: null });
+      (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/ppap/pp-1/submit-level').send({ level: 6 });
+      const res = await request(app).post('/api/ppap/00000000-0000-0000-0000-000000000001/submit-level').send({ level: 6 });
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent project', async () => {
       (mockPrisma.ppapProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/ppap/fake/submit-level').send({ level: 3 });
+      const res = await request(app).post('/api/ppap/00000000-0000-0000-0000-000000000099/submit-level').send({ level: 3 });
       expect(res.status).toBe(404);
     });
   });

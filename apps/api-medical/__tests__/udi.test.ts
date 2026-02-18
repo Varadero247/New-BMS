@@ -294,7 +294,7 @@ describe('UDI Routes', () => {
     it('should return 404 when device not found', async () => {
       (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/udi/devices/nonexistent-id');
+      const res = await request(app).get('/api/udi/devices/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -334,7 +334,7 @@ describe('UDI Routes', () => {
       (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .post('/api/udi/devices/nonexistent/di')
+        .post('/api/udi/devices/00000000-0000-0000-0000-000000000099/di')
         .send({ issuingAgency: 'GS1', diCode: '08714729999991' });
 
       expect(res.status).toBe(404);
@@ -386,7 +386,7 @@ describe('UDI Routes', () => {
       (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .post('/api/udi/devices/nonexistent/pi')
+        .post('/api/udi/devices/00000000-0000-0000-0000-000000000099/pi')
         .send({ lotNumber: 'LOT-2026-001' });
 
       expect(res.status).toBe(404);
@@ -426,7 +426,7 @@ describe('UDI Routes', () => {
     it('should return 404 when device not found', async () => {
       (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/udi/devices/nonexistent/submissions');
+      const res = await request(app).get('/api/udi/devices/00000000-0000-0000-0000-000000000099/submissions');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -470,7 +470,7 @@ describe('UDI Routes', () => {
       (mockPrisma.udiDevice.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/udi/devices/nonexistent/submissions/sub-1')
+        .put('/api/udi/devices/00000000-0000-0000-0000-000000000099/submissions/00000000-0000-0000-0000-000000000001')
         .send({ status: 'ACCEPTED' });
 
       expect(res.status).toBe(404);

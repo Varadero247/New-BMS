@@ -3,10 +3,12 @@ import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { portalPrisma } from '../prisma-portal';
 import { type AuthRequest } from '@ims/auth';
+import { validateIdParam } from '@ims/shared';
 
 
 const logger = createLogger('api-partners:support');
 const router = Router();
+router.param('id', validateIdParam());
 
 const createTicketSchema = z.object({
   subject: z.string().trim().min(1).max(200),

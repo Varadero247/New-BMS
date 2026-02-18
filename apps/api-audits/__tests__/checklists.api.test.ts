@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/checklists', () => {
   it('should return checklists with pagination', async () => {
-    (prisma as any).audChecklist.findMany.mockResolvedValue([{ id: '1', title: 'ISO 9001 Checklist' }]);
+    (prisma as any).audChecklist.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'ISO 9001 Checklist' }]);
     (prisma as any).audChecklist.count.mockResolvedValue(1);
     const res = await request(app).get('/api/checklists');
     expect(res.status).toBe(200);
@@ -53,16 +53,16 @@ describe('GET /api/checklists', () => {
 
 describe('GET /api/checklists/:id', () => {
   it('should return checklist by id', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '1', title: 'Test Checklist' });
-    const res = await request(app).get('/api/checklists/1');
+    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Test Checklist' });
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when checklist not found', async () => {
     (prisma as any).audChecklist.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/checklists/nonexistent');
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -70,7 +70,7 @@ describe('GET /api/checklists/:id', () => {
 
   it('should return 500 on database error', async () => {
     (prisma as any).audChecklist.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/checklists/1');
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
@@ -121,9 +121,9 @@ describe('POST /api/checklists', () => {
 
 describe('PUT /api/checklists/:id', () => {
   it('should update a checklist', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '1', title: 'Old Title' });
-    (prisma as any).audChecklist.update.mockResolvedValue({ id: '1', title: 'Updated Title' });
-    const res = await request(app).put('/api/checklists/1').send({ title: 'Updated Title' });
+    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old Title' });
+    (prisma as any).audChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated Title' });
+    const res = await request(app).put('/api/checklists/00000000-0000-0000-0000-000000000001').send({ title: 'Updated Title' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.title).toBe('Updated Title');
@@ -131,16 +131,16 @@ describe('PUT /api/checklists/:id', () => {
 
   it('should return 404 if checklist not found', async () => {
     (prisma as any).audChecklist.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/checklists/nonexistent').send({ title: 'Updated' });
+    const res = await request(app).put('/api/checklists/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).audChecklist.update.mockRejectedValue(new Error('Update failed'));
-    const res = await request(app).put('/api/checklists/1').send({ title: 'Updated' });
+    const res = await request(app).put('/api/checklists/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -149,9 +149,9 @@ describe('PUT /api/checklists/:id', () => {
 
 describe('DELETE /api/checklists/:id', () => {
   it('should soft-delete a checklist', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '1', title: 'To Delete' });
-    (prisma as any).audChecklist.update.mockResolvedValue({ id: '1', deletedAt: new Date() });
-    const res = await request(app).delete('/api/checklists/1');
+    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'To Delete' });
+    (prisma as any).audChecklist.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
+    const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toBe('checklist deleted successfully');
@@ -159,16 +159,16 @@ describe('DELETE /api/checklists/:id', () => {
 
   it('should return 404 if checklist not found', async () => {
     (prisma as any).audChecklist.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/checklists/nonexistent');
+    const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).audChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).audChecklist.update.mockRejectedValue(new Error('Delete failed'));
-    const res = await request(app).delete('/api/checklists/1');
+    const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

@@ -27,7 +27,7 @@ app.use(express.json());
 app.use('/api/downtime', downtimeRouter);
 
 const mockDowntime = {
-  id: 'dt-1',
+  id: '00000000-0000-0000-0000-000000000001',
   assetId: 'asset-1',
   workOrderId: 'wo-1',
   startTime: new Date('2026-02-13T08:00:00Z'),
@@ -154,15 +154,15 @@ describe('Downtime Routes', () => {
     it('should return a downtime record by ID', async () => {
       prisma.cmmsDowntime.findFirst.mockResolvedValue(mockDowntime);
 
-      const res = await request(app).get('/api/downtime/dt-1');
+      const res = await request(app).get('/api/downtime/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('dt-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent record', async () => {
       prisma.cmmsDowntime.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/downtime/non-existent');
+      const res = await request(app).get('/api/downtime/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -172,14 +172,14 @@ describe('Downtime Routes', () => {
       prisma.cmmsDowntime.findFirst.mockResolvedValue(mockDowntime);
       prisma.cmmsDowntime.update.mockResolvedValue({ ...mockDowntime, reason: 'Updated reason' });
 
-      const res = await request(app).put('/api/downtime/dt-1').send({ reason: 'Updated reason' });
+      const res = await request(app).put('/api/downtime/00000000-0000-0000-0000-000000000001').send({ reason: 'Updated reason' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent record', async () => {
       prisma.cmmsDowntime.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/downtime/non-existent').send({ reason: 'Updated' });
+      const res = await request(app).put('/api/downtime/00000000-0000-0000-0000-000000000099').send({ reason: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -189,7 +189,7 @@ describe('Downtime Routes', () => {
       prisma.cmmsDowntime.findFirst.mockResolvedValue(mockDowntime);
       prisma.cmmsDowntime.update.mockResolvedValue({ ...mockDowntime, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/downtime/dt-1');
+      const res = await request(app).delete('/api/downtime/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -197,7 +197,7 @@ describe('Downtime Routes', () => {
     it('should return 404 for non-existent record', async () => {
       prisma.cmmsDowntime.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/downtime/non-existent');
+      const res = await request(app).delete('/api/downtime/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

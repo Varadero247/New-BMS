@@ -19,7 +19,7 @@ jest.mock('@ims/monitoring', () => ({
 const mockQuery = jest.fn().mockResolvedValue({ entries: [], total: 0, page: 1, limit: 50 });
 const mockGetResourceHistory = jest.fn().mockResolvedValue({ entries: [], total: 0 });
 const mockVerifyEntry = jest.fn().mockResolvedValue({ valid: true, entryId: 'entry-1' });
-const mockCreateEntry = jest.fn().mockResolvedValue({ id: 'entry-1' });
+const mockCreateEntry = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
 const mockCreateEnhancedAuditService = jest.fn().mockReturnValue({
   query: (...args: any[]) => mockQuery(...args),
@@ -35,7 +35,7 @@ jest.mock('@ims/audit', () => ({
 // E-signature mocks
 const mockCreateSignature = jest.fn().mockResolvedValue({
   signature: {
-    id: 'sig-1',
+    id: '00000000-0000-0000-0000-000000000001',
     userId: 'user-1',
     userEmail: 'admin@ims.local',
     userFullName: 'Admin User',
@@ -70,7 +70,7 @@ const mockUserFindUnique = jest.fn().mockResolvedValue({
 });
 const mockESignatureCreate = jest.fn().mockResolvedValue({ id: 'sig-1' });
 const mockESignatureFindUnique = jest.fn().mockResolvedValue({
-  id: 'sig-1',
+  id: '00000000-0000-0000-0000-000000000001',
   userId: 'user-1',
   userEmail: 'admin@ims.local',
   userFullName: 'Admin User',
@@ -129,7 +129,7 @@ describe('Audit Routes', () => {
     });
     mockESignatureCreate.mockResolvedValue({ id: 'sig-1' });
     mockESignatureFindUnique.mockResolvedValue({
-      id: 'sig-1',
+      id: '00000000-0000-0000-0000-000000000001',
       userId: 'user-1',
       userEmail: 'admin@ims.local',
       userFullName: 'Admin User',
@@ -201,14 +201,14 @@ describe('Audit Routes', () => {
         entries: [{ id: 'e-1', action: 'UPDATE' }],
         total: 1,
       });
-      const res = await request(app).get('/api/audit/trail/Document/doc-1');
+      const res = await request(app).get('/api/audit/trail/Document/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
 
     it('returns 500 on error', async () => {
       mockGetResourceHistory.mockRejectedValueOnce(new Error('DB error'));
-      const res = await request(app).get('/api/audit/trail/Document/doc-1');
+      const res = await request(app).get('/api/audit/trail/Document/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(500);
     });
   });
@@ -222,7 +222,7 @@ describe('Audit Routes', () => {
     // We test the route exists and returns a valid response via the resource history handler.
     it('verify path resolves via resource history handler (route ordering)', async () => {
       mockGetResourceHistory.mockResolvedValueOnce({ entries: [], total: 0 });
-      const res = await request(app).get('/api/audit/trail/verify/entry-1');
+      const res = await request(app).get('/api/audit/trail/verify/00000000-0000-0000-0000-000000000001');
       // The /:resourceType/:resourceId route handles this
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -230,7 +230,7 @@ describe('Audit Routes', () => {
 
     it('verify route returns 500 on resource history error', async () => {
       mockGetResourceHistory.mockRejectedValueOnce(new Error('Verify failed'));
-      const res = await request(app).get('/api/audit/trail/verify/entry-1');
+      const res = await request(app).get('/api/audit/trail/verify/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(500);
     });
   });
@@ -290,7 +290,7 @@ describe('Audit Routes', () => {
 
   describe('GET /api/audit/esignature/:id', () => {
     it('returns signature verification', async () => {
-      const res = await request(app).get('/api/audit/esignature/sig-1');
+      const res = await request(app).get('/api/audit/esignature/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveProperty('valid', true);
@@ -298,7 +298,7 @@ describe('Audit Routes', () => {
 
     it('returns 404 for non-existent signature', async () => {
       mockESignatureFindUnique.mockResolvedValueOnce(null);
-      const res = await request(app).get('/api/audit/esignature/nonexistent');
+      const res = await request(app).get('/api/audit/esignature/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

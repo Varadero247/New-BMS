@@ -38,7 +38,7 @@ beforeEach(() => {
 });
 
 const sampleExpense = {
-  id: 'exp-1',
+  id: '00000000-0000-0000-0000-000000000001',
   title: 'AWS Hosting',
   description: 'Monthly cloud bill',
   amount: 250.00,
@@ -111,14 +111,14 @@ describe('GET /api/expenses/summary', () => {
 describe('GET /api/expenses/:id', () => {
   it('returns a single expense', async () => {
     (prisma.expense.findUnique as jest.Mock).mockResolvedValue(sampleExpense);
-    const res = await request(app).get('/api/expenses/exp-1');
+    const res = await request(app).get('/api/expenses/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.data.title).toBe('AWS Hosting');
   });
 
   it('returns 404 for missing expense', async () => {
     (prisma.expense.findUnique as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).get('/api/expenses/missing');
+    const res = await request(app).get('/api/expenses/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -154,14 +154,14 @@ describe('POST /api/expenses/:id/submit', () => {
     (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'DRAFT' });
     (prisma.expense.update as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'SUBMITTED' });
 
-    const res = await request(app).post('/api/expenses/exp-1/submit');
+    const res = await request(app).post('/api/expenses/00000000-0000-0000-0000-000000000001/submit');
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('SUBMITTED');
   });
 
   it('rejects submission of non-DRAFT expense', async () => {
     (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'SUBMITTED' });
-    const res = await request(app).post('/api/expenses/exp-1/submit');
+    const res = await request(app).post('/api/expenses/00000000-0000-0000-0000-000000000001/submit');
     expect(res.status).toBe(400);
   });
 });
@@ -174,7 +174,7 @@ describe('POST /api/expenses/:id/approve', () => {
     (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'SUBMITTED' });
     (prisma.expense.update as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'APPROVED', approvedBy: 'user-1', approvedAt: new Date().toISOString() });
 
-    const res = await request(app).post('/api/expenses/exp-1/approve');
+    const res = await request(app).post('/api/expenses/00000000-0000-0000-0000-000000000001/approve');
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('APPROVED');
     expect(res.body.data.approvedBy).toBe('user-1');
@@ -182,7 +182,7 @@ describe('POST /api/expenses/:id/approve', () => {
 
   it('rejects approval of non-SUBMITTED expense', async () => {
     (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'DRAFT' });
-    const res = await request(app).post('/api/expenses/exp-1/approve');
+    const res = await request(app).post('/api/expenses/00000000-0000-0000-0000-000000000001/approve');
     expect(res.status).toBe(400);
   });
 });
@@ -195,14 +195,14 @@ describe('POST /api/expenses/:id/reject', () => {
     (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'SUBMITTED' });
     (prisma.expense.update as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'REJECTED' });
 
-    const res = await request(app).post('/api/expenses/exp-1/reject');
+    const res = await request(app).post('/api/expenses/00000000-0000-0000-0000-000000000001/reject');
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('REJECTED');
   });
 
   it('rejects rejection of non-SUBMITTED expense', async () => {
     (prisma.expense.findUnique as jest.Mock).mockResolvedValue({ ...sampleExpense, status: 'APPROVED' });
-    const res = await request(app).post('/api/expenses/exp-1/reject');
+    const res = await request(app).post('/api/expenses/00000000-0000-0000-0000-000000000001/reject');
     expect(res.status).toBe(400);
   });
 });

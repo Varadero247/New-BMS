@@ -40,7 +40,7 @@ beforeEach(() => {
 
 describe('GET /api/job-notes', () => {
   it('should return job notes with pagination', async () => {
-    const notes = [{ id: 'note-1', type: 'NOTE', content: 'Test note' }];
+    const notes = [{ id: '00000000-0000-0000-0000-000000000001', type: 'NOTE', content: 'Test note' }];
     (prisma as any).fsSvcJobNote.findMany.mockResolvedValue(notes);
     (prisma as any).fsSvcJobNote.count.mockResolvedValue(1);
 
@@ -120,18 +120,18 @@ describe('POST /api/job-notes', () => {
 
 describe('GET /api/job-notes/:id', () => {
   it('should return a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: 'note-1', content: 'Test' });
+    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', content: 'Test' });
 
-    const res = await request(app).get('/api/job-notes/note-1');
+    const res = await request(app).get('/api/job-notes/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('note-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/job-notes/missing');
+    const res = await request(app).get('/api/job-notes/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -139,11 +139,11 @@ describe('GET /api/job-notes/:id', () => {
 
 describe('PUT /api/job-notes/:id', () => {
   it('should update a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: 'note-1' });
-    (prisma as any).fsSvcJobNote.update.mockResolvedValue({ id: 'note-1', content: 'Updated' });
+    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcJobNote.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', content: 'Updated' });
 
     const res = await request(app)
-      .put('/api/job-notes/note-1')
+      .put('/api/job-notes/00000000-0000-0000-0000-000000000001')
       .send({ content: 'Updated' });
 
     expect(res.status).toBe(200);
@@ -153,7 +153,7 @@ describe('PUT /api/job-notes/:id', () => {
     (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/job-notes/missing')
+      .put('/api/job-notes/00000000-0000-0000-0000-000000000099')
       .send({ content: 'Updated' });
 
     expect(res.status).toBe(404);
@@ -162,10 +162,10 @@ describe('PUT /api/job-notes/:id', () => {
 
 describe('DELETE /api/job-notes/:id', () => {
   it('should soft delete a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: 'note-1' });
-    (prisma as any).fsSvcJobNote.update.mockResolvedValue({ id: 'note-1', deletedAt: new Date() });
+    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcJobNote.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/job-notes/note-1');
+    const res = await request(app).delete('/api/job-notes/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Job note deleted');
@@ -174,7 +174,7 @@ describe('DELETE /api/job-notes/:id', () => {
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/job-notes/missing');
+    const res = await request(app).delete('/api/job-notes/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

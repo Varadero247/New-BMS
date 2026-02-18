@@ -744,7 +744,7 @@ describe('Quality Headstart API Routes', () => {
     });
 
     it('should return 404 for non-existent ID', async () => {
-      const res = await request(app).get('/api/headstart/non-existent-id');
+      const res = await request(app).get('/api/headstart/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);

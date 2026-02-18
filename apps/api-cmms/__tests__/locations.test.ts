@@ -27,7 +27,7 @@ app.use(express.json());
 app.use('/api/locations', locationsRouter);
 
 const mockLocation = {
-  id: 'loc-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'Main Factory',
   code: 'LOC-001',
   description: 'Main factory building',
@@ -124,15 +124,15 @@ describe('Locations Routes', () => {
     it('should return a location by ID', async () => {
       prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
 
-      const res = await request(app).get('/api/locations/loc-1');
+      const res = await request(app).get('/api/locations/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('loc-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent location', async () => {
       prisma.cmmsLocation.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/locations/non-existent');
+      const res = await request(app).get('/api/locations/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -142,14 +142,14 @@ describe('Locations Routes', () => {
       prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
       prisma.cmmsLocation.update.mockResolvedValue({ ...mockLocation, name: 'Updated' });
 
-      const res = await request(app).put('/api/locations/loc-1').send({ name: 'Updated' });
+      const res = await request(app).put('/api/locations/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent location', async () => {
       prisma.cmmsLocation.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/locations/non-existent').send({ name: 'Updated' });
+      const res = await request(app).put('/api/locations/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -159,7 +159,7 @@ describe('Locations Routes', () => {
       prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
       prisma.cmmsLocation.update.mockResolvedValue({ ...mockLocation, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/locations/loc-1');
+      const res = await request(app).delete('/api/locations/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -167,7 +167,7 @@ describe('Locations Routes', () => {
     it('should return 404 for non-existent location', async () => {
       prisma.cmmsLocation.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/locations/non-existent');
+      const res = await request(app).delete('/api/locations/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

@@ -157,7 +157,7 @@ describe('GET /api/journal/:id', () => {
   it('should return 404 when entry not found', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/journal/nonexistent');
+    const res = await request(app).get('/api/journal/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -373,7 +373,7 @@ describe('PUT /api/journal/:id', () => {
   it('should return 404 when entry not found', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/journal/nonexistent').send({ description: 'Test' });
+    const res = await request(app).put('/api/journal/00000000-0000-0000-0000-000000000099').send({ description: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -422,7 +422,7 @@ describe('DELETE /api/journal/:id', () => {
   it('should return 404 when entry not found', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/journal/nonexistent');
+    const res = await request(app).delete('/api/journal/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -474,7 +474,7 @@ describe('POST /api/journal/:id/post', () => {
   it('should return 404 when entry not found', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/journal/nonexistent/post');
+    const res = await request(app).post('/api/journal/00000000-0000-0000-0000-000000000099/post');
 
     expect(res.status).toBe(404);
   });

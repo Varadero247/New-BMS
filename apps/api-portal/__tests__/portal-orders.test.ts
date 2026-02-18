@@ -39,7 +39,7 @@ beforeEach(() => {
 
 describe('GET /api/portal/orders', () => {
   it('should list orders', async () => {
-    const items = [{ id: 'o-1', orderNumber: 'PTL-ORD-2602-1234', type: 'PURCHASE', status: 'DRAFT' }];
+    const items = [{ id: '00000000-0000-0000-0000-000000000001', orderNumber: 'PTL-ORD-2602-1234', type: 'PURCHASE', status: 'DRAFT' }];
     (prisma as any).portalOrder.findMany.mockResolvedValue(items);
     (prisma as any).portalOrder.count.mockResolvedValue(1);
 
@@ -72,7 +72,7 @@ describe('GET /api/portal/orders', () => {
 
 describe('POST /api/portal/orders', () => {
   it('should create an order', async () => {
-    const order = { id: 'o-1', orderNumber: 'PTL-ORD-2602-1234', type: 'PURCHASE', status: 'DRAFT' };
+    const order = { id: '00000000-0000-0000-0000-000000000001', orderNumber: 'PTL-ORD-2602-1234', type: 'PURCHASE', status: 'DRAFT' };
     (prisma as any).portalOrder.create.mockResolvedValue(order);
 
     const res = await request(app)
@@ -107,18 +107,18 @@ describe('POST /api/portal/orders', () => {
 
 describe('GET /api/portal/orders/:id', () => {
   it('should return an order', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: 'o-1', orderNumber: 'PTL-ORD-2602-1234' });
+    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', orderNumber: 'PTL-ORD-2602-1234' });
 
-    const res = await request(app).get('/api/portal/orders/o-1');
+    const res = await request(app).get('/api/portal/orders/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('o-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/portal/orders/nonexistent');
+    const res = await request(app).get('/api/portal/orders/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -126,11 +126,11 @@ describe('GET /api/portal/orders/:id', () => {
 
 describe('PUT /api/portal/orders/:id', () => {
   it('should update an order', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: 'o-1' });
-    (prisma as any).portalOrder.update.mockResolvedValue({ id: 'o-1', notes: 'Updated' });
+    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).portalOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', notes: 'Updated' });
 
     const res = await request(app)
-      .put('/api/portal/orders/o-1')
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001')
       .send({ notes: 'Updated' });
 
     expect(res.status).toBe(200);
@@ -140,7 +140,7 @@ describe('PUT /api/portal/orders/:id', () => {
     (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/portal/orders/nonexistent')
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000099')
       .send({ notes: 'Updated' });
 
     expect(res.status).toBe(404);
@@ -149,11 +149,11 @@ describe('PUT /api/portal/orders/:id', () => {
 
 describe('PUT /api/portal/orders/:id/status', () => {
   it('should update order status', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: 'o-1' });
-    (prisma as any).portalOrder.update.mockResolvedValue({ id: 'o-1', status: 'SHIPPED' });
+    (prisma as any).portalOrder.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).portalOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SHIPPED' });
 
     const res = await request(app)
-      .put('/api/portal/orders/o-1/status')
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001/status')
       .send({ status: 'SHIPPED' });
 
     expect(res.status).toBe(200);
@@ -161,7 +161,7 @@ describe('PUT /api/portal/orders/:id/status', () => {
 
   it('should return 400 for invalid status', async () => {
     const res = await request(app)
-      .put('/api/portal/orders/o-1/status')
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001/status')
       .send({ status: 'INVALID' });
 
     expect(res.status).toBe(400);
@@ -171,7 +171,7 @@ describe('PUT /api/portal/orders/:id/status', () => {
     (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/portal/orders/o-1/status')
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001/status')
       .send({ status: 'SHIPPED' });
 
     expect(res.status).toBe(404);

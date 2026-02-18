@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/assets', () => {
   it('should return assets with pagination', async () => {
-    (prisma as any).assetRegister.findMany.mockResolvedValue([{ id: '1', name: 'Forklift' }]);
+    (prisma as any).assetRegister.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', name: 'Forklift' }]);
     (prisma as any).assetRegister.count.mockResolvedValue(1);
     const res = await request(app).get('/api/assets');
     expect(res.status).toBe(200);
@@ -43,23 +43,23 @@ describe('GET /api/assets', () => {
 describe('GET /api/assets/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).assetRegister.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/assets/nope');
+    const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return item by id', async () => {
-    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '1', name: 'Forklift' });
-    const res = await request(app).get('/api/assets/1');
+    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Forklift' });
+    const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 500 on database error', async () => {
     (prisma as any).assetRegister.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/assets/1');
+    const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -69,7 +69,7 @@ describe('GET /api/assets/:id', () => {
 describe('POST /api/assets', () => {
   it('should create', async () => {
     (prisma as any).assetRegister.count.mockResolvedValue(0);
-    (prisma as any).assetRegister.create.mockResolvedValue({ id: '1', name: 'New Asset', referenceNumber: 'AST-2026-0001' });
+    (prisma as any).assetRegister.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'New Asset', referenceNumber: 'AST-2026-0001' });
     const res = await request(app).post('/api/assets').send({ name: 'New Asset' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -101,25 +101,25 @@ describe('POST /api/assets', () => {
 
 describe('PUT /api/assets/:id', () => {
   it('should update', async () => {
-    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).assetRegister.update.mockResolvedValue({ id: '1', name: 'Updated' });
-    const res = await request(app).put('/api/assets/1').send({ name: 'Updated' });
+    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).assetRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    const res = await request(app).put('/api/assets/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 when asset not found', async () => {
     (prisma as any).assetRegister.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/assets/nope').send({ name: 'Updated' });
+    const res = await request(app).put('/api/assets/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on database update error', async () => {
-    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).assetRegister.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).put('/api/assets/1').send({ name: 'Updated' });
+    const res = await request(app).put('/api/assets/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -128,25 +128,25 @@ describe('PUT /api/assets/:id', () => {
 
 describe('DELETE /api/assets/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).assetRegister.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/assets/1');
+    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).assetRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 when asset not found', async () => {
     (prisma as any).assetRegister.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/assets/nope');
+    const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).assetRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).assetRegister.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).delete('/api/assets/1');
+    const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

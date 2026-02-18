@@ -3,9 +3,11 @@ import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { prisma } from '../prisma';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-mgmt-review');
 
 const router = Router();
+router.param('id', validateIdParam());
 
 const generateAgendaSchema = z.object({
   customItems: z.array(z.string()).optional(),

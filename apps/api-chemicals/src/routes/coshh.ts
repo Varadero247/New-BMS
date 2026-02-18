@@ -2,10 +2,12 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 import { calculateRiskScore, getRiskLevel } from '../services/riskCalculator';
 
 const router = Router();
+router.param('id', validateIdParam());
 const logger = createLogger('chem-coshh');
 
 const exposureRouteEnum = z.enum(['INHALATION', 'SKIN_ABSORPTION', 'INGESTION', 'INJECTION', 'EYE_CONTACT']);

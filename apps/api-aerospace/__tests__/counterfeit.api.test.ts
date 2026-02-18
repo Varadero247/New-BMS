@@ -64,7 +64,7 @@ describe('Aerospace Counterfeit Parts API', () => {
   describe('GET /api/counterfeit', () => {
     it('should return paginated list of counterfeit reports', async () => {
       mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([
-        { id: 'cf1', refNumber: 'AERO-CF-2026-001', title: 'Suspect IC Chips', partNumber: 'IC-123', status: 'OPEN' },
+        { id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-CF-2026-001', title: 'Suspect IC Chips', partNumber: 'IC-123', status: 'OPEN' },
       ]);
       mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(1);
 
@@ -110,27 +110,27 @@ describe('Aerospace Counterfeit Parts API', () => {
   describe('GET /api/counterfeit/:id', () => {
     it('should return a single counterfeit report', async () => {
       mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({
-        id: 'cf1', refNumber: 'AERO-CF-2026-001', title: 'Suspect IC Chips', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-CF-2026-001', title: 'Suspect IC Chips', deletedAt: null,
       });
 
-      const res = await request(app).get('/api/counterfeit/cf1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/counterfeit/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('cf1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when not found', async () => {
       mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/counterfeit/nonexistent').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/counterfeit/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should return 404 when soft-deleted', async () => {
-      mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({ id: 'cf1', deletedAt: new Date() });
+      mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-      const res = await request(app).get('/api/counterfeit/cf1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/counterfeit/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -201,13 +201,13 @@ describe('Aerospace Counterfeit Parts API', () => {
   // PUT /:id - Update counterfeit report
   // =============================================
   describe('PUT /api/counterfeit/:id', () => {
-    const existing = { id: 'cf1', status: 'OPEN', deletedAt: null };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'OPEN', deletedAt: null };
 
     it('should update a counterfeit report', async () => {
       mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce(existing);
       mockPrisma.aeroCounterfeitReport.update.mockResolvedValueOnce({ ...existing, status: 'CONFIRMED' });
 
-      const res = await request(app).put('/api/counterfeit/cf1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/counterfeit/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ status: 'CONFIRMED', investigationFindings: 'Confirmed counterfeit markings' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -216,7 +216,7 @@ describe('Aerospace Counterfeit Parts API', () => {
     it('should return 404 when not found', async () => {
       mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/counterfeit/nonexistent').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/counterfeit/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token')
         .send({ status: 'CONFIRMED' });
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -225,7 +225,7 @@ describe('Aerospace Counterfeit Parts API', () => {
     it('should return 400 for invalid status', async () => {
       mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce(existing);
 
-      const res = await request(app).put('/api/counterfeit/cf1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/counterfeit/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ status: 'INVALID' });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -237,17 +237,17 @@ describe('Aerospace Counterfeit Parts API', () => {
   // =============================================
   describe('DELETE /api/counterfeit/:id', () => {
     it('should soft-delete a counterfeit report', async () => {
-      mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({ id: 'cf1', deletedAt: null });
+      mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       mockPrisma.aeroCounterfeitReport.update.mockResolvedValueOnce({});
 
-      const res = await request(app).delete('/api/counterfeit/cf1').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/counterfeit/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(204);
     });
 
     it('should return 404 when not found', async () => {
       mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/counterfeit/nonexistent').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/counterfeit/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });

@@ -4,6 +4,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { scopeToUser } from '@ims/service-auth';
+import { validateIdParam } from '@ims/shared';
 import { randomUUID } from 'crypto';
 
 const logger = createLogger('api-quality:evidence-pack');
@@ -11,6 +12,7 @@ const logger = createLogger('api-quality:evidence-pack');
 const router: Router = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ============================================
 // IN-MEMORY EVIDENCE PACK STORE (v1)

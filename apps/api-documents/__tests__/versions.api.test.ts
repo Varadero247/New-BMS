@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/versions', () => {
   it('should return list of versions with pagination', async () => {
-    (prisma as any).docVersion.findMany.mockResolvedValue([{ id: '1', documentId: 'doc-1', version: 1 }]);
+    (prisma as any).docVersion.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', documentId: 'doc-1', version: 1 }]);
     (prisma as any).docVersion.count.mockResolvedValue(1);
     const res = await request(app).get('/api/versions');
     expect(res.status).toBe(200);
@@ -54,17 +54,17 @@ describe('GET /api/versions', () => {
 
 describe('GET /api/versions/:id', () => {
   it('should return a version by id', async () => {
-    (prisma as any).docVersion.findFirst.mockResolvedValue({ id: '1', documentId: 'doc-1', version: 2 });
-    const res = await request(app).get('/api/versions/1');
+    (prisma as any).docVersion.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', documentId: 'doc-1', version: 2 });
+    const res = await request(app).get('/api/versions/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     expect(res.body.data.version).toBe(2);
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).docVersion.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/versions/nope');
+    const res = await request(app).get('/api/versions/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -73,11 +73,11 @@ describe('GET /api/versions/:id', () => {
 
 describe('POST /api/versions', () => {
   it('should create a version', async () => {
-    (prisma as any).docVersion.create.mockResolvedValue({ id: '1', documentId: 'doc-1', version: 1, changeNotes: 'Initial version' });
+    (prisma as any).docVersion.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', documentId: 'doc-1', version: 1, changeNotes: 'Initial version' });
     const res = await request(app).post('/api/versions').send({ documentId: 'doc-1', version: 1, changeNotes: 'Initial version' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 400 if documentId is missing', async () => {
@@ -108,22 +108,22 @@ describe('POST /api/versions', () => {
 
 describe('PUT /api/versions/:id', () => {
   it('should update a version', async () => {
-    (prisma as any).docVersion.findFirst.mockResolvedValue({ id: '1', documentId: 'doc-1', version: 1 });
-    (prisma as any).docVersion.update.mockResolvedValue({ id: '1', documentId: 'doc-1', version: 2, changeNotes: 'Updated' });
-    const res = await request(app).put('/api/versions/1').send({ version: 2, changeNotes: 'Updated' });
+    (prisma as any).docVersion.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', documentId: 'doc-1', version: 1 });
+    (prisma as any).docVersion.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', documentId: 'doc-1', version: 2, changeNotes: 'Updated' });
+    const res = await request(app).put('/api/versions/00000000-0000-0000-0000-000000000001').send({ version: 2, changeNotes: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).docVersion.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/versions/nope').send({ version: 2 });
+    const res = await request(app).put('/api/versions/00000000-0000-0000-0000-000000000099').send({ version: 2 });
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 400 on validation error', async () => {
-    const res = await request(app).put('/api/versions/1').send({ version: 0 });
+    const res = await request(app).put('/api/versions/00000000-0000-0000-0000-000000000001').send({ version: 0 });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
@@ -131,9 +131,9 @@ describe('PUT /api/versions/:id', () => {
 
 describe('DELETE /api/versions/:id', () => {
   it('should soft delete a version', async () => {
-    (prisma as any).docVersion.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).docVersion.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/versions/1');
+    (prisma as any).docVersion.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).docVersion.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/versions/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toContain('deleted');
@@ -141,7 +141,7 @@ describe('DELETE /api/versions/:id', () => {
 
   it('should return 404 if not found', async () => {
     (prisma as any).docVersion.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/versions/nope');
+    const res = await request(app).delete('/api/versions/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });

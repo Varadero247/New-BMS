@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 
 const logger = createLogger('api-marketing:leads');
 const router = Router();
+router.param('id', validateIdParam());
 
 const captureSchema = z.object({
   email: z.string().trim().email(),

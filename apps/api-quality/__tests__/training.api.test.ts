@@ -47,7 +47,7 @@ beforeEach(() => {
 
 describe('Quality Training API Routes', () => {
   const mockTraining = {
-    id: 'training-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     referenceNumber: 'QMS-TRN-2026-001',
     employeeId: 'EMP-001',
     employeeName: 'John Employee',
@@ -232,7 +232,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.update.mockResolvedValue(completed);
 
       const res = await request(app)
-        .put('/api/training/training-uuid-1/complete')
+        .put('/api/training/00000000-0000-0000-0000-000000000001/complete')
         .send(completeBody);
 
       expect(res.status).toBe(200);
@@ -245,7 +245,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.update.mockResolvedValue(failed);
 
       const res = await request(app)
-        .put('/api/training/training-uuid-1/complete')
+        .put('/api/training/00000000-0000-0000-0000-000000000001/complete')
         .send({ score: 70 });
 
       expect(res.status).toBe(200);
@@ -256,7 +256,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/training/nonexistent/complete')
+        .put('/api/training/00000000-0000-0000-0000-000000000099/complete')
         .send(completeBody);
 
       expect(res.status).toBe(404);
@@ -264,7 +264,7 @@ describe('Quality Training API Routes', () => {
 
     it('should return 400 for missing score', async () => {
       const res = await request(app)
-        .put('/api/training/training-uuid-1/complete')
+        .put('/api/training/00000000-0000-0000-0000-000000000001/complete')
         .send({ feedback: 'No score provided' });
 
       expect(res.status).toBe(400);
@@ -275,7 +275,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/training/training-uuid-1/complete')
+        .put('/api/training/00000000-0000-0000-0000-000000000001/complete')
         .send(completeBody);
 
       expect(res.status).toBe(500);
@@ -286,17 +286,17 @@ describe('Quality Training API Routes', () => {
     it('should return a single training record', async () => {
       mockPrisma.qualTraining.findFirst.mockResolvedValue(mockTraining);
 
-      const res = await request(app).get('/api/training/training-uuid-1');
+      const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('training-uuid-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when training record not found', async () => {
       mockPrisma.qualTraining.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/training/nonexistent');
+      const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -305,7 +305,7 @@ describe('Quality Training API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.qualTraining.findFirst.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/training/training-uuid-1');
+      const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -318,7 +318,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/training/training-uuid-1')
+        .put('/api/training/00000000-0000-0000-0000-000000000001')
         .send({ status: 'IN_PROGRESS' });
 
       expect(res.status).toBe(200);
@@ -329,7 +329,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/training/nonexistent')
+        .put('/api/training/00000000-0000-0000-0000-000000000099')
         .send({ status: 'COMPLETED' });
 
       expect(res.status).toBe(404);
@@ -340,7 +340,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/training/training-uuid-1')
+        .put('/api/training/00000000-0000-0000-0000-000000000001')
         .send({ courseName: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -352,7 +352,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.findFirst.mockResolvedValue(mockTraining);
       mockPrisma.qualTraining.update.mockResolvedValue({ ...mockTraining, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/training/training-uuid-1');
+      const res = await request(app).delete('/api/training/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -362,7 +362,7 @@ describe('Quality Training API Routes', () => {
     it('should return 404 when training record not found', async () => {
       mockPrisma.qualTraining.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/training/nonexistent');
+      const res = await request(app).delete('/api/training/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -371,7 +371,7 @@ describe('Quality Training API Routes', () => {
       mockPrisma.qualTraining.findFirst.mockResolvedValue(mockTraining);
       mockPrisma.qualTraining.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/training/training-uuid-1');
+      const res = await request(app).delete('/api/training/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });

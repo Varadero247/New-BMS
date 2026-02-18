@@ -126,7 +126,7 @@ describe('GET /api/health-score/user/:userId', () => {
       id: 'hs-1', userId: 'user-1', score: 75, trend: 'IMPROVING',
     });
 
-    const res = await request(app).get('/api/health-score/user/user-1');
+    const res = await request(app).get('/api/health-score/user/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.score).toBe(75);
@@ -135,7 +135,7 @@ describe('GET /api/health-score/user/:userId', () => {
   it('returns 404 when no score exists', async () => {
     (prisma.mktHealthScore.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/health-score/user/unknown');
+    const res = await request(app).get('/api/health-score/user/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -154,7 +154,7 @@ describe('GET /api/health-score/org/:orgId', () => {
     ];
     (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue(scores);
 
-    const res = await request(app).get('/api/health-score/org/org-1');
+    const res = await request(app).get('/api/health-score/org/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.totalUsers).toBe(3);

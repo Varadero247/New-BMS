@@ -444,7 +444,7 @@ describe('Automotive CSR API Routes', () => {
       (mockPrisma.csrRequirement.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
-        .put('/api/csr/nonexistent-id/status')
+        .put('/api/csr/00000000-0000-0000-0000-000000000099/status')
         .set('Authorization', 'Bearer token')
         .send({ complianceStatus: 'COMPLIANT' });
 

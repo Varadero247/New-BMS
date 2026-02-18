@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/monitoring', () => {
   it('should return monitoring records with pagination', async () => {
-    const records = [{ id: 'mr-1', value: '76C', withinLimits: true }];
+    const records = [{ id: '00000000-0000-0000-0000-000000000001', value: '76C', withinLimits: true }];
     (prisma as any).fsMonitoringRecord.findMany.mockResolvedValue(records);
     (prisma as any).fsMonitoringRecord.count.mockResolvedValue(1);
 
@@ -92,7 +92,7 @@ describe('GET /api/monitoring', () => {
 
 describe('POST /api/monitoring', () => {
   it('should create a monitoring record', async () => {
-    const created = { id: 'mr-1', ccpId: 'ccp-1', value: '76C', withinLimits: true };
+    const created = { id: '00000000-0000-0000-0000-000000000001', ccpId: 'ccp-1', value: '76C', withinLimits: true };
     (prisma as any).fsMonitoringRecord.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/monitoring').send({
@@ -125,27 +125,27 @@ describe('POST /api/monitoring', () => {
 
 describe('GET /api/monitoring/:id', () => {
   it('should return a monitoring record', async () => {
-    (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue({ id: 'mr-1', value: '76C' });
+    (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', value: '76C' });
 
-    const res = await request(app).get('/api/monitoring/mr-1');
+    const res = await request(app).get('/api/monitoring/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('mr-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/monitoring/non-existent');
+    const res = await request(app).get('/api/monitoring/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('PUT /api/monitoring/:id', () => {
   it('should update a monitoring record', async () => {
-    (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue({ id: 'mr-1' });
-    (prisma as any).fsMonitoringRecord.update.mockResolvedValue({ id: 'mr-1', value: '78C' });
+    (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsMonitoringRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', value: '78C' });
 
-    const res = await request(app).put('/api/monitoring/mr-1').send({ value: '78C' });
+    const res = await request(app).put('/api/monitoring/00000000-0000-0000-0000-000000000001').send({ value: '78C' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -153,17 +153,17 @@ describe('PUT /api/monitoring/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/monitoring/non-existent').send({ value: '78C' });
+    const res = await request(app).put('/api/monitoring/00000000-0000-0000-0000-000000000099').send({ value: '78C' });
     expect(res.status).toBe(404);
   });
 });
 
 describe('DELETE /api/monitoring/:id', () => {
   it('should soft delete a monitoring record', async () => {
-    (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue({ id: 'mr-1' });
-    (prisma as any).fsMonitoringRecord.update.mockResolvedValue({ id: 'mr-1' });
+    (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsMonitoringRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).delete('/api/monitoring/mr-1');
+    const res = await request(app).delete('/api/monitoring/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -171,14 +171,14 @@ describe('DELETE /api/monitoring/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsMonitoringRecord.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/monitoring/non-existent');
+    const res = await request(app).delete('/api/monitoring/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('GET /api/monitoring/deviations', () => {
   it('should return only records where withinLimits=false', async () => {
-    const deviations = [{ id: 'mr-1', withinLimits: false, deviation: 'Temp too low' }];
+    const deviations = [{ id: '00000000-0000-0000-0000-000000000001', withinLimits: false, deviation: 'Temp too low' }];
     (prisma as any).fsMonitoringRecord.findMany.mockResolvedValue(deviations);
     (prisma as any).fsMonitoringRecord.count.mockResolvedValue(1);
 

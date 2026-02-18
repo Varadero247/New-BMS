@@ -63,7 +63,7 @@ const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 // ==========================================
 
 const mockFAI = {
-  id: 'fai-00000000-0000-4000-a000-000000000001',
+  id: '00000000-0000-0000-0000-000000000001',
   refNumber: 'FAI-2602-0001',
   title: 'Wing Spar Assembly FAI',
   partNumber: 'WS-2026-001',
@@ -90,7 +90,7 @@ const mockFAI = {
 };
 
 const mockFAI2 = {
-  id: 'fai-00000000-0000-4000-a000-000000000002',
+  id: '00000000-0000-0000-0000-000000000001',
   refNumber: 'FAI-2602-0002',
   title: 'Fuselage Panel FAI',
   partNumber: 'FP-2026-010',
@@ -604,12 +604,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI2);
 
       const response = await request(app)
-        .get('/api/fai/fai-00000000-0000-4000-a000-000000000002')
+        .get('/api/fai/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('fai-00000000-0000-4000-a000-000000000002');
+      expect(response.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
       expect(response.body.data.part1Characteristics).toBeDefined();
       expect(response.body.data.part1Characteristics).toHaveLength(1);
       expect(response.body.data.part1Characteristics[0].charName).toBe('Length');
@@ -624,7 +624,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .get('/api/fai/fai-00000000-0000-4000-a000-000000000001')
+        .get('/api/fai/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -638,7 +638,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/fai/nonexistent-id')
+        .get('/api/fai/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -654,7 +654,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .get('/api/fai/fai-00000000-0000-4000-a000-000000000001')
+        .get('/api/fai/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -670,7 +670,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .get('/api/fai/fai-00000000-0000-4000-a000-000000000001')
+        .get('/api/fai/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -683,7 +683,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/fai/fai-00000000-0000-4000-a000-000000000001')
+        .get('/api/fai/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -705,7 +705,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(validPart1Payload);
 
@@ -715,7 +715,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       expect(response.body.data.status).toBe('IN_PROGRESS');
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: {
           part1Data: JSON.stringify(validPart1Payload.characteristics),
           part1Status: 'COMPLETED',
@@ -735,12 +735,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(validPart1Payload);
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           status: 'IN_PROGRESS',
         }),
@@ -758,12 +758,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(validPart1Payload);
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           status: 'IN_PROGRESS',
         }),
@@ -785,12 +785,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(emptyCharacteristics);
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part1Status: 'NOT_STARTED',
         }),
@@ -812,12 +812,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(partialCharacteristics);
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part1Status: 'IN_PROGRESS',
         }),
@@ -832,12 +832,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send({ characteristics: [] });
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part1Status: 'NOT_STARTED',
         }),
@@ -848,7 +848,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/fai/nonexistent-id/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000099/part1')
         .set('Authorization', 'Bearer token')
         .send(validPart1Payload);
 
@@ -863,7 +863,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(validPart1Payload);
 
@@ -878,7 +878,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(validPart1Payload);
 
@@ -895,7 +895,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(validPart1Payload);
 
@@ -908,7 +908,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send({
           characteristics: [
@@ -924,7 +924,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send({
           characteristics: [
@@ -940,7 +940,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -952,7 +952,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part1')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part1')
         .set('Authorization', 'Bearer token')
         .send(validPart1Payload);
 
@@ -975,7 +975,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send(validPart2Payload);
 
@@ -984,7 +984,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       expect(response.body.data.part2Status).toBe('COMPLETED');
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: {
           part2Data: JSON.stringify(validPart2Payload.documents),
           part2Status: 'COMPLETED',
@@ -1008,12 +1008,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send(partialDocs);
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part2Status: 'IN_PROGRESS',
         }),
@@ -1035,12 +1035,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send(noDocs);
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part2Status: 'NOT_STARTED',
         }),
@@ -1055,12 +1055,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send({ documents: [] });
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part2Status: 'NOT_STARTED',
         }),
@@ -1071,7 +1071,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/fai/nonexistent-id/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000099/part2')
         .set('Authorization', 'Bearer token')
         .send(validPart2Payload);
 
@@ -1086,7 +1086,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send(validPart2Payload);
 
@@ -1102,7 +1102,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send(validPart2Payload);
 
@@ -1114,7 +1114,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send({
           documents: [
@@ -1130,7 +1130,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -1142,7 +1142,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part2')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part2')
         .set('Authorization', 'Bearer token')
         .send(validPart2Payload);
 
@@ -1165,7 +1165,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send(validPart3Payload);
 
@@ -1174,7 +1174,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       expect(response.body.data.part3Status).toBe('COMPLETED');
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: {
           part3Data: JSON.stringify(validPart3Payload.testResults),
           part3Status: 'COMPLETED',
@@ -1198,12 +1198,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send(partialResults);
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part3Status: 'IN_PROGRESS',
         }),
@@ -1225,12 +1225,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send(emptyResults);
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part3Status: 'NOT_STARTED',
         }),
@@ -1245,12 +1245,12 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send({ testResults: [] });
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           part3Status: 'NOT_STARTED',
         }),
@@ -1261,7 +1261,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/fai/nonexistent-id/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000099/part3')
         .set('Authorization', 'Bearer token')
         .send(validPart3Payload);
 
@@ -1276,7 +1276,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send(validPart3Payload);
 
@@ -1292,7 +1292,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send(validPart3Payload);
 
@@ -1304,7 +1304,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send({
           testResults: [
@@ -1320,7 +1320,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -1332,7 +1332,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/fai/fai-00000000-0000-4000-a000-000000000001/part3')
+        .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
         .set('Authorization', 'Bearer token')
         .send(validPart3Payload);
 
@@ -1355,7 +1355,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -1364,7 +1364,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       expect(response.body.data.approvedBy).toBe('test@test.com');
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: {
           status: 'APPROVED',
           approvedBy: 'test@test.com',
@@ -1377,7 +1377,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/fai/nonexistent-id/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000099/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -1391,7 +1391,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -1405,7 +1405,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -1420,7 +1420,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -1435,7 +1435,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -1453,7 +1453,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -1467,7 +1467,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAIWithFailingChar);
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -1480,7 +1480,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAIWithFailingTest);
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -1497,7 +1497,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
@@ -1508,7 +1508,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/approve')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/approve')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -1531,7 +1531,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000002/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')
         .set('Authorization', 'Bearer token')
         .send(validPartialPayload);
 
@@ -1540,7 +1540,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       expect(response.body.data.status).toBe('APPROVED_PARTIAL');
 
       expect(mockPrisma.firstArticleInspection.update).toHaveBeenCalledWith({
-        where: { id: 'fai-00000000-0000-4000-a000-000000000002' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: {
           status: 'APPROVED_PARTIAL',
           openItems: JSON.stringify(validPartialPayload.openItems),
@@ -1561,7 +1561,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')
         .set('Authorization', 'Bearer token')
         .send({ openItems: ['Material cert pending'] });
 
@@ -1573,7 +1573,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/fai/nonexistent-id/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000099/partial')
         .set('Authorization', 'Bearer token')
         .send(validPartialPayload);
 
@@ -1588,7 +1588,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')
         .set('Authorization', 'Bearer token')
         .send(validPartialPayload);
 
@@ -1600,7 +1600,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')
         .set('Authorization', 'Bearer token')
         .send({ openItems: [] });
 
@@ -1612,7 +1612,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')
         .set('Authorization', 'Bearer token')
         .send({ openItems: [''] });
 
@@ -1624,7 +1624,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -1636,7 +1636,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValueOnce(mockFAI);
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')
         .set('Authorization', 'Bearer token')
         .send({ openItems: 'single string' });
 
@@ -1648,7 +1648,7 @@ describe('Aerospace FAI (AS9102) API Routes', () => {
       (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/fai/fai-00000000-0000-4000-a000-000000000001/partial')
+        .post('/api/fai/00000000-0000-0000-0000-000000000001/partial')
         .set('Authorization', 'Bearer token')
         .send(validPartialPayload);
 

@@ -27,7 +27,7 @@ app.use(express.json());
 app.use('/api/preventive-plans', preventivePlansRouter);
 
 const mockPlan = {
-  id: 'plan-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'Monthly Lubrication',
   assetId: 'asset-1',
   description: 'Monthly lubrication schedule',
@@ -127,15 +127,15 @@ describe('Preventive Plans Routes', () => {
     it('should return a plan by ID', async () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
 
-      const res = await request(app).get('/api/preventive-plans/plan-1');
+      const res = await request(app).get('/api/preventive-plans/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('plan-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent plan', async () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/preventive-plans/non-existent');
+      const res = await request(app).get('/api/preventive-plans/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -145,14 +145,14 @@ describe('Preventive Plans Routes', () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
       prisma.cmmsPreventivePlan.update.mockResolvedValue({ ...mockPlan, name: 'Updated' });
 
-      const res = await request(app).put('/api/preventive-plans/plan-1').send({ name: 'Updated' });
+      const res = await request(app).put('/api/preventive-plans/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent plan', async () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/preventive-plans/non-existent').send({ name: 'Updated' });
+      const res = await request(app).put('/api/preventive-plans/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -162,7 +162,7 @@ describe('Preventive Plans Routes', () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
       prisma.cmmsPreventivePlan.update.mockResolvedValue({ ...mockPlan, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/preventive-plans/plan-1');
+      const res = await request(app).delete('/api/preventive-plans/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -170,7 +170,7 @@ describe('Preventive Plans Routes', () => {
     it('should return 404 for non-existent plan', async () => {
       prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/preventive-plans/non-existent');
+      const res = await request(app).delete('/api/preventive-plans/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

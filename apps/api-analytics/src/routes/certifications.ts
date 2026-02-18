@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const createDeadlineSchema = z.object({
   name: z.string().min(1, 'name is required'),
@@ -21,6 +22,7 @@ const updateDeadlineSchema = createDeadlineSchema.partial().extend({
 const logger = createLogger('certifications');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ---------------------------------------------------------------------------
 // GET / — List compliance deadlines with pagination, filter by status/category

@@ -202,7 +202,7 @@ describe('GET /api/accounts/:id', () => {
   it('should return 404 when account not found', async () => {
     (prisma as any).finAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/accounts/nonexistent');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -299,7 +299,7 @@ describe('PUT /api/accounts/:id', () => {
   it('should return 404 when account not found', async () => {
     (prisma as any).finAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/accounts/nonexistent').send({ name: 'Test' });
+    const res = await request(app).put('/api/accounts/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -348,7 +348,7 @@ describe('DELETE /api/accounts/:id', () => {
   it('should return 404 when account not found', async () => {
     (prisma as any).finAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/accounts/nonexistent');
+    const res = await request(app).delete('/api/accounts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -437,7 +437,7 @@ describe('GET /api/accounts/entries/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/accounts/entries/nonexistent');
+    const res = await request(app).get('/api/accounts/entries/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -578,7 +578,7 @@ describe('PUT /api/accounts/entries/:id', () => {
   it('should return 404 when entry not found', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/accounts/entries/nonexistent').send({ description: 'Test' });
+    const res = await request(app).put('/api/accounts/entries/00000000-0000-0000-0000-000000000099').send({ description: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -661,7 +661,7 @@ describe('POST /api/accounts/entries/:id/post', () => {
   it('should return 404 when entry not found', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/accounts/entries/nonexistent/post');
+    const res = await request(app).post('/api/accounts/entries/00000000-0000-0000-0000-000000000099/post');
 
     expect(res.status).toBe(404);
   });
@@ -729,7 +729,7 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
   it('should return 404 when entry not found', async () => {
     (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/accounts/entries/nonexistent/reverse');
+    const res = await request(app).post('/api/accounts/entries/00000000-0000-0000-0000-000000000099/reverse');
 
     expect(res.status).toBe(404);
   });
@@ -938,7 +938,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
     (prisma as any).finJournalEntry.count.mockResolvedValue(0);
     (prisma as any).finPeriod.update.mockResolvedValue({ id: 'f2300000-0000-4000-a000-000000000001', status: 'CLOSED' });
 
-    const res = await request(app).put('/api/accounts/periods/p-1/close');
+    const res = await request(app).put('/api/accounts/periods/00000000-0000-0000-0000-000000000001/close');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('CLOSED');
@@ -947,7 +947,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
   it('should return 404 when period not found', async () => {
     (prisma as any).finPeriod.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/accounts/periods/nonexistent/close');
+    const res = await request(app).put('/api/accounts/periods/00000000-0000-0000-0000-000000000099/close');
 
     expect(res.status).toBe(404);
   });
@@ -955,7 +955,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
   it('should return 400 when period is already CLOSED', async () => {
     (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'f2300000-0000-4000-a000-000000000001', status: 'CLOSED' });
 
-    const res = await request(app).put('/api/accounts/periods/p-1/close');
+    const res = await request(app).put('/api/accounts/periods/00000000-0000-0000-0000-000000000001/close');
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toContain('already closed');
@@ -965,7 +965,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
     (prisma as any).finPeriod.findUnique.mockResolvedValue({ id: 'f2300000-0000-4000-a000-000000000001', status: 'OPEN' });
     (prisma as any).finJournalEntry.count.mockResolvedValue(3);
 
-    const res = await request(app).put('/api/accounts/periods/p-1/close');
+    const res = await request(app).put('/api/accounts/periods/00000000-0000-0000-0000-000000000001/close');
 
     expect(res.status).toBe(409);
     expect(res.body.error.message).toContain('3 unposted');

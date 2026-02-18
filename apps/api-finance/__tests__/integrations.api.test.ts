@@ -111,7 +111,7 @@ describe('GET /api/integrations/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/integrations/nonexistent');
+    const res = await request(app).get('/api/integrations/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -204,7 +204,7 @@ describe('PUT /api/integrations/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/integrations/nonexistent').send({ name: 'Test' });
+    const res = await request(app).put('/api/integrations/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -236,7 +236,7 @@ describe('POST /api/integrations/:id/activate', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/integrations/nonexistent/activate');
+    const res = await request(app).post('/api/integrations/00000000-0000-0000-0000-000000000099/activate');
 
     expect(res.status).toBe(404);
   });
@@ -264,7 +264,7 @@ describe('POST /api/integrations/:id/deactivate', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/integrations/nonexistent/deactivate');
+    const res = await request(app).post('/api/integrations/00000000-0000-0000-0000-000000000099/deactivate');
 
     expect(res.status).toBe(404);
   });
@@ -294,7 +294,7 @@ describe('POST /api/integrations/:id/sync', () => {
   it('should return 404 when integration not found', async () => {
     (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/integrations/nonexistent/sync');
+    const res = await request(app).post('/api/integrations/00000000-0000-0000-0000-000000000099/sync');
 
     expect(res.status).toBe(404);
   });

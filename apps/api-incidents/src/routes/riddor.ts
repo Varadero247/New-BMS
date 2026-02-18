@@ -3,9 +3,11 @@ import { z } from 'zod';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-incidents');
 
 const router = Router();
+router.param('id', validateIdParam());
 
 const assessSchema = z.object({
   reportable: z.boolean({ required_error: 'reportable is required' }),

@@ -115,7 +115,7 @@ describe('GET /api/tax/rates/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxRate.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/tax/rates/nonexistent');
+    const res = await request(app).get('/api/tax/rates/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -191,7 +191,7 @@ describe('PUT /api/tax/rates/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxRate.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/tax/rates/nonexistent').send({ name: 'Test' });
+    const res = await request(app).put('/api/tax/rates/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -219,7 +219,7 @@ describe('DELETE /api/tax/rates/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxRate.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/tax/rates/nonexistent');
+    const res = await request(app).delete('/api/tax/rates/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -295,7 +295,7 @@ describe('GET /api/tax/returns/:id', () => {
       taxRate: { id: 'f8000000-0000-4000-a000-000000000001', name: 'VAT', rate: 20 },
     });
 
-    const res = await request(app).get('/api/tax/returns/ret-1');
+    const res = await request(app).get('/api/tax/returns/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.netTax).toBe(3000);
@@ -304,7 +304,7 @@ describe('GET /api/tax/returns/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxReturn.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/tax/returns/nonexistent');
+    const res = await request(app).get('/api/tax/returns/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -364,7 +364,7 @@ describe('PUT /api/tax/returns/:id', () => {
       taxRate: { id: 'f8000000-0000-4000-a000-000000000001', name: 'VAT' },
     });
 
-    const res = await request(app).put('/api/tax/returns/ret-1').send({
+    const res = await request(app).put('/api/tax/returns/00000000-0000-0000-0000-000000000001').send({
       salesTax: 5000,
       purchaseTax: 2000,
     });
@@ -376,7 +376,7 @@ describe('PUT /api/tax/returns/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxReturn.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/tax/returns/nonexistent').send({ salesTax: 1000 });
+    const res = await request(app).put('/api/tax/returns/00000000-0000-0000-0000-000000000099').send({ salesTax: 1000 });
 
     expect(res.status).toBe(404);
   });
@@ -387,7 +387,7 @@ describe('PUT /api/tax/returns/:id', () => {
       status: 'SUBMITTED',
     });
 
-    const res = await request(app).put('/api/tax/returns/ret-1').send({ salesTax: 1000 });
+    const res = await request(app).put('/api/tax/returns/00000000-0000-0000-0000-000000000001').send({ salesTax: 1000 });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_STATUS');
@@ -399,7 +399,7 @@ describe('PUT /api/tax/returns/:id', () => {
       status: 'ACCEPTED',
     });
 
-    const res = await request(app).put('/api/tax/returns/ret-1').send({ salesTax: 1000 });
+    const res = await request(app).put('/api/tax/returns/00000000-0000-0000-0000-000000000001').send({ salesTax: 1000 });
 
     expect(res.status).toBe(400);
   });
@@ -417,7 +417,7 @@ describe('POST /api/tax/returns/:id/submit', () => {
       taxRate: { id: 'f8000000-0000-4000-a000-000000000001', name: 'VAT' },
     });
 
-    const res = await request(app).post('/api/tax/returns/ret-1/submit');
+    const res = await request(app).post('/api/tax/returns/00000000-0000-0000-0000-000000000001/submit');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('SUBMITTED');
@@ -426,7 +426,7 @@ describe('POST /api/tax/returns/:id/submit', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finTaxReturn.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/tax/returns/nonexistent/submit');
+    const res = await request(app).post('/api/tax/returns/00000000-0000-0000-0000-000000000099/submit');
 
     expect(res.status).toBe(404);
   });
@@ -437,7 +437,7 @@ describe('POST /api/tax/returns/:id/submit', () => {
       status: 'DRAFT',
     });
 
-    const res = await request(app).post('/api/tax/returns/ret-1/submit');
+    const res = await request(app).post('/api/tax/returns/00000000-0000-0000-0000-000000000001/submit');
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_STATUS');
@@ -449,7 +449,7 @@ describe('POST /api/tax/returns/:id/submit', () => {
       status: 'SUBMITTED',
     });
 
-    const res = await request(app).post('/api/tax/returns/ret-1/submit');
+    const res = await request(app).post('/api/tax/returns/00000000-0000-0000-0000-000000000001/submit');
 
     expect(res.status).toBe(400);
   });

@@ -47,7 +47,7 @@ beforeEach(() => {
 
 describe('Quality Investigations API Routes', () => {
   const mockInvestigation = {
-    id: 'inv-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     referenceNumber: 'QMS-INV-2026-001',
     title: 'Customer complaint investigation',
     description: 'Investigate root cause of product failure',
@@ -190,17 +190,17 @@ describe('Quality Investigations API Routes', () => {
     it('should return a single investigation', async () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
 
-      const res = await request(app).get('/api/investigations/inv-uuid-1');
+      const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('inv-uuid-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when investigation not found', async () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/investigations/nonexistent');
+      const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -209,7 +209,7 @@ describe('Quality Investigations API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.qualInvestigation.findFirst.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/investigations/inv-uuid-1');
+      const res = await request(app).get('/api/investigations/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -222,7 +222,7 @@ describe('Quality Investigations API Routes', () => {
       mockPrisma.qualInvestigation.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/investigations/inv-uuid-1')
+        .put('/api/investigations/00000000-0000-0000-0000-000000000001')
         .send({ status: 'IN_PROGRESS', rootCause: 'Material defect' });
 
       expect(res.status).toBe(200);
@@ -233,7 +233,7 @@ describe('Quality Investigations API Routes', () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/investigations/nonexistent')
+        .put('/api/investigations/00000000-0000-0000-0000-000000000099')
         .send({ status: 'CLOSED' });
 
       expect(res.status).toBe(404);
@@ -244,7 +244,7 @@ describe('Quality Investigations API Routes', () => {
       mockPrisma.qualInvestigation.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/investigations/inv-uuid-1')
+        .put('/api/investigations/00000000-0000-0000-0000-000000000001')
         .send({ title: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -256,7 +256,7 @@ describe('Quality Investigations API Routes', () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
       mockPrisma.qualInvestigation.update.mockResolvedValue({ ...mockInvestigation, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/investigations/inv-uuid-1');
+      const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -266,7 +266,7 @@ describe('Quality Investigations API Routes', () => {
     it('should return 404 when investigation not found', async () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/investigations/nonexistent');
+      const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -275,7 +275,7 @@ describe('Quality Investigations API Routes', () => {
       mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
       mockPrisma.qualInvestigation.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/investigations/inv-uuid-1');
+      const res = await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });

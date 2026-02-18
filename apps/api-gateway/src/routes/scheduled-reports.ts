@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { z } from 'zod';
 import {
   createSchedule,
@@ -17,6 +18,7 @@ type ReportFormat = string;
 
 const logger = createLogger('api-gateway:scheduled-reports');
 const router = Router();
+router.param('id', validateIdParam());
 
 // All routes require authentication + admin role
 router.use(authenticate);

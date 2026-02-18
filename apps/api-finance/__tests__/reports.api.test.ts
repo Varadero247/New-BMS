@@ -171,7 +171,7 @@ describe('GET /api/reports/budgets/:id', () => {
       account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing' },
     });
 
-    const res = await request(app).get('/api/reports/budgets/bud-1');
+    const res = await request(app).get('/api/reports/budgets/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.budgetAmount).toBe(10000);
@@ -180,7 +180,7 @@ describe('GET /api/reports/budgets/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBudget.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/reports/budgets/nonexistent');
+    const res = await request(app).get('/api/reports/budgets/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -255,7 +255,7 @@ describe('PUT /api/reports/budgets/:id', () => {
       account: { id: 'f2000000-0000-4000-a000-000000000001', code: '5100', name: 'Marketing', type: 'EXPENSE' },
     });
 
-    const res = await request(app).put('/api/reports/budgets/bud-1').send({ budgetAmount: 15000 });
+    const res = await request(app).put('/api/reports/budgets/00000000-0000-0000-0000-000000000001').send({ budgetAmount: 15000 });
 
     expect(res.status).toBe(200);
     expect(res.body.data.budgetAmount).toBe(15000);
@@ -264,7 +264,7 @@ describe('PUT /api/reports/budgets/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBudget.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/reports/budgets/nonexistent').send({ budgetAmount: 5000 });
+    const res = await request(app).put('/api/reports/budgets/00000000-0000-0000-0000-000000000099').send({ budgetAmount: 5000 });
 
     expect(res.status).toBe(404);
   });
@@ -275,7 +275,7 @@ describe('DELETE /api/reports/budgets/:id', () => {
     (prisma as any).finBudget.findUnique.mockResolvedValue({ id: 'f3000000-0000-4000-a000-000000000001' });
     (prisma as any).finBudget.update.mockResolvedValue({ id: 'f3000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/reports/budgets/bud-1');
+    const res = await request(app).delete('/api/reports/budgets/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toContain('deleted');
@@ -284,7 +284,7 @@ describe('DELETE /api/reports/budgets/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBudget.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/reports/budgets/nonexistent');
+    const res = await request(app).delete('/api/reports/budgets/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

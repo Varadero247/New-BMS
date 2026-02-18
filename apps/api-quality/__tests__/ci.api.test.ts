@@ -47,7 +47,7 @@ beforeEach(() => {
 
 describe('Quality Continuous Improvement (CI) API Routes', () => {
   const mockCI = {
-    id: 'ci-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     referenceNumber: 'QMS-CI-2026-001',
     title: 'Reduce defect rate in assembly',
     description: 'Current defect rate is 3%, target is 1%',
@@ -195,17 +195,17 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
     it('should return a single CI item', async () => {
       mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(mockCI);
 
-      const res = await request(app).get('/api/ci/ci-uuid-1');
+      const res = await request(app).get('/api/ci/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('ci-uuid-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when CI item not found', async () => {
       mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/ci/nonexistent');
+      const res = await request(app).get('/api/ci/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -214,7 +214,7 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.qualContinuousImprovement.findFirst.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/ci/ci-uuid-1');
+      const res = await request(app).get('/api/ci/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -227,7 +227,7 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
       mockPrisma.qualContinuousImprovement.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/ci/ci-uuid-1')
+        .put('/api/ci/00000000-0000-0000-0000-000000000001')
         .send({ status: 'APPROVED' });
 
       expect(res.status).toBe(200);
@@ -238,7 +238,7 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
       mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/ci/nonexistent')
+        .put('/api/ci/00000000-0000-0000-0000-000000000099')
         .send({ status: 'APPROVED' });
 
       expect(res.status).toBe(404);
@@ -249,7 +249,7 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
       mockPrisma.qualContinuousImprovement.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/ci/ci-uuid-1')
+        .put('/api/ci/00000000-0000-0000-0000-000000000001')
         .send({ title: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -261,7 +261,7 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
       mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(mockCI);
       mockPrisma.qualContinuousImprovement.update.mockResolvedValue({ ...mockCI, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/ci/ci-uuid-1');
+      const res = await request(app).delete('/api/ci/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -271,7 +271,7 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
     it('should return 404 when CI item not found', async () => {
       mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/ci/nonexistent');
+      const res = await request(app).delete('/api/ci/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -280,7 +280,7 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
       mockPrisma.qualContinuousImprovement.findFirst.mockResolvedValue(mockCI);
       mockPrisma.qualContinuousImprovement.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/ci/ci-uuid-1');
+      const res = await request(app).delete('/api/ci/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });

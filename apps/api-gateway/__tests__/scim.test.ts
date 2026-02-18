@@ -161,7 +161,7 @@ describe('SCIM Routes', () => {
 
     it('returns 404 for non-existent user', async () => {
       const res = await request(app)
-        .get('/scim/v2/Users/nonexistent-user-id')
+        .get('/scim/v2/Users/00000000-0000-0000-0000-000000000099')
         .set('Authorization', `Bearer ${scimToken}`);
       expect(res.status).toBe(404);
       expect(res.body.schemas).toContain('urn:ietf:params:scim:api:messages:2.0:Error');
@@ -187,7 +187,7 @@ describe('SCIM Routes', () => {
 
     it('returns 404 for non-existent user', async () => {
       const res = await request(app)
-        .put('/scim/v2/Users/nonexistent')
+        .put('/scim/v2/Users/00000000-0000-0000-0000-000000000099')
         .set('Authorization', `Bearer ${scimToken}`)
         .send({ userName: 'test@test.com' });
       expect(res.status).toBe(404);
@@ -216,7 +216,7 @@ describe('SCIM Routes', () => {
 
     it('returns 404 for non-existent user', async () => {
       const res = await request(app)
-        .patch('/scim/v2/Users/nonexistent')
+        .patch('/scim/v2/Users/00000000-0000-0000-0000-000000000099')
         .set('Authorization', `Bearer ${scimToken}`)
         .send({
           schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
@@ -243,7 +243,7 @@ describe('SCIM Routes', () => {
 
     it('returns 404 for non-existent user', async () => {
       const res = await request(app)
-        .delete('/scim/v2/Users/nonexistent')
+        .delete('/scim/v2/Users/00000000-0000-0000-0000-000000000099')
         .set('Authorization', `Bearer ${scimToken}`);
       expect(res.status).toBe(404);
     });
@@ -511,7 +511,7 @@ describe('SCIM Routes', () => {
 
     it('returns 404 when patching non-existent group', async () => {
       const res = await request(app)
-        .patch('/scim/v2/Groups/nonexistent')
+        .patch('/scim/v2/Groups/00000000-0000-0000-0000-000000000099')
         .set('Authorization', `Bearer ${scimToken}`)
         .send({
           schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],

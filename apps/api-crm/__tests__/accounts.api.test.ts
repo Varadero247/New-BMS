@@ -48,7 +48,7 @@ app.use('/api/accounts', accountsRouter);
 beforeEach(() => { jest.clearAllMocks(); });
 
 const mockAccount = {
-  id: 'acc-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'Acme Corp',
   type: 'CUSTOMER',
   industry: 'Manufacturing',
@@ -257,17 +257,17 @@ describe('GET /api/accounts/:id', () => {
   it('should return account detail', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
 
-    const res = await request(app).get('/api/accounts/acc-1');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('acc-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/accounts/nonexistent');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -283,7 +283,7 @@ describe('PUT /api/accounts/:id', () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
     (prisma as any).crmAccount.update.mockResolvedValue({ ...mockAccount, name: 'Acme Inc' });
 
-    const res = await request(app).put('/api/accounts/acc-1').send({ name: 'Acme Inc' });
+    const res = await request(app).put('/api/accounts/00000000-0000-0000-0000-000000000001').send({ name: 'Acme Inc' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -293,7 +293,7 @@ describe('PUT /api/accounts/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/accounts/nonexistent').send({ name: 'Test' });
+    const res = await request(app).put('/api/accounts/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -306,7 +306,7 @@ describe('PUT /api/accounts/:id', () => {
       industry: 'Technology',
     });
 
-    const res = await request(app).put('/api/accounts/acc-1').send({
+    const res = await request(app).put('/api/accounts/00000000-0000-0000-0000-000000000001').send({
       name: 'New Name',
       industry: 'Technology',
     });
@@ -319,7 +319,7 @@ describe('PUT /api/accounts/:id', () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
     (prisma as any).crmAccount.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/accounts/acc-1').send({ name: 'Test' });
+    const res = await request(app).put('/api/accounts/00000000-0000-0000-0000-000000000001').send({ name: 'Test' });
 
     expect(res.status).toBe(500);
   });
@@ -334,7 +334,7 @@ describe('DELETE /api/accounts/:id', () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
     (prisma as any).crmAccount.update.mockResolvedValue({ ...mockAccount, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/accounts/acc-1');
+    const res = await request(app).delete('/api/accounts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -344,7 +344,7 @@ describe('DELETE /api/accounts/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/accounts/nonexistent');
+    const res = await request(app).delete('/api/accounts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -361,7 +361,7 @@ describe('GET /api/accounts/:id/contacts', () => {
       { id: 'c-1', firstName: 'John', lastName: 'Doe', email: 'john@acme.com' },
     ]);
 
-    const res = await request(app).get('/api/accounts/acc-1/contacts');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/contacts');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -372,7 +372,7 @@ describe('GET /api/accounts/:id/contacts', () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
     (prisma as any).crmContact.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/accounts/acc-1/contacts');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/contacts');
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(0);
@@ -381,7 +381,7 @@ describe('GET /api/accounts/:id/contacts', () => {
   it('should return 404 when account not found', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/accounts/nonexistent/contacts');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099/contacts');
 
     expect(res.status).toBe(404);
   });
@@ -398,7 +398,7 @@ describe('GET /api/accounts/:id/deals', () => {
       { id: 'd-1', title: 'Enterprise Deal', value: 50000 },
     ]);
 
-    const res = await request(app).get('/api/accounts/acc-1/deals');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/deals');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -409,7 +409,7 @@ describe('GET /api/accounts/:id/deals', () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
     (prisma as any).crmDeal.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/accounts/acc-1/deals');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/deals');
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(0);
@@ -418,7 +418,7 @@ describe('GET /api/accounts/:id/deals', () => {
   it('should return 404 when account not found', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/accounts/nonexistent/deals');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099/deals');
 
     expect(res.status).toBe(404);
   });
@@ -431,14 +431,14 @@ describe('GET /api/accounts/:id/deals', () => {
 describe('GET /api/accounts/:id/compliance', () => {
   it('should return compliance data with LOW risk', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue({
-      id: 'acc-1',
+      id: '00000000-0000-0000-0000-000000000001',
       name: 'Acme Corp',
       qualitySupplierScore: 90,
       openNCRCount: 1,
       openComplaintCount: 0,
     });
 
-    const res = await request(app).get('/api/accounts/acc-1/compliance');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/compliance');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -448,14 +448,14 @@ describe('GET /api/accounts/:id/compliance', () => {
 
   it('should return MEDIUM risk for moderate issues', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue({
-      id: 'acc-1',
+      id: '00000000-0000-0000-0000-000000000001',
       name: 'Acme Corp',
       qualitySupplierScore: 70,
       openNCRCount: 2,
       openComplaintCount: 1,
     });
 
-    const res = await request(app).get('/api/accounts/acc-1/compliance');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/compliance');
 
     expect(res.status).toBe(200);
     expect(res.body.data.riskLevel).toBe('MEDIUM');
@@ -463,14 +463,14 @@ describe('GET /api/accounts/:id/compliance', () => {
 
   it('should return HIGH risk for many issues', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue({
-      id: 'acc-1',
+      id: '00000000-0000-0000-0000-000000000001',
       name: 'Acme Corp',
       qualitySupplierScore: 40,
       openNCRCount: 4,
       openComplaintCount: 3,
     });
 
-    const res = await request(app).get('/api/accounts/acc-1/compliance');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/compliance');
 
     expect(res.status).toBe(200);
     expect(res.body.data.riskLevel).toBe('HIGH');
@@ -479,7 +479,7 @@ describe('GET /api/accounts/:id/compliance', () => {
   it('should return 404 when account not found', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/accounts/nonexistent/compliance');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099/compliance');
 
     expect(res.status).toBe(404);
   });
@@ -498,7 +498,7 @@ describe('GET /api/accounts/:id/invoices', () => {
       json: async () => ({ success: true, data: [{ id: 'inv-1', amount: 1000 }] }),
     } as Response);
 
-    const res = await request(app).get('/api/accounts/acc-1/invoices');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/invoices');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -515,7 +515,7 @@ describe('GET /api/accounts/:id/invoices', () => {
       status: 503,
     } as Response);
 
-    const res = await request(app).get('/api/accounts/acc-1/invoices');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/invoices');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -527,7 +527,7 @@ describe('GET /api/accounts/:id/invoices', () => {
   it('should return 404 when account not found', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/accounts/nonexistent/invoices');
+    const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099/invoices');
 
     expect(res.status).toBe(404);
   });

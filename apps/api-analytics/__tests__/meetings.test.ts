@@ -37,7 +37,7 @@ beforeEach(() => {
 });
 
 const sampleMeeting = {
-  id: 'mtg-1',
+  id: '00000000-0000-0000-0000-000000000001',
   title: 'Weekly Standup',
   type: 'TEAM',
   date: '2026-02-15T10:00:00.000Z',
@@ -92,14 +92,14 @@ describe('GET /api/meetings', () => {
 describe('GET /api/meetings/:id', () => {
   it('returns a single meeting', async () => {
     (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
-    const res = await request(app).get('/api/meetings/mtg-1');
+    const res = await request(app).get('/api/meetings/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.data.title).toBe('Weekly Standup');
   });
 
   it('returns 404 for missing meeting', async () => {
     (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).get('/api/meetings/missing');
+    const res = await request(app).get('/api/meetings/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -136,7 +136,7 @@ describe('PATCH /api/meetings/:id', () => {
     (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
     (prisma.meetingNote.update as jest.Mock).mockResolvedValue({ ...sampleMeeting, summary: 'Updated summary' });
 
-    const res = await request(app).patch('/api/meetings/mtg-1').send({ summary: 'Updated summary' });
+    const res = await request(app).patch('/api/meetings/00000000-0000-0000-0000-000000000001').send({ summary: 'Updated summary' });
     expect(res.status).toBe(200);
     expect(res.body.data.summary).toBe('Updated summary');
   });
@@ -150,14 +150,14 @@ describe('DELETE /api/meetings/:id', () => {
     (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
     (prisma.meetingNote.delete as jest.Mock).mockResolvedValue(sampleMeeting);
 
-    const res = await request(app).delete('/api/meetings/mtg-1');
+    const res = await request(app).delete('/api/meetings/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Meeting deleted');
   });
 
   it('returns 404 when meeting not found', async () => {
     (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).delete('/api/meetings/missing');
+    const res = await request(app).delete('/api/meetings/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -176,7 +176,7 @@ describe('PATCH /api/meetings/:id/actions/:actionIndex', () => {
       ],
     });
 
-    const res = await request(app).patch('/api/meetings/mtg-1/actions/0');
+    const res = await request(app).patch('/api/meetings/00000000-0000-0000-0000-000000000001/actions/0');
     expect(res.status).toBe(200);
     expect(prisma.meetingNote.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -191,7 +191,7 @@ describe('PATCH /api/meetings/:id/actions/:actionIndex', () => {
 
   it('returns 400 for invalid action index', async () => {
     (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue(sampleMeeting);
-    const res = await request(app).patch('/api/meetings/mtg-1/actions/99');
+    const res = await request(app).patch('/api/meetings/00000000-0000-0000-0000-000000000001/actions/99');
     expect(res.status).toBe(400);
   });
 });

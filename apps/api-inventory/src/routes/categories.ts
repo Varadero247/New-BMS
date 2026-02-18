@@ -6,12 +6,14 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { checkOwnership, scopeToUser } from '@ims/service-auth';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-inventory');
 
 const router: IRouter = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/categories - List categories (hierarchical)
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {

@@ -2,11 +2,13 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
 
 const logger = createLogger('api-marketing:linkedin');
 const router = Router();
+router.param('id', validateIdParam());
 
 const outreachSchema = z.object({
   prospectName: z.string().trim().min(1).max(200),

@@ -40,7 +40,7 @@ describe('POST /api/onboarding/enqueue/:userId', () => {
     (prisma.$transaction as jest.Mock).mockResolvedValue([]);
 
     const res = await request(app)
-      .post('/api/onboarding/enqueue/user-1')
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'test@test.com', firstName: 'Test' });
 
     expect(res.status).toBe(201);
@@ -49,7 +49,7 @@ describe('POST /api/onboarding/enqueue/:userId', () => {
 
   it('returns 400 when email is missing', async () => {
     const res = await request(app)
-      .post('/api/onboarding/enqueue/user-1')
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({});
 
     expect(res.status).toBe(400);
@@ -59,17 +59,17 @@ describe('POST /api/onboarding/enqueue/:userId', () => {
     (prisma.$transaction as jest.Mock).mockResolvedValue([]);
 
     const res = await request(app)
-      .post('/api/onboarding/enqueue/user-1')
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'test@test.com' });
 
-    expect(res.body.data.sequenceId).toContain('onboarding-user-1-');
+    expect(res.body.data.sequenceId).toContain('onboarding-00000000-0000-0000-0000-000000000001-');
   });
 
   it('returns 500 on database error', async () => {
     (prisma.$transaction as jest.Mock).mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
-      .post('/api/onboarding/enqueue/user-1')
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'test@test.com' });
 
     expect(res.status).toBe(500);
@@ -89,7 +89,7 @@ describe('GET /api/onboarding/status/:userId', () => {
     ];
     (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue(jobs);
 
-    const res = await request(app).get('/api/onboarding/status/user-1');
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.summary.sent).toBe(1);
@@ -100,7 +100,7 @@ describe('GET /api/onboarding/status/:userId', () => {
   it('returns empty results for unknown user', async () => {
     (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue([]);
 
-    const res = await request(app).get('/api/onboarding/status/unknown');
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(200);
     expect(res.body.data.summary.total).toBe(0);
@@ -115,7 +115,7 @@ describe('POST /api/onboarding/cancel/:userId', () => {
   it('cancels pending emails for user', async () => {
     (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 5 });
 
-    const res = await request(app).post('/api/onboarding/cancel/user-1');
+    const res = await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.cancelledCount).toBe(5);
@@ -124,7 +124,7 @@ describe('POST /api/onboarding/cancel/:userId', () => {
   it('only cancels PENDING status jobs', async () => {
     (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
 
-    await request(app).post('/api/onboarding/cancel/user-1');
+    await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
 
     expect(prisma.mktEmailJob.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -136,7 +136,7 @@ describe('POST /api/onboarding/cancel/:userId', () => {
   it('returns 0 if no pending jobs exist', async () => {
     (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
 
-    const res = await request(app).post('/api/onboarding/cancel/user-1');
+    const res = await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
 
     expect(res.body.data.cancelledCount).toBe(0);
   });

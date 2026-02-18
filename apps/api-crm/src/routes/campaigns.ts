@@ -3,6 +3,7 @@ import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-crm');
 
@@ -12,6 +13,7 @@ const logger = createLogger('api-crm');
 
 export const campaignRouter = Router();
 campaignRouter.use(authenticate);
+campaignRouter.param('id', validateIdParam());
 
 const createCampaignSchema = z.object({
   name: z.string().min(1, 'Name is required'),

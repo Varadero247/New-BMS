@@ -51,7 +51,7 @@ beforeEach(() => {
 describe('GET /api/reports', () => {
   it('should return a list of reports with pagination', async () => {
     const reports = [
-      { id: 'rpt-1', name: 'Monthly Safety', type: 'SCHEDULED', format: 'PDF' },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Monthly Safety', type: 'SCHEDULED', format: 'PDF' },
       { id: 'rpt-2', name: 'Ad Hoc Quality', type: 'AD_HOC', format: 'EXCEL' },
     ];
     (prisma as any).analyticsReport.findMany.mockResolvedValue(reports);
@@ -115,19 +115,19 @@ describe('POST /api/reports', () => {
 // ===================================================================
 describe('GET /api/reports/:id', () => {
   it('should return a report with recent runs', async () => {
-    const report = { id: 'rpt-1', name: 'Test', runs: [] };
+    const report = { id: '00000000-0000-0000-0000-000000000001', name: 'Test', runs: [] };
     (prisma as any).analyticsReport.findFirst.mockResolvedValue(report);
 
-    const res = await request(app).get('/api/reports/rpt-1');
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('rpt-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent report', async () => {
     (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/reports/nonexistent');
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -138,10 +138,10 @@ describe('GET /api/reports/:id', () => {
 // ===================================================================
 describe('PUT /api/reports/:id', () => {
   it('should update a report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue({ id: 'rpt-1' });
-    (prisma as any).analyticsReport.update.mockResolvedValue({ id: 'rpt-1', name: 'Updated' });
+    (prisma as any).analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsReport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
 
-    const res = await request(app).put('/api/reports/rpt-1').send({ name: 'Updated' });
+    const res = await request(app).put('/api/reports/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated');
@@ -150,7 +150,7 @@ describe('PUT /api/reports/:id', () => {
   it('should return 404 for non-existent report', async () => {
     (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/reports/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).put('/api/reports/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
   });
@@ -161,10 +161,10 @@ describe('PUT /api/reports/:id', () => {
 // ===================================================================
 describe('DELETE /api/reports/:id', () => {
   it('should soft delete a report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue({ id: 'rpt-1' });
-    (prisma as any).analyticsReport.update.mockResolvedValue({ id: 'rpt-1', deletedAt: new Date() });
+    (prisma as any).analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsReport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/reports/rpt-1');
+    const res = await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Report deleted');
@@ -173,7 +173,7 @@ describe('DELETE /api/reports/:id', () => {
   it('should return 404 for non-existent report', async () => {
     (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/reports/nonexistent');
+    const res = await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -184,11 +184,11 @@ describe('DELETE /api/reports/:id', () => {
 // ===================================================================
 describe('POST /api/reports/:id/run', () => {
   it('should queue a report run', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue({ id: 'rpt-1' });
-    (prisma as any).analyticsReportRun.create.mockResolvedValue({ id: 'run-1', reportId: 'rpt-1', status: 'QUEUED' });
-    (prisma as any).analyticsReport.update.mockResolvedValue({ id: 'rpt-1' });
+    (prisma as any).analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsReportRun.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', reportId: 'rpt-1', status: 'QUEUED' });
+    (prisma as any).analyticsReport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).post('/api/reports/rpt-1/run');
+    const res = await request(app).post('/api/reports/00000000-0000-0000-0000-000000000001/run');
 
     expect(res.status).toBe(201);
     expect(res.body.data.status).toBe('QUEUED');
@@ -197,7 +197,7 @@ describe('POST /api/reports/:id/run', () => {
   it('should return 404 for non-existent report', async () => {
     (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/reports/nonexistent/run');
+    const res = await request(app).post('/api/reports/00000000-0000-0000-0000-000000000099/run');
 
     expect(res.status).toBe(404);
   });
@@ -208,11 +208,11 @@ describe('POST /api/reports/:id/run', () => {
 // ===================================================================
 describe('GET /api/reports/:id/runs', () => {
   it('should list report runs', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue({ id: 'rpt-1' });
-    (prisma as any).analyticsReportRun.findMany.mockResolvedValue([{ id: 'run-1', status: 'COMPLETED' }]);
+    (prisma as any).analyticsReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsReportRun.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' }]);
     (prisma as any).analyticsReportRun.count.mockResolvedValue(1);
 
-    const res = await request(app).get('/api/reports/rpt-1/runs');
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001/runs');
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
@@ -221,7 +221,7 @@ describe('GET /api/reports/:id/runs', () => {
   it('should return 404 for non-existent report', async () => {
     (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/reports/nonexistent/runs');
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000099/runs');
 
     expect(res.status).toBe(404);
   });
@@ -232,19 +232,19 @@ describe('GET /api/reports/:id/runs', () => {
 // ===================================================================
 describe('GET /api/reports/:id/runs/:runId', () => {
   it('should return a specific run', async () => {
-    const run = { id: 'run-1', reportId: 'rpt-1', status: 'COMPLETED', report: { id: 'rpt-1' } };
+    const run = { id: '00000000-0000-0000-0000-000000000001', reportId: 'rpt-1', status: 'COMPLETED', report: { id: '00000000-0000-0000-0000-000000000001' } };
     (prisma as any).analyticsReportRun.findFirst.mockResolvedValue(run);
 
-    const res = await request(app).get('/api/reports/rpt-1/runs/run-1');
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001/runs/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('run-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent run', async () => {
     (prisma as any).analyticsReportRun.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/reports/rpt-1/runs/nonexistent');
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001/runs/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

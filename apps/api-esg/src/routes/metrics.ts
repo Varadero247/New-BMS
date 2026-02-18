@@ -3,10 +3,12 @@ import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-esg');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 const dataPointCreateSchema = z.object({
   periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),

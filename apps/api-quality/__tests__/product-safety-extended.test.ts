@@ -53,7 +53,7 @@ describe('Product Safety — Safety Characteristics', () => {
     it('should create a safety characteristic', async () => {
       (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.safetyCharacteristic.create as jest.Mock).mockResolvedValue({
-        id: 'sc-1', refNumber: 'PSC-2602-0001', ...validBody, status: 'ACTIVE',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'PSC-2602-0001', ...validBody, status: 'ACTIVE',
       });
 
       const res = await request(app).post('/api/product-safety/characteristics').send(validBody);
@@ -132,7 +132,7 @@ describe('Product Safety — Safety Characteristics', () => {
 
   describe('GET /api/product-safety/characteristics', () => {
     it('should list safety characteristics', async () => {
-      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValue([{ id: 'sc-1' }]);
+      (mockPrisma.safetyCharacteristic.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.safetyCharacteristic.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/product-safety/characteristics');
@@ -163,27 +163,27 @@ describe('Product Safety — Safety Characteristics', () => {
   describe('GET /api/product-safety/characteristics/:id', () => {
     it('should get characteristic by id', async () => {
       (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sc-1', partNumber: 'PN-001', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', partNumber: 'PN-001', deletedAt: null,
       });
 
-      const res = await request(app).get('/api/product-safety/characteristics/sc-1');
+      const res = await request(app).get('/api/product-safety/characteristics/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('sc-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/product-safety/characteristics/fake');
+      const res = await request(app).get('/api/product-safety/characteristics/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted', async () => {
       (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sc-1', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
       });
 
-      const res = await request(app).get('/api/product-safety/characteristics/sc-1');
+      const res = await request(app).get('/api/product-safety/characteristics/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(404);
     });
   });
@@ -191,13 +191,13 @@ describe('Product Safety — Safety Characteristics', () => {
   describe('PUT /api/product-safety/characteristics/:id', () => {
     it('should update a characteristic', async () => {
       (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sc-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
       (mockPrisma.safetyCharacteristic.update as jest.Mock).mockResolvedValue({
-        id: 'sc-1', status: 'UNDER_REVIEW',
+        id: '00000000-0000-0000-0000-000000000001', status: 'UNDER_REVIEW',
       });
 
-      const res = await request(app).put('/api/product-safety/characteristics/sc-1').send({
+      const res = await request(app).put('/api/product-safety/characteristics/00000000-0000-0000-0000-000000000001').send({
         status: 'UNDER_REVIEW',
       });
       expect(res.status).toBe(200);
@@ -207,7 +207,7 @@ describe('Product Safety — Safety Characteristics', () => {
     it('should return 404 for non-existent', async () => {
       (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/product-safety/characteristics/fake').send({
+      const res = await request(app).put('/api/product-safety/characteristics/00000000-0000-0000-0000-000000000099').send({
         status: 'ACTIVE',
       });
       expect(res.status).toBe(404);
@@ -215,10 +215,10 @@ describe('Product Safety — Safety Characteristics', () => {
 
     it('should return 400 for invalid status', async () => {
       (mockPrisma.safetyCharacteristic.findUnique as jest.Mock).mockResolvedValue({
-        id: 'sc-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
 
-      const res = await request(app).put('/api/product-safety/characteristics/sc-1').send({
+      const res = await request(app).put('/api/product-safety/characteristics/00000000-0000-0000-0000-000000000001').send({
         status: 'INVALID_STATUS',
       });
       expect(res.status).toBe(400);
@@ -240,7 +240,7 @@ describe('Product Safety — Safety Incidents', () => {
     it('should create a safety incident', async () => {
       (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.safetyIncident.create as jest.Mock).mockResolvedValue({
-        id: 'si-1', refNumber: 'PSI-2602-0001', ...validBody, status: 'OPEN',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'PSI-2602-0001', ...validBody, status: 'OPEN',
       });
 
       const res = await request(app).post('/api/product-safety/incidents').send(validBody);
@@ -310,13 +310,13 @@ describe('Product Safety — Safety Incidents', () => {
   describe('PUT /api/product-safety/incidents/:id', () => {
     it('should update an incident', async () => {
       (mockPrisma.safetyIncident.findUnique as jest.Mock).mockResolvedValue({
-        id: 'si-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
       (mockPrisma.safetyIncident.update as jest.Mock).mockResolvedValue({
-        id: 'si-1', status: 'INVESTIGATING',
+        id: '00000000-0000-0000-0000-000000000001', status: 'INVESTIGATING',
       });
 
-      const res = await request(app).put('/api/product-safety/incidents/si-1').send({
+      const res = await request(app).put('/api/product-safety/incidents/00000000-0000-0000-0000-000000000001').send({
         status: 'INVESTIGATING',
       });
       expect(res.status).toBe(200);
@@ -325,7 +325,7 @@ describe('Product Safety — Safety Incidents', () => {
     it('should return 404 for non-existent', async () => {
       (mockPrisma.safetyIncident.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/product-safety/incidents/fake').send({
+      const res = await request(app).put('/api/product-safety/incidents/00000000-0000-0000-0000-000000000099').send({
         status: 'INVESTIGATING',
       });
       expect(res.status).toBe(404);
@@ -347,7 +347,7 @@ describe('Product Safety — Recall Actions', () => {
     it('should create a recall action', async () => {
       (mockPrisma.recallAction.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.recallAction.create as jest.Mock).mockResolvedValue({
-        id: 'rcl-1', refNumber: 'RCL-2602-0001', ...validBody, status: 'INITIATED',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'RCL-2602-0001', ...validBody, status: 'INITIATED',
       });
 
       const res = await request(app).post('/api/product-safety/recalls').send(validBody);
@@ -423,13 +423,13 @@ describe('Product Safety — Recall Actions', () => {
   describe('PUT /api/product-safety/recalls/:id', () => {
     it('should update a recall', async () => {
       (mockPrisma.recallAction.findUnique as jest.Mock).mockResolvedValue({
-        id: 'rcl-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
       (mockPrisma.recallAction.update as jest.Mock).mockResolvedValue({
-        id: 'rcl-1', status: 'INVESTIGATING',
+        id: '00000000-0000-0000-0000-000000000001', status: 'INVESTIGATING',
       });
 
-      const res = await request(app).put('/api/product-safety/recalls/rcl-1').send({
+      const res = await request(app).put('/api/product-safety/recalls/00000000-0000-0000-0000-000000000001').send({
         status: 'INVESTIGATING',
       });
       expect(res.status).toBe(200);
@@ -438,7 +438,7 @@ describe('Product Safety — Recall Actions', () => {
     it('should return 404 for non-existent', async () => {
       (mockPrisma.recallAction.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/product-safety/recalls/fake').send({
+      const res = await request(app).put('/api/product-safety/recalls/00000000-0000-0000-0000-000000000099').send({
         status: 'INVESTIGATING',
       });
       expect(res.status).toBe(404);

@@ -320,7 +320,7 @@ describe('InfoSec Privacy API', () => {
     it('should return 404 when ROPA not found', async () => {
       (mockPrisma.isRopa.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/privacy/ropa/nonexistent');
+      const res = await request(app).get('/api/privacy/ropa/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -344,7 +344,7 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isRopa.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/privacy/ropa/nonexistent')
+        .put('/api/privacy/ropa/00000000-0000-0000-0000-000000000099')
         .send({ name: 'Updated' });
 
       expect(res.status).toBe(404);
@@ -479,7 +479,7 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isDpia.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/privacy/dpia/nonexistent/approve')
+        .put('/api/privacy/dpia/00000000-0000-0000-0000-000000000099/approve')
         .send({});
 
       expect(res.status).toBe(404);
@@ -659,7 +659,7 @@ describe('InfoSec Privacy API', () => {
       (mockPrisma.isDsar.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/privacy/dsar/nonexistent/respond')
+        .put('/api/privacy/dsar/00000000-0000-0000-0000-000000000099/respond')
         .send({ responseNotes: 'Test' });
 
       expect(res.status).toBe(404);

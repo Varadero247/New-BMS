@@ -97,7 +97,7 @@ describe('Medical Device Design Controls API', () => {
   describe('GET /api/design-controls', () => {
     const mockProjects = [
       {
-        id: 'proj-1',
+        id: '00000000-0000-0000-0000-000000000001',
         refNumber: 'DC-2602-0001',
         title: 'Cardiac Stent v2',
         deviceName: 'CardioStent',
@@ -233,7 +233,7 @@ describe('Medical Device Design Controls API', () => {
   // ──────────────────────────────────────────────────────
   describe('GET /api/design-controls/:id', () => {
     const mockProject = {
-      id: 'proj-1',
+      id: '00000000-0000-0000-0000-000000000001',
       refNumber: 'DC-2602-0001',
       title: 'Cardiac Stent v2',
       deviceName: 'CardioStent',
@@ -253,15 +253,15 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
 
       const res = await request(app)
-        .get('/api/design-controls/proj-1')
+        .get('/api/design-controls/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('proj-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
       expect(mockPrisma.designProject.findUnique).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { id: 'proj-1' },
+          where: { id: '00000000-0000-0000-0000-000000000001' },
           include: expect.objectContaining({
             inputs: true,
             outputs: true,
@@ -277,7 +277,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .get('/api/design-controls/nonexistent-id')
+        .get('/api/design-controls/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(404);
@@ -288,7 +288,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .get('/api/design-controls/proj-1')
+        .get('/api/design-controls/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(500);
@@ -389,7 +389,7 @@ describe('Medical Device Design Controls API', () => {
   // ──────────────────────────────────────────────────────
   describe('PUT /api/design-controls/:id', () => {
     const existingProject = {
-      id: 'proj-1',
+      id: '00000000-0000-0000-0000-000000000001',
       title: 'Cardiac Stent v2',
       deviceName: 'CardioStent',
       deviceClass: 'CLASS_III',
@@ -405,7 +405,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .put('/api/design-controls/proj-1')
+        .put('/api/design-controls/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Cardiac Stent v3' });
 
@@ -418,7 +418,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/design-controls/nonexistent-id')
+        .put('/api/design-controls/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -430,7 +430,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(existingProject);
 
       const res = await request(app)
-        .put('/api/design-controls/proj-1')
+        .put('/api/design-controls/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -443,7 +443,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/design-controls/proj-1')
+        .put('/api/design-controls/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -457,16 +457,16 @@ describe('Medical Device Design Controls API', () => {
   // ──────────────────────────────────────────────────────
   describe('DELETE /api/design-controls/:id', () => {
     it('should soft-delete a project and return 204', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1' });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001' });
       (mockPrisma.designProject.update as jest.Mock).mockResolvedValueOnce({});
 
       const res = await request(app)
-        .delete('/api/design-controls/proj-1')
+        .delete('/api/design-controls/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(204);
       expect(mockPrisma.designProject.update).toHaveBeenCalledWith({
-        where: { id: 'proj-1' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: { deletedAt: expect.any(Date) },
       });
     });
@@ -475,7 +475,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .delete('/api/design-controls/nonexistent-id')
+        .delete('/api/design-controls/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(404);
@@ -486,7 +486,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .delete('/api/design-controls/proj-1')
+        .delete('/api/design-controls/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(500);
@@ -505,7 +505,7 @@ describe('Medical Device Design Controls API', () => {
     };
 
     it('should create a design input and return 201', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.designInput.create as jest.Mock).mockResolvedValueOnce({
         id: 'input-1',
         projectId: 'proj-1',
@@ -514,7 +514,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/inputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/inputs')
         .set('Authorization', 'Bearer token')
         .send(validInput);
 
@@ -527,7 +527,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .post('/api/design-controls/nonexistent/inputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000099/inputs')
         .set('Authorization', 'Bearer token')
         .send(validInput);
 
@@ -536,10 +536,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 404 for soft-deleted project', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: new Date() });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/inputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/inputs')
         .set('Authorization', 'Bearer token')
         .send(validInput);
 
@@ -548,10 +548,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 for invalid category', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/inputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/inputs')
         .set('Authorization', 'Bearer token')
         .send({ ...validInput, category: 'BOGUS' });
 
@@ -560,10 +560,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 when requirement is missing', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/inputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/inputs')
         .set('Authorization', 'Bearer token')
         .send({ category: 'FUNCTIONAL', source: 'IEC 62304' });
 
@@ -572,11 +572,11 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.designInput.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/inputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/inputs')
         .set('Authorization', 'Bearer token')
         .send(validInput);
 
@@ -596,7 +596,7 @@ describe('Medical Device Design Controls API', () => {
     };
 
     it('should create a design output and return 201', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.designOutput.create as jest.Mock).mockResolvedValueOnce({
         id: 'output-1',
         projectId: 'proj-1',
@@ -605,7 +605,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/outputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/outputs')
         .set('Authorization', 'Bearer token')
         .send(validOutput);
 
@@ -618,7 +618,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .post('/api/design-controls/nonexistent/outputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000099/outputs')
         .set('Authorization', 'Bearer token')
         .send(validOutput);
 
@@ -626,10 +626,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 for missing acceptanceCriteria', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/outputs')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/outputs')
         .set('Authorization', 'Bearer token')
         .send({ category: 'DRAWING', description: 'A drawing' });
 
@@ -650,7 +650,7 @@ describe('Medical Device Design Controls API', () => {
     };
 
     it('should create a design review and return 201', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.designReview.create as jest.Mock).mockResolvedValueOnce({
         id: 'review-1',
         projectId: 'proj-1',
@@ -659,7 +659,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/reviews')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/reviews')
         .set('Authorization', 'Bearer token')
         .send(validReview);
 
@@ -669,10 +669,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 when reviewers array is empty', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/reviews')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/reviews')
         .set('Authorization', 'Bearer token')
         .send({ ...validReview, reviewers: [] });
 
@@ -681,10 +681,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 404 for deleted project', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: new Date() });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/reviews')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/reviews')
         .set('Authorization', 'Bearer token')
         .send(validReview);
 
@@ -703,7 +703,7 @@ describe('Medical Device Design Controls API', () => {
     };
 
     it('should create a design verification and return 201', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.designVerification.create as jest.Mock).mockResolvedValueOnce({
         id: 'verif-1',
         projectId: 'proj-1',
@@ -712,7 +712,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/verifications')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/verifications')
         .set('Authorization', 'Bearer token')
         .send(validVerification);
 
@@ -725,7 +725,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .post('/api/design-controls/nonexistent/verifications')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000099/verifications')
         .set('Authorization', 'Bearer token')
         .send(validVerification);
 
@@ -733,10 +733,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 when testMethod is missing', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/verifications')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/verifications')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Some test', acceptanceCriteria: 'Pass' });
 
@@ -755,7 +755,7 @@ describe('Medical Device Design Controls API', () => {
     };
 
     it('should create a design validation and return 201', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.designValidation.create as jest.Mock).mockResolvedValueOnce({
         id: 'val-1',
         projectId: 'proj-1',
@@ -765,7 +765,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/validations')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/validations')
         .set('Authorization', 'Bearer token')
         .send(validValidation);
 
@@ -775,10 +775,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 404 for deleted project', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: new Date() });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/validations')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/validations')
         .set('Authorization', 'Bearer token')
         .send(validValidation);
 
@@ -786,10 +786,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 when title is missing', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/validations')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/validations')
         .set('Authorization', 'Bearer token')
         .send({ testMethod: 'Some method' });
 
@@ -809,7 +809,7 @@ describe('Medical Device Design Controls API', () => {
     };
 
     it('should create a stage gate review and advance stage when approved', async () => {
-      const project = { id: 'proj-1', deletedAt: null, currentStage: 'INPUTS', status: 'ACTIVE' };
+      const project = { id: '00000000-0000-0000-0000-000000000001', deletedAt: null, currentStage: 'INPUTS', status: 'ACTIVE' };
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(project);
       (mockPrisma.designReview.create as jest.Mock).mockResolvedValueOnce({
         id: 'review-gate-1',
@@ -821,7 +821,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.update as jest.Mock).mockResolvedValueOnce(updatedProject);
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/stages/INPUTS/review')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/stages/INPUTS/review')
         .set('Authorization', 'Bearer token')
         .send(stageReviewPayload);
 
@@ -832,7 +832,7 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should not advance stage when decision is REJECTED', async () => {
-      const project = { id: 'proj-1', deletedAt: null, currentStage: 'INPUTS', status: 'ACTIVE' };
+      const project = { id: '00000000-0000-0000-0000-000000000001', deletedAt: null, currentStage: 'INPUTS', status: 'ACTIVE' };
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(project);
       (mockPrisma.designReview.create as jest.Mock).mockResolvedValueOnce({
         id: 'review-gate-2',
@@ -842,7 +842,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/stages/INPUTS/review')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/stages/INPUTS/review')
         .set('Authorization', 'Bearer token')
         .send({ ...stageReviewPayload, decision: 'REJECTED' });
 
@@ -852,7 +852,7 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should not advance when reviewing a stage that is not the current stage', async () => {
-      const project = { id: 'proj-1', deletedAt: null, currentStage: 'OUTPUTS', status: 'ACTIVE' };
+      const project = { id: '00000000-0000-0000-0000-000000000001', deletedAt: null, currentStage: 'OUTPUTS', status: 'ACTIVE' };
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(project);
       (mockPrisma.designReview.create as jest.Mock).mockResolvedValueOnce({
         id: 'review-gate-3',
@@ -862,7 +862,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/stages/INPUTS/review')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/stages/INPUTS/review')
         .set('Authorization', 'Bearer token')
         .send(stageReviewPayload);
 
@@ -872,10 +872,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 for invalid stage parameter', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null, currentStage: 'INPUTS' });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null, currentStage: 'INPUTS' });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/stages/BOGUS_STAGE/review')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/stages/BOGUS_STAGE/review')
         .set('Authorization', 'Bearer token')
         .send(stageReviewPayload);
 
@@ -887,7 +887,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .post('/api/design-controls/nonexistent/stages/INPUTS/review')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000099/stages/INPUTS/review')
         .set('Authorization', 'Bearer token')
         .send(stageReviewPayload);
 
@@ -898,7 +898,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/stages/INPUTS/review')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/stages/INPUTS/review')
         .set('Authorization', 'Bearer token')
         .send(stageReviewPayload);
 
@@ -913,7 +913,7 @@ describe('Medical Device Design Controls API', () => {
   describe('GET /api/design-controls/:id/traceability-matrix', () => {
     it('should return a traceability matrix with coverage summary', async () => {
       const project = {
-        id: 'proj-1',
+        id: '00000000-0000-0000-0000-000000000001',
         refNumber: 'DC-2602-0001',
         deviceName: 'CardioStent',
         currentStage: 'VERIFICATION',
@@ -936,7 +936,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(project);
 
       const res = await request(app)
-        .get('/api/design-controls/proj-1/traceability-matrix')
+        .get('/api/design-controls/00000000-0000-0000-0000-000000000001/traceability-matrix')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(200);
@@ -954,7 +954,7 @@ describe('Medical Device Design Controls API', () => {
 
     it('should return 404 for deleted project', async () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({
-        id: 'proj-1',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: new Date(),
         inputs: [],
         outputs: [],
@@ -963,7 +963,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .get('/api/design-controls/proj-1/traceability-matrix')
+        .get('/api/design-controls/00000000-0000-0000-0000-000000000001/traceability-matrix')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(404);
@@ -973,7 +973,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .get('/api/design-controls/nonexistent/traceability-matrix')
+        .get('/api/design-controls/00000000-0000-0000-0000-000000000099/traceability-matrix')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(404);
@@ -983,7 +983,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .get('/api/design-controls/proj-1/traceability-matrix')
+        .get('/api/design-controls/00000000-0000-0000-0000-000000000001/traceability-matrix')
         .set('Authorization', 'Bearer token');
 
       expect(res.status).toBe(500);
@@ -1004,7 +1004,7 @@ describe('Medical Device Design Controls API', () => {
     };
 
     it('should create a transfer with COMPLETED status when all approvals granted', async () => {
-      const project = { id: 'proj-1', deletedAt: null, currentStage: 'TRANSFER', status: 'ACTIVE' };
+      const project = { id: '00000000-0000-0000-0000-000000000001', deletedAt: null, currentStage: 'TRANSFER', status: 'ACTIVE' };
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(project);
       (mockPrisma.designTransfer.create as jest.Mock).mockResolvedValueOnce({
         id: 'transfer-1',
@@ -1020,7 +1020,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/transfer')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/transfer')
         .set('Authorization', 'Bearer token')
         .send(fullApproval);
 
@@ -1031,7 +1031,7 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should create a transfer with IN_PROGRESS status when not all approvals granted', async () => {
-      const project = { id: 'proj-1', deletedAt: null, currentStage: 'TRANSFER', status: 'ACTIVE' };
+      const project = { id: '00000000-0000-0000-0000-000000000001', deletedAt: null, currentStage: 'TRANSFER', status: 'ACTIVE' };
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(project);
       (mockPrisma.designTransfer.create as jest.Mock).mockResolvedValueOnce({
         id: 'transfer-2',
@@ -1040,7 +1040,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/transfer')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/transfer')
         .set('Authorization', 'Bearer token')
         .send({ ...fullApproval, qaApproval: false });
 
@@ -1051,7 +1051,7 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should not advance project if not at TRANSFER stage even with all approvals', async () => {
-      const project = { id: 'proj-1', deletedAt: null, currentStage: 'VERIFICATION', status: 'ACTIVE' };
+      const project = { id: '00000000-0000-0000-0000-000000000001', deletedAt: null, currentStage: 'VERIFICATION', status: 'ACTIVE' };
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(project);
       (mockPrisma.designTransfer.create as jest.Mock).mockResolvedValueOnce({
         id: 'transfer-3',
@@ -1059,7 +1059,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/transfer')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/transfer')
         .set('Authorization', 'Bearer token')
         .send(fullApproval);
 
@@ -1071,7 +1071,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .post('/api/design-controls/nonexistent/transfer')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000099/transfer')
         .set('Authorization', 'Bearer token')
         .send(fullApproval);
 
@@ -1079,10 +1079,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 when required boolean fields are missing', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/transfer')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/transfer')
         .set('Authorization', 'Bearer token')
         .send({ dhfComplete: true });
 
@@ -1102,7 +1102,7 @@ describe('Medical Device Design Controls API', () => {
     };
 
     it('should create a DHF entry and return 201', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce({
         id: 'dhf-1',
         projectId: 'proj-1',
@@ -1112,7 +1112,7 @@ describe('Medical Device Design Controls API', () => {
       });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/dhf')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/dhf')
         .set('Authorization', 'Bearer token')
         .send(validDhf);
 
@@ -1126,7 +1126,7 @@ describe('Medical Device Design Controls API', () => {
       (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .post('/api/design-controls/nonexistent/dhf')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000099/dhf')
         .set('Authorization', 'Bearer token')
         .send(validDhf);
 
@@ -1134,10 +1134,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 for invalid category', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/dhf')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/dhf')
         .set('Authorization', 'Bearer token')
         .send({ ...validDhf, category: 'INVALID_CATEGORY' });
 
@@ -1146,10 +1146,10 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 400 when documentRef is missing', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/dhf')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/dhf')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Some doc', category: 'DESIGN_PLAN' });
 
@@ -1158,11 +1158,11 @@ describe('Medical Device Design Controls API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'proj-1', deletedAt: null });
+      (mockPrisma.designProject.findUnique as jest.Mock).mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.designHistoryFile.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app)
-        .post('/api/design-controls/proj-1/dhf')
+        .post('/api/design-controls/00000000-0000-0000-0000-000000000001/dhf')
         .set('Authorization', 'Bearer token')
         .send(validDhf);
 

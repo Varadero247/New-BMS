@@ -221,7 +221,7 @@ describe('InfoSec Controls API', () => {
     it('should return 404 when control not found', async () => {
       (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/controls/nonexistent');
+      const res = await request(app).get('/api/controls/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -290,7 +290,7 @@ describe('InfoSec Controls API', () => {
       (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/controls/nonexistent/status')
+        .put('/api/controls/00000000-0000-0000-0000-000000000099/status')
         .send({ applicability: 'APPLICABLE', justification: 'Required' });
 
       expect(res.status).toBe(404);
@@ -332,7 +332,7 @@ describe('InfoSec Controls API', () => {
       (mockPrisma.isControl.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/controls/nonexistent/implementation')
+        .put('/api/controls/00000000-0000-0000-0000-000000000099/implementation')
         .send({ implementationStatus: 'NOT_IMPLEMENTED' });
 
       expect(res.status).toBe(404);

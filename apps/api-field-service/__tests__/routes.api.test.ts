@@ -46,7 +46,7 @@ beforeEach(() => {
 
 describe('GET /api/routes', () => {
   it('should return routes with pagination', async () => {
-    const routes = [{ id: 'route-1', technicianId: 'tech-1', stops: [], technician: {} }];
+    const routes = [{ id: '00000000-0000-0000-0000-000000000001', technicianId: 'tech-1', stops: [], technician: {} }];
     (prisma as any).fsSvcRoute.findMany.mockResolvedValue(routes);
     (prisma as any).fsSvcRoute.count.mockResolvedValue(1);
 
@@ -94,12 +94,12 @@ describe('GET /api/routes', () => {
 
 describe('GET /api/routes/optimize/:technicianId/:date', () => {
   it('should return optimized route for day', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: 'tech-1' });
+    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).fsSvcJob.findMany.mockResolvedValue([
       { id: 'job-1', number: 'JOB-001', scheduledStart: new Date(), site: { name: 'Site A', address: {} }, customer: { name: 'Acme' } },
     ]);
 
-    const res = await request(app).get('/api/routes/optimize/tech-1/2026-02-13');
+    const res = await request(app).get('/api/routes/optimize/00000000-0000-0000-0000-000000000001/2026-02-13');
 
     expect(res.status).toBe(200);
     expect(res.body.data.stops).toHaveLength(1);
@@ -109,7 +109,7 @@ describe('GET /api/routes/optimize/:technicianId/:date', () => {
   it('should return 404 if technician not found', async () => {
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/routes/optimize/missing/2026-02-13');
+    const res = await request(app).get('/api/routes/optimize/00000000-0000-0000-0000-000000000099/2026-02-13');
 
     expect(res.status).toBe(404);
   });
@@ -143,18 +143,18 @@ describe('POST /api/routes', () => {
 
 describe('GET /api/routes/:id', () => {
   it('should return a route by id', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({ id: 'route-1', stops: [], technician: {} });
+    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', stops: [], technician: {} });
 
-    const res = await request(app).get('/api/routes/route-1');
+    const res = await request(app).get('/api/routes/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('route-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcRoute.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/routes/missing');
+    const res = await request(app).get('/api/routes/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -162,11 +162,11 @@ describe('GET /api/routes/:id', () => {
 
 describe('PUT /api/routes/:id', () => {
   it('should update a route', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({ id: 'route-1' });
-    (prisma as any).fsSvcRoute.update.mockResolvedValue({ id: 'route-1', status: 'IN_PROGRESS' });
+    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS' });
 
     const res = await request(app)
-      .put('/api/routes/route-1')
+      .put('/api/routes/00000000-0000-0000-0000-000000000001')
       .send({ status: 'IN_PROGRESS' });
 
     expect(res.status).toBe(200);
@@ -176,7 +176,7 @@ describe('PUT /api/routes/:id', () => {
     (prisma as any).fsSvcRoute.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/routes/missing')
+      .put('/api/routes/00000000-0000-0000-0000-000000000099')
       .send({ status: 'IN_PROGRESS' });
 
     expect(res.status).toBe(404);
@@ -185,10 +185,10 @@ describe('PUT /api/routes/:id', () => {
 
 describe('DELETE /api/routes/:id', () => {
   it('should soft delete a route', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({ id: 'route-1' });
-    (prisma as any).fsSvcRoute.update.mockResolvedValue({ id: 'route-1', deletedAt: new Date() });
+    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcRoute.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/routes/route-1');
+    const res = await request(app).delete('/api/routes/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Route deleted');
@@ -197,7 +197,7 @@ describe('DELETE /api/routes/:id', () => {
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcRoute.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/routes/missing');
+    const res = await request(app).delete('/api/routes/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

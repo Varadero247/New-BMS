@@ -44,7 +44,7 @@ describe('PMS Routes', () => {
     it('should create a PMS plan', async () => {
       (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.pmsPlan.create as jest.Mock).mockResolvedValue({
-        id: 'pms-1', refNumber: 'PMS-2602-0001', deviceName: 'X200', status: 'DRAFT',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'PMS-2602-0001', deviceName: 'X200', status: 'DRAFT',
       });
 
       const res = await request(app).post('/api/pms/plans').send({ deviceName: 'X200' });
@@ -89,7 +89,7 @@ describe('PMS Routes', () => {
 
   describe('GET /api/pms/plans', () => {
     it('should list PMS plans', async () => {
-      (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([{ id: 'pms-1' }]);
+      (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/pms/plans');
@@ -118,43 +118,43 @@ describe('PMS Routes', () => {
   describe('GET /api/pms/plans/:id', () => {
     it('should get plan with reports', async () => {
       (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({
-        id: 'pms-1', deletedAt: null, reports: [],
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, reports: [],
       });
 
-      const res = await request(app).get('/api/pms/plans/pms-1');
+      const res = await request(app).get('/api/pms/plans/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/pms/plans/fake');
+      const res = await request(app).get('/api/pms/plans/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted', async () => {
       (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({
-        id: 'pms-1', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
       });
 
-      const res = await request(app).get('/api/pms/plans/pms-1');
+      const res = await request(app).get('/api/pms/plans/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(404);
     });
   });
 
   describe('PUT /api/pms/plans/:id', () => {
     it('should update a plan', async () => {
-      (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'pms-1', deletedAt: null });
-      (mockPrisma.pmsPlan.update as jest.Mock).mockResolvedValue({ id: 'pms-1', status: 'ACTIVE' });
+      (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.pmsPlan.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ACTIVE' });
 
-      const res = await request(app).put('/api/pms/plans/pms-1').send({ status: 'ACTIVE' });
+      const res = await request(app).put('/api/pms/plans/00000000-0000-0000-0000-000000000001').send({ status: 'ACTIVE' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/pms/plans/fake').send({ status: 'ACTIVE' });
+      const res = await request(app).put('/api/pms/plans/00000000-0000-0000-0000-000000000099').send({ status: 'ACTIVE' });
       expect(res.status).toBe(404);
     });
   });
@@ -167,7 +167,7 @@ describe('PMS Routes', () => {
     };
 
     it('should create a PSUR report', async () => {
-      (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'pms-1', deletedAt: null });
+      (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.pmsReport.create as jest.Mock).mockResolvedValue({
         id: 'rep-1', reportType: 'PSUR', refNumber: 'PSUR-2602-0001',
@@ -197,7 +197,7 @@ describe('PMS Routes', () => {
     });
 
     it('should accept optional counts', async () => {
-      (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'pms-1', deletedAt: null });
+      (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.pmsReport.create as jest.Mock).mockResolvedValue({ id: 'rep-2' });
 
@@ -210,7 +210,7 @@ describe('PMS Routes', () => {
 
   describe('POST /api/pms/reports/pmcf', () => {
     it('should create a PMCF report', async () => {
-      (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'pms-1', deletedAt: null });
+      (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.pmsReport.create as jest.Mock).mockResolvedValue({
         id: 'rep-3', reportType: 'PMCF',

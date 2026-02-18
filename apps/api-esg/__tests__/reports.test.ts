@@ -44,7 +44,7 @@ beforeEach(() => {
 });
 
 const mockReport = {
-  id: 'rpt-1',
+  id: '00000000-0000-0000-0000-000000000001',
   title: 'Annual ESG Report 2026',
   reportType: 'ANNUAL',
   year: 2026,
@@ -136,15 +136,15 @@ describe('GET /api/reports/:id', () => {
   it('should return a single report', async () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(mockReport);
 
-    const res = await request(app).get('/api/reports/rpt-1');
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('rpt-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/reports/nonexistent');
+    const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -154,7 +154,7 @@ describe('PUT /api/reports/:id', () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(mockReport);
     (prisma.esgReport.update as jest.Mock).mockResolvedValue({ ...mockReport, status: 'REVIEW' });
 
-    const res = await request(app).put('/api/reports/rpt-1').send({ status: 'REVIEW' });
+    const res = await request(app).put('/api/reports/00000000-0000-0000-0000-000000000001').send({ status: 'REVIEW' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -162,12 +162,12 @@ describe('PUT /api/reports/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/reports/nonexistent').send({ status: 'REVIEW' });
+    const res = await request(app).put('/api/reports/00000000-0000-0000-0000-000000000099').send({ status: 'REVIEW' });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/reports/rpt-1').send({ status: 'INVALID' });
+    const res = await request(app).put('/api/reports/00000000-0000-0000-0000-000000000001').send({ status: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -177,7 +177,7 @@ describe('DELETE /api/reports/:id', () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(mockReport);
     (prisma.esgReport.update as jest.Mock).mockResolvedValue({ ...mockReport, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/reports/rpt-1');
+    const res = await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -185,7 +185,7 @@ describe('DELETE /api/reports/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgReport.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/reports/nonexistent');
+    const res = await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

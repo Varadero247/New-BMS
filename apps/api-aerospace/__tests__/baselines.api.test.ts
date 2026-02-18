@@ -59,7 +59,7 @@ describe('Aerospace Configuration Baselines API', () => {
   describe('GET /api/baselines', () => {
     it('should return paginated list of baselines', async () => {
       mockPrisma.aeroConfigBaseline.findMany.mockResolvedValueOnce([
-        { id: 'b1', refNumber: 'AERO-BL-2026-001', title: 'Functional Baseline', baselineType: 'FUNCTIONAL', status: 'DRAFT' },
+        { id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-BL-2026-001', title: 'Functional Baseline', baselineType: 'FUNCTIONAL', status: 'DRAFT' },
       ]);
       mockPrisma.aeroConfigBaseline.count.mockResolvedValueOnce(1);
 
@@ -115,27 +115,27 @@ describe('Aerospace Configuration Baselines API', () => {
   describe('GET /api/baselines/:id', () => {
     it('should return a single baseline', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({
-        id: 'b1', refNumber: 'AERO-BL-2026-001', title: 'Functional Baseline', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-BL-2026-001', title: 'Functional Baseline', deletedAt: null,
       });
 
-      const res = await request(app).get('/api/baselines/b1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/baselines/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('b1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when not found', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/baselines/nonexistent').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/baselines/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should return 404 when soft-deleted', async () => {
-      mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({ id: 'b1', deletedAt: new Date() });
+      mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-      const res = await request(app).get('/api/baselines/b1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/baselines/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -143,7 +143,7 @@ describe('Aerospace Configuration Baselines API', () => {
     it('should return 500 on db error', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app).get('/api/baselines/b1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/baselines/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('INTERNAL_ERROR');
     });
@@ -195,13 +195,13 @@ describe('Aerospace Configuration Baselines API', () => {
   // PUT /:id - Update baseline
   // =============================================
   describe('PUT /api/baselines/:id', () => {
-    const existing = { id: 'b1', effectiveDate: null, approvedDate: null, deletedAt: null };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', effectiveDate: null, approvedDate: null, deletedAt: null };
 
     it('should update a baseline successfully', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(existing);
       mockPrisma.aeroConfigBaseline.update.mockResolvedValueOnce({ ...existing, status: 'APPROVED' });
 
-      const res = await request(app).put('/api/baselines/b1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ status: 'APPROVED' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -210,7 +210,7 @@ describe('Aerospace Configuration Baselines API', () => {
     it('should return 404 when not found', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/baselines/nonexistent').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token')
         .send({ status: 'APPROVED' });
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -219,7 +219,7 @@ describe('Aerospace Configuration Baselines API', () => {
     it('should return 400 for invalid status enum', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(existing);
 
-      const res = await request(app).put('/api/baselines/b1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -228,7 +228,7 @@ describe('Aerospace Configuration Baselines API', () => {
     it('should return 500 on db error', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app).put('/api/baselines/b1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ status: 'APPROVED' });
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -240,13 +240,13 @@ describe('Aerospace Configuration Baselines API', () => {
   // =============================================
   describe('DELETE /api/baselines/:id', () => {
     it('should soft-delete a baseline', async () => {
-      mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({ id: 'b1', deletedAt: null });
+      mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       mockPrisma.aeroConfigBaseline.update.mockResolvedValueOnce({});
 
-      const res = await request(app).delete('/api/baselines/b1').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/baselines/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(204);
       expect(mockPrisma.aeroConfigBaseline.update).toHaveBeenCalledWith({
-        where: { id: 'b1' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: { deletedAt: expect.any(Date) },
       });
     });
@@ -254,15 +254,15 @@ describe('Aerospace Configuration Baselines API', () => {
     it('should return 404 when not found', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/baselines/nonexistent').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/baselines/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should return 404 when already deleted', async () => {
-      mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({ id: 'b1', deletedAt: new Date() });
+      mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/baselines/b1').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/baselines/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -272,13 +272,13 @@ describe('Aerospace Configuration Baselines API', () => {
   // PUT /:id/approve - Approve baseline
   // =============================================
   describe('PUT /api/baselines/:id/approve', () => {
-    const existing = { id: 'b1', status: 'UNDER_REVIEW', notes: null, deletedAt: null };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'UNDER_REVIEW', notes: null, deletedAt: null };
 
     it('should approve a baseline', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(existing);
       mockPrisma.aeroConfigBaseline.update.mockResolvedValueOnce({ ...existing, status: 'APPROVED', approvedBy: 'John' });
 
-      const res = await request(app).put('/api/baselines/b1/approve').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000001/approve').set('Authorization', 'Bearer token')
         .send({ approvedBy: 'John', approvalNotes: 'Reviewed and approved' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -287,7 +287,7 @@ describe('Aerospace Configuration Baselines API', () => {
     it('should return 404 when not found', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/baselines/nonexistent/approve').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000099/approve').set('Authorization', 'Bearer token')
         .send({ approvedBy: 'John' });
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -296,7 +296,7 @@ describe('Aerospace Configuration Baselines API', () => {
     it('should return 400 when approvedBy is missing', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockResolvedValueOnce(existing);
 
-      const res = await request(app).put('/api/baselines/b1/approve').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000001/approve').set('Authorization', 'Bearer token')
         .send({});
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -305,7 +305,7 @@ describe('Aerospace Configuration Baselines API', () => {
     it('should return 500 on db error', async () => {
       mockPrisma.aeroConfigBaseline.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app).put('/api/baselines/b1/approve').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/baselines/00000000-0000-0000-0000-000000000001/approve').set('Authorization', 'Bearer token')
         .send({ approvedBy: 'John' });
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('INTERNAL_ERROR');

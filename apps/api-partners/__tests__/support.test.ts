@@ -30,7 +30,7 @@ app.use('/api/support', supportRouter);
 beforeEach(() => { jest.clearAllMocks(); });
 
 const mockTicket = {
-  id: 'ticket-1',
+  id: '00000000-0000-0000-0000-000000000001',
   partnerId: 'partner-1',
   subject: 'Need help with API integration',
   description: 'I cannot connect to the API',
@@ -104,7 +104,7 @@ describe('POST /api/support', () => {
 describe('GET /api/support/:id', () => {
   it('returns ticket with messages', async () => {
     (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(mockTicket);
-    const res = await request(app).get('/api/support/ticket-1');
+    const res = await request(app).get('/api/support/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.data.messages).toHaveLength(1);
   });
@@ -114,13 +114,13 @@ describe('GET /api/support/:id', () => {
       ...mockTicket,
       partnerId: 'other-partner',
     });
-    const res = await request(app).get('/api/support/ticket-1');
+    const res = await request(app).get('/api/support/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(404);
   });
 
   it('returns 404 when ticket not found', async () => {
     (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue(null);
-    const res = await request(app).get('/api/support/nonexistent');
+    const res = await request(app).get('/api/support/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -138,7 +138,7 @@ describe('POST /api/support/:id/messages', () => {
     });
 
     const res = await request(app)
-      .post('/api/support/ticket-1/messages')
+      .post('/api/support/00000000-0000-0000-0000-000000000001/messages')
       .send({ body: 'Follow up' });
 
     expect(res.status).toBe(201);
@@ -146,7 +146,7 @@ describe('POST /api/support/:id/messages', () => {
 
   it('returns 400 for empty body', async () => {
     const res = await request(app)
-      .post('/api/support/ticket-1/messages')
+      .post('/api/support/00000000-0000-0000-0000-000000000001/messages')
       .send({ body: '' });
     expect(res.status).toBe(400);
   });
@@ -157,7 +157,7 @@ describe('POST /api/support/:id/messages', () => {
       status: 'CLOSED',
     });
     const res = await request(app)
-      .post('/api/support/ticket-1/messages')
+      .post('/api/support/00000000-0000-0000-0000-000000000001/messages')
       .send({ body: 'too late' });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('TICKET_CLOSED');
@@ -174,7 +174,7 @@ describe('POST /api/support/:id/messages', () => {
     (portalPrisma.mktPartnerSupportTicket.update as jest.Mock).mockResolvedValue({});
 
     await request(app)
-      .post('/api/support/ticket-1/messages')
+      .post('/api/support/00000000-0000-0000-0000-000000000001/messages')
       .send({ body: 'Reply' });
 
     expect(portalPrisma.mktPartnerSupportTicket.update).toHaveBeenCalledWith(
@@ -191,7 +191,7 @@ describe('PATCH /api/support/:id/close', () => {
       status: 'CLOSED',
     });
 
-    const res = await request(app).patch('/api/support/ticket-1/close');
+    const res = await request(app).patch('/api/support/00000000-0000-0000-0000-000000000001/close');
     expect(res.status).toBe(200);
   });
 
@@ -200,7 +200,7 @@ describe('PATCH /api/support/:id/close', () => {
       ...mockTicket,
       partnerId: 'other',
     });
-    const res = await request(app).patch('/api/support/ticket-1/close');
+    const res = await request(app).patch('/api/support/00000000-0000-0000-0000-000000000001/close');
     expect(res.status).toBe(404);
   });
 });

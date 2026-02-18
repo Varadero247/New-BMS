@@ -2,10 +2,12 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 import { notifyEmergencyDeclared, notifyIncidentStatusChange } from '../services/notificationTriggers';
 
 const router = Router();
+router.param('id', validateIdParam());
 const logger = createLogger('emergency-incidents');
 
 const emergencyTypeEnum = z.enum(['FIRE', 'EXPLOSION', 'CHEMICAL_SPILL', 'GAS_LEAK', 'FLOOD', 'STRUCTURAL_FAILURE', 'POWER_FAILURE', 'CYBER_ATTACK', 'BOMB_THREAT', 'CIVIL_UNREST', 'PANDEMIC', 'SEVERE_WEATHER', 'UTILITY_FAILURE', 'MEDICAL_MASS_CASUALTY', 'TERRORISM', 'ENVIRONMENTAL_RELEASE', 'SUPPLY_CHAIN_DISRUPTION', 'OTHER']);

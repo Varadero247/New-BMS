@@ -55,7 +55,7 @@ describe('Emergency Routes', () => {
     it('should create an emergency plan', async () => {
       (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.envEmergencyPlan.create as jest.Mock).mockResolvedValue({
-        id: 'env30000-0000-4000-a000-000000000001', refNumber: 'EEP-2602-0001', ...validBody, status: 'DRAFT',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'EEP-2602-0001', ...validBody, status: 'DRAFT',
       });
 
       const res = await request(app).post('/api/emergency/plans').send(validBody);
@@ -122,7 +122,7 @@ describe('Emergency Routes', () => {
 
   describe('GET /api/emergency/plans', () => {
     it('should list emergency plans', async () => {
-      (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockResolvedValue([{ id: 'env30000-0000-4000-a000-000000000001' }]);
+      (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/emergency/plans');
@@ -167,17 +167,17 @@ describe('Emergency Routes', () => {
 
   describe('PUT /api/emergency/plans/:id', () => {
     it('should update an emergency plan', async () => {
-      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'env30000-0000-4000-a000-000000000001' });
-      (mockPrisma.envEmergencyPlan.update as jest.Mock).mockResolvedValue({ id: 'env30000-0000-4000-a000-000000000001', status: 'ACTIVE' });
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+      (mockPrisma.envEmergencyPlan.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ACTIVE' });
 
-      const res = await request(app).put('/api/emergency/plans/env30000-0000-4000-a000-000000000001').send({ status: 'ACTIVE' });
+      const res = await request(app).put('/api/emergency/plans/00000000-0000-0000-0000-000000000001').send({ status: 'ACTIVE' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent', async () => {
       (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/emergency/plans/fake').send({ status: 'ACTIVE' });
+      const res = await request(app).put('/api/emergency/plans/00000000-0000-0000-0000-000000000099').send({ status: 'ACTIVE' });
       expect(res.status).toBe(404);
     });
   });
@@ -194,7 +194,7 @@ describe('Emergency Routes', () => {
     };
 
     it('should create a drill', async () => {
-      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'env30000-0000-4000-a000-000000000001' });
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
       (mockPrisma.envEmergencyDrill.create as jest.Mock).mockResolvedValue({ id: 'env31000-0000-4000-a000-000000000001', ...validDrill });
 
       const res = await request(app).post('/api/emergency/drills').send(validDrill);
@@ -227,7 +227,7 @@ describe('Emergency Routes', () => {
     });
 
     it('should accept FUNCTIONAL drillType', async () => {
-      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'env30000-0000-4000-a000-000000000001' });
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
       (mockPrisma.envEmergencyDrill.create as jest.Mock).mockResolvedValue({ id: 'env31000-0000-4000-a000-000000000002' });
 
       const res = await request(app).post('/api/emergency/drills').send({
@@ -237,7 +237,7 @@ describe('Emergency Routes', () => {
     });
 
     it('should accept FULL_SCALE drillType', async () => {
-      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'env30000-0000-4000-a000-000000000001' });
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
       (mockPrisma.envEmergencyDrill.create as jest.Mock).mockResolvedValue({ id: 'env31000-0000-4000-a000-000000000003' });
 
       const res = await request(app).post('/api/emergency/drills').send({
@@ -247,7 +247,7 @@ describe('Emergency Routes', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: 'env30000-0000-4000-a000-000000000001' });
+      (mockPrisma.envEmergencyPlan.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
       (mockPrisma.envEmergencyDrill.create as jest.Mock).mockRejectedValue(new Error('DB'));
 
       const res = await request(app).post('/api/emergency/drills').send(validDrill);

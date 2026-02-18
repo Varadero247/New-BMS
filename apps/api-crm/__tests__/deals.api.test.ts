@@ -61,7 +61,7 @@ app.use('/api/deals', dealsRouter);
 beforeEach(() => { jest.clearAllMocks(); });
 
 const mockDeal = {
-  id: 'deal-1',
+  id: '00000000-0000-0000-0000-000000000001',
   refNumber: 'DEAL-2602-1234',
   title: 'Enterprise License',
   value: 50000,
@@ -87,7 +87,7 @@ const mockDeal = {
 };
 
 const mockPipeline = {
-  id: 'pipe-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'Sales Pipeline',
   description: 'Main pipeline',
   createdBy: 'user-123',
@@ -198,7 +198,7 @@ describe('PUT /api/deals/pipelines/:id/stages', () => {
     (prisma as any).crmPipelineStage.deleteMany.mockResolvedValue({ count: 3 });
     (prisma as any).crmPipelineStage.createMany.mockResolvedValue({ count: 2 });
 
-    const res = await request(app).put('/api/deals/pipelines/pipe-1/stages').send({
+    const res = await request(app).put('/api/deals/pipelines/00000000-0000-0000-0000-000000000001/stages').send({
       stages: [
         { name: 'New Stage 1', order: 0 },
         { name: 'New Stage 2', order: 1 },
@@ -212,7 +212,7 @@ describe('PUT /api/deals/pipelines/:id/stages', () => {
   it('should return 404 when pipeline not found', async () => {
     (prisma as any).crmPipeline.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/deals/pipelines/nonexistent/stages').send({
+    const res = await request(app).put('/api/deals/pipelines/00000000-0000-0000-0000-000000000099/stages').send({
       stages: [{ name: 'Stage', order: 0 }],
     });
 
@@ -220,7 +220,7 @@ describe('PUT /api/deals/pipelines/:id/stages', () => {
   });
 
   it('should return 400 for empty stages array', async () => {
-    const res = await request(app).put('/api/deals/pipelines/pipe-1/stages').send({
+    const res = await request(app).put('/api/deals/pipelines/00000000-0000-0000-0000-000000000001/stages').send({
       stages: [],
     });
 
@@ -528,11 +528,11 @@ describe('GET /api/deals/:id', () => {
     (prisma as any).crmActivity.findMany.mockResolvedValue([]);
     (prisma as any).crmContact.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/deals/deal-1');
+    const res = await request(app).get('/api/deals/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('deal-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     expect(res.body.data.activities).toBeDefined();
     expect(res.body.data.contacts).toBeDefined();
   });
@@ -540,7 +540,7 @@ describe('GET /api/deals/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/deals/nonexistent');
+    const res = await request(app).get('/api/deals/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -549,7 +549,7 @@ describe('GET /api/deals/:id', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).crmDeal.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/deals/deal-1');
+    const res = await request(app).get('/api/deals/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -564,7 +564,7 @@ describe('PUT /api/deals/:id', () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(mockDeal);
     (prisma as any).crmDeal.update.mockResolvedValue({ ...mockDeal, title: 'Updated Deal' });
 
-    const res = await request(app).put('/api/deals/deal-1').send({ title: 'Updated Deal' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001').send({ title: 'Updated Deal' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -574,7 +574,7 @@ describe('PUT /api/deals/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/deals/nonexistent').send({ title: 'Test' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000099').send({ title: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -583,7 +583,7 @@ describe('PUT /api/deals/:id', () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(mockDeal);
     (prisma as any).crmDeal.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/deals/deal-1').send({ title: 'Test' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001').send({ title: 'Test' });
 
     expect(res.status).toBe(500);
   });
@@ -599,7 +599,7 @@ describe('PUT /api/deals/:id/stage', () => {
     (prisma as any).crmDeal.update.mockResolvedValue({ ...mockDeal, stageId: 'stage-2' });
     (prisma as any).crmActivity.create.mockResolvedValue({ id: 'act-1' });
 
-    const res = await request(app).put('/api/deals/deal-1/stage').send({ stageId: 'stage-2' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/stage').send({ stageId: 'stage-2' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -607,7 +607,7 @@ describe('PUT /api/deals/:id/stage', () => {
   });
 
   it('should return 400 for missing stageId', async () => {
-    const res = await request(app).put('/api/deals/deal-1/stage').send({});
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/stage').send({});
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toBe('stageId is required');
@@ -616,7 +616,7 @@ describe('PUT /api/deals/:id/stage', () => {
   it('should return 404 when deal not found', async () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/deals/nonexistent/stage').send({ stageId: 'stage-2' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000099/stage').send({ stageId: 'stage-2' });
 
     expect(res.status).toBe(404);
   });
@@ -625,7 +625,7 @@ describe('PUT /api/deals/:id/stage', () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(mockDeal);
     (prisma as any).crmDeal.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/deals/deal-1/stage').send({ stageId: 'stage-2' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/stage').send({ stageId: 'stage-2' });
 
     expect(res.status).toBe(500);
   });
@@ -646,7 +646,7 @@ describe('PUT /api/deals/:id/won', () => {
     });
     (prisma as any).crmActivity.create.mockResolvedValue({ id: 'act-1' });
 
-    const res = await request(app).put('/api/deals/deal-1/won');
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/won');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -663,7 +663,7 @@ describe('PUT /api/deals/:id/won', () => {
     (prisma as any).crmDeal.update.mockResolvedValue({ ...mockDeal, status: 'WON', contactId: 'contact-1' });
     (prisma as any).crmActivity.create.mockResolvedValue({ id: 'act-1' });
 
-    await request(app).put('/api/deals/deal-1/won');
+    await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/won');
 
     expect((prisma as any).crmActivity.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -675,7 +675,7 @@ describe('PUT /api/deals/:id/won', () => {
   it('should return 404 when deal not found', async () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/deals/nonexistent/won');
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000099/won');
 
     expect(res.status).toBe(404);
   });
@@ -684,7 +684,7 @@ describe('PUT /api/deals/:id/won', () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(mockDeal);
     (prisma as any).crmDeal.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/deals/deal-1/won');
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/won');
 
     expect(res.status).toBe(500);
   });
@@ -705,7 +705,7 @@ describe('PUT /api/deals/:id/lost', () => {
     });
     (prisma as any).crmActivity.create.mockResolvedValue({ id: 'act-1' });
 
-    const res = await request(app).put('/api/deals/deal-1/lost').send({ lostReason: 'Price too high' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/lost').send({ lostReason: 'Price too high' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -718,7 +718,7 @@ describe('PUT /api/deals/:id/lost', () => {
   });
 
   it('should return 400 for missing lostReason', async () => {
-    const res = await request(app).put('/api/deals/deal-1/lost').send({});
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/lost').send({});
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toBe('lostReason is required');
@@ -727,7 +727,7 @@ describe('PUT /api/deals/:id/lost', () => {
   it('should return 404 when deal not found', async () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/deals/nonexistent/lost').send({ lostReason: 'Lost' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000099/lost').send({ lostReason: 'Lost' });
 
     expect(res.status).toBe(404);
   });
@@ -737,7 +737,7 @@ describe('PUT /api/deals/:id/lost', () => {
     (prisma as any).crmDeal.update.mockResolvedValue({ ...mockDeal, status: 'LOST', contactId: 'contact-1' });
     (prisma as any).crmActivity.create.mockResolvedValue({ id: 'act-1' });
 
-    await request(app).put('/api/deals/deal-1/lost').send({ lostReason: 'Budget cuts' });
+    await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/lost').send({ lostReason: 'Budget cuts' });
 
     expect((prisma as any).crmActivity.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -750,7 +750,7 @@ describe('PUT /api/deals/:id/lost', () => {
     (prisma as any).crmDeal.findFirst.mockResolvedValue(mockDeal);
     (prisma as any).crmDeal.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/deals/deal-1/lost').send({ lostReason: 'Budget cuts' });
+    const res = await request(app).put('/api/deals/00000000-0000-0000-0000-000000000001/lost').send({ lostReason: 'Budget cuts' });
 
     expect(res.status).toBe(500);
   });

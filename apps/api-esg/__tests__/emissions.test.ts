@@ -40,7 +40,7 @@ beforeEach(() => {
 });
 
 const mockEmission = {
-  id: 'em-1',
+  id: '00000000-0000-0000-0000-000000000001',
   scope: 'SCOPE_1',
   category: 'Stationary Combustion',
   source: 'Boiler',
@@ -120,7 +120,7 @@ describe('POST /api/emissions', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('em-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 400 for missing required fields', async () => {
@@ -154,16 +154,16 @@ describe('GET /api/emissions/:id', () => {
   it('should return a single emission', async () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
 
-    const res = await request(app).get('/api/emissions/em-1');
+    const res = await request(app).get('/api/emissions/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('em-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when emission not found', async () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/emissions/nonexistent');
+    const res = await request(app).get('/api/emissions/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
@@ -174,7 +174,7 @@ describe('PUT /api/emissions/:id', () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
     (prisma.esgEmission.update as jest.Mock).mockResolvedValue({ ...mockEmission, quantity: 2000 });
 
-    const res = await request(app).put('/api/emissions/em-1').send({ quantity: 2000 });
+    const res = await request(app).put('/api/emissions/00000000-0000-0000-0000-000000000001').send({ quantity: 2000 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -182,12 +182,12 @@ describe('PUT /api/emissions/:id', () => {
   it('should return 404 when updating non-existent emission', async () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/emissions/nonexistent').send({ quantity: 2000 });
+    const res = await request(app).put('/api/emissions/00000000-0000-0000-0000-000000000099').send({ quantity: 2000 });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid update data', async () => {
-    const res = await request(app).put('/api/emissions/em-1').send({ scope: 'INVALID_SCOPE' });
+    const res = await request(app).put('/api/emissions/00000000-0000-0000-0000-000000000001').send({ scope: 'INVALID_SCOPE' });
     expect(res.status).toBe(400);
   });
 });
@@ -197,7 +197,7 @@ describe('DELETE /api/emissions/:id', () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(mockEmission);
     (prisma.esgEmission.update as jest.Mock).mockResolvedValue({ ...mockEmission, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/emissions/em-1');
+    const res = await request(app).delete('/api/emissions/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(prisma.esgEmission.update).toHaveBeenCalledWith(
@@ -208,7 +208,7 @@ describe('DELETE /api/emissions/:id', () => {
   it('should return 404 when deleting non-existent emission', async () => {
     (prisma.esgEmission.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/emissions/nonexistent');
+    const res = await request(app).delete('/api/emissions/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

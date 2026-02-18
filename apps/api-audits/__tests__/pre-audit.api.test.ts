@@ -16,13 +16,13 @@ beforeEach(() => { jest.clearAllMocks(); });
 describe('POST /api/pre-audit/:id/generate', () => {
   it('should generate a pre-audit report for a valid audit', async () => {
     (prisma as any).audAudit.findFirst.mockResolvedValue({
-      id: 'audit-1',
+      id: '00000000-0000-0000-0000-000000000001',
       referenceNumber: 'AUD-2026-0001',
       title: 'Annual ISO 9001 Audit',
       scope: 'Quality Management',
       standard: 'ISO 9001:2015',
     });
-    const res = await request(app).post('/api/pre-audit/audit-1/generate');
+    const res = await request(app).post('/api/pre-audit/00000000-0000-0000-0000-000000000001/generate');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toBeDefined();
@@ -40,7 +40,7 @@ describe('POST /api/pre-audit/:id/generate', () => {
 
   it('should return 404 when audit not found', async () => {
     (prisma as any).audAudit.findFirst.mockResolvedValue(null);
-    const res = await request(app).post('/api/pre-audit/nonexistent/generate');
+    const res = await request(app).post('/api/pre-audit/00000000-0000-0000-0000-000000000099/generate');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -49,7 +49,7 @@ describe('POST /api/pre-audit/:id/generate', () => {
 
   it('should return 500 on database error', async () => {
     (prisma as any).audAudit.findFirst.mockRejectedValue(new Error('DB connection failed'));
-    const res = await request(app).post('/api/pre-audit/audit-1/generate');
+    const res = await request(app).post('/api/pre-audit/00000000-0000-0000-0000-000000000001/generate');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

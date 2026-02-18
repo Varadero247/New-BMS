@@ -68,7 +68,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
   // =========================================
   describe('GET /api/customer-satisfaction/public/:token', () => {
     const mockSurvey = {
-      id: 'survey-1',
+      id: '00000000-0000-0000-0000-000000000001',
       refNumber: 'CS-2602-0001',
       title: 'Customer Satisfaction Survey Q1',
       type: 'NPS',
@@ -158,7 +158,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
   // =========================================
   describe('POST /api/customer-satisfaction/public/:token/respond', () => {
     const mockSurvey = {
-      id: 'survey-1',
+      id: '00000000-0000-0000-0000-000000000001',
       isPublic: true,
       isActive: true,
       deletedAt: null,
@@ -391,7 +391,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
   describe('GET /api/customer-satisfaction/surveys', () => {
     const mockSurveys = [
       {
-        id: 'survey-1',
+        id: '00000000-0000-0000-0000-000000000001',
         refNumber: 'CS-2602-0001',
         title: 'NPS Survey',
         type: 'NPS',
@@ -509,7 +509,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
   // =========================================
   describe('GET /api/customer-satisfaction/surveys/:id', () => {
     const mockSurvey = {
-      id: 'survey-1',
+      id: '00000000-0000-0000-0000-000000000001',
       refNumber: 'CS-2602-0001',
       title: 'NPS Survey',
       type: 'NPS',
@@ -524,12 +524,12 @@ describe('Quality Customer Satisfaction API Routes', () => {
       mockPrisma.customerSurvey.findUnique.mockResolvedValueOnce(mockSurvey);
 
       const response = await request(app)
-        .get('/api/customer-satisfaction/surveys/survey-1')
+        .get('/api/customer-satisfaction/surveys/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('survey-1');
+      expect(response.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
       expect(response.body.data.questions).toHaveLength(1);
     });
 
@@ -537,7 +537,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
       mockPrisma.customerSurvey.findUnique.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/customer-satisfaction/surveys/nonexistent')
+        .get('/api/customer-satisfaction/surveys/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -551,7 +551,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
       });
 
       const response = await request(app)
-        .get('/api/customer-satisfaction/surveys/survey-1')
+        .get('/api/customer-satisfaction/surveys/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -562,7 +562,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
       mockPrisma.customerSurvey.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/customer-satisfaction/surveys/survey-1')
+        .get('/api/customer-satisfaction/surveys/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -575,7 +575,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
   // =========================================
   describe('POST /api/customer-satisfaction/responses', () => {
     const mockSurvey = {
-      id: 'survey-1',
+      id: '00000000-0000-0000-0000-000000000001',
       isActive: true,
       deletedAt: null,
       questions: [
@@ -691,7 +691,7 @@ describe('Quality Customer Satisfaction API Routes', () => {
         csatScore: 4,
         npsCategory: 'PROMOTER',
         submittedAt: new Date('2026-02-01'),
-        survey: { id: 'survey-1', title: 'NPS Survey', refNumber: 'CS-2602-0001', type: 'NPS' },
+        survey: { id: '00000000-0000-0000-0000-000000000001', title: 'NPS Survey', refNumber: 'CS-2602-0001', type: 'NPS' },
         answers: [{ questionId: 'q-1', numericValue: 9 }],
       },
     ];

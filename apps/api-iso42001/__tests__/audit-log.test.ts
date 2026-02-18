@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 const mockEntry = {
-  id: 'entry-1',
+  id: '00000000-0000-0000-0000-000000000001',
   systemId: 'sys-1',
   action: 'DECISION',
   description: 'AI system recommended approval',
@@ -217,22 +217,22 @@ describe('Audit Log Routes', () => {
     it('should return a single entry', async () => {
       (prisma.aiAuditLog.findUnique as jest.Mock).mockResolvedValue(mockEntry);
 
-      const res = await request(app).get('/api/audit-log/entry-1');
+      const res = await request(app).get('/api/audit-log/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('entry-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for missing entry', async () => {
       (prisma.aiAuditLog.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/audit-log/nonexistent');
+      const res = await request(app).get('/api/audit-log/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should handle errors', async () => {
       (prisma.aiAuditLog.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/audit-log/entry-1');
+      const res = await request(app).get('/api/audit-log/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(500);
     });
   });

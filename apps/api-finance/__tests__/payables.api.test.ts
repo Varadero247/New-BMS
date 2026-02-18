@@ -136,7 +136,7 @@ describe('GET /api/payables/suppliers/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/payables/suppliers/nonexistent');
+    const res = await request(app).get('/api/payables/suppliers/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -185,7 +185,7 @@ describe('PUT /api/payables/suppliers/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/payables/suppliers/nonexistent').send({ name: 'Test' });
+    const res = await request(app).put('/api/payables/suppliers/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -215,7 +215,7 @@ describe('DELETE /api/payables/suppliers/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/payables/suppliers/nonexistent');
+    const res = await request(app).delete('/api/payables/suppliers/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -295,7 +295,7 @@ describe('GET /api/payables/purchase-orders/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/payables/purchase-orders/nonexistent');
+    const res = await request(app).get('/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -360,7 +360,7 @@ describe('PUT /api/payables/purchase-orders/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/payables/purchase-orders/nonexistent').send({ notes: 'test' });
+    const res = await request(app).put('/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099').send({ notes: 'test' });
 
     expect(res.status).toBe(404);
   });
@@ -393,7 +393,7 @@ describe('POST /api/payables/purchase-orders/:id/approve', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/payables/purchase-orders/nonexistent/approve');
+    const res = await request(app).post('/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099/approve');
 
     expect(res.status).toBe(404);
   });
@@ -426,7 +426,7 @@ describe('POST /api/payables/purchase-orders/:id/receive', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/payables/purchase-orders/nonexistent/receive');
+    const res = await request(app).post('/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099/receive');
 
     expect(res.status).toBe(404);
   });
@@ -458,7 +458,7 @@ describe('POST /api/payables/purchase-orders/:id/cancel', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/payables/purchase-orders/nonexistent/cancel');
+    const res = await request(app).post('/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099/cancel');
 
     expect(res.status).toBe(404);
   });
@@ -598,7 +598,7 @@ describe('PUT /api/payables/:id (update bill)', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBill.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/payables/nonexistent').send({ notes: 'test' });
+    const res = await request(app).put('/api/payables/00000000-0000-0000-0000-000000000099').send({ notes: 'test' });
 
     expect(res.status).toBe(404);
   });

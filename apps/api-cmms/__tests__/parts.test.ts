@@ -28,7 +28,7 @@ app.use(express.json());
 app.use('/api/parts', partsRouter);
 
 const mockPart = {
-  id: 'part-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'Ball Bearing',
   partNumber: 'BB-6205-2RS',
   description: 'Deep groove ball bearing',
@@ -137,15 +137,15 @@ describe('Parts Routes', () => {
     it('should return a part by ID', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue({ ...mockPart, partUsages: [] });
 
-      const res = await request(app).get('/api/parts/part-1');
+      const res = await request(app).get('/api/parts/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('part-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent part', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/parts/non-existent');
+      const res = await request(app).get('/api/parts/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -155,14 +155,14 @@ describe('Parts Routes', () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(mockPart);
       prisma.cmmsPart.update.mockResolvedValue({ ...mockPart, name: 'Updated Bearing' });
 
-      const res = await request(app).put('/api/parts/part-1').send({ name: 'Updated Bearing' });
+      const res = await request(app).put('/api/parts/00000000-0000-0000-0000-000000000001').send({ name: 'Updated Bearing' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent part', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/parts/non-existent').send({ name: 'Updated' });
+      const res = await request(app).put('/api/parts/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
       expect(res.status).toBe(404);
     });
   });
@@ -172,14 +172,14 @@ describe('Parts Routes', () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(mockPart);
       prisma.cmmsPart.update.mockResolvedValue({ ...mockPart, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/parts/part-1');
+      const res = await request(app).delete('/api/parts/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent part', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/parts/non-existent');
+      const res = await request(app).delete('/api/parts/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -197,7 +197,7 @@ describe('Parts Routes', () => {
       });
       prisma.cmmsPart.update.mockResolvedValue({ ...mockPart, quantity: 98 });
 
-      const res = await request(app).post('/api/parts/part-1/usage').send({
+      const res = await request(app).post('/api/parts/00000000-0000-0000-0000-000000000001/usage').send({
         workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
         quantity: 2,
       });
@@ -207,7 +207,7 @@ describe('Parts Routes', () => {
     it('should return 400 for insufficient stock', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue({ ...mockPart, quantity: 1 });
 
-      const res = await request(app).post('/api/parts/part-1/usage').send({
+      const res = await request(app).post('/api/parts/00000000-0000-0000-0000-000000000001/usage').send({
         workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
         quantity: 5,
       });
@@ -217,7 +217,7 @@ describe('Parts Routes', () => {
     it('should return 404 for non-existent part', async () => {
       prisma.cmmsPart.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).post('/api/parts/non-existent/usage').send({
+      const res = await request(app).post('/api/parts/00000000-0000-0000-0000-000000000099/usage').send({
         workOrderId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
         quantity: 2,
       });
@@ -225,7 +225,7 @@ describe('Parts Routes', () => {
     });
 
     it('should return 400 for invalid data', async () => {
-      const res = await request(app).post('/api/parts/part-1/usage').send({});
+      const res = await request(app).post('/api/parts/00000000-0000-0000-0000-000000000001/usage').send({});
       expect(res.status).toBe(400);
     });
   });

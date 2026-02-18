@@ -43,7 +43,7 @@ beforeEach(() => {
 describe('GET /api/hazards', () => {
   it('should return a list of hazards with pagination', async () => {
     const hazards = [
-      { id: 'h-1', name: 'Salmonella', type: 'BIOLOGICAL', severity: 'HIGH', likelihood: 'POSSIBLE', riskScore: 12 },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Salmonella', type: 'BIOLOGICAL', severity: 'HIGH', likelihood: 'POSSIBLE', riskScore: 12 },
       { id: 'h-2', name: 'Glass', type: 'PHYSICAL', severity: 'CRITICAL', likelihood: 'UNLIKELY', riskScore: 10 },
     ];
     (prisma as any).fsHazard.findMany.mockResolvedValue(hazards);
@@ -121,7 +121,7 @@ describe('POST /api/hazards', () => {
       likelihood: 'POSSIBLE',
       description: 'Pathogenic bacteria',
     };
-    const created = { id: 'h-1', ...input, riskScore: 12, createdBy: 'user-123' };
+    const created = { id: '00000000-0000-0000-0000-000000000001', ...input, riskScore: 12, createdBy: 'user-123' };
     (prisma as any).fsHazard.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/hazards').send(input);
@@ -157,19 +157,19 @@ describe('POST /api/hazards', () => {
 // ===================================================================
 describe('GET /api/hazards/:id', () => {
   it('should return a hazard by id', async () => {
-    const hazard = { id: 'h-1', name: 'Salmonella', type: 'BIOLOGICAL', ccps: [] };
+    const hazard = { id: '00000000-0000-0000-0000-000000000001', name: 'Salmonella', type: 'BIOLOGICAL', ccps: [] };
     (prisma as any).fsHazard.findFirst.mockResolvedValue(hazard);
 
-    const res = await request(app).get('/api/hazards/h-1');
+    const res = await request(app).get('/api/hazards/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('h-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent hazard', async () => {
     (prisma as any).fsHazard.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/hazards/non-existent');
+    const res = await request(app).get('/api/hazards/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
@@ -177,7 +177,7 @@ describe('GET /api/hazards/:id', () => {
   it('should handle database errors', async () => {
     (prisma as any).fsHazard.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/hazards/h-1');
+    const res = await request(app).get('/api/hazards/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
   });
 });
@@ -187,21 +187,21 @@ describe('GET /api/hazards/:id', () => {
 // ===================================================================
 describe('PUT /api/hazards/:id', () => {
   it('should update a hazard', async () => {
-    const existing = { id: 'h-1', severity: 'HIGH', likelihood: 'POSSIBLE' };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', severity: 'HIGH', likelihood: 'POSSIBLE' };
     (prisma as any).fsHazard.findFirst.mockResolvedValue(existing);
     (prisma as any).fsHazard.update.mockResolvedValue({ ...existing, name: 'Updated' });
 
-    const res = await request(app).put('/api/hazards/h-1').send({ name: 'Updated' });
+    const res = await request(app).put('/api/hazards/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should recalculate risk score on severity change', async () => {
-    const existing = { id: 'h-1', severity: 'HIGH', likelihood: 'POSSIBLE' };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', severity: 'HIGH', likelihood: 'POSSIBLE' };
     (prisma as any).fsHazard.findFirst.mockResolvedValue(existing);
     (prisma as any).fsHazard.update.mockResolvedValue({ ...existing, severity: 'CRITICAL', riskScore: 15 });
 
-    const res = await request(app).put('/api/hazards/h-1').send({ severity: 'CRITICAL' });
+    const res = await request(app).put('/api/hazards/00000000-0000-0000-0000-000000000001').send({ severity: 'CRITICAL' });
     expect(res.status).toBe(200);
     expect((prisma as any).fsHazard.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ riskScore: 15 }) })
@@ -211,15 +211,15 @@ describe('PUT /api/hazards/:id', () => {
   it('should return 404 for non-existent hazard', async () => {
     (prisma as any).fsHazard.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/hazards/non-existent').send({ name: 'Test' });
+    const res = await request(app).put('/api/hazards/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
     expect(res.status).toBe(404);
   });
 
   it('should reject invalid update data', async () => {
-    const existing = { id: 'h-1', severity: 'HIGH', likelihood: 'POSSIBLE' };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', severity: 'HIGH', likelihood: 'POSSIBLE' };
     (prisma as any).fsHazard.findFirst.mockResolvedValue(existing);
 
-    const res = await request(app).put('/api/hazards/h-1').send({ type: 'INVALID_TYPE' });
+    const res = await request(app).put('/api/hazards/00000000-0000-0000-0000-000000000001').send({ type: 'INVALID_TYPE' });
     expect(res.status).toBe(400);
   });
 });
@@ -229,10 +229,10 @@ describe('PUT /api/hazards/:id', () => {
 // ===================================================================
 describe('DELETE /api/hazards/:id', () => {
   it('should soft delete a hazard', async () => {
-    (prisma as any).fsHazard.findFirst.mockResolvedValue({ id: 'h-1' });
-    (prisma as any).fsHazard.update.mockResolvedValue({ id: 'h-1', deletedAt: new Date() });
+    (prisma as any).fsHazard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsHazard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/hazards/h-1');
+    const res = await request(app).delete('/api/hazards/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect((prisma as any).fsHazard.update).toHaveBeenCalledWith(
@@ -243,7 +243,7 @@ describe('DELETE /api/hazards/:id', () => {
   it('should return 404 for non-existent hazard', async () => {
     (prisma as any).fsHazard.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/hazards/non-existent');
+    const res = await request(app).delete('/api/hazards/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

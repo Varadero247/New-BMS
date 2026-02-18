@@ -54,7 +54,7 @@ function createApp() {
 // ---- Sample Data ----
 
 const mockTemplate = {
-  id: 'tpl-1',
+  id: '00000000-0000-0000-0000-000000000001',
   code: 'TPL-HS-001',
   name: 'Generic Risk Assessment',
   description: 'Standard risk assessment form',
@@ -89,7 +89,7 @@ const mockTemplate2 = {
 
 const mockCustomTemplate = {
   ...mockTemplate,
-  id: 'tpl-3',
+  id: '00000000-0000-0000-0000-000000000001',
   code: 'TPL-HS-009',
   name: 'Custom Safety Form',
   isBuiltIn: false,
@@ -211,7 +211,7 @@ describe('Templates API', () => {
           { category: 'AUDIT', _count: 4 },
         ]);
       mockPrisma.template.findMany.mockResolvedValue([
-        { id: 'tpl-1', code: 'TPL-ENV-001', name: 'Aspect Register', module: 'ENVIRONMENT', usageCount: 12 },
+        { id: '00000000-0000-0000-0000-000000000001', code: 'TPL-ENV-001', name: 'Aspect Register', module: 'ENVIRONMENT', usageCount: 12 },
       ]);
       mockPrisma.template.aggregate.mockResolvedValue({
         _count: 57,
@@ -259,7 +259,7 @@ describe('Templates API', () => {
     it('should return a single template', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
 
-      const res = await request(app).get('/api/v1/templates/tpl-1');
+      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.data.code).toBe('TPL-HS-001');
@@ -268,7 +268,7 @@ describe('Templates API', () => {
     it('should return 404 for non-existent template', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/v1/templates/nonexistent');
+      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -341,7 +341,7 @@ describe('Templates API', () => {
       });
 
       const res = await request(app)
-        .put('/api/v1/templates/tpl-1')
+        .put('/api/v1/templates/00000000-0000-0000-0000-000000000001')
         .send({ name: 'Updated Name', changeNote: 'Updated title' });
 
       expect(res.status).toBe(200);
@@ -350,7 +350,7 @@ describe('Templates API', () => {
       expect(mockPrisma.templateVersion.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            templateId: 'tpl-1',
+            templateId: '00000000-0000-0000-0000-000000000001',
             version: 1,
           }),
         }),
@@ -361,7 +361,7 @@ describe('Templates API', () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/v1/templates/nonexistent')
+        .put('/api/v1/templates/00000000-0000-0000-0000-000000000099')
         .send({ name: 'Updated' });
 
       expect(res.status).toBe(404);
@@ -380,7 +380,7 @@ describe('Templates API', () => {
         deletedAt: new Date(),
       });
 
-      const res = await request(app).delete('/api/v1/templates/tpl-3');
+      const res = await request(app).delete('/api/v1/templates/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.data.message).toBe('Template deleted');
@@ -394,7 +394,7 @@ describe('Templates API', () => {
     it('should return 404 for non-existent template', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/v1/templates/nonexistent');
+      const res = await request(app).delete('/api/v1/templates/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -409,7 +409,7 @@ describe('Templates API', () => {
 
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate); // isBuiltIn: true
 
-      const res = await request(app).delete('/api/v1/templates/tpl-1');
+      const res = await request(app).delete('/api/v1/templates/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(403);
       expect(res.body.error.message).toMatch(/administrators/i);
@@ -436,7 +436,7 @@ describe('Templates API', () => {
       });
 
       const res = await request(app)
-        .post('/api/v1/templates/tpl-1/clone')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/clone')
         .send({});
 
       expect(res.status).toBe(201);
@@ -458,7 +458,7 @@ describe('Templates API', () => {
       });
 
       const res = await request(app)
-        .post('/api/v1/templates/tpl-1/clone')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/clone')
         .send({ name: 'My Custom RA' });
 
       expect(res.status).toBe(201);
@@ -473,7 +473,7 @@ describe('Templates API', () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .post('/api/v1/templates/nonexistent/clone')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000099/clone')
         .send({});
 
       expect(res.status).toBe(404);
@@ -489,7 +489,7 @@ describe('Templates API', () => {
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
       mockPrisma.templateInstance.create.mockResolvedValue({
         id: 'inst-1',
-        templateId: 'tpl-1',
+        templateId: '00000000-0000-0000-0000-000000000001',
         templateCode: 'TPL-HS-001',
         templateName: 'Generic Risk Assessment',
         module: 'HEALTH_SAFETY',
@@ -503,7 +503,7 @@ describe('Templates API', () => {
       });
 
       const res = await request(app)
-        .post('/api/v1/templates/tpl-1/use')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/use')
         .send({
           filledData: { activity: 'Welding', hazards: 'Fumes, burns' },
         });
@@ -521,7 +521,7 @@ describe('Templates API', () => {
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
 
       const res = await request(app)
-        .post('/api/v1/templates/tpl-1/use')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/use')
         .send({});
 
       expect(res.status).toBe(400);
@@ -531,7 +531,7 @@ describe('Templates API', () => {
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
       mockPrisma.templateInstance.create.mockResolvedValue({
         id: 'inst-2',
-        templateId: 'tpl-1',
+        templateId: '00000000-0000-0000-0000-000000000001',
         templateCode: 'TPL-HS-001',
         templateName: 'Generic Risk Assessment',
         module: 'HEALTH_SAFETY',
@@ -542,7 +542,7 @@ describe('Templates API', () => {
       mockPrisma.template.update.mockResolvedValue(mockTemplate);
 
       const res = await request(app)
-        .post('/api/v1/templates/tpl-1/use')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/use')
         .send({
           filledData: { activity: 'Painting' },
           referenceId: 'risk-42',
@@ -560,7 +560,7 @@ describe('Templates API', () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .post('/api/v1/templates/nonexistent/use')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000099/use')
         .send({ filledData: { x: 1 } });
 
       expect(res.status).toBe(404);
@@ -573,13 +573,13 @@ describe('Templates API', () => {
 
   describe('GET /api/v1/templates/:id/versions', () => {
     it('should return version history', async () => {
-      mockPrisma.template.findFirst.mockResolvedValue({ id: 'tpl-1' });
+      mockPrisma.template.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
       mockPrisma.templateVersion.findMany.mockResolvedValue([
-        { id: 'ver-2', templateId: 'tpl-1', version: 2, changeNote: 'Updated fields' },
-        { id: 'ver-1', templateId: 'tpl-1', version: 1, changeNote: 'Initial' },
+        { id: 'ver-2', templateId: '00000000-0000-0000-0000-000000000001', version: 2, changeNote: 'Updated fields' },
+        { id: 'ver-1', templateId: '00000000-0000-0000-0000-000000000001', version: 1, changeNote: 'Initial' },
       ]);
 
-      const res = await request(app).get('/api/v1/templates/tpl-1/versions');
+      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000001/versions');
 
       expect(res.status).toBe(200);
       expect(res.body.data).toHaveLength(2);
@@ -589,7 +589,7 @@ describe('Templates API', () => {
     it('should return 404 for non-existent template', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/v1/templates/nonexistent/versions');
+      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000099/versions');
 
       expect(res.status).toBe(404);
     });
@@ -603,7 +603,7 @@ describe('Templates API', () => {
     it('should restore a previous version', async () => {
       const oldVersion = {
         id: 'ver-1',
-        templateId: 'tpl-1',
+        templateId: '00000000-0000-0000-0000-000000000001',
         version: 1,
         fields: [{ id: 'old-field', label: 'Old', type: 'text' }],
         defaultContent: null,
@@ -621,7 +621,7 @@ describe('Templates API', () => {
       });
 
       const res = await request(app)
-        .post('/api/v1/templates/tpl-1/versions/1/restore')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/versions/1/restore')
         .send({});
 
       expect(res.status).toBe(200);
@@ -638,7 +638,7 @@ describe('Templates API', () => {
       mockPrisma.templateVersion.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .post('/api/v1/templates/tpl-1/versions/999/restore')
+        .post('/api/v1/templates/00000000-0000-0000-0000-000000000001/versions/999/restore')
         .send({});
 
       expect(res.status).toBe(404);
@@ -653,7 +653,7 @@ describe('Templates API', () => {
     it('should export as HTML by default', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
 
-      const res = await request(app).get('/api/v1/templates/tpl-1/export');
+      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000001/export');
 
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toMatch(/text\/html/);
@@ -663,7 +663,7 @@ describe('Templates API', () => {
     it('should export as JSON when format=json', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
 
-      const res = await request(app).get('/api/v1/templates/tpl-1/export?format=json');
+      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000001/export?format=json');
 
       expect(res.status).toBe(200);
       expect(res.headers['content-type']).toMatch(/application\/json/);
@@ -676,7 +676,7 @@ describe('Templates API', () => {
     it('should return 404 for non-existent template', async () => {
       mockPrisma.template.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/v1/templates/nonexistent/export');
+      const res = await request(app).get('/api/v1/templates/00000000-0000-0000-0000-000000000099/export');
 
       expect(res.status).toBe(404);
     });

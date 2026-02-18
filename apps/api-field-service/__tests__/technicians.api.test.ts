@@ -46,7 +46,7 @@ beforeEach(() => {
 describe('GET /api/technicians', () => {
   it('should return a list of technicians with pagination', async () => {
     const technicians = [
-      { id: 'tech-1', name: 'John Smith', email: 'john@test.com', status: 'AVAILABLE', skills: ['electrical'] },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'John Smith', email: 'john@test.com', status: 'AVAILABLE', skills: ['electrical'] },
       { id: 'tech-2', name: 'Jane Doe', email: 'jane@test.com', status: 'ON_JOB', skills: ['plumbing'] },
     ];
     (prisma as any).fsSvcTechnician.findMany.mockResolvedValue(technicians);
@@ -98,7 +98,7 @@ describe('GET /api/technicians', () => {
 
 describe('GET /api/technicians/available', () => {
   it('should return available technicians', async () => {
-    const available = [{ id: 'tech-1', name: 'John', status: 'AVAILABLE' }];
+    const available = [{ id: '00000000-0000-0000-0000-000000000001', name: 'John', status: 'AVAILABLE' }];
     (prisma as any).fsSvcTechnician.findMany.mockResolvedValue(available);
 
     const res = await request(app).get('/api/technicians/available');
@@ -147,19 +147,19 @@ describe('POST /api/technicians', () => {
 
 describe('GET /api/technicians/:id', () => {
   it('should return a technician by id', async () => {
-    const tech = { id: 'tech-1', name: 'John', jobs: [] };
+    const tech = { id: '00000000-0000-0000-0000-000000000001', name: 'John', jobs: [] };
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(tech);
 
-    const res = await request(app).get('/api/technicians/tech-1');
+    const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('tech-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/technicians/missing');
+    const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -167,10 +167,10 @@ describe('GET /api/technicians/:id', () => {
 
 describe('GET /api/technicians/:id/schedule', () => {
   it('should return technician schedule', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: 'tech-1' });
+    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).fsSvcJob.findMany.mockResolvedValue([{ id: 'job-1', scheduledStart: new Date() }]);
 
-    const res = await request(app).get('/api/technicians/tech-1/schedule');
+    const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000001/schedule');
 
     expect(res.status).toBe(200);
     expect(res.body.data.jobs).toHaveLength(1);
@@ -179,7 +179,7 @@ describe('GET /api/technicians/:id/schedule', () => {
   it('should return 404 if technician not found', async () => {
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/technicians/missing/schedule');
+    const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000099/schedule');
 
     expect(res.status).toBe(404);
   });
@@ -187,11 +187,11 @@ describe('GET /api/technicians/:id/schedule', () => {
 
 describe('PUT /api/technicians/:id', () => {
   it('should update a technician', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: 'tech-1' });
-    (prisma as any).fsSvcTechnician.update.mockResolvedValue({ id: 'tech-1', name: 'Updated' });
+    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcTechnician.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
 
     const res = await request(app)
-      .put('/api/technicians/tech-1')
+      .put('/api/technicians/00000000-0000-0000-0000-000000000001')
       .send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
@@ -202,7 +202,7 @@ describe('PUT /api/technicians/:id', () => {
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/technicians/missing')
+      .put('/api/technicians/00000000-0000-0000-0000-000000000099')
       .send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
@@ -211,10 +211,10 @@ describe('PUT /api/technicians/:id', () => {
 
 describe('DELETE /api/technicians/:id', () => {
   it('should soft delete a technician', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: 'tech-1' });
-    (prisma as any).fsSvcTechnician.update.mockResolvedValue({ id: 'tech-1', deletedAt: new Date() });
+    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcTechnician.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/technicians/tech-1');
+    const res = await request(app).delete('/api/technicians/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Technician deleted');
@@ -223,7 +223,7 @@ describe('DELETE /api/technicians/:id', () => {
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/technicians/missing');
+    const res = await request(app).delete('/api/technicians/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

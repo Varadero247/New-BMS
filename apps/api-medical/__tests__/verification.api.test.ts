@@ -64,7 +64,7 @@ describe('Medical Design Verification API Routes', () => {
   };
 
   const mockVerification = {
-    id: 'verification-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     projectId: 'project-uuid-1',
     title: 'Electrical Safety Verification',
     protocol: 'Protocol V1.0',
@@ -187,17 +187,17 @@ describe('Medical Design Verification API Routes', () => {
     it('should return a single design verification', async () => {
       mockPrisma.designVerification.findUnique.mockResolvedValue(mockVerification);
 
-      const res = await request(app).get('/api/verification/verification-uuid-1');
+      const res = await request(app).get('/api/verification/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('verification-uuid-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when verification not found', async () => {
       mockPrisma.designVerification.findUnique.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/verification/nonexistent');
+      const res = await request(app).get('/api/verification/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -206,7 +206,7 @@ describe('Medical Design Verification API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.designVerification.findUnique.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/verification/verification-uuid-1');
+      const res = await request(app).get('/api/verification/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -265,7 +265,7 @@ describe('Medical Design Verification API Routes', () => {
       mockPrisma.designVerification.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/verification/verification-uuid-1')
+        .put('/api/verification/00000000-0000-0000-0000-000000000001')
         .send({ pass: true, results: 'Test passed successfully' });
 
       expect(res.status).toBe(200);
@@ -276,7 +276,7 @@ describe('Medical Design Verification API Routes', () => {
       mockPrisma.designVerification.findUnique.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/verification/nonexistent')
+        .put('/api/verification/00000000-0000-0000-0000-000000000099')
         .send({ pass: true });
 
       expect(res.status).toBe(404);
@@ -287,7 +287,7 @@ describe('Medical Design Verification API Routes', () => {
       mockPrisma.designVerification.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/verification/verification-uuid-1')
+        .put('/api/verification/00000000-0000-0000-0000-000000000001')
         .send({ title: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -299,7 +299,7 @@ describe('Medical Design Verification API Routes', () => {
       mockPrisma.designVerification.findUnique.mockResolvedValue(mockVerification);
       mockPrisma.designVerification.delete.mockResolvedValue(mockVerification);
 
-      const res = await request(app).delete('/api/verification/verification-uuid-1');
+      const res = await request(app).delete('/api/verification/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(204);
     });
@@ -307,7 +307,7 @@ describe('Medical Design Verification API Routes', () => {
     it('should return 404 when verification not found', async () => {
       mockPrisma.designVerification.findUnique.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/verification/nonexistent');
+      const res = await request(app).delete('/api/verification/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -316,7 +316,7 @@ describe('Medical Design Verification API Routes', () => {
       mockPrisma.designVerification.findUnique.mockResolvedValue(mockVerification);
       mockPrisma.designVerification.delete.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/verification/verification-uuid-1');
+      const res = await request(app).delete('/api/verification/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });

@@ -36,7 +36,7 @@ beforeEach(() => {
 describe('GET /api/feature-requests', () => {
   it('lists feature requests with pagination', async () => {
     (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([
-      { id: 'fr-1', title: 'Dark mode', votes: 10, status: 'SUBMITTED' },
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Dark mode', votes: 10, status: 'SUBMITTED' },
     ]);
     (prisma.featureRequest.count as jest.Mock).mockResolvedValue(1);
 
@@ -71,7 +71,7 @@ describe('GET /api/feature-requests', () => {
 describe('GET /api/feature-requests/aggregate', () => {
   it('returns top 10 by votes and status counts', async () => {
     (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([
-      { id: 'fr-1', title: 'Dark mode', votes: 50 },
+      { id: '00000000-0000-0000-0000-000000000001', title: 'Dark mode', votes: 50 },
     ]);
     (prisma.featureRequest.groupBy as jest.Mock).mockResolvedValue([
       { status: 'SUBMITTED', _count: { id: 3 } },
@@ -87,9 +87,9 @@ describe('GET /api/feature-requests/aggregate', () => {
 
 describe('GET /api/feature-requests/:id', () => {
   it('returns a single feature request', async () => {
-    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({ id: 'fr-1', title: 'SSO Support' });
+    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'SSO Support' });
 
-    const res = await request(app).get('/api/feature-requests/fr-1');
+    const res = await request(app).get('/api/feature-requests/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.data.featureRequest.title).toBe('SSO Support');
   });
@@ -97,7 +97,7 @@ describe('GET /api/feature-requests/:id', () => {
   it('returns 404 for missing feature request', async () => {
     (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/feature-requests/nonexistent');
+    const res = await request(app).get('/api/feature-requests/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -123,11 +123,11 @@ describe('POST /api/feature-requests', () => {
 
 describe('PATCH /api/feature-requests/:id', () => {
   it('updates status and priority', async () => {
-    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({ id: 'fr-1' });
-    (prisma.featureRequest.update as jest.Mock).mockResolvedValue({ id: 'fr-1', status: 'IN_PROGRESS', priority: 'HIGH' });
+    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.featureRequest.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS', priority: 'HIGH' });
 
     const res = await request(app)
-      .patch('/api/feature-requests/fr-1')
+      .patch('/api/feature-requests/00000000-0000-0000-0000-000000000001')
       .send({ status: 'IN_PROGRESS', priority: 'HIGH' });
 
     expect(res.status).toBe(200);
@@ -137,17 +137,17 @@ describe('PATCH /api/feature-requests/:id', () => {
   it('returns 404 for missing feature request', async () => {
     (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).patch('/api/feature-requests/missing').send({ status: 'PLANNED' });
+    const res = await request(app).patch('/api/feature-requests/00000000-0000-0000-0000-000000000099').send({ status: 'PLANNED' });
     expect(res.status).toBe(404);
   });
 });
 
 describe('POST /api/feature-requests/:id/vote', () => {
   it('increments votes', async () => {
-    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({ id: 'fr-1', votes: 5 });
-    (prisma.featureRequest.update as jest.Mock).mockResolvedValue({ id: 'fr-1', votes: 6 });
+    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', votes: 5 });
+    (prisma.featureRequest.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', votes: 6 });
 
-    const res = await request(app).post('/api/feature-requests/fr-1/vote');
+    const res = await request(app).post('/api/feature-requests/00000000-0000-0000-0000-000000000001/vote');
     expect(res.status).toBe(200);
     expect(prisma.featureRequest.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: { votes: 6 } })
@@ -157,7 +157,7 @@ describe('POST /api/feature-requests/:id/vote', () => {
   it('returns 404 for missing feature request', async () => {
     (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).post('/api/feature-requests/missing/vote');
+    const res = await request(app).post('/api/feature-requests/00000000-0000-0000-0000-000000000099/vote');
     expect(res.status).toBe(404);
   });
 });

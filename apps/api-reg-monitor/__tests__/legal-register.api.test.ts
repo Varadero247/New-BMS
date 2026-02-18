@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/legal-register', () => {
   it('should return list of legal register entries with pagination', async () => {
-    (prisma as any).regLegalRegister.findMany.mockResolvedValue([{ id: '1', title: 'GDPR' }]);
+    (prisma as any).regLegalRegister.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR' }]);
     (prisma as any).regLegalRegister.count.mockResolvedValue(1);
     const res = await request(app).get('/api/legal-register');
     expect(res.status).toBe(200);
@@ -33,7 +33,7 @@ describe('GET /api/legal-register', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).regLegalRegister.findMany.mockResolvedValue([{ id: '1', title: 'ISO 9001' }]);
+    (prisma as any).regLegalRegister.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'ISO 9001' }]);
     (prisma as any).regLegalRegister.count.mockResolvedValue(1);
     const res = await request(app).get('/api/legal-register?search=ISO');
     expect(res.status).toBe(200);
@@ -52,16 +52,16 @@ describe('GET /api/legal-register', () => {
 
 describe('GET /api/legal-register/:id', () => {
   it('should return a legal register entry by id', async () => {
-    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '1', title: 'GDPR' });
-    const res = await request(app).get('/api/legal-register/1');
+    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR' });
+    const res = await request(app).get('/api/legal-register/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 if entry not found', async () => {
     (prisma as any).regLegalRegister.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/legal-register/nonexistent');
+    const res = await request(app).get('/api/legal-register/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -69,7 +69,7 @@ describe('GET /api/legal-register/:id', () => {
 
   it('should return 500 on database error', async () => {
     (prisma as any).regLegalRegister.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/legal-register/1');
+    const res = await request(app).get('/api/legal-register/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
@@ -78,7 +78,7 @@ describe('GET /api/legal-register/:id', () => {
 describe('POST /api/legal-register', () => {
   it('should create a new legal register entry', async () => {
     (prisma as any).regLegalRegister.count.mockResolvedValue(0);
-    (prisma as any).regLegalRegister.create.mockResolvedValue({ id: '1', title: 'GDPR', referenceNumber: 'RLR-2026-0001' });
+    (prisma as any).regLegalRegister.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR', referenceNumber: 'RLR-2026-0001' });
     const res = await request(app).post('/api/legal-register').send({ title: 'GDPR' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -123,9 +123,9 @@ describe('POST /api/legal-register', () => {
 
 describe('PUT /api/legal-register/:id', () => {
   it('should update an existing entry', async () => {
-    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '1', title: 'Old Title' });
-    (prisma as any).regLegalRegister.update.mockResolvedValue({ id: '1', title: 'Updated Title' });
-    const res = await request(app).put('/api/legal-register/1').send({ title: 'Updated Title' });
+    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Old Title' });
+    (prisma as any).regLegalRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated Title' });
+    const res = await request(app).put('/api/legal-register/00000000-0000-0000-0000-000000000001').send({ title: 'Updated Title' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.title).toBe('Updated Title');
@@ -133,16 +133,16 @@ describe('PUT /api/legal-register/:id', () => {
 
   it('should return 404 if entry not found for update', async () => {
     (prisma as any).regLegalRegister.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/legal-register/nonexistent').send({ title: 'New' });
+    const res = await request(app).put('/api/legal-register/00000000-0000-0000-0000-000000000099').send({ title: 'New' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).regLegalRegister.update.mockRejectedValue(new Error('Update failed'));
-    const res = await request(app).put('/api/legal-register/1').send({ title: 'Updated' });
+    const res = await request(app).put('/api/legal-register/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -151,9 +151,9 @@ describe('PUT /api/legal-register/:id', () => {
 
 describe('DELETE /api/legal-register/:id', () => {
   it('should soft delete a legal register entry', async () => {
-    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '1', title: 'GDPR' });
-    (prisma as any).regLegalRegister.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/legal-register/1');
+    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'GDPR' });
+    (prisma as any).regLegalRegister.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/legal-register/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toContain('deleted successfully');
@@ -161,16 +161,16 @@ describe('DELETE /api/legal-register/:id', () => {
 
   it('should return 404 if entry not found for delete', async () => {
     (prisma as any).regLegalRegister.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/legal-register/nonexistent');
+    const res = await request(app).delete('/api/legal-register/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).regLegalRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).regLegalRegister.update.mockRejectedValue(new Error('Delete failed'));
-    const res = await request(app).delete('/api/legal-register/1');
+    const res = await request(app).delete('/api/legal-register/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

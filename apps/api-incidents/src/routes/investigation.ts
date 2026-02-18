@@ -3,9 +3,11 @@ import { z } from 'zod';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-incidents');
 
 const router = Router();
+router.param('id', validateIdParam());
 
 const assignSchema = z.object({
   investigator: z.string().min(1, 'investigator is required'),

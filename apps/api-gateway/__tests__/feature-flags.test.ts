@@ -115,7 +115,7 @@ describe('Feature Flags Routes', () => {
     it('returns 404 when flag not found', async () => {
       mockUpdateFlag.mockReturnValueOnce(null);
       const res = await request(app)
-        .put('/api/admin/feature-flags/nonexistent')
+        .put('/api/admin/feature-flags/00000000-0000-0000-0000-000000000099')
         .send({ enabled: true });
       expect(res.status).toBe(404);
     });
@@ -130,7 +130,7 @@ describe('Feature Flags Routes', () => {
 
     it('returns 404 when flag not found', async () => {
       mockDeleteFlag.mockReturnValueOnce(false);
-      const res = await request(app).delete('/api/admin/feature-flags/nonexistent');
+      const res = await request(app).delete('/api/admin/feature-flags/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -138,7 +138,7 @@ describe('Feature Flags Routes', () => {
   describe('PUT /api/admin/feature-flags/:name/orgs/:orgId', () => {
     it('sets an org override', async () => {
       const res = await request(app)
-        .put('/api/admin/feature-flags/test_flag/orgs/org-1')
+        .put('/api/admin/feature-flags/test_flag/orgs/00000000-0000-0000-0000-000000000001')
         .send({ enabled: true });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -146,7 +146,7 @@ describe('Feature Flags Routes', () => {
 
     it('rejects missing enabled field', async () => {
       const res = await request(app)
-        .put('/api/admin/feature-flags/test_flag/orgs/org-1')
+        .put('/api/admin/feature-flags/test_flag/orgs/00000000-0000-0000-0000-000000000001')
         .send({});
       expect(res.status).toBe(400);
     });
@@ -154,7 +154,7 @@ describe('Feature Flags Routes', () => {
 
   describe('DELETE /api/admin/feature-flags/:name/orgs/:orgId', () => {
     it('removes an org override', async () => {
-      const res = await request(app).delete('/api/admin/feature-flags/test_flag/orgs/org-1');
+      const res = await request(app).delete('/api/admin/feature-flags/test_flag/orgs/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
   });

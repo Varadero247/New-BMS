@@ -606,7 +606,7 @@ describe('Automotive LPA API Routes', () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
-        .post('/api/lpa/audits/nonexistent-id/respond')
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000099/respond')
         .set('Authorization', 'Bearer token')
         .send(validRespondPayload);
 
@@ -751,7 +751,7 @@ describe('Automotive LPA API Routes', () => {
       (mockPrisma.lpaAudit.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
-        .post('/api/lpa/audits/nonexistent/complete')
+        .post('/api/lpa/audits/00000000-0000-0000-0000-000000000099/complete')
         .set('Authorization', 'Bearer token')
         .send({});
 

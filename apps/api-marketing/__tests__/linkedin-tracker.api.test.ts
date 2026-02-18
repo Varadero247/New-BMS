@@ -45,7 +45,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 describe('POST /api/linkedin/outreach', () => {
   it('creates outreach with valid data', async () => {
     (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(5);
-    (prisma.mktLinkedInOutreach.create as jest.Mock).mockResolvedValue({ id: 'out-1' });
+    (prisma.mktLinkedInOutreach.create as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
     const res = await request(app)
       .post('/api/linkedin/outreach')
@@ -99,7 +99,7 @@ describe('POST /api/linkedin/outreach', () => {
 
 describe('GET /api/linkedin/outreach', () => {
   it('returns outreach list with daily stats', async () => {
-    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([{ id: 'out-1' }]);
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
     (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(3);
 
     const res = await request(app).get('/api/linkedin/outreach');
@@ -113,11 +113,11 @@ describe('GET /api/linkedin/outreach', () => {
 
 describe('PATCH /api/linkedin/outreach/:id', () => {
   it('updates status with timestamp', async () => {
-    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({ id: 'out-1', status: 'PENDING' });
-    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({ id: 'out-1', status: 'SENT' });
+    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PENDING' });
+    (prisma.mktLinkedInOutreach.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'SENT' });
 
     const res = await request(app)
-      .patch('/api/linkedin/outreach/out-1')
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')
       .send({ status: 'SENT' });
 
     expect(res.status).toBe(200);
@@ -132,7 +132,7 @@ describe('PATCH /api/linkedin/outreach/:id', () => {
     (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue(null);
 
     const res = await request(app)
-      .patch('/api/linkedin/outreach/nonexistent')
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000099')
       .send({ status: 'SENT' });
 
     expect(res.status).toBe(404);
@@ -140,7 +140,7 @@ describe('PATCH /api/linkedin/outreach/:id', () => {
 
   it('returns 400 for invalid status', async () => {
     const res = await request(app)
-      .patch('/api/linkedin/outreach/out-1')
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')
       .send({ status: 'INVALID_STATUS' });
 
     expect(res.status).toBe(400);

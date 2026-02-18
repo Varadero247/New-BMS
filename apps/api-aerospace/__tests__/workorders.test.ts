@@ -100,7 +100,7 @@ const mockWorkOrderWithTasks = {
   status: 'IN_PROGRESS',
   tasks: [
     {
-      id: 'task-001',
+      id: '00000000-0000-0000-0000-000000000001',
       workOrderId: mockWorkOrder.id,
       taskNumber: 'TC-001',
       description: 'Remove engine cowling',
@@ -148,7 +148,7 @@ const mockReleasedWorkOrder = {
   completedDate: new Date('2026-02-16'),
   tasks: [
     {
-      id: 'task-001',
+      id: '00000000-0000-0000-0000-000000000001',
       workOrderId: mockWorkOrder.id,
       taskNumber: 'TC-001',
       description: 'Remove engine cowling',
@@ -174,7 +174,7 @@ const mockInspectedWorkOrder = {
   inspectedDate: new Date('2026-02-15'),
   tasks: [
     {
-      id: 'task-001',
+      id: '00000000-0000-0000-0000-000000000001',
       workOrderId: mockWorkOrder.id,
       taskNumber: 'TC-001',
       description: 'Remove engine cowling',
@@ -408,7 +408,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/workorders/nonexistent-id')
+        .get('/api/workorders/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -466,7 +466,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/workorders/nonexistent-id/tasks')
+        .post('/api/workorders/00000000-0000-0000-0000-000000000099/tasks')
         .set('Authorization', 'Bearer token')
         .send(validTaskPayload);
 
@@ -535,7 +535,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/workorders/nonexistent-id/tasks/task-001/complete')
+        .put('/api/workorders/00000000-0000-0000-0000-000000000099/tasks/00000000-0000-0000-0000-000000000001/complete')
         .set('Authorization', 'Bearer token')
         .send(validCompleteTaskPayload);
 
@@ -650,7 +650,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/workorders/nonexistent-id/inspect')
+        .post('/api/workorders/00000000-0000-0000-0000-000000000099/inspect')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -740,7 +740,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/workorders/nonexistent-id/release')
+        .post('/api/workorders/00000000-0000-0000-0000-000000000099/release')
         .set('Authorization', 'Bearer token')
         .send(validReleasePayload);
 
@@ -803,7 +803,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .post('/api/workorders/nonexistent-id/defer')
+        .post('/api/workorders/00000000-0000-0000-0000-000000000099/defer')
         .set('Authorization', 'Bearer token')
         .send(validDeferPayload);
 
@@ -850,7 +850,7 @@ describe('Aerospace Work Orders (AS9110 MRO) API Routes', () => {
       (mockPrisma.workOrder.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .get('/api/workorders/nonexistent-id/release-cert')
+        .get('/api/workorders/00000000-0000-0000-0000-000000000099/release-cert')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);

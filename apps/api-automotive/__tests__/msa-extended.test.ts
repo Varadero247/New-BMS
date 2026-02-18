@@ -53,7 +53,7 @@ describe('MSA Routes', () => {
     it('should create an MSA study', async () => {
       (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.msaStudy.create as jest.Mock).mockResolvedValue({
-        id: 'msa-1', refNumber: 'MSA-2602-0001', ...validBody, status: 'DRAFT',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'MSA-2602-0001', ...validBody, status: 'DRAFT',
       });
 
       const res = await request(app).post('/api/msa').send(validBody);
@@ -136,7 +136,7 @@ describe('MSA Routes', () => {
 
   describe('GET /api/msa', () => {
     it('should list MSA studies', async () => {
-      (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([{ id: 'msa-1' }]);
+      (mockPrisma.msaStudy.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.msaStudy.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/msa');
@@ -173,24 +173,24 @@ describe('MSA Routes', () => {
   describe('GET /api/msa/:id', () => {
     it('should get study with measurements', async () => {
       (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
-        id: 'msa-1', measurements: [],
+        id: '00000000-0000-0000-0000-000000000001', measurements: [],
       });
 
-      const res = await request(app).get('/api/msa/msa-1');
+      const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/msa/fake');
+      const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
 
   describe('POST /api/msa/:id/data', () => {
     it('should enter measurement data', async () => {
-      (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({ id: 'msa-1', deletedAt: null });
+      (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
         return cb({
           msaMeasurement: { create: jest.fn().mockResolvedValue({}) },
@@ -198,7 +198,7 @@ describe('MSA Routes', () => {
         });
       });
 
-      const res = await request(app).post('/api/msa/msa-1/data').send({
+      const res = await request(app).post('/api/msa/00000000-0000-0000-0000-000000000001/data').send({
         measurements: [
           { operator: 'Op1', partNumber: 1, trial: 1, value: 50.1 },
           { operator: 'Op1', partNumber: 1, trial: 2, value: 50.2 },
@@ -210,16 +210,16 @@ describe('MSA Routes', () => {
     it('should return 404 if study not found', async () => {
       (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/msa/fake/data').send({
+      const res = await request(app).post('/api/msa/00000000-0000-0000-0000-000000000099/data').send({
         measurements: [{ operator: 'Op1', partNumber: 1, trial: 1, value: 50 }],
       });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for empty measurements', async () => {
-      (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({ id: 'msa-1', deletedAt: null });
+      (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/msa/msa-1/data').send({
+      const res = await request(app).post('/api/msa/00000000-0000-0000-0000-000000000001/data').send({
         measurements: [],
       });
       expect(res.status).toBe(400);
@@ -230,22 +230,22 @@ describe('MSA Routes', () => {
     it('should return 404 if not found', async () => {
       (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/msa/fake/results');
+      const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000099/results');
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if no data', async () => {
       (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
-        id: 'msa-1', deletedAt: null, studyType: 'GRR_CROSSED', measurements: [],
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, studyType: 'GRR_CROSSED', measurements: [],
       });
 
-      const res = await request(app).get('/api/msa/msa-1/results');
+      const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001/results');
       expect(res.status).toBe(400);
     });
 
     it('should compute GRR results for crossed study', async () => {
       (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
-        id: 'msa-1', deletedAt: null, studyType: 'GRR_CROSSED',
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, studyType: 'GRR_CROSSED',
         numTrials: 3,
         measurements: [
           { operator: 'A', partNumber: 1, trial: 1, value: 10 },
@@ -264,7 +264,7 @@ describe('MSA Routes', () => {
       });
       (mockPrisma.msaStudy.update as jest.Mock).mockResolvedValue({});
 
-      const res = await request(app).get('/api/msa/msa-1/results');
+      const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001/results');
       expect(res.status).toBe(200);
       expect(res.body.data.result).toBeDefined();
       expect(res.body.data.gageRR).toBeDefined();
@@ -272,7 +272,7 @@ describe('MSA Routes', () => {
 
     it('should compute simple stats for non-GRR study', async () => {
       (mockPrisma.msaStudy.findUnique as jest.Mock).mockResolvedValue({
-        id: 'msa-1', deletedAt: null, studyType: 'BIAS', numTrials: 1,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, studyType: 'BIAS', numTrials: 1,
         measurements: [
           { operator: 'A', partNumber: 1, trial: 1, value: 50.1 },
           { operator: 'A', partNumber: 1, trial: 2, value: 50.2 },
@@ -281,7 +281,7 @@ describe('MSA Routes', () => {
       });
       (mockPrisma.msaStudy.update as jest.Mock).mockResolvedValue({});
 
-      const res = await request(app).get('/api/msa/msa-1/results');
+      const res = await request(app).get('/api/msa/00000000-0000-0000-0000-000000000001/results');
       expect(res.status).toBe(200);
       expect(res.body.data.statistics).toBeDefined();
       expect(res.body.data.statistics.mean).toBeDefined();

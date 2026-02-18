@@ -45,7 +45,7 @@ beforeEach(() => {
 describe('GET /api/queries', () => {
   it('should return a list of queries with pagination', async () => {
     const queries = [
-      { id: 'q-1', name: 'Safety Query', ownerId: 'user-123', isPublic: false },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Safety Query', ownerId: 'user-123', isPublic: false },
       { id: 'q-2', name: 'Public Query', ownerId: 'user-456', isPublic: true },
     ];
     (prisma as any).analyticsQuery.findMany.mockResolvedValue(queries);
@@ -121,18 +121,18 @@ describe('POST /api/queries', () => {
 // ===================================================================
 describe('GET /api/queries/:id', () => {
   it('should return a query by ID', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1', name: 'Test' });
+    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
 
-    const res = await request(app).get('/api/queries/q-1');
+    const res = await request(app).get('/api/queries/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('q-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent query', async () => {
     (prisma as any).analyticsQuery.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/queries/nonexistent');
+    const res = await request(app).get('/api/queries/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -143,10 +143,10 @@ describe('GET /api/queries/:id', () => {
 // ===================================================================
 describe('PUT /api/queries/:id', () => {
   it('should update a query', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1' });
-    (prisma as any).analyticsQuery.update.mockResolvedValue({ id: 'q-1', name: 'Updated' });
+    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsQuery.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
 
-    const res = await request(app).put('/api/queries/q-1').send({ name: 'Updated' });
+    const res = await request(app).put('/api/queries/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated');
@@ -155,7 +155,7 @@ describe('PUT /api/queries/:id', () => {
   it('should return 404 for non-existent query', async () => {
     (prisma as any).analyticsQuery.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/queries/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).put('/api/queries/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
   });
@@ -166,10 +166,10 @@ describe('PUT /api/queries/:id', () => {
 // ===================================================================
 describe('DELETE /api/queries/:id', () => {
   it('should soft delete a query', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1' });
-    (prisma as any).analyticsQuery.update.mockResolvedValue({ id: 'q-1', deletedAt: new Date() });
+    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsQuery.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/queries/q-1');
+    const res = await request(app).delete('/api/queries/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Query deleted');
@@ -178,7 +178,7 @@ describe('DELETE /api/queries/:id', () => {
   it('should return 404 for non-existent query', async () => {
     (prisma as any).analyticsQuery.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/queries/nonexistent');
+    const res = await request(app).delete('/api/queries/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -193,8 +193,8 @@ describe('POST /api/queries/:id/execute', () => {
       { id: 1, name: 'Sample 1', value: 100 },
       { id: 2, name: 'Sample 2', value: 200 },
     ];
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1', sql: 'SELECT 1' });
-    (prisma as any).analyticsQuery.update.mockResolvedValue({ id: 'q-1', lastRun: new Date() });
+    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', sql: 'SELECT 1' });
+    (prisma as any).analyticsQuery.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', lastRun: new Date() });
     (prisma as any).$transaction.mockImplementation(async (fn: any) => {
       const tx = {
         $executeRawUnsafe: jest.fn().mockResolvedValue(0),
@@ -203,7 +203,7 @@ describe('POST /api/queries/:id/execute', () => {
       return fn(tx);
     });
 
-    const res = await request(app).post('/api/queries/q-1/execute');
+    const res = await request(app).post('/api/queries/00000000-0000-0000-0000-000000000001/execute');
 
     expect(res.status).toBe(200);
     expect(res.body.data.results).toBeDefined();
@@ -213,9 +213,9 @@ describe('POST /api/queries/:id/execute', () => {
   });
 
   it('should reject non-SELECT queries', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1', sql: 'DROP TABLE users' });
+    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', sql: 'DROP TABLE users' });
 
-    const res = await request(app).post('/api/queries/q-1/execute');
+    const res = await request(app).post('/api/queries/00000000-0000-0000-0000-000000000001/execute');
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_QUERY');
@@ -223,11 +223,11 @@ describe('POST /api/queries/:id/execute', () => {
 
   it('should reject stacked queries containing semicolons', async () => {
     (prisma as any).analyticsQuery.findFirst.mockResolvedValue({
-      id: 'q-1',
+      id: '00000000-0000-0000-0000-000000000001',
       sql: 'SELECT 1; DROP TABLE users',
     });
 
-    const res = await request(app).post('/api/queries/q-1/execute');
+    const res = await request(app).post('/api/queries/00000000-0000-0000-0000-000000000001/execute');
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_QUERY');
@@ -237,7 +237,7 @@ describe('POST /api/queries/:id/execute', () => {
   it('should return 404 for non-existent query', async () => {
     (prisma as any).analyticsQuery.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/queries/nonexistent/execute');
+    const res = await request(app).post('/api/queries/00000000-0000-0000-0000-000000000099/execute');
 
     expect(res.status).toBe(404);
   });

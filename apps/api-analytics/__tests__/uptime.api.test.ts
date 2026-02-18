@@ -43,7 +43,7 @@ beforeEach(() => {
 describe('GET /api/uptime', () => {
   it('should return a list of uptime checks', async () => {
     const checks = [
-      { id: 'uc-1', serviceName: 'API Gateway', status: 'UP', uptimePercent: 99.9 },
+      { id: '00000000-0000-0000-0000-000000000001', serviceName: 'API Gateway', status: 'UP', uptimePercent: 99.9 },
       { id: 'uc-2', serviceName: 'H&S API', status: 'UP', uptimePercent: 99.8 },
     ];
     (prisma as any).uptimeCheck.findMany.mockResolvedValue(checks);
@@ -80,13 +80,13 @@ describe('GET /api/uptime', () => {
 describe('GET /api/uptime/:id/history', () => {
   it('should return paginated incidents for a check', async () => {
     const incidents = [
-      { id: 'inc-1', uptimeCheckId: 'uc-1', detectedAt: new Date(), resolvedAt: new Date() },
-      { id: 'inc-2', uptimeCheckId: 'uc-1', detectedAt: new Date(), resolvedAt: null },
+      { id: 'inc-1', uptimeCheckId: '00000000-0000-0000-0000-000000000001', detectedAt: new Date(), resolvedAt: new Date() },
+      { id: 'inc-2', uptimeCheckId: '00000000-0000-0000-0000-000000000001', detectedAt: new Date(), resolvedAt: null },
     ];
     (prisma as any).uptimeIncident.findMany.mockResolvedValue(incidents);
     (prisma as any).uptimeIncident.count.mockResolvedValue(2);
 
-    const res = await request(app).get('/api/uptime/uc-1/history');
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -98,7 +98,7 @@ describe('GET /api/uptime/:id/history', () => {
     (prisma as any).uptimeIncident.findMany.mockResolvedValue([]);
     (prisma as any).uptimeIncident.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/uptime/uc-1/history?page=2&limit=5');
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history?page=2&limit=5');
 
     expect(res.status).toBe(200);
     expect(res.body.data.pagination.page).toBe(2);
@@ -109,18 +109,18 @@ describe('GET /api/uptime/:id/history', () => {
     (prisma as any).uptimeIncident.findMany.mockResolvedValue([]);
     (prisma as any).uptimeIncident.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/uptime/uc-1/history');
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
 
     expect(res.status).toBe(200);
     expect((prisma as any).uptimeIncident.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { uptimeCheckId: 'uc-1' } })
+      expect.objectContaining({ where: { uptimeCheckId: '00000000-0000-0000-0000-000000000001' } })
     );
   });
 
   it('should handle server errors', async () => {
     (prisma as any).uptimeIncident.findMany.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/uptime/uc-1/history');
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -132,36 +132,36 @@ describe('GET /api/uptime/:id/history', () => {
 // ===================================================================
 describe('GET /api/uptime/:id', () => {
   it('should return a check with recent incidents', async () => {
-    const check = { id: 'uc-1', serviceName: 'API Gateway', status: 'UP', uptimePercent: 99.9 };
+    const check = { id: '00000000-0000-0000-0000-000000000001', serviceName: 'API Gateway', status: 'UP', uptimePercent: 99.9 };
     const recentIncidents = [
-      { id: 'inc-1', uptimeCheckId: 'uc-1', detectedAt: new Date() },
+      { id: 'inc-1', uptimeCheckId: '00000000-0000-0000-0000-000000000001', detectedAt: new Date() },
     ];
     (prisma as any).uptimeCheck.findUnique.mockResolvedValue(check);
     (prisma as any).uptimeIncident.findMany.mockResolvedValue(recentIncidents);
 
-    const res = await request(app).get('/api/uptime/uc-1');
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.check.id).toBe('uc-1');
+    expect(res.body.data.check.id).toBe('00000000-0000-0000-0000-000000000001');
     expect(res.body.data.recentIncidents).toHaveLength(1);
   });
 
   it('should return 404 for a non-existent check', async () => {
     (prisma as any).uptimeCheck.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/uptime/nonexistent');
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return empty recent incidents when none exist', async () => {
-    const check = { id: 'uc-1', serviceName: 'API Gateway', status: 'UP', uptimePercent: 100 };
+    const check = { id: '00000000-0000-0000-0000-000000000001', serviceName: 'API Gateway', status: 'UP', uptimePercent: 100 };
     (prisma as any).uptimeCheck.findUnique.mockResolvedValue(check);
     (prisma as any).uptimeIncident.findMany.mockResolvedValue([]);
 
-    const res = await request(app).get('/api/uptime/uc-1');
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.recentIncidents).toHaveLength(0);
@@ -170,7 +170,7 @@ describe('GET /api/uptime/:id', () => {
   it('should handle server errors', async () => {
     (prisma as any).uptimeCheck.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/uptime/uc-1');
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

@@ -2,9 +2,11 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 
 const router = Router();
+router.param('id', validateIdParam());
 const logger = createLogger('chem-chemicals');
 
 const pictogramEnum = z.enum(['GHS01_EXPLOSIVE', 'GHS02_FLAMMABLE', 'GHS03_OXIDISING', 'GHS04_GAS_UNDER_PRESSURE', 'GHS05_CORROSIVE', 'GHS06_TOXIC', 'GHS07_IRRITANT_HARMFUL', 'GHS08_HEALTH_HAZARD', 'GHS09_ENVIRONMENTAL']);

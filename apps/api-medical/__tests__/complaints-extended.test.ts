@@ -50,7 +50,7 @@ describe('Complaints Routes (Medical)', () => {
     it('should create a complaint', async () => {
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.complaint.create as jest.Mock).mockResolvedValue({
-        id: 'c-1', refNumber: 'COMP-2602-0001', ...validBody, status: 'RECEIVED',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'COMP-2602-0001', ...validBody, status: 'RECEIVED',
       });
 
       const res = await request(app).post('/api/complaints').send(validBody);
@@ -154,7 +154,7 @@ describe('Complaints Routes (Medical)', () => {
 
   describe('GET /api/complaints', () => {
     it('should list complaints', async () => {
-      (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValue([{ id: 'c-1' }]);
+      (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.complaint.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/complaints');
@@ -234,36 +234,36 @@ describe('Complaints Routes (Medical)', () => {
   describe('GET /api/complaints/:id', () => {
     it('should get complaint by id', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({
-        id: 'c-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
 
-      const res = await request(app).get('/api/complaints/c-1');
+      const res = await request(app).get('/api/complaints/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/complaints/fake');
+      const res = await request(app).get('/api/complaints/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({
-        id: 'c-1', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
       });
 
-      const res = await request(app).get('/api/complaints/c-1');
+      const res = await request(app).get('/api/complaints/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(404);
     });
   });
 
   describe('PUT /api/complaints/:id', () => {
     it('should update complaint investigation', async () => {
-      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({ id: 'c-1', deletedAt: null });
-      (mockPrisma.complaint.update as jest.Mock).mockResolvedValue({ id: 'c-1', status: 'UNDER_INVESTIGATION' });
+      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.complaint.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'UNDER_INVESTIGATION' });
 
-      const res = await request(app).put('/api/complaints/c-1').send({
+      const res = await request(app).put('/api/complaints/00000000-0000-0000-0000-000000000001').send({
         status: 'UNDER_INVESTIGATION',
         investigationSummary: 'Investigating root cause',
       });
@@ -273,38 +273,38 @@ describe('Complaints Routes (Medical)', () => {
     it('should return 404 if not found', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/complaints/fake').send({ status: 'CLOSED' });
+      const res = await request(app).put('/api/complaints/00000000-0000-0000-0000-000000000099').send({ status: 'CLOSED' });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for invalid status', async () => {
-      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({ id: 'c-1', deletedAt: null });
+      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).put('/api/complaints/c-1').send({ status: 'INVALID' });
+      const res = await request(app).put('/api/complaints/00000000-0000-0000-0000-000000000001').send({ status: 'INVALID' });
       expect(res.status).toBe(400);
     });
   });
 
   describe('POST /api/complaints/:id/mdr', () => {
     it('should record MDR decision', async () => {
-      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({ id: 'c-1', deletedAt: null });
-      (mockPrisma.complaint.update as jest.Mock).mockResolvedValue({ id: 'c-1', mdrReportable: true });
+      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.complaint.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', mdrReportable: true });
 
-      const res = await request(app).post('/api/complaints/c-1/mdr').send({ reportable: true });
+      const res = await request(app).post('/api/complaints/00000000-0000-0000-0000-000000000001/mdr').send({ reportable: true });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/complaints/fake/mdr').send({ reportable: true });
+      const res = await request(app).post('/api/complaints/00000000-0000-0000-0000-000000000099/mdr').send({ reportable: true });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for missing reportable', async () => {
-      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({ id: 'c-1', deletedAt: null });
+      (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/complaints/c-1/mdr').send({});
+      const res = await request(app).post('/api/complaints/00000000-0000-0000-0000-000000000001/mdr').send({});
       expect(res.status).toBe(400);
     });
   });
@@ -312,33 +312,33 @@ describe('Complaints Routes (Medical)', () => {
   describe('POST /api/complaints/:id/close', () => {
     it('should close a complaint', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({
-        id: 'c-1', deletedAt: null, mdrReportable: false,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, mdrReportable: false,
         rootCause: 'Firmware bug', correctiveAction: 'Updated firmware',
       });
-      (mockPrisma.complaint.update as jest.Mock).mockResolvedValue({ id: 'c-1', status: 'CLOSED' });
+      (mockPrisma.complaint.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'CLOSED' });
 
-      const res = await request(app).post('/api/complaints/c-1/close').send({});
+      const res = await request(app).post('/api/complaints/00000000-0000-0000-0000-000000000001/close').send({});
       expect(res.status).toBe(200);
     });
 
     it('should return 400 if MDR decision not made', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({
-        id: 'c-1', deletedAt: null, mdrReportable: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, mdrReportable: null,
         rootCause: 'Bug', correctiveAction: 'Fix',
       });
 
-      const res = await request(app).post('/api/complaints/c-1/close').send({});
+      const res = await request(app).post('/api/complaints/00000000-0000-0000-0000-000000000001/close').send({});
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('MDR_DECISION_REQUIRED');
     });
 
     it('should return 400 if investigation incomplete', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({
-        id: 'c-1', deletedAt: null, mdrReportable: false,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, mdrReportable: false,
         rootCause: null, correctiveAction: null,
       });
 
-      const res = await request(app).post('/api/complaints/c-1/close').send({});
+      const res = await request(app).post('/api/complaints/00000000-0000-0000-0000-000000000001/close').send({});
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('INVESTIGATION_INCOMPLETE');
     });
@@ -346,7 +346,7 @@ describe('Complaints Routes (Medical)', () => {
     it('should return 404 if not found', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/complaints/fake/close').send({});
+      const res = await request(app).post('/api/complaints/00000000-0000-0000-0000-000000000099/close').send({});
       expect(res.status).toBe(404);
     });
   });

@@ -61,7 +61,7 @@ beforeEach(() => {
 
 describe('Medical Traceability API Routes', () => {
   const mockMatrix = {
-    id: 'matrix-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     refNumber: 'TRC-2601-0001',
     title: 'Device A Traceability Matrix',
     deviceId: 'DEV-001',
@@ -80,8 +80,8 @@ describe('Medical Traceability API Routes', () => {
   };
 
   const mockLink = {
-    id: 'link-uuid-1',
-    matrixId: 'matrix-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
+    matrixId: '00000000-0000-0000-0000-000000000001',
     userNeedRef: 'UN-001',
     userNeedDesc: 'Device must operate at 37°C',
     designInputRef: 'DI-001',
@@ -148,17 +148,17 @@ describe('Medical Traceability API Routes', () => {
     it('should return a matrix with links', async () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue({ ...mockMatrix, links: [mockLink] });
 
-      const res = await request(app).get('/api/traceability/matrix-uuid-1');
+      const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('matrix-uuid-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when matrix not found', async () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/traceability/nonexistent');
+      const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -167,7 +167,7 @@ describe('Medical Traceability API Routes', () => {
     it('should return 404 when matrix is soft-deleted', async () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue({ ...mockMatrix, deletedAt: new Date() });
 
-      const res = await request(app).get('/api/traceability/matrix-uuid-1');
+      const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(404);
     });
@@ -175,7 +175,7 @@ describe('Medical Traceability API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.traceabilityMatrix.findUnique.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/traceability/matrix-uuid-1');
+      const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -224,7 +224,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityMatrix.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/traceability/matrix-uuid-1')
+        .put('/api/traceability/00000000-0000-0000-0000-000000000001')
         .send({ status: 'IN_REVIEW' });
 
       expect(res.status).toBe(200);
@@ -235,7 +235,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/traceability/nonexistent')
+        .put('/api/traceability/00000000-0000-0000-0000-000000000099')
         .send({ status: 'APPROVED' });
 
       expect(res.status).toBe(404);
@@ -246,7 +246,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityMatrix.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/traceability/matrix-uuid-1')
+        .put('/api/traceability/00000000-0000-0000-0000-000000000001')
         .send({ title: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -258,7 +258,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(mockMatrix);
       mockPrisma.traceabilityMatrix.update.mockResolvedValue({ ...mockMatrix, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/traceability/matrix-uuid-1');
+      const res = await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(204);
     });
@@ -266,7 +266,7 @@ describe('Medical Traceability API Routes', () => {
     it('should return 404 when matrix not found', async () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/traceability/nonexistent');
+      const res = await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -275,7 +275,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(mockMatrix);
       mockPrisma.traceabilityMatrix.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/traceability/matrix-uuid-1');
+      const res = await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -292,7 +292,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityLink.create.mockResolvedValue(mockLink);
 
       const res = await request(app)
-        .post('/api/traceability/matrix-uuid-1/links')
+        .post('/api/traceability/00000000-0000-0000-0000-000000000001/links')
         .send(validLink);
 
       expect(res.status).toBe(201);
@@ -303,7 +303,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(null);
 
       const res = await request(app)
-        .post('/api/traceability/nonexistent/links')
+        .post('/api/traceability/00000000-0000-0000-0000-000000000099/links')
         .send(validLink);
 
       expect(res.status).toBe(404);
@@ -313,7 +313,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityMatrix.findUnique.mockResolvedValue(mockMatrix);
 
       const res = await request(app)
-        .post('/api/traceability/matrix-uuid-1/links')
+        .post('/api/traceability/00000000-0000-0000-0000-000000000001/links')
         .send({ userNeedRef: 'UN-001' });
 
       expect(res.status).toBe(400);
@@ -325,7 +325,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityLink.create.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .post('/api/traceability/matrix-uuid-1/links')
+        .post('/api/traceability/00000000-0000-0000-0000-000000000001/links')
         .send(validLink);
 
       expect(res.status).toBe(500);
@@ -339,7 +339,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityLink.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/traceability/matrix-uuid-1/links/link-uuid-1')
+        .put('/api/traceability/00000000-0000-0000-0000-000000000001/links/00000000-0000-0000-0000-000000000001')
         .send({ status: 'VERIFIED' });
 
       expect(res.status).toBe(200);
@@ -350,7 +350,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityLink.findUnique.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/traceability/matrix-uuid-1/links/nonexistent')
+        .put('/api/traceability/00000000-0000-0000-0000-000000000001/links/00000000-0000-0000-0000-000000000099')
         .send({ status: 'VERIFIED' });
 
       expect(res.status).toBe(404);
@@ -360,7 +360,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityLink.findUnique.mockResolvedValue({ ...mockLink, matrixId: 'other-matrix' });
 
       const res = await request(app)
-        .put('/api/traceability/matrix-uuid-1/links/link-uuid-1')
+        .put('/api/traceability/00000000-0000-0000-0000-000000000001/links/00000000-0000-0000-0000-000000000001')
         .send({ status: 'VERIFIED' });
 
       expect(res.status).toBe(404);
@@ -373,7 +373,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityLink.delete.mockResolvedValue(mockLink);
 
       const res = await request(app)
-        .delete('/api/traceability/matrix-uuid-1/links/link-uuid-1');
+        .delete('/api/traceability/00000000-0000-0000-0000-000000000001/links/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(204);
     });
@@ -382,7 +382,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityLink.findUnique.mockResolvedValue(null);
 
       const res = await request(app)
-        .delete('/api/traceability/matrix-uuid-1/links/nonexistent');
+        .delete('/api/traceability/00000000-0000-0000-0000-000000000001/links/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -392,7 +392,7 @@ describe('Medical Traceability API Routes', () => {
       mockPrisma.traceabilityLink.delete.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .delete('/api/traceability/matrix-uuid-1/links/link-uuid-1');
+        .delete('/api/traceability/00000000-0000-0000-0000-000000000001/links/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });

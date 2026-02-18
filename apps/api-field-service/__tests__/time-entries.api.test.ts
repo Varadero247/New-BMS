@@ -40,7 +40,7 @@ beforeEach(() => {
 
 describe('GET /api/time-entries', () => {
   it('should return time entries with pagination', async () => {
-    const entries = [{ id: 'te-1', type: 'WORK', duration: 2.5, job: {}, technician: {} }];
+    const entries = [{ id: '00000000-0000-0000-0000-000000000001', type: 'WORK', duration: 2.5, job: {}, technician: {} }];
     (prisma as any).fsSvcTimeEntry.findMany.mockResolvedValue(entries);
     (prisma as any).fsSvcTimeEntry.count.mockResolvedValue(1);
 
@@ -126,18 +126,18 @@ describe('POST /api/time-entries', () => {
 
 describe('GET /api/time-entries/:id', () => {
   it('should return a time entry', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({ id: 'te-1', type: 'WORK', job: {}, technician: {} });
+    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', type: 'WORK', job: {}, technician: {} });
 
-    const res = await request(app).get('/api/time-entries/te-1');
+    const res = await request(app).get('/api/time-entries/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('te-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/time-entries/missing');
+    const res = await request(app).get('/api/time-entries/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -145,11 +145,11 @@ describe('GET /api/time-entries/:id', () => {
 
 describe('PUT /api/time-entries/:id', () => {
   it('should update a time entry', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({ id: 'te-1' });
-    (prisma as any).fsSvcTimeEntry.update.mockResolvedValue({ id: 'te-1', type: 'TRAVEL' });
+    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcTimeEntry.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', type: 'TRAVEL' });
 
     const res = await request(app)
-      .put('/api/time-entries/te-1')
+      .put('/api/time-entries/00000000-0000-0000-0000-000000000001')
       .send({ type: 'TRAVEL' });
 
     expect(res.status).toBe(200);
@@ -159,7 +159,7 @@ describe('PUT /api/time-entries/:id', () => {
     (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/time-entries/missing')
+      .put('/api/time-entries/00000000-0000-0000-0000-000000000099')
       .send({ type: 'TRAVEL' });
 
     expect(res.status).toBe(404);
@@ -168,10 +168,10 @@ describe('PUT /api/time-entries/:id', () => {
 
 describe('DELETE /api/time-entries/:id', () => {
   it('should soft delete a time entry', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({ id: 'te-1' });
-    (prisma as any).fsSvcTimeEntry.update.mockResolvedValue({ id: 'te-1', deletedAt: new Date() });
+    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcTimeEntry.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/time-entries/te-1');
+    const res = await request(app).delete('/api/time-entries/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Time entry deleted');
@@ -180,7 +180,7 @@ describe('DELETE /api/time-entries/:id', () => {
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/time-entries/missing');
+    const res = await request(app).delete('/api/time-entries/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

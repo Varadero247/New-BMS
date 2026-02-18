@@ -113,7 +113,7 @@ describe('GET /api/banking/:id', () => {
       _count: { transactions: 120, reconciliations: 3 },
     });
 
-    const res = await request(app).get('/api/banking/ba-1');
+    const res = await request(app).get('/api/banking/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.id).toBe('f1000000-0000-4000-a000-000000000001');
@@ -123,7 +123,7 @@ describe('GET /api/banking/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBankAccount.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/banking/nonexistent');
+    const res = await request(app).get('/api/banking/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -167,7 +167,7 @@ describe('PUT /api/banking/:id', () => {
     (prisma as any).finBankAccount.findUnique.mockResolvedValue({ id: 'f1000000-0000-4000-a000-000000000001', name: 'Old Name' });
     (prisma as any).finBankAccount.update.mockResolvedValue({ id: 'f1000000-0000-4000-a000-000000000001', name: 'Updated Name' });
 
-    const res = await request(app).put('/api/banking/ba-1').send({ name: 'Updated Name' });
+    const res = await request(app).put('/api/banking/00000000-0000-0000-0000-000000000001').send({ name: 'Updated Name' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated Name');
@@ -176,7 +176,7 @@ describe('PUT /api/banking/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBankAccount.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/banking/nonexistent').send({ name: 'Test' });
+    const res = await request(app).put('/api/banking/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -184,7 +184,7 @@ describe('PUT /api/banking/:id', () => {
   it('should return 400 for validation error', async () => {
     (prisma as any).finBankAccount.findUnique.mockResolvedValue({ id: 'f1000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).put('/api/banking/ba-1').send({ type: 'INVALID_TYPE' });
+    const res = await request(app).put('/api/banking/00000000-0000-0000-0000-000000000001').send({ type: 'INVALID_TYPE' });
 
     expect(res.status).toBe(400);
   });
@@ -198,7 +198,7 @@ describe('DELETE /api/banking/:id', () => {
     });
     (prisma as any).finBankAccount.update.mockResolvedValue({ id: 'f1000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).delete('/api/banking/ba-1');
+    const res = await request(app).delete('/api/banking/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
   });
@@ -206,7 +206,7 @@ describe('DELETE /api/banking/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finBankAccount.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/banking/nonexistent');
+    const res = await request(app).delete('/api/banking/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -217,7 +217,7 @@ describe('DELETE /api/banking/:id', () => {
       _count: { transactions: 5 },
     });
 
-    const res = await request(app).delete('/api/banking/ba-1');
+    const res = await request(app).delete('/api/banking/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(409);
     expect(res.body.error.code).toBe('IN_USE');
@@ -422,7 +422,7 @@ describe('POST /api/banking/reconciliations/:id/reconcile', () => {
     (prisma as any).finBankTransaction.updateMany.mockResolvedValue({ count: 3 });
 
     const res = await request(app)
-      .post('/api/banking/reconciliations/rec-1/reconcile')
+      .post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000001/reconcile')
       .send({
         transactionIds: [
           '550e8400-e29b-41d4-a716-446655440001',
@@ -439,7 +439,7 @@ describe('POST /api/banking/reconciliations/:id/reconcile', () => {
     (prisma as any).finReconciliation.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
-      .post('/api/banking/reconciliations/nonexistent/reconcile')
+      .post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000099/reconcile')
       .send({ transactionIds: ['550e8400-e29b-41d4-a716-446655440001'] });
 
     expect(res.status).toBe(404);
@@ -452,7 +452,7 @@ describe('POST /api/banking/reconciliations/:id/reconcile', () => {
     });
 
     const res = await request(app)
-      .post('/api/banking/reconciliations/rec-1/reconcile')
+      .post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000001/reconcile')
       .send({ transactionIds: ['550e8400-e29b-41d4-a716-446655440001'] });
 
     expect(res.status).toBe(400);
@@ -461,7 +461,7 @@ describe('POST /api/banking/reconciliations/:id/reconcile', () => {
 
   it('should return 400 for validation error', async () => {
     const res = await request(app)
-      .post('/api/banking/reconciliations/rec-1/reconcile')
+      .post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000001/reconcile')
       .send({ transactionIds: 'not-an-array' });
 
     expect(res.status).toBe(400);
@@ -481,7 +481,7 @@ describe('POST /api/banking/reconciliations/:id/complete', () => {
     });
     (prisma as any).finBankAccount.update.mockResolvedValue({ id: 'f1000000-0000-4000-a000-000000000001' });
 
-    const res = await request(app).post('/api/banking/reconciliations/rec-1/complete');
+    const res = await request(app).post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000001/complete');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('COMPLETED');
@@ -490,7 +490,7 @@ describe('POST /api/banking/reconciliations/:id/complete', () => {
   it('should return 404 when reconciliation not found', async () => {
     (prisma as any).finReconciliation.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/banking/reconciliations/nonexistent/complete');
+    const res = await request(app).post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000099/complete');
 
     expect(res.status).toBe(404);
   });
@@ -498,7 +498,7 @@ describe('POST /api/banking/reconciliations/:id/complete', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).finReconciliation.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/banking/reconciliations/rec-1/complete');
+    const res = await request(app).post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000001/complete');
 
     expect(res.status).toBe(500);
   });

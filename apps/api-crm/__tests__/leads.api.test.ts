@@ -50,7 +50,7 @@ app.use('/api/leads', leadsRouter);
 beforeEach(() => { jest.clearAllMocks(); });
 
 const mockLead = {
-  id: 'lead-1',
+  id: '00000000-0000-0000-0000-000000000001',
   refNumber: 'LEAD-2602-0001',
   firstName: 'Jane',
   lastName: 'Smith',
@@ -333,17 +333,17 @@ describe('GET /api/leads/:id', () => {
   it('should return lead detail', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(mockLead);
 
-    const res = await request(app).get('/api/leads/lead-1');
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('lead-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/leads/nonexistent');
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -352,7 +352,7 @@ describe('GET /api/leads/:id', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).crmLead.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/leads/lead-1');
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -367,7 +367,7 @@ describe('PUT /api/leads/:id', () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(mockLead);
     (prisma as any).crmLead.update.mockResolvedValue({ ...mockLead, company: 'NewCorp' });
 
-    const res = await request(app).put('/api/leads/lead-1').send({ company: 'NewCorp' });
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001').send({ company: 'NewCorp' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -377,7 +377,7 @@ describe('PUT /api/leads/:id', () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(mockLead);
     (prisma as any).crmLead.update.mockResolvedValue({ ...mockLead, source: 'PARTNER', score: 45 });
 
-    const res = await request(app).put('/api/leads/lead-1').send({ source: 'PARTNER' });
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001').send({ source: 'PARTNER' });
 
     expect(res.status).toBe(200);
     expect((prisma as any).crmLead.update).toHaveBeenCalledWith(
@@ -390,7 +390,7 @@ describe('PUT /api/leads/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/leads/nonexistent').send({ company: 'Test' });
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000099').send({ company: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -399,7 +399,7 @@ describe('PUT /api/leads/:id', () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(mockLead);
     (prisma as any).crmLead.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/leads/lead-1').send({ company: 'Test' });
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001').send({ company: 'Test' });
 
     expect(res.status).toBe(500);
   });
@@ -420,7 +420,7 @@ describe('PUT /api/leads/:id/qualify', () => {
     (prisma as any).crmDealContact.create.mockResolvedValue({});
     (prisma as any).crmLead.update.mockResolvedValue({ ...mockLead, status: 'QUALIFIED' });
 
-    const res = await request(app).put('/api/leads/lead-1/qualify');
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/qualify');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -438,7 +438,7 @@ describe('PUT /api/leads/:id/qualify', () => {
     (prisma as any).crmDealContact.create.mockResolvedValue({});
     (prisma as any).crmLead.update.mockResolvedValue({ ...leadNoCompany, status: 'QUALIFIED' });
 
-    const res = await request(app).put('/api/leads/lead-1/qualify');
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/qualify');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -449,7 +449,7 @@ describe('PUT /api/leads/:id/qualify', () => {
   it('should return 400 if already qualified', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue({ ...mockLead, status: 'QUALIFIED' });
 
-    const res = await request(app).put('/api/leads/lead-1/qualify');
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/qualify');
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toContain('already qualified');
@@ -458,7 +458,7 @@ describe('PUT /api/leads/:id/qualify', () => {
   it('should return 400 if lead is disqualified', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue({ ...mockLead, status: 'DISQUALIFIED' });
 
-    const res = await request(app).put('/api/leads/lead-1/qualify');
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/qualify');
 
     expect(res.status).toBe(400);
     expect(res.body.error.message).toContain('disqualified');
@@ -467,7 +467,7 @@ describe('PUT /api/leads/:id/qualify', () => {
   it('should return 404 when lead not found', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/leads/nonexistent/qualify');
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000099/qualify');
 
     expect(res.status).toBe(404);
   });
@@ -476,7 +476,7 @@ describe('PUT /api/leads/:id/qualify', () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(mockLead);
     (prisma as any).crmContact.create.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/leads/lead-1/qualify');
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/qualify');
 
     expect(res.status).toBe(500);
   });
@@ -495,7 +495,7 @@ describe('PUT /api/leads/:id/disqualify', () => {
       disqualifyReason: 'Not a fit',
     });
 
-    const res = await request(app).put('/api/leads/lead-1/disqualify').send({
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/disqualify').send({
       disqualifyReason: 'Not a fit',
     });
 
@@ -507,7 +507,7 @@ describe('PUT /api/leads/:id/disqualify', () => {
   it('should return 400 for missing reason', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(mockLead);
 
-    const res = await request(app).put('/api/leads/lead-1/disqualify').send({});
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/disqualify').send({});
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
@@ -516,7 +516,7 @@ describe('PUT /api/leads/:id/disqualify', () => {
   it('should return 400 for empty reason', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(mockLead);
 
-    const res = await request(app).put('/api/leads/lead-1/disqualify').send({
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/disqualify').send({
       disqualifyReason: '',
     });
 
@@ -527,7 +527,7 @@ describe('PUT /api/leads/:id/disqualify', () => {
   it('should return 400 if already disqualified', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue({ ...mockLead, status: 'DISQUALIFIED' });
 
-    const res = await request(app).put('/api/leads/lead-1/disqualify').send({
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/disqualify').send({
       disqualifyReason: 'Not a fit',
     });
 
@@ -538,7 +538,7 @@ describe('PUT /api/leads/:id/disqualify', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/leads/nonexistent/disqualify').send({
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000099/disqualify').send({
       disqualifyReason: 'Not a fit',
     });
 
@@ -549,7 +549,7 @@ describe('PUT /api/leads/:id/disqualify', () => {
     (prisma as any).crmLead.findFirst.mockResolvedValue(mockLead);
     (prisma as any).crmLead.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/leads/lead-1/disqualify').send({
+    const res = await request(app).put('/api/leads/00000000-0000-0000-0000-000000000001/disqualify').send({
       disqualifyReason: 'Not a fit',
     });
 

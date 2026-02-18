@@ -43,7 +43,7 @@ beforeEach(() => {
 
 describe('GET /api/kpis', () => {
   it('should return KPIs with pagination', async () => {
-    const kpis = [{ id: 'kpi-1', metricType: 'FIRST_TIME_FIX', value: 85, unit: '%', technician: {} }];
+    const kpis = [{ id: '00000000-0000-0000-0000-000000000001', metricType: 'FIRST_TIME_FIX', value: 85, unit: '%', technician: {} }];
     (prisma as any).fsSvcKpi.findMany.mockResolvedValue(kpis);
     (prisma as any).fsSvcKpi.count.mockResolvedValue(1);
 
@@ -170,18 +170,18 @@ describe('POST /api/kpis', () => {
 
 describe('GET /api/kpis/:id', () => {
   it('should return a KPI by id', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: 'kpi-1', metricType: 'FIRST_TIME_FIX', technician: {} });
+    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', metricType: 'FIRST_TIME_FIX', technician: {} });
 
-    const res = await request(app).get('/api/kpis/kpi-1');
+    const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('kpi-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcKpi.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/kpis/missing');
+    const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -189,11 +189,11 @@ describe('GET /api/kpis/:id', () => {
 
 describe('PUT /api/kpis/:id', () => {
   it('should update a KPI', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: 'kpi-1' });
-    (prisma as any).fsSvcKpi.update.mockResolvedValue({ id: 'kpi-1', value: 95 });
+    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', value: 95 });
 
     const res = await request(app)
-      .put('/api/kpis/kpi-1')
+      .put('/api/kpis/00000000-0000-0000-0000-000000000001')
       .send({ value: 95 });
 
     expect(res.status).toBe(200);
@@ -203,7 +203,7 @@ describe('PUT /api/kpis/:id', () => {
     (prisma as any).fsSvcKpi.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/kpis/missing')
+      .put('/api/kpis/00000000-0000-0000-0000-000000000099')
       .send({ value: 95 });
 
     expect(res.status).toBe(404);
@@ -212,10 +212,10 @@ describe('PUT /api/kpis/:id', () => {
 
 describe('DELETE /api/kpis/:id', () => {
   it('should soft delete a KPI', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: 'kpi-1' });
-    (prisma as any).fsSvcKpi.update.mockResolvedValue({ id: 'kpi-1', deletedAt: new Date() });
+    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcKpi.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/kpis/kpi-1');
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('KPI deleted');
@@ -224,7 +224,7 @@ describe('DELETE /api/kpis/:id', () => {
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcKpi.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/kpis/missing');
+    const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

@@ -3,10 +3,12 @@ import { createLogger } from '@ims/monitoring';
 import { portalPrisma } from '../prisma-portal';
 import { prisma } from '../prisma';
 import { type AuthRequest } from '@ims/auth';
+import { validateIdParam } from '@ims/shared';
 
 
 const logger = createLogger('api-partners:collateral');
 const router = Router();
+router.param('id', validateIdParam());
 
 const TIER_HIERARCHY: Record<string, string[]> = {
   REFERRAL: ['ALL'],

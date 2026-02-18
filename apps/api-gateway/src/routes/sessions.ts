@@ -3,10 +3,12 @@ import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { z } from 'zod';
 
 const logger = createLogger('sessions-routes');
 const router: IRouter = Router();
+router.param('id', validateIdParam());
 
 /**
  * GET /api/sessions

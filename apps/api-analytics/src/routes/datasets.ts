@@ -4,10 +4,12 @@ import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-analytics');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ---------------------------------------------------------------------------
 // Reference number generator

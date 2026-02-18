@@ -141,11 +141,11 @@ describe('GET /api/monitoring/system/:systemId', () => {
     (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
     (prisma as any).aiMonitoring.count.mockResolvedValue(0);
 
-    await request(app).get('/api/monitoring/system/sys-1?status=WARNING');
+    await request(app).get('/api/monitoring/system/00000000-0000-0000-0000-000000000001?status=WARNING');
 
     expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: expect.objectContaining({ systemId: 'sys-1', status: 'WARNING' }),
+        where: expect.objectContaining({ systemId: '00000000-0000-0000-0000-000000000001', status: 'WARNING' }),
       })
     );
   });
@@ -154,7 +154,7 @@ describe('GET /api/monitoring/system/:systemId', () => {
     (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
     (prisma as any).aiMonitoring.count.mockResolvedValue(0);
 
-    await request(app).get('/api/monitoring/system/sys-1?metricType=BIAS');
+    await request(app).get('/api/monitoring/system/00000000-0000-0000-0000-000000000001?metricType=BIAS');
 
     expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -167,7 +167,7 @@ describe('GET /api/monitoring/system/:systemId', () => {
     (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
     (prisma as any).aiMonitoring.count.mockResolvedValue(50);
 
-    const res = await request(app).get('/api/monitoring/system/sys-1?page=2&limit=10');
+    const res = await request(app).get('/api/monitoring/system/00000000-0000-0000-0000-000000000001?page=2&limit=10');
 
     expect(res.status).toBe(200);
     expect(res.body.pagination.page).toBe(2);
@@ -178,7 +178,7 @@ describe('GET /api/monitoring/system/:systemId', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).aiMonitoring.findMany.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/monitoring/system/sys-1');
+    const res = await request(app).get('/api/monitoring/system/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -310,7 +310,7 @@ describe('POST /api/monitoring', () => {
     (prisma as any).aiMonitoring.create.mockResolvedValue({ ...mockRecord, status: 'WARNING' });
 
     await request(app).post('/api/monitoring').send({
-      systemId: 'sys-1',
+      systemId: '00000000-0000-0000-0000-000000000001',
       metricName: 'Error Rate',
       metricType: 'ERROR_RATE',
       value: 0.15,
@@ -329,7 +329,7 @@ describe('POST /api/monitoring', () => {
     (prisma as any).aiMonitoring.create.mockResolvedValue({ ...mockRecord, status: 'NORMAL' });
 
     await request(app).post('/api/monitoring').send({
-      systemId: 'sys-1',
+      systemId: '00000000-0000-0000-0000-000000000001',
       metricName: 'Error Rate',
       metricType: 'ERROR_RATE',
       value: 0.05,
@@ -357,7 +357,7 @@ describe('POST /api/monitoring', () => {
 
   it('should return 400 for missing metricName', async () => {
     const res = await request(app).post('/api/monitoring').send({
-      systemId: 'sys-1',
+      systemId: '00000000-0000-0000-0000-000000000001',
       metricType: 'PERFORMANCE',
     });
 
@@ -367,7 +367,7 @@ describe('POST /api/monitoring', () => {
 
   it('should return 400 for invalid metricType', async () => {
     const res = await request(app).post('/api/monitoring').send({
-      systemId: 'sys-1',
+      systemId: '00000000-0000-0000-0000-000000000001',
       metricName: 'Test',
       metricType: 'INVALID_TYPE',
     });

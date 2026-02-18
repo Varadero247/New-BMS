@@ -274,7 +274,7 @@ describe('InfoSec Assets API', () => {
     it('should return asset detail', async () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
 
-      const res = await request(app).get('/api/assets/asset-1');
+      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -284,7 +284,7 @@ describe('InfoSec Assets API', () => {
     it('should return 404 when asset not found', async () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/assets/nonexistent');
+      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -293,7 +293,7 @@ describe('InfoSec Assets API', () => {
     it('should return 500 on database error', async () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app).get('/api/assets/asset-1');
+      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
@@ -309,7 +309,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce(updated);
 
       const res = await request(app)
-        .put('/api/assets/asset-1')
+        .put('/api/assets/00000000-0000-0000-0000-000000000001')
         .send({ name: 'Updated DB' });
 
       expect(res.status).toBe(200);
@@ -321,7 +321,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/assets/nonexistent')
+        .put('/api/assets/00000000-0000-0000-0000-000000000099')
         .send({ name: 'Test' });
 
       expect(res.status).toBe(404);
@@ -330,7 +330,7 @@ describe('InfoSec Assets API', () => {
 
     it('should return 400 for invalid update data', async () => {
       const res = await request(app)
-        .put('/api/assets/asset-1')
+        .put('/api/assets/00000000-0000-0000-0000-000000000001')
         .send({ type: 'INVALID_TYPE' });
 
       expect(res.status).toBe(400);
@@ -345,7 +345,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
       (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAsset, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/assets/asset-1');
+      const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -355,7 +355,7 @@ describe('InfoSec Assets API', () => {
     it('should return 404 when asset not found for delete', async () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/assets/nonexistent');
+      const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -365,7 +365,7 @@ describe('InfoSec Assets API', () => {
       (mockPrisma.isAsset.findFirst as jest.Mock).mockResolvedValueOnce(mockAsset);
       (mockPrisma.isAsset.update as jest.Mock).mockResolvedValueOnce({ ...mockAsset, deletedAt: new Date() });
 
-      await request(app).delete('/api/assets/asset-1');
+      await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
 
       const updateCall = (mockPrisma.isAsset.update as jest.Mock).mock.calls[0][0];
       expect(updateCall.data.deletedBy).toBe('00000000-0000-4000-a000-000000000123');

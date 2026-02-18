@@ -25,12 +25,12 @@ jest.mock('@ims/monitoring', () => ({
 }));
 
 // DSAR mocks — exact names from @ims/dsar
-const mockCreateRequest = jest.fn().mockReturnValue({ id: 'dsar-1', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com' });
+const mockCreateRequest = jest.fn().mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com' });
 const mockListRequests = jest.fn().mockReturnValue([]);
-const mockGetRequest = jest.fn().mockReturnValue({ id: 'dsar-1', type: 'EXPORT', status: 'PENDING' });
-const mockProcessExportRequest = jest.fn().mockResolvedValue({ id: 'dsar-1', status: 'COMPLETE', downloadUrl: '/downloads/dsar-1.zip' });
-const mockProcessErasureRequest = jest.fn().mockResolvedValue({ id: 'dsar-1', status: 'COMPLETE' });
-const mockUpdateRequest = jest.fn().mockReturnValue({ id: 'dsar-1', status: 'IN_PROGRESS' });
+const mockGetRequest = jest.fn().mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'PENDING' });
+const mockProcessExportRequest = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETE', downloadUrl: '/downloads/dsar-1.zip' });
+const mockProcessErasureRequest = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETE' });
+const mockUpdateRequest = jest.fn().mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS' });
 
 jest.mock('@ims/dsar', () => ({
   createRequest: (...args: any[]) => mockCreateRequest(...args),
@@ -103,21 +103,21 @@ describe('DSAR Routes', () => {
 
   describe('GET /api/admin/privacy/dsar/:id', () => {
     it('returns a DSAR request', async () => {
-      const res = await request(app).get('/api/admin/privacy/dsar/dsar-1');
+      const res = await request(app).get('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
 
     it('returns 404 for non-existent', async () => {
       mockGetRequest.mockReturnValueOnce(undefined);
-      const res = await request(app).get('/api/admin/privacy/dsar/nonexistent');
+      const res = await request(app).get('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
 
   describe('POST /api/admin/privacy/dsar/:id/process', () => {
     it('processes a DSAR request', async () => {
-      const res = await request(app).post('/api/admin/privacy/dsar/dsar-1/process');
+      const res = await request(app).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

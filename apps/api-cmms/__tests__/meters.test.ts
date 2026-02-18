@@ -27,7 +27,7 @@ app.use(express.json());
 app.use('/api/meters', metersRouter);
 
 const mockReading = {
-  id: 'meter-1',
+  id: '00000000-0000-0000-0000-000000000001',
   assetId: 'asset-1',
   meterType: 'HOURS',
   reading: 5000,
@@ -140,15 +140,15 @@ describe('Meters Routes', () => {
     it('should return a meter reading by ID', async () => {
       prisma.cmmsMeterReading.findFirst.mockResolvedValue(mockReading);
 
-      const res = await request(app).get('/api/meters/meter-1');
+      const res = await request(app).get('/api/meters/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('meter-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent reading', async () => {
       prisma.cmmsMeterReading.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/meters/non-existent');
+      const res = await request(app).get('/api/meters/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -158,14 +158,14 @@ describe('Meters Routes', () => {
       prisma.cmmsMeterReading.findFirst.mockResolvedValue(mockReading);
       prisma.cmmsMeterReading.update.mockResolvedValue({ ...mockReading, reading: 5100 });
 
-      const res = await request(app).put('/api/meters/meter-1').send({ reading: 5100 });
+      const res = await request(app).put('/api/meters/00000000-0000-0000-0000-000000000001').send({ reading: 5100 });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent reading', async () => {
       prisma.cmmsMeterReading.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/meters/non-existent').send({ reading: 5100 });
+      const res = await request(app).put('/api/meters/00000000-0000-0000-0000-000000000099').send({ reading: 5100 });
       expect(res.status).toBe(404);
     });
   });
@@ -175,7 +175,7 @@ describe('Meters Routes', () => {
       prisma.cmmsMeterReading.findFirst.mockResolvedValue(mockReading);
       prisma.cmmsMeterReading.update.mockResolvedValue({ ...mockReading, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/meters/meter-1');
+      const res = await request(app).delete('/api/meters/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -183,7 +183,7 @@ describe('Meters Routes', () => {
     it('should return 404 for non-existent reading', async () => {
       prisma.cmmsMeterReading.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/meters/non-existent');
+      const res = await request(app).delete('/api/meters/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

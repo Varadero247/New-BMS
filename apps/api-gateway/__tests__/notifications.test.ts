@@ -266,7 +266,7 @@ describe('Notifications Routes', () => {
   describe('PUT /api/notifications/:id/read', () => {
     it('should mark a notification as read', async () => {
       bellState.addNotification('00000000-0000-0000-0000-000000000001', {
-        id: 'mark-read-1',
+        id: '00000000-0000-0000-0000-000000000001',
         type: 'ALERT',
         title: 'Mark me',
         message: 'Mark me as read',
@@ -277,18 +277,18 @@ describe('Notifications Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/notifications/mark-read-1/read')
+        .put('/api/notifications/00000000-0000-0000-0000-000000000001/read')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('mark-read-1');
+      expect(response.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
       expect(response.body.data.read).toBe(true);
     });
 
     it('should return 404 for non-existent notification', async () => {
       const response = await request(app)
-        .put('/api/notifications/non-existent-id/read')
+        .put('/api/notifications/00000000-0000-0000-0000-000000000099/read')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -298,7 +298,7 @@ describe('Notifications Routes', () => {
 
     it('should not find notifications belonging to other users', async () => {
       bellState.addNotification('00000000-0000-0000-0000-000000000002', {
-        id: 'other-user-mark',
+        id: '00000000-0000-0000-0000-000000000099',
         type: 'INFO',
         title: 'Other user',
         message: 'Not yours',
@@ -309,7 +309,7 @@ describe('Notifications Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/notifications/other-user-mark/read')
+        .put('/api/notifications/00000000-0000-0000-0000-000000000099/read')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -318,7 +318,7 @@ describe('Notifications Routes', () => {
 
     it('should successfully mark an already read notification', async () => {
       bellState.addNotification('00000000-0000-0000-0000-000000000001', {
-        id: 'already-read-1',
+        id: '00000000-0000-0000-0000-000000000001',
         type: 'INFO',
         title: 'Already read',
         message: 'Already read',
@@ -329,7 +329,7 @@ describe('Notifications Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/notifications/already-read-1/read')
+        .put('/api/notifications/00000000-0000-0000-0000-000000000001/read')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);

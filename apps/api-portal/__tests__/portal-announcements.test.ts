@@ -39,7 +39,7 @@ beforeEach(() => {
 describe('GET /api/portal/announcements', () => {
   it('should list active announcements', async () => {
     const items = [
-      { id: 'a-1', title: 'System Update', isActive: true, portalType: 'CUSTOMER' },
+      { id: '00000000-0000-0000-0000-000000000001', title: 'System Update', isActive: true, portalType: 'CUSTOMER' },
     ];
     (prisma as any).portalAnnouncement.findMany.mockResolvedValue(items);
     (prisma as any).portalAnnouncement.count.mockResolvedValue(1);
@@ -73,7 +73,7 @@ describe('GET /api/portal/announcements', () => {
 
 describe('POST /api/portal/announcements', () => {
   it('should create an announcement', async () => {
-    const announcement = { id: 'a-1', title: 'New Feature', isActive: true };
+    const announcement = { id: '00000000-0000-0000-0000-000000000001', title: 'New Feature', isActive: true };
     (prisma as any).portalAnnouncement.create.mockResolvedValue(announcement);
 
     const res = await request(app)
@@ -103,11 +103,11 @@ describe('POST /api/portal/announcements', () => {
 
 describe('PUT /api/portal/announcements/:id', () => {
   it('should update an announcement', async () => {
-    (prisma as any).portalAnnouncement.findFirst.mockResolvedValue({ id: 'a-1' });
-    (prisma as any).portalAnnouncement.update.mockResolvedValue({ id: 'a-1', title: 'Updated' });
+    (prisma as any).portalAnnouncement.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).portalAnnouncement.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
 
     const res = await request(app)
-      .put('/api/portal/announcements/a-1')
+      .put('/api/portal/announcements/00000000-0000-0000-0000-000000000001')
       .send({ title: 'Updated' });
 
     expect(res.status).toBe(200);
@@ -117,7 +117,7 @@ describe('PUT /api/portal/announcements/:id', () => {
     (prisma as any).portalAnnouncement.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/portal/announcements/nonexistent')
+      .put('/api/portal/announcements/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Updated' });
 
     expect(res.status).toBe(404);
@@ -126,19 +126,19 @@ describe('PUT /api/portal/announcements/:id', () => {
 
 describe('DELETE /api/portal/announcements/:id', () => {
   it('should soft-delete an announcement', async () => {
-    (prisma as any).portalAnnouncement.findFirst.mockResolvedValue({ id: 'a-1' });
-    (prisma as any).portalAnnouncement.update.mockResolvedValue({ id: 'a-1', deletedAt: new Date(), isActive: false });
+    (prisma as any).portalAnnouncement.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).portalAnnouncement.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(), isActive: false });
 
-    const res = await request(app).delete('/api/portal/announcements/a-1');
+    const res = await request(app).delete('/api/portal/announcements/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('a-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for delete if not found', async () => {
     (prisma as any).portalAnnouncement.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/portal/announcements/nonexistent');
+    const res = await request(app).delete('/api/portal/announcements/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -146,7 +146,7 @@ describe('DELETE /api/portal/announcements/:id', () => {
   it('should handle server error on delete', async () => {
     (prisma as any).portalAnnouncement.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).delete('/api/portal/announcements/a-1');
+    const res = await request(app).delete('/api/portal/announcements/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
   });

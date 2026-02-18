@@ -53,7 +53,7 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 404 for unknown dashboard routes', async () => {
-    const res = await request(app).get('/api/dashboard/unknown');
+    const res = await request(app).get('/api/dashboard/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

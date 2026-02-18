@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/food-defense', () => {
   it('should return food defense records with pagination', async () => {
-    (prisma as any).fsFoodDefense.findMany.mockResolvedValue([{ id: 'fd-1', title: 'Threat Assessment' }]);
+    (prisma as any).fsFoodDefense.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Threat Assessment' }]);
     (prisma as any).fsFoodDefense.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/food-defense');
@@ -87,7 +87,7 @@ describe('GET /api/food-defense', () => {
 
 describe('POST /api/food-defense', () => {
   it('should create a food defense record', async () => {
-    const created = { id: 'fd-1', title: 'Threat Assessment', threatType: 'SABOTAGE', riskLevel: 'HIGH' };
+    const created = { id: '00000000-0000-0000-0000-000000000001', title: 'Threat Assessment', threatType: 'SABOTAGE', riskLevel: 'HIGH' };
     (prisma as any).fsFoodDefense.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/food-defense').send({
@@ -121,34 +121,34 @@ describe('POST /api/food-defense', () => {
 
 describe('GET /api/food-defense/:id', () => {
   it('should return a food defense record', async () => {
-    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: 'fd-1', title: 'Threat' });
+    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Threat' });
 
-    const res = await request(app).get('/api/food-defense/fd-1');
+    const res = await request(app).get('/api/food-defense/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('fd-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsFoodDefense.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/food-defense/non-existent');
+    const res = await request(app).get('/api/food-defense/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 
   it('should handle database errors', async () => {
     (prisma as any).fsFoodDefense.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/food-defense/fd-1');
+    const res = await request(app).get('/api/food-defense/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
   });
 });
 
 describe('PUT /api/food-defense/:id', () => {
   it('should update a food defense record', async () => {
-    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: 'fd-1' });
-    (prisma as any).fsFoodDefense.update.mockResolvedValue({ id: 'fd-1', status: 'MITIGATED' });
+    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsFoodDefense.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'MITIGATED' });
 
-    const res = await request(app).put('/api/food-defense/fd-1').send({ status: 'MITIGATED' });
+    const res = await request(app).put('/api/food-defense/00000000-0000-0000-0000-000000000001').send({ status: 'MITIGATED' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -156,32 +156,32 @@ describe('PUT /api/food-defense/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsFoodDefense.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/food-defense/non-existent').send({ status: 'MITIGATED' });
+    const res = await request(app).put('/api/food-defense/00000000-0000-0000-0000-000000000099').send({ status: 'MITIGATED' });
     expect(res.status).toBe(404);
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: 'fd-1' });
+    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).put('/api/food-defense/fd-1').send({ threatType: 'INVALID' });
+    const res = await request(app).put('/api/food-defense/00000000-0000-0000-0000-000000000001').send({ threatType: 'INVALID' });
     expect(res.status).toBe(400);
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: 'fd-1' });
+    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).fsFoodDefense.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/food-defense/fd-1').send({ status: 'MITIGATED' });
+    const res = await request(app).put('/api/food-defense/00000000-0000-0000-0000-000000000001').send({ status: 'MITIGATED' });
     expect(res.status).toBe(500);
   });
 });
 
 describe('DELETE /api/food-defense/:id', () => {
   it('should soft delete a food defense record', async () => {
-    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: 'fd-1' });
-    (prisma as any).fsFoodDefense.update.mockResolvedValue({ id: 'fd-1' });
+    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsFoodDefense.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).delete('/api/food-defense/fd-1');
+    const res = await request(app).delete('/api/food-defense/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -189,15 +189,15 @@ describe('DELETE /api/food-defense/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsFoodDefense.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/food-defense/non-existent');
+    const res = await request(app).delete('/api/food-defense/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: 'fd-1' });
+    (prisma as any).fsFoodDefense.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).fsFoodDefense.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).delete('/api/food-defense/fd-1');
+    const res = await request(app).delete('/api/food-defense/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
   });
 });

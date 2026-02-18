@@ -41,7 +41,7 @@ app.use('/api/contacts', contactsRouter);
 beforeEach(() => { jest.clearAllMocks(); });
 
 const mockContact = {
-  id: 'contact-1',
+  id: '00000000-0000-0000-0000-000000000001',
   firstName: 'John',
   lastName: 'Doe',
   email: 'john@example.com',
@@ -300,17 +300,17 @@ describe('GET /api/contacts/:id', () => {
   it('should return contact detail', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
 
-    const res = await request(app).get('/api/contacts/contact-1');
+    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('contact-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/contacts/nonexistent');
+    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -319,7 +319,7 @@ describe('GET /api/contacts/:id', () => {
   it('should return 500 on database error', async () => {
     (prisma as any).crmContact.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/contacts/contact-1');
+    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -334,7 +334,7 @@ describe('PUT /api/contacts/:id', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmContact.update.mockResolvedValue({ ...mockContact, firstName: 'Jane' });
 
-    const res = await request(app).put('/api/contacts/contact-1').send({ firstName: 'Jane' });
+    const res = await request(app).put('/api/contacts/00000000-0000-0000-0000-000000000001').send({ firstName: 'Jane' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -344,7 +344,7 @@ describe('PUT /api/contacts/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/contacts/nonexistent').send({ firstName: 'Jane' });
+    const res = await request(app).put('/api/contacts/00000000-0000-0000-0000-000000000099').send({ firstName: 'Jane' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -358,7 +358,7 @@ describe('PUT /api/contacts/:id', () => {
       jobTitle: 'CEO',
     });
 
-    const res = await request(app).put('/api/contacts/contact-1').send({
+    const res = await request(app).put('/api/contacts/00000000-0000-0000-0000-000000000001').send({
       firstName: 'Jane',
       jobTitle: 'CEO',
     });
@@ -371,7 +371,7 @@ describe('PUT /api/contacts/:id', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmContact.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/contacts/contact-1').send({ firstName: 'Jane' });
+    const res = await request(app).put('/api/contacts/00000000-0000-0000-0000-000000000001').send({ firstName: 'Jane' });
 
     expect(res.status).toBe(500);
   });
@@ -386,7 +386,7 @@ describe('DELETE /api/contacts/:id', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmContact.update.mockResolvedValue({ ...mockContact, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/contacts/contact-1');
+    const res = await request(app).delete('/api/contacts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -401,7 +401,7 @@ describe('DELETE /api/contacts/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/contacts/nonexistent');
+    const res = await request(app).delete('/api/contacts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -411,7 +411,7 @@ describe('DELETE /api/contacts/:id', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmContact.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).delete('/api/contacts/contact-1');
+    const res = await request(app).delete('/api/contacts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
   });
@@ -433,7 +433,7 @@ describe('POST /api/contacts/:id/activities', () => {
       createdBy: 'user-123',
     });
 
-    const res = await request(app).post('/api/contacts/contact-1/activities').send(validActivity);
+    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send(validActivity);
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -452,7 +452,7 @@ describe('POST /api/contacts/:id/activities', () => {
       outcome: 'Positive',
     });
 
-    const res = await request(app).post('/api/contacts/contact-1/activities').send({
+    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send({
       type: 'MEETING',
       subject: 'Quarterly review',
       description: 'Discuss Q1 performance',
@@ -465,7 +465,7 @@ describe('POST /api/contacts/:id/activities', () => {
   });
 
   it('should return 400 for missing type', async () => {
-    const res = await request(app).post('/api/contacts/contact-1/activities').send({
+    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send({
       subject: 'Follow up call',
     });
 
@@ -474,7 +474,7 @@ describe('POST /api/contacts/:id/activities', () => {
   });
 
   it('should return 400 for missing subject', async () => {
-    const res = await request(app).post('/api/contacts/contact-1/activities').send({
+    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send({
       type: 'CALL',
     });
 
@@ -483,7 +483,7 @@ describe('POST /api/contacts/:id/activities', () => {
   });
 
   it('should return 400 for invalid type', async () => {
-    const res = await request(app).post('/api/contacts/contact-1/activities').send({
+    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send({
       type: 'INVALID',
       subject: 'Test',
     });
@@ -495,7 +495,7 @@ describe('POST /api/contacts/:id/activities', () => {
   it('should return 404 when contact not found', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/contacts/nonexistent/activities').send(validActivity);
+    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000099/activities').send(validActivity);
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -505,7 +505,7 @@ describe('POST /api/contacts/:id/activities', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmActivity.create.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/contacts/contact-1/activities').send(validActivity);
+    const res = await request(app).post('/api/contacts/00000000-0000-0000-0000-000000000001/activities').send(validActivity);
 
     expect(res.status).toBe(500);
   });
@@ -525,7 +525,7 @@ describe('GET /api/contacts/:id/activities', () => {
     (prisma as any).crmActivity.findMany.mockResolvedValue(activities);
     (prisma as any).crmActivity.count.mockResolvedValue(2);
 
-    const res = await request(app).get('/api/contacts/contact-1/activities');
+    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001/activities');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -538,7 +538,7 @@ describe('GET /api/contacts/:id/activities', () => {
     (prisma as any).crmActivity.findMany.mockResolvedValue([]);
     (prisma as any).crmActivity.count.mockResolvedValue(0);
 
-    const res = await request(app).get('/api/contacts/contact-1/activities');
+    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001/activities');
 
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(0);
@@ -547,7 +547,7 @@ describe('GET /api/contacts/:id/activities', () => {
   it('should return 404 when contact not found', async () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/contacts/nonexistent/activities');
+    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000099/activities');
 
     expect(res.status).toBe(404);
   });
@@ -557,7 +557,7 @@ describe('GET /api/contacts/:id/activities', () => {
     (prisma as any).crmActivity.findMany.mockResolvedValue([]);
     (prisma as any).crmActivity.count.mockResolvedValue(25);
 
-    const res = await request(app).get('/api/contacts/contact-1/activities?page=2&limit=10');
+    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001/activities?page=2&limit=10');
 
     expect(res.status).toBe(200);
     expect(res.body.pagination.page).toBe(2);
@@ -568,7 +568,7 @@ describe('GET /api/contacts/:id/activities', () => {
     (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
     (prisma as any).crmActivity.findMany.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/contacts/contact-1/activities');
+    const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001/activities');
 
     expect(res.status).toBe(500);
   });

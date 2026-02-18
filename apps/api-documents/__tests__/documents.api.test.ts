@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/documents', () => {
   it('should return documents with pagination', async () => {
-    (prisma as any).docDocument.findMany.mockResolvedValue([{ id: '1', title: 'Test' }]);
+    (prisma as any).docDocument.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Test' }]);
     (prisma as any).docDocument.count.mockResolvedValue(1);
     const res = await request(app).get('/api/documents');
     expect(res.status).toBe(200);
@@ -51,23 +51,23 @@ describe('GET /api/documents', () => {
 describe('GET /api/documents/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).docDocument.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/documents/nope');
+    const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return item by id', async () => {
-    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '1', title: 'Policy Doc' });
-    const res = await request(app).get('/api/documents/1');
+    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Policy Doc' });
+    const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 500 on database error', async () => {
     (prisma as any).docDocument.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/documents/1');
+    const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -77,7 +77,7 @@ describe('GET /api/documents/:id', () => {
 describe('POST /api/documents', () => {
   it('should create', async () => {
     (prisma as any).docDocument.count.mockResolvedValue(0);
-    (prisma as any).docDocument.create.mockResolvedValue({ id: '1', title: 'New', referenceNumber: 'DOC-2026-0001' });
+    (prisma as any).docDocument.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New', referenceNumber: 'DOC-2026-0001' });
     const res = await request(app).post('/api/documents').send({ title: 'New' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -109,25 +109,25 @@ describe('POST /api/documents', () => {
 
 describe('PUT /api/documents/:id', () => {
   it('should update', async () => {
-    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).docDocument.update.mockResolvedValue({ id: '1', title: 'Updated' });
-    const res = await request(app).put('/api/documents/1').send({ title: 'Updated' });
+    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).docDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app).put('/api/documents/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 when document not found', async () => {
     (prisma as any).docDocument.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/documents/nope').send({ title: 'Updated' });
+    const res = await request(app).put('/api/documents/00000000-0000-0000-0000-000000000099').send({ title: 'Updated' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on database update error', async () => {
-    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).docDocument.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).put('/api/documents/1').send({ title: 'Updated' });
+    const res = await request(app).put('/api/documents/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -136,25 +136,25 @@ describe('PUT /api/documents/:id', () => {
 
 describe('DELETE /api/documents/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).docDocument.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/documents/1');
+    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).docDocument.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 when document not found', async () => {
     (prisma as any).docDocument.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/documents/nope');
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).docDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).docDocument.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).delete('/api/documents/1');
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

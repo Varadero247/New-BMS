@@ -30,7 +30,7 @@ app.use(express.json());
 app.use('/api/kpis', kpisRouter);
 
 const mockKpi = {
-  id: 'kpi-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'MTBF - CNC Machine',
   metricType: 'MTBF',
   assetId: 'asset-1',
@@ -171,15 +171,15 @@ describe('KPIs Routes', () => {
     it('should return a KPI by ID', async () => {
       prisma.cmmsKpi.findFirst.mockResolvedValue(mockKpi);
 
-      const res = await request(app).get('/api/kpis/kpi-1');
+      const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('kpi-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for non-existent KPI', async () => {
       prisma.cmmsKpi.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/kpis/non-existent');
+      const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -189,14 +189,14 @@ describe('KPIs Routes', () => {
       prisma.cmmsKpi.findFirst.mockResolvedValue(mockKpi);
       prisma.cmmsKpi.update.mockResolvedValue({ ...mockKpi, value: 750 });
 
-      const res = await request(app).put('/api/kpis/kpi-1').send({ value: 750 });
+      const res = await request(app).put('/api/kpis/00000000-0000-0000-0000-000000000001').send({ value: 750 });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent KPI', async () => {
       prisma.cmmsKpi.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).put('/api/kpis/non-existent').send({ value: 750 });
+      const res = await request(app).put('/api/kpis/00000000-0000-0000-0000-000000000099').send({ value: 750 });
       expect(res.status).toBe(404);
     });
   });
@@ -206,7 +206,7 @@ describe('KPIs Routes', () => {
       prisma.cmmsKpi.findFirst.mockResolvedValue(mockKpi);
       prisma.cmmsKpi.update.mockResolvedValue({ ...mockKpi, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/kpis/kpi-1');
+      const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -214,7 +214,7 @@ describe('KPIs Routes', () => {
     it('should return 404 for non-existent KPI', async () => {
       prisma.cmmsKpi.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/kpis/non-existent');
+      const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const createCompetitorSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -20,6 +21,7 @@ const createIntelSchema = z.object({
 const logger = createLogger('competitors');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ---------------------------------------------------------------------------
 // GET / — List competitors with pagination

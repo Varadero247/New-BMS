@@ -153,7 +153,7 @@ describe('GET /api/suppliers/:id', () => {
   it('should return 404 when supplier not found', async () => {
     (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/suppliers/nonexistent');
+    const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -284,7 +284,7 @@ describe('PUT /api/suppliers/:id', () => {
   it('should return 404 when supplier not found', async () => {
     (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/suppliers/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).put('/api/suppliers/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -328,7 +328,7 @@ describe('DELETE /api/suppliers/:id', () => {
   it('should return 404 when supplier not found', async () => {
     (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/suppliers/nonexistent');
+    const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);

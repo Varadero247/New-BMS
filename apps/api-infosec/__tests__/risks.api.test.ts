@@ -404,7 +404,7 @@ describe('InfoSec Risks API', () => {
     it('should return 404 when risk not found', async () => {
       (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/risks/nonexistent');
+      const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -446,7 +446,7 @@ describe('InfoSec Risks API', () => {
       (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/risks/nonexistent')
+        .put('/api/risks/00000000-0000-0000-0000-000000000099')
         .send({ title: 'Updated' });
 
       expect(res.status).toBe(404);
@@ -508,7 +508,7 @@ describe('InfoSec Risks API', () => {
       (mockPrisma.isRisk.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/risks/nonexistent/treatment')
+        .put('/api/risks/00000000-0000-0000-0000-000000000099/treatment')
         .send({ treatment: 'ACCEPT', treatmentPlan: 'Accept risk' });
 
       expect(res.status).toBe(404);

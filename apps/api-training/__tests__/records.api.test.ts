@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/records', () => {
   it('should return records with pagination', async () => {
-    (prisma as any).trainRecord.findMany.mockResolvedValue([{ id: '1', title: 'Test' }]);
+    (prisma as any).trainRecord.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Test' }]);
     (prisma as any).trainRecord.count.mockResolvedValue(1);
     const res = await request(app).get('/api/records');
     expect(res.status).toBe(200);
@@ -52,23 +52,23 @@ describe('GET /api/records', () => {
 describe('GET /api/records/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).trainRecord.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/records/nope');
+    const res = await request(app).get('/api/records/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return item by id', async () => {
-    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '1' });
-    const res = await request(app).get('/api/records/1');
+    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).get('/api/records/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 500 on database error', async () => {
     (prisma as any).trainRecord.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/records/1');
+    const res = await request(app).get('/api/records/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -78,11 +78,11 @@ describe('GET /api/records/:id', () => {
 describe('POST /api/records', () => {
   it('should create', async () => {
     (prisma as any).trainRecord.count.mockResolvedValue(0);
-    (prisma as any).trainRecord.create.mockResolvedValue({ id: '1', title: 'New', referenceNumber: 'TRN-2026-0001' });
+    (prisma as any).trainRecord.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New', referenceNumber: 'TRN-2026-0001' });
     const res = await request(app).post('/api/records').send({ courseId: 'course-1', employeeId: 'emp-1' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 400 when courseId is missing', async () => {
@@ -111,25 +111,25 @@ describe('POST /api/records', () => {
 
 describe('PUT /api/records/:id', () => {
   it('should update', async () => {
-    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).trainRecord.update.mockResolvedValue({ id: '1', title: 'Updated' });
-    const res = await request(app).put('/api/records/1').send({ courseId: 'course-2' });
+    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).trainRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app).put('/api/records/00000000-0000-0000-0000-000000000001').send({ courseId: 'course-2' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 when record not found', async () => {
     (prisma as any).trainRecord.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/records/nope').send({ courseId: 'course-2' });
+    const res = await request(app).put('/api/records/00000000-0000-0000-0000-000000000099').send({ courseId: 'course-2' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on database update error', async () => {
-    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).trainRecord.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).put('/api/records/1').send({ courseId: 'course-2' });
+    const res = await request(app).put('/api/records/00000000-0000-0000-0000-000000000001').send({ courseId: 'course-2' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -138,25 +138,25 @@ describe('PUT /api/records/:id', () => {
 
 describe('DELETE /api/records/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).trainRecord.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/records/1');
+    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).trainRecord.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/records/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 when record not found', async () => {
     (prisma as any).trainRecord.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/records/nope');
+    const res = await request(app).delete('/api/records/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).trainRecord.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).trainRecord.update.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).delete('/api/records/1');
+    const res = await request(app).delete('/api/records/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

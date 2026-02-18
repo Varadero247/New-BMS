@@ -121,7 +121,7 @@ const mockProject2 = {
 };
 
 const mockDeliverable = {
-  id: 'del-0001',
+  id: '00000000-0000-0000-0000-000000000001',
   phaseId: 'phase-0001',
   name: 'Design Goals',
   required: true,
@@ -906,7 +906,7 @@ describe('Automotive APQP API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/del-0001')
+        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS', assignedTo: 'Alice', notes: 'Working on it' });
 
@@ -926,12 +926,12 @@ describe('Automotive APQP API Routes', () => {
       });
 
       await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/del-0001')
+        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
       expect(mockPrisma.apqpDeliverable.update).toHaveBeenCalledWith({
-        where: { id: 'del-0001' },
+        where: { id: '00000000-0000-0000-0000-000000000001' },
         data: expect.objectContaining({
           status: 'COMPLETED',
           completedDate: expect.any(Date),
@@ -943,7 +943,7 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/apqp/00000000-0000-4000-a000-ffffffffffff/deliverables/del-0001')
+        .put('/api/apqp/00000000-0000-4000-a000-ffffffffffff/deliverables/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -959,7 +959,7 @@ describe('Automotive APQP API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/del-0001')
+        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -972,7 +972,7 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpDeliverable.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/nonexistent')
+        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -992,7 +992,7 @@ describe('Automotive APQP API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/del-0001')
+        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -1006,7 +1006,7 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpDeliverable.findUnique as jest.Mock).mockResolvedValueOnce(mockDeliverable);
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/del-0001')
+        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID' });
 
@@ -1018,7 +1018,7 @@ describe('Automotive APQP API Routes', () => {
       (mockPrisma.apqpProject.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/del-0001')
+        .put('/api/apqp/10000000-0000-4000-a000-000000000001/deliverables/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 

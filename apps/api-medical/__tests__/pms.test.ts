@@ -255,7 +255,7 @@ describe('PMS Routes', () => {
     it('should return 404 when plan not found', async () => {
       (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/pms/plans/nonexistent-id');
+      const res = await request(app).get('/api/pms/plans/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -298,7 +298,7 @@ describe('PMS Routes', () => {
       (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/pms/plans/nonexistent')
+        .put('/api/pms/plans/00000000-0000-0000-0000-000000000099')
         .send({ status: 'ACTIVE' });
 
       expect(res.status).toBe(404);

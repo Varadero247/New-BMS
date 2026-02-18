@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const createContractSchema = z.object({
   name: z.string().min(1, 'name is required'),
@@ -20,6 +21,7 @@ const updateContractSchema = createContractSchema.partial();
 const logger = createLogger('contracts');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ---------------------------------------------------------------------------
 // GET / — List contracts with pagination, filter by status/category, sort by endDate

@@ -47,7 +47,7 @@ const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 // Sample data
 const mockUser = {
-  id: 'user-1',
+  id: '00000000-0000-0000-0000-000000000001',
   email: 'john@example.com',
   firstName: 'John',
   lastName: 'Doe',
@@ -81,7 +81,7 @@ const mockSession = {
 };
 
 const mockErasureRequest = {
-  id: 'erasure-1',
+  id: '00000000-0000-0000-0000-000000000001',
   userId: 'user-1',
   userEmail: 'john@example.com',
   reason: 'No longer need account',
@@ -128,7 +128,7 @@ describe('GDPR API Routes', () => {
       (mockPrisma.session.findMany as jest.Mock).mockResolvedValue([mockSession]);
 
       const response = await request(app)
-        .get('/api/v1/gdpr/data-export/user-1')
+        .get('/api/v1/gdpr/data-export/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -146,7 +146,7 @@ describe('GDPR API Routes', () => {
       (mockPrisma.session.findMany as jest.Mock).mockResolvedValue([]);
 
       const response = await request(app)
-        .get('/api/v1/gdpr/data-export/user-1')
+        .get('/api/v1/gdpr/data-export/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -157,7 +157,7 @@ describe('GDPR API Routes', () => {
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
-        .get('/api/v1/gdpr/data-export/non-existent')
+        .get('/api/v1/gdpr/data-export/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -168,7 +168,7 @@ describe('GDPR API Routes', () => {
       (mockPrisma.user.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/v1/gdpr/data-export/user-1')
+        .get('/api/v1/gdpr/data-export/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -181,7 +181,7 @@ describe('GDPR API Routes', () => {
       (mockPrisma.session.findMany as jest.Mock).mockResolvedValue([]);
 
       const response = await request(app)
-        .get('/api/v1/gdpr/data-export/user-1')
+        .get('/api/v1/gdpr/data-export/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
@@ -350,7 +350,7 @@ describe('GDPR API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/v1/gdpr/erasure-request/erasure-1')
+        .put('/api/v1/gdpr/erasure-request/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'IN_PROGRESS' });
 
@@ -369,7 +369,7 @@ describe('GDPR API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/v1/gdpr/erasure-request/erasure-1')
+        .put('/api/v1/gdpr/erasure-request/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED', notes: 'All data erased' });
 
@@ -395,7 +395,7 @@ describe('GDPR API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/v1/gdpr/erasure-request/erasure-1')
+        .put('/api/v1/gdpr/erasure-request/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'REJECTED', notes: 'Legal hold prevents erasure' });
 
@@ -407,7 +407,7 @@ describe('GDPR API Routes', () => {
       (mockPrisma.erasureRequest.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
-        .put('/api/v1/gdpr/erasure-request/non-existent')
+        .put('/api/v1/gdpr/erasure-request/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -422,7 +422,7 @@ describe('GDPR API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/v1/gdpr/erasure-request/erasure-1')
+        .put('/api/v1/gdpr/erasure-request/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 
@@ -432,7 +432,7 @@ describe('GDPR API Routes', () => {
 
     it('should reject invalid status', async () => {
       const response = await request(app)
-        .put('/api/v1/gdpr/erasure-request/erasure-1')
+        .put('/api/v1/gdpr/erasure-request/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -445,7 +445,7 @@ describe('GDPR API Routes', () => {
       (mockPrisma.erasureRequest.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/v1/gdpr/erasure-request/erasure-1')
+        .put('/api/v1/gdpr/erasure-request/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'COMPLETED' });
 

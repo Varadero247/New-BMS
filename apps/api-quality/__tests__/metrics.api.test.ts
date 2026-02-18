@@ -47,7 +47,7 @@ beforeEach(() => {
 
 describe('Quality Metrics API Routes', () => {
   const mockMetric = {
-    id: 'metric-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     referenceNumber: 'QMS-MET-2026-001',
     name: 'Customer Satisfaction Score',
     description: 'NPS score tracking',
@@ -191,17 +191,17 @@ describe('Quality Metrics API Routes', () => {
     it('should return a single metric', async () => {
       mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
 
-      const res = await request(app).get('/api/metrics/metric-uuid-1');
+      const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('metric-uuid-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when metric not found', async () => {
       mockPrisma.qualMetric.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/metrics/nonexistent');
+      const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -210,7 +210,7 @@ describe('Quality Metrics API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.qualMetric.findFirst.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/metrics/metric-uuid-1');
+      const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -223,7 +223,7 @@ describe('Quality Metrics API Routes', () => {
       mockPrisma.qualMetric.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/metrics/metric-uuid-1')
+        .put('/api/metrics/00000000-0000-0000-0000-000000000001')
         .send({ actualValue: 82, status: 'ON_TRACK' });
 
       expect(res.status).toBe(200);
@@ -234,7 +234,7 @@ describe('Quality Metrics API Routes', () => {
       mockPrisma.qualMetric.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/metrics/nonexistent')
+        .put('/api/metrics/00000000-0000-0000-0000-000000000099')
         .send({ actualValue: 90 });
 
       expect(res.status).toBe(404);
@@ -244,7 +244,7 @@ describe('Quality Metrics API Routes', () => {
       mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
 
       const res = await request(app)
-        .put('/api/metrics/metric-uuid-1')
+        .put('/api/metrics/00000000-0000-0000-0000-000000000001')
         .send({ status: 'INVALID_STATUS' });
 
       expect(res.status).toBe(400);
@@ -255,7 +255,7 @@ describe('Quality Metrics API Routes', () => {
       mockPrisma.qualMetric.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/metrics/metric-uuid-1')
+        .put('/api/metrics/00000000-0000-0000-0000-000000000001')
         .send({ name: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -267,7 +267,7 @@ describe('Quality Metrics API Routes', () => {
       mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
       mockPrisma.qualMetric.update.mockResolvedValue({ ...mockMetric, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/metrics/metric-uuid-1');
+      const res = await request(app).delete('/api/metrics/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -277,7 +277,7 @@ describe('Quality Metrics API Routes', () => {
     it('should return 404 when metric not found', async () => {
       mockPrisma.qualMetric.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/metrics/nonexistent');
+      const res = await request(app).delete('/api/metrics/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -286,7 +286,7 @@ describe('Quality Metrics API Routes', () => {
       mockPrisma.qualMetric.findFirst.mockResolvedValue(mockMetric);
       mockPrisma.qualMetric.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/metrics/metric-uuid-1');
+      const res = await request(app).delete('/api/metrics/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });

@@ -40,7 +40,7 @@ beforeEach(() => {
 
 describe('GET /api/contracts', () => {
   it('should return contracts with pagination', async () => {
-    const contracts = [{ id: 'con-1', number: 'SVC-2602-1234', title: 'Maintenance SLA', status: 'ACTIVE' }];
+    const contracts = [{ id: '00000000-0000-0000-0000-000000000001', number: 'SVC-2602-1234', title: 'Maintenance SLA', status: 'ACTIVE' }];
     (prisma as any).fsSvcContract.findMany.mockResolvedValue(contracts);
     (prisma as any).fsSvcContract.count.mockResolvedValue(1);
 
@@ -80,7 +80,7 @@ describe('GET /api/contracts', () => {
 
 describe('GET /api/contracts/expiring', () => {
   it('should return expiring contracts', async () => {
-    (prisma as any).fsSvcContract.findMany.mockResolvedValue([{ id: 'con-1', endDate: new Date() }]);
+    (prisma as any).fsSvcContract.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', endDate: new Date() }]);
 
     const res = await request(app).get('/api/contracts/expiring');
 
@@ -126,18 +126,18 @@ describe('POST /api/contracts', () => {
 
 describe('GET /api/contracts/:id', () => {
   it('should return a contract by id', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: 'con-1', title: 'SLA Contract', customer: {}, jobs: [] });
+    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'SLA Contract', customer: {}, jobs: [] });
 
-    const res = await request(app).get('/api/contracts/con-1');
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('con-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcContract.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/contracts/missing');
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -145,11 +145,11 @@ describe('GET /api/contracts/:id', () => {
 
 describe('PUT /api/contracts/:id', () => {
   it('should update a contract', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: 'con-1' });
-    (prisma as any).fsSvcContract.update.mockResolvedValue({ id: 'con-1', title: 'Updated' });
+    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcContract.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
 
     const res = await request(app)
-      .put('/api/contracts/con-1')
+      .put('/api/contracts/00000000-0000-0000-0000-000000000001')
       .send({ title: 'Updated' });
 
     expect(res.status).toBe(200);
@@ -160,7 +160,7 @@ describe('PUT /api/contracts/:id', () => {
     (prisma as any).fsSvcContract.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/contracts/missing')
+      .put('/api/contracts/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Updated' });
 
     expect(res.status).toBe(404);
@@ -169,10 +169,10 @@ describe('PUT /api/contracts/:id', () => {
 
 describe('DELETE /api/contracts/:id', () => {
   it('should soft delete a contract', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: 'con-1' });
-    (prisma as any).fsSvcContract.update.mockResolvedValue({ id: 'con-1', deletedAt: new Date() });
+    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcContract.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/contracts/con-1');
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Contract deleted');
@@ -181,7 +181,7 @@ describe('DELETE /api/contracts/:id', () => {
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcContract.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/contracts/missing');
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

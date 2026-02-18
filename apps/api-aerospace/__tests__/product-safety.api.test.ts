@@ -66,7 +66,7 @@ describe('Aerospace Product Safety API', () => {
   describe('GET /api/product-safety', () => {
     it('should return paginated list of product safety items', async () => {
       mockPrisma.aeroProductSafetyItem.findMany.mockResolvedValueOnce([
-        { id: 'ps1', refNumber: 'AERO-PSI-2026-001', title: 'Main Landing Gear', category: 'CRITICAL_SAFETY_ITEM', riskLevel: 'CRITICAL' },
+        { id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-PSI-2026-001', title: 'Main Landing Gear', category: 'CRITICAL_SAFETY_ITEM', riskLevel: 'CRITICAL' },
       ]);
       mockPrisma.aeroProductSafetyItem.count.mockResolvedValueOnce(1);
 
@@ -122,27 +122,27 @@ describe('Aerospace Product Safety API', () => {
   describe('GET /api/product-safety/:id', () => {
     it('should return a single product safety item', async () => {
       mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce({
-        id: 'ps1', refNumber: 'AERO-PSI-2026-001', title: 'Main Landing Gear', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-PSI-2026-001', title: 'Main Landing Gear', deletedAt: null,
       });
 
-      const res = await request(app).get('/api/product-safety/ps1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/product-safety/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('ps1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when not found', async () => {
       mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/product-safety/nonexistent').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/product-safety/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should return 404 when soft-deleted', async () => {
-      mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce({ id: 'ps1', deletedAt: new Date() });
+      mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-      const res = await request(app).get('/api/product-safety/ps1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/product-safety/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -212,13 +212,13 @@ describe('Aerospace Product Safety API', () => {
   // PUT /:id - Update product safety item
   // =============================================
   describe('PUT /api/product-safety/:id', () => {
-    const existing = { id: 'ps1', lastReviewDate: null, nextReviewDate: null, deletedAt: null };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', lastReviewDate: null, nextReviewDate: null, deletedAt: null };
 
     it('should update a product safety item', async () => {
       mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce(existing);
       mockPrisma.aeroProductSafetyItem.update.mockResolvedValueOnce({ ...existing, complianceStatus: 'COMPLIANT' });
 
-      const res = await request(app).put('/api/product-safety/ps1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/product-safety/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ complianceStatus: 'COMPLIANT' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -227,7 +227,7 @@ describe('Aerospace Product Safety API', () => {
     it('should return 404 when not found', async () => {
       mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/product-safety/nonexistent').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/product-safety/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token')
         .send({ complianceStatus: 'COMPLIANT' });
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -236,7 +236,7 @@ describe('Aerospace Product Safety API', () => {
     it('should return 400 for invalid complianceStatus', async () => {
       mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce(existing);
 
-      const res = await request(app).put('/api/product-safety/ps1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/product-safety/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ complianceStatus: 'INVALID' });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -248,17 +248,17 @@ describe('Aerospace Product Safety API', () => {
   // =============================================
   describe('DELETE /api/product-safety/:id', () => {
     it('should soft-delete a product safety item', async () => {
-      mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce({ id: 'ps1', deletedAt: null });
+      mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       mockPrisma.aeroProductSafetyItem.update.mockResolvedValueOnce({});
 
-      const res = await request(app).delete('/api/product-safety/ps1').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/product-safety/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(204);
     });
 
     it('should return 404 when not found', async () => {
       mockPrisma.aeroProductSafetyItem.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/product-safety/nonexistent').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/product-safety/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -325,13 +325,13 @@ describe('Aerospace Product Safety API', () => {
   // PUT /reviews/:id/complete
   // =============================================
   describe('PUT /api/product-safety/reviews/:id/complete', () => {
-    const existingReview = { id: 'sr1', status: 'PLANNED', notes: null, deletedAt: null };
+    const existingReview = { id: '00000000-0000-0000-0000-000000000001', status: 'PLANNED', notes: null, deletedAt: null };
 
     it('should complete a safety review', async () => {
       mockPrisma.aeroSafetyReview.findUnique.mockResolvedValueOnce(existingReview);
       mockPrisma.aeroSafetyReview.update.mockResolvedValueOnce({ ...existingReview, status: 'COMPLETED', result: 'APPROVED' });
 
-      const res = await request(app).put('/api/product-safety/reviews/sr1/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/product-safety/reviews/00000000-0000-0000-0000-000000000001/complete').set('Authorization', 'Bearer token')
         .send({ result: 'APPROVED' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -340,7 +340,7 @@ describe('Aerospace Product Safety API', () => {
     it('should return 404 when review not found', async () => {
       mockPrisma.aeroSafetyReview.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/product-safety/reviews/nonexistent/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/product-safety/reviews/00000000-0000-0000-0000-000000000099/complete').set('Authorization', 'Bearer token')
         .send({ result: 'APPROVED' });
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -349,7 +349,7 @@ describe('Aerospace Product Safety API', () => {
     it('should return 400 when result is missing', async () => {
       mockPrisma.aeroSafetyReview.findUnique.mockResolvedValueOnce(existingReview);
 
-      const res = await request(app).put('/api/product-safety/reviews/sr1/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/product-safety/reviews/00000000-0000-0000-0000-000000000001/complete').set('Authorization', 'Bearer token')
         .send({});
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -358,7 +358,7 @@ describe('Aerospace Product Safety API', () => {
     it('should return 400 for invalid result enum', async () => {
       mockPrisma.aeroSafetyReview.findUnique.mockResolvedValueOnce(existingReview);
 
-      const res = await request(app).put('/api/product-safety/reviews/sr1/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/product-safety/reviews/00000000-0000-0000-0000-000000000001/complete').set('Authorization', 'Bearer token')
         .send({ result: 'INVALID' });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -367,7 +367,7 @@ describe('Aerospace Product Safety API', () => {
     it('should return 500 on db error', async () => {
       mockPrisma.aeroSafetyReview.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app).put('/api/product-safety/reviews/sr1/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/product-safety/reviews/00000000-0000-0000-0000-000000000001/complete').set('Authorization', 'Bearer token')
         .send({ result: 'APPROVED' });
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('INTERNAL_ERROR');

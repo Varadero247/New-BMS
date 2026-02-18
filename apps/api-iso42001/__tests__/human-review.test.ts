@@ -36,7 +36,7 @@ beforeEach(() => {
 });
 
 const mockReview = {
-  id: 'review-1',
+  id: '00000000-0000-0000-0000-000000000001',
   systemId: 'sys-1',
   title: 'Loan Approval Decision',
   description: 'AI recommends approving loan application #4521',
@@ -203,7 +203,7 @@ describe('Human Review Routes', () => {
       });
 
       const res = await request(app)
-        .put('/api/human-review/review-1/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
         .send({ decision: 'APPROVED', justification: 'Verified manually' });
 
       expect(res.status).toBe(200);
@@ -228,7 +228,7 @@ describe('Human Review Routes', () => {
       });
 
       const res = await request(app)
-        .put('/api/human-review/review-1/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
         .send({ decision: 'REJECTED', justification: 'Credit check failed' });
 
       expect(res.status).toBe(200);
@@ -242,7 +242,7 @@ describe('Human Review Routes', () => {
       });
 
       const res = await request(app)
-        .put('/api/human-review/review-1/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
         .send({ decision: 'ESCALATED', justification: 'Needs senior review' });
 
       expect(res.status).toBe(200);
@@ -252,7 +252,7 @@ describe('Human Review Routes', () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/human-review/nonexistent/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000099/decide')
         .send({ decision: 'APPROVED', justification: 'OK' });
 
       expect(res.status).toBe(404);
@@ -265,7 +265,7 @@ describe('Human Review Routes', () => {
       });
 
       const res = await request(app)
-        .put('/api/human-review/review-1/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
         .send({ decision: 'REJECTED', justification: 'Too late' });
 
       expect(res.status).toBe(400);
@@ -283,7 +283,7 @@ describe('Human Review Routes', () => {
       });
 
       const res = await request(app)
-        .put('/api/human-review/review-1/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
         .send({ decision: 'APPROVED', justification: 'OK' });
 
       expect(res.status).toBe(400);
@@ -292,7 +292,7 @@ describe('Human Review Routes', () => {
 
     it('should reject missing justification', async () => {
       const res = await request(app)
-        .put('/api/human-review/review-1/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
         .send({ decision: 'APPROVED' });
 
       expect(res.status).toBe(400);
@@ -300,7 +300,7 @@ describe('Human Review Routes', () => {
 
     it('should reject invalid decision', async () => {
       const res = await request(app)
-        .put('/api/human-review/review-1/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
         .send({ decision: 'MAYBE', justification: 'Not sure' });
 
       expect(res.status).toBe(400);
@@ -310,7 +310,7 @@ describe('Human Review Routes', () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/human-review/review-1/decide')
+        .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
         .send({ decision: 'APPROVED', justification: 'OK' });
 
       expect(res.status).toBe(500);
@@ -321,22 +321,22 @@ describe('Human Review Routes', () => {
     it('should return a single review', async () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
 
-      const res = await request(app).get('/api/human-review/review-1');
+      const res = await request(app).get('/api/human-review/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('review-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for missing review', async () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/human-review/nonexistent');
+      const res = await request(app).get('/api/human-review/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should handle errors', async () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/human-review/review-1');
+      const res = await request(app).get('/api/human-review/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(500);
     });
   });
@@ -349,7 +349,7 @@ describe('Human Review Routes', () => {
         deletedAt: new Date(),
       });
 
-      const res = await request(app).delete('/api/human-review/review-1');
+      const res = await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.data.deleted).toBe(true);
     });
@@ -357,14 +357,14 @@ describe('Human Review Routes', () => {
     it('should return 404 for missing review', async () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/human-review/nonexistent');
+      const res = await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should handle errors', async () => {
       (prisma.aiHumanReview.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/human-review/review-1');
+      const res = await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(500);
     });
   });

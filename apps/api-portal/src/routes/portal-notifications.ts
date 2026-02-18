@@ -3,10 +3,12 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-portal');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 const markReadSchema = z.object({
   isRead: z.boolean().optional(),

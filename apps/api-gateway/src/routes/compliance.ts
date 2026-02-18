@@ -2,12 +2,14 @@ import { Router, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { randomUUID } from 'crypto';
 
 const logger = createLogger('api-gateway:compliance');
 const router = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ── Regulatory intelligence data ────────────────────────────────────
 

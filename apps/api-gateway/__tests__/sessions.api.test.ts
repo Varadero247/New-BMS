@@ -16,7 +16,7 @@ jest.mock('@ims/database', () => ({
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req, res, next) => {
     req.user = { id: '20000000-0000-4000-a000-000000000123', email: 'test@test.com', role: 'USER' };
-    req.sessionId = 'current-session-123';
+    req.sessionId = '00000000-0000-0000-0000-000000000001';
     next();
   }),
 }));
@@ -51,7 +51,7 @@ describe('Sessions API Routes', () => {
   describe('GET /api/sessions', () => {
     const mockSessions = [
       {
-        id: 'current-session-123',
+        id: '00000000-0000-0000-0000-000000000001',
         userAgent: 'Mozilla/5.0',
         ipAddress: '192.168.1.1',
         createdAt: new Date('2024-01-01'),
@@ -59,7 +59,7 @@ describe('Sessions API Routes', () => {
         expiresAt: new Date('2024-01-08'),
       },
       {
-        id: 'other-session-456',
+        id: '00000000-0000-0000-0000-000000000002',
         userAgent: 'Safari/17.0',
         ipAddress: '192.168.1.2',
         createdAt: new Date('2024-01-01'),
@@ -124,35 +124,35 @@ describe('Sessions API Routes', () => {
   describe('DELETE /api/sessions/:id', () => {
     it('should revoke a specific session', async () => {
       mockPrisma.session.findFirst.mockResolvedValueOnce({
-        id: 'other-session-456',
+        id: '00000000-0000-0000-0000-000000000002',
         userId: '20000000-0000-4000-a000-000000000123',
       } as any);
       mockPrisma.session.delete.mockResolvedValueOnce({} as any);
 
       const response = await request(app)
-        .delete('/api/sessions/other-session-456')
+        .delete('/api/sessions/00000000-0000-0000-0000-000000000002')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
       expect(mockPrisma.session.delete).toHaveBeenCalledWith({
-        where: { id: 'other-session-456' },
+        where: { id: '00000000-0000-0000-0000-000000000002' },
       });
     });
 
     it('should not allow revoking current session', async () => {
       const response = await request(app)
-        .delete('/api/sessions/current-session-123')
+        .delete('/api/sessions/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(400);
       expect(response.body.error.code).toBe('CANNOT_REVOKE_CURRENT');
     });
 
-    it('should return 404 for 00000000-0000-4000-a000-ffffffffffff session', async () => {
+    it('should return 404 for nonexistent session', async () => {
       mockPrisma.session.findFirst.mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .delete('/api/sessions/00000000-0000-4000-a000-ffffffffffff-id')
+        .delete('/api/sessions/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -175,7 +175,7 @@ describe('Sessions API Routes', () => {
       mockPrisma.session.findFirst.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/sessions/some-session')
+        .delete('/api/sessions/00000000-0000-0000-0000-000000000003')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);
@@ -204,7 +204,7 @@ describe('Sessions API Routes', () => {
       expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({
         where: {
           userId: '20000000-0000-4000-a000-000000000123',
-          id: { not: 'current-session-123' },
+          id: { not: '00000000-0000-0000-0000-000000000001' },
         },
       });
     });

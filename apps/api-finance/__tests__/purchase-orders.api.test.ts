@@ -151,7 +151,7 @@ describe('GET /api/purchase-orders/:id', () => {
   it('should return 404 when purchase order not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/purchase-orders/nonexistent');
+    const res = await request(app).get('/api/purchase-orders/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -275,7 +275,7 @@ describe('PUT /api/purchase-orders/:id', () => {
   it('should return 404 when purchase order not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/purchase-orders/nonexistent').send({ notes: 'test' });
+    const res = await request(app).put('/api/purchase-orders/00000000-0000-0000-0000-000000000099').send({ notes: 'test' });
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -345,7 +345,7 @@ describe('DELETE /api/purchase-orders/:id', () => {
   it('should return 404 when purchase order not found', async () => {
     (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/purchase-orders/nonexistent');
+    const res = await request(app).delete('/api/purchase-orders/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);

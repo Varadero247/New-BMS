@@ -66,7 +66,7 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
   describe('GET /api/fod', () => {
     it('should return paginated list of FOD incidents', async () => {
       mockPrisma.aeroFodIncident.findMany.mockResolvedValueOnce([
-        { id: 'f1', refNumber: 'AERO-FOD-2026-001', title: 'Metal Shaving Found', severity: 'MINOR', status: 'OPEN' },
+        { id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-FOD-2026-001', title: 'Metal Shaving Found', severity: 'MINOR', status: 'OPEN' },
       ]);
       mockPrisma.aeroFodIncident.count.mockResolvedValueOnce(1);
 
@@ -122,27 +122,27 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
   describe('GET /api/fod/:id', () => {
     it('should return a single FOD incident', async () => {
       mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({
-        id: 'f1', refNumber: 'AERO-FOD-2026-001', title: 'Metal Shaving', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-FOD-2026-001', title: 'Metal Shaving', deletedAt: null,
       });
 
-      const res = await request(app).get('/api/fod/f1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/fod/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.id).toBe('f1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 when not found', async () => {
       mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/fod/nonexistent').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/fod/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should return 404 when soft-deleted', async () => {
-      mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({ id: 'f1', deletedAt: new Date() });
+      mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-      const res = await request(app).get('/api/fod/f1').set('Authorization', 'Bearer token');
+      const res = await request(app).get('/api/fod/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -213,13 +213,13 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
   // PUT /:id - Update FOD incident
   // =============================================
   describe('PUT /api/fod/:id', () => {
-    const existing = { id: 'f1', closedDate: null, deletedAt: null };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', closedDate: null, deletedAt: null };
 
     it('should update a FOD incident successfully', async () => {
       mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce(existing);
       mockPrisma.aeroFodIncident.update.mockResolvedValueOnce({ ...existing, status: 'INVESTIGATING' });
 
-      const res = await request(app).put('/api/fod/f1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/fod/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ status: 'INVESTIGATING', rootCause: 'Tooling not retrieved' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -228,7 +228,7 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
     it('should return 404 when not found', async () => {
       mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/fod/nonexistent').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/fod/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token')
         .send({ status: 'CLOSED' });
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -237,7 +237,7 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
     it('should return 400 for invalid status', async () => {
       mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce(existing);
 
-      const res = await request(app).put('/api/fod/f1').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/fod/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token')
         .send({ status: 'INVALID' });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -249,17 +249,17 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
   // =============================================
   describe('DELETE /api/fod/:id', () => {
     it('should soft-delete a FOD incident', async () => {
-      mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({ id: 'f1', deletedAt: null });
+      mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       mockPrisma.aeroFodIncident.update.mockResolvedValueOnce({});
 
-      const res = await request(app).delete('/api/fod/f1').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/fod/00000000-0000-0000-0000-000000000001').set('Authorization', 'Bearer token');
       expect(res.status).toBe(204);
     });
 
     it('should return 404 when not found', async () => {
       mockPrisma.aeroFodIncident.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).delete('/api/fod/nonexistent').set('Authorization', 'Bearer token');
+      const res = await request(app).delete('/api/fod/00000000-0000-0000-0000-000000000099').set('Authorization', 'Bearer token');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
@@ -320,13 +320,13 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
   // PUT /inspections/:id/complete
   // =============================================
   describe('PUT /api/fod/inspections/:id/complete', () => {
-    const existingInspection = { id: 'fi1', status: 'SCHEDULED', notes: null, deletedAt: null };
+    const existingInspection = { id: '00000000-0000-0000-0000-000000000001', status: 'SCHEDULED', notes: null, deletedAt: null };
 
     it('should complete a FOD inspection', async () => {
       mockPrisma.aeroFodInspection.findUnique.mockResolvedValueOnce(existingInspection);
       mockPrisma.aeroFodInspection.update.mockResolvedValueOnce({ ...existingInspection, status: 'COMPLETED', result: 'PASS' });
 
-      const res = await request(app).put('/api/fod/inspections/fi1/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/fod/inspections/00000000-0000-0000-0000-000000000001/complete').set('Authorization', 'Bearer token')
         .send({ result: 'PASS', fodFound: false });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -335,7 +335,7 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
     it('should return 404 when inspection not found', async () => {
       mockPrisma.aeroFodInspection.findUnique.mockResolvedValueOnce(null);
 
-      const res = await request(app).put('/api/fod/inspections/nonexistent/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/fod/inspections/00000000-0000-0000-0000-000000000099/complete').set('Authorization', 'Bearer token')
         .send({ result: 'PASS' });
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -344,7 +344,7 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
     it('should return 400 when result is missing', async () => {
       mockPrisma.aeroFodInspection.findUnique.mockResolvedValueOnce(existingInspection);
 
-      const res = await request(app).put('/api/fod/inspections/fi1/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/fod/inspections/00000000-0000-0000-0000-000000000001/complete').set('Authorization', 'Bearer token')
         .send({});
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -353,7 +353,7 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
     it('should return 400 for invalid result enum', async () => {
       mockPrisma.aeroFodInspection.findUnique.mockResolvedValueOnce(existingInspection);
 
-      const res = await request(app).put('/api/fod/inspections/fi1/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/fod/inspections/00000000-0000-0000-0000-000000000001/complete').set('Authorization', 'Bearer token')
         .send({ result: 'INVALID' });
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -362,7 +362,7 @@ describe('Aerospace FOD (Foreign Object Debris) API', () => {
     it('should return 500 on db error', async () => {
       mockPrisma.aeroFodInspection.findUnique.mockRejectedValueOnce(new Error('DB error'));
 
-      const res = await request(app).put('/api/fod/inspections/fi1/complete').set('Authorization', 'Bearer token')
+      const res = await request(app).put('/api/fod/inspections/00000000-0000-0000-0000-000000000001/complete').set('Authorization', 'Bearer token')
         .send({ result: 'PASS' });
       expect(res.status).toBe(500);
       expect(res.body.error.code).toBe('INTERNAL_ERROR');

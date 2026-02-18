@@ -236,7 +236,7 @@ describe('OASIS Routes', () => {
   describe('GET /api/oasis/alerts', () => {
     it('should list unacknowledged alerts', async () => {
       (mockPrisma.oasisAlert.findMany as jest.Mock).mockResolvedValue([
-        { id: 'alert-1', acknowledged: false, supplier: { companyName: 'Acme' } },
+        { id: '00000000-0000-0000-0000-000000000001', acknowledged: false, supplier: { companyName: 'Acme' } },
       ]);
       (mockPrisma.oasisAlert.count as jest.Mock).mockResolvedValue(1);
 
@@ -268,13 +268,13 @@ describe('OASIS Routes', () => {
   describe('PUT /api/oasis/alerts/:id/acknowledge', () => {
     it('should acknowledge an alert', async () => {
       (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue({
-        id: 'alert-1', acknowledged: false,
+        id: '00000000-0000-0000-0000-000000000001', acknowledged: false,
       });
       (mockPrisma.oasisAlert.update as jest.Mock).mockResolvedValue({
-        id: 'alert-1', acknowledged: true, acknowledgedBy: 'test@test.com',
+        id: '00000000-0000-0000-0000-000000000001', acknowledged: true, acknowledgedBy: 'test@test.com',
       });
 
-      const res = await request(app).put('/api/oasis/alerts/alert-1/acknowledge');
+      const res = await request(app).put('/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.acknowledged).toBe(true);
@@ -283,28 +283,28 @@ describe('OASIS Routes', () => {
     it('should return 404 for non-existent alert', async () => {
       (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/oasis/alerts/fake-id/acknowledge');
+      const res = await request(app).put('/api/oasis/alerts/00000000-0000-0000-0000-000000000099/acknowledge');
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
 
     it('should return 400 for already acknowledged alert', async () => {
       (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue({
-        id: 'alert-1', acknowledged: true,
+        id: '00000000-0000-0000-0000-000000000001', acknowledged: true,
       });
 
-      const res = await request(app).put('/api/oasis/alerts/alert-1/acknowledge');
+      const res = await request(app).put('/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
       expect(res.status).toBe(400);
       expect(res.body.error.code).toBe('ALREADY_ACKNOWLEDGED');
     });
 
     it('should return 500 on database error', async () => {
       (mockPrisma.oasisAlert.findUnique as jest.Mock).mockResolvedValue({
-        id: 'alert-1', acknowledged: false,
+        id: '00000000-0000-0000-0000-000000000001', acknowledged: false,
       });
       (mockPrisma.oasisAlert.update as jest.Mock).mockRejectedValue(new Error('DB fail'));
 
-      const res = await request(app).put('/api/oasis/alerts/alert-1/acknowledge');
+      const res = await request(app).put('/api/oasis/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
       expect(res.status).toBe(500);
     });
   });

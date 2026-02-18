@@ -3,6 +3,7 @@ import { prisma } from '@ims/database';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { randomUUID, createHash } from 'crypto';
 
 /**
@@ -19,6 +20,7 @@ const logger = createLogger('api-gateway:msp');
 const router = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ── In-memory MSP store (v1 — will be backed by Prisma in v2) ──────
 

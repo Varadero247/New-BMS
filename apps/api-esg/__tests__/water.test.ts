@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 const mockWater = {
-  id: 'wat-1',
+  id: '00000000-0000-0000-0000-000000000001',
   usageType: 'INTAKE',
   source: 'Municipal Supply',
   quantity: 10000,
@@ -134,15 +134,15 @@ describe('GET /api/water/:id', () => {
   it('should return a single water record', async () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
 
-    const res = await request(app).get('/api/water/wat-1');
+    const res = await request(app).get('/api/water/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('wat-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/water/nonexistent');
+    const res = await request(app).get('/api/water/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -152,7 +152,7 @@ describe('PUT /api/water/:id', () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
     (prisma.esgWater.update as jest.Mock).mockResolvedValue({ ...mockWater, quantity: 12000 });
 
-    const res = await request(app).put('/api/water/wat-1').send({ quantity: 12000 });
+    const res = await request(app).put('/api/water/00000000-0000-0000-0000-000000000001').send({ quantity: 12000 });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -160,12 +160,12 @@ describe('PUT /api/water/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/water/nonexistent').send({ quantity: 12000 });
+    const res = await request(app).put('/api/water/00000000-0000-0000-0000-000000000099').send({ quantity: 12000 });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/water/wat-1').send({ usageType: 'INVALID' });
+    const res = await request(app).put('/api/water/00000000-0000-0000-0000-000000000001').send({ usageType: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -175,7 +175,7 @@ describe('DELETE /api/water/:id', () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(mockWater);
     (prisma.esgWater.update as jest.Mock).mockResolvedValue({ ...mockWater, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/water/wat-1');
+    const res = await request(app).delete('/api/water/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -183,7 +183,7 @@ describe('DELETE /api/water/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgWater.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/water/nonexistent');
+    const res = await request(app).delete('/api/water/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

@@ -46,7 +46,7 @@ beforeEach(() => {
 
 describe('GET /api/schedules', () => {
   it('should return schedules with pagination', async () => {
-    const schedules = [{ id: 'sched-1', technicianId: 'tech-1', date: new Date(), slots: [], technician: {} }];
+    const schedules = [{ id: '00000000-0000-0000-0000-000000000001', technicianId: 'tech-1', date: new Date(), slots: [], technician: {} }];
     (prisma as any).fsSvcSchedule.findMany.mockResolvedValue(schedules);
     (prisma as any).fsSvcSchedule.count.mockResolvedValue(1);
 
@@ -94,14 +94,14 @@ describe('GET /api/schedules', () => {
 
 describe('GET /api/schedules/calendar/:technicianId', () => {
   it('should return calendar view with schedules and jobs', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: 'tech-1', name: 'John' });
-    (prisma as any).fsSvcSchedule.findMany.mockResolvedValue([{ id: 'sched-1', date: new Date() }]);
+    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'John' });
+    (prisma as any).fsSvcSchedule.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', date: new Date() }]);
     (prisma as any).fsSvcJob.findMany.mockResolvedValue([{ id: 'job-1', title: 'Repair' }]);
 
-    const res = await request(app).get('/api/schedules/calendar/tech-1');
+    const res = await request(app).get('/api/schedules/calendar/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.technician.id).toBe('tech-1');
+    expect(res.body.data.technician.id).toBe('00000000-0000-0000-0000-000000000001');
     expect(res.body.data.schedules).toHaveLength(1);
     expect(res.body.data.jobs).toHaveLength(1);
   });
@@ -109,7 +109,7 @@ describe('GET /api/schedules/calendar/:technicianId', () => {
   it('should return 404 if technician not found', async () => {
     (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/schedules/calendar/missing');
+    const res = await request(app).get('/api/schedules/calendar/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -143,18 +143,18 @@ describe('POST /api/schedules', () => {
 
 describe('GET /api/schedules/:id', () => {
   it('should return a schedule by id', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({ id: 'sched-1', slots: [], technician: {} });
+    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', slots: [], technician: {} });
 
-    const res = await request(app).get('/api/schedules/sched-1');
+    const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('sched-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/schedules/missing');
+    const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -162,11 +162,11 @@ describe('GET /api/schedules/:id', () => {
 
 describe('PUT /api/schedules/:id', () => {
   it('should update a schedule', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({ id: 'sched-1' });
-    (prisma as any).fsSvcSchedule.update.mockResolvedValue({ id: 'sched-1', isAvailable: false });
+    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', isAvailable: false });
 
     const res = await request(app)
-      .put('/api/schedules/sched-1')
+      .put('/api/schedules/00000000-0000-0000-0000-000000000001')
       .send({ isAvailable: false });
 
     expect(res.status).toBe(200);
@@ -176,7 +176,7 @@ describe('PUT /api/schedules/:id', () => {
     (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/schedules/missing')
+      .put('/api/schedules/00000000-0000-0000-0000-000000000099')
       .send({ isAvailable: false });
 
     expect(res.status).toBe(404);
@@ -185,10 +185,10 @@ describe('PUT /api/schedules/:id', () => {
 
 describe('DELETE /api/schedules/:id', () => {
   it('should soft delete a schedule', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({ id: 'sched-1' });
-    (prisma as any).fsSvcSchedule.update.mockResolvedValue({ id: 'sched-1', deletedAt: new Date() });
+    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsSvcSchedule.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/schedules/sched-1');
+    const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Schedule deleted');
@@ -197,7 +197,7 @@ describe('DELETE /api/schedules/:id', () => {
   it('should return 404 for not found', async () => {
     (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/schedules/missing');
+    const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });

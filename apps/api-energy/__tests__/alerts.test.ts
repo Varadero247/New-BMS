@@ -143,7 +143,7 @@ describe('GET /api/alerts/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/alerts/nonexistent');
+    const res = await request(app).get('/api/alerts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -163,7 +163,7 @@ describe('PUT /api/alerts/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/alerts/nonexistent').send({ severity: 'HIGH' });
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099').send({ severity: 'HIGH' });
 
     expect(res.status).toBe(404);
   });
@@ -183,7 +183,7 @@ describe('DELETE /api/alerts/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/alerts/nonexistent');
+    const res = await request(app).delete('/api/alerts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -211,7 +211,7 @@ describe('PUT /api/alerts/:id/acknowledge', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/alerts/nonexistent/acknowledge');
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099/acknowledge');
 
     expect(res.status).toBe(404);
   });
@@ -241,7 +241,7 @@ describe('PUT /api/alerts/:id/resolve', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyAlert.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/alerts/nonexistent/resolve');
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099/resolve');
 
     expect(res.status).toBe(404);
   });

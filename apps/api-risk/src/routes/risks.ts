@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 import {
   getRiskLevel, calculateScore, likelihoodToNum, consequenceToNum,
@@ -9,6 +10,7 @@ import {
 } from '../services/riskScoring';
 
 const router = Router();
+router.param('id', validateIdParam());
 const logger = createLogger('risk-risks');
 
 const likelihoodEnum = z.enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST_CERTAIN']);

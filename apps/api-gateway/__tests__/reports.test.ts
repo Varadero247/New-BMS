@@ -108,7 +108,7 @@ const mockMonthlyTrend = {
 };
 
 const mockGeneratedReport = {
-  id: 'report-1',
+  id: '00000000-0000-0000-0000-000000000001',
   title: 'Management Review Report — HEALTH-SAFETY (2026-Q1)',
   type: 'MANAGEMENT_REVIEW',
   module: 'health-safety',
@@ -312,7 +312,7 @@ describe('Reports API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/reports/audit/audit-123')
+        .post('/api/reports/audit/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -332,7 +332,7 @@ describe('Reports API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/reports/audit/audit-123')
+        .post('/api/reports/audit/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Custom Audit Report' });
 
@@ -354,7 +354,7 @@ describe('Reports API Routes', () => {
       });
 
       const response = await request(app)
-        .post('/api/reports/audit/audit-123')
+        .post('/api/reports/audit/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -366,7 +366,7 @@ describe('Reports API Routes', () => {
       (mockPrisma.auditLog.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
-        .post('/api/reports/audit/audit-123')
+        .post('/api/reports/audit/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({});
 
@@ -601,7 +601,7 @@ describe('Reports API Routes', () => {
   describe('GET /api/reports', () => {
     it('should list generated reports', async () => {
       (mockPrisma.generatedReport.findMany as jest.Mock).mockResolvedValue([{
-        id: 'report-1',
+        id: '00000000-0000-0000-0000-000000000001',
         title: 'Test Report',
         type: 'KPI_PACK',
         module: null,
@@ -705,12 +705,12 @@ describe('Reports API Routes', () => {
       (mockPrisma.generatedReport.findUnique as jest.Mock).mockResolvedValue(mockGeneratedReport);
 
       const response = await request(app)
-        .get('/api/reports/report-1')
+        .get('/api/reports/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.id).toBe('report-1');
+      expect(response.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
       expect(response.body.data).toHaveProperty('content');
       expect(response.body.data).toHaveProperty('htmlTemplate');
     });
@@ -719,7 +719,7 @@ describe('Reports API Routes', () => {
       (mockPrisma.generatedReport.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
-        .get('/api/reports/non-existent')
+        .get('/api/reports/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -730,7 +730,7 @@ describe('Reports API Routes', () => {
       (mockPrisma.generatedReport.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
-        .get('/api/reports/report-1')
+        .get('/api/reports/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

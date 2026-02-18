@@ -35,7 +35,7 @@ describe('POST /api/winback/start/:orgId', () => {
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 
     const res = await request(app)
-      .post('/api/winback/start/org-1')
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
       .send({ email: 'admin@org.com' });
 
     expect(res.status).toBe(201);
@@ -47,7 +47,7 @@ describe('POST /api/winback/start/:orgId', () => {
     (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-1' });
 
     const res = await request(app)
-      .post('/api/winback/start/org-1')
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
       .send({ email: 'admin@org.com' });
 
     expect(res.status).toBe(409);
@@ -58,7 +58,7 @@ describe('POST /api/winback/start/:orgId', () => {
     (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-1', orgId: 'org-1' });
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 
-    await request(app).post('/api/winback/start/org-1').send({ email: 'a@b.com' });
+    await request(app).post('/api/winback/start/00000000-0000-0000-0000-000000000001').send({ email: 'a@b.com' });
 
     expect(prisma.mktEmailJob.create).toHaveBeenCalledWith(
       expect.objectContaining({

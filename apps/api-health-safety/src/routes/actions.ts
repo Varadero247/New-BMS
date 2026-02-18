@@ -5,10 +5,12 @@ import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-health-safety');
 const router: IRouter = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 const ACTION_TYPES = ['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'IMMEDIATE'] as const;
 const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;

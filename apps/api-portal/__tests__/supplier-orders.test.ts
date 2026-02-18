@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/supplier/purchase-orders', () => {
   it('should list purchase orders', async () => {
-    const items = [{ id: 'po-1', orderNumber: 'PO-001', type: 'PURCHASE', status: 'SUBMITTED' }];
+    const items = [{ id: '00000000-0000-0000-0000-000000000001', orderNumber: 'PO-001', type: 'PURCHASE', status: 'SUBMITTED' }];
     (prisma as any).portalOrder.findMany.mockResolvedValue(items);
     (prisma as any).portalOrder.count.mockResolvedValue(1);
 
@@ -78,12 +78,12 @@ describe('GET /api/supplier/purchase-orders', () => {
 
 describe('POST /api/supplier/purchase-orders/:id/confirm', () => {
   it('should confirm a purchase order', async () => {
-    const order = { id: 'po-1', portalUserId: 'user-123', type: 'PURCHASE', status: 'SUBMITTED', notes: null, expectedDelivery: null };
+    const order = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', type: 'PURCHASE', status: 'SUBMITTED', notes: null, expectedDelivery: null };
     (prisma as any).portalOrder.findFirst.mockResolvedValue(order);
     (prisma as any).portalOrder.update.mockResolvedValue({ ...order, status: 'CONFIRMED' });
 
     const res = await request(app)
-      .post('/api/supplier/purchase-orders/po-1/confirm')
+      .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
       .send({});
 
     expect(res.status).toBe(200);
@@ -94,18 +94,18 @@ describe('POST /api/supplier/purchase-orders/:id/confirm', () => {
     (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .post('/api/supplier/purchase-orders/nonexistent/confirm')
+      .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000099/confirm')
       .send({});
 
     expect(res.status).toBe(404);
   });
 
   it('should return 400 if PO not in SUBMITTED status', async () => {
-    const order = { id: 'po-1', portalUserId: 'user-123', type: 'PURCHASE', status: 'CONFIRMED', notes: null, expectedDelivery: null };
+    const order = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', type: 'PURCHASE', status: 'CONFIRMED', notes: null, expectedDelivery: null };
     (prisma as any).portalOrder.findFirst.mockResolvedValue(order);
 
     const res = await request(app)
-      .post('/api/supplier/purchase-orders/po-1/confirm')
+      .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
       .send({});
 
     expect(res.status).toBe(400);
@@ -116,7 +116,7 @@ describe('POST /api/supplier/purchase-orders/:id/confirm', () => {
     (prisma as any).portalOrder.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
-      .post('/api/supplier/purchase-orders/po-1/confirm')
+      .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
       .send({});
 
     expect(res.status).toBe(500);

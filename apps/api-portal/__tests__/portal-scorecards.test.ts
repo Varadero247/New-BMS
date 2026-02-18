@@ -39,7 +39,7 @@ beforeEach(() => {
 describe('GET /api/portal/scorecards', () => {
   it('should list scorecards', async () => {
     const items = [
-      { id: 'sc-1', portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 },
+      { id: '00000000-0000-0000-0000-000000000001', portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 },
     ];
     (prisma as any).portalScorecard.findMany.mockResolvedValue(items);
     (prisma as any).portalScorecard.count.mockResolvedValue(1);
@@ -92,7 +92,7 @@ describe('GET /api/portal/scorecards', () => {
 
 describe('POST /api/portal/scorecards', () => {
   it('should create a scorecard', async () => {
-    const scorecard = { id: 'sc-1', portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 };
+    const scorecard = { id: '00000000-0000-0000-0000-000000000001', portalUserId: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 };
     (prisma as any).portalScorecard.create.mockResolvedValue(scorecard);
 
     const res = await request(app)
@@ -140,18 +140,18 @@ describe('POST /api/portal/scorecards', () => {
 
 describe('GET /api/portal/scorecards/:id', () => {
   it('should return a scorecard', async () => {
-    (prisma as any).portalScorecard.findFirst.mockResolvedValue({ id: 'sc-1', period: '2026-Q1', overallScore: 85 });
+    (prisma as any).portalScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', period: '2026-Q1', overallScore: 85 });
 
-    const res = await request(app).get('/api/portal/scorecards/sc-1');
+    const res = await request(app).get('/api/portal/scorecards/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('sc-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).portalScorecard.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/portal/scorecards/nonexistent');
+    const res = await request(app).get('/api/portal/scorecards/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -159,7 +159,7 @@ describe('GET /api/portal/scorecards/:id', () => {
   it('should handle server error on fetch', async () => {
     (prisma as any).portalScorecard.findFirst.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/portal/scorecards/sc-1');
+    const res = await request(app).get('/api/portal/scorecards/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
   });

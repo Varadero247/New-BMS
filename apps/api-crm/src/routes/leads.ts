@@ -1,10 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 import { z } from 'zod';
 
 const router = Router();
+router.param('id', validateIdParam());
 const logger = createLogger('api-crm');
 
 router.use(authenticate);

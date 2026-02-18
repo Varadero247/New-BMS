@@ -2,9 +2,11 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 
 const router = Router();
+router.param('id', validateIdParam());
 const logger = createLogger('emergency-wardens');
 
 const icsRoleEnum = z.enum(['INCIDENT_COMMANDER', 'DEPUTY_INCIDENT_COMMANDER', 'SAFETY_OFFICER', 'LIAISON_OFFICER', 'PUBLIC_INFORMATION_OFFICER', 'OPERATIONS_SECTION_CHIEF', 'PLANNING_SECTION_CHIEF', 'LOGISTICS_SECTION_CHIEF', 'FINANCE_ADMIN_SECTION_CHIEF', 'FIRE_WARDEN', 'FIRST_AIDER', 'ASSEMBLY_POINT_WARDEN']);

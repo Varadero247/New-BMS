@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/communications', () => {
   it('should return communications list', async () => {
-    (prisma as any).compCommunication.findMany.mockResolvedValue([{ id: '1', subject: 'Test' }]);
+    (prisma as any).compCommunication.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', subject: 'Test' }]);
     (prisma as any).compCommunication.count.mockResolvedValue(1);
     const res = await request(app).get('/api/communications');
     expect(res.status).toBe(200);
@@ -43,23 +43,23 @@ describe('GET /api/communications', () => {
 
 describe('GET /api/communications/:id', () => {
   it('should return communication by id', async () => {
-    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '1', subject: 'Test' });
-    const res = await request(app).get('/api/communications/1');
+    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', subject: 'Test' });
+    const res = await request(app).get('/api/communications/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).compCommunication.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/communications/nope');
+    const res = await request(app).get('/api/communications/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 500 on error', async () => {
     (prisma as any).compCommunication.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/communications/1');
+    const res = await request(app).get('/api/communications/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
@@ -68,7 +68,7 @@ describe('GET /api/communications/:id', () => {
 describe('POST /api/communications', () => {
   it('should create a communication', async () => {
     (prisma as any).compCommunication.count.mockResolvedValue(0);
-    (prisma as any).compCommunication.create.mockResolvedValue({ id: '1', subject: 'New', referenceNumber: 'CMC-2026-0001' });
+    (prisma as any).compCommunication.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', subject: 'New', referenceNumber: 'CMC-2026-0001' });
     const res = await request(app).post('/api/communications').send({ complaintId: 'comp-1', subject: 'New', direction: 'OUTBOUND', channel: 'EMAIL' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -92,24 +92,24 @@ describe('POST /api/communications', () => {
 
 describe('PUT /api/communications/:id', () => {
   it('should update a communication', async () => {
-    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '1', subject: 'Old' });
-    (prisma as any).compCommunication.update.mockResolvedValue({ id: '1', subject: 'Updated' });
-    const res = await request(app).put('/api/communications/1').send({ complaintId: 'comp-1', subject: 'Updated' });
+    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', subject: 'Old' });
+    (prisma as any).compCommunication.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', subject: 'Updated' });
+    const res = await request(app).put('/api/communications/00000000-0000-0000-0000-000000000001').send({ complaintId: 'comp-1', subject: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).compCommunication.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/communications/nope').send({ complaintId: 'comp-1' });
+    const res = await request(app).put('/api/communications/00000000-0000-0000-0000-000000000099').send({ complaintId: 'comp-1' });
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).compCommunication.update.mockRejectedValue(new Error('Update failed'));
-    const res = await request(app).put('/api/communications/1').send({ complaintId: 'comp-1' });
+    const res = await request(app).put('/api/communications/00000000-0000-0000-0000-000000000001').send({ complaintId: 'comp-1' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
@@ -117,24 +117,24 @@ describe('PUT /api/communications/:id', () => {
 
 describe('DELETE /api/communications/:id', () => {
   it('should soft delete a communication', async () => {
-    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).compCommunication.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/communications/1');
+    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).compCommunication.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/communications/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).compCommunication.findFirst.mockResolvedValue(null);
-    const res = await request(app).delete('/api/communications/nope');
+    const res = await request(app).delete('/api/communications/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).compCommunication.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
     (prisma as any).compCommunication.update.mockRejectedValue(new Error('Delete failed'));
-    const res = await request(app).delete('/api/communications/1');
+    const res = await request(app).delete('/api/communications/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });

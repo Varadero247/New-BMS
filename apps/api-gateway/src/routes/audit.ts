@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@ims/database';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import {
   createSignature,
   verifySignature,
@@ -15,6 +16,7 @@ import {
 
 const logger = createLogger('api-gateway-audit');
 const router = Router();
+router.param('id', validateIdParam());
 const auditService = createEnhancedAuditService(prisma as any) as any;
 
 router.use(authenticate);

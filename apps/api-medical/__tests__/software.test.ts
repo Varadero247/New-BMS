@@ -287,7 +287,7 @@ describe('Software Validation Routes (IEC 62304)', () => {
     it('should return 404 when project not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/software/projects/nonexistent-id');
+      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -332,7 +332,7 @@ describe('Software Validation Routes (IEC 62304)', () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .post('/api/software/projects/nonexistent/soup')
+        .post('/api/software/projects/00000000-0000-0000-0000-000000000099/soup')
         .send({ title: 'FreeRTOS', version: '10.5.1' });
 
       expect(res.status).toBe(404);
@@ -387,7 +387,7 @@ describe('Software Validation Routes (IEC 62304)', () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/software/projects/nonexistent/phase/REQUIREMENTS')
+        .put('/api/software/projects/00000000-0000-0000-0000-000000000099/phase/REQUIREMENTS')
         .send({ documentRef: 'SRS-001' });
 
       expect(res.status).toBe(404);
@@ -458,7 +458,7 @@ describe('Software Validation Routes (IEC 62304)', () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
       const res = await request(app)
-        .post('/api/software/projects/nonexistent/anomalies')
+        .post('/api/software/projects/00000000-0000-0000-0000-000000000099/anomalies')
         .send({ title: 'Bug', description: 'A bug' });
 
       expect(res.status).toBe(404);
@@ -521,7 +521,7 @@ describe('Software Validation Routes (IEC 62304)', () => {
     it('should return 404 when project not found', async () => {
       (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/software/projects/nonexistent/anomalies');
+      const res = await request(app).get('/api/software/projects/00000000-0000-0000-0000-000000000099/anomalies');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');

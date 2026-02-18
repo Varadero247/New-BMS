@@ -112,7 +112,7 @@ describe('GET /api/enpis/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/enpis/nonexistent');
+    const res = await request(app).get('/api/enpis/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -132,7 +132,7 @@ describe('PUT /api/enpis/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/enpis/nonexistent').send({ name: 'X' });
+    const res = await request(app).put('/api/enpis/00000000-0000-0000-0000-000000000099').send({ name: 'X' });
 
     expect(res.status).toBe(404);
   });
@@ -152,7 +152,7 @@ describe('DELETE /api/enpis/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/enpis/nonexistent');
+    const res = await request(app).delete('/api/enpis/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -179,7 +179,7 @@ describe('POST /api/enpis/:id/data-points', () => {
   it('should return 404 if EnPI not found', async () => {
     (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).post('/api/enpis/nonexistent/data-points').send(validBody);
+    const res = await request(app).post('/api/enpis/00000000-0000-0000-0000-000000000099/data-points').send(validBody);
 
     expect(res.status).toBe(404);
   });
@@ -206,7 +206,7 @@ describe('GET /api/enpis/:id/data-points', () => {
   it('should return 404 if EnPI not found', async () => {
     (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/enpis/nonexistent/data-points');
+    const res = await request(app).get('/api/enpis/00000000-0000-0000-0000-000000000099/data-points');
 
     expect(res.status).toBe(404);
   });
@@ -234,7 +234,7 @@ describe('GET /api/enpis/:id/trend', () => {
   it('should return 404 if EnPI not found', async () => {
     (prisma.energyEnpi.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/enpis/nonexistent/trend');
+    const res = await request(app).get('/api/enpis/00000000-0000-0000-0000-000000000099/trend');
 
     expect(res.status).toBe(404);
   });

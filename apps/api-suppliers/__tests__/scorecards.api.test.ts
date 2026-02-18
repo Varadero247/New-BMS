@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/scorecards', () => {
   it('should return scorecards', async () => {
-    (prisma as any).suppScorecard.findMany.mockResolvedValue([{ id: '1', title: 'Test' }]);
+    (prisma as any).suppScorecard.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Test' }]);
     (prisma as any).suppScorecard.count.mockResolvedValue(1);
     const res = await request(app).get('/api/scorecards');
     expect(res.status).toBe(200);
@@ -26,21 +26,21 @@ describe('GET /api/scorecards', () => {
 describe('GET /api/scorecards/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).suppScorecard.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/scorecards/nope');
+    const res = await request(app).get('/api/scorecards/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).suppScorecard.findFirst.mockResolvedValue({ id: '1' });
-    const res = await request(app).get('/api/scorecards/1');
+    (prisma as any).suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).get('/api/scorecards/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 });
 
 describe('POST /api/scorecards', () => {
   it('should create', async () => {
     (prisma as any).suppScorecard.count.mockResolvedValue(0);
-    (prisma as any).suppScorecard.create.mockResolvedValue({ id: '1', title: 'New' });
+    (prisma as any).suppScorecard.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
     const res = await request(app).post('/api/scorecards').send({ supplierId: 'supplier-1' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -49,18 +49,18 @@ describe('POST /api/scorecards', () => {
 
 describe('PUT /api/scorecards/:id', () => {
   it('should update', async () => {
-    (prisma as any).suppScorecard.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).suppScorecard.update.mockResolvedValue({ id: '1', title: 'Updated' });
-    const res = await request(app).put('/api/scorecards/1').send({ title: 'Updated' });
+    (prisma as any).suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app).put('/api/scorecards/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
 });
 
 describe('DELETE /api/scorecards/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).suppScorecard.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).suppScorecard.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/scorecards/1');
+    (prisma as any).suppScorecard.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).suppScorecard.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/scorecards/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });

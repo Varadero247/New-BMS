@@ -143,7 +143,7 @@ describe('GET /api/invoices/customers/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finCustomer.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/invoices/customers/nonexistent');
+    const res = await request(app).get('/api/invoices/customers/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -203,7 +203,7 @@ describe('PUT /api/invoices/customers/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finCustomer.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/invoices/customers/nonexistent').send({ name: 'Test' });
+    const res = await request(app).put('/api/invoices/customers/00000000-0000-0000-0000-000000000099').send({ name: 'Test' });
 
     expect(res.status).toBe(404);
   });
@@ -226,7 +226,7 @@ describe('DELETE /api/invoices/customers/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finCustomer.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/invoices/customers/nonexistent');
+    const res = await request(app).delete('/api/invoices/customers/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -320,7 +320,7 @@ describe('GET /api/invoices/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finInvoice.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/invoices/nonexistent');
+    const res = await request(app).get('/api/invoices/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -415,7 +415,7 @@ describe('PUT /api/invoices/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finInvoice.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/invoices/nonexistent').send({ notes: 'test' });
+    const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000099').send({ notes: 'test' });
 
     expect(res.status).toBe(404);
   });
@@ -466,7 +466,7 @@ describe('POST /api/invoices/:id/send', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finInvoice.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/invoices/nonexistent/send');
+    const res = await request(app).post('/api/invoices/00000000-0000-0000-0000-000000000099/send');
 
     expect(res.status).toBe(404);
   });
@@ -499,7 +499,7 @@ describe('POST /api/invoices/:id/void', () => {
   it('should return 404 when not found', async () => {
     (prisma as any).finInvoice.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/invoices/nonexistent/void').send({ reason: 'test' });
+    const res = await request(app).post('/api/invoices/00000000-0000-0000-0000-000000000099/void').send({ reason: 'test' });
 
     expect(res.status).toBe(404);
   });

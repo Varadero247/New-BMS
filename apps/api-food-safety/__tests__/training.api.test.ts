@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/training', () => {
   it('should return training records with pagination', async () => {
-    (prisma as any).fsTraining.findMany.mockResolvedValue([{ id: 'tr-1', title: 'HACCP Training' }]);
+    (prisma as any).fsTraining.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'HACCP Training' }]);
     (prisma as any).fsTraining.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/training');
@@ -77,7 +77,7 @@ describe('GET /api/training', () => {
 
 describe('POST /api/training', () => {
   it('should create a training record', async () => {
-    const created = { id: 'tr-1', title: 'HACCP Training', type: 'HACCP' };
+    const created = { id: '00000000-0000-0000-0000-000000000001', title: 'HACCP Training', type: 'HACCP' };
     (prisma as any).fsTraining.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/training').send({
@@ -104,27 +104,27 @@ describe('POST /api/training', () => {
 
 describe('GET /api/training/:id', () => {
   it('should return a training record', async () => {
-    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: 'tr-1' });
+    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).get('/api/training/tr-1');
+    const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('tr-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsTraining.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/training/non-existent');
+    const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('PUT /api/training/:id', () => {
   it('should update a training record', async () => {
-    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: 'tr-1' });
-    (prisma as any).fsTraining.update.mockResolvedValue({ id: 'tr-1', title: 'Updated' });
+    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsTraining.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
 
-    const res = await request(app).put('/api/training/tr-1').send({ title: 'Updated' });
+    const res = await request(app).put('/api/training/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -132,24 +132,24 @@ describe('PUT /api/training/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsTraining.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/training/non-existent').send({ title: 'Test' });
+    const res = await request(app).put('/api/training/00000000-0000-0000-0000-000000000099').send({ title: 'Test' });
     expect(res.status).toBe(404);
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: 'tr-1' });
+    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).put('/api/training/tr-1').send({ type: 'INVALID' });
+    const res = await request(app).put('/api/training/00000000-0000-0000-0000-000000000001').send({ type: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
 
 describe('DELETE /api/training/:id', () => {
   it('should soft delete a training record', async () => {
-    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: 'tr-1' });
-    (prisma as any).fsTraining.update.mockResolvedValue({ id: 'tr-1' });
+    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).fsTraining.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-    const res = await request(app).delete('/api/training/tr-1');
+    const res = await request(app).delete('/api/training/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -157,17 +157,17 @@ describe('DELETE /api/training/:id', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsTraining.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/training/non-existent');
+    const res = await request(app).delete('/api/training/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('PUT /api/training/:id/complete', () => {
   it('should complete a training record', async () => {
-    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: 'tr-1', status: 'PLANNED' });
-    (prisma as any).fsTraining.update.mockResolvedValue({ id: 'tr-1', status: 'COMPLETED' });
+    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PLANNED' });
+    (prisma as any).fsTraining.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' });
 
-    const res = await request(app).put('/api/training/tr-1/complete').send({
+    const res = await request(app).put('/api/training/00000000-0000-0000-0000-000000000001/complete').send({
       attendees: ['John', 'Jane'],
     });
     expect(res.status).toBe(200);
@@ -175,9 +175,9 @@ describe('PUT /api/training/:id/complete', () => {
   });
 
   it('should reject completing an already completed training', async () => {
-    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: 'tr-1', status: 'COMPLETED' });
+    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' });
 
-    const res = await request(app).put('/api/training/tr-1/complete').send({});
+    const res = await request(app).put('/api/training/00000000-0000-0000-0000-000000000001/complete').send({});
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('ALREADY_COMPLETED');
   });
@@ -185,15 +185,15 @@ describe('PUT /api/training/:id/complete', () => {
   it('should return 404 for non-existent record', async () => {
     (prisma as any).fsTraining.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/training/non-existent/complete').send({});
+    const res = await request(app).put('/api/training/00000000-0000-0000-0000-000000000099/complete').send({});
     expect(res.status).toBe(404);
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: 'tr-1', status: 'PLANNED' });
+    (prisma as any).fsTraining.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PLANNED' });
     (prisma as any).fsTraining.update.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).put('/api/training/tr-1/complete').send({});
+    const res = await request(app).put('/api/training/00000000-0000-0000-0000-000000000001/complete').send({});
     expect(res.status).toBe(500);
   });
 });

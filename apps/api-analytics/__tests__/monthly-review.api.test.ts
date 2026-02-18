@@ -54,7 +54,7 @@ beforeEach(() => {
 describe('GET /api/monthly-review', () => {
   it('lists snapshots with pagination', async () => {
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([
-      { id: 'snap-1', month: '2026-03', monthNumber: 1, mrr: 0, trajectory: null },
+      { id: '00000000-0000-0000-0000-000000000001', month: '2026-03', monthNumber: 1, mrr: 0, trajectory: null },
     ]);
     (prisma.monthlySnapshot.count as jest.Mock).mockResolvedValue(1);
 
@@ -80,29 +80,29 @@ describe('GET /api/monthly-review', () => {
 describe('GET /api/monthly-review/:snapshotId', () => {
   it('returns snapshot with plan target', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
-      id: 'snap-1', month: '2026-03', monthNumber: 1, mrr: 500,
+      id: '00000000-0000-0000-0000-000000000001', month: '2026-03', monthNumber: 1, mrr: 500,
     });
     (prisma.planTarget.findUnique as jest.Mock).mockResolvedValue({
       month: '2026-03', plannedMrr: 0, plannedCustomers: 0,
     });
 
-    const res = await request(app).get('/api/monthly-review/snap-1');
+    const res = await request(app).get('/api/monthly-review/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.snapshot.id).toBe('snap-1');
+    expect(res.body.data.snapshot.id).toBe('00000000-0000-0000-0000-000000000001');
     expect(res.body.data.planTarget).toBeDefined();
   });
 
   it('returns 404 for missing snapshot', async () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/monthly-review/nonexistent');
+    const res = await request(app).get('/api/monthly-review/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
 
 describe('POST /api/monthly-review/:snapshotId/approve', () => {
   const mockSnapshot = {
-    id: 'snap-1', month: '2026-05', monthNumber: 3,
+    id: '00000000-0000-0000-0000-000000000001', month: '2026-05', monthNumber: 3,
     targetsApproved: false,
     aiRecommendations: [{ metric: 'MRR', current: 1500, suggested: 2800, rationale: 'test' }],
   };
@@ -116,7 +116,7 @@ describe('POST /api/monthly-review/:snapshotId/approve', () => {
     (prisma.planTarget.update as jest.Mock).mockResolvedValue({});
 
     const res = await request(app)
-      .post('/api/monthly-review/snap-1/approve')
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
       .send({ action: 'approve' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -131,7 +131,7 @@ describe('POST /api/monthly-review/:snapshotId/approve', () => {
     (prisma.planTarget.update as jest.Mock).mockResolvedValue({});
 
     const res = await request(app)
-      .post('/api/monthly-review/snap-1/approve')
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
       .send({ action: 'override', overrides: { revisedMrr: 4000, revisedCustomers: 12 } });
     expect(res.status).toBe(200);
     expect(prisma.planTarget.update).toHaveBeenCalledWith(
@@ -146,7 +146,7 @@ describe('POST /api/monthly-review/:snapshotId/approve', () => {
     (prisma.monthlySnapshot.update as jest.Mock).mockResolvedValue({ ...mockSnapshot, targetsApproved: true });
 
     const res = await request(app)
-      .post('/api/monthly-review/snap-1/approve')
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
       .send({ action: 'keep-original' });
     expect(res.status).toBe(200);
     expect(prisma.planTarget.update).not.toHaveBeenCalled();
@@ -158,7 +158,7 @@ describe('POST /api/monthly-review/:snapshotId/approve', () => {
     });
 
     const res = await request(app)
-      .post('/api/monthly-review/snap-1/approve')
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
       .send({ action: 'approve' });
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Already approved');
@@ -169,14 +169,14 @@ describe('POST /api/monthly-review/:snapshotId/approve', () => {
     (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue(null);
 
     const res = await request(app)
-      .post('/api/monthly-review/nonexistent/approve')
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000099/approve')
       .send({ action: 'approve' });
     expect(res.status).toBe(404);
   });
 
   it('returns 400 for invalid action', async () => {
     const res = await request(app)
-      .post('/api/monthly-review/snap-1/approve')
+      .post('/api/monthly-review/00000000-0000-0000-0000-000000000001/approve')
       .send({ action: 'invalid-action' });
     expect(res.status).toBe(400);
   });

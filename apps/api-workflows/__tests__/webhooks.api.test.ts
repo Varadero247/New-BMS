@@ -83,7 +83,7 @@ describe('Webhooks API Routes', () => {
 
     it('should create a webhook successfully', async () => {
       const mockWebhook = {
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         ...createPayload,
         secret: 'generated-secret',
         isActive: true,
@@ -201,7 +201,7 @@ describe('Webhooks API Routes', () => {
   describe('GET /api/webhooks', () => {
     it('should return paginated list of webhooks', async () => {
       const mockWebhooks = [
-        { id: 'wh-001', name: 'Webhook 1', isActive: true },
+        { id: '00000000-0000-0000-0000-000000000001', name: 'Webhook 1', isActive: true },
         { id: 'wh-002', name: 'Webhook 2', isActive: true },
       ];
 
@@ -278,7 +278,7 @@ describe('Webhooks API Routes', () => {
   describe('GET /api/webhooks/:id', () => {
     it('should return webhook with recent deliveries', async () => {
       const mockWebhook = {
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Webhook',
         url: 'https://example.com/webhook',
         events: ['incident.created'],
@@ -290,7 +290,7 @@ describe('Webhooks API Routes', () => {
 
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce(mockWebhook);
 
-      const response = await request(app).get('/api/webhooks/wh-001');
+      const response = await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -301,7 +301,7 @@ describe('Webhooks API Routes', () => {
     it('should return 404 for non-existent webhook', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).get('/api/webhooks/non-existent');
+      const response = await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000099');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -310,7 +310,7 @@ describe('Webhooks API Routes', () => {
     it('should handle database errors on get', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/webhooks/wh-001');
+      const response = await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -323,17 +323,17 @@ describe('Webhooks API Routes', () => {
   describe('PUT /api/webhooks/:id', () => {
     it('should update webhook successfully', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         name: 'Old Name',
         deletedAt: null,
       });
       (mockPrisma.webhook.update as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         name: 'Updated Name',
       });
 
       const response = await request(app)
-        .put('/api/webhooks/wh-001')
+        .put('/api/webhooks/00000000-0000-0000-0000-000000000001')
         .send({ name: 'Updated Name' });
 
       expect(response.status).toBe(200);
@@ -343,16 +343,16 @@ describe('Webhooks API Routes', () => {
 
     it('should update webhook events', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.webhook.update as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         events: ['audit.completed'],
       });
 
       const response = await request(app)
-        .put('/api/webhooks/wh-001')
+        .put('/api/webhooks/00000000-0000-0000-0000-000000000001')
         .send({ events: ['audit.completed'] });
 
       expect(response.status).toBe(200);
@@ -361,16 +361,16 @@ describe('Webhooks API Routes', () => {
 
     it('should toggle isActive', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.webhook.update as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         isActive: false,
       });
 
       const response = await request(app)
-        .put('/api/webhooks/wh-001')
+        .put('/api/webhooks/00000000-0000-0000-0000-000000000001')
         .send({ isActive: false });
 
       expect(response.status).toBe(200);
@@ -381,7 +381,7 @@ describe('Webhooks API Routes', () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/webhooks/non-existent')
+        .put('/api/webhooks/00000000-0000-0000-0000-000000000099')
         .send({ name: 'Updated' });
 
       expect(response.status).toBe(404);
@@ -390,7 +390,7 @@ describe('Webhooks API Routes', () => {
 
     it('should return 400 for invalid event type on update', async () => {
       const response = await request(app)
-        .put('/api/webhooks/wh-001')
+        .put('/api/webhooks/00000000-0000-0000-0000-000000000001')
         .send({ events: ['invalid.event'] });
 
       expect(response.status).toBe(400);
@@ -399,13 +399,13 @@ describe('Webhooks API Routes', () => {
 
     it('should handle database errors on update', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.webhook.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/webhooks/wh-001')
+        .put('/api/webhooks/00000000-0000-0000-0000-000000000001')
         .send({ name: 'Updated' });
 
       expect(response.status).toBe(500);
@@ -419,16 +419,16 @@ describe('Webhooks API Routes', () => {
   describe('DELETE /api/webhooks/:id', () => {
     it('should soft-delete webhook successfully', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.webhook.update as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: new Date(),
         isActive: false,
       });
 
-      const response = await request(app).delete('/api/webhooks/wh-001');
+      const response = await request(app).delete('/api/webhooks/00000000-0000-0000-0000-000000000001');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -438,7 +438,7 @@ describe('Webhooks API Routes', () => {
     it('should return 404 when deleting non-existent webhook', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).delete('/api/webhooks/non-existent');
+      const response = await request(app).delete('/api/webhooks/00000000-0000-0000-0000-000000000099');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -446,12 +446,12 @@ describe('Webhooks API Routes', () => {
 
     it('should handle database errors on delete', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce({
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         deletedAt: null,
       });
       (mockPrisma.webhook.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).delete('/api/webhooks/wh-001');
+      const response = await request(app).delete('/api/webhooks/00000000-0000-0000-0000-000000000001');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -464,7 +464,7 @@ describe('Webhooks API Routes', () => {
   describe('POST /api/webhooks/:id/test', () => {
     it('should send a test delivery successfully', async () => {
       const mockWebhook = {
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Webhook',
         url: 'https://example.com/webhook',
         secret: 'test-secret-key',
@@ -475,7 +475,7 @@ describe('Webhooks API Routes', () => {
 
       const mockDelivery = {
         id: 'del-001',
-        webhookId: 'wh-001',
+        webhookId: '00000000-0000-0000-0000-000000000001',
         event: 'test',
         payload: {},
         statusCode: 200,
@@ -494,7 +494,7 @@ describe('Webhooks API Routes', () => {
       });
       (mockPrisma.webhookDelivery.create as jest.Mock).mockResolvedValueOnce(mockDelivery);
 
-      const response = await request(app).post('/api/webhooks/wh-001/test');
+      const response = await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000001/test');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -504,7 +504,7 @@ describe('Webhooks API Routes', () => {
 
     it('should include HMAC signature in test delivery', async () => {
       const mockWebhook = {
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Webhook',
         url: 'https://example.com/webhook',
         secret: 'test-secret-key',
@@ -524,7 +524,7 @@ describe('Webhooks API Routes', () => {
         success: true,
       });
 
-      await request(app).post('/api/webhooks/wh-001/test');
+      await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000001/test');
 
       // Verify fetch was called with the HMAC signature header
       expect(mockFetch).toHaveBeenCalledWith(
@@ -533,7 +533,7 @@ describe('Webhooks API Routes', () => {
           method: 'POST',
           headers: expect.objectContaining({
             'X-Webhook-Signature': expect.any(String),
-            'X-Webhook-Id': 'wh-001',
+            'X-Webhook-Id': '00000000-0000-0000-0000-000000000001',
             'X-Webhook-Event': 'test',
           }),
         })
@@ -542,7 +542,7 @@ describe('Webhooks API Routes', () => {
 
     it('should record failed test delivery', async () => {
       const mockWebhook = {
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Webhook',
         url: 'https://example.com/webhook',
         secret: 'test-secret-key',
@@ -559,7 +559,7 @@ describe('Webhooks API Routes', () => {
         lastError: 'Connection refused',
       });
 
-      const response = await request(app).post('/api/webhooks/wh-001/test');
+      const response = await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000001/test');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -576,7 +576,7 @@ describe('Webhooks API Routes', () => {
     it('should return 404 for non-existent webhook', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const response = await request(app).post('/api/webhooks/non-existent/test');
+      const response = await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000099/test');
 
       expect(response.status).toBe(404);
       expect(response.body.error.code).toBe('NOT_FOUND');
@@ -585,7 +585,7 @@ describe('Webhooks API Routes', () => {
     it('should handle database errors on test', async () => {
       (mockPrisma.webhook.findFirst as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).post('/api/webhooks/wh-001/test');
+      const response = await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000001/test');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -593,7 +593,7 @@ describe('Webhooks API Routes', () => {
 
     it('should merge custom headers in test delivery', async () => {
       const mockWebhook = {
-        id: 'wh-001',
+        id: '00000000-0000-0000-0000-000000000001',
         name: 'Test Webhook',
         url: 'https://example.com/webhook',
         secret: 'test-secret-key',
@@ -613,7 +613,7 @@ describe('Webhooks API Routes', () => {
         success: true,
       });
 
-      await request(app).post('/api/webhooks/wh-001/test');
+      await request(app).post('/api/webhooks/00000000-0000-0000-0000-000000000001/test');
 
       expect(mockFetch).toHaveBeenCalledWith(
         'https://example.com/webhook',
@@ -639,7 +639,7 @@ describe('Webhooks API Routes', () => {
       (mockPrisma.webhookDelivery.findMany as jest.Mock).mockResolvedValueOnce(mockDeliveries);
       (mockPrisma.webhookDelivery.count as jest.Mock).mockResolvedValueOnce(2);
 
-      const response = await request(app).get('/api/webhooks/wh-001/deliveries');
+      const response = await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -651,7 +651,7 @@ describe('Webhooks API Routes', () => {
       (mockPrisma.webhookDelivery.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.webhookDelivery.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/webhooks/wh-001/deliveries?event=incident.created');
+      await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries?event=incident.created');
 
       expect(mockPrisma.webhookDelivery.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -666,7 +666,7 @@ describe('Webhooks API Routes', () => {
       (mockPrisma.webhookDelivery.findMany as jest.Mock).mockResolvedValueOnce([]);
       (mockPrisma.webhookDelivery.count as jest.Mock).mockResolvedValueOnce(0);
 
-      await request(app).get('/api/webhooks/wh-001/deliveries?success=false');
+      await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries?success=false');
 
       expect(mockPrisma.webhookDelivery.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -680,7 +680,7 @@ describe('Webhooks API Routes', () => {
     it('should handle database errors on deliveries list', async () => {
       (mockPrisma.webhookDelivery.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
-      const response = await request(app).get('/api/webhooks/wh-001/deliveries');
+      const response = await request(app).get('/api/webhooks/00000000-0000-0000-0000-000000000001/deliveries');
 
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
@@ -694,7 +694,7 @@ describe('Webhooks API Routes', () => {
     it('should dispatch event to all subscribed webhooks', async () => {
       const mockWebhooks = [
         {
-          id: 'wh-001',
+          id: '00000000-0000-0000-0000-000000000001',
           url: 'https://example1.com/webhook',
           secret: 'secret1',
           headers: null,
@@ -724,7 +724,7 @@ describe('Webhooks API Routes', () => {
           text: jest.fn().mockResolvedValue('OK'),
         });
       (mockPrisma.webhookDelivery.create as jest.Mock)
-        .mockResolvedValueOnce({ id: 'del-001', webhookId: 'wh-001', success: true })
+        .mockResolvedValueOnce({ id: 'del-001', webhookId: '00000000-0000-0000-0000-000000000001', success: true })
         .mockResolvedValueOnce({ id: 'del-002', webhookId: 'wh-002', success: true });
 
       const response = await request(app)
@@ -779,7 +779,7 @@ describe('Webhooks API Routes', () => {
     it('should handle partial delivery failures', async () => {
       const mockWebhooks = [
         {
-          id: 'wh-001',
+          id: '00000000-0000-0000-0000-000000000001',
           url: 'https://example1.com/webhook',
           secret: 'secret1',
           headers: null,
@@ -821,7 +821,7 @@ describe('Webhooks API Routes', () => {
     it('should include HMAC signature for each dispatch', async () => {
       const mockWebhooks = [
         {
-          id: 'wh-001',
+          id: '00000000-0000-0000-0000-000000000001',
           url: 'https://example.com/webhook',
           secret: 'my-secret',
           headers: null,
@@ -852,7 +852,7 @@ describe('Webhooks API Routes', () => {
         expect.objectContaining({
           headers: expect.objectContaining({
             'X-Webhook-Signature': expect.any(String),
-            'X-Webhook-Id': 'wh-001',
+            'X-Webhook-Id': '00000000-0000-0000-0000-000000000001',
             'X-Webhook-Event': 'audit.completed',
           }),
         })

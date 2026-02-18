@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 const mockInitiative = {
-  id: 'init-1',
+  id: '00000000-0000-0000-0000-000000000001',
   title: 'Solar Panel Installation',
   description: 'Install solar panels on HQ',
   category: 'ENVIRONMENTAL',
@@ -132,15 +132,15 @@ describe('GET /api/initiatives/:id', () => {
   it('should return a single initiative', async () => {
     (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
 
-    const res = await request(app).get('/api/initiatives/init-1');
+    const res = await request(app).get('/api/initiatives/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('init-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/initiatives/nonexistent');
+    const res = await request(app).get('/api/initiatives/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -150,7 +150,7 @@ describe('PUT /api/initiatives/:id', () => {
     (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
     (prisma.esgInitiative.update as jest.Mock).mockResolvedValue({ ...mockInitiative, status: 'IN_PROGRESS' });
 
-    const res = await request(app).put('/api/initiatives/init-1').send({ status: 'IN_PROGRESS' });
+    const res = await request(app).put('/api/initiatives/00000000-0000-0000-0000-000000000001').send({ status: 'IN_PROGRESS' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -158,12 +158,12 @@ describe('PUT /api/initiatives/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/initiatives/nonexistent').send({ status: 'IN_PROGRESS' });
+    const res = await request(app).put('/api/initiatives/00000000-0000-0000-0000-000000000099').send({ status: 'IN_PROGRESS' });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid status', async () => {
-    const res = await request(app).put('/api/initiatives/init-1').send({ status: 'BAD' });
+    const res = await request(app).put('/api/initiatives/00000000-0000-0000-0000-000000000001').send({ status: 'BAD' });
     expect(res.status).toBe(400);
   });
 });
@@ -173,7 +173,7 @@ describe('DELETE /api/initiatives/:id', () => {
     (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(mockInitiative);
     (prisma.esgInitiative.update as jest.Mock).mockResolvedValue({ ...mockInitiative, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/initiatives/init-1');
+    const res = await request(app).delete('/api/initiatives/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -181,7 +181,7 @@ describe('DELETE /api/initiatives/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgInitiative.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/initiatives/nonexistent');
+    const res = await request(app).delete('/api/initiatives/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

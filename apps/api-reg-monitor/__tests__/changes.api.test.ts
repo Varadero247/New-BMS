@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/changes', () => {
   it('should return regulatory changes', async () => {
-    (prisma as any).regChange.findMany.mockResolvedValue([{ id: '1', title: 'Test' }]);
+    (prisma as any).regChange.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Test' }]);
     (prisma as any).regChange.count.mockResolvedValue(1);
     const res = await request(app).get('/api/changes');
     expect(res.status).toBe(200);
@@ -26,21 +26,21 @@ describe('GET /api/changes', () => {
 describe('GET /api/changes/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).regChange.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/changes/nope');
+    const res = await request(app).get('/api/changes/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).regChange.findFirst.mockResolvedValue({ id: '1' });
-    const res = await request(app).get('/api/changes/1');
+    (prisma as any).regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).get('/api/changes/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 });
 
 describe('POST /api/changes', () => {
   it('should create', async () => {
     (prisma as any).regChange.count.mockResolvedValue(0);
-    (prisma as any).regChange.create.mockResolvedValue({ id: '1', title: 'New' });
+    (prisma as any).regChange.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
     const res = await request(app).post('/api/changes').send({ title: 'New' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -49,18 +49,18 @@ describe('POST /api/changes', () => {
 
 describe('PUT /api/changes/:id', () => {
   it('should update', async () => {
-    (prisma as any).regChange.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).regChange.update.mockResolvedValue({ id: '1', title: 'Updated' });
-    const res = await request(app).put('/api/changes/1').send({ title: 'Updated' });
+    (prisma as any).regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).regChange.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app).put('/api/changes/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
 });
 
 describe('DELETE /api/changes/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).regChange.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).regChange.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/changes/1');
+    (prisma as any).regChange.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).regChange.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/changes/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });

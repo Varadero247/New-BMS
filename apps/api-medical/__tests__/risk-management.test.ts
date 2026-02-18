@@ -115,7 +115,7 @@ const mockRMF2 = {
 };
 
 const mockHazard1 = {
-  id: 'haz-0001',
+  id: '00000000-0000-0000-0000-000000000001',
   fileId: '20000000-0000-4000-a000-000000000001',
   hazardId: 'H-001',
   hazardCategory: 'ENERGY',
@@ -1170,7 +1170,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
-        .put('/api/risk/00000000-0000-4000-a000-ffffffffffff/hazards/haz-0001')
+        .put('/api/risk/00000000-0000-4000-a000-ffffffffffff/hazards/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ notes: 'test' });
 

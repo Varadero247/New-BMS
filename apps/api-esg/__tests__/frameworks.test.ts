@@ -44,7 +44,7 @@ beforeEach(() => {
 });
 
 const mockFramework = {
-  id: 'fw-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'GRI Standards',
   code: 'GRI',
   version: '2021',
@@ -145,15 +145,15 @@ describe('GET /api/frameworks/:id', () => {
   it('should return a single framework with metrics', async () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
 
-    const res = await request(app).get('/api/frameworks/fw-1');
+    const res = await request(app).get('/api/frameworks/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('fw-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/frameworks/nonexistent');
+    const res = await request(app).get('/api/frameworks/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -163,7 +163,7 @@ describe('PUT /api/frameworks/:id', () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
     (prisma.esgFramework.update as jest.Mock).mockResolvedValue({ ...mockFramework, name: 'Updated' });
 
-    const res = await request(app).put('/api/frameworks/fw-1').send({ name: 'Updated' });
+    const res = await request(app).put('/api/frameworks/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -171,7 +171,7 @@ describe('PUT /api/frameworks/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/frameworks/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).put('/api/frameworks/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
     expect(res.status).toBe(404);
   });
 });
@@ -181,7 +181,7 @@ describe('DELETE /api/frameworks/:id', () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
     (prisma.esgFramework.update as jest.Mock).mockResolvedValue({ ...mockFramework, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/frameworks/fw-1');
+    const res = await request(app).delete('/api/frameworks/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -189,7 +189,7 @@ describe('DELETE /api/frameworks/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/frameworks/nonexistent');
+    const res = await request(app).delete('/api/frameworks/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -199,7 +199,7 @@ describe('GET /api/frameworks/:id/metrics', () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
     (prisma.esgMetric.findMany as jest.Mock).mockResolvedValue([mockMetric]);
 
-    const res = await request(app).get('/api/frameworks/fw-1/metrics');
+    const res = await request(app).get('/api/frameworks/00000000-0000-0000-0000-000000000001/metrics');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(1);
@@ -208,7 +208,7 @@ describe('GET /api/frameworks/:id/metrics', () => {
   it('should return 404 if framework not found', async () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/frameworks/nonexistent/metrics');
+    const res = await request(app).get('/api/frameworks/00000000-0000-0000-0000-000000000099/metrics');
     expect(res.status).toBe(404);
   });
 });
@@ -218,7 +218,7 @@ describe('POST /api/frameworks/:id/metrics', () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
     (prisma.esgMetric.create as jest.Mock).mockResolvedValue(mockMetric);
 
-    const res = await request(app).post('/api/frameworks/fw-1/metrics').send({
+    const res = await request(app).post('/api/frameworks/00000000-0000-0000-0000-000000000001/metrics').send({
       category: 'ENVIRONMENTAL',
       subcategory: 'Emissions',
       name: 'Total GHG Emissions',
@@ -234,7 +234,7 @@ describe('POST /api/frameworks/:id/metrics', () => {
   it('should return 404 if framework not found', async () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).post('/api/frameworks/nonexistent/metrics').send({
+    const res = await request(app).post('/api/frameworks/00000000-0000-0000-0000-000000000099/metrics').send({
       category: 'ENVIRONMENTAL',
       subcategory: 'Emissions',
       name: 'Test',
@@ -249,7 +249,7 @@ describe('POST /api/frameworks/:id/metrics', () => {
   it('should return 400 for missing metric fields', async () => {
     (prisma.esgFramework.findFirst as jest.Mock).mockResolvedValue(mockFramework);
 
-    const res = await request(app).post('/api/frameworks/fw-1/metrics').send({
+    const res = await request(app).post('/api/frameworks/00000000-0000-0000-0000-000000000001/metrics').send({
       category: 'ENVIRONMENTAL',
     });
 

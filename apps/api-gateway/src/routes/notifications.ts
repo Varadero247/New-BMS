@@ -2,11 +2,13 @@ import { Router, Request, Response } from 'express';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { NotificationBellState, WSNotification, WSNotificationType, WSNotificationSeverity } from '@ims/notifications';
+import { validateIdParam } from '@ims/shared';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
 
 const logger = createLogger('api-gateway:notifications');
 const router = Router();
+router.param('id', validateIdParam());
 
 // Shared in-memory notification bell state
 export const bellState = new NotificationBellState();

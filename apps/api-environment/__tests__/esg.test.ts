@@ -74,7 +74,7 @@ describe('ESG / Sustainability API Routes', () => {
 
       (mockPrisma.esgMetric.findMany as jest.Mock).mockResolvedValueOnce(mockMetrics);
       (mockPrisma.esgTarget.findMany as jest.Mock).mockResolvedValueOnce([
-        { id: 't1', status: 'ON_TRACK' },
+        { id: '00000000-0000-0000-0000-000000000001', status: 'ON_TRACK' },
         { id: 't2', status: 'ACHIEVED' },
         { id: 't3', status: 'AT_RISK' },
       ]);
@@ -185,7 +185,7 @@ describe('ESG / Sustainability API Routes', () => {
   describe('GET /api/esg/targets', () => {
     const mockTargets = [
       {
-        id: 't1',
+        id: '00000000-0000-0000-0000-000000000001',
         refNumber: 'ESG-TGT-2602-0001',
         category: 'GHG_SCOPE_1',
         subcategory: 'Direct Emissions',
@@ -343,7 +343,7 @@ describe('ESG / Sustainability API Routes', () => {
     it('should create a target successfully', async () => {
       (mockPrisma.esgTarget.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.esgTarget.create as jest.Mock).mockResolvedValueOnce({
-        id: 't1',
+        id: '00000000-0000-0000-0000-000000000001',
         refNumber: 'ESG-TGT-2602-0001',
         ...validPayload,
         status: 'ON_TRACK',
@@ -477,7 +477,7 @@ describe('ESG / Sustainability API Routes', () => {
   // ============================================
   describe('PUT /api/esg/targets/:id', () => {
     const existingTarget = {
-      id: 't1',
+      id: '00000000-0000-0000-0000-000000000001',
       refNumber: 'ESG-TGT-2602-0001',
       category: 'GHG_SCOPE_1',
       subcategory: 'Direct Emissions',
@@ -497,7 +497,7 @@ describe('ESG / Sustainability API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/esg/targets/t1')
+        .put('/api/esg/targets/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ currentValue: 800 });
 
@@ -514,7 +514,7 @@ describe('ESG / Sustainability API Routes', () => {
       });
 
       const response = await request(app)
-        .put('/api/esg/targets/t1')
+        .put('/api/esg/targets/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'ACHIEVED' });
 
@@ -538,7 +538,7 @@ describe('ESG / Sustainability API Routes', () => {
       (mockPrisma.esgTarget.findUnique as jest.Mock).mockResolvedValueOnce(existingTarget);
 
       const response = await request(app)
-        .put('/api/esg/targets/t1')
+        .put('/api/esg/targets/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ status: 'INVALID_STATUS' });
 
@@ -550,7 +550,7 @@ describe('ESG / Sustainability API Routes', () => {
       (mockPrisma.esgTarget.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/esg/targets/t1')
+        .put('/api/esg/targets/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ currentValue: 800 });
 
@@ -576,7 +576,7 @@ describe('ESG / Sustainability API Routes', () => {
       ];
 
       const targets = [
-        { id: 't1', refNumber: 'ESG-TGT-2602-0001', category: 'GHG_SCOPE_1', subcategory: 'Direct', description: 'Reduce Scope 1', baselineValue: 1000, targetValue: 700, currentValue: 850, status: 'ON_TRACK', unit: 'tCO2e' },
+        { id: '00000000-0000-0000-0000-000000000001', refNumber: 'ESG-TGT-2602-0001', category: 'GHG_SCOPE_1', subcategory: 'Direct', description: 'Reduce Scope 1', baselineValue: 1000, targetValue: 700, currentValue: 850, status: 'ON_TRACK', unit: 'tCO2e' },
       ];
 
       (mockPrisma.esgMetric.findMany as jest.Mock)

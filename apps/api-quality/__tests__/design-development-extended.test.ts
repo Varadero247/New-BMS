@@ -50,7 +50,7 @@ describe('Design & Development Routes', () => {
 
     it('should create a design project', async () => {
       (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValue(0);
-      const created = { id: 'dd-1', refNumber: 'DD-2602-0001', ...validBody, status: 'DRAFT' };
+      const created = { id: '00000000-0000-0000-0000-000000000001', refNumber: 'DD-2602-0001', ...validBody, status: 'DRAFT' };
       (mockPrisma.$transaction as jest.Mock).mockImplementation(async (cb: any) => {
         return cb({
           designDevelopment: {
@@ -132,7 +132,7 @@ describe('Design & Development Routes', () => {
   describe('GET /api/design-development', () => {
     it('should list design projects', async () => {
       (mockPrisma.designDevelopment.findMany as jest.Mock).mockResolvedValue([
-        { id: 'dd-1', title: 'Project A' },
+        { id: '00000000-0000-0000-0000-000000000001', title: 'Project A' },
       ]);
       (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValue(1);
 
@@ -180,28 +180,28 @@ describe('Design & Development Routes', () => {
   describe('GET /api/design-development/:id', () => {
     it('should get project by id', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', title: 'Project', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', title: 'Project', deletedAt: null,
       });
       (mockPrisma.designStage.findMany as jest.Mock).mockResolvedValue([]);
 
-      const res = await request(app).get('/api/design-development/dd-1');
+      const res = await request(app).get('/api/design-development/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
-      expect(res.body.data.id).toBe('dd-1');
+      expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
     });
 
     it('should return 404 for not found', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/design-development/fake');
+      const res = await request(app).get('/api/design-development/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
       });
 
-      const res = await request(app).get('/api/design-development/dd-1');
+      const res = await request(app).get('/api/design-development/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(404);
     });
   });
@@ -209,13 +209,13 @@ describe('Design & Development Routes', () => {
   describe('PUT /api/design-development/:id', () => {
     it('should update a design project', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
       (mockPrisma.designDevelopment.update as jest.Mock).mockResolvedValue({
-        id: 'dd-1', status: 'ACTIVE',
+        id: '00000000-0000-0000-0000-000000000001', status: 'ACTIVE',
       });
 
-      const res = await request(app).put('/api/design-development/dd-1').send({
+      const res = await request(app).put('/api/design-development/00000000-0000-0000-0000-000000000001').send({
         status: 'ACTIVE',
       });
       expect(res.status).toBe(200);
@@ -224,7 +224,7 @@ describe('Design & Development Routes', () => {
     it('should return 404 for non-existent project', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/design-development/fake').send({
+      const res = await request(app).put('/api/design-development/00000000-0000-0000-0000-000000000099').send({
         status: 'ACTIVE',
       });
       expect(res.status).toBe(404);
@@ -232,10 +232,10 @@ describe('Design & Development Routes', () => {
 
     it('should return 400 for invalid status', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
 
-      const res = await request(app).put('/api/design-development/dd-1').send({
+      const res = await request(app).put('/api/design-development/00000000-0000-0000-0000-000000000001').send({
         status: 'INVALID',
       });
       expect(res.status).toBe(400);
@@ -243,10 +243,10 @@ describe('Design & Development Routes', () => {
 
     it('should return 400 for invalid priority', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
 
-      const res = await request(app).put('/api/design-development/dd-1').send({
+      const res = await request(app).put('/api/design-development/00000000-0000-0000-0000-000000000001').send({
         priority: 'SUPER_HIGH',
       });
       expect(res.status).toBe(400);
@@ -256,20 +256,20 @@ describe('Design & Development Routes', () => {
   describe('DELETE /api/design-development/:id', () => {
     it('should soft-delete a design project', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
       (mockPrisma.designDevelopment.update as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
       });
 
-      const res = await request(app).delete('/api/design-development/dd-1');
+      const res = await request(app).delete('/api/design-development/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 for non-existent', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/design-development/fake');
+      const res = await request(app).delete('/api/design-development/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -277,7 +277,7 @@ describe('Design & Development Routes', () => {
   describe('POST /api/design-development/:id/stages/:stage/submit', () => {
     it('should submit a stage for review', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
       (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValue({
         id: 'ds-1', status: 'IN_PROGRESS',
@@ -286,7 +286,7 @@ describe('Design & Development Routes', () => {
         id: 'ds-1', status: 'SUBMITTED',
       });
 
-      const res = await request(app).post('/api/design-development/dd-1/stages/PLANNING/submit').send({
+      const res = await request(app).post('/api/design-development/00000000-0000-0000-0000-000000000001/stages/PLANNING/submit').send({
         deliverables: 'Requirements doc',
       });
       expect(res.status).toBe(200);
@@ -294,29 +294,29 @@ describe('Design & Development Routes', () => {
 
     it('should return 400 for invalid stage', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
 
-      const res = await request(app).post('/api/design-development/dd-1/stages/INVALID_STAGE/submit').send({});
+      const res = await request(app).post('/api/design-development/00000000-0000-0000-0000-000000000001/stages/INVALID_STAGE/submit').send({});
       expect(res.status).toBe(400);
     });
 
     it('should return 404 for non-existent project', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/design-development/fake/stages/PLANNING/submit').send({});
+      const res = await request(app).post('/api/design-development/00000000-0000-0000-0000-000000000099/stages/PLANNING/submit').send({});
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for already approved stage', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
       (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValue({
         id: 'ds-1', status: 'APPROVED',
       });
 
-      const res = await request(app).post('/api/design-development/dd-1/stages/PLANNING/submit').send({});
+      const res = await request(app).post('/api/design-development/00000000-0000-0000-0000-000000000001/stages/PLANNING/submit').send({});
       expect(res.status).toBe(400);
     });
   });
@@ -324,22 +324,22 @@ describe('Design & Development Routes', () => {
   describe('POST /api/design-development/:id/stages/:stage/approve', () => {
     it('should return 400 for stage not submitted', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
       (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValue({
         id: 'ds-1', status: 'IN_PROGRESS',
       });
 
-      const res = await request(app).post('/api/design-development/dd-1/stages/PLANNING/approve').send({});
+      const res = await request(app).post('/api/design-development/00000000-0000-0000-0000-000000000001/stages/PLANNING/approve').send({});
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for invalid stage', async () => {
       (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dd-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
 
-      const res = await request(app).post('/api/design-development/dd-1/stages/BOGUS/approve').send({});
+      const res = await request(app).post('/api/design-development/00000000-0000-0000-0000-000000000001/stages/00000000-0000-0000-0000-000000000099/approve').send({});
       expect(res.status).toBe(400);
     });
   });

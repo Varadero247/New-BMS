@@ -50,7 +50,7 @@ beforeEach(() => {
 
 describe('Quality Context Factors API Routes', () => {
   const mockIssue = {
-    id: 'issue-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     referenceNumber: 'QMS-CTX-2601-001',
     issueOfConcern: 'Market competition increasing',
     bias: 'OPPORTUNITY',
@@ -65,7 +65,7 @@ describe('Quality Context Factors API Routes', () => {
   };
 
   const expectedContextFactor = {
-    id: 'issue-uuid-1',
+    id: '00000000-0000-0000-0000-000000000001',
     referenceNumber: 'QMS-CTX-2601-001',
     factorName: 'Market competition increasing',
     factorType: 'EXTERNAL',
@@ -180,7 +180,7 @@ describe('Quality Context Factors API Routes', () => {
     it('should return a single context factor', async () => {
       mockPrisma.qualIssue.findFirst.mockResolvedValue(mockIssue);
 
-      const res = await request(app).get('/api/context-factors/issue-uuid-1');
+      const res = await request(app).get('/api/context-factors/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -190,7 +190,7 @@ describe('Quality Context Factors API Routes', () => {
     it('should return 404 when context factor not found', async () => {
       mockPrisma.qualIssue.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).get('/api/context-factors/nonexistent');
+      const res = await request(app).get('/api/context-factors/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
@@ -199,7 +199,7 @@ describe('Quality Context Factors API Routes', () => {
     it('should return 500 on database error', async () => {
       mockPrisma.qualIssue.findFirst.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).get('/api/context-factors/issue-uuid-1');
+      const res = await request(app).get('/api/context-factors/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });
@@ -212,7 +212,7 @@ describe('Quality Context Factors API Routes', () => {
       mockPrisma.qualIssue.update.mockResolvedValue(updated);
 
       const res = await request(app)
-        .put('/api/context-factors/issue-uuid-1')
+        .put('/api/context-factors/00000000-0000-0000-0000-000000000001')
         .send({ status: 'MONITORED' });
 
       expect(res.status).toBe(200);
@@ -223,7 +223,7 @@ describe('Quality Context Factors API Routes', () => {
       mockPrisma.qualIssue.findFirst.mockResolvedValue(null);
 
       const res = await request(app)
-        .put('/api/context-factors/nonexistent')
+        .put('/api/context-factors/00000000-0000-0000-0000-000000000099')
         .send({ status: 'CLOSED' });
 
       expect(res.status).toBe(404);
@@ -234,7 +234,7 @@ describe('Quality Context Factors API Routes', () => {
       mockPrisma.qualIssue.update.mockRejectedValue(new Error('DB error'));
 
       const res = await request(app)
-        .put('/api/context-factors/issue-uuid-1')
+        .put('/api/context-factors/00000000-0000-0000-0000-000000000001')
         .send({ factorName: 'Updated' });
 
       expect(res.status).toBe(500);
@@ -246,7 +246,7 @@ describe('Quality Context Factors API Routes', () => {
       mockPrisma.qualIssue.findFirst.mockResolvedValue(mockIssue);
       mockPrisma.qualIssue.update.mockResolvedValue({ ...mockIssue, deletedAt: new Date() });
 
-      const res = await request(app).delete('/api/context-factors/issue-uuid-1');
+      const res = await request(app).delete('/api/context-factors/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -256,7 +256,7 @@ describe('Quality Context Factors API Routes', () => {
     it('should return 404 when context factor not found', async () => {
       mockPrisma.qualIssue.findFirst.mockResolvedValue(null);
 
-      const res = await request(app).delete('/api/context-factors/nonexistent');
+      const res = await request(app).delete('/api/context-factors/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
     });
@@ -265,7 +265,7 @@ describe('Quality Context Factors API Routes', () => {
       mockPrisma.qualIssue.findFirst.mockResolvedValue(mockIssue);
       mockPrisma.qualIssue.update.mockRejectedValue(new Error('DB error'));
 
-      const res = await request(app).delete('/api/context-factors/issue-uuid-1');
+      const res = await request(app).delete('/api/context-factors/00000000-0000-0000-0000-000000000001');
 
       expect(res.status).toBe(500);
     });

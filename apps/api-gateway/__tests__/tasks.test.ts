@@ -15,11 +15,11 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
-const mockCreateTask = jest.fn().mockResolvedValue({ id: 't1', refNumber: 'TSK-2602-001', title: 'Test Task', status: 'OPEN' });
+const mockCreateTask = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', refNumber: 'TSK-2602-001', title: 'Test Task', status: 'OPEN' });
 const mockGetTasks = jest.fn().mockResolvedValue({ tasks: [], total: 0 });
-const mockGetTaskById = jest.fn().mockResolvedValue({ id: 't1', title: 'Test', assigneeId: 'user-1', status: 'OPEN' });
-const mockUpdateTask = jest.fn().mockResolvedValue({ id: 't1', title: 'Updated', status: 'IN_PROGRESS' });
-const mockCompleteTask = jest.fn().mockResolvedValue({ id: 't1', status: 'COMPLETE', completedAt: new Date().toISOString() });
+const mockGetTaskById = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Test', assigneeId: 'user-1', status: 'OPEN' });
+const mockUpdateTask = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated', status: 'IN_PROGRESS' });
+const mockCompleteTask = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETE', completedAt: new Date().toISOString() });
 const mockDeleteTask = jest.fn().mockResolvedValue(undefined);
 const mockGetMyTasks = jest.fn().mockResolvedValue({ overdue: [], today: [], thisWeek: [], later: [] });
 
@@ -49,7 +49,7 @@ describe('Tasks Routes', () => {
   describe('GET /api/tasks/my-tasks', () => {
     it('returns grouped tasks for current user', async () => {
       mockGetMyTasks.mockResolvedValue({
-        overdue: [{ id: 't1', title: 'Overdue task' }],
+        overdue: [{ id: '00000000-0000-0000-0000-000000000001', title: 'Overdue task' }],
         today: [],
         thisWeek: [],
         later: [],
@@ -79,7 +79,7 @@ describe('Tasks Routes', () => {
 
   describe('GET /api/tasks', () => {
     it('returns paginated tasks list', async () => {
-      mockGetTasks.mockResolvedValue({ tasks: [{ id: 't1', title: 'Task 1' }], total: 1 });
+      mockGetTasks.mockResolvedValue({ tasks: [{ id: '00000000-0000-0000-0000-000000000001', title: 'Task 1' }], total: 1 });
       const res = await request(app).get('/api/tasks');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -93,7 +93,7 @@ describe('Tasks Routes', () => {
 
   describe('PATCH /api/tasks/:id/complete', () => {
     it('marks a task complete', async () => {
-      const res = await request(app).patch('/api/tasks/t1/complete');
+      const res = await request(app).patch('/api/tasks/00000000-0000-0000-0000-000000000001/complete');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
@@ -102,7 +102,7 @@ describe('Tasks Routes', () => {
   describe('PUT /api/tasks/:id', () => {
     it('updates task fields', async () => {
       const res = await request(app)
-        .put('/api/tasks/t1')
+        .put('/api/tasks/00000000-0000-0000-0000-000000000001')
         .send({ title: 'Updated title', status: 'IN_PROGRESS' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -111,7 +111,7 @@ describe('Tasks Routes', () => {
 
   describe('DELETE /api/tasks/:id', () => {
     it('deletes a task', async () => {
-      const res = await request(app).delete('/api/tasks/t1');
+      const res = await request(app).delete('/api/tasks/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

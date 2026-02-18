@@ -2,10 +2,12 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
 import { calculateWelPercentage, getWelStatus } from '../services/riskCalculator';
 
 const router = Router();
+router.param('id', validateIdParam());
 const logger = createLogger('chem-monitoring');
 
 const monitoringTypeEnum = z.enum(['AIR_SAMPLE', 'BIOLOGICAL', 'WIPE_SAMPLE']);

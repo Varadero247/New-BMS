@@ -16,14 +16,14 @@ jest.mock('@ims/monitoring', () => ({
 }));
 
 const mockCreateComment = jest.fn().mockResolvedValue({
-  id: 'c1', body: 'Test comment', mentions: [], authorId: 'user-1', authorName: 'Admin',
+  id: '00000000-0000-0000-0000-000000000001', body: 'Test comment', mentions: [], authorId: 'user-1', authorName: 'Admin',
 });
 const mockGetComments = jest.fn().mockResolvedValue({ comments: [], total: 0 });
-const mockUpdateComment = jest.fn().mockResolvedValue({ id: 'c1', body: 'Updated' });
+const mockUpdateComment = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', body: 'Updated' });
 const mockDeleteComment = jest.fn().mockResolvedValue(undefined);
 const mockAddReaction = jest.fn().mockResolvedValue({ id: 'r1', commentId: 'c1', userId: 'user-1', emoji: '👍' });
 const mockRemoveReaction = jest.fn().mockResolvedValue(undefined);
-const mockGetCommentById = jest.fn().mockResolvedValue({ id: 'c1', authorId: 'user-1', createdAt: new Date().toISOString() });
+const mockGetCommentById = jest.fn().mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', authorId: 'user-1', createdAt: new Date().toISOString() });
 
 jest.mock('@ims/comments', () => ({
   createComment: (...args: any[]) => mockCreateComment(...args),
@@ -79,7 +79,7 @@ describe('Comments Routes', () => {
   describe('GET /api/comments', () => {
     it('returns comments for a record', async () => {
       mockGetComments.mockResolvedValue({
-        comments: [{ id: 'c1', body: 'Test' }],
+        comments: [{ id: '00000000-0000-0000-0000-000000000001', body: 'Test' }],
         total: 1,
       });
       const res = await request(app).get('/api/comments?recordType=ncr&recordId=r1');
@@ -101,7 +101,7 @@ describe('Comments Routes', () => {
   describe('PUT /api/comments/:id', () => {
     it('updates a comment', async () => {
       const res = await request(app)
-        .put('/api/comments/c1')
+        .put('/api/comments/00000000-0000-0000-0000-000000000001')
         .send({ body: 'Updated' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -110,7 +110,7 @@ describe('Comments Routes', () => {
     it('rejects edit from non-author', async () => {
       mockUpdateComment.mockRejectedValueOnce(new Error('Only the author can edit this comment'));
       const res = await request(app)
-        .put('/api/comments/c1')
+        .put('/api/comments/00000000-0000-0000-0000-000000000001')
         .send({ body: 'Hack' });
       expect(res.status).toBe(403);
     });
@@ -118,14 +118,14 @@ describe('Comments Routes', () => {
 
   describe('DELETE /api/comments/:id', () => {
     it('soft-deletes a comment by author', async () => {
-      const res = await request(app).delete('/api/comments/c1');
+      const res = await request(app).delete('/api/comments/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
 
     it('returns 404 for non-existent comment', async () => {
       mockDeleteComment.mockRejectedValueOnce(new Error('Comment not found'));
-      const res = await request(app).delete('/api/comments/nonexistent');
+      const res = await request(app).delete('/api/comments/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
@@ -133,7 +133,7 @@ describe('Comments Routes', () => {
   describe('POST /api/comments/:id/reactions', () => {
     it('adds a reaction', async () => {
       const res = await request(app)
-        .post('/api/comments/c1/reactions')
+        .post('/api/comments/00000000-0000-0000-0000-000000000001/reactions')
         .send({ emoji: '👍' });
       expect(res.status).toBe(201);
       expect(res.body.success).toBe(true);
@@ -141,7 +141,7 @@ describe('Comments Routes', () => {
 
     it('rejects missing emoji', async () => {
       const res = await request(app)
-        .post('/api/comments/c1/reactions')
+        .post('/api/comments/00000000-0000-0000-0000-000000000001/reactions')
         .send({});
       expect(res.status).toBe(400);
     });
@@ -149,7 +149,7 @@ describe('Comments Routes', () => {
 
   describe('DELETE /api/comments/:id/reactions/:emoji', () => {
     it('removes a reaction', async () => {
-      const res = await request(app).delete('/api/comments/c1/reactions/%F0%9F%91%8D');
+      const res = await request(app).delete('/api/comments/00000000-0000-0000-0000-000000000001/reactions/%F0%9F%91%8D');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });

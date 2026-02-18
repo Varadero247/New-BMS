@@ -37,7 +37,7 @@ const pastDate = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);    // 5 days ag
 const soonDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);    // 3 days out
 
 const mockEvent = {
-  id: 'evt-1',
+  id: '00000000-0000-0000-0000-000000000001',
   title: 'Annual ISO 9001 Audit',
   description: 'Internal audit for quality management system',
   type: 'AUDIT',
@@ -481,7 +481,7 @@ describe('Compliance Calendar API Routes', () => {
       } as any);
 
       const response = await request(app)
-        .put('/api/dashboard/compliance-calendar/events/evt-1')
+        .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated Title' });
 
@@ -494,7 +494,7 @@ describe('Compliance Calendar API Routes', () => {
       mockPrisma.complianceEvent.findUnique.mockResolvedValue(null);
 
       const response = await request(app)
-        .put('/api/dashboard/compliance-calendar/events/non-existent')
+        .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -509,7 +509,7 @@ describe('Compliance Calendar API Routes', () => {
       } as any);
 
       const response = await request(app)
-        .put('/api/dashboard/compliance-calendar/events/evt-1')
+        .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -526,7 +526,7 @@ describe('Compliance Calendar API Routes', () => {
       } as any);
 
       const response = await request(app)
-        .put('/api/dashboard/compliance-calendar/events/evt-1')
+        .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ completedAt, status: 'COMPLETED' });
 
@@ -543,7 +543,7 @@ describe('Compliance Calendar API Routes', () => {
       } as any);
 
       await request(app)
-        .put('/api/dashboard/compliance-calendar/events/evt-1')
+        .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ dueDate: pastDate.toISOString() });
 
@@ -560,7 +560,7 @@ describe('Compliance Calendar API Routes', () => {
       mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent as any);
 
       const response = await request(app)
-        .put('/api/dashboard/compliance-calendar/events/evt-1')
+        .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ standard: 'INVALID_STANDARD' });
 
@@ -573,7 +573,7 @@ describe('Compliance Calendar API Routes', () => {
       mockPrisma.complianceEvent.update.mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
-        .put('/api/dashboard/compliance-calendar/events/evt-1')
+        .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token')
         .send({ title: 'Updated' });
 
@@ -594,19 +594,19 @@ describe('Compliance Calendar API Routes', () => {
       } as any);
 
       const response = await request(app)
-        .delete('/api/dashboard/compliance-calendar/events/evt-1')
+        .delete('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toEqual({ id: 'evt-1', deleted: true });
+      expect(response.body.data).toEqual({ id: '00000000-0000-0000-0000-000000000001', deleted: true });
     });
 
     it('should return 404 for non-existent event', async () => {
       mockPrisma.complianceEvent.findUnique.mockResolvedValue(null);
 
       const response = await request(app)
-        .delete('/api/dashboard/compliance-calendar/events/non-existent')
+        .delete('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000099')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -620,7 +620,7 @@ describe('Compliance Calendar API Routes', () => {
       } as any);
 
       const response = await request(app)
-        .delete('/api/dashboard/compliance-calendar/events/evt-1')
+        .delete('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(404);
@@ -631,7 +631,7 @@ describe('Compliance Calendar API Routes', () => {
       mockPrisma.complianceEvent.update.mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
-        .delete('/api/dashboard/compliance-calendar/events/evt-1')
+        .delete('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(500);

@@ -101,7 +101,7 @@ describe('Import Routes', () => {
     it('returns 404 for unknown type', async () => {
       mockGetTemplateHeaders.mockReturnValueOnce(null);
       mockGetImportSchema.mockReturnValueOnce(undefined);
-      const res = await request(app).get('/api/admin/import/templates/unknown');
+      const res = await request(app).get('/api/admin/import/templates/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });

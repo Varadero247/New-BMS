@@ -51,7 +51,7 @@ describe('Counterfeit Prevention Routes', () => {
     it('should create a counterfeit report', async () => {
       (mockPrisma.counterfeitReport.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.counterfeitReport.create as jest.Mock).mockResolvedValue({
-        id: 'cf-1', refNumber: 'SUCP-2602-0001', ...validBody, status: 'REPORTED',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'SUCP-2602-0001', ...validBody, status: 'REPORTED',
       });
 
       const res = await request(app).post('/api/counterfeit/reports').send(validBody);
@@ -103,7 +103,7 @@ describe('Counterfeit Prevention Routes', () => {
 
   describe('GET /api/counterfeit/reports', () => {
     it('should list counterfeit reports', async () => {
-      (mockPrisma.counterfeitReport.findMany as jest.Mock).mockResolvedValue([{ id: 'cf-1' }]);
+      (mockPrisma.counterfeitReport.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.counterfeitReport.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/counterfeit/reports');
@@ -132,36 +132,36 @@ describe('Counterfeit Prevention Routes', () => {
   describe('GET /api/counterfeit/reports/:id', () => {
     it('should get report details', async () => {
       (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({
-        id: 'cf-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
       });
 
-      const res = await request(app).get('/api/counterfeit/reports/cf-1');
+      const res = await request(app).get('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/counterfeit/reports/fake');
+      const res = await request(app).get('/api/counterfeit/reports/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted', async () => {
       (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({
-        id: 'cf-1', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
       });
 
-      const res = await request(app).get('/api/counterfeit/reports/cf-1');
+      const res = await request(app).get('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(404);
     });
   });
 
   describe('PUT /api/counterfeit/reports/:id', () => {
     it('should update investigation', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
-      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: 'cf-1', status: 'UNDER_INVESTIGATION' });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'UNDER_INVESTIGATION' });
 
-      const res = await request(app).put('/api/counterfeit/reports/cf-1').send({
+      const res = await request(app).put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001').send({
         status: 'UNDER_INVESTIGATION',
         investigationNotes: 'XRF analysis scheduled',
       });
@@ -171,54 +171,54 @@ describe('Counterfeit Prevention Routes', () => {
     it('should return 404 if not found', async () => {
       (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/counterfeit/reports/fake').send({ status: 'CLOSED' });
+      const res = await request(app).put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000099').send({ status: 'CLOSED' });
       expect(res.status).toBe(404);
     });
 
     it('should accept CONFIRMED_COUNTERFEIT status', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
-      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: 'cf-1' });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-      const res = await request(app).put('/api/counterfeit/reports/cf-1').send({
+      const res = await request(app).put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001').send({
         status: 'CONFIRMED_COUNTERFEIT',
       });
       expect(res.status).toBe(200);
     });
 
     it('should accept CONFIRMED_AUTHENTIC status', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
-      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: 'cf-1' });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-      const res = await request(app).put('/api/counterfeit/reports/cf-1').send({
+      const res = await request(app).put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001').send({
         status: 'CONFIRMED_AUTHENTIC',
       });
       expect(res.status).toBe(200);
     });
 
     it('should accept disposition DESTROY', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
-      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: 'cf-1' });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-      const res = await request(app).put('/api/counterfeit/reports/cf-1').send({
+      const res = await request(app).put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001').send({
         disposition: 'DESTROY',
       });
       expect(res.status).toBe(200);
     });
 
     it('should accept disposition RETURN_TO_SUPPLIER', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
-      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: 'cf-1' });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-      const res = await request(app).put('/api/counterfeit/reports/cf-1').send({
+      const res = await request(app).put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001').send({
         disposition: 'RETURN_TO_SUPPLIER',
       });
       expect(res.status).toBe(200);
     });
 
     it('should return 400 for invalid status', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).put('/api/counterfeit/reports/cf-1').send({
+      const res = await request(app).put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001').send({
         status: 'INVALID_STATUS',
       });
       expect(res.status).toBe(400);
@@ -228,13 +228,13 @@ describe('Counterfeit Prevention Routes', () => {
   describe('POST /api/counterfeit/reports/:id/quarantine', () => {
     it('should quarantine a part', async () => {
       (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({
-        id: 'cf-1', deletedAt: null, partNumber: 'IC-555', refNumber: 'SUCP-2602-0001',
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, partNumber: 'IC-555', refNumber: 'SUCP-2602-0001',
       });
       (mockPrisma.quarantineRecord.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.quarantineRecord.create as jest.Mock).mockResolvedValue({ id: 'qr-1', status: 'QUARANTINED' });
-      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: 'cf-1' });
+      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
-      const res = await request(app).post('/api/counterfeit/reports/cf-1/quarantine').send({
+      const res = await request(app).post('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001/quarantine').send({
         quantity: 100, location: 'Quarantine Bay A',
       });
       expect(res.status).toBe(201);
@@ -243,25 +243,25 @@ describe('Counterfeit Prevention Routes', () => {
     it('should return 404 if report not found', async () => {
       (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/counterfeit/reports/fake/quarantine').send({
+      const res = await request(app).post('/api/counterfeit/reports/00000000-0000-0000-0000-000000000099/quarantine').send({
         quantity: 10, location: 'Bay A',
       });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for missing quantity', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/counterfeit/reports/cf-1/quarantine').send({
+      const res = await request(app).post('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001/quarantine').send({
         location: 'Bay A',
       });
       expect(res.status).toBe(400);
     });
 
     it('should return 400 for missing location', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/counterfeit/reports/cf-1/quarantine').send({
+      const res = await request(app).post('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001/quarantine').send({
         quantity: 10,
       });
       expect(res.status).toBe(400);
@@ -270,10 +270,10 @@ describe('Counterfeit Prevention Routes', () => {
 
   describe('POST /api/counterfeit/reports/:id/notify', () => {
     it('should update GIDEP notification', async () => {
-      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: 'cf-1', deletedAt: null });
-      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: 'cf-1', gidepReported: true });
+      (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', gidepReported: true });
 
-      const res = await request(app).post('/api/counterfeit/reports/cf-1/notify').send({
+      const res = await request(app).post('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001/notify').send({
         notifyGidep: true, gidepRef: 'GIDEP-2026-001',
       });
       expect(res.status).toBe(200);
@@ -282,7 +282,7 @@ describe('Counterfeit Prevention Routes', () => {
     it('should return 404 if not found', async () => {
       (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/counterfeit/reports/fake/notify').send({ notifyGidep: true });
+      const res = await request(app).post('/api/counterfeit/reports/00000000-0000-0000-0000-000000000099/notify').send({ notifyGidep: true });
       expect(res.status).toBe(404);
     });
   });

@@ -5,12 +5,14 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { checkOwnership, scopeToUser } from '@ims/service-auth';
+import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-ai-analysis');
 
 const router: IRouter = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // GET /api/analyses - List AI analyses
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {

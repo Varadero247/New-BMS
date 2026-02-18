@@ -4,9 +4,11 @@ import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { renderTemplateToHtml } from '@ims/templates';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-gateway');
 
 const router = Router();
+router.param('id', validateIdParam());
 
 // All template routes require authentication
 router.use(authenticate);

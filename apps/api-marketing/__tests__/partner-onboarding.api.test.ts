@@ -31,20 +31,20 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
 
     const res = await request(app)
-      .post('/api/partner-onboarding/enqueue/partner-123')
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'partner@example.com', name: 'Test Partner' });
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.jobsScheduled).toBe(3);
-    expect(res.body.data.sequenceId).toBe('partner-onboarding-partner-123');
+    expect(res.body.data.sequenceId).toBe('partner-onboarding-00000000-0000-0000-0000-000000000001');
   });
 
   it('should schedule 3 jobs even without a name', async () => {
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
 
     const res = await request(app)
-      .post('/api/partner-onboarding/enqueue/partner-456')
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'partner@example.com' });
 
     expect(res.status).toBe(201);
@@ -56,20 +56,20 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
 
     await request(app)
-      .post('/api/partner-onboarding/enqueue/partner-789')
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'partner@example.com' });
 
     const firstCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[0][0];
     expect(firstCall.data.template).toBe('partner_welcome');
     expect(firstCall.data.email).toBe('partner@example.com');
-    expect(firstCall.data.sequenceId).toBe('partner-onboarding-partner-789');
+    expect(firstCall.data.sequenceId).toBe('partner-onboarding-00000000-0000-0000-0000-000000000001');
   });
 
   it('should create a day 7 tips email', async () => {
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
 
     await request(app)
-      .post('/api/partner-onboarding/enqueue/partner-789')
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'partner@example.com' });
 
     const secondCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[1][0];
@@ -80,7 +80,7 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
 
     await request(app)
-      .post('/api/partner-onboarding/enqueue/partner-789')
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'partner@example.com' });
 
     const thirdCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[2][0];
@@ -89,7 +89,7 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
 
   it('should return 400 when email is missing', async () => {
     const res = await request(app)
-      .post('/api/partner-onboarding/enqueue/partner-123')
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({});
 
     expect(res.status).toBe(400);
@@ -99,7 +99,7 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
 
   it('should return 400 when email is empty string', async () => {
     const res = await request(app)
-      .post('/api/partner-onboarding/enqueue/partner-123')
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: '' });
 
     expect(res.status).toBe(400);
@@ -110,7 +110,7 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
     (prisma.mktEmailJob.create as jest.Mock).mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
-      .post('/api/partner-onboarding/enqueue/partner-123')
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
       .send({ email: 'partner@example.com' });
 
     expect(res.status).toBe(500);

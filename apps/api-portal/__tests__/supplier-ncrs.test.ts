@@ -39,7 +39,7 @@ beforeEach(() => {
 describe('GET /api/supplier/ncrs', () => {
   it('should list NCRs', async () => {
     const items = [
-      { id: 'ncr-1', reportType: 'NCR', description: 'Material defect', status: 'OPEN' },
+      { id: '00000000-0000-0000-0000-000000000001', reportType: 'NCR', description: 'Material defect', status: 'OPEN' },
     ];
     (prisma as any).portalQualityReport.findMany.mockResolvedValue(items);
     (prisma as any).portalQualityReport.count.mockResolvedValue(1);
@@ -80,12 +80,12 @@ describe('GET /api/supplier/ncrs', () => {
 
 describe('POST /api/supplier/ncrs/:id/response', () => {
   it('should submit a corrective action response', async () => {
-    const ncr = { id: 'ncr-1', portalUserId: 'user-123', reportType: 'NCR', status: 'OPEN', attachments: null };
+    const ncr = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', reportType: 'NCR', status: 'OPEN', attachments: null };
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(ncr);
     (prisma as any).portalQualityReport.update.mockResolvedValue({ ...ncr, status: 'INVESTIGATING', resolution: 'Fixed material source' });
 
     const res = await request(app)
-      .post('/api/supplier/ncrs/ncr-1/response')
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
       .send({ resolution: 'Fixed material source' });
 
     expect(res.status).toBe(200);
@@ -96,18 +96,18 @@ describe('POST /api/supplier/ncrs/:id/response', () => {
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .post('/api/supplier/ncrs/nonexistent/response')
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000099/response')
       .send({ resolution: 'Fixed' });
 
     expect(res.status).toBe(404);
   });
 
   it('should return 400 if NCR already closed', async () => {
-    const ncr = { id: 'ncr-1', portalUserId: 'user-123', reportType: 'NCR', status: 'CLOSED', attachments: null };
+    const ncr = { id: '00000000-0000-0000-0000-000000000001', portalUserId: 'user-123', reportType: 'NCR', status: 'CLOSED', attachments: null };
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(ncr);
 
     const res = await request(app)
-      .post('/api/supplier/ncrs/ncr-1/response')
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
       .send({ resolution: 'Fixed' });
 
     expect(res.status).toBe(400);
@@ -116,7 +116,7 @@ describe('POST /api/supplier/ncrs/:id/response', () => {
 
   it('should return 400 for empty resolution', async () => {
     const res = await request(app)
-      .post('/api/supplier/ncrs/ncr-1/response')
+      .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')
       .send({ resolution: '' });
 
     expect(res.status).toBe(400);

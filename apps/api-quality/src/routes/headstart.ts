@@ -3,12 +3,14 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { scopeToUser } from '@ims/service-auth';
+import { validateIdParam } from '@ims/shared';
 import { randomUUID } from 'crypto';
 
 const logger = createLogger('api-quality:headstart');
 const router: Router = Router();
 
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ── ISO Standard Templates ──────────────────────────────────────────
 

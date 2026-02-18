@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 const mockStakeholder = {
-  id: 'stk-1',
+  id: '00000000-0000-0000-0000-000000000001',
   name: 'Acme Investors',
   type: 'INVESTOR',
   contactEmail: 'invest@acme.com',
@@ -128,15 +128,15 @@ describe('GET /api/stakeholders/:id', () => {
   it('should return a single stakeholder', async () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
 
-    const res = await request(app).get('/api/stakeholders/stk-1');
+    const res = await request(app).get('/api/stakeholders/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('stk-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 when not found', async () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/stakeholders/nonexistent');
+    const res = await request(app).get('/api/stakeholders/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });
@@ -146,7 +146,7 @@ describe('PUT /api/stakeholders/:id', () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
     (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({ ...mockStakeholder, engagementLevel: 'MEDIUM' });
 
-    const res = await request(app).put('/api/stakeholders/stk-1').send({ engagementLevel: 'MEDIUM' });
+    const res = await request(app).put('/api/stakeholders/00000000-0000-0000-0000-000000000001').send({ engagementLevel: 'MEDIUM' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -154,12 +154,12 @@ describe('PUT /api/stakeholders/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).put('/api/stakeholders/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).put('/api/stakeholders/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
     expect(res.status).toBe(404);
   });
 
   it('should return 400 for invalid data', async () => {
-    const res = await request(app).put('/api/stakeholders/stk-1').send({ type: 'INVALID' });
+    const res = await request(app).put('/api/stakeholders/00000000-0000-0000-0000-000000000001').send({ type: 'INVALID' });
     expect(res.status).toBe(400);
   });
 });
@@ -169,7 +169,7 @@ describe('DELETE /api/stakeholders/:id', () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(mockStakeholder);
     (prisma.esgStakeholder.update as jest.Mock).mockResolvedValue({ ...mockStakeholder, deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/stakeholders/stk-1');
+    const res = await request(app).delete('/api/stakeholders/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
@@ -177,7 +177,7 @@ describe('DELETE /api/stakeholders/:id', () => {
   it('should return 404 when not found', async () => {
     (prisma.esgStakeholder.findFirst as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/stakeholders/nonexistent');
+    const res = await request(app).delete('/api/stakeholders/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 });

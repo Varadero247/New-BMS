@@ -4,10 +4,12 @@ import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-gateway');
 
 const router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ---------------------------------------------------------------------------
 // Validation schemas

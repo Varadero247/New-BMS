@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 
 const createExpenseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -18,6 +19,7 @@ const updateExpenseSchema = createExpenseSchema.partial();
 const logger = createLogger('expenses');
 const router: Router = Router();
 router.use(authenticate);
+router.param('id', validateIdParam());
 
 // ---------------------------------------------------------------------------
 // GET / — List expenses with pagination, filter by status/category

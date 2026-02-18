@@ -81,7 +81,7 @@ describe('POST /api/renewal/:orgId/send-reminder', () => {
     (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 
     const res = await request(app)
-      .post('/api/renewal/org-1/send-reminder')
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
       .send({ type: 'day90' });
 
     expect(res.status).toBe(200);
@@ -94,7 +94,7 @@ describe('POST /api/renewal/:orgId/send-reminder', () => {
     (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue(null);
 
     const res = await request(app)
-      .post('/api/renewal/nonexistent/send-reminder')
+      .post('/api/renewal/00000000-0000-0000-0000-000000000099/send-reminder')
       .send({ type: 'day30' });
 
     expect(res.status).toBe(404);
@@ -104,7 +104,7 @@ describe('POST /api/renewal/:orgId/send-reminder', () => {
     (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
 
     const res = await request(app)
-      .post('/api/renewal/org-1/send-reminder')
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
       .send({ type: 'day999' });
 
     expect(res.status).toBe(400);
@@ -117,7 +117,7 @@ describe('POST /api/renewal/:orgId/send-reminder', () => {
       (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
 
       const res = await request(app)
-        .post('/api/renewal/org-1/send-reminder')
+        .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
         .send({ type });
 
       expect(res.status).toBe(200);

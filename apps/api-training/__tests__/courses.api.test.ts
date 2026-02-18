@@ -15,7 +15,7 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/courses', () => {
   it('should return courses', async () => {
-    (prisma as any).trainCourse.findMany.mockResolvedValue([{ id: '1', title: 'Test' }]);
+    (prisma as any).trainCourse.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', title: 'Test' }]);
     (prisma as any).trainCourse.count.mockResolvedValue(1);
     const res = await request(app).get('/api/courses');
     expect(res.status).toBe(200);
@@ -26,21 +26,21 @@ describe('GET /api/courses', () => {
 describe('GET /api/courses/:id', () => {
   it('should return 404 if not found', async () => {
     (prisma as any).trainCourse.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/courses/nope');
+    const res = await request(app).get('/api/courses/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).trainCourse.findFirst.mockResolvedValue({ id: '1' });
-    const res = await request(app).get('/api/courses/1');
+    (prisma as any).trainCourse.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).get('/api/courses/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 });
 
 describe('POST /api/courses', () => {
   it('should create', async () => {
     (prisma as any).trainCourse.count.mockResolvedValue(0);
-    (prisma as any).trainCourse.create.mockResolvedValue({ id: '1', title: 'New' });
+    (prisma as any).trainCourse.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'New' });
     const res = await request(app).post('/api/courses').send({ title: 'New', type: 'MANDATORY' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
@@ -49,18 +49,18 @@ describe('POST /api/courses', () => {
 
 describe('PUT /api/courses/:id', () => {
   it('should update', async () => {
-    (prisma as any).trainCourse.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).trainCourse.update.mockResolvedValue({ id: '1', title: 'Updated' });
-    const res = await request(app).put('/api/courses/1').send({ title: 'Updated' });
+    (prisma as any).trainCourse.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).trainCourse.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', title: 'Updated' });
+    const res = await request(app).put('/api/courses/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
 });
 
 describe('DELETE /api/courses/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).trainCourse.findFirst.mockResolvedValue({ id: '1' });
-    (prisma as any).trainCourse.update.mockResolvedValue({ id: '1' });
-    const res = await request(app).delete('/api/courses/1');
+    (prisma as any).trainCourse.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).trainCourse.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/courses/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });

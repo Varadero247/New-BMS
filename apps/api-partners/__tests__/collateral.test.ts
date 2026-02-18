@@ -33,7 +33,7 @@ app.use('/api/collateral', collateralRouter);
 beforeEach(() => { jest.clearAllMocks(); });
 
 const mockCollateral = {
-  id: 'col-1',
+  id: '00000000-0000-0000-0000-000000000001',
   title: 'ISO 9001 Case Study',
   description: 'Manufacturing success story',
   type: 'CASE_STUDY',
@@ -98,7 +98,7 @@ describe('GET /api/collateral/:id/download', () => {
       downloadCount: 43,
     });
 
-    const res = await request(app).get('/api/collateral/col-1/download');
+    const res = await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000001/download');
     expect(res.status).toBe(200);
     expect(res.body.data.fileUrl).toBe('https://storage.example.com/case-study.pdf');
     expect(portalPrisma.mktPartnerCollateral.update).toHaveBeenCalledWith(
@@ -112,7 +112,7 @@ describe('GET /api/collateral/:id/download', () => {
     (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
     (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue(null);
 
-    const res = await request(app).get('/api/collateral/nonexistent/download');
+    const res = await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000099/download');
     expect(res.status).toBe(404);
   });
 
@@ -123,7 +123,7 @@ describe('GET /api/collateral/:id/download', () => {
       accessTier: 'GCC_SPECIALIST',
     });
 
-    const res = await request(app).get('/api/collateral/col-1/download');
+    const res = await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000001/download');
     expect(res.status).toBe(403);
   });
 });

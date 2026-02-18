@@ -44,7 +44,7 @@ beforeEach(() => {
 describe('GET /api/alerts', () => {
   it('should return a list of alerts with pagination', async () => {
     const alerts = [
-      { id: 'alrt-1', name: 'High TRIR', metric: 'trir', status: 'ACTIVE' },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'High TRIR', metric: 'trir', status: 'ACTIVE' },
       { id: 'alrt-2', name: 'Low FPY', metric: 'fpy', status: 'TRIGGERED' },
     ];
     (prisma as any).analyticsAlert.findMany.mockResolvedValue(alerts);
@@ -120,7 +120,7 @@ describe('POST /api/alerts', () => {
 // ===================================================================
 describe('GET /api/alerts/triggered', () => {
   it('should return triggered alerts', async () => {
-    const alerts = [{ id: 'alrt-1', status: 'TRIGGERED', triggeredAt: new Date() }];
+    const alerts = [{ id: '00000000-0000-0000-0000-000000000001', status: 'TRIGGERED', triggeredAt: new Date() }];
     (prisma as any).analyticsAlert.findMany.mockResolvedValue(alerts);
 
     const res = await request(app).get('/api/alerts/triggered');
@@ -135,18 +135,18 @@ describe('GET /api/alerts/triggered', () => {
 // ===================================================================
 describe('GET /api/alerts/:id', () => {
   it('should return an alert by ID', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: 'alrt-1', name: 'Test' });
+    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Test' });
 
-    const res = await request(app).get('/api/alerts/alrt-1');
+    const res = await request(app).get('/api/alerts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('alrt-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for non-existent alert', async () => {
     (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/alerts/nonexistent');
+    const res = await request(app).get('/api/alerts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -157,10 +157,10 @@ describe('GET /api/alerts/:id', () => {
 // ===================================================================
 describe('PUT /api/alerts/:id', () => {
   it('should update an alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: 'alrt-1' });
-    (prisma as any).analyticsAlert.update.mockResolvedValue({ id: 'alrt-1', name: 'Updated' });
+    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsAlert.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
 
-    const res = await request(app).put('/api/alerts/alrt-1').send({ name: 'Updated' });
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
 
     expect(res.status).toBe(200);
     expect(res.body.data.name).toBe('Updated');
@@ -169,7 +169,7 @@ describe('PUT /api/alerts/:id', () => {
   it('should return 404 for non-existent alert', async () => {
     (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/alerts/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
   });
@@ -180,10 +180,10 @@ describe('PUT /api/alerts/:id', () => {
 // ===================================================================
 describe('DELETE /api/alerts/:id', () => {
   it('should soft delete an alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: 'alrt-1' });
-    (prisma as any).analyticsAlert.update.mockResolvedValue({ id: 'alrt-1', deletedAt: new Date() });
+    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).analyticsAlert.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date() });
 
-    const res = await request(app).delete('/api/alerts/alrt-1');
+    const res = await request(app).delete('/api/alerts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.data.message).toBe('Alert deleted');
@@ -192,7 +192,7 @@ describe('DELETE /api/alerts/:id', () => {
   it('should return 404 for non-existent alert', async () => {
     (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).delete('/api/alerts/nonexistent');
+    const res = await request(app).delete('/api/alerts/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -203,19 +203,19 @@ describe('DELETE /api/alerts/:id', () => {
 // ===================================================================
 describe('PUT /api/alerts/:id/acknowledge', () => {
   it('should acknowledge a triggered alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: 'alrt-1', status: 'TRIGGERED' });
-    (prisma as any).analyticsAlert.update.mockResolvedValue({ id: 'alrt-1', status: 'ACKNOWLEDGED', acknowledgedBy: 'user-123' });
+    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'TRIGGERED' });
+    (prisma as any).analyticsAlert.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ACKNOWLEDGED', acknowledgedBy: 'user-123' });
 
-    const res = await request(app).put('/api/alerts/alrt-1/acknowledge');
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('ACKNOWLEDGED');
   });
 
   it('should reject acknowledge for non-triggered alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: 'alrt-1', status: 'ACTIVE' });
+    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ACTIVE' });
 
-    const res = await request(app).put('/api/alerts/alrt-1/acknowledge');
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000001/acknowledge');
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_STATE');
@@ -224,7 +224,7 @@ describe('PUT /api/alerts/:id/acknowledge', () => {
   it('should return 404 for non-existent alert', async () => {
     (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/alerts/nonexistent/acknowledge');
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099/acknowledge');
 
     expect(res.status).toBe(404);
   });
@@ -235,19 +235,19 @@ describe('PUT /api/alerts/:id/acknowledge', () => {
 // ===================================================================
 describe('PUT /api/alerts/:id/resolve', () => {
   it('should resolve an alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: 'alrt-1', status: 'ACKNOWLEDGED' });
-    (prisma as any).analyticsAlert.update.mockResolvedValue({ id: 'alrt-1', status: 'RESOLVED' });
+    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ACKNOWLEDGED' });
+    (prisma as any).analyticsAlert.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'RESOLVED' });
 
-    const res = await request(app).put('/api/alerts/alrt-1/resolve');
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000001/resolve');
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('RESOLVED');
   });
 
   it('should reject resolve for already resolved alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: 'alrt-1', status: 'RESOLVED' });
+    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'RESOLVED' });
 
-    const res = await request(app).put('/api/alerts/alrt-1/resolve');
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000001/resolve');
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_STATE');
@@ -256,7 +256,7 @@ describe('PUT /api/alerts/:id/resolve', () => {
   it('should return 404 for non-existent alert', async () => {
     (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).put('/api/alerts/nonexistent/resolve');
+    const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099/resolve');
 
     expect(res.status).toBe(404);
   });

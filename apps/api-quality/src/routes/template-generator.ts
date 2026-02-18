@@ -4,6 +4,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { requirePermission, PermissionLevel } from '@ims/rbac';
 import { prisma } from '../prisma';
 import { createLogger } from '@ims/monitoring';
+import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-quality');
 
 const generateTemplateSchema = z.object({
@@ -14,6 +15,7 @@ const generateTemplateSchema = z.object({
 });
 
 const router: Router = Router();
+router.param('id', validateIdParam());
 
 // Template category definitions with ISO clause references
 const TEMPLATE_CATEGORIES: Record<string, { prefix: string; isoStandards: string[]; defaultSections: string[] }> = {

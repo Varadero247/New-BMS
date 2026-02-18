@@ -18,8 +18,8 @@ beforeEach(() => { jest.clearAllMocks(); });
 
 describe('GET /api/risks/:id/actions', () => {
   it('should return actions for a risk', async () => {
-    (prisma as any).riskAction.findMany.mockResolvedValue([{ id: 'a1', actionTitle: 'Test' }]);
-    const res = await request(app).get('/api/risks/r1/actions');
+    (prisma as any).riskAction.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', actionTitle: 'Test' }]);
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/actions');
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
   });
@@ -27,9 +27,9 @@ describe('GET /api/risks/:id/actions', () => {
 
 describe('POST /api/risks/:id/actions', () => {
   it('should create action', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
-    (prisma as any).riskAction.create.mockResolvedValue({ id: 'a1', actionTitle: 'Install LEV' });
-    const res = await request(app).post('/api/risks/r1/actions').send({
+    (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).riskAction.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', actionTitle: 'Install LEV' });
+    const res = await request(app).post('/api/risks/00000000-0000-0000-0000-000000000001/actions').send({
       actionTitle: 'Install LEV', description: 'Install local exhaust ventilation', actionType: 'PREVENTIVE', targetDate: '2026-06-01T00:00:00Z',
     });
     expect(res.status).toBe(201);
@@ -38,39 +38,39 @@ describe('POST /api/risks/:id/actions', () => {
 
   it('should return 404 if risk not found', async () => {
     (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
-    const res = await request(app).post('/api/risks/r1/actions').send({
+    const res = await request(app).post('/api/risks/00000000-0000-0000-0000-000000000001/actions').send({
       actionTitle: 'Test', description: 'Test', actionType: 'PREVENTIVE', targetDate: '2026-06-01T00:00:00Z',
     });
     expect(res.status).toBe(404);
   });
 
   it('should validate required fields', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
-    const res = await request(app).post('/api/risks/r1/actions').send({ actionTitle: 'Test' });
+    (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).post('/api/risks/00000000-0000-0000-0000-000000000001/actions').send({ actionTitle: 'Test' });
     expect(res.status).toBe(400);
   });
 });
 
 describe('PUT /api/risks/:riskId/actions/:id', () => {
   it('should update action', async () => {
-    (prisma as any).riskAction.findFirst.mockResolvedValue({ id: 'a1' });
-    (prisma as any).riskAction.update.mockResolvedValue({ id: 'a1', priority: 'HIGH' });
-    const res = await request(app).put('/api/risks/r1/actions/a1').send({ priority: 'HIGH' });
+    (prisma as any).riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).riskAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', priority: 'HIGH' });
+    const res = await request(app).put('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001').send({ priority: 'HIGH' });
     expect(res.status).toBe(200);
   });
 
   it('should return 404 if action not found', async () => {
     (prisma as any).riskAction.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/risks/r1/actions/a1').send({ priority: 'HIGH' });
+    const res = await request(app).put('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001').send({ priority: 'HIGH' });
     expect(res.status).toBe(404);
   });
 });
 
 describe('POST /api/risks/:riskId/actions/:id/complete', () => {
   it('should mark action complete', async () => {
-    (prisma as any).riskAction.findFirst.mockResolvedValue({ id: 'a1' });
-    (prisma as any).riskAction.update.mockResolvedValue({ id: 'a1', status: 'COMPLETED' });
-    const res = await request(app).post('/api/risks/r1/actions/a1/complete').send({ evidenceOfCompletion: 'Photo uploaded', effectiveness: 'Effective' });
+    (prisma as any).riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).riskAction.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' });
+    const res = await request(app).post('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001/complete').send({ evidenceOfCompletion: 'Photo uploaded', effectiveness: 'Effective' });
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('COMPLETED');
   });
@@ -78,7 +78,7 @@ describe('POST /api/risks/:riskId/actions/:id/complete', () => {
 
 describe('GET /api/risks/actions/overdue', () => {
   it('should return overdue actions', async () => {
-    (prisma as any).riskAction.findMany.mockResolvedValue([{ id: 'a1', status: 'OPEN', targetDate: '2025-01-01' }]);
+    (prisma as any).riskAction.findMany.mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001', status: 'OPEN', targetDate: '2025-01-01' }]);
     const res = await request(app).get('/api/risks/actions/overdue');
     expect(res.status).toBe(200);
   });

@@ -42,7 +42,7 @@ beforeEach(() => {
 describe('GET /api/competitors', () => {
   it('should return a paginated list of competitors', async () => {
     const competitors = [
-      { id: 'comp-1', name: 'Competitor A', category: 'GENERAL', intel: [] },
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Competitor A', category: 'GENERAL', intel: [] },
       { id: 'comp-2', name: 'Competitor B', category: 'GENERAL', intel: [] },
     ];
     (prisma as any).competitorMonitor.findMany.mockResolvedValue(competitors);
@@ -82,20 +82,20 @@ describe('GET /api/competitors', () => {
 // ===================================================================
 describe('GET /api/competitors/:id', () => {
   it('should return a competitor by ID', async () => {
-    const competitor = { id: 'comp-1', name: 'Competitor A', category: 'GENERAL', intel: [] };
+    const competitor = { id: '00000000-0000-0000-0000-000000000001', name: 'Competitor A', category: 'GENERAL', intel: [] };
     (prisma as any).competitorMonitor.findUnique.mockResolvedValue(competitor);
 
-    const res = await request(app).get('/api/competitors/comp-1');
+    const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('comp-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 for a non-existent competitor', async () => {
     (prisma as any).competitorMonitor.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/competitors/nonexistent');
+    const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -104,7 +104,7 @@ describe('GET /api/competitors/:id', () => {
   it('should handle server errors', async () => {
     (prisma as any).competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).get('/api/competitors/comp-1');
+    const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -159,12 +159,12 @@ describe('POST /api/competitors', () => {
 // ===================================================================
 describe('PATCH /api/competitors/:id', () => {
   it('should update a competitor', async () => {
-    const existing = { id: 'comp-1', name: 'Old Name', category: 'GENERAL', intel: [] };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', name: 'Old Name', category: 'GENERAL', intel: [] };
     const updated = { ...existing, name: 'Updated Name' };
     (prisma as any).competitorMonitor.findUnique.mockResolvedValue(existing);
     (prisma as any).competitorMonitor.update.mockResolvedValue(updated);
 
-    const res = await request(app).patch('/api/competitors/comp-1').send({ name: 'Updated Name' });
+    const res = await request(app).patch('/api/competitors/00000000-0000-0000-0000-000000000001').send({ name: 'Updated Name' });
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -174,7 +174,7 @@ describe('PATCH /api/competitors/:id', () => {
   it('should return 404 for a non-existent competitor', async () => {
     (prisma as any).competitorMonitor.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).patch('/api/competitors/nonexistent').send({ name: 'Updated' });
+    const res = await request(app).patch('/api/competitors/00000000-0000-0000-0000-000000000099').send({ name: 'Updated' });
 
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -183,7 +183,7 @@ describe('PATCH /api/competitors/:id', () => {
   it('should handle server errors', async () => {
     (prisma as any).competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).patch('/api/competitors/comp-1').send({ name: 'Updated' });
+    const res = await request(app).patch('/api/competitors/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
@@ -195,12 +195,12 @@ describe('PATCH /api/competitors/:id', () => {
 // ===================================================================
 describe('POST /api/competitors/:id/intel', () => {
   it('should add an intel entry to a competitor', async () => {
-    const existing = { id: 'comp-1', name: 'Competitor A', intel: [] };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', name: 'Competitor A', intel: [] };
     const updated = { ...existing, intel: [{ date: new Date().toISOString(), type: 'PRICING', detail: 'Lowered pricing by 10%' }] };
     (prisma as any).competitorMonitor.findUnique.mockResolvedValue(existing);
     (prisma as any).competitorMonitor.update.mockResolvedValue(updated);
 
-    const res = await request(app).post('/api/competitors/comp-1/intel').send({
+    const res = await request(app).post('/api/competitors/00000000-0000-0000-0000-000000000001/intel').send({
       type: 'PRICING',
       detail: 'Lowered pricing by 10%',
     });
@@ -212,12 +212,12 @@ describe('POST /api/competitors/:id/intel', () => {
 
   it('should append to existing intel entries', async () => {
     const existingIntel = [{ date: '2026-01-01T00:00:00.000Z', type: 'NEWS', detail: 'Old news' }];
-    const existing = { id: 'comp-1', name: 'Competitor A', intel: existingIntel };
+    const existing = { id: '00000000-0000-0000-0000-000000000001', name: 'Competitor A', intel: existingIntel };
     const updated = { ...existing, intel: [...existingIntel, { date: new Date().toISOString(), type: 'PRODUCT', detail: 'New product' }] };
     (prisma as any).competitorMonitor.findUnique.mockResolvedValue(existing);
     (prisma as any).competitorMonitor.update.mockResolvedValue(updated);
 
-    const res = await request(app).post('/api/competitors/comp-1/intel').send({
+    const res = await request(app).post('/api/competitors/00000000-0000-0000-0000-000000000001/intel').send({
       type: 'PRODUCT',
       detail: 'New product',
     });
@@ -227,7 +227,7 @@ describe('POST /api/competitors/:id/intel', () => {
   });
 
   it('should reject missing required fields', async () => {
-    const res = await request(app).post('/api/competitors/comp-1/intel').send({ type: 'PRICING' });
+    const res = await request(app).post('/api/competitors/00000000-0000-0000-0000-000000000001/intel').send({ type: 'PRICING' });
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
@@ -236,7 +236,7 @@ describe('POST /api/competitors/:id/intel', () => {
   it('should return 404 for a non-existent competitor', async () => {
     (prisma as any).competitorMonitor.findUnique.mockResolvedValue(null);
 
-    const res = await request(app).post('/api/competitors/nonexistent/intel').send({
+    const res = await request(app).post('/api/competitors/00000000-0000-0000-0000-000000000099/intel').send({
       type: 'PRICING',
       detail: 'Lowered pricing',
     });
@@ -248,7 +248,7 @@ describe('POST /api/competitors/:id/intel', () => {
   it('should handle server errors', async () => {
     (prisma as any).competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
 
-    const res = await request(app).post('/api/competitors/comp-1/intel').send({
+    const res = await request(app).post('/api/competitors/00000000-0000-0000-0000-000000000001/intel').send({
       type: 'PRICING',
       detail: 'Lowered pricing',
     });

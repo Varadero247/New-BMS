@@ -52,7 +52,7 @@ describe('DMR/DHR Routes', () => {
     it('should create a device master record', async () => {
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.deviceMasterRecord.create as jest.Mock).mockResolvedValue({
-        id: 'dmr-1', refNumber: 'DMR-2602-0001', ...validBody, status: 'DRAFT',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'DMR-2602-0001', ...validBody, status: 'DRAFT',
       });
 
       const res = await request(app).post('/api/dmr-dhr/dmr').send(validBody);
@@ -117,7 +117,7 @@ describe('DMR/DHR Routes', () => {
 
   describe('GET /api/dmr-dhr/dmr', () => {
     it('should list DMRs', async () => {
-      (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValue([{ id: 'dmr-1' }]);
+      (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/dmr-dhr/dmr');
@@ -146,43 +146,43 @@ describe('DMR/DHR Routes', () => {
   describe('GET /api/dmr-dhr/dmr/:id', () => {
     it('should get DMR with DHRs', async () => {
       (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dmr-1', deletedAt: null, dhrs: [], _count: { dhrs: 0 },
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, dhrs: [], _count: { dhrs: 0 },
       });
 
-      const res = await request(app).get('/api/dmr-dhr/dmr/dmr-1');
+      const res = await request(app).get('/api/dmr-dhr/dmr/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/dmr-dhr/dmr/fake');
+      const res = await request(app).get('/api/dmr-dhr/dmr/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
 
     it('should return 404 for soft-deleted', async () => {
       (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dmr-1', deletedAt: new Date(),
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: new Date(),
       });
 
-      const res = await request(app).get('/api/dmr-dhr/dmr/dmr-1');
+      const res = await request(app).get('/api/dmr-dhr/dmr/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(404);
     });
   });
 
   describe('PUT /api/dmr-dhr/dmr/:id', () => {
     it('should update a DMR', async () => {
-      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue({ id: 'dmr-1', deletedAt: null });
-      (mockPrisma.deviceMasterRecord.update as jest.Mock).mockResolvedValue({ id: 'dmr-1', deviceName: 'Updated' });
+      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
+      (mockPrisma.deviceMasterRecord.update as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deviceName: 'Updated' });
 
-      const res = await request(app).put('/api/dmr-dhr/dmr/dmr-1').send({ deviceName: 'Updated' });
+      const res = await request(app).put('/api/dmr-dhr/dmr/00000000-0000-0000-0000-000000000001').send({ deviceName: 'Updated' });
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).put('/api/dmr-dhr/dmr/fake').send({ deviceName: 'X' });
+      const res = await request(app).put('/api/dmr-dhr/dmr/00000000-0000-0000-0000-000000000099').send({ deviceName: 'X' });
       expect(res.status).toBe(404);
     });
   });
@@ -190,32 +190,32 @@ describe('DMR/DHR Routes', () => {
   describe('POST /api/dmr-dhr/dmr/:id/approve', () => {
     it('should approve a DMR', async () => {
       (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dmr-1', deletedAt: null, status: 'DRAFT', currentVersion: '1.0',
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, status: 'DRAFT', currentVersion: '1.0',
       });
       (mockPrisma.deviceMasterRecord.update as jest.Mock).mockResolvedValue({
-        id: 'dmr-1', status: 'APPROVED', currentVersion: '1.0',
+        id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED', currentVersion: '1.0',
       });
 
-      const res = await request(app).post('/api/dmr-dhr/dmr/dmr-1/approve');
+      const res = await request(app).post('/api/dmr-dhr/dmr/00000000-0000-0000-0000-000000000001/approve');
       expect(res.status).toBe(200);
     });
 
     it('should bump version on re-approval', async () => {
       (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dmr-1', deletedAt: null, status: 'APPROVED', currentVersion: '1.0',
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, status: 'APPROVED', currentVersion: '1.0',
       });
       (mockPrisma.deviceMasterRecord.update as jest.Mock).mockResolvedValue({
-        id: 'dmr-1', status: 'APPROVED', currentVersion: '2.0',
+        id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED', currentVersion: '2.0',
       });
 
-      const res = await request(app).post('/api/dmr-dhr/dmr/dmr-1/approve');
+      const res = await request(app).post('/api/dmr-dhr/dmr/00000000-0000-0000-0000-000000000001/approve');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/dmr-dhr/dmr/fake/approve');
+      const res = await request(app).post('/api/dmr-dhr/dmr/00000000-0000-0000-0000-000000000099/approve');
       expect(res.status).toBe(404);
     });
   });
@@ -231,10 +231,10 @@ describe('DMR/DHR Routes', () => {
     };
 
     it('should create a device history record', async () => {
-      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue({ id: 'dmr-1', deletedAt: null });
+      (mockPrisma.deviceMasterRecord.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValue(0);
       (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockResolvedValue({
-        id: 'dhr-1', refNumber: 'DHR-2602-0001', status: 'IN_PRODUCTION',
+        id: '00000000-0000-0000-0000-000000000001', refNumber: 'DHR-2602-0001', status: 'IN_PRODUCTION',
       });
 
       const res = await request(app).post('/api/dmr-dhr/dhr').send(validBody);
@@ -264,7 +264,7 @@ describe('DMR/DHR Routes', () => {
 
   describe('GET /api/dmr-dhr/dhr', () => {
     it('should list DHRs', async () => {
-      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValue([{ id: 'dhr-1' }]);
+      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
       (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValue(1);
 
       const res = await request(app).get('/api/dmr-dhr/dhr');
@@ -284,27 +284,27 @@ describe('DMR/DHR Routes', () => {
   describe('GET /api/dmr-dhr/dhr/:id', () => {
     it('should get DHR with production records', async () => {
       (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dhr-1', deletedAt: null, productionRecords: [],
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, productionRecords: [],
       });
 
-      const res = await request(app).get('/api/dmr-dhr/dhr/dhr-1');
+      const res = await request(app).get('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000001');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).get('/api/dmr-dhr/dhr/fake');
+      const res = await request(app).get('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
 
   describe('POST /api/dmr-dhr/dhr/:id/records', () => {
     it('should add a production record', async () => {
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({ id: 'dhr-1', deletedAt: null });
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.dHRRecord.create as jest.Mock).mockResolvedValue({ id: 'rec-1' });
 
-      const res = await request(app).post('/api/dmr-dhr/dhr/dhr-1/records').send({
+      const res = await request(app).post('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000001/records').send({
         recordType: 'INCOMING_INSPECTION',
         title: 'Component inspection',
       });
@@ -314,26 +314,26 @@ describe('DMR/DHR Routes', () => {
     it('should return 404 if DHR not found', async () => {
       (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/dmr-dhr/dhr/fake/records').send({
+      const res = await request(app).post('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000099/records').send({
         recordType: 'INCOMING_INSPECTION', title: 'Test',
       });
       expect(res.status).toBe(404);
     });
 
     it('should return 400 for invalid recordType', async () => {
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({ id: 'dhr-1', deletedAt: null });
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
 
-      const res = await request(app).post('/api/dmr-dhr/dhr/dhr-1/records').send({
+      const res = await request(app).post('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000001/records').send({
         recordType: 'INVALID', title: 'Test',
       });
       expect(res.status).toBe(400);
     });
 
     it('should accept STERILIZATION recordType', async () => {
-      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({ id: 'dhr-1', deletedAt: null });
+      (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', deletedAt: null });
       (mockPrisma.dHRRecord.create as jest.Mock).mockResolvedValue({ id: 'rec-2' });
 
-      const res = await request(app).post('/api/dmr-dhr/dhr/dhr-1/records').send({
+      const res = await request(app).post('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000001/records').send({
         recordType: 'STERILIZATION', title: 'EtO sterilization',
       });
       expect(res.status).toBe(201);
@@ -343,39 +343,39 @@ describe('DMR/DHR Routes', () => {
   describe('POST /api/dmr-dhr/dhr/:id/release', () => {
     it('should release a batch', async () => {
       (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dhr-1', deletedAt: null, productionRecords: [{ pass: true }],
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, productionRecords: [{ pass: true }],
       });
       (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValue({
-        id: 'dhr-1', status: 'RELEASED',
+        id: '00000000-0000-0000-0000-000000000001', status: 'RELEASED',
       });
 
-      const res = await request(app).post('/api/dmr-dhr/dhr/dhr-1/release');
+      const res = await request(app).post('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000001/release');
       expect(res.status).toBe(200);
     });
 
     it('should return 404 if not found', async () => {
       (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue(null);
 
-      const res = await request(app).post('/api/dmr-dhr/dhr/fake/release');
+      const res = await request(app).post('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000099/release');
       expect(res.status).toBe(404);
     });
 
     it('should return 400 if no production records', async () => {
       (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dhr-1', deletedAt: null, productionRecords: [],
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null, productionRecords: [],
       });
 
-      const res = await request(app).post('/api/dmr-dhr/dhr/dhr-1/release');
+      const res = await request(app).post('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000001/release');
       expect(res.status).toBe(400);
     });
 
     it('should return 400 if failed records exist', async () => {
       (mockPrisma.deviceHistoryRecord.findUnique as jest.Mock).mockResolvedValue({
-        id: 'dhr-1', deletedAt: null,
+        id: '00000000-0000-0000-0000-000000000001', deletedAt: null,
         productionRecords: [{ pass: true }, { pass: false }],
       });
 
-      const res = await request(app).post('/api/dmr-dhr/dhr/dhr-1/release');
+      const res = await request(app).post('/api/dmr-dhr/dhr/00000000-0000-0000-0000-000000000001/release');
       expect(res.status).toBe(400);
     });
   });

@@ -16,34 +16,34 @@ beforeEach(() => { jest.clearAllMocks(); });
 describe('GET /api/timeline/:id', () => {
   it('should return timeline with basic events for a simple incident', async () => {
     const incident = {
-      id: 'inc-1',
+      id: '00000000-0000-0000-0000-000000000001',
       dateOccurred: new Date('2026-01-15T10:00:00Z'),
       reportedDate: new Date('2026-01-15T11:00:00Z'),
       investigationDate: null,
       closedDate: null,
     };
     (prisma as any).incIncident.findFirst.mockResolvedValue(incident);
-    const res = await request(app).get('/api/timeline/inc-1');
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(2);
     expect(res.body.data[0].event).toBe('Incident occurred');
     expect(res.body.data[1].event).toBe('Reported');
     expect((prisma as any).incIncident.findFirst).toHaveBeenCalledWith({
-      where: { id: 'inc-1', deletedAt: null, orgId: 'org-1' },
+      where: { id: '00000000-0000-0000-0000-000000000001', deletedAt: null, orgId: 'org-1' },
     });
   });
 
   it('should include investigation completed event if investigationDate is set', async () => {
     const incident = {
-      id: 'inc-1',
+      id: '00000000-0000-0000-0000-000000000001',
       dateOccurred: new Date('2026-01-15T10:00:00Z'),
       reportedDate: new Date('2026-01-15T11:00:00Z'),
       investigationDate: new Date('2026-01-20T14:00:00Z'),
       closedDate: null,
     };
     (prisma as any).incIncident.findFirst.mockResolvedValue(incident);
-    const res = await request(app).get('/api/timeline/inc-1');
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(3);
@@ -52,14 +52,14 @@ describe('GET /api/timeline/:id', () => {
 
   it('should include closed event if closedDate is set', async () => {
     const incident = {
-      id: 'inc-1',
+      id: '00000000-0000-0000-0000-000000000001',
       dateOccurred: new Date('2026-01-15T10:00:00Z'),
       reportedDate: new Date('2026-01-15T11:00:00Z'),
       investigationDate: new Date('2026-01-20T14:00:00Z'),
       closedDate: new Date('2026-01-25T09:00:00Z'),
     };
     (prisma as any).incIncident.findFirst.mockResolvedValue(incident);
-    const res = await request(app).get('/api/timeline/inc-1');
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(4);
@@ -68,7 +68,7 @@ describe('GET /api/timeline/:id', () => {
 
   it('should return 404 if incident is not found', async () => {
     (prisma as any).incIncident.findFirst.mockResolvedValue(null);
-    const res = await request(app).get('/api/timeline/nonexistent-id');
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -77,7 +77,7 @@ describe('GET /api/timeline/:id', () => {
 
   it('should return 500 on database error', async () => {
     (prisma as any).incIncident.findFirst.mockRejectedValue(new Error('DB error'));
-    const res = await request(app).get('/api/timeline/inc-1');
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');

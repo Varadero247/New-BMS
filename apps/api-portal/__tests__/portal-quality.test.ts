@@ -38,7 +38,7 @@ beforeEach(() => {
 
 describe('GET /api/portal/quality-reports', () => {
   it('should list quality reports', async () => {
-    const items = [{ id: 'qr-1', reportType: 'NCR', status: 'OPEN', severity: 'MAJOR' }];
+    const items = [{ id: '00000000-0000-0000-0000-000000000001', reportType: 'NCR', status: 'OPEN', severity: 'MAJOR' }];
     (prisma as any).portalQualityReport.findMany.mockResolvedValue(items);
     (prisma as any).portalQualityReport.count.mockResolvedValue(1);
 
@@ -86,7 +86,7 @@ describe('GET /api/portal/quality-reports', () => {
 
 describe('POST /api/portal/quality-reports', () => {
   it('should create a quality report', async () => {
-    const report = { id: 'qr-1', reportType: 'NCR', referenceNumber: 'PTL-QR-2602-1234', status: 'OPEN' };
+    const report = { id: '00000000-0000-0000-0000-000000000001', reportType: 'NCR', referenceNumber: 'PTL-QR-2602-1234', status: 'OPEN' };
     (prisma as any).portalQualityReport.create.mockResolvedValue(report);
 
     const res = await request(app)
@@ -116,18 +116,18 @@ describe('POST /api/portal/quality-reports', () => {
 
 describe('GET /api/portal/quality-reports/:id', () => {
   it('should return a quality report', async () => {
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue({ id: 'qr-1', reportType: 'NCR' });
+    (prisma as any).portalQualityReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', reportType: 'NCR' });
 
-    const res = await request(app).get('/api/portal/quality-reports/qr-1');
+    const res = await request(app).get('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
-    expect(res.body.data.id).toBe('qr-1');
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 
   it('should return 404 if not found', async () => {
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/portal/quality-reports/nonexistent');
+    const res = await request(app).get('/api/portal/quality-reports/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
   });
@@ -135,11 +135,11 @@ describe('GET /api/portal/quality-reports/:id', () => {
 
 describe('PUT /api/portal/quality-reports/:id', () => {
   it('should update a quality report', async () => {
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue({ id: 'qr-1' });
-    (prisma as any).portalQualityReport.update.mockResolvedValue({ id: 'qr-1', status: 'INVESTIGATING' });
+    (prisma as any).portalQualityReport.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma as any).portalQualityReport.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'INVESTIGATING' });
 
     const res = await request(app)
-      .put('/api/portal/quality-reports/qr-1')
+      .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001')
       .send({ status: 'INVESTIGATING' });
 
     expect(res.status).toBe(200);
@@ -149,7 +149,7 @@ describe('PUT /api/portal/quality-reports/:id', () => {
     (prisma as any).portalQualityReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
-      .put('/api/portal/quality-reports/nonexistent')
+      .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000099')
       .send({ status: 'INVESTIGATING' });
 
     expect(res.status).toBe(404);
@@ -159,7 +159,7 @@ describe('PUT /api/portal/quality-reports/:id', () => {
     (prisma as any).portalQualityReport.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
-      .put('/api/portal/quality-reports/qr-1')
+      .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001')
       .send({ status: 'INVESTIGATING' });
 
     expect(res.status).toBe(500);

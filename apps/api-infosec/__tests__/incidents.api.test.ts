@@ -295,7 +295,7 @@ describe('InfoSec Incidents API', () => {
     it('should return 404 when incident not found', async () => {
       (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
-      const res = await request(app).get('/api/incidents/nonexistent');
+      const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000099');
 
       expect(res.status).toBe(404);
       expect(res.body.success).toBe(false);
@@ -336,7 +336,7 @@ describe('InfoSec Incidents API', () => {
       (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/incidents/nonexistent/investigate')
+        .put('/api/incidents/00000000-0000-0000-0000-000000000099/investigate')
         .send({ investigationNotes: 'Test' });
 
       expect(res.status).toBe(404);
@@ -395,7 +395,7 @@ describe('InfoSec Incidents API', () => {
       (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .put('/api/incidents/nonexistent/close')
+        .put('/api/incidents/00000000-0000-0000-0000-000000000099/close')
         .send({ lessonsLearned: 'Test' });
 
       expect(res.status).toBe(404);
@@ -443,7 +443,7 @@ describe('InfoSec Incidents API', () => {
       (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
-        .post('/api/incidents/nonexistent/notify')
+        .post('/api/incidents/00000000-0000-0000-0000-000000000099/notify')
         .send({});
 
       expect(res.status).toBe(404);
