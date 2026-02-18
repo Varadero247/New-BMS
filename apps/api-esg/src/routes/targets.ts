@@ -45,7 +45,7 @@ router.get('/', async (req: Request, res: Response) => {
     const take = Math.min(parseInt(limit as string, 10) || 20, 100);
 
     const where: Record<string, any> = { deletedAt: null };
-    if (year) where.year = parseInt(year as string, 10);
+    if (year) { const n = parseInt(year as string, 10); if (!isNaN(n)) where.year = n; }
     if (status) where.status = status as string;
     if (metricId) where.metricId = metricId as string;
 

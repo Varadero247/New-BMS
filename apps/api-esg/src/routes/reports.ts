@@ -166,7 +166,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: Record<string, any> = { deletedAt: null };
     if (reportType) where.reportType = reportType as string;
-    if (year) where.year = parseInt(year as string, 10);
+    if (year) { const n = parseInt(year as string, 10); if (!isNaN(n)) where.year = n; }
     if (status) where.status = status as string;
 
     const [data, total] = await Promise.all([

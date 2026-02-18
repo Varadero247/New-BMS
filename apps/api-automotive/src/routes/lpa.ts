@@ -111,7 +111,7 @@ router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) =>
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
-    if (layer) where.layer = parseInt(layer as string, 10);
+    if (layer) { const n = parseInt(layer as string, 10); if (!isNaN(n)) where.layer = n; }
     if (frequency) where.frequency = frequency as any;
     if (active !== undefined) where.active = active === 'true';
 
@@ -206,7 +206,7 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = {};
     if (status) where.status = status as any;
-    if (layer) where.layer = parseInt(layer as string, 10);
+    if (layer) { const n = parseInt(layer as string, 10); if (!isNaN(n)) where.layer = n; }
     if (processArea) where.processArea = { contains: processArea as string, mode: 'insensitive' };
     if (auditor) where.auditor = { contains: auditor as string, mode: 'insensitive' };
 
