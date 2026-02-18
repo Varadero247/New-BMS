@@ -14,7 +14,7 @@ const createMaintenanceSchema = z.object({
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(2000),
-  scheduledAt: z.string().datetime().optional(),
+  scheduledAt: z.string().datetime({ offset: true }).optional(),
 });
 
 const updateMaintenanceSchema = z.object({
@@ -22,8 +22,8 @@ const updateMaintenanceSchema = z.object({
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
   notes: z.string().optional(),
   cost: z.number().min(0).optional(),
-  scheduledAt: z.string().datetime().optional(),
-  completedAt: z.string().datetime().optional(),
+  scheduledAt: z.string().datetime({ offset: true }).optional(),
+  completedAt: z.string().datetime({ offset: true }).optional(),
 });
 
 // Get all maintenance reports

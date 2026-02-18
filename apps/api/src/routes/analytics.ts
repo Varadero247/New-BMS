@@ -238,8 +238,8 @@ const paretoSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   data: z.array(paretoDataItemSchema),
-  periodStart: z.string().datetime().optional(),
-  periodEnd: z.string().datetime().optional(),
+  periodStart: z.string().datetime({ offset: true }).optional(),
+  periodEnd: z.string().datetime({ offset: true }).optional(),
   conclusion: z.string().optional(),
 });
 

@@ -100,7 +100,7 @@ router.get('/devices', scopeToUser, async (req: AuthRequest, res: Response) => {
       deviceName, manufacturer,
     } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -261,7 +261,7 @@ router.get('/devices/:id/submissions', async (req: AuthRequest, res: Response) =
 
     const { page = '1', limit = '20', status, database } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 

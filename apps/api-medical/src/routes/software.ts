@@ -114,7 +114,7 @@ router.get('/projects', scopeToUser, async (req: AuthRequest, res: Response) => 
       page = '1', limit = '20', status, safetyClass, currentPhase,
     } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -344,7 +344,7 @@ router.get('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =>
       page = '1', limit = '20', severity, status,
     } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 

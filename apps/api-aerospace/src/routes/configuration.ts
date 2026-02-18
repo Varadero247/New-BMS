@@ -49,7 +49,7 @@ async function generateAuditRefNumber(type: 'FCA' | 'PCA'): Promise<string> {
 router.get('/baselines', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, search } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -359,7 +359,7 @@ router.post('/changes', async (req: AuthRequest, res: Response) => {
 router.get('/changes', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, urgency, search } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -554,7 +554,7 @@ router.post('/audits/pca', async (req: AuthRequest, res: Response) => {
 router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', type, status, search } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 

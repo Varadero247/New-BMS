@@ -72,7 +72,7 @@ router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
       limit = '20',
     } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 

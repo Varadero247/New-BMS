@@ -20,7 +20,7 @@ const createIncidentSchema = z.object({
   severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL', 'CATASTROPHIC']).default('MINOR'),
   category: z.string().optional(),
   location: z.string().optional(),
-  dateOccurred: z.string().datetime(),
+  dateOccurred: z.string().datetime({ offset: true }),
   personsInvolved: z.string().optional(),
   injuryType: z.string().optional(),
   bodyPart: z.string().optional(),

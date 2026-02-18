@@ -19,8 +19,8 @@ const createLegalSchema = z.object({
   jurisdiction: z.string().optional(),
   issuingBody: z.string().optional(),
   referenceNumber: z.string().optional(),
-  effectiveDate: z.string().datetime().optional(),
-  expiryDate: z.string().datetime().optional(),
+  effectiveDate: z.string().datetime({ offset: true }).optional(),
+  expiryDate: z.string().datetime({ offset: true }).optional(),
   reviewFrequency: z.string().optional(),
   responsiblePerson: z.string().optional(),
 });
@@ -28,7 +28,7 @@ const createLegalSchema = z.object({
 const updateLegalSchema = createLegalSchema.partial().extend({
   complianceStatus: z.enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'NOT_APPLICABLE']).optional(),
   complianceEvidence: z.string().optional(),
-  nextAssessmentDate: z.string().datetime().optional(),
+  nextAssessmentDate: z.string().datetime({ offset: true }).optional(),
 });
 
 // GET /api/legal-requirements - List all legal requirements

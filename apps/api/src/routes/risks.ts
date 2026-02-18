@@ -28,7 +28,7 @@ const createRiskSchema = z.object({
   kpis: z.string().optional(),
   existingControls: z.string().optional(),
   additionalControls: z.string().optional(),
-  reviewDate: z.string().datetime().optional(),
+  reviewDate: z.string().datetime({ offset: true }).optional(),
 });
 
 const updateRiskSchema = createRiskSchema.partial().extend({

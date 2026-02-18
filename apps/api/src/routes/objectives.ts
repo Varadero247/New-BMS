@@ -15,8 +15,8 @@ const createObjectiveSchema = z.object({
   targetValue: z.number().nonnegative().optional(),
   unit: z.string().optional(),
   baselineValue: z.number().optional(),
-  startDate: z.string().datetime().optional(),
-  targetDate: z.string().datetime().optional(),
+  startDate: z.string().datetime({ offset: true }).optional(),
+  targetDate: z.string().datetime({ offset: true }).optional(),
   ownerId: z.string().optional(),
   department: z.string().optional(),
 });

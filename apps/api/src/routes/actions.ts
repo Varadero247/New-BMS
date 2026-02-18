@@ -15,7 +15,7 @@ const createActionSchema = z.object({
   type: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'IMMEDIATE', 'LONG_TERM']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
   ownerId: z.string(),
-  dueDate: z.string().datetime(),
+  dueDate: z.string().datetime({ offset: true }),
   verificationMethod: z.string().optional(),
   estimatedCost: z.number().nonnegative().optional(),
   riskId: z.string().optional(),

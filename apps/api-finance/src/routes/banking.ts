@@ -193,7 +193,7 @@ router.get('/transactions/list', async (req: Request, res: Response) => {
   try {
     const { bankAccountId, dateFrom, dateTo, isReconciled, page = '1', limit = '50' } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 200);
     const skip = (pageNum - 1) * limitNum;
 

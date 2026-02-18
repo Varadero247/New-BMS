@@ -26,8 +26,8 @@ const updateCourseSchema = createCourseSchema.partial().extend({
 const createRecordSchema = z.object({
   userId: z.string(),
   courseId: z.string(),
-  completedAt: z.string().datetime().optional(),
-  expiresAt: z.string().datetime().optional(),
+  completedAt: z.string().datetime({ offset: true }).optional(),
+  expiresAt: z.string().datetime({ offset: true }).optional(),
   score: z.number().min(0).max(100).optional(),
   competenceLevel: z.enum(['AWARENESS', 'BASIC', 'PROFICIENT', 'EXPERT']).optional(),
   certificateUrl: z.string().url('Invalid URL').optional(),

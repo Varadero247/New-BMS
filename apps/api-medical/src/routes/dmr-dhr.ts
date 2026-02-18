@@ -106,7 +106,7 @@ router.get('/dmr', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, deviceClass, deviceName } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -302,7 +302,7 @@ router.get('/dhr', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', status, dmrId, batchNumber } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
