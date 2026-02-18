@@ -5,13 +5,12 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
-import scimRouter, { getScimTokenStore } from '../src/routes/scim';
+import scimRouter, { registerScimToken } from '../src/routes/scim';
 
-// Helper to register a SCIM bearer token
+// Helper to register a SCIM bearer token using the proper API (incl. reverse index)
 function seedToken(orgId: string): string {
-  const tokenStore = getScimTokenStore();
   const token = `scim-test-token-${orgId}-${Date.now()}`;
-  tokenStore.set(`tok-${orgId}`, {
+  registerScimToken({
     id: `tok-${orgId}`,
     token,
     orgId,
@@ -268,6 +267,313 @@ describe('SCIM Routes', () => {
       const groupNames = res.body.Resources.map((g: any) => g.displayName);
       expect(groupNames).toContain('Admin');
       expect(groupNames).toContain('Manager');
+    });
+  });
+
+  // ─────────────────────── SCIM Filter Tests ───────────────────────
+
+  describe('SCIM User Filtering', () => {
+    let filterUserId: string;
+
+    beforeAll(async () => {
+      // Create users for filter testing (use unique names to avoid collisions with earlier tests)
+      const filterApp = express();
+      filterApp.use(express.json());
+      filterApp.use('/scim/v2', scimRouter);
+
+      const createRes = await request(filterApp)
+        .post('/scim/v2/Users')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          userName: 'john.filter@example.com',
+          name: { givenName: 'John', familyName: 'Filter' },
+          emails: [{ value: 'john.filter@example.com', type: 'work', primary: true }],
+          displayName: 'John Admin Filter',
+          active: true,
+        });
+      filterUserId = createRes.body.id;
+
+      await request(filterApp)
+        .post('/scim/v2/Users')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          userName: 'jane.filter@example.com',
+          name: { givenName: 'Jane', familyName: 'Filter' },
+          emails: [{ value: 'jane.filter@example.com', type: 'work', primary: true }],
+          displayName: 'Jane Viewer Filter',
+          active: false,
+        });
+    });
+
+    it('filters users by userName eq', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Users')
+        .query({ filter: 'userName eq "john.filter@example.com"' })
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.totalResults).toBe(1);
+      expect(res.body.Resources[0].userName).toBe('john.filter@example.com');
+    });
+
+    it('filters users by displayName co (contains)', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Users')
+        .query({ filter: 'displayName co "Admin Filter"' })
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.totalResults).toBeGreaterThanOrEqual(1);
+      const userNames = res.body.Resources.map((u: any) => u.displayName);
+      expect(userNames).toContain('John Admin Filter');
+    });
+
+    it('filters users by active eq "true"', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Users')
+        .query({ filter: 'active eq "true"' })
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(200);
+      // All returned users should be active
+      for (const user of res.body.Resources) {
+        expect(user.active).toBe(true);
+      }
+    });
+
+    it('filters users by active eq "false"', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Users')
+        .query({ filter: 'active eq "false"' })
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(200);
+      for (const user of res.body.Resources) {
+        expect(user.active).toBe(false);
+      }
+    });
+
+    it('returns 400 for unsupported filter expression', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Users')
+        .query({ filter: 'invalid filter syntax!!!' })
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(400);
+      expect(res.body.scimType).toBe('invalidFilter');
+    });
+
+    it('supports userName sw (starts with) filter', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Users')
+        .query({ filter: 'userName sw "john.filter"' })
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.totalResults).toBeGreaterThanOrEqual(1);
+      for (const user of res.body.Resources) {
+        expect(user.userName.toLowerCase()).toMatch(/^john\.filter/);
+      }
+    });
+
+    it('filter is case-insensitive', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Users')
+        .query({ filter: 'userName eq "JOHN.FILTER@EXAMPLE.COM"' })
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.totalResults).toBe(1);
+    });
+  });
+
+  // ─────────────────────── SCIM Group Detail Tests ───────────────────────
+
+  describe('GET /scim/v2/Groups/:id', () => {
+    it('returns a single group by ID', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Groups/role-admin')
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.schemas).toContain('urn:ietf:params:scim:schemas:core:2.0:Group');
+      expect(res.body.id).toBe('role-admin');
+      expect(res.body.displayName).toBe('Admin');
+      expect(res.body.meta.resourceType).toBe('Group');
+    });
+
+    it('returns 404 for non-existent group', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Groups/nonexistent-group')
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body.schemas).toContain('urn:ietf:params:scim:api:messages:2.0:Error');
+    });
+
+    it('includes members array in group response', async () => {
+      const res = await request(app)
+        .get('/scim/v2/Groups/role-manager')
+        .set('Authorization', `Bearer ${scimToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('members');
+      expect(Array.isArray(res.body.members)).toBe(true);
+    });
+  });
+
+  // ─────────────────────── SCIM Group PATCH Tests ───────────────────────
+
+  describe('PATCH /scim/v2/Groups/:id', () => {
+    let memberUserId: string;
+
+    beforeAll(async () => {
+      const memberApp = express();
+      memberApp.use(express.json());
+      memberApp.use('/scim/v2', scimRouter);
+
+      const createRes = await request(memberApp)
+        .post('/scim/v2/Users')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          userName: `group-member-${Date.now()}@example.com`,
+          displayName: 'Group Member Test',
+          active: true,
+        });
+      memberUserId = createRes.body.id;
+    });
+
+    it('adds a member to a group', async () => {
+      const res = await request(app)
+        .patch('/scim/v2/Groups/role-auditor')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
+          Operations: [{
+            op: 'add',
+            path: 'members',
+            value: [{ value: memberUserId, display: 'Group Member Test' }],
+          }],
+        });
+
+      expect(res.status).toBe(200);
+      const memberIds = res.body.members.map((m: any) => m.value);
+      expect(memberIds).toContain(memberUserId);
+    });
+
+    it('removes a member from a group', async () => {
+      // First ensure the member is in the group
+      await request(app)
+        .patch('/scim/v2/Groups/role-auditor')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
+          Operations: [{
+            op: 'add',
+            path: 'members',
+            value: [{ value: memberUserId, display: 'Group Member Test' }],
+          }],
+        });
+
+      // Now remove the member
+      const res = await request(app)
+        .patch('/scim/v2/Groups/role-auditor')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
+          Operations: [{
+            op: 'remove',
+            path: `members[value eq "${memberUserId}"]`,
+          }],
+        });
+
+      expect(res.status).toBe(200);
+      const memberIds = res.body.members.map((m: any) => m.value);
+      expect(memberIds).not.toContain(memberUserId);
+    });
+
+    it('renames a group via displayName replace', async () => {
+      const res = await request(app)
+        .patch('/scim/v2/Groups/role-operator')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
+          Operations: [{
+            op: 'replace',
+            path: 'displayName',
+            value: 'Operator Renamed',
+          }],
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.displayName).toBe('Operator Renamed');
+    });
+
+    it('returns 404 when patching non-existent group', async () => {
+      const res = await request(app)
+        .patch('/scim/v2/Groups/nonexistent')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
+          Operations: [{ op: 'add', path: 'members', value: [{ value: 'user-1' }] }],
+        });
+
+      expect(res.status).toBe(404);
+    });
+
+    it('returns 400 when Operations is not an array', async () => {
+      const res = await request(app)
+        .patch('/scim/v2/Groups/role-admin')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:PatchOp'],
+          Operations: 'invalid',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.detail).toBeDefined();
+    });
+
+    it('does not add duplicate members', async () => {
+      // Add the member twice
+      await request(app)
+        .patch('/scim/v2/Groups/role-viewer')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          Operations: [{
+            op: 'add',
+            path: 'members',
+            value: [{ value: memberUserId, display: 'Group Member Test' }],
+          }],
+        });
+
+      const res = await request(app)
+        .patch('/scim/v2/Groups/role-viewer')
+        .set('Authorization', `Bearer ${scimToken}`)
+        .send({
+          Operations: [{
+            op: 'add',
+            path: 'members',
+            value: [{ value: memberUserId, display: 'Group Member Test' }],
+          }],
+        });
+
+      expect(res.status).toBe(200);
+      const memberMatches = res.body.members.filter((m: any) => m.value === memberUserId);
+      expect(memberMatches.length).toBe(1);
+    });
+  });
+
+  // ─────────────────────── ServiceProviderConfig filter support ───────────────────────
+
+  describe('ServiceProviderConfig filter support', () => {
+    it('shows filter.supported = true in ServiceProviderConfig', async () => {
+      const res = await request(app).get('/scim/v2/ServiceProviderConfig');
+
+      expect(res.status).toBe(200);
+      expect(res.body.filter).toBeDefined();
+      expect(res.body.filter.supported).toBe(true);
+      expect(res.body.filter.maxResults).toBe(200);
     });
   });
 });

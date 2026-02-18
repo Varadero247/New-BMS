@@ -80,6 +80,7 @@ module.exports = {
     '<rootDir>/packages/theming',
     '<rootDir>/packages/i18n',
     '<rootDir>/packages/webhooks',
+    '<rootDir>/packages/sentry',
   ],
 
   // Global settings

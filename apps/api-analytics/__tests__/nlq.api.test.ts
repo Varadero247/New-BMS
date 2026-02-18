@@ -146,5 +146,141 @@ describe('NLQ API', () => {
       expect(res.body.data[0]).toHaveProperty('executedAt');
       expect(res.body.data[0]).toHaveProperty('resultCount');
     });
+
+    it('includes seed history entries', async () => {
+      const res = await request(app).get('/api/nlq/history');
+
+      expect(res.status).toBe(200);
+      const queries = res.body.data.map((h: any) => h.query);
+      expect(queries).toContain('show me all open CAPAs');
+    });
+
+    it('limits results to 20 entries', async () => {
+      const res = await request(app).get('/api/nlq/history');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.length).toBeLessThanOrEqual(20);
+    });
+  });
+
+  // ─────────────────────── Query history recording ───────────────────────
+
+  describe('Query history recording', () => {
+    it('records a query in history after successful execution', async () => {
+      const uniqueQuery = 'show me all open CAPAs';
+
+      await request(app)
+        .post('/api/nlq/query')
+        .send({ query: uniqueQuery });
+
+      const historyRes = await request(app).get('/api/nlq/history');
+
+      expect(historyRes.status).toBe(200);
+      const matchingEntries = historyRes.body.data.filter(
+        (h: any) => h.query === uniqueQuery
+      );
+      expect(matchingEntries.length).toBeGreaterThanOrEqual(1);
+      expect(matchingEntries[0]).toHaveProperty('confidence');
+      expect(matchingEntries[0].resultCount).toBeGreaterThanOrEqual(0);
+    });
+
+    it('records zero-result queries in history too', async () => {
+      const unknownQuery = 'what is the meaning of life';
+
+      await request(app)
+        .post('/api/nlq/query')
+        .send({ query: unknownQuery });
+
+      const historyRes = await request(app).get('/api/nlq/history');
+
+      expect(historyRes.status).toBe(200);
+      const entry = historyRes.body.data.find(
+        (h: any) => h.query === unknownQuery
+      );
+      expect(entry).toBeDefined();
+      expect(entry.resultCount).toBe(0);
+      expect(entry.confidence).toBe(0);
+    });
+  });
+
+  // ─────────────────────── AI Fallback ───────────────────────
+
+  describe('AI fallback behaviour', () => {
+    const originalEnv = process.env;
+
+    afterEach(() => {
+      process.env = { ...originalEnv };
+    });
+
+    it('returns aiAssisted: true with low confidence when AI provider is configured', async () => {
+      process.env.OPENAI_API_KEY = 'sk-test-fake-key';
+
+      const res = await request(app)
+        .post('/api/nlq/query')
+        .send({ query: 'show me the most expensive purchase orders from last quarter' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.aiAssisted).toBe(true);
+      expect(res.body.data.query.confidence).toBeLessThanOrEqual(0.3);
+      expect(res.body.data.suggestions).toBeDefined();
+      expect(res.body.data.suggestions.length).toBeGreaterThan(0);
+    });
+
+    it('returns aiAssisted: true when AI_PROVIDER_URL is set', async () => {
+      process.env.AI_PROVIDER_URL = 'https://ai.example.com/v1';
+      delete process.env.OPENAI_API_KEY;
+
+      const res = await request(app)
+        .post('/api/nlq/query')
+        .send({ query: 'summarize all compliance findings from the last audit cycle' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.aiAssisted).toBe(true);
+      expect(res.body.data.query.interpretation).toContain('AI-assisted');
+    });
+
+    it('does NOT return aiAssisted when no AI provider is configured', async () => {
+      delete process.env.OPENAI_API_KEY;
+      delete process.env.AI_PROVIDER_URL;
+
+      const res = await request(app)
+        .post('/api/nlq/query')
+        .send({ query: 'find all vendor scorecards with declining trends' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.aiAssisted).toBeUndefined();
+      expect(res.body.data.query.confidence).toBe(0);
+      expect(res.body.data.suggestions).toBeDefined();
+    });
+
+    it('AI fallback records query with 0.3 confidence', async () => {
+      process.env.OPENAI_API_KEY = 'sk-test-fake-key';
+
+      const aiQuery = 'list all equipment with maintenance overdue by more than 30 days';
+      await request(app)
+        .post('/api/nlq/query')
+        .send({ query: aiQuery });
+
+      const historyRes = await request(app).get('/api/nlq/history');
+      const entry = historyRes.body.data.find((h: any) => h.query === aiQuery);
+      expect(entry).toBeDefined();
+      expect(entry.confidence).toBe(0.3);
+      expect(entry.resultCount).toBe(0);
+    });
+
+    it('AI fallback returns empty results (columns=[], rows=[], totalCount=0)', async () => {
+      process.env.OPENAI_API_KEY = 'sk-test-key-123';
+
+      const res = await request(app)
+        .post('/api/nlq/query')
+        .send({ query: 'show energy consumption by department for last fiscal year' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.results.columns).toEqual([]);
+      expect(res.body.data.results.rows).toEqual([]);
+      expect(res.body.data.results.totalCount).toBe(0);
+    });
   });
 });
