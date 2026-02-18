@@ -8,7 +8,7 @@ const createDataRequestSchema = z.object({
   type: z.enum(['ACCESS', 'RECTIFICATION', 'ERASURE', 'PORTABILITY', 'RESTRICTION', 'OBJECTION'], {
     errorMap: () => ({ message: 'type must be one of: ACCESS, RECTIFICATION, ERASURE, PORTABILITY, RESTRICTION, OBJECTION' }),
   }),
-  requesterEmail: z.string().min(1, 'requesterEmail is required'),
+  requesterEmail: z.string().email('Valid email is required').min(1, 'requesterEmail is required'),
   requesterName: z.string().min(1, 'requesterName is required'),
   description: z.string().nullable().optional(),
 });

@@ -5,7 +5,7 @@ import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
 
 const enqueueOnboardingSchema = z.object({
-  email: z.string().min(1, 'Email is required'),
+  email: z.string().email('Valid email is required').min(1, 'Email is required'),
   firstName: z.string().optional(),
   companyName: z.string().optional(),
 });

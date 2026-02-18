@@ -66,7 +66,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       stakeholderOrg: z.string().optional(),
       stakeholderRole: z.string().min(1),
       stakeholderType: z.enum(['INTERNAL', 'EXTERNAL', 'SPONSOR', 'CUSTOMER', 'SUPPLIER', 'REGULATOR']),
-      email: z.string().optional(),
+      email: z.string().email('Invalid email').optional(),
       phone: z.string().optional(),
       powerLevel: z.number().min(1).max(5),
       interestLevel: z.number().min(1).max(5),
