@@ -374,7 +374,7 @@ router.post('/balances', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
       leaveTypeId: z.string().trim().uuid(),
-      year: z.number(),
+      year: z.number().int().min(2000).max(2100),
       entitled: z.number(),
       carryForward: z.number().default(0),
       adjustment: z.number().default(0),

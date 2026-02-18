@@ -124,7 +124,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       taskDescription: z.string().optional(),
       parentTaskId: z.string().optional(),
       wbsLevel: z.number().optional(),
-      sortOrder: z.number().nonnegative().optional(),
+      sortOrder: z.number().int().nonnegative().optional(),
       taskType: z.enum(['TASK', 'MILESTONE', 'PHASE', 'DELIVERABLE']).optional(),
       assignedToId: z.string().optional(),
       assignedDepartment: z.string().optional(),

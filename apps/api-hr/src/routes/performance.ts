@@ -42,7 +42,7 @@ router.post('/cycles', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(200),
-      year: z.number(),
+      year: z.number().int().min(2000).max(2100),
       cycleType: z.enum(['ANNUAL', 'SEMI_ANNUAL', 'QUARTERLY', 'CONTINUOUS']),
       startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),

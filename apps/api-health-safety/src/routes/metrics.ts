@@ -100,8 +100,8 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      year: z.number().min(2000).max(2100),
-      month: z.number().min(1).max(12),
+      year: z.number().int().min(2000).max(2100),
+      month: z.number().int().min(1).max(12),
       hoursWorked: z.number().min(0),
       lostTimeInjuries: z.number().min(0).default(0),
       totalRecordableInjuries: z.number().min(0).default(0),

@@ -206,7 +206,7 @@ router.post('/positions', async (req: Request, res: Response) => {
       jobGrade: z.string().optional(),
       minSalary: z.number().nonnegative().optional(),
       maxSalary: z.number().nonnegative().optional(),
-      headcount: z.number().default(1),
+      headcount: z.number().int().nonnegative().default(1),
       requirements: z.string().optional(),
       responsibilities: z.string().optional(),
     });

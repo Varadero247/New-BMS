@@ -271,7 +271,7 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      sortOrder: z.number().nonnegative().optional(),
+      sortOrder: z.number().int().nonnegative().optional(),
       itemProcessStep: z.string().optional(),
       functionRequirement: z.string().optional(),
       failureMode: z.string().trim().min(1).max(200),
@@ -351,7 +351,7 @@ router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      sortOrder: z.number().nonnegative().optional(),
+      sortOrder: z.number().int().nonnegative().optional(),
       itemProcessStep: z.string().optional(),
       functionRequirement: z.string().optional(),
       failureMode: z.string().optional(),
@@ -436,7 +436,7 @@ router.post('/:id/rows/reorder', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       rows: z.array(z.object({
         id: z.string(),
-        sortOrder: z.number().nonnegative(),
+        sortOrder: z.number().int().nonnegative(),
       })),
     });
 

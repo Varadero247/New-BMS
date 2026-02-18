@@ -256,7 +256,7 @@ router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respo
       title: z.string().optional(),
       dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       notes: z.string().optional(),
-      sortOrder: z.number().nonnegative().optional(),
+      sortOrder: z.number().int().nonnegative().optional(),
     });
 
     const data = schema.parse(req.body);
