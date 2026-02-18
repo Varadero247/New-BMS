@@ -1,5 +1,7 @@
+import { initSentry } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
+initSentry('api-setup-wizard');
 
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';

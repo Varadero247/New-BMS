@@ -1,5 +1,7 @@
+import { initSentry } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
+initSentry('api-payroll');
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];

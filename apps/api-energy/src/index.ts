@@ -1,5 +1,7 @@
+import { initSentry } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
+initSentry('api-energy');
 
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {

@@ -1,9 +1,11 @@
+import { initSentry } from '@ims/sentry';
 import express from 'express';
 import type { Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 dotenv.config();
+initSentry('api-project-management');
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];

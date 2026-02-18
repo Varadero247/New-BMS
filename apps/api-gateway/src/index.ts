@@ -1,3 +1,4 @@
+import { initSentry } from '@ims/sentry';
 import express from 'express';
 import type { Express, Request } from 'express';
 import cors from 'cors';
@@ -58,6 +59,7 @@ import { createSecurityMiddleware } from './middleware/security-headers';
 import { addVersionHeader, deprecatedRoute } from './middleware/api-version';
 
 dotenv.config();
+initSentry('api-gateway');
 
 const logger = createLogger('api-gateway');
 
@@ -328,6 +330,37 @@ app.use('/api/admin/dpa', dpaRouter);
 app.use('/api/v1/admin/dpa', addVersionHeader('v1'), dpaRouter);
 app.use('/api/marketplace', marketplaceRouter);
 app.use('/api/v1/marketplace', addVersionHeader('v1'), marketplaceRouter);
+
+// ─── Cookie Consent Persistence ──────────────────────────────────────────
+app.post('/api/cookie-consent', (req, res) => {
+  const { essential, analytics, functional } = req.body || {};
+  // In production, store in DB keyed by user/session ID
+  logger.info('Cookie consent recorded', { essential, analytics, functional, ip: req.ip });
+  res.json({
+    success: true,
+    data: {
+      message: 'Cookie preferences saved',
+      essential: essential ?? true,
+      analytics: !!analytics,
+      functional: !!functional,
+      savedAt: new Date().toISOString(),
+    },
+  });
+});
+app.post('/api/v1/cookie-consent', addVersionHeader('v1'), (req, res) => {
+  const { essential, analytics, functional } = req.body || {};
+  logger.info('Cookie consent recorded (v1)', { essential, analytics, functional, ip: req.ip });
+  res.json({
+    success: true,
+    data: {
+      message: 'Cookie preferences saved',
+      essential: essential ?? true,
+      analytics: !!analytics,
+      functional: !!functional,
+      savedAt: new Date().toISOString(),
+    },
+  });
+});
 
 // ============================================
 // API v1 Proxy Routes (current version)

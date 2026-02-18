@@ -1,5 +1,7 @@
+import { initSentry } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
+initSentry('api-ptw');
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) { if (!process.env[envVar]) { console.error(`FATAL: Missing required env var: ${envVar}`); process.exit(1); } }
 import express, { Express, Request, Response, NextFunction } from 'express';
