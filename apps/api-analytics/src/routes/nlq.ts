@@ -124,6 +124,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
 
     const { query } = parsed.data;
     const sanitized = sanitizeQuery(query);
+    const queryStart = Date.now();
 
     // Parse using the NLQ engine
     const nlqResult = parseNaturalLanguage(query, {
@@ -147,7 +148,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
           },
           results: seedData || { columns: [], rows: [], totalCount: 0 },
           // Do not expose internal SQL to the client — only log server-side for debugging
-          executionTimeMs: Math.floor(Math.random() * 50) + 10,
+          executionTimeMs: Date.now() - queryStart,
         },
       });
     }
@@ -166,7 +167,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
             confidence: 0.6,
           },
           results: seedData,
-          executionTimeMs: Math.floor(Math.random() * 30) + 5,
+          executionTimeMs: Date.now() - queryStart,
         },
       });
     }
@@ -190,7 +191,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
             },
             results: { columns: [], rows: [], totalCount: 0 },
             suggestions: EXAMPLE_QUERIES.slice(0, 4),
-            executionTimeMs: Math.floor(Math.random() * 100) + 50,
+            executionTimeMs: Date.now() - queryStart,
             aiAssisted: true,
           },
         });

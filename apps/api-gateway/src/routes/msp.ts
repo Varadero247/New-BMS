@@ -3,7 +3,17 @@ import { prisma } from '@ims/database';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
-import { randomUUID } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
+
+/**
+ * Deterministic pseudo-score (70–100) derived from a stable hash of the client ID.
+ * Avoids Math.random() so the dashboard is consistent across page refreshes.
+ * Replace with a real query once per-client compliance tables are available.
+ */
+function deterministicScore(clientId: string, seed: string = ''): number {
+  const hash = createHash('sha256').update(clientId + seed).digest();
+  return 70 + (hash[0] % 31); // 70–100
+}
 
 const logger = createLogger('api-gateway:msp');
 const router = Router();
@@ -205,14 +215,14 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
       linkedSince: client.linkedAt,
       lastAccessed: client.lastAccessedAt,
       complianceHealth: {
-        overallScore: Math.floor(Math.random() * 30) + 70, // 70-100 placeholder
+        overallScore: deterministicScore(client.clientOrganisationId, 'score'),
         isoStandards: [
           { standard: 'ISO 9001', status: 'CERTIFIED', nextAudit: '2026-06-15', daysUntilAudit: 122 },
           { standard: 'ISO 14001', status: 'CERTIFIED', nextAudit: '2026-09-20', daysUntilAudit: 219 },
         ],
-        openActions: Math.floor(Math.random() * 10),
-        overdueCapa: Math.floor(Math.random() * 3),
-        upcomingAudits: Math.floor(Math.random() * 2) + 1,
+        openActions: deterministicScore(client.clientOrganisationId, 'actions') % 10,
+        overdueCapa: deterministicScore(client.clientOrganisationId, 'capa') % 3,
+        upcomingAudits: (deterministicScore(client.clientOrganisationId, 'audits') % 2) + 1,
         expiringCertifications: 0,
       },
       alerts: [] as { type: string; message: string; severity: string }[],

@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 function generateAssetCode(): string {
-  const rand = Math.floor(1000 + Math.random() * 9000);
+  const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
   return `ASSET-${rand}`;
 }
 

@@ -17,7 +17,7 @@ function generateRefNumber(): string {
   const date = new Date();
   const yy = date.getFullYear().toString().slice(-2);
   const mm = (date.getMonth() + 1).toString().padStart(2, '0');
-  const rand = Math.floor(1000 + Math.random() * 9000);
+  const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
   return `ENV-TRN-${yy}${mm}-${rand}`;
 }
 

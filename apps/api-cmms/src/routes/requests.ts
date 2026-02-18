@@ -16,7 +16,7 @@ function generateRequestNumber(): string {
   const now = new Date();
   const yy = now.getFullYear().toString().slice(-2);
   const mm = (now.getMonth() + 1).toString().padStart(2, '0');
-  const rand = Math.floor(1000 + Math.random() * 9000);
+  const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
   return `MR-${yy}${mm}-${rand}`;
 }
 
@@ -192,7 +192,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const now = new Date();
     const yy = now.getFullYear().toString().slice(-2);
     const mm = (now.getMonth() + 1).toString().padStart(2, '0');
-    const rand = Math.floor(1000 + Math.random() * 9000);
+    const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
     const woNumber = `WO-${yy}${mm}-${rand}`;
 
     let workOrder = null;

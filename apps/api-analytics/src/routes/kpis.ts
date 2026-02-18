@@ -191,8 +191,10 @@ router.post('/:id/calculate', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
 
-    // Simulate recalculation
-    const newValue = Math.round(Math.random() * 10000) / 100;
+    // Simulate recalculation — deterministic based on current timestamp epoch bucket
+    // so repeat calls within the same minute return the same value
+    const bucket = Math.floor(Date.now() / 60000);
+    const newValue = Math.round(((parseInt(id.replace(/-/g, '').slice(0, 6), 16) + bucket) % 10000)) / 100;
     const previousValue = kpi.currentValue;
     let trend: 'UP' | 'DOWN' | 'STABLE' = 'STABLE';
     if (previousValue != null) {

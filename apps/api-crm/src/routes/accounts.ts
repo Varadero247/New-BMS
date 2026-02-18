@@ -4,6 +4,9 @@ import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createServiceHeaders } from '@ims/service-auth';
+
+const FINANCE_SERVICE_URL = process.env.FINANCE_SERVICE_URL || 'http://localhost:4013';
 
 const router = Router();
 const logger = createLogger('api-crm:accounts');
@@ -272,7 +275,7 @@ router.get('/:id/compliance', async (req: Request, res: Response) => {
   }
 });
 
-// GET /:id/invoices — Return invoice data (placeholder for Finance integration)
+// GET /:id/invoices — Return Finance invoices for this CRM account
 router.get('/:id/invoices', async (req: Request, res: Response) => {
   try {
     const account = await prisma.crmAccount.findFirst({
@@ -283,12 +286,18 @@ router.get('/:id/invoices', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
-    // Placeholder: Finance module integration point
-    return res.json({
-      success: true,
-      data: [],
-      message: 'Invoice integration pending — connect to Finance module',
-    });
+    // Fetch invoices from the Finance service filtered by this account's name
+    const headers = { ...createServiceHeaders('api-crm'), 'Content-Type': 'application/json' };
+    const params = new URLSearchParams({ search: (account as any).name || '', limit: '50' });
+    const financeRes = await fetch(`${FINANCE_SERVICE_URL}/api/invoices?${params}`, { headers });
+
+    if (!financeRes.ok) {
+      logger.warn('Finance service unavailable for invoice lookup', { status: financeRes.status, accountId: req.params.id });
+      return res.json({ success: true, data: [], meta: { source: 'finance-unavailable' } });
+    }
+
+    const financeBody = await financeRes.json() as { success: boolean; data: unknown[] };
+    return res.json({ success: true, data: financeBody.data ?? [], meta: { source: 'finance-service' } });
   } catch (error: unknown) {
     logger.error('Failed to get invoices', { error: error instanceof Error ? error.message : 'Unknown error' });
     return res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get invoices' } });

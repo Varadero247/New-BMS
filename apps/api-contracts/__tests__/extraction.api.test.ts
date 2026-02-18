@@ -25,7 +25,9 @@ describe('POST /api/extraction/analyze', () => {
     expect(res.body.data.extracted.dates).toBeDefined();
     expect(res.body.data.extracted.values).toBeDefined();
     expect(res.body.data.extracted.keyTerms).toBeDefined();
-    expect(res.body.data.aiNote).toBeDefined();
+    expect(res.body.data.wordCount).toBeGreaterThan(0);
+    // dates: "January 1, 2026" should be extracted
+    expect(res.body.data.extracted.dates.length).toBeGreaterThan(0);
   });
 
   it('should return 400 if text is missing', async () => {

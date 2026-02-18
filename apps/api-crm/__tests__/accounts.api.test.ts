@@ -23,6 +23,10 @@ jest.mock('../src/prisma', () => ({
   Prisma: { Decimal: jest.fn((v: any) => v) },
 }));
 
+jest.mock('@ims/service-auth', () => ({
+  createServiceHeaders: jest.fn(() => ({ 'X-Service-Token': 'mock-token' })),
+}));
+
 jest.mock('@ims/auth', () => ({
   authenticate: jest.fn((req: any, _res: any, next: any) => {
     req.user = { id: 'user-123', email: 'test@test.com', role: 'ADMIN' };
@@ -486,15 +490,38 @@ describe('GET /api/accounts/:id/compliance', () => {
 // ===================================================================
 
 describe('GET /api/accounts/:id/invoices', () => {
-  it('should return invoices placeholder', async () => {
+  it('should return invoices from Finance service', async () => {
     (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
+
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, data: [{ id: 'inv-1', amount: 1000 }] }),
+    } as Response);
+
+    const res = await request(app).get('/api/accounts/acc-1/invoices');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.meta.source).toBe('finance-service');
+    fetchMock.mockRestore();
+  });
+
+  it('should return empty array when Finance service is unavailable', async () => {
+    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
+
+    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+      ok: false,
+      status: 503,
+    } as Response);
 
     const res = await request(app).get('/api/accounts/acc-1/invoices');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toEqual([]);
-    expect(res.body.message).toContain('Invoice integration pending');
+    expect(res.body.meta.source).toBe('finance-unavailable');
+    fetchMock.mockRestore();
   });
 
   it('should return 404 when account not found', async () => {

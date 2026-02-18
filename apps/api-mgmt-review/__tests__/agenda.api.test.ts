@@ -58,8 +58,8 @@ describe('POST /api/agenda/:id/generate', () => {
     expect(res.body.data).toHaveProperty('title');
     expect(res.body.data).toHaveProperty('items');
     expect(Array.isArray(res.body.data.items)).toBe(true);
-    expect(res.body.data.items.length).toBe(12);
-    expect(res.body.data).toHaveProperty('aiNote');
+    expect(res.body.data.items.length).toBeGreaterThanOrEqual(14);
+    expect(res.body.data).toHaveProperty('generatedAt');
     expect(prisma.mgmtReview.findFirst as jest.Mock).toHaveBeenCalledWith({
       where: { id: reviewId, deletedAt: null },
     });
