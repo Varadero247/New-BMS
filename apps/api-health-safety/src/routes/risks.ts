@@ -27,7 +27,7 @@ function getRiskLevel(likelihood: number, severity: number): 'LOW' | 'MEDIUM' | 
 // Helper: generate reference number HS-001, HS-002, etc.
 async function generateReferenceNumber(): Promise<string> {
   const lastRisk = await prisma.risk.findFirst({
-    where: { referenceNumber: { not: null } },
+    where: { referenceNumber: { not: null }, deletedAt: null } as any,
     orderBy: { createdAt: 'desc' },
     select: { referenceNumber: true },
   });
@@ -127,7 +127,7 @@ router.get('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Re
       include: { actions: true },
     });
 
-    if (!risk) {
+    if (!risk || (risk as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
@@ -232,7 +232,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.risk.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
+    if (!existing || (existing as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 

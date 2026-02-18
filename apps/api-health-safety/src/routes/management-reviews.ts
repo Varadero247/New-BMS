@@ -25,7 +25,7 @@ async function generateRefNumber(): Promise<string> {
   const prefix = `HS-MR-${year}-`;
 
   const last = await prisma.hSManagementReview.findFirst({
-    where: { refNumber: { startsWith: prefix } },
+    where: { refNumber: { startsWith: prefix }, deletedAt: null } as any,
     orderBy: { createdAt: 'desc' },
     select: { refNumber: true },
   });
@@ -93,7 +93,7 @@ router.get('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRe
       include: { actions: true },
     });
 
-    if (!review) {
+    if (!review || (review as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
     }
 
@@ -169,7 +169,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
+    if (!existing || (existing as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
     }
 
@@ -217,7 +217,7 @@ router.put('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRe
 router.post('/:id/complete', checkOwnership(prisma.hSManagementReview), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
+    if (!existing || (existing as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
     }
 
@@ -242,7 +242,7 @@ router.post('/:id/complete', checkOwnership(prisma.hSManagementReview), async (r
 router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
   try {
     const review = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!review) {
+    if (!review || (review as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
     }
 

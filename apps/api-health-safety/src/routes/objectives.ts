@@ -21,6 +21,7 @@ const OBJECTIVE_STATUSES = ['ACTIVE', 'ON_TRACK', 'AT_RISK', 'BEHIND', 'ACHIEVED
 // Generate reference number OBJ-001, OBJ-002, etc.
 async function generateReferenceNumber(): Promise<string> {
   const last = await prisma.ohsObjective.findFirst({
+    where: { deletedAt: null } as any,
     orderBy: { createdAt: 'desc' },
     select: { referenceNumber: true },
   });
@@ -90,7 +91,7 @@ router.get('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest,
       include: { milestones: { orderBy: { sortOrder: 'asc' } } },
     });
 
-    if (!objective) {
+    if (!objective || (objective as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     }
 
@@ -188,7 +189,7 @@ router.patch('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthReques
       where: { id: req.params.id },
       include: { milestones: true },
     });
-    if (!existing) {
+    if (!existing || (existing as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     }
 
@@ -268,7 +269,7 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       include: { milestones: true },
     });
-    if (!objective) {
+    if (!objective || (objective as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     }
 
