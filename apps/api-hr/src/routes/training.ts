@@ -267,7 +267,7 @@ router.put('/enrollments/:id', checkOwnership(prisma.hRTrainingEnrollment), asyn
       attendancePercent: z.number().optional(),
       assessmentScore: z.number().optional(),
       passed: z.boolean().optional(),
-      certificateUrl: z.string().optional(),
+      certificateUrl: z.string().url('Invalid URL').optional(),
       feedbackRating: z.number().min(1).max(5).optional(),
       feedbackComments: z.string().optional(),
     });
@@ -343,7 +343,7 @@ router.post('/certifications', async (req: Request, res: Response) => {
       expiryDate: z.string().optional(),
       doesNotExpire: z.boolean().default(false),
       renewalRequired: z.boolean().default(false),
-      certificateUrl: z.string().optional(),
+      certificateUrl: z.string().url('Invalid URL').optional(),
     });
 
     const data = schema.parse(req.body);

@@ -30,7 +30,7 @@ const createRecordSchema = z.object({
   expiresAt: z.string().datetime().optional(),
   score: z.number().min(0).max(100).optional(),
   competenceLevel: z.enum(['AWARENESS', 'BASIC', 'PROFICIENT', 'EXPERT']).optional(),
-  certificateUrl: z.string().optional(),
+  certificateUrl: z.string().url('Invalid URL').optional(),
   notes: z.string().optional(),
 });
 

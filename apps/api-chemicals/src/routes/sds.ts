@@ -76,7 +76,7 @@ const createSdsSchema = z.object({
   revisionsDescription: z.string().optional(),
   abbreviations: z.string().optional(),
   dataSourcesUsed: z.string().optional(),
-  fileUrl: z.string().optional(),
+  fileUrl: z.string().url('Invalid URL').optional(),
   fileHash: z.string().optional(),
 });
 

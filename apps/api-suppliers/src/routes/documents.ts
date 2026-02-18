@@ -10,7 +10,7 @@ const createSchema = z.object({
   supplierId: z.string().min(1, 'Supplier ID is required'),
   type: z.enum(['CERTIFICATE', 'LICENSE', 'INSURANCE', 'AUDIT_REPORT', 'QUALITY_MANUAL', 'OTHER']).optional(),
   title: z.string().min(1, 'Title is required'),
-  fileUrl: z.string().optional(),
+  fileUrl: z.string().url('Invalid URL').optional(),
   expiryDate: z.string().datetime().optional().or(z.null()),
   isVerified: z.boolean().optional(),
   verifiedBy: z.string().optional(),

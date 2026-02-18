@@ -12,7 +12,7 @@ const outreachSchema = z.object({
   prospectName: z.string().min(1),
   prospectTitle: z.string().optional(),
   company: z.string().min(1),
-  linkedinUrl: z.string().min(1),
+  linkedinUrl: z.string().url('Invalid URL').min(1),
   template: z.enum(['ISO_CONSULTANT', 'QUALITY_MANAGER', 'EHS_MANAGER', 'GCC_PROCUREMENT', 'CERTIFICATION_BODY']),
   customContext: z.string().optional(),
 });

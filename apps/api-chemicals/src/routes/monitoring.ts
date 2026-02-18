@@ -21,7 +21,7 @@ const createMonitoringSchema = z.object({
   resultUnit: z.string().optional(),
   welTwaLimit: z.number().optional(),
   welStelLimit: z.number().optional(),
-  reportUrl: z.string().optional(),
+  reportUrl: z.string().url('Invalid URL').optional(),
   nextMonitoringDue: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
   actionTaken: z.string().optional(),
 });

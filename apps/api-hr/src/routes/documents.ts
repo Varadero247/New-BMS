@@ -221,7 +221,7 @@ router.post('/qualifications', async (req: Request, res: Response) => {
       startDate: z.string().optional(),
       endDate: z.string().optional(),
       isOngoing: z.boolean().default(false),
-      documentUrl: z.string().optional(),
+      documentUrl: z.string().url('Invalid URL').optional(),
       notes: z.string().optional(),
     });
 

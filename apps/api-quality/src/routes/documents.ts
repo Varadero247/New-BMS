@@ -107,7 +107,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       nextReviewDate: z.string().optional(),
       distributionList: z.string().optional(),
       accessLevel: z.enum(['UNRESTRICTED', 'CONTROLLED', 'CONFIDENTIAL', 'RESTRICTED']).default('UNRESTRICTED'),
-      locationUrl: z.string().optional(),
+      locationUrl: z.string().url('Invalid URL').optional(),
       controlledCopies: z.number().default(0),
       supersedesDocument: z.string().optional(),
       relatedProcedures: z.string().optional(),

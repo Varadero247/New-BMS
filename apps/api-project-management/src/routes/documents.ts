@@ -59,7 +59,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       documentType: z.enum(['CHARTER', 'PLAN', 'REPORT', 'SPECIFICATION', 'DESIGN', 'DRAWING', 'CONTRACT']),
       documentCategory: z.string().optional(),
       version: z.string().optional(),
-      fileUrl: z.string().optional(),
+      fileUrl: z.string().url('Invalid URL').optional(),
       fileSize: z.number().optional(),
       fileType: z.string().optional(),
       description: z.string().optional(),

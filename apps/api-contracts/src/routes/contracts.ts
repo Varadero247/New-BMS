@@ -21,7 +21,7 @@ const createSchema = z.object({
   autoRenew: z.boolean().optional(),
   noticePeriodDays: z.number().int().optional(),
   paymentTerms: z.string().optional(),
-  fileUrl: z.string().optional(),
+  fileUrl: z.string().url('Invalid URL').optional(),
   owner: z.string().optional(),
   ownerName: z.string().optional(),
   department: z.string().optional(),

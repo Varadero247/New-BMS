@@ -245,7 +245,7 @@ router.post('/applicants', async (req: Request, res: Response) => {
       phone: z.string().optional(),
       linkedinUrl: z.string().url().optional(),
       coverLetter: z.string().optional(),
-      resumeUrl: z.string().optional(),
+      resumeUrl: z.string().url('Invalid URL').optional(),
       portfolioUrl: z.string().url().optional(),
       source: z.enum(['WEBSITE', 'LINKEDIN', 'INDEED', 'GLASSDOOR', 'REFERRAL', 'AGENCY', 'CAMPUS', 'INTERNAL', 'OTHER']),
       referredBy: z.string().optional(),

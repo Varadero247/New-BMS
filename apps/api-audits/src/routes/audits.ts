@@ -21,7 +21,7 @@ const auditCreateSchema = z.object({
   scheduledDate: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  reportUrl: z.string().optional(),
+  reportUrl: z.string().url('Invalid URL').optional(),
   conclusion: z.string().optional(),
   notes: z.string().optional(),
 });

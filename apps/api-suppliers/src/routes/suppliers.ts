@@ -17,7 +17,7 @@ const createSchema = z.object({
   primaryContact: z.string().optional(),
   email: z.string().email().optional().or(z.literal('')),
   phone: z.string().optional(),
-  website: z.string().optional(),
+  website: z.string().url('Invalid URL').optional(),
   addressLine1: z.string().optional(),
   city: z.string().optional(),
   postcode: z.string().optional(),
