@@ -16,7 +16,7 @@ const createBankAccountSchema = z.object({
   iban: z.string().optional(),
   swift: z.string().optional(),
   type: z.enum(['CURRENT', 'SAVINGS', 'CREDIT_CARD', 'LOAN', 'MERCHANT', 'OTHER']).default('CURRENT'),
-  currency: z.string().default('GBP'),
+  currency: z.string().length(3).default('GBP'),
   bankName: z.string().optional(),
   accountId: z.string().trim().uuid().optional(),
   currentBalance: z.number().optional(),

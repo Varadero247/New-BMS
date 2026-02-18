@@ -14,7 +14,7 @@ const createSchema = z.object({
   counterparty: z.string().optional(),
   counterpartyContact: z.string().optional(),
   value: z.number().optional(),
-  currency: z.string().optional(),
+  currency: z.string().length(3).optional(),
   startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   renewalDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),

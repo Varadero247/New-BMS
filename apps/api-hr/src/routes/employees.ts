@@ -32,7 +32,7 @@ const createEmployeeSchema = z.object({
   jobTitle: z.string(),
   jobGrade: z.string().optional(),
   workLocation: z.string().optional(),
-  currency: z.string().default('USD'),
+  currency: z.string().length(3).default('USD'),
   bankName: z.string().optional(),
   accountNumber: z.string().optional(),
 });

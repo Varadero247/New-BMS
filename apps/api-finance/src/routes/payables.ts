@@ -32,9 +32,9 @@ const supplierCreateSchema = z.object({
   city: z.string().max(100).optional().nullable(),
   region: z.string().max(100).optional().nullable(),
   postalCode: z.string().max(20).optional().nullable(),
-  country: z.string().max(3).optional(),
+  country: z.string().length(3).optional(),
   taxNumber: z.string().max(50).optional().nullable(),
-  currency: z.string().max(3).optional(),
+  currency: z.string().length(3).optional(),
   paymentTerms: z.number().int().min(0).optional(),
   notes: z.string().optional().nullable(),
 });
@@ -55,7 +55,7 @@ const poCreateSchema = z.object({
   orderDate: z.string().or(z.date()),
   expectedDate: z.string().or(z.date()).optional().nullable(),
   notes: z.string().optional().nullable(),
-  currency: z.string().max(3).optional(),
+  currency: z.string().length(3).optional(),
   lines: z.array(poLineSchema).min(1),
 });
 
@@ -64,7 +64,7 @@ const poUpdateSchema = z.object({
   orderDate: z.string().or(z.date()).optional(),
   expectedDate: z.string().or(z.date()).optional().nullable(),
   notes: z.string().optional().nullable(),
-  currency: z.string().max(3).optional(),
+  currency: z.string().length(3).optional(),
   lines: z.array(poLineSchema).optional(),
 });
 
@@ -84,7 +84,7 @@ const billCreateSchema = z.object({
   dueDate: z.string().or(z.date()),
   supplierRef: z.string().max(100).optional().nullable(),
   notes: z.string().optional().nullable(),
-  currency: z.string().max(3).optional(),
+  currency: z.string().length(3).optional(),
   lines: z.array(billLineSchema).min(1),
 });
 
@@ -95,7 +95,7 @@ const billUpdateSchema = z.object({
   dueDate: z.string().or(z.date()).optional(),
   supplierRef: z.string().max(100).optional().nullable(),
   notes: z.string().optional().nullable(),
-  currency: z.string().max(3).optional(),
+  currency: z.string().length(3).optional(),
   lines: z.array(billLineSchema).optional(),
 });
 

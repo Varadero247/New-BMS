@@ -78,7 +78,7 @@ router.post('/', async (req: Request, res: Response) => {
       description: z.string(),
       merchant: z.string().optional(),
       amount: z.number().positive(),
-      currency: z.string().default('USD'),
+      currency: z.string().length(3).default('USD'),
       expenseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       receiptUrls: z.array(z.string()).default([]),
       projectCode: z.string().optional(),

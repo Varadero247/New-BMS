@@ -43,7 +43,7 @@ const updateStagesSchema = z.object({
 const createDealSchema = z.object({
   title: z.string().min(1, 'Deal title is required'),
   value: z.number().min(0, 'Value is required'),
-  currency: z.string().default('USD'),
+  currency: z.string().length(3).default('USD'),
   accountId: z.string().trim().uuid().optional(),
   contactId: z.string().trim().uuid().optional(),
   pipelineId: z.string().trim().uuid().optional(),

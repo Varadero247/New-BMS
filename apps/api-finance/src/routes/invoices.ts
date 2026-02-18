@@ -45,7 +45,7 @@ const customerCreateSchema = z.object({
   postalCode: z.string().max(20).optional(),
   country: z.string().max(100).optional(),
   taxNumber: z.string().max(50).optional(),
-  currency: z.string().max(3).default('USD'),
+  currency: z.string().length(3).default('USD'),
   paymentTerms: z.string().max(50).optional(),
   creditLimit: z.number().min(0).optional(),
 });

@@ -92,7 +92,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       baseSalary: z.number().positive(),
-      currency: z.string().default('USD'),
+      currency: z.string().length(3).default('USD'),
       payFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).default('MONTHLY'),
       effectiveFrom: z.string(),
       changeReason: z.string().optional(),
