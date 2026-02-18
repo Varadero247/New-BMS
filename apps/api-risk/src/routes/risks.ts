@@ -133,7 +133,7 @@ router.get('/register', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { page = '1', limit = '50' } = req.query as Record<string, string>;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
     const where = { orgId, deletedAt: null };
     const [data, total] = await Promise.all([
       prisma.riskRegister.findMany({
@@ -143,7 +143,7 @@ router.get('/register', authenticate, async (req: Request, res: Response) => {
       }),
       prisma.riskRegister.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit, 10)) } });
   } catch (error: unknown) { logger.error('Failed to fetch register', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch register' } }); }
 });
 
@@ -321,14 +321,14 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       { referenceNumber: { contains: search, mode: 'insensitive' } },
       { description: { contains: search, mode: 'insensitive' } },
     ];
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
     const validSorts = ['createdAt', 'residualScore', 'category', 'nextReviewDate', 'title'];
     const orderField = validSorts.includes(sort) ? sort : 'createdAt';
     const [data, total] = await Promise.all([
       prisma.riskRegister.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { [orderField]: order === 'asc' ? 'asc' : 'desc' } }),
       prisma.riskRegister.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit, 10)) } });
   } catch (error: unknown) { logger.error('Failed to fetch risks', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch risks' } }); }
 });
 

@@ -60,12 +60,12 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { organisationId: orgId, deletedAt: null };
     if (status) where.assessmentStatus = status as any;
     if (premisesId) where.premisesId = premisesId as any;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
     const [data, total] = await Promise.all([
       prisma.femFireRiskAssessment.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { assessmentDate: 'desc' }, include: { premises: { select: { name: true } } } }),
       prisma.femFireRiskAssessment.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit, 10)) } });
   } catch (error: unknown) { logger.error('Failed to fetch FRAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch fire risk assessments' } }); }
 });
 

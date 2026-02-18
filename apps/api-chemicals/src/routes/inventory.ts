@@ -70,7 +70,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         { casNumber: { contains: search, mode: 'insensitive' } },
       ]};
     }
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
     const [data, total] = await Promise.all([
       prisma.chemInventory.findMany({
         where, skip, take: Math.min(parseInt(limit, 10) || 20, 100),
@@ -79,7 +79,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       }),
       prisma.chemInventory.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
+    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit, 10)) } });
   } catch (error: unknown) {
     logger.error('Failed to fetch inventory', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch inventory' } });

@@ -73,8 +73,8 @@ const webhookSchema = z.object({
 router.get('/plugins', async (req: AuthRequest, res: Response) => {
   try {
     const { category, search, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-    const take = Math.min(parseInt(limit) || 20, 100);
+    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+    const take = Math.min(parseInt(limit, 10) || 20, 100);
 
     const where: Record<string, unknown> = {
       deletedAt: null,
@@ -91,7 +91,7 @@ router.get('/plugins', async (req: AuthRequest, res: Response) => {
       (prisma as any).mktPlugin.count({ where }),
     ]);
 
-    res.json({ success: true, data: plugins, meta: { total, page: parseInt(page), limit: take } });
+    res.json({ success: true, data: plugins, meta: { total, page: parseInt(page, 10), limit: take } });
   } catch (error) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list plugins' } });

@@ -116,8 +116,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       ];
     }
 
-    const skip = (Math.max(1, parseInt(page)) - 1) * parseInt(limit);
-    const take = Math.min(100, Math.max(1, parseInt(limit)));
+    const skip = (Math.max(1, parseInt(page, 10)) - 1) * parseInt(limit, 10);
+    const take = Math.min(100, Math.max(1, parseInt(limit, 10)));
 
     const [templates, total] = await Promise.all([
       (prisma as any).template.findMany({
@@ -147,7 +147,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       data: templates,
-      pagination: { page: parseInt(page), limit: take, total, pages: Math.ceil(total / take) },
+      pagination: { page: parseInt(page, 10), limit: take, total, pages: Math.ceil(total / take) },
     });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -223,7 +223,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
         ],
       },
       orderBy: { usageCount: 'desc' },
-      take: Math.min(50, parseInt(limit)),
+      take: Math.min(50, parseInt(limit, 10)),
       select: {
         id: true, code: true, name: true, description: true,
         module: true, category: true, usageCount: true,
