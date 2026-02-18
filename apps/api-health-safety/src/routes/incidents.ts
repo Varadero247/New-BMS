@@ -110,7 +110,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       severity: z.enum(SEVERITIES).default('MODERATE'),
       category: z.string().optional(),
       location: z.string().optional(),
-      dateOccurred: z.string(),
+      dateOccurred: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       personsInvolved: z.string().optional(),
       injuryType: z.string().optional(),
       bodyPart: z.string().optional(),

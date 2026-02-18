@@ -382,7 +382,7 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
-      date: z.string(),
+      date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       clockIn: z.string().optional(),
       clockOut: z.string().optional(),
       status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'HALF_DAY', 'ON_LEAVE', 'WORK_FROM_HOME', 'HOLIDAY']).default('PRESENT'),

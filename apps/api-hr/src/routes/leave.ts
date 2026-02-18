@@ -476,7 +476,7 @@ router.post('/holidays', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(200),
-      date: z.string(),
+      date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       type: z.enum(['PUBLIC', 'COMPANY', 'OPTIONAL', 'RESTRICTED']),
       isFloating: z.boolean().default(false),
       applicableLocations: z.array(z.string()).default([]),

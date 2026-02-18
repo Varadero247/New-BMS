@@ -30,7 +30,7 @@ const lineSchema = z.object({
 });
 
 const createSchema = z.object({
-  date: z.string(),
+  date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   periodId: z.string().trim().uuid(),
   description: z.string().trim().min(1).max(1000),
   memo: z.string().max(2000).optional().nullable(),

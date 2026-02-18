@@ -14,7 +14,7 @@ router.use(authenticate);
 
 const scheduleCreateSchema = z.object({
   technicianId: z.string().trim().uuid(),
-  date: z.string(),
+  date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   slots: z.array(z.any()),
   isAvailable: z.boolean().optional(),
   notes: z.string().max(2000).optional().nullable(),

@@ -24,7 +24,7 @@ const createBankAccountSchema = z.object({
 
 const createTransactionSchema = z.object({
   bankAccountId: z.string().trim().uuid(),
-  date: z.string(),
+  date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   description: z.string().trim().min(1).max(2000),
   reference: z.string().optional(),
   amount: z.number(),
@@ -35,7 +35,7 @@ const createTransactionSchema = z.object({
 const importTransactionsSchema = z.object({
   bankAccountId: z.string().trim().uuid(),
   transactions: z.array(z.object({
-    date: z.string(),
+    date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
     description: z.string(),
     reference: z.string().optional(),
     amount: z.number(),

@@ -14,7 +14,7 @@ router.use(authenticate);
 
 const routeCreateSchema = z.object({
   technicianId: z.string().trim().uuid(),
-  date: z.string(),
+  date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   stops: z.array(z.any()),
   optimizedOrder: z.array(z.any()).optional().nullable(),
   totalDistance: z.number().nonnegative().optional().nullable(),
