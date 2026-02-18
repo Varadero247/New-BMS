@@ -42,7 +42,8 @@ router.post('/:id/controls', authenticate, async (req: Request, res: Response) =
 // GET /api/risks/:id/controls
 router.get('/:id/controls', authenticate, async (req: Request, res: Response) => {
   try {
-    const controls = await prisma.riskControl.findMany({ where: { riskId: req.params.id, isActive: true }, orderBy: { createdAt: 'desc' } });
+    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const controls = await prisma.riskControl.findMany({ where: { riskId: req.params.id, isActive: true, risk: { orgId } } as any, orderBy: { createdAt: 'desc' } });
     res.json({ success: true, data: controls });
   } catch (error: unknown) { logger.error('Failed to fetch controls', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch controls' } }); }
 });

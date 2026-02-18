@@ -22,8 +22,9 @@ const actionSchema = z.object({
 // GET /api/risks/:id/actions
 router.get('/:id/actions', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const actions = await prisma.riskAction.findMany({
-      where: { riskId: req.params.id },
+      where: { riskId: req.params.id, risk: { orgId } } as any,
       orderBy: { targetDate: 'asc' },
     });
     res.json({ success: true, data: actions });
@@ -77,8 +78,9 @@ router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, 
 // GET /api/risks/actions/overdue
 router.get('/actions/overdue', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const actions = await prisma.riskAction.findMany({
-      where: { status: { in: ['OPEN', 'IN_PROGRESS'] }, targetDate: { lt: new Date() } },
+      where: { status: { in: ['OPEN', 'IN_PROGRESS'] }, targetDate: { lt: new Date() }, risk: { orgId, deletedAt: null } } as any,
       include: { risk: { select: { id: true, title: true, referenceNumber: true, residualRiskLevel: true } } },
       orderBy: { targetDate: 'asc' },
     });
@@ -89,10 +91,11 @@ router.get('/actions/overdue', authenticate, async (req: Request, res: Response)
 // GET /api/risks/actions/due-soon
 router.get('/actions/due-soon', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const twoWeeks = new Date();
     twoWeeks.setDate(twoWeeks.getDate() + 14);
     const actions = await prisma.riskAction.findMany({
-      where: { status: { in: ['OPEN', 'IN_PROGRESS'] }, targetDate: { lte: twoWeeks, gte: new Date() } },
+      where: { status: { in: ['OPEN', 'IN_PROGRESS'] }, targetDate: { lte: twoWeeks, gte: new Date() }, risk: { orgId, deletedAt: null } } as any,
       include: { risk: { select: { id: true, title: true, referenceNumber: true } } },
       orderBy: { targetDate: 'asc' },
     });

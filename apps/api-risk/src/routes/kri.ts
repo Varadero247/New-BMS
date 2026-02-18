@@ -36,8 +36,9 @@ function evaluateKriStatus(kri: Record<string, unknown>, value: number): string 
 // GET /api/risks/:id/kri
 router.get('/:id/kri', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const kris = await prisma.riskKri.findMany({
-      where: { riskId: req.params.id, isActive: true },
+      where: { riskId: req.params.id, isActive: true, risk: { orgId } } as any,
       include: { readings: { orderBy: { recordedAt: 'desc' }, take: 10 } },
     });
     res.json({ success: true, data: kris });
@@ -93,8 +94,9 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
 // GET /api/risks/kri/breaches
 router.get('/kri/breaches', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const kris = await prisma.riskKri.findMany({
-      where: { isActive: true, currentStatus: { in: ['AMBER', 'RED'] } },
+      where: { isActive: true, currentStatus: { in: ['AMBER', 'RED'] }, risk: { orgId, deletedAt: null } } as any,
       include: { risk: { select: { id: true, title: true, referenceNumber: true, residualRiskLevel: true } } },
       orderBy: { updatedAt: 'desc' },
     });
@@ -105,10 +107,11 @@ router.get('/kri/breaches', authenticate, async (req: Request, res: Response) =>
 // GET /api/risks/kri/due
 router.get('/kri/due', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
     const kris = await prisma.riskKri.findMany({
-      where: { isActive: true, nextMeasurementDue: { lte: nextWeek } },
+      where: { isActive: true, nextMeasurementDue: { lte: nextWeek }, risk: { orgId, deletedAt: null } } as any,
       include: { risk: { select: { id: true, title: true, referenceNumber: true } } },
       orderBy: { nextMeasurementDue: 'asc' },
     });

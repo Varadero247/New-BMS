@@ -65,7 +65,9 @@ router.post('/:id/bowtie', authenticate, async (req: Request, res: Response) => 
 // GET /api/risks/bowtie/all
 router.get('/bowtie/all', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const bowties = await prisma.riskBowtie.findMany({
+      where: { risk: { orgId, deletedAt: null } } as any,
       include: { risk: { select: { id: true, title: true, referenceNumber: true, residualRiskLevel: true, category: true } } },
       orderBy: { updatedAt: 'desc' },
     });
