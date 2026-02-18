@@ -137,7 +137,7 @@ router.get('/register', authenticate, async (req: Request, res: Response) => {
     const where = { orgId, deletedAt: null };
     const [data, total] = await Promise.all([
       prisma.riskRegister.findMany({
-        where, skip, take: parseInt(limit),
+        where, skip, take: Math.min(parseInt(limit, 10) || 20, 100),
         include: { riskControls: { where: { isActive: true } }, keyRiskIndicators: { where: { isActive: true } }, treatmentActions: true },
         orderBy: { residualScore: 'desc' },
       }),
@@ -325,7 +325,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const validSorts = ['createdAt', 'residualScore', 'category', 'nextReviewDate', 'title'];
     const orderField = validSorts.includes(sort) ? sort : 'createdAt';
     const [data, total] = await Promise.all([
-      prisma.riskRegister.findMany({ where, skip, take: parseInt(limit), orderBy: { [orderField]: order === 'asc' ? 'asc' : 'desc' } }),
+      prisma.riskRegister.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { [orderField]: order === 'asc' ? 'asc' : 'desc' } }),
       prisma.riskRegister.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });

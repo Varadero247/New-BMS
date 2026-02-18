@@ -75,7 +75,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     if (emergencyType) where.emergencyType = emergencyType as any;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      prisma.femEmergencyIncident.findMany({ where, skip, take: parseInt(limit), orderBy: { reportedAt: 'desc' }, include: { premises: { select: { name: true } }, _count: { select: { decisions: true, timeline: true } } } }),
+      prisma.femEmergencyIncident.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { reportedAt: 'desc' }, include: { premises: { select: { name: true } }, _count: { select: { decisions: true, timeline: true } } } }),
       prisma.femEmergencyIncident.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });

@@ -74,7 +74,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
       prisma.chemMonitoring.findMany({
-        where, skip, take: parseInt(limit),
+        where, skip, take: Math.min(parseInt(limit, 10) || 20, 100),
         orderBy: { sampledAt: 'desc' },
         include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       }),

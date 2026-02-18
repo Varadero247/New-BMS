@@ -62,7 +62,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     if (premisesId) where.premisesId = premisesId as any;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      prisma.femFireRiskAssessment.findMany({ where, skip, take: parseInt(limit), orderBy: { assessmentDate: 'desc' }, include: { premises: { select: { name: true } } } }),
+      prisma.femFireRiskAssessment.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { assessmentDate: 'desc' }, include: { premises: { select: { name: true } } } }),
       prisma.femFireRiskAssessment.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });

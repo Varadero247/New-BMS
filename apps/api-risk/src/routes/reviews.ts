@@ -42,7 +42,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     if (search) where.OR = [{ referenceNumber: { contains: search, mode: 'insensitive' } }, { findings: { contains: search, mode: 'insensitive' } }];
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      prisma.riskReview.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' } }),
+      prisma.riskReview.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { createdAt: 'desc' } }),
       prisma.riskReview.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });

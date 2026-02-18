@@ -73,7 +73,10 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.portalUser.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      prisma.portalUser.findMany({
+        where, skip, take: limit, orderBy: { createdAt: 'desc' },
+        select: { id: true, email: true, name: true, company: true, role: true, portalType: true, status: true, phone: true, createdAt: true, updatedAt: true },
+      }),
       prisma.portalUser.count({ where }),
     ]);
 

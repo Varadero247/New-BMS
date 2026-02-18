@@ -45,7 +45,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     if (search) where.title = { contains: search, mode: 'insensitive' };
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
-      prisma.audAudit.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' } }),
+      prisma.audAudit.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { createdAt: 'desc' } }),
       prisma.audAudit.count({ where }),
     ]);
     res.json({
