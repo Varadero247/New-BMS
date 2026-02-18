@@ -68,9 +68,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: Record<string, unknown> = { deletedAt: null };
 
-    if (year) {
-      where.year = parseInt(String(year), 10);
-    }
+    if (year) { const n = parseInt(String(year), 10); if (!isNaN(n)) where.year = n; }
     if (status && typeof status === 'string') {
       where.status = status;
     }

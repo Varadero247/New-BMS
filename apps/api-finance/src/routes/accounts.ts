@@ -494,9 +494,7 @@ router.get('/periods', async (req: Request, res: Response) => {
 
     const where: any = {};
 
-    if (fiscalYear) {
-      where.fiscalYear = parseInt(String(fiscalYear), 10);
-    }
+    if (fiscalYear) { const n = parseInt(String(fiscalYear), 10); if (!isNaN(n)) where.fiscalYear = n; }
     if (status && typeof status === 'string') {
       where.status = status as any;
     }
