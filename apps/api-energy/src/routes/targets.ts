@@ -84,7 +84,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list targets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list targets' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list targets' } });
   }
 });
 
@@ -96,7 +96,7 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = targetCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const authReq = req as AuthRequest;
@@ -106,7 +106,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (data.baselineId) {
       const baseline = await prisma.energyBaseline.findFirst({ where: { id: data.baselineId, deletedAt: null } as any });
       if (!baseline) {
-        return res.status(400).json({ success: false, error: 'Baseline not found' });
+        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
       }
     }
 
@@ -130,7 +130,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: target });
   } catch (error: unknown) {
     logger.error('Failed to create target', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create target' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create target' } });
   }
 });
 
@@ -150,7 +150,7 @@ router.get('/:id/progress', async (req: Request, res: Response) => {
     });
 
     if (!target) {
-      return res.status(404).json({ success: false, error: 'Target not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Target not found' } });
     }
 
     const targetVal = Number(target.targetValue);
@@ -174,7 +174,7 @@ router.get('/:id/progress', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get target progress', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get target progress' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get target progress' } });
   }
 });
 
@@ -196,13 +196,13 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!target) {
-      return res.status(404).json({ success: false, error: 'Target not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Target not found' } });
     }
 
     res.json({ success: true, data: target });
   } catch (error: unknown) {
     logger.error('Failed to get target', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get target' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get target' } });
   }
 });
 
@@ -215,12 +215,12 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = targetUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Target not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Target not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -240,7 +240,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: target });
   } catch (error: unknown) {
     logger.error('Failed to update target', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update target' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update target' } });
   }
 });
 
@@ -254,7 +254,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Target not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Target not found' } });
     }
 
     await prisma.energyTarget.update({
@@ -266,7 +266,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete target', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete target' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete target' } });
   }
 });
 

@@ -224,7 +224,7 @@ describe('POST /api/budgets', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toBe('Account not found');
+    expect(res.body.error.message).toBe('Account not found');
   });
 
   it('should return 400 for validation error (missing name)', async () => {

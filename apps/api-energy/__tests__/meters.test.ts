@@ -129,7 +129,7 @@ describe('POST /api/meters', () => {
     const res = await request(app).post('/api/meters').send({ ...validBody, parentMeterId: '00000000-0000-0000-0000-000000000099' });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('Parent meter');
+    expect(res.body.error.message).toContain('Parent meter');
   });
 });
 

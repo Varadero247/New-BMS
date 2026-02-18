@@ -110,7 +110,7 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = auditCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const authReq = req as AuthRequest;
@@ -135,7 +135,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: audit });
   } catch (error: unknown) {
     logger.error('Failed to create ISMS audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create ISMS audit' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create ISMS audit' } });
   }
 });
 
@@ -181,7 +181,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list ISMS audits', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list ISMS audits' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list ISMS audits' } });
   }
 });
 
@@ -211,7 +211,7 @@ router.get('/vulnerability-scans', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list vulnerability scans', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list vulnerability scans' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list vulnerability scans' } });
   }
 });
 
@@ -222,7 +222,7 @@ router.post('/vulnerability-scans', async (req: Request, res: Response) => {
   try {
     const parsed = vulnScanCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const authReq = req as AuthRequest;
@@ -250,7 +250,7 @@ router.post('/vulnerability-scans', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: scan });
   } catch (error: unknown) {
     logger.error('Failed to log vulnerability scan', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to log vulnerability scan' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log vulnerability scan' } });
   }
 });
 
@@ -280,7 +280,7 @@ router.get('/penetration-tests', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list penetration tests', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list penetration tests' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list penetration tests' } });
   }
 });
 
@@ -291,7 +291,7 @@ router.post('/penetration-tests', async (req: Request, res: Response) => {
   try {
     const parsed = penTestCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const authReq = req as AuthRequest;
@@ -319,7 +319,7 @@ router.post('/penetration-tests', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: test });
   } catch (error: unknown) {
     logger.error('Failed to log penetration test', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to log penetration test' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log penetration test' } });
   }
 });
 
@@ -341,13 +341,13 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!audit) {
-      return res.status(404).json({ success: false, error: 'ISMS audit not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ISMS audit not found' } });
     }
 
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
     logger.error('Failed to get ISMS audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get ISMS audit' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get ISMS audit' } });
   }
 });
 
@@ -361,7 +361,7 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
 
     const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!audit) {
-      return res.status(404).json({ success: false, error: 'ISMS audit not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ISMS audit not found' } });
     }
 
     const ISO_27001_CLAUSES = [
@@ -421,7 +421,7 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get audit checklist', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get audit checklist' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit checklist' } });
   }
 });
 
@@ -434,12 +434,12 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = findingCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!audit) {
-      return res.status(404).json({ success: false, error: 'ISMS audit not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ISMS audit not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -460,7 +460,7 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
     res.status(201).json({ success: true, data: finding });
   } catch (error: unknown) {
     logger.error('Failed to add audit finding', { error: error instanceof Error ? error.message : 'Unknown error', auditId: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to add audit finding' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add audit finding' } });
   }
 });
 
@@ -473,12 +473,12 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = auditCompleteSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const existing = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'ISMS audit not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ISMS audit not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -501,7 +501,7 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
     logger.error('Failed to complete ISMS audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to complete ISMS audit' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete ISMS audit' } });
   }
 });
 

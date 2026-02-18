@@ -111,7 +111,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: risk });
   } catch (error: unknown) {
     logger.error('Failed to create risk', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create risk' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk' } });
   }
 });
 
@@ -161,7 +161,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list risks', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list risks' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risks' } });
   }
 });
 
@@ -199,7 +199,7 @@ router.get('/heat-map', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to generate heat map', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to generate heat map' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate heat map' } });
   }
 });
 
@@ -216,13 +216,13 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!risk) {
-      return res.status(404).json({ success: false, error: 'Risk not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk not found' } });
     }
 
     res.json({ success: true, data: risk });
   } catch (error: unknown) {
     logger.error('Failed to get risk', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get risk' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk' } });
   }
 });
 
@@ -240,7 +240,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Risk not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -266,7 +266,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     res.json({ success: true, data: risk });
   } catch (error: unknown) {
     logger.error('Failed to update risk', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update risk' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk' } });
   }
 });
 
@@ -283,7 +283,7 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
 
     const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Risk not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -313,7 +313,7 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
     res.json({ success: true, data: risk });
   } catch (error: unknown) {
     logger.error('Failed to assign treatment', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to assign treatment' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to assign treatment' } });
   }
 });
 

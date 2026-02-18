@@ -26,6 +26,7 @@ const CAPA_ACTION_STATUSES = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'O
 // Generate reference number CAPA-001, CAPA-002, etc.
 async function generateReferenceNumber(): Promise<string> {
   const last = await prisma.capa.findFirst({
+    where: { deletedAt: null } as any,
     orderBy: { createdAt: 'desc' },
     select: { referenceNumber: true },
   });
@@ -101,7 +102,7 @@ router.get('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Re
       include: { actions: { orderBy: { sortOrder: 'asc' } } },
     });
 
-    if (!capa) {
+    if (!capa || (capa as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
@@ -206,7 +207,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.capa.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
+    if (!existing || (existing as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
@@ -279,7 +280,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       include: { actions: true },
     });
-    if (!capa) {
+    if (!capa || (capa as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 

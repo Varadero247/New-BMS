@@ -86,7 +86,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list EnPIs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list EnPIs' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list EnPIs' } });
   }
 });
 
@@ -121,7 +121,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: enpi });
   } catch (error: unknown) {
     logger.error('Failed to create EnPI', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create EnPI' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create EnPI' } });
   }
 });
 
@@ -141,13 +141,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!enpi) {
-      return res.status(404).json({ success: false, error: 'EnPI not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
     }
 
     res.json({ success: true, data: enpi });
   } catch (error: unknown) {
     logger.error('Failed to get EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get EnPI' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get EnPI' } });
   }
 });
 
@@ -165,7 +165,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'EnPI not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -188,7 +188,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: enpi });
   } catch (error: unknown) {
     logger.error('Failed to update EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update EnPI' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update EnPI' } });
   }
 });
 
@@ -202,7 +202,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'EnPI not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
     }
 
     await prisma.energyEnpi.update({
@@ -214,7 +214,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete EnPI', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete EnPI' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete EnPI' } });
   }
 });
 
@@ -232,7 +232,7 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: 'EnPI not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -262,7 +262,7 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: dataPoint });
   } catch (error: unknown) {
     logger.error('Failed to add EnPI data point', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to add data point' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add data point' } });
   }
 });
 
@@ -279,7 +279,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: 'EnPI not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
     }
 
     const where: Record<string, unknown> = { enpiId: id, deletedAt: null };
@@ -301,7 +301,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list EnPI data points', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to list data points' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list data points' } });
   }
 });
 
@@ -317,7 +317,7 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: 'EnPI not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
     }
 
     const dataPoints = await prisma.energyEnpiData.findMany({
@@ -362,7 +362,7 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get EnPI trend', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get EnPI trend' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get EnPI trend' } });
   }
 });
 

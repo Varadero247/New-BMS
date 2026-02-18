@@ -79,7 +79,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list alerts', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list alerts' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list alerts' } });
   }
 });
 
@@ -101,7 +101,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (data.meterId) {
       const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
       if (!meter) {
-        return res.status(400).json({ success: false, error: 'Meter not found' });
+        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
       }
     }
 
@@ -123,7 +123,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: alert });
   } catch (error: unknown) {
     logger.error('Failed to create alert', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create alert' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create alert' } });
   }
 });
 
@@ -143,13 +143,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!alert) {
-      return res.status(404).json({ success: false, error: 'Alert not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
     }
 
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
     logger.error('Failed to get alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get alert' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get alert' } });
   }
 });
 
@@ -167,7 +167,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Alert not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
     }
 
     const alert = await prisma.energyAlert.update({
@@ -179,7 +179,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
     logger.error('Failed to update alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update alert' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update alert' } });
   }
 });
 
@@ -193,7 +193,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Alert not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
     }
 
     await prisma.energyAlert.update({
@@ -205,7 +205,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete alert' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete alert' } });
   }
 });
 
@@ -220,11 +220,11 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Alert not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
     }
 
     if (existing.acknowledged) {
-      return res.status(400).json({ success: false, error: 'Alert is already acknowledged' });
+      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert is already acknowledged' } });
     }
 
     const alert = await prisma.energyAlert.update({
@@ -240,7 +240,7 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
     logger.error('Failed to acknowledge alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to acknowledge alert' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to acknowledge alert' } });
   }
 });
 
@@ -254,11 +254,11 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Alert not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
     }
 
     if (existing.resolvedAt) {
-      return res.status(400).json({ success: false, error: 'Alert is already resolved' });
+      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert is already resolved' } });
     }
 
     const alert = await prisma.energyAlert.update({
@@ -275,7 +275,7 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
     res.json({ success: true, data: alert });
   } catch (error: unknown) {
     logger.error('Failed to resolve alert', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to resolve alert' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to resolve alert' } });
   }
 });
 

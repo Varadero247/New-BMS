@@ -195,7 +195,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list controls', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list controls' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list controls' } });
   }
 });
 
@@ -231,7 +231,7 @@ router.get('/soa', async (_req: Request, res: Response) => {
     res.json({ success: true, data: { controls, summary } });
   } catch (error: unknown) {
     logger.error('Failed to get Statement of Applicability', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to get Statement of Applicability' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get Statement of Applicability' } });
   }
 });
 
@@ -268,7 +268,7 @@ router.get('/soa/pdf', async (_req: Request, res: Response) => {
       .end(pdfBuffer);
   } catch (error: unknown) {
     logger.error('Failed to generate SoA PDF', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to generate SoA PDF' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate SoA PDF' } });
   }
 });
 
@@ -285,13 +285,13 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!control) {
-      return res.status(404).json({ success: false, error: 'Control not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Control not found' } });
     }
 
     res.json({ success: true, data: control });
   } catch (error: unknown) {
     logger.error('Failed to get control', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get control' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get control' } });
   }
 });
 
@@ -308,7 +308,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
 
     const existing = await prisma.isControl.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Control not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Control not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -326,7 +326,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
     res.json({ success: true, data: control });
   } catch (error: unknown) {
     logger.error('Failed to update control status', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update control status' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update control status' } });
   }
 });
 
@@ -343,7 +343,7 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
 
     const existing = await prisma.isControl.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Control not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Control not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -364,7 +364,7 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
     res.json({ success: true, data: control });
   } catch (error: unknown) {
     logger.error('Failed to update control implementation', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update control implementation' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update control implementation' } });
   }
 });
 

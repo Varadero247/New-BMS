@@ -155,7 +155,7 @@ describe('GET /api/purchase-orders/:id', () => {
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toBe('Purchase order not found');
+    expect(res.body.error.message).toBe('Purchase order not found');
   });
 
   it('should return 500 on database error', async () => {
@@ -212,7 +212,7 @@ describe('POST /api/purchase-orders', () => {
     const res = await request(app).post('/api/purchase-orders').send(validOrder);
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe('Supplier not found or inactive');
+    expect(res.body.error.message).toBe('Supplier not found or inactive');
   });
 
   it('should return 400 for validation error (no lines)', async () => {
@@ -287,7 +287,7 @@ describe('PUT /api/purchase-orders/:id', () => {
     const res = await request(app).put('/api/purchase-orders/f7100000-0000-4000-a000-000000000001').send({ notes: 'test' });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('RECEIVED');
+    expect(res.body.error.message).toContain('RECEIVED');
   });
 
   it('should return 400 when trying to update a CANCELLED order', async () => {
@@ -357,7 +357,7 @@ describe('DELETE /api/purchase-orders/:id', () => {
     const res = await request(app).delete('/api/purchase-orders/f7100000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(409);
-    expect(res.body.error).toContain('SENT');
+    expect(res.body.error.message).toContain('SENT');
   });
 
   it('should return 409 when trying to delete a RECEIVED order', async () => {

@@ -83,7 +83,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list audits', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list audits' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list audits' } });
   }
 });
 
@@ -119,7 +119,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: audit });
   } catch (error: unknown) {
     logger.error('Failed to create audit', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create audit' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create audit' } });
   }
 });
 
@@ -136,13 +136,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!audit) {
-      return res.status(404).json({ success: false, error: 'Audit not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit not found' } });
     }
 
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
     logger.error('Failed to get audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get audit' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get audit' } });
   }
 });
 
@@ -160,7 +160,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Audit not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -180,7 +180,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
     logger.error('Failed to update audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update audit' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update audit' } });
   }
 });
 
@@ -194,7 +194,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Audit not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit not found' } });
     }
 
     await prisma.energyAudit.update({
@@ -206,7 +206,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete audit' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete audit' } });
   }
 });
 
@@ -221,11 +221,11 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Audit not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit not found' } });
     }
 
     if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: 'Audit is already completed' });
+      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit is already completed' } });
     }
 
     const audit = await prisma.energyAudit.update({
@@ -243,7 +243,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     res.json({ success: true, data: audit });
   } catch (error: unknown) {
     logger.error('Failed to complete audit', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to complete audit' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete audit' } });
   }
 });
 

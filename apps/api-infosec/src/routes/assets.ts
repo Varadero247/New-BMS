@@ -86,7 +86,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: asset });
   } catch (error: unknown) {
     logger.error('Failed to create information asset', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create information asset' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create information asset' } });
   }
 });
 
@@ -133,7 +133,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list information assets', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list information assets' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list information assets' } });
   }
 });
 
@@ -149,13 +149,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!asset) {
-      return res.status(404).json({ success: false, error: 'Information asset not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Information asset not found' } });
     }
 
     res.json({ success: true, data: asset });
   } catch (error: unknown) {
     logger.error('Failed to get information asset', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get information asset' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get information asset' } });
   }
 });
 
@@ -172,7 +172,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Information asset not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Information asset not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -189,7 +189,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: asset });
   } catch (error: unknown) {
     logger.error('Failed to update information asset', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update information asset' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update information asset' } });
   }
 });
 
@@ -202,7 +202,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Information asset not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Information asset not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -218,7 +218,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete information asset', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete information asset' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete information asset' } });
   }
 });
 

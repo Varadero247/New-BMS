@@ -157,7 +157,7 @@ describe('GET /api/customers/:id', () => {
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toBe('Customer not found');
+    expect(res.body.error.message).toBe('Customer not found');
   });
 
   it('should return 500 on database error', async () => {
@@ -224,7 +224,7 @@ describe('POST /api/customers', () => {
 
     expect(res.status).toBe(409);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toBe('Customer code must be unique');
+    expect(res.body.error.message).toBe('Customer code must be unique');
   });
 
   it('should return 500 on unexpected error', async () => {
@@ -324,7 +324,7 @@ describe('DELETE /api/customers/:id', () => {
 
     expect(res.status).toBe(409);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toContain('invoice(s) exist');
+    expect(res.body.error.message).toContain('invoice(s) exist');
   });
 
   it('should return 500 on database error', async () => {

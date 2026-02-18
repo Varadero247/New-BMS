@@ -161,7 +161,7 @@ describe('GET /api/journal/:id', () => {
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toBe('Journal entry not found');
+    expect(res.body.error.message).toBe('Journal entry not found');
   });
 
   it('should return 500 on database error', async () => {
@@ -250,7 +250,7 @@ describe('POST /api/journal', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('Debits');
+    expect(res.body.error.message).toContain('Debits');
   });
 
   it('should return 400 when a line has both debit and credit', async () => {
@@ -265,7 +265,7 @@ describe('POST /api/journal', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('cannot have both debit and credit');
+    expect(res.body.error.message).toContain('cannot have both debit and credit');
   });
 
   it('should return 400 when a line has neither debit nor credit', async () => {
@@ -280,7 +280,7 @@ describe('POST /api/journal', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('must have either debit or credit');
+    expect(res.body.error.message).toContain('must have either debit or credit');
   });
 
   it('should return 404 when period not found', async () => {
@@ -289,7 +289,7 @@ describe('POST /api/journal', () => {
     const res = await request(app).post('/api/journal').send(validEntry);
 
     expect(res.status).toBe(404);
-    expect(res.body.error).toBe('Accounting period not found');
+    expect(res.body.error.message).toBe('Accounting period not found');
   });
 
   it('should return 400 when period is not OPEN', async () => {
@@ -298,7 +298,7 @@ describe('POST /api/journal', () => {
     const res = await request(app).post('/api/journal').send(validEntry);
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('CLOSED period');
+    expect(res.body.error.message).toContain('CLOSED period');
   });
 
   it('should return 400 when account not found or inactive', async () => {
@@ -308,7 +308,7 @@ describe('POST /api/journal', () => {
     const res = await request(app).post('/api/journal').send(validEntry);
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('Invalid or inactive account(s)');
+    expect(res.body.error.message).toContain('Invalid or inactive account(s)');
   });
 
   it('should return 500 on unexpected error', async () => {
@@ -384,7 +384,7 @@ describe('PUT /api/journal/:id', () => {
     const res = await request(app).put('/api/journal/f2200000-0000-4000-a000-000000000001').send({ description: 'Test' });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe('Only DRAFT entries can be updated');
+    expect(res.body.error.message).toBe('Only DRAFT entries can be updated');
   });
 
   it('should return 500 on database error', async () => {
@@ -433,7 +433,7 @@ describe('DELETE /api/journal/:id', () => {
     const res = await request(app).delete('/api/journal/f2200000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(409);
-    expect(res.body.error).toContain('DRAFT');
+    expect(res.body.error.message).toContain('DRAFT');
   });
 
   it('should return 500 on database error', async () => {
@@ -489,7 +489,7 @@ describe('POST /api/journal/:id/post', () => {
     const res = await request(app).post('/api/journal/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('already POSTED');
+    expect(res.body.error.message).toContain('already POSTED');
   });
 
   it('should return 400 when period is not OPEN', async () => {
@@ -502,7 +502,7 @@ describe('POST /api/journal/:id/post', () => {
     const res = await request(app).post('/api/journal/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('CLOSED period');
+    expect(res.body.error.message).toContain('CLOSED period');
   });
 
   it('should return 500 on database error', async () => {

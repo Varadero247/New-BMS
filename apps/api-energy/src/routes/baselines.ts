@@ -97,7 +97,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list baselines', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list baselines' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list baselines' } });
   }
 });
 
@@ -133,7 +133,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: baseline });
   } catch (error: unknown) {
     logger.error('Failed to create baseline', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create baseline' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create baseline' } });
   }
 });
 
@@ -151,13 +151,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!baseline) {
-      return res.status(404).json({ success: false, error: 'Baseline not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
     }
 
     res.json({ success: true, data: baseline });
   } catch (error: unknown) {
     logger.error('Failed to get baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get baseline' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get baseline' } });
   }
 });
 
@@ -175,7 +175,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Baseline not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -192,7 +192,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: baseline });
   } catch (error: unknown) {
     logger.error('Failed to update baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update baseline' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update baseline' } });
   }
 });
 
@@ -206,7 +206,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Baseline not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
     }
 
     await prisma.energyBaseline.update({
@@ -218,7 +218,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete baseline' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete baseline' } });
   }
 });
 
@@ -233,11 +233,11 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Baseline not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: 'Only DRAFT baselines can be approved' });
+      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only DRAFT baselines can be approved' } });
     }
 
     const baseline = await prisma.energyBaseline.update({
@@ -253,7 +253,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     res.json({ success: true, data: baseline });
   } catch (error: unknown) {
     logger.error('Failed to approve baseline', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to approve baseline' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve baseline' } });
   }
 });
 

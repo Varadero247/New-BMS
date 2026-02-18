@@ -136,7 +136,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list policies', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list policies' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list policies' } });
   }
 });
 
@@ -165,7 +165,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: policy });
   } catch (error: unknown) {
     logger.error('Failed to create policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create policy' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create policy' } });
   }
 });
 
@@ -179,13 +179,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!policy) {
-      return res.status(404).json({ success: false, error: 'Policy not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Policy not found' } });
     }
 
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
     logger.error('Failed to get policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to get policy' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get policy' } });
   }
 });
 
@@ -203,7 +203,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Policy not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -220,7 +220,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
     logger.error('Failed to update policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to update policy' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update policy' } });
   }
 });
 
@@ -231,7 +231,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Policy not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -250,7 +250,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     res.json({ success: true, data: policy });
   } catch (error: unknown) {
     logger.error('Failed to approve policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to approve policy' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve policy' } });
   }
 });
 
@@ -261,7 +261,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Policy not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -278,7 +278,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { message: 'Policy deleted successfully' } });
   } catch (error: unknown) {
     logger.error('Failed to delete policy', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to delete policy' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete policy' } });
   }
 });
 

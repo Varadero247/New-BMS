@@ -89,7 +89,7 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to generate dashboard', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to generate dashboard' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate dashboard' } });
   }
 });
 
@@ -145,7 +145,7 @@ router.get('/esos', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to generate ESOS report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to generate ESOS report' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate ESOS report' } });
   }
 });
 
@@ -223,7 +223,7 @@ router.get('/secr', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to generate SECR report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to generate SECR report' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate SECR report' } });
   }
 });
 
@@ -295,7 +295,7 @@ router.get('/consumption', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to generate consumption report', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to generate consumption report' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to generate consumption report' } });
   }
 });
 

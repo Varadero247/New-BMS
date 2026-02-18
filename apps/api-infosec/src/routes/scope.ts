@@ -41,7 +41,7 @@ router.get('/', async (_req: Request, res: Response) => {
     res.json({ success: true, data: scope });
   } catch (error: unknown) {
     logger.error('Failed to get ISMS scope', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to get ISMS scope' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get ISMS scope' } });
   }
 });
 
@@ -92,7 +92,7 @@ router.put('/', async (req: Request, res: Response) => {
     res.json({ success: true, data: scope });
   } catch (error: unknown) {
     logger.error('Failed to update ISMS scope', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to update ISMS scope' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update ISMS scope' } });
   }
 });
 

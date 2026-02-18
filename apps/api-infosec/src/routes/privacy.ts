@@ -145,7 +145,7 @@ router.get('/ropa', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list ROPA entries', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list ROPA entries' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list ROPA entries' } });
   }
 });
 
@@ -156,7 +156,7 @@ router.post('/ropa', async (req: Request, res: Response) => {
   try {
     const parsed = ropaCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const authReq = req as AuthRequest;
@@ -186,7 +186,7 @@ router.post('/ropa', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: entry });
   } catch (error: unknown) {
     logger.error('Failed to create ROPA entry', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create ROPA entry' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create ROPA entry' } });
   }
 });
 
@@ -202,13 +202,13 @@ router.get('/ropa/:id', async (req: Request, res: Response) => {
     });
 
     if (!entry) {
-      return res.status(404).json({ success: false, error: 'ROPA entry not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ROPA entry not found' } });
     }
 
     res.json({ success: true, data: entry });
   } catch (error: unknown) {
     logger.error('Failed to get ROPA entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get ROPA entry' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get ROPA entry' } });
   }
 });
 
@@ -220,12 +220,12 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = ropaUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const existing = await prisma.isRopa.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'ROPA entry not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ROPA entry not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -242,7 +242,7 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: entry });
   } catch (error: unknown) {
     logger.error('Failed to update ROPA entry', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update ROPA entry' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update ROPA entry' } });
   }
 });
 
@@ -257,7 +257,7 @@ router.post('/dpia', async (req: Request, res: Response) => {
   try {
     const parsed = dpiaCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const authReq = req as AuthRequest;
@@ -282,7 +282,7 @@ router.post('/dpia', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: dpia });
   } catch (error: unknown) {
     logger.error('Failed to create DPIA', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create DPIA' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create DPIA' } });
   }
 });
 
@@ -325,7 +325,7 @@ router.get('/dpia', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list DPIAs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list DPIAs' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list DPIAs' } });
   }
 });
 
@@ -341,13 +341,13 @@ router.get('/dpia/:id', async (req: Request, res: Response) => {
     });
 
     if (!dpia) {
-      return res.status(404).json({ success: false, error: 'DPIA not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'DPIA not found' } });
     }
 
     res.json({ success: true, data: dpia });
   } catch (error: unknown) {
     logger.error('Failed to get DPIA', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get DPIA' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get DPIA' } });
   }
 });
 
@@ -359,12 +359,12 @@ router.put('/dpia/:id/approve', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = dpiaApproveSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const existing = await prisma.isDpia.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'DPIA not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'DPIA not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -384,7 +384,7 @@ router.put('/dpia/:id/approve', async (req: Request, res: Response) => {
     res.json({ success: true, data: dpia });
   } catch (error: unknown) {
     logger.error('Failed to approve DPIA', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to approve DPIA' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to approve DPIA' } });
   }
 });
 
@@ -435,7 +435,7 @@ router.get('/dsar', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list DSARs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list DSARs' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list DSARs' } });
   }
 });
 
@@ -446,7 +446,7 @@ router.post('/dsar', async (req: Request, res: Response) => {
   try {
     const parsed = dsarCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const authReq = req as AuthRequest;
@@ -473,7 +473,7 @@ router.post('/dsar', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: dsar });
   } catch (error: unknown) {
     logger.error('Failed to log DSAR', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to log DSAR' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log DSAR' } });
   }
 });
 
@@ -485,12 +485,12 @@ router.put('/dsar/:id/respond', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = dsarRespondSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const existing = await prisma.isDsar.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'DSAR not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'DSAR not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -510,7 +510,7 @@ router.put('/dsar/:id/respond', async (req: Request, res: Response) => {
     res.json({ success: true, data: dsar });
   } catch (error: unknown) {
     logger.error('Failed to respond to DSAR', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to respond to DSAR' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to respond to DSAR' } });
   }
 });
 
@@ -558,7 +558,7 @@ router.get('/consents', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list consent records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list consent records' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list consent records' } });
   }
 });
 
@@ -588,7 +588,7 @@ router.get('/retention', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list retention schedules', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list retention schedules' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list retention schedules' } });
   }
 });
 

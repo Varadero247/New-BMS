@@ -137,7 +137,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list overdue training', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list overdue training' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list overdue training' } });
   }
 });
 
@@ -180,7 +180,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get training stats', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to get training stats' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get training stats' } });
   }
 });
 
@@ -233,7 +233,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list training records', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list training records' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list training records' } });
   }
 });
 
@@ -262,7 +262,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: record });
   } catch (error: unknown) {
     logger.error('Failed to create training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create training record' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create training record' } });
   }
 });
 
@@ -276,13 +276,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!record) {
-      return res.status(404).json({ success: false, error: 'Training record not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Training record not found' } });
     }
 
     res.json({ success: true, data: record });
   } catch (error: unknown) {
     logger.error('Failed to get training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to get training record' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get training record' } });
   }
 });
 
@@ -300,7 +300,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Training record not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Training record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -317,7 +317,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: record });
   } catch (error: unknown) {
     logger.error('Failed to update training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to update training record' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update training record' } });
   }
 });
 
@@ -333,7 +333,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Training record not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Training record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -358,7 +358,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     res.json({ success: true, data: record });
   } catch (error: unknown) {
     logger.error('Failed to complete training record', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to complete training record' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to complete training record' } });
   }
 });
 

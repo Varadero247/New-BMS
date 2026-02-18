@@ -22,6 +22,7 @@ const LEGAL_STATUSES = ['ACTIVE', 'REVIEW_DUE', 'SUPERSEDED', 'ARCHIVED'] as con
 // Generate reference number LR-001, LR-002, etc.
 async function generateReferenceNumber(): Promise<string> {
   const last = await prisma.legalRequirement.findFirst({
+    where: { deletedAt: null } as any,
     orderBy: { createdAt: 'desc' },
     select: { referenceNumber: true },
   });
@@ -79,7 +80,7 @@ router.get('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequ
       where: { id: req.params.id },
     });
 
-    if (!requirement) {
+    if (!requirement || (requirement as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
     }
 
@@ -159,7 +160,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.patch('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.legalRequirement.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
+    if (!existing || (existing as any).deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal requirement not found' } });
     }
 

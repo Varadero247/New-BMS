@@ -87,7 +87,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list purchase orders', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list purchase orders' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list purchase orders' } });
   }
 });
 
@@ -106,13 +106,13 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!order) {
-      return res.status(404).json({ success: false, error: 'Purchase order not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Purchase order not found' } });
     }
 
     res.json({ success: true, data: order });
   } catch (error: unknown) {
     logger.error('Failed to get purchase order', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get purchase order' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get purchase order' } });
   }
 });
 
@@ -121,14 +121,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const { supplierId, orderDate, expectedDate, currency, notes, lines } = parsed.data;
 
     const supplier = await prisma.finSupplier.findFirst({ where: { id: supplierId, deletedAt: null, isActive: true } as any });
     if (!supplier) {
-      return res.status(400).json({ success: false, error: 'Supplier not found or inactive' });
+      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Supplier not found or inactive' } });
     }
 
     const authReq = req as AuthRequest;
@@ -172,7 +172,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: order });
   } catch (error: unknown) {
     logger.error('Failed to create purchase order', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create purchase order' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create purchase order' } });
   }
 });
 
@@ -183,15 +183,15 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const existing = await prisma.finPurchaseOrder.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Purchase order not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Purchase order not found' } });
     }
     if (existing.status === 'RECEIVED' || existing.status === 'CANCELLED') {
-      return res.status(400).json({ success: false, error: `Cannot update a ${existing.status} purchase order` });
+      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot update a ${existing.status} purchase order` } });
     }
 
     const { orderDate, expectedDate, status, ...rest } = parsed.data;
@@ -217,7 +217,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     res.json({ success: true, data: order });
   } catch (error: unknown) {
     logger.error('Failed to update purchase order', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update purchase order' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update purchase order' } });
   }
 });
 
@@ -229,10 +229,10 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finPurchaseOrder.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Purchase order not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Purchase order not found' } });
     }
     if (existing.status !== 'DRAFT' && existing.status !== 'CANCELLED') {
-      return res.status(409).json({ success: false, error: `Cannot delete a ${existing.status} purchase order` });
+      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot delete a ${existing.status} purchase order` } });
     }
 
     await prisma.finPurchaseOrder.update({
@@ -244,7 +244,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete purchase order', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete purchase order' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete purchase order' } });
   }
 });
 

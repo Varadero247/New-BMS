@@ -260,7 +260,7 @@ describe('POST /api/accounts', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('Parent account not found');
+    expect(res.body.error.message).toContain('Parent account not found');
   });
 
   it('should return 400 for validation error', async () => {
@@ -313,7 +313,7 @@ describe('PUT /api/accounts/:id', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('cannot be its own parent');
+    expect(res.body.error.message).toContain('cannot be its own parent');
   });
 
   it('should return 400 for non-existent parent', async () => {
@@ -326,7 +326,7 @@ describe('PUT /api/accounts/:id', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('Parent account not found');
+    expect(res.body.error.message).toContain('Parent account not found');
   });
 });
 
@@ -360,7 +360,7 @@ describe('DELETE /api/accounts/:id', () => {
     const res = await request(app).delete('/api/accounts/f2000000-0000-4000-a000-000000000001');
 
     expect(res.status).toBe(409);
-    expect(res.body.error).toContain('journal line(s)');
+    expect(res.body.error.message).toContain('journal line(s)');
   });
 });
 
@@ -488,7 +488,7 @@ describe('POST /api/accounts/entries', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('Debits');
+    expect(res.body.error.message).toContain('Debits');
   });
 
   it('should return 400 when a line has both debit and credit', async () => {
@@ -501,7 +501,7 @@ describe('POST /api/accounts/entries', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('cannot have both debit and credit');
+    expect(res.body.error.message).toContain('cannot have both debit and credit');
   });
 
   it('should return 400 when a line has zero debit and credit', async () => {
@@ -514,7 +514,7 @@ describe('POST /api/accounts/entries', () => {
     });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('must have either a debit or credit');
+    expect(res.body.error.message).toContain('must have either a debit or credit');
   });
 
   it('should return 400 when period is CLOSED', async () => {
@@ -523,7 +523,7 @@ describe('POST /api/accounts/entries', () => {
     const res = await request(app).post('/api/accounts/entries').send(validEntry);
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('CLOSED');
+    expect(res.body.error.message).toContain('CLOSED');
   });
 
   it('should return 404 when period not found', async () => {
@@ -532,7 +532,7 @@ describe('POST /api/accounts/entries', () => {
     const res = await request(app).post('/api/accounts/entries').send(validEntry);
 
     expect(res.status).toBe(404);
-    expect(res.body.error).toContain('period not found');
+    expect(res.body.error.message).toContain('period not found');
   });
 
   it('should return 400 when account IDs are invalid', async () => {
@@ -544,7 +544,7 @@ describe('POST /api/accounts/entries', () => {
     const res = await request(app).post('/api/accounts/entries').send(validEntry);
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('Invalid or inactive account');
+    expect(res.body.error.message).toContain('Invalid or inactive account');
   });
 
   it('should return 400 for validation errors', async () => {
@@ -592,7 +592,7 @@ describe('PUT /api/accounts/entries/:id', () => {
     const res = await request(app).put('/api/accounts/entries/f2200000-0000-4000-a000-000000000001').send({ description: 'Test' });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('DRAFT');
+    expect(res.body.error.message).toContain('DRAFT');
   });
 
   it('should update lines when provided and validate double-entry', async () => {
@@ -676,7 +676,7 @@ describe('POST /api/accounts/entries/:id/post', () => {
     const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('already POSTED');
+    expect(res.body.error.message).toContain('already POSTED');
   });
 
   it('should return 400 when period is CLOSED', async () => {
@@ -689,7 +689,7 @@ describe('POST /api/accounts/entries/:id/post', () => {
     const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/post');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('CLOSED');
+    expect(res.body.error.message).toContain('CLOSED');
   });
 });
 
@@ -745,7 +745,7 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
     const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/reverse');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('Only POSTED');
+    expect(res.body.error.message).toContain('Only POSTED');
   });
 
   it('should return 400 when period is CLOSED', async () => {
@@ -759,7 +759,7 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
     const res = await request(app).post('/api/accounts/entries/f2200000-0000-4000-a000-000000000001/reverse');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('CLOSED');
+    expect(res.body.error.message).toContain('CLOSED');
   });
 });
 
@@ -785,7 +785,7 @@ describe('GET /api/accounts/trial-balance', () => {
     const res = await request(app).get('/api/accounts/trial-balance');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('periodId');
+    expect(res.body.error.message).toContain('periodId');
   });
 
   it('should return 404 when period not found', async () => {
@@ -919,7 +919,7 @@ describe('POST /api/accounts/periods', () => {
     const res = await request(app).post('/api/accounts/periods').send(validPeriod);
 
     expect(res.status).toBe(409);
-    expect(res.body.error).toContain('overlaps');
+    expect(res.body.error.message).toContain('overlaps');
   });
 
   it('should return 400 for validation errors', async () => {
@@ -958,7 +958,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
     const res = await request(app).put('/api/accounts/periods/p-1/close');
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain('already closed');
+    expect(res.body.error.message).toContain('already closed');
   });
 
   it('should return 409 when unposted entries exist', async () => {
@@ -968,6 +968,6 @@ describe('PUT /api/accounts/periods/:id/close', () => {
     const res = await request(app).put('/api/accounts/periods/p-1/close');
 
     expect(res.status).toBe(409);
-    expect(res.body.error).toContain('3 unposted');
+    expect(res.body.error.message).toContain('3 unposted');
   });
 });

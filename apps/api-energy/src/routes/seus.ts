@@ -86,7 +86,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list SEUs', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list SEUs' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list SEUs' } });
   }
 });
 
@@ -124,7 +124,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: seu });
   } catch (error: unknown) {
     logger.error('Failed to create SEU', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create SEU' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create SEU' } });
   }
 });
 
@@ -141,13 +141,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!seu) {
-      return res.status(404).json({ success: false, error: 'SEU not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'SEU not found' } });
     }
 
     res.json({ success: true, data: seu });
   } catch (error: unknown) {
     logger.error('Failed to get SEU', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get SEU' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get SEU' } });
   }
 });
 
@@ -165,7 +165,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'SEU not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'SEU not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -185,7 +185,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: seu });
   } catch (error: unknown) {
     logger.error('Failed to update SEU', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update SEU' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update SEU' } });
   }
 });
 
@@ -199,7 +199,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'SEU not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'SEU not found' } });
     }
 
     await prisma.energySeu.update({
@@ -211,7 +211,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete SEU', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete SEU' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete SEU' } });
   }
 });
 

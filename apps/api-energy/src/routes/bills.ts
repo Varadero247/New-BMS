@@ -118,7 +118,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to get bill summary', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to get bill summary' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bill summary' } });
   }
 });
 
@@ -168,7 +168,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list bills', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list bills' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list bills' } });
   }
 });
 
@@ -190,7 +190,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (data.meterId) {
       const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
       if (!meter) {
-        return res.status(400).json({ success: false, error: 'Meter not found' });
+        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
       }
     }
 
@@ -218,7 +218,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: bill });
   } catch (error: unknown) {
     logger.error('Failed to create bill', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create bill' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create bill' } });
   }
 });
 
@@ -240,13 +240,13 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!bill) {
-      return res.status(404).json({ success: false, error: 'Bill not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Bill not found' } });
     }
 
     res.json({ success: true, data: bill });
   } catch (error: unknown) {
     logger.error('Failed to get bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get bill' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get bill' } });
   }
 });
 
@@ -264,7 +264,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Bill not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Bill not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -290,7 +290,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: bill });
   } catch (error: unknown) {
     logger.error('Failed to update bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update bill' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update bill' } });
   }
 });
 
@@ -304,7 +304,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Bill not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Bill not found' } });
     }
 
     await prisma.energyBill.update({
@@ -316,7 +316,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete bill' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete bill' } });
   }
 });
 
@@ -330,11 +330,11 @@ router.put('/:id/verify', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Bill not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Bill not found' } });
     }
 
     if (existing.status !== 'PENDING') {
-      return res.status(400).json({ success: false, error: 'Only PENDING bills can be verified' });
+      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only PENDING bills can be verified' } });
     }
 
     const bill = await prisma.energyBill.update({
@@ -346,7 +346,7 @@ router.put('/:id/verify', async (req: Request, res: Response) => {
     res.json({ success: true, data: bill });
   } catch (error: unknown) {
     logger.error('Failed to verify bill', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to verify bill' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to verify bill' } });
   }
 });
 

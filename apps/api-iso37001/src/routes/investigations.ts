@@ -174,7 +174,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list investigations', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list investigations' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list investigations' } });
   }
 });
 
@@ -203,7 +203,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: investigation });
   } catch (error: unknown) {
     logger.error('Failed to create investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create investigation' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create investigation' } });
   }
 });
 
@@ -217,13 +217,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!investigation) {
-      return res.status(404).json({ success: false, error: 'Investigation not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
     }
 
     res.json({ success: true, data: investigation });
   } catch (error: unknown) {
     logger.error('Failed to get investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to get investigation' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get investigation' } });
   }
 });
 
@@ -241,7 +241,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Investigation not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -258,7 +258,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: investigation });
   } catch (error: unknown) {
     logger.error('Failed to update investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to update investigation' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update investigation' } });
   }
 });
 
@@ -274,7 +274,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Investigation not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -295,7 +295,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     res.json({ success: true, data: investigation });
   } catch (error: unknown) {
     logger.error('Failed to start investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to start investigation' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to start investigation' } });
   }
 });
 
@@ -311,7 +311,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Investigation not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -337,7 +337,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     res.json({ success: true, data: investigation });
   } catch (error: unknown) {
     logger.error('Failed to close investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to close investigation' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to close investigation' } });
   }
 });
 
@@ -348,7 +348,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Investigation not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -365,7 +365,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { message: 'Investigation deleted successfully' } });
   } catch (error: unknown) {
     logger.error('Failed to delete investigation', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to delete investigation' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete investigation' } });
   }
 });
 

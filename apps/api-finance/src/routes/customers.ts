@@ -81,7 +81,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list customers', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list customers' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list customers' } });
   }
 });
 
@@ -105,13 +105,13 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!customer) {
-      return res.status(404).json({ success: false, error: 'Customer not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Customer not found' } });
     }
 
     res.json({ success: true, data: customer });
   } catch (error: unknown) {
     logger.error('Failed to get customer', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to get customer' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get customer' } });
   }
 });
 
@@ -120,7 +120,7 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const authReq = req as AuthRequest;
@@ -141,9 +141,9 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     logger.error('Failed to create customer', { error: error instanceof Error ? error.message : 'Unknown error' });
     if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: 'Customer code must be unique' });
+      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Customer code must be unique' } });
     }
-    res.status(500).json({ success: false, error: 'Failed to create customer' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer' } });
   }
 });
 
@@ -154,12 +154,12 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
     const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Customer not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Customer not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -178,7 +178,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     res.json({ success: true, data: customer });
   } catch (error: unknown) {
     logger.error('Failed to update customer', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to update customer' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update customer' } });
   }
 });
 
@@ -190,12 +190,12 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Customer not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Customer not found' } });
     }
 
     const invoiceCount = await prisma.finInvoice.count({ where: { customerId: id, deletedAt: null } as any });
     if (invoiceCount > 0) {
-      return res.status(409).json({ success: false, error: `Cannot delete customer: ${invoiceCount} invoice(s) exist` });
+      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot delete customer: ${invoiceCount} invoice(s) exist` } });
     }
 
     const authReq = req as AuthRequest;
@@ -208,7 +208,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     res.json({ success: true, data: { id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete customer', { error: error instanceof Error ? error.message : 'Unknown error', id: req.params.id });
-    res.status(500).json({ success: false, error: 'Failed to delete customer' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete customer' } });
   }
 });
 

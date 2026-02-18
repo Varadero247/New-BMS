@@ -169,7 +169,7 @@ router.get('/', async (req: Request, res: Response) => {
     });
   } catch (error: unknown) {
     logger.error('Failed to list risk assessments', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to list risk assessments' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list risk assessments' } });
   }
 });
 
@@ -203,7 +203,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: assessment });
   } catch (error: unknown) {
     logger.error('Failed to create risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to create risk assessment' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create risk assessment' } });
   }
 });
 
@@ -217,13 +217,13 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!assessment) {
-      return res.status(404).json({ success: false, error: 'Risk assessment not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk assessment not found' } });
     }
 
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
     logger.error('Failed to get risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to get risk assessment' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get risk assessment' } });
   }
 });
 
@@ -241,7 +241,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Risk assessment not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk assessment not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -266,7 +266,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
     logger.error('Failed to update risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to update risk assessment' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update risk assessment' } });
   }
 });
 
@@ -282,7 +282,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Risk assessment not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk assessment not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -314,7 +314,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
     res.json({ success: true, data: assessment });
   } catch (error: unknown) {
     logger.error('Failed to mitigate risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to mitigate risk assessment' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to mitigate risk assessment' } });
   }
 });
 
@@ -325,7 +325,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: 'Risk assessment not found' });
+      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk assessment not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -342,7 +342,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     res.json({ success: true, data: { message: 'Risk assessment deleted successfully' } });
   } catch (error: unknown) {
     logger.error('Failed to delete risk assessment', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: 'Failed to delete risk assessment' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete risk assessment' } });
   }
 });
 

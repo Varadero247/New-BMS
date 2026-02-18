@@ -157,7 +157,7 @@ describe('GET /api/suppliers/:id', () => {
 
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toBe('Supplier not found');
+    expect(res.body.error.message).toBe('Supplier not found');
   });
 
   it('should return 500 on database error', async () => {
@@ -233,7 +233,7 @@ describe('POST /api/suppliers', () => {
 
     expect(res.status).toBe(409);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toBe('Supplier code must be unique');
+    expect(res.body.error.message).toBe('Supplier code must be unique');
   });
 
   it('should return 500 on unexpected error', async () => {
@@ -342,7 +342,7 @@ describe('DELETE /api/suppliers/:id', () => {
 
     expect(res.status).toBe(409);
     expect(res.body.success).toBe(false);
-    expect(res.body.error).toContain('purchase order(s) exist');
+    expect(res.body.error.message).toContain('purchase order(s) exist');
   });
 
   it('should return 500 on database error', async () => {

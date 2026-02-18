@@ -412,7 +412,7 @@ describe('Templates API', () => {
       const res = await request(app).delete('/api/v1/templates/tpl-1');
 
       expect(res.status).toBe(403);
-      expect(res.body.error).toMatch(/administrators/i);
+      expect(res.body.error.message).toMatch(/administrators/i);
     });
   });
 
