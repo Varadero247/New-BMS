@@ -230,7 +230,7 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
       immediateActionRequired: z.boolean().optional(),
       actionsTaken: z.string().nullable().optional(),
       containmentVerifiedBy: z.string().nullable().optional(),
-      containmentDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      containmentDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       rcaMethod: z.enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER']).nullable().optional(),
       problemStatement: z.string().nullable().optional(),
       why1: z.string().nullable().optional(),
@@ -262,9 +262,9 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
       status: z.enum(['INITIATED', 'ROOT_CAUSE_ANALYSIS', 'ACTIONS_DEFINED', 'IMPLEMENTATION', 'VERIFICATION', 'CLOSED', 'CANCELLED']).optional(),
       progressNotes: z.string().nullable().optional(),
       percentComplete: z.number().min(0).max(100).optional(),
-      targetClosureDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      actualClosureDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reviewDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetClosureDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      actualClosureDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       verifiedBy: z.string().nullable().optional(),
       effectivenessAssessment: z.string().nullable().optional(),
       recurrenceCheck: z.boolean().nullable().optional(),
@@ -392,7 +392,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED']).optional(),
       notes: z.string().nullable().optional(),
-      completedDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completedDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);

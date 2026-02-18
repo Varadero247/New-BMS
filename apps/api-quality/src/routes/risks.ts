@@ -204,8 +204,8 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
       treatmentOption: z.enum(['ACCEPT', 'REDUCE', 'TRANSFER', 'AVOID', 'CONTINGENCY']).optional(),
       treatmentActions: z.string().nullable().optional(),
       responsiblePerson: z.string().nullable().optional(),
-      dueDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      reviewDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(['OPEN', 'BEING_TREATED', 'MONITORED', 'CLOSED', 'ACCEPTED']).optional(),
     });
 

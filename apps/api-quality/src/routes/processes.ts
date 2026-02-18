@@ -219,7 +219,7 @@ router.put('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, 
       // Review
       reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).optional(),
       lastReviewed: z.string().nullable().optional(),
-      nextReviewDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       reviewNotes: z.string().nullable().optional(),
       // AI fields
       aiAnalysis: z.string().nullable().optional(),

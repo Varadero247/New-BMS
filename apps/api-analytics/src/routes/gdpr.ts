@@ -16,8 +16,8 @@ const createDpaSchema = z.object({
   processorName: z.string().min(1, 'processorName is required'),
   purpose: z.string().min(1, 'purpose is required'),
   dataTypes: z.array(z.string()).optional(),
-  signedDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  expiryDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  signedDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  expiryDate: z.string().nullable().refine(s => s === null || !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   documentUrl: z.string().nullable().optional(),
 });
 
