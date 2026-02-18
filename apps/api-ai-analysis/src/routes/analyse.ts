@@ -298,7 +298,6 @@ async function callAnthropicImpl(apiKey: string, model: string, prompt: string):
 }
 
 async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderResponse> {
-  // Grok API (X.AI) - placeholder implementation
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {

@@ -5,6 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import { checkOwnership, scopeToUser, createServiceHeaders } from '@ims/service-auth';
+import { calculateTax, type TaxJurisdiction, type TaxResult } from '@ims/tax-engine';
 
 // HR service base URL for cross-service calls
 const HR_SERVICE_URL = process.env.HR_SERVICE_URL || 'http://localhost:4006';
@@ -18,8 +19,41 @@ interface HREmployee {
   position?: { title: string } | null;
   salary?: string | number | null;
   currency?: string;
+  country?: string | null;
+  taxJurisdiction?: string | null;
+  taxCode?: string | null;
   accountNumber?: string | null;
   bankName?: string | null;
+}
+
+function currencyToJurisdiction(currency: string): TaxJurisdiction {
+  const map: Record<string, TaxJurisdiction> = {
+    GBP: 'UK', AED: 'UAE', AUD: 'AU', USD: 'US', CAD: 'CA',
+  };
+  return map[(currency || '').toUpperCase()] ?? 'UK';
+}
+
+function extractTaxAmounts(result: TaxResult): { incomeTax: number; socialSecurity: number } {
+  if ('nationalInsurance' in result) {
+    return { incomeTax: result.incomeTax, socialSecurity: result.nationalInsurance };
+  }
+  if ('socialSecurity' in result && 'federalTax' in result) {
+    const r = result as any;
+    return { incomeTax: r.federalTax, socialSecurity: r.socialSecurity + (r.medicare ?? 0) };
+  }
+  if ('gratuity' in result) {
+    const r = result as any;
+    return { incomeTax: 0, socialSecurity: r.socialSecurity ?? 0 };
+  }
+  if ('superannuation' in result) {
+    const r = result as any;
+    return { incomeTax: r.incomeTax, socialSecurity: r.superannuation + (r.medicareLevy ?? 0) };
+  }
+  if ('cpp' in result) {
+    const r = result as any;
+    return { incomeTax: r.federalTax, socialSecurity: r.cpp + r.ei };
+  }
+  return { incomeTax: 0, socialSecurity: 0 };
 }
 
 /**
@@ -189,12 +223,34 @@ router.post('/runs/:id/calculate', checkOwnership(prisma.payrollRun), async (req
       let created = 0;
       for (const emp of employees) {
         const baseSalary = parseFloat(String(emp.salary ?? '0')) || 0;
-        const proratedSalary = baseSalary;           // full period — adjust for partial months if needed
-        const incomeTax = proratedSalary * 0.20;     // flat 20% income tax placeholder
-        const niContribution = proratedSalary * 0.12; // NI / social security placeholder
+        const proratedSalary = baseSalary; // full period — adjust for partial months if needed
+        const currency = emp.currency ?? 'GBP';
+
+        // Determine jurisdiction: prefer explicit taxJurisdiction field, fall back to currency mapping
+        const jurisdiction: TaxJurisdiction = (
+          emp.taxJurisdiction && ['UK', 'UAE', 'AU', 'US', 'CA'].includes(emp.taxJurisdiction)
+            ? emp.taxJurisdiction as TaxJurisdiction
+            : currencyToJurisdiction(currency)
+        );
+
+        let incomeTax = 0;
+        let niContribution = 0;
+        try {
+          const taxResult = calculateTax(jurisdiction, proratedSalary, {
+            period: 'annual',
+            taxCode: emp.taxCode ?? undefined,
+          });
+          const extracted = extractTaxAmounts(taxResult);
+          incomeTax = extracted.incomeTax;
+          niContribution = extracted.socialSecurity;
+        } catch {
+          // Fallback to flat rates if tax engine fails (unsupported jurisdiction)
+          incomeTax = proratedSalary * 0.20;
+          niContribution = proratedSalary * 0.12;
+        }
+
         const totalDeductions = incomeTax + niContribution;
         const netPay = proratedSalary - totalDeductions;
-        const currency = emp.currency ?? 'GBP';
 
         const psCount = await tx.payslip.count({ where: { payrollRunId: run.id } });
         const payslipNumber = `${run.runNumber}-${String(psCount + 1).padStart(4, '0')}`;

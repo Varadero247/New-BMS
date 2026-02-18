@@ -182,23 +182,26 @@ describe('InfoSec Controls API', () => {
   // ---- GET /api/controls/soa/pdf ----
 
   describe('GET /api/controls/soa/pdf', () => {
-    it('should return PDF mock data', async () => {
+    it('should return a real PDF binary with correct headers', async () => {
       (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([mockControl]);
 
       const res = await request(app).get('/api/controls/soa/pdf');
 
       expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.format).toBe('pdf');
-      expect(res.body.data.controlCount).toBe(1);
+      expect(res.headers['content-type']).toMatch(/application\/pdf/);
+      expect(res.headers['content-disposition']).toMatch(/attachment/);
+      // PDF binary starts with %PDF-1.4
+      const bodyStr = Buffer.isBuffer(res.body) ? res.body.toString('ascii', 0, 8) : String(res.body ?? '');
+      expect(bodyStr.startsWith('%PDF-1.4')).toBe(true);
     });
 
-    it('should include generatedAt timestamp', async () => {
+    it('should return PDF even with empty controls list', async () => {
       (mockPrisma.isControl.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       const res = await request(app).get('/api/controls/soa/pdf');
 
-      expect(res.body.data.generatedAt).toBeDefined();
+      expect(res.status).toBe(200);
+      expect(res.headers['content-type']).toMatch(/application\/pdf/);
     });
   });
 
