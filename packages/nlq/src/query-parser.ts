@@ -1,7 +1,9 @@
 import { NLQQuery, NLQPermissionContext } from './types';
 import { QUERY_PATTERNS } from './patterns';
 
-// SQL injection patterns to strip
+// SQL injection patterns to strip.
+// The /gi flags are safe here: String.prototype.replace() with /g resets lastIndex
+// internally, so there is no cross-call state bug (unlike RegExp.exec/test).
 const INJECTION_PATTERNS = [
   /;\s*DROP\s+/gi,
   /;\s*DELETE\s+/gi,

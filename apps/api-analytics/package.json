@@ -13,6 +13,10 @@
   },
   "dependencies": {
     "@ims/auth": "workspace:*",
+    "@ims/sentry": "workspace:*",
+    "@ims/nlq": "workspace:*",
+    "@ims/service-auth": "workspace:*",
+    "@ims/validation": "workspace:*",
     "@ims/database": "workspace:*",
     "@ims/monitoring": "workspace:*",
     "@ims/rbac": "workspace:*",

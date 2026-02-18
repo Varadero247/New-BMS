@@ -540,8 +540,14 @@ function buildPaths(): Record<string, unknown> {
 
 // ─── Public API ─────────────────────────────────────────────────────────────
 
+// Cache the OpenAPI spec at module load since it is entirely static.
+// This avoids rebuilding ~700+ path entries on every request.
+let cachedSpec: OpenApiSpec | null = null;
+
 export function generateOpenApiSpec(): OpenApiSpec {
-  return {
+  if (cachedSpec) return cachedSpec;
+
+  cachedSpec = {
     openapi: '3.0.3',
     info: {
       title: 'IMS — Integrated Management System API',
@@ -562,4 +568,6 @@ export function generateOpenApiSpec(): OpenApiSpec {
     paths: buildPaths(),
     tags: SERVICES.map(s => ({ name: s.tag, description: s.description })),
   };
+
+  return cachedSpec;
 }
