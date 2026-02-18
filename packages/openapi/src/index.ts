@@ -1,7 +1,7 @@
 /**
  * @ims/openapi — OpenAPI 3.0 Specification Generator
  *
- * Generates a complete OpenAPI spec covering all 25 API services.
+ * Generates a complete OpenAPI spec covering all 42 API services.
  */
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -244,6 +244,148 @@ const SERVICES: ServiceDef[] = [
     ],
   },
   {
+    tag: 'Training', prefix: '/api/training', description: 'Training and competency management', port: 4028,
+    endpoints: [
+      ...crudEndpoints('/api/training', 'courses', 'Course'),
+      ...crudEndpoints('/api/training', 'records', 'TrainingRecord'),
+      ...crudEndpoints('/api/training', 'tna', 'TrainingNeedsAnalysis'),
+      ...crudEndpoints('/api/training', 'matrix', 'CompetencyMatrix'),
+    ],
+  },
+  {
+    tag: 'Suppliers', prefix: '/api/suppliers', description: 'Supplier management and evaluation', port: 4029,
+    endpoints: [
+      ...crudEndpoints('/api/suppliers', 'suppliers', 'Supplier'),
+      ...crudEndpoints('/api/suppliers', 'evaluations', 'Evaluation'),
+      ...crudEndpoints('/api/suppliers', 'audits', 'SupplierAudit'),
+    ],
+  },
+  {
+    tag: 'Assets', prefix: '/api/assets', description: 'Asset lifecycle management', port: 4030,
+    endpoints: [
+      ...crudEndpoints('/api/assets', 'assets', 'Asset'),
+      ...crudEndpoints('/api/assets', 'calibrations', 'Calibration'),
+      ...crudEndpoints('/api/assets', 'maintenance', 'AssetMaintenance'),
+    ],
+  },
+  {
+    tag: 'Documents', prefix: '/api/documents', description: 'Document control and management', port: 4031,
+    endpoints: [
+      ...crudEndpoints('/api/documents', 'documents', 'ControlledDocument'),
+      ...crudEndpoints('/api/documents', 'reviews', 'DocumentReview'),
+      ...crudEndpoints('/api/documents', 'distributions', 'Distribution'),
+    ],
+  },
+  {
+    tag: 'Complaints', prefix: '/api/complaints', description: 'Customer complaints handling', port: 4032,
+    endpoints: [
+      ...crudEndpoints('/api/complaints', 'complaints', 'Complaint'),
+      ...crudEndpoints('/api/complaints', 'investigations', 'Investigation'),
+    ],
+  },
+  {
+    tag: 'Contracts', prefix: '/api/contracts', description: 'Contract lifecycle management', port: 4033,
+    endpoints: [
+      ...crudEndpoints('/api/contracts', 'contracts', 'Contract'),
+      ...crudEndpoints('/api/contracts', 'obligations', 'ContractObligation'),
+      ...crudEndpoints('/api/contracts', 'renewals', 'Renewal'),
+    ],
+  },
+  {
+    tag: 'PTW', prefix: '/api/ptw', description: 'Permit to Work management', port: 4034,
+    endpoints: [
+      ...crudEndpoints('/api/ptw', 'permits', 'Permit'),
+      ...crudEndpoints('/api/ptw', 'templates', 'PermitTemplate'),
+      ...crudEndpoints('/api/ptw', 'isolations', 'Isolation'),
+    ],
+  },
+  {
+    tag: 'Regulatory Monitor', prefix: '/api/reg-monitor', description: 'Regulatory change monitoring', port: 4035,
+    endpoints: [
+      ...crudEndpoints('/api/reg-monitor', 'changes', 'RegulatoryChange'),
+      ...crudEndpoints('/api/reg-monitor', 'obligations', 'Obligation'),
+      ...crudEndpoints('/api/reg-monitor', 'legal-register', 'LegalRegister'),
+    ],
+  },
+  {
+    tag: 'Incidents', prefix: '/api/incidents', description: 'Incident management and investigation', port: 4036,
+    endpoints: [
+      ...crudEndpoints('/api/incidents', 'incidents', 'ManagedIncident'),
+      ...crudEndpoints('/api/incidents', 'investigations', 'IncidentInvestigation'),
+      ...crudEndpoints('/api/incidents', 'actions', 'IncidentAction'),
+    ],
+  },
+  {
+    tag: 'Audits', prefix: '/api/audits', description: 'Internal and external audit management', port: 4037,
+    endpoints: [
+      ...crudEndpoints('/api/audits', 'audits', 'ManagedAudit'),
+      ...crudEndpoints('/api/audits', 'findings', 'AuditFinding'),
+      ...crudEndpoints('/api/audits', 'schedules', 'AuditSchedule'),
+    ],
+  },
+  {
+    tag: 'Management Review', prefix: '/api/mgmt-review', description: 'Management review meetings', port: 4038,
+    endpoints: [
+      ...crudEndpoints('/api/mgmt-review', 'reviews', 'MgmtReview'),
+      ...crudEndpoints('/api/mgmt-review', 'actions', 'ReviewAction'),
+      ...crudEndpoints('/api/mgmt-review', 'inputs', 'ReviewInput'),
+    ],
+  },
+  {
+    tag: 'Chemicals', prefix: '/api/chemicals', description: 'Chemical management and COSHH', port: 4040,
+    endpoints: [
+      ...crudEndpoints('/api/chemicals', 'chemicals', 'Chemical'),
+      ...crudEndpoints('/api/chemicals', 'sds', 'Sds'),
+      ...crudEndpoints('/api/chemicals', 'coshh', 'Coshh'),
+      ...crudEndpoints('/api/chemicals', 'inventory', 'ChemInventory'),
+    ],
+  },
+  {
+    tag: 'Emergency', prefix: '/api/emergency', description: 'Fire, emergency and disaster management', port: 4041,
+    endpoints: [
+      ...crudEndpoints('/api/emergency', 'premises', 'Premises'),
+      ...crudEndpoints('/api/emergency', 'fra', 'FireRiskAssessment'),
+      ...crudEndpoints('/api/emergency', 'incidents', 'EmergencyIncident'),
+      ...crudEndpoints('/api/emergency', 'bcp', 'BusinessContinuityPlan'),
+      ...crudEndpoints('/api/emergency', 'drills', 'EvacuationDrill'),
+    ],
+  },
+  {
+    tag: 'Risk', prefix: '/api/risk', description: 'Enterprise risk management (ISO 31000)', port: 4027,
+    endpoints: [
+      ...crudEndpoints('/api/risk', 'risks', 'EnterpriseRisk'),
+      ...crudEndpoints('/api/risk', 'controls', 'RiskControl'),
+      ...crudEndpoints('/api/risk', 'kri', 'KeyRiskIndicator'),
+      ...crudEndpoints('/api/risk', 'appetite', 'AppetiteStatement'),
+    ],
+  },
+  {
+    tag: 'Setup Wizard', prefix: '/api/setup-wizard', description: 'Initial setup and onboarding wizard', port: 4039,
+    endpoints: [
+      { method: 'get', path: '/api/setup-wizard/status', summary: 'Get wizard status', operationId: 'getWizardStatus' },
+      { method: 'post', path: '/api/setup-wizard/init', summary: 'Initialize wizard', operationId: 'initWizard', requestBody: true },
+      { method: 'post', path: '/api/setup-wizard/step', summary: 'Submit wizard step', operationId: 'submitWizardStep', requestBody: true },
+      { method: 'post', path: '/api/setup-wizard/complete', summary: 'Complete wizard', operationId: 'completeWizard', requestBody: true },
+      { method: 'post', path: '/api/setup-wizard/skip', summary: 'Skip wizard', operationId: 'skipWizard', requestBody: true },
+    ],
+  },
+  {
+    tag: 'Marketing', prefix: '/api/marketing', description: 'Marketing automation and lead management', port: 4025,
+    endpoints: [
+      ...crudEndpoints('/api/marketing', 'leads', 'Lead'),
+      { method: 'post', path: '/api/marketing/roi-calculator', summary: 'Calculate ROI', operationId: 'calculateRoi', requestBody: true },
+      { method: 'post', path: '/api/marketing/chatbot', summary: 'Chat with bot', operationId: 'chatbot', requestBody: true },
+    ],
+  },
+  {
+    tag: 'Partners', prefix: '/api/partners', description: 'Partner portal and channel management', port: 4026,
+    endpoints: [
+      ...crudEndpoints('/api/partners', 'deals', 'PartnerDeal'),
+      ...crudEndpoints('/api/partners', 'payouts', 'PartnerPayout'),
+      ...crudEndpoints('/api/partners', 'referrals', 'Referral'),
+    ],
+  },
+  {
     tag: 'Gateway', prefix: '/api', description: 'API Gateway — auth, users, dashboard, admin', port: 4000,
     endpoints: [
       { method: 'post', path: '/api/auth/login', summary: 'User login', operationId: 'login', requestBody: true },
@@ -404,7 +546,7 @@ export function generateOpenApiSpec(): OpenApiSpec {
     info: {
       title: 'IMS — Integrated Management System API',
       version: '1.0.0',
-      description: 'Complete API reference for the IMS platform covering 25 microservices across ISO 9001, 14001, 45001, 27001, 42001, 37001, 22000, 50001, IATF 16949, AS9100, ISO 13485 and more.',
+      description: 'Complete API reference for the IMS platform covering 42 API services across ISO 9001, 14001, 45001, 27001, 42001, 37001, 22000, 50001, IATF 16949, AS9100, ISO 13485 and more.',
       contact: {
         name: 'IMS Platform Team',
         email: 'api@ims.local',
