@@ -19,12 +19,12 @@ const createSchema = z.object({
   name: z.string().trim().min(1).max(200),
   issuingOrganization: z.string().trim().min(1).max(200),
   credentialId: z.string().optional(),
-  credentialUrl: z.string().url().optional(),
+  credentialUrl: z.string().trim().url().optional(),
   issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   doesNotExpire: z.boolean().optional(),
   renewalRequired: z.boolean().optional(),
-  certificateUrl: z.string().url().optional(),
+  certificateUrl: z.string().trim().url().optional(),
 });
 
 const updateSchema = createSchema.omit({ employeeId: true }).partial().extend({

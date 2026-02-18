@@ -21,7 +21,7 @@ const auditCreateSchema = z.object({
   scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  reportUrl: z.string().url('Invalid URL').optional(),
+  reportUrl: z.string().trim().url('Invalid URL').optional(),
   conclusion: z.string().optional(),
   notes: z.string().optional(),
 });

@@ -29,7 +29,7 @@ const createMgmtReviewSchema = z.object({
   decisions: z.string().optional(),
   actions: z.string().optional(),
   nextReviewDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
-  minutesUrl: z.string().url('Invalid URL').optional(),
+  minutesUrl: z.string().trim().url('Invalid URL').optional(),
   notes: z.string().optional(),
 });
 

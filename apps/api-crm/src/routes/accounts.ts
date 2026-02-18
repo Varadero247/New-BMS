@@ -17,7 +17,7 @@ const createAccountSchema = z.object({
   name: z.string().min(1, 'Account name is required'),
   type: z.string().min(1, 'Account type is required'),
   industry: z.string().optional(),
-  website: z.string().url().optional().or(z.literal('')),
+  website: z.string().trim().url().optional().or(z.literal('')),
   phone: z.string().optional(),
   email: z.string().trim().email().optional().or(z.literal('')),
   address: z.string().optional(),

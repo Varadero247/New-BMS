@@ -142,7 +142,7 @@ router.post('/sessions', async (req: Request, res: Response) => {
       endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       location: z.string().optional(),
       isVirtual: z.boolean().default(false),
-      meetingUrl: z.string().url().optional(),
+      meetingUrl: z.string().trim().url().optional(),
       instructorId: z.string().optional(),
       instructorName: z.string().optional(),
       maxParticipants: z.number(),
@@ -267,7 +267,7 @@ router.put('/enrollments/:id', checkOwnership(prisma.hRTrainingEnrollment), asyn
       attendancePercent: z.number().optional(),
       assessmentScore: z.number().nonnegative().optional(),
       passed: z.boolean().optional(),
-      certificateUrl: z.string().url('Invalid URL').optional(),
+      certificateUrl: z.string().trim().url('Invalid URL').optional(),
       feedbackRating: z.number().min(1).max(5).optional(),
       feedbackComments: z.string().optional(),
     });
@@ -338,12 +338,12 @@ router.post('/certifications', async (req: Request, res: Response) => {
       name: z.string().trim().min(1).max(200),
       issuingOrganization: z.string(),
       credentialId: z.string().optional(),
-      credentialUrl: z.string().url().optional(),
+      credentialUrl: z.string().trim().url().optional(),
       issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       doesNotExpire: z.boolean().default(false),
       renewalRequired: z.boolean().default(false),
-      certificateUrl: z.string().url('Invalid URL').optional(),
+      certificateUrl: z.string().trim().url('Invalid URL').optional(),
     });
 
     const data = schema.parse(req.body);

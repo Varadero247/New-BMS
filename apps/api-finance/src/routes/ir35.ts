@@ -15,7 +15,7 @@ const createIr35Schema = z.object({
   assessmentDate: z.string().datetime().optional().nullable(),
   assessedBy: z.string().optional(),
   reasoning: z.string().optional(),
-  evidenceUrl: z.string().url('Invalid URL').optional(),
+  evidenceUrl: z.string().trim().url('Invalid URL').optional(),
   reviewDate: z.string().datetime().optional().nullable(),
   notes: z.string().optional(),
 });

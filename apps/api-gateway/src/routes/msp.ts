@@ -50,7 +50,7 @@ const linkSchema = z.object({
   permissions: z.array(z.enum(['READ', 'AUDIT', 'MANAGE', 'BILLING'])).min(1),
   whiteLabel: z.object({
     brandName: z.string().max(100).optional(),
-    logoUrl: z.string().url().optional(),
+    logoUrl: z.string().trim().url().optional(),
     primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   }).optional(),
 });
@@ -60,7 +60,7 @@ const updateLinkSchema = z.object({
   permissions: z.array(z.enum(['READ', 'AUDIT', 'MANAGE', 'BILLING'])).min(1).optional(),
   whiteLabel: z.object({
     brandName: z.string().max(100).optional(),
-    logoUrl: z.string().url().optional(),
+    logoUrl: z.string().trim().url().optional(),
     primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   }).optional(),
 });

@@ -107,7 +107,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       distributionList: z.string().optional(),
       accessLevel: z.enum(['UNRESTRICTED', 'CONTROLLED', 'CONFIDENTIAL', 'RESTRICTED']).default('UNRESTRICTED'),
-      locationUrl: z.string().url('Invalid URL').optional(),
+      locationUrl: z.string().trim().url('Invalid URL').optional(),
       controlledCopies: z.number().default(0),
       supersedesDocument: z.string().optional(),
       relatedProcedures: z.string().optional(),

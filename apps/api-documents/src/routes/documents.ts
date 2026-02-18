@@ -13,7 +13,7 @@ const createSchema = z.object({
   department: z.string().optional(),
   status: z.enum(['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED', 'OBSOLETE']).optional(),
   currentVersion: z.number().int().optional(),
-  fileUrl: z.string().url('Invalid URL').optional(),
+  fileUrl: z.string().trim().url('Invalid URL').optional(),
   fileSize: z.number().int().optional(),
   mimeType: z.string().optional(),
   owner: z.string().optional(),

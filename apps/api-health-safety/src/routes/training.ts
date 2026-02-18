@@ -109,7 +109,7 @@ router.post('/records', async (req: AuthRequest, res: Response) => {
       score: z.number().nonnegative().optional(),
       competenceLevel: z.enum(['AWARENESS', 'BASIC', 'PROFICIENT', 'EXPERT']).optional(),
       assessedBy: z.string().optional(),
-      certificateUrl: z.string().url('Invalid URL').optional(),
+      certificateUrl: z.string().trim().url('Invalid URL').optional(),
       notes: z.string().optional(),
       status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'FAILED']).default('NOT_STARTED'),
     });

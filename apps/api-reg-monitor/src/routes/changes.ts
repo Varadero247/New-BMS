@@ -11,7 +11,7 @@ const createSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   source: z.enum(['GOVERNMENT', 'REGULATOR', 'STANDARDS_BODY', 'INDUSTRY', 'EU_UK', 'OTHER']).optional(),
-  sourceUrl: z.string().url('Invalid URL').optional(),
+  sourceUrl: z.string().trim().url('Invalid URL').optional(),
   publishedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   status: z.enum(['NEW', 'UNDER_REVIEW', 'ASSESSED', 'IMPLEMENTED', 'NOT_APPLICABLE', 'MONITORING']).optional(),

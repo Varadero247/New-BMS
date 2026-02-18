@@ -19,7 +19,7 @@ const createSchema = z.object({
   trainer: z.string().optional(),
   trainerName: z.string().optional(),
   location: z.string().optional(),
-  certificateUrl: z.string().url('Invalid URL').optional(),
+  certificateUrl: z.string().trim().url('Invalid URL').optional(),
   feedback: z.string().optional(),
   notes: z.string().optional(),
 });

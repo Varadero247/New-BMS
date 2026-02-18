@@ -176,7 +176,7 @@ router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Respo
       strengthsIdentified: z.array(z.string()).optional(),
       weaknessesIdentified: z.array(z.string()).optional(),
       actionsRequired: z.any().optional(),
-      reportUrl: z.string().url('Invalid URL').optional(),
+      reportUrl: z.string().trim().url('Invalid URL').optional(),
       facilitatorName: z.string().optional(),
       nextExerciseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });

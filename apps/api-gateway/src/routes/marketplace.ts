@@ -25,9 +25,9 @@ const registerPluginSchema = z.object({
   author: z.string().trim().min(1).max(200),
   authorEmail: z.string().trim().email().optional(),
   category: pluginCategoryEnum,
-  iconUrl: z.string().url().optional(),
-  repositoryUrl: z.string().url().optional(),
-  documentationUrl: z.string().url().optional(),
+  iconUrl: z.string().trim().url().optional(),
+  repositoryUrl: z.string().trim().url().optional(),
+  documentationUrl: z.string().trim().url().optional(),
   permissions: z.array(z.string()).optional().default([]),
   webhookEvents: z.array(z.string()).optional().default([]),
   configSchema: z.record(z.unknown()).optional(),
@@ -40,9 +40,9 @@ const updatePluginSchema = z.object({
   author: z.string().trim().min(1).max(200).optional(),
   authorEmail: z.string().trim().email().optional().nullable(),
   category: pluginCategoryEnum.optional(),
-  iconUrl: z.string().url().optional().nullable(),
-  repositoryUrl: z.string().url().optional().nullable(),
-  documentationUrl: z.string().url().optional().nullable(),
+  iconUrl: z.string().trim().url().optional().nullable(),
+  repositoryUrl: z.string().trim().url().optional().nullable(),
+  documentationUrl: z.string().trim().url().optional().nullable(),
   permissions: z.array(z.string()).optional(),
   webhookEvents: z.array(z.string()).optional(),
   configSchema: z.record(z.unknown()).optional().nullable(),
@@ -64,7 +64,7 @@ const installSchema = z.object({
 
 const webhookSchema = z.object({
   event: z.string().trim().min(1).max(100),
-  targetUrl: z.string().url(),
+  targetUrl: z.string().trim().url(),
 });
 
 // ---------------------------------------------------------------------------

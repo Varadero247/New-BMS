@@ -90,7 +90,7 @@ router.post('/', async (req: Request, res: Response) => {
       title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       fileName: z.string(),
-      fileUrl: z.string().url(),
+      fileUrl: z.string().trim().url(),
       fileSize: z.number().nonnegative().optional(),
       mimeType: z.string().optional(),
       issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
@@ -221,7 +221,7 @@ router.post('/qualifications', async (req: Request, res: Response) => {
       startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       isOngoing: z.boolean().default(false),
-      documentUrl: z.string().url('Invalid URL').optional(),
+      documentUrl: z.string().trim().url('Invalid URL').optional(),
       notes: z.string().optional(),
     });
 

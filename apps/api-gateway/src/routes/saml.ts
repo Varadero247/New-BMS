@@ -60,7 +60,7 @@ const ALLOWED_NAMEID_FORMATS = [
 ];
 
 const samlConfigSchema = z.object({
-  entryPoint: z.string().url('Must be a valid URL').refine(
+  entryPoint: z.string().trim().url('Must be a valid URL').refine(
     (url) => url.startsWith('https://'),
     'Entry point must use HTTPS'
   ),
@@ -69,11 +69,11 @@ const samlConfigSchema = z.object({
   signatureAlgorithm: z.enum(['sha256', 'sha512']).optional().default('sha256'),
   enabled: z.boolean().optional().default(true),
   entityId: z.string().max(500).optional(),
-  assertionConsumerUrl: z.string().url().refine(
+  assertionConsumerUrl: z.string().trim().url().refine(
     (url) => url.startsWith('https://'),
     'ACS URL must use HTTPS'
   ).optional(),
-  idpMetadataUrl: z.string().url().refine(
+  idpMetadataUrl: z.string().trim().url().refine(
     (url) => url.startsWith('https://'),
     'IdP metadata URL must use HTTPS'
   ).optional(),

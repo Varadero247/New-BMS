@@ -34,7 +34,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(255),
-      url: z.string().url(),
+      url: z.string().trim().url(),
       events: z.array(webhookEventTypeEnum).min(1),
       headers: z.record(z.string()).optional(),
       retryCount: z.number().int().min(0).max(10).optional(),
@@ -144,7 +144,7 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(255).optional(),
-      url: z.string().url().optional(),
+      url: z.string().trim().url().optional(),
       events: z.array(webhookEventTypeEnum).min(1).optional(),
       isActive: z.boolean().optional(),
       headers: z.record(z.string()).optional(),

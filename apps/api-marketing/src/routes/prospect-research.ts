@@ -10,8 +10,8 @@ const router = Router();
 
 const researchSchema = z.object({
   companyName: z.string().trim().min(1).max(200),
-  website: z.string().url().optional(),
-  linkedinUrl: z.string().url('Invalid URL').optional(),
+  website: z.string().trim().url().optional(),
+  linkedinUrl: z.string().trim().url('Invalid URL').optional(),
   industry: z.string().optional(),
   sourceContext: z.string().optional(),
 });
