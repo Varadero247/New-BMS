@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Response, Request } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
@@ -17,7 +18,7 @@ function generateRefNumber(): string {
   const date = new Date();
   const yy = date.getFullYear().toString().slice(-2);
   const mm = (date.getMonth() + 1).toString().padStart(2, '0');
-  const rand = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  const rand = (parseInt(randomUUID().replace(/-/g,'').slice(0,4),16) % 10000).toString().padStart(4,'0');
   return `HSA-${yy}${mm}-${rand}`;
 }
 

@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -169,7 +170,7 @@ router.post('/surveys', async (req: AuthRequest, res: Response) => {
 
     // Generate public token if survey is public
     const publicToken = data.isPublic
-      ? `${refNumber}-${Math.random().toString(36).substring(2, 10)}`
+      ? `${refNumber}-${randomUUID().replace(/-/g, '').substring(0, 8)}`
       : null;
 
     const survey = await prisma.customerSurvey.create({

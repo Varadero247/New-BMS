@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
@@ -122,7 +123,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const authReq = req as AuthRequest;
-    const rand = Math.floor(1000 + Math.random() * 9000);
+    const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
     const code = generateSupplierCode(parsed.data.name, rand);
 
     const supplier = await prisma.finSupplier.create({

@@ -32,8 +32,10 @@ describe('POST /api/pre-audit/:id/generate', () => {
     expect(res.body.data.standard).toBe('ISO 9001:2015');
     expect(Array.isArray(res.body.data.recommendations)).toBe(true);
     expect(res.body.data.recommendations.length).toBeGreaterThan(0);
-    expect(res.body.data.aiNote).toBeDefined();
+    expect(Array.isArray(res.body.data.checklist)).toBe(true);
+    expect(res.body.data.generatedAt).toBeDefined();
     expect(res.body.data.preparedDate).toBeDefined();
+    expect(res.body.data.estimatedDurationHours).toBeGreaterThan(0);
   });
 
   it('should return 404 when audit not found', async () => {

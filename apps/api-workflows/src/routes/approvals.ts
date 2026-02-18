@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import type { Prisma } from '@ims/database/workflows';
@@ -171,7 +172,7 @@ router.delete('/chains/:id', checkOwnership(prisma.approvalChain), async (req: A
 // Helper to generate request number
 function generateRequestNumber(): string {
   const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const random = randomUUID().replace(/-/g, '').substring(0, 4).toUpperCase();
   return `APR-${timestamp}-${random}`;
 }
 

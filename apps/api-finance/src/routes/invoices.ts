@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
@@ -16,7 +17,7 @@ function generateReference(prefix: string): string {
   const now = new Date();
   const yy = now.getFullYear().toString().slice(-2);
   const mm = (now.getMonth() + 1).toString().padStart(2, '0');
-  const rand = Math.floor(1000 + Math.random() * 9000);
+  const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
   return `FIN-${prefix}-${yy}${mm}-${rand}`;
 }
 
@@ -710,13 +711,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
+    // Batch-fetch tax rates for all lines that specify one
+    const taxRateIds = [...new Set(data.lines.map((l) => l.taxRateId).filter(Boolean) as string[])];
+    const taxRates = taxRateIds.length > 0
+      ? await prisma.finTaxRate.findMany({ where: { id: { in: taxRateIds }, isActive: true } as any })
+      : [];
+    const taxRateMap = new Map(taxRates.map((r: any) => [r.id, Number(r.rate)]));
+
     // Calculate totals from lines
     let subtotal = 0;
     let taxTotal = 0;
     const lineData = data.lines.map((line, index) => {
       const lineSubtotal = line.quantity * line.unitPrice;
-      // Tax calculation placeholder - in production would look up tax rate
-      const lineTax = 0;
+      const taxRatePct = line.taxRateId ? (taxRateMap.get(line.taxRateId) ?? 0) : 0;
+      const lineTax = Math.round(lineSubtotal * taxRatePct) / 100;
       subtotal += lineSubtotal;
       taxTotal += lineTax;
 
@@ -812,11 +820,18 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     Object.keys(updateData).forEach((key) => updateData[key] === undefined && delete updateData[key]);
 
     if (data.lines) {
+      const updateTaxRateIds = [...new Set(data.lines.map((l) => l.taxRateId).filter(Boolean) as string[])];
+      const updateTaxRates = updateTaxRateIds.length > 0
+        ? await prisma.finTaxRate.findMany({ where: { id: { in: updateTaxRateIds }, isActive: true } as any })
+        : [];
+      const updateTaxRateMap = new Map(updateTaxRates.map((r: any) => [r.id, Number(r.rate)]));
+
       let subtotal = 0;
       let taxTotal = 0;
       const lineData = data.lines.map((line, index) => {
         const lineSubtotal = line.quantity * line.unitPrice;
-        const lineTax = 0;
+        const taxRatePct = line.taxRateId ? (updateTaxRateMap.get(line.taxRateId) ?? 0) : 0;
+        const lineTax = Math.round(lineSubtotal * taxRatePct) / 100;
         subtotal += lineSubtotal;
         taxTotal += lineTax;
 

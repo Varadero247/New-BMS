@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
@@ -40,7 +41,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 }
 
 function generateAllergenCode(): string {
-  const rand = Math.floor(100 + Math.random() * 900);
+  const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 3), 16) % 900) + 100;
   return `ALG-${rand}`;
 }
 

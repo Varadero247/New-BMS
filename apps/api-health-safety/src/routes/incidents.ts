@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma, Prisma } from '../prisma';
@@ -20,7 +21,7 @@ function generateReferenceNumber(): string {
   const date = new Date();
   const year = date.getFullYear().toString().slice(-2);
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  const random = (parseInt(randomUUID().replace(/-/g,'').slice(0,4),16) % 10000).toString().padStart(4,'0');
   return `INC-${year}${month}-${random}`;
 }
 

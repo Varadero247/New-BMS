@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -12,7 +13,7 @@ router.use(authenticate);
 // Reference number generator
 // ---------------------------------------------------------------------------
 function generateCustomerCode(): string {
-  const rand = Math.floor(1000 + Math.random() * 9000);
+  const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
   return `CUST-${rand}`;
 }
 

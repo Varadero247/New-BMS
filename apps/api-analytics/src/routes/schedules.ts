@@ -41,6 +41,54 @@ function parseIntParam(val: unknown, fallback: number): number {
   return Number.isFinite(n) && n > 0 ? n : fallback;
 }
 
+function matchCronField(field: string, value: number): boolean {
+  if (field === '*') return true;
+  if (field.includes('/')) {
+    const [rangeStr, stepStr] = field.split('/');
+    const step = parseInt(stepStr, 10);
+    if (isNaN(step) || step <= 0) return false;
+    if (rangeStr === '*') return value % step === 0;
+    const start = parseInt(rangeStr, 10);
+    return !isNaN(start) && value >= start && (value - start) % step === 0;
+  }
+  if (field.includes('-')) {
+    const [startStr, endStr] = field.split('-');
+    const start = parseInt(startStr, 10);
+    const end = parseInt(endStr, 10);
+    return !isNaN(start) && !isNaN(end) && value >= start && value <= end;
+  }
+  if (field.includes(',')) {
+    return field.split(',').some((v) => parseInt(v.trim(), 10) === value);
+  }
+  return parseInt(field, 10) === value;
+}
+
+function getNextCronRun(cronExpression: string): Date {
+  const parts = cronExpression.trim().split(/\s+/);
+  if (parts.length !== 5) return new Date(Date.now() + 3600000);
+
+  const [minF, hourF, domF, monF, dowF] = parts;
+  const result = new Date();
+  result.setSeconds(0, 0);
+  result.setMinutes(result.getMinutes() + 1);
+
+  // Iterate minute-by-minute up to 1 year ahead
+  for (let i = 0; i < 525600; i++) {
+    if (
+      matchCronField(minF, result.getMinutes()) &&
+      matchCronField(hourF, result.getHours()) &&
+      matchCronField(domF, result.getDate()) &&
+      matchCronField(monF, result.getMonth() + 1) &&
+      matchCronField(dowF, result.getDay())
+    ) {
+      return new Date(result);
+    }
+    result.setMinutes(result.getMinutes() + 1);
+  }
+
+  return new Date(Date.now() + 3600000);
+}
+
 // ===================================================================
 // GET /api/schedules — List schedules
 // ===================================================================
@@ -96,8 +144,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const data = parsed.data;
 
-    // Calculate next run (simple: 1 hour from now as placeholder)
-    const nextRun = new Date(Date.now() + 3600000);
+    const nextRun = getNextCronRun(data.cronExpression);
 
     const schedule = await prisma.analyticsSchedule.create({
       data: {
