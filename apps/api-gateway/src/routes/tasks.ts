@@ -27,7 +27,7 @@ const createTaskSchema = z.object({
   assigneeId: z.string().trim().min(1).max(200),
   assigneeName: z.string().trim().min(1).max(200),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
-  dueDate: z.string().optional(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
 });
 
 const updateTaskSchema = z.object({
@@ -36,7 +36,7 @@ const updateTaskSchema = z.object({
   assigneeId: z.string().trim().min(1).max(200).optional(),
   assigneeName: z.string().trim().min(1).max(200).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
-  dueDate: z.string().optional(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETE', 'CANCELLED']).optional(),
 });
 

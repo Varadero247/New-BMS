@@ -68,8 +68,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       productName: z.string().trim().min(1).max(200),
       projectManager: z.string().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-      plannedStartDate: z.string().optional(),
-      plannedEndDate: z.string().optional(),
+      plannedStartDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      plannedEndDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       requirements: z.string().optional(),
     });
 
@@ -215,8 +215,8 @@ router.put('/:id', checkOwnership((prisma as any).designDevelopment), async (req
       projectManager: z.string().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       status: z.enum(['DRAFT', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
-      plannedStartDate: z.string().optional(),
-      plannedEndDate: z.string().optional(),
+      plannedStartDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      plannedEndDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       requirements: z.string().optional(),
     });
 

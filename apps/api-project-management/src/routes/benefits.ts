@@ -53,7 +53,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       unit: z.string().optional(),
       measurementMethod: z.enum(MEASUREMENT_METHODS).optional(),
       measurementSchedule: z.string().optional(),
-      expectedRealisationDate: z.string().optional(),
+      expectedRealisationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       financialValue: z.number().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
     });
@@ -241,7 +241,7 @@ router.put('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
       unit: z.string().optional(),
       measurementMethod: z.enum(MEASUREMENT_METHODS).optional(),
       measurementSchedule: z.string().optional(),
-      expectedRealisationDate: z.string().optional(),
+      expectedRealisationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       financialValue: z.number().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       status: z.enum(['IDENTIFIED', 'BASELINED', 'TRACKING', 'REALISED', 'PARTIALLY_REALISED', 'NOT_REALISED', 'CLOSED']).optional(),

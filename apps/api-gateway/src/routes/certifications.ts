@@ -25,10 +25,10 @@ const createCertSchema = z.object({
   scope: z.string().min(1, 'Scope is required'),
   certificationBody: z.string().min(1, 'Certification body is required'),
   certificateNumber: z.string().min(1, 'Certificate number is required'),
-  issueDate: z.string().min(1, 'Issue date is required'),
-  expiryDate: z.string().min(1, 'Expiry date is required'),
-  lastSurveillanceDate: z.string().optional(),
-  nextSurveillanceDate: z.string().optional(),
+  issueDate: z.string().min(1, 'Issue date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  expiryDate: z.string().min(1, 'Expiry date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  lastSurveillanceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextSurveillanceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   status: z.enum(['ACTIVE', 'SUSPENDED', 'WITHDRAWN', 'EXPIRED', 'IN_RENEWAL']).default('ACTIVE'),
 });
 
@@ -37,10 +37,10 @@ const updateCertSchema = z.object({
   scope: z.string().trim().min(1).max(2000).optional(),
   certificationBody: z.string().min(1).optional(),
   certificateNumber: z.string().trim().min(1).max(200).optional(),
-  issueDate: z.string().optional(),
-  expiryDate: z.string().optional(),
-  lastSurveillanceDate: z.string().optional(),
-  nextSurveillanceDate: z.string().optional(),
+  issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  lastSurveillanceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextSurveillanceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   status: z.enum(['ACTIVE', 'SUSPENDED', 'WITHDRAWN', 'EXPIRED', 'IN_RENEWAL']).optional(),
 });
 

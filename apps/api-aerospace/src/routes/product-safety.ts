@@ -51,7 +51,7 @@ const createProductSafetyItemSchema = z.object({
   verificationMethod: z.string().optional(),
   complianceStatus: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED']).optional().default('NOT_ASSESSED'),
   responsibleEngineer: z.string().optional(),
-  nextReviewDate: z.string().optional(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 
@@ -68,8 +68,8 @@ const updateProductSafetyItemSchema = z.object({
   complianceStatus: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED']).optional(),
   status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'CLOSED', 'SUPERSEDED']).optional(),
   responsibleEngineer: z.string().optional(),
-  lastReviewDate: z.string().optional(),
-  nextReviewDate: z.string().optional(),
+  lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 
@@ -78,7 +78,7 @@ const createSafetyReviewSchema = z.object({
   reviewType: z.enum(['PRELIMINARY_HAZARD', 'SYSTEM_SAFETY', 'FAILURE_MODE', 'FAULT_TREE', 'FUNCTIONAL_HAZARD', 'COMMON_CAUSE', 'DESIGN_REVIEW']),
   productSafetyItemIds: z.array(z.string()).optional().default([]),
   scope: z.string().optional(),
-  scheduledDate: z.string().min(1, 'Scheduled date is required'),
+  scheduledDate: z.string().min(1, 'Scheduled date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   reviewTeam: z.array(z.string()).optional().default([]),
   leadReviewer: z.string().optional(),
   notes: z.string().optional(),

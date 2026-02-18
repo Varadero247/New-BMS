@@ -223,7 +223,7 @@ const importSchema = z.object({
   ]),
   notes: z.string().max(1000).optional(),
   assignedTo: z.string().uuid().optional(),
-  reviewDate: z.string().optional(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
 });
 
 // ── GET /regulations — List regulatory updates ─────────────────────

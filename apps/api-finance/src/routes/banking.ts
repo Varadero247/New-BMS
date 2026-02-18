@@ -44,8 +44,8 @@ const importTransactionsSchema = z.object({
 
 const startReconciliationSchema = z.object({
   bankAccountId: z.string().uuid(),
-  startDate: z.string(),
-  endDate: z.string(),
+  startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   openingBalance: z.number(),
   closingBalance: z.number(),
 });

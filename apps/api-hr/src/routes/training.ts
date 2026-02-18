@@ -138,8 +138,8 @@ router.post('/sessions', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       courseId: z.string().uuid(),
-      startDate: z.string(),
-      endDate: z.string(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       location: z.string().optional(),
       isVirtual: z.boolean().default(false),
       meetingUrl: z.string().url().optional(),
@@ -339,8 +339,8 @@ router.post('/certifications', async (req: Request, res: Response) => {
       issuingOrganization: z.string(),
       credentialId: z.string().optional(),
       credentialUrl: z.string().url().optional(),
-      issueDate: z.string(),
-      expiryDate: z.string().optional(),
+      issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       doesNotExpire: z.boolean().default(false),
       renewalRequired: z.boolean().default(false),
       certificateUrl: z.string().url('Invalid URL').optional(),

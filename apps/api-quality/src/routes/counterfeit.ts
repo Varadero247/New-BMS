@@ -295,8 +295,8 @@ router.post('/approved-sources', async (req: AuthRequest, res: Response) => {
       cageCode: z.string().optional(),
       partNumbers: z.array(z.string()),
       certifications: z.array(z.string()),
-      approvalDate: z.string(),
-      expiryDate: z.string().optional(),
+      approvalDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       notes: z.string().optional(),
       riskRating: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
     });

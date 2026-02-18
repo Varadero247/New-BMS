@@ -32,7 +32,7 @@ const invoiceCreateSchema = z.object({
   partsTotal: z.number().min(0),
   total: z.number().min(0),
   tax: z.number().min(0).optional().nullable(),
-  dueDate: z.string(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   currency: z.string().length(3).optional(),
 });
 
@@ -42,7 +42,7 @@ const invoiceUpdateSchema = z.object({
   partsTotal: z.number().min(0).optional(),
   total: z.number().min(0).optional(),
   tax: z.number().min(0).optional().nullable(),
-  dueDate: z.string().optional(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   status: z.enum(['DRAFT', 'SENT', 'PAID', 'OVERDUE', 'CANCELLED']).optional(),
   currency: z.string().length(3).optional(),
 });

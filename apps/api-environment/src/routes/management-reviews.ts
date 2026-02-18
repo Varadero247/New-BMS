@@ -88,7 +88,7 @@ router.get('/:id', checkOwnership(prisma.envManagementReview), async (req: AuthR
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      reviewDate: z.string().trim().min(1).max(2000),
+      reviewDate: z.string().trim().min(1).max(2000).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       chair: z.string().trim().min(1).max(200),
       attendees: z.array(z.string()).min(1),
       // ISO 14001 Clause 9.3 inputs (all optional)
@@ -152,7 +152,7 @@ router.put('/:id', checkOwnership(prisma.envManagementReview), async (req: AuthR
     }
 
     const schema = z.object({
-      reviewDate: z.string().optional(),
+      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       chair: z.string().optional(),
       attendees: z.array(z.string()).optional(),
       // Inputs
@@ -250,7 +250,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       action: z.string().trim().min(1).max(2000),
       owner: z.string().trim().min(1).max(200),
-      dueDate: z.string().trim().min(1).max(200),
+      dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       notes: z.string().optional(),
     });
 
@@ -287,7 +287,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     const schema = z.object({
       action: z.string().optional(),
       owner: z.string().optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.string().optional(),
       completedAt: z.string().optional(),
       notes: z.string().optional(),

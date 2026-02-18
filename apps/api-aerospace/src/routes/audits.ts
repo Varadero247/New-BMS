@@ -42,7 +42,7 @@ const createAuditSchema = z.object({
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'CUSTOMER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE']),
   standard: z.string().optional().default('AS9100D'),
   scope: z.string().min(1, 'Scope is required'),
-  scheduledDate: z.string().min(1, 'Scheduled date is required'),
+  scheduledDate: z.string().min(1, 'Scheduled date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   leadAuditor: z.string().min(1, 'Lead auditor is required'),
   auditTeam: z.array(z.string()).optional().default([]),
   auditee: z.string().optional(),
@@ -57,8 +57,8 @@ const updateAuditSchema = z.object({
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'CUSTOMER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE']).optional(),
   standard: z.string().optional(),
   scope: z.string().optional(),
-  scheduledDate: z.string().optional(),
-  actualDate: z.string().optional(),
+  scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  actualDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   leadAuditor: z.string().optional(),
   auditTeam: z.array(z.string()).optional(),
   auditee: z.string().optional(),
@@ -79,7 +79,7 @@ const createFindingSchema = z.object({
   evidence: z.string().optional(),
   requirement: z.string().optional(),
   responsiblePerson: z.string().optional(),
-  targetDate: z.string().optional(),
+  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
 });
 
 const closeFindingSchema = z.object({

@@ -61,7 +61,7 @@ const updateSchema = z.object({
   whereOccurred: z.string().optional(),
   // D3
   containmentAction: z.string().optional(),
-  containmentDate: z.string().optional(),
+  containmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   containmentOwner: z.string().optional(),
   // D4
   rootCause: z.string().optional(),
@@ -71,14 +71,14 @@ const updateSchema = z.object({
   correctiveActions: z.array(z.unknown()).optional(),
   // D6
   implementationPlan: z.string().optional(),
-  implementationDate: z.string().optional(),
+  implementationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   // D7
   preventiveActions: z.array(z.unknown()).optional(),
   systemsUpdated: z.string().optional(),
   // D8
   teamRecognition: z.string().optional(),
   lessonsLearned: z.string().optional(),
-  closedDate: z.string().optional(),
+  closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   closedBy: z.string().optional(),
 });
 

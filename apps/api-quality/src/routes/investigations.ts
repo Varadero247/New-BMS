@@ -30,14 +30,14 @@ const createSchema = z.object({
   relatedType: z.string().max(100).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
   assignedTo: z.string().max(200).optional().nullable(),
-  dueDate: z.string().optional().nullable(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   methodology: z.string().max(200).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['OPEN', 'IN_PROGRESS', 'PENDING_REVIEW', 'CLOSED', 'CANCELLED']).optional(),
-  completedDate: z.string().optional().nullable(),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   immediateCause: z.string().max(5000).optional().nullable(),
   rootCause: z.string().max(5000).optional().nullable(),
   contributingFactors: z.string().max(5000).optional().nullable(),

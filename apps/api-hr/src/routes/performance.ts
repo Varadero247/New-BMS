@@ -44,8 +44,8 @@ router.post('/cycles', async (req: Request, res: Response) => {
       name: z.string().trim().min(1).max(200),
       year: z.number(),
       cycleType: z.enum(['ANNUAL', 'SEMI_ANNUAL', 'QUARTERLY', 'CONTINUOUS']),
-      startDate: z.string(),
-      endDate: z.string(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       goalSettingStart: z.string().optional(),
       goalSettingEnd: z.string().optional(),
       midYearReviewStart: z.string().optional(),
@@ -279,8 +279,8 @@ router.post('/goals', async (req: Request, res: Response) => {
       measurementCriteria: z.string(),
       targetValue: z.string().optional(),
       unit: z.string().optional(),
-      startDate: z.string().optional(),
-      dueDate: z.string(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       alignedToObjective: z.string().optional(),
     });
 

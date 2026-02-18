@@ -113,7 +113,7 @@ router.post('/baselines', async (req: AuthRequest, res: Response) => {
       description: z.string().min(1, 'Description is required'),
       program: z.string().optional(),
       status: z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
-      effectiveDate: z.string().optional(),
+      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -157,9 +157,9 @@ router.put('/baselines/:id', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       program: z.string().optional(),
       status: z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
-      effectiveDate: z.string().optional(),
+      effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       approvedBy: z.string().optional(),
-      approvedDate: z.string().optional(),
+      approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -464,7 +464,7 @@ router.post('/audits/fca', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().min(1, 'Title is required'),
       baselineId: z.string().min(1, 'Baseline ID is required'),
-      auditDate: z.string().min(1, 'Audit date is required'),
+      auditDate: z.string().min(1, 'Audit date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       auditors: z.array(z.string()).min(1, 'At least one auditor is required'),
       notes: z.string().optional(),
     });
@@ -510,7 +510,7 @@ router.post('/audits/pca', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().min(1, 'Title is required'),
       baselineId: z.string().min(1, 'Baseline ID is required'),
-      auditDate: z.string().min(1, 'Audit date is required'),
+      auditDate: z.string().min(1, 'Audit date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       auditors: z.array(z.string()).min(1, 'At least one auditor is required'),
       notes: z.string().optional(),
     });

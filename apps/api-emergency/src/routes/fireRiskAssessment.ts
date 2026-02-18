@@ -12,8 +12,8 @@ const riskLevelEnum = z.enum(['TRIVIAL', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH', '
 
 const createFraSchema = z.object({
   premisesId: z.string().trim().min(1).max(200),
-  assessmentDate: z.string(),
-  nextReviewDate: z.string(),
+  assessmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   assessorName: z.string().trim().min(1).max(200),
   assessorCompany: z.string().optional(),
   assessorQualification: z.string().optional(),
@@ -32,7 +32,7 @@ const createFraSchema = z.object({
   consequenceRating: z.number().int().min(1).max(5),
   significantFindings: z.string().optional(),
   actionPlan: z.any().optional(),
-  staffInformedDate: z.string().optional(),
+  staffInformedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   emergencyPlanInPlace: z.boolean().optional(),
   trainingConducted: z.boolean().optional(),
   reviewTriggered: z.array(z.string()).optional().default([]),

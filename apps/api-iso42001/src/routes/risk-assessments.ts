@@ -81,7 +81,7 @@ const riskCreateSchema = z.object({
   existingControls: z.string().max(4000).optional().nullable(),
   proposedMitigations: z.string().max(4000).optional().nullable(),
   riskOwner: z.string().max(200).optional().nullable(),
-  reviewDate: z.string().optional().nullable(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   notes: z.string().max(4000).optional().nullable(),
 });
 
@@ -108,7 +108,7 @@ const riskUpdateSchema = z.object({
   existingControls: z.string().max(4000).optional().nullable(),
   proposedMitigations: z.string().max(4000).optional().nullable(),
   riskOwner: z.string().max(200).optional().nullable(),
-  reviewDate: z.string().optional().nullable(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   notes: z.string().max(4000).optional().nullable(),
 });
 

@@ -10,7 +10,7 @@ const createSchema = z.object({
   complaintId: z.string().min(1, 'Complaint ID is required'),
   action: z.string().min(1, 'Action is required'),
   assignee: z.string().optional(),
-  dueDate: z.string().optional(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   completedAt: z.string().optional(),
   status: z.string().optional(),
   notes: z.string().optional(),

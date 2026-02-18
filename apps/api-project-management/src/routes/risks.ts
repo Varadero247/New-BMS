@@ -80,7 +80,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       mitigationActions: z.string().optional(),
       contingencyPlan: z.string().optional(),
       status: z.string().optional(),
-      reviewDate: z.string().optional(),
+      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);

@@ -144,7 +144,7 @@ router.post('/', async (req: Request, res: Response) => {
       taskType: taskTypeEnum,
       title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);

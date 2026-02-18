@@ -133,7 +133,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       costOfImplementation: z.number().int().min(0).default(0),
       actionToExploit: z.string().optional(),
       responsiblePerson: z.string().optional(),
-      targetDate: z.string().optional(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(['IDENTIFIED', 'BEING_EXPLOITED', 'ACHIEVED', 'MISSED', 'DEFERRED']).default('IDENTIFIED'),
     });
 
@@ -200,7 +200,7 @@ router.put('/:id', checkOwnership(prisma.qualOpportunity), async (req: AuthReque
       costOfImplementation: z.number().int().min(0).optional(),
       actionToExploit: z.string().nullable().optional(),
       responsiblePerson: z.string().nullable().optional(),
-      targetDate: z.string().nullable().optional(),
+      targetDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(['IDENTIFIED', 'BEING_EXPLOITED', 'ACHIEVED', 'MISSED', 'DEFERRED']).optional(),
     });
 

@@ -26,7 +26,7 @@ const createSchema = z.object({
   acceptanceCriteria: z.string().trim().min(1).max(200),
   results: z.string().optional(),
   pass: z.boolean().optional(),
-  completedDate: z.string().optional(),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   completedBy: z.string().optional(),
   traceToInput: z.string().optional(),
   traceToOutput: z.string().optional(),

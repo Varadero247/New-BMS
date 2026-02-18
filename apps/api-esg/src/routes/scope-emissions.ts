@@ -19,7 +19,7 @@ const createSchema = z.object({
   period: z.string().optional(),
   location: z.string().optional(),
   verifiedBy: z.string().optional(),
-  verifiedDate: z.string().optional(),
+  verifiedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 

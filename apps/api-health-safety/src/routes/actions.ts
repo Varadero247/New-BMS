@@ -35,7 +35,7 @@ const createSchema = z.object({
   ownerId: z.string().trim().min(1).max(200),
   incidentId: z.string().optional().nullable(),
   riskId: z.string().optional().nullable(),
-  dueDate: z.string().trim().min(1).max(200),
+  dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   estimatedCost: z.number().optional().nullable(),
   verificationMethod: z.string().max(500).optional().nullable(),
 });

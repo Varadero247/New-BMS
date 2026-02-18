@@ -31,7 +31,7 @@ const createSchema = z.object({
   submittedBy: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
   assignedTo: z.string().max(200).optional().nullable(),
-  targetDate: z.string().optional().nullable(),
+  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   isoClause: z.string().max(200).optional().nullable(),
   expectedBenefit: z.string().max(2000).optional().nullable(),
   estimatedCost: z.number().optional().nullable(),
@@ -41,11 +41,11 @@ const createSchema = z.object({
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['IDEA', 'UNDER_REVIEW', 'APPROVED', 'IN_PROGRESS', 'COMPLETED', 'REJECTED', 'ON_HOLD']).optional(),
-  completedDate: z.string().optional().nullable(),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   actualSaving: z.number().optional().nullable(),
   reviewNotes: z.string().max(5000).optional().nullable(),
   approvedBy: z.string().max(200).optional().nullable(),
-  approvedDate: z.string().optional().nullable(),
+  approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
 });
 
 // GET /stats — CI statistics

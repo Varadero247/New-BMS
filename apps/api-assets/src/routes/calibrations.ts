@@ -9,9 +9,9 @@ const logger = createLogger('assets-calibrations');
 const createSchema = z.object({
   assetId: z.string().min(1, 'Asset ID is required'),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'PASSED', 'FAILED', 'OVERDUE']).optional(),
-  scheduledDate: z.string().min(1, 'Scheduled date is required'),
-  completedDate: z.string().optional(),
-  nextDueDate: z.string().optional(),
+  scheduledDate: z.string().min(1, 'Scheduled date is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextDueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   technician: z.string().optional(),
   standard: z.string().optional(),
   result: z.string().optional(),

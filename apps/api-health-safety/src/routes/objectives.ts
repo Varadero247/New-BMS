@@ -107,7 +107,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const milestoneSchema = z.object({
       title: z.string().trim().min(1).max(200),
-      dueDate: z.string(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const schema = z.object({
@@ -117,8 +117,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       ohsPolicyLink: z.string().optional(),
       department: z.string().optional(),
       owner: z.string().optional(),
-      startDate: z.string().optional(),
-      targetDate: z.string(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       kpiDescription: z.string().optional(),
       baselineValue: z.number().optional(),
       targetValue: z.number().optional(),
@@ -200,8 +200,8 @@ router.patch('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthReques
       ohsPolicyLink: z.string().optional(),
       department: z.string().optional(),
       owner: z.string().optional(),
-      startDate: z.string().optional(),
-      targetDate: z.string().optional(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       kpiDescription: z.string().optional(),
       baselineValue: z.number().optional(),
       targetValue: z.number().optional(),
@@ -275,7 +275,7 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      dueDate: z.string(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const data = schema.parse(req.body);
@@ -311,7 +311,7 @@ router.patch('/:id/milestones/:mid', async (req: AuthRequest, res: Response) => 
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       completed: z.boolean().optional(),
     });
 

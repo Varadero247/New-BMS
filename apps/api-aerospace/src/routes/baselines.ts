@@ -39,7 +39,7 @@ const createBaselineSchema = z.object({
   program_phase: z.string().optional(),
   configuration_items: z.array(z.string()).optional().default([]),
   documents: z.array(z.string()).optional().default([]),
-  effectiveDate: z.string().optional(),
+  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   approvedBy: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -54,9 +54,9 @@ const updateBaselineSchema = z.object({
   configuration_items: z.array(z.string()).optional(),
   documents: z.array(z.string()).optional(),
   status: z.enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
-  effectiveDate: z.string().optional(),
+  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   approvedBy: z.string().optional(),
-  approvedDate: z.string().optional(),
+  approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 

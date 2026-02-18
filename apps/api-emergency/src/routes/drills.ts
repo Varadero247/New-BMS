@@ -10,7 +10,7 @@ const logger = createLogger('emergency-drills');
 const evacuationTypeEnum = z.enum(['FULL_EVACUATION', 'PARTIAL_EVACUATION', 'HORIZONTAL_EVACUATION', 'PHASED_EVACUATION', 'STAY_PUT', 'SHELTER_IN_PLACE']);
 
 const createDrillSchema = z.object({
-  drillDate: z.string(),
+  drillDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   drillType: z.string().trim().min(1).max(200),
   evacuationType: evacuationTypeEnum,
   alarmedOrSilent: z.string().trim().min(1).max(200),

@@ -117,7 +117,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       // Ownership
       owner: z.string().trim().min(1).max(200),
       department: z.string().trim().min(1).max(200),
-      targetDate: z.string(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       resourcesRequired: z.string().optional(),
       // Progress
       progressNotes: z.string().optional(),
@@ -208,7 +208,7 @@ router.put('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequest
       unit: z.string().optional(),
       owner: z.string().optional(),
       department: z.string().optional(),
-      targetDate: z.string().optional(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       resourcesRequired: z.string().optional(),
       progressNotes: z.string().optional(),
       progressPercent: z.number().min(0).max(100).optional(),
@@ -271,10 +271,10 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      targetDate: z.string(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'CANCELLED']).optional(),
       notes: z.string().optional(),
-      completedDate: z.string().optional(),
+      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -312,10 +312,10 @@ router.put('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respons
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      targetDate: z.string().optional(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'CANCELLED']).optional(),
       notes: z.string().optional(),
-      completedDate: z.string().optional(),
+      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);

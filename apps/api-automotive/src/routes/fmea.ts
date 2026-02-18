@@ -53,7 +53,7 @@ const studyUpdateSchema = z.object({
   preparedBy: z.string().optional(),
   reviewedBy: z.string().optional(),
   approvedBy: z.string().optional(),
-  approvedDate: z.string().optional(),
+  approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   scope: z.string().optional(),
   assumptions: z.string().optional(),
 });
@@ -71,7 +71,7 @@ const itemCreateSchema = z.object({
   detection: z.number().int().min(1).max(10),
   recommendedAction: z.string().optional(),
   responsibility: z.string().optional(),
-  targetDate: z.string().optional(),
+  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
 });
 
 const itemUpdateSchema = itemCreateSchema.partial().extend({

@@ -29,8 +29,8 @@ const createSchema = z.object({
   measurementCriteria: z.string().trim().min(1).max(200),
   targetValue: z.string().optional(),
   unit: z.string().optional(),
-  startDate: z.string().optional(),
-  dueDate: z.string(),
+  startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   alignedToObjective: z.string().optional(),
 });
 

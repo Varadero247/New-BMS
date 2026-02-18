@@ -59,7 +59,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       recipients: z.string().optional(),
       sender: z.string().optional(),
       relatedAspectId: z.string().optional(),
-      scheduledDate: z.string().optional(),
+      scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       attendees: z.string().optional(),
       location: z.string().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
@@ -247,7 +247,7 @@ router.put('/:id', checkOwnership(prisma.envCommunication), async (req: AuthRequ
       attendees: z.string().optional(),
       location: z.string().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-      scheduledDate: z.string().optional(),
+      scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       outcome: z.string().optional(),
     });
 

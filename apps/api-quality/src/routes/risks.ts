@@ -135,8 +135,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       treatmentOption: z.enum(['ACCEPT', 'REDUCE', 'TRANSFER', 'AVOID', 'CONTINGENCY']).default('ACCEPT'),
       treatmentActions: z.string().optional(),
       responsiblePerson: z.string().optional(),
-      dueDate: z.string().optional(),
-      reviewDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(['OPEN', 'BEING_TREATED', 'MONITORED', 'CLOSED', 'ACCEPTED']).default('OPEN'),
     });
 
@@ -204,8 +204,8 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
       treatmentOption: z.enum(['ACCEPT', 'REDUCE', 'TRANSFER', 'AVOID', 'CONTINGENCY']).optional(),
       treatmentActions: z.string().nullable().optional(),
       responsiblePerson: z.string().nullable().optional(),
-      dueDate: z.string().nullable().optional(),
-      reviewDate: z.string().nullable().optional(),
+      dueDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      reviewDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(['OPEN', 'BEING_TREATED', 'MONITORED', 'CLOSED', 'ACCEPTED']).optional(),
     });
 

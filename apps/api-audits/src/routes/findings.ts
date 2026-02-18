@@ -19,10 +19,10 @@ const findingCreateSchema = z.object({
   correctiveAction: z.string().optional(),
   assignee: z.string().optional(),
   assigneeName: z.string().optional(),
-  dueDate: z.string().optional(),
-  closedDate: z.string().optional(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   verifiedBy: z.string().optional(),
-  verifiedDate: z.string().optional(),
+  verifiedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   linkedCapaId: z.string().optional(),
   notes: z.string().optional(),
 });

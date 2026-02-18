@@ -164,7 +164,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       responsible: z.string().optional(),
       legalReference: z.string().optional(),
       status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'MITIGATED', 'CLOSED', 'ACCEPTED']).optional(),
-      reviewDate: z.string().optional(),
+      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -259,7 +259,7 @@ router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: 
       responsible: z.string().optional(),
       legalReference: z.string().optional(),
       status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'MITIGATED', 'CLOSED', 'ACCEPTED']).optional(),
-      reviewDate: z.string().optional(),
+      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);

@@ -61,7 +61,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       projectId: z.string().trim().min(1).max(200),
       taskId: z.string().optional(),
       employeeId: z.string().trim().min(1).max(200),
-      workDate: z.string(),
+      workDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       hoursWorked: z.number().min(0),
       overtime: z.number().optional(),
       activityType: z.enum(['DEVELOPMENT', 'TESTING', 'DESIGN', 'MEETING', 'DOCUMENTATION', 'ADMIN']),

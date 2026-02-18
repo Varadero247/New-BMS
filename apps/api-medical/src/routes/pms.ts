@@ -65,8 +65,8 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
       dataSources: z.array(z.string()).optional(),
       reviewFrequency: z.string().optional(),
       status: z.enum(PMS_PLAN_STATUSES).optional(),
-      lastReviewDate: z.string().optional(),
-      nextReviewDate: z.string().optional(),
+      lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -179,8 +179,8 @@ router.put('/plans/:id', checkOwnership(prisma.pmsPlan), async (req: AuthRequest
       dataSources: z.array(z.string()).optional(),
       reviewFrequency: z.string().optional(),
       status: z.enum(PMS_PLAN_STATUSES).optional(),
-      lastReviewDate: z.string().optional(),
-      nextReviewDate: z.string().optional(),
+      lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);

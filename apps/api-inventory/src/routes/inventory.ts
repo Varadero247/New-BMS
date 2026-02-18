@@ -453,7 +453,7 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
       referenceId: z.string().optional(),
       binLocation: z.string().optional(),
       lotNumber: z.string().optional(),
-      expiryDate: z.string().optional(),
+      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       notes: z.string().optional(),
     });
 

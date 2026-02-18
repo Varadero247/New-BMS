@@ -19,7 +19,7 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  meetingDate: z.string(),
+  meetingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   chairperson: z.string().max(200).optional().nullable(),
   attendees: z.string().max(5000).optional().nullable(),
   // §9.3.2 inputs
@@ -38,7 +38,7 @@ const createSchema = z.object({
   resourceNeeds: z.string().max(5000).optional().nullable(),
   decisions: z.string().max(5000).optional().nullable(),
   actionItems: z.string().max(5000).optional().nullable(),
-  nextReviewDate: z.string().optional().nullable(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   minutes: z.string().max(50000).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });

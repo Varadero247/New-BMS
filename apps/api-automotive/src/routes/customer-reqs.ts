@@ -37,8 +37,8 @@ const createSchema = z.object({
   applicableProducts: z.string().optional(),
   evidenceRef: z.string().optional(),
   reviewedBy: z.string().optional(),
-  reviewDate: z.string().optional(),
-  nextReviewDate: z.string().optional(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 

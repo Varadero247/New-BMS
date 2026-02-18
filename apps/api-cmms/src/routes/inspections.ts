@@ -16,23 +16,23 @@ const inspectionCreateSchema = z.object({
   assetId: z.string().uuid(),
   inspectionType: z.string().trim().min(1).max(100),
   inspector: z.string().trim().min(1).max(200),
-  scheduledDate: z.string(),
-  completedDate: z.string().optional().nullable(),
+  scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE']).optional(),
   result: z.enum(['PASS', 'FAIL', 'CONDITIONAL', 'NA']).optional().nullable(),
   findings: z.any().optional().nullable(),
-  nextInspectionDate: z.string().optional().nullable(),
+  nextInspectionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
 });
 
 const inspectionUpdateSchema = z.object({
   inspectionType: z.string().trim().min(1).max(100).optional(),
   inspector: z.string().trim().min(1).max(200).optional(),
-  scheduledDate: z.string().optional(),
-  completedDate: z.string().optional().nullable(),
+  scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE']).optional(),
   result: z.enum(['PASS', 'FAIL', 'CONDITIONAL', 'NA']).optional().nullable(),
   findings: z.any().optional().nullable(),
-  nextInspectionDate: z.string().optional().nullable(),
+  nextInspectionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

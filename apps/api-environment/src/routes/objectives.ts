@@ -77,7 +77,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       title: z.string().trim().min(1).max(200),
       objectiveStatement: z.string().trim().min(1).max(2000),
       category: z.string().trim().min(1).max(200),
-      targetDate: z.string().trim().min(1).max(200),
+      targetDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       owner: z.string().trim().min(1).max(200),
       status: z.string().optional(),
       policyCommitment: z.string().optional(),
@@ -88,13 +88,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       netZeroDescription: z.string().optional(),
       kpiDescription: z.string().optional(),
       baselineValue: z.number().optional(),
-      baselineDate: z.string().optional(),
+      baselineDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       targetValue: z.number().optional(),
       currentValue: z.number().optional(),
       unit: z.string().optional(),
       measurementMethod: z.string().optional(),
       dataSource: z.string().optional(),
-      startDate: z.string().optional(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       department: z.string().optional(),
       resourcesRequired: z.string().optional(),
       estimatedCost: z.number().optional(),
@@ -111,7 +111,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       aiGenerated: z.boolean().optional(),
       milestones: z.array(z.object({
         title: z.string().trim().min(1).max(200),
-        dueDate: z.string().trim().min(1).max(200),
+        dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       })).optional(),
     });
 
@@ -187,9 +187,9 @@ const objectiveUpdateSchema = z.object({
   relatedAspectId: z.string().optional(),
   department: z.string().optional(),
   responsiblePerson: z.string().optional(),
-  targetDate: z.string().optional(),
-  baselineDate: z.string().optional(),
-  startDate: z.string().optional(),
+  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  baselineDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   baselineValue: z.number().optional(),
   targetValue: z.number().optional(),
   currentValue: z.number().optional(),
@@ -252,9 +252,9 @@ router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respo
 
     const schema = z.object({
       completed: z.boolean().optional(),
-      completedDate: z.string().optional(),
+      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       title: z.string().optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       notes: z.string().optional(),
       sortOrder: z.number().optional(),
     });

@@ -108,7 +108,7 @@ router.get('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRe
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      reviewDate: z.string().trim().min(1).max(2000),
+      reviewDate: z.string().trim().min(1).max(2000).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       chair: z.string().trim().min(1).max(200),
       attendees: z.array(z.string()).min(1),
       // ISO 45001 Clause 9.3 mandatory inputs (all optional at creation)
@@ -174,7 +174,7 @@ router.put('/:id', checkOwnership(prisma.hSManagementReview), async (req: AuthRe
     }
 
     const schema = z.object({
-      reviewDate: z.string().optional(),
+      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       chair: z.string().trim().min(1).max(200).optional(),
       attendees: z.array(z.string()).optional(),
       status: z.enum(REVIEW_STATUSES).optional(),
@@ -249,7 +249,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       action: z.string().trim().min(1).max(2000),
       owner: z.string().trim().min(1).max(200),
-      dueDate: z.string().trim().min(1).max(200),
+      dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const data = schema.parse(req.body);
@@ -286,7 +286,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     const schema = z.object({
       action: z.string().trim().min(1).max(2000).optional(),
       owner: z.string().trim().min(1).max(200).optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(MR_ACTION_STATUSES).optional(),
     });
 

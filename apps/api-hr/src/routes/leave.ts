@@ -150,8 +150,8 @@ router.post('/requests', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().uuid(),
       leaveTypeId: z.string().uuid(),
-      startDate: z.string(),
-      endDate: z.string(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       isHalfDay: z.boolean().default(false),
       halfDayPeriod: z.enum(['FIRST_HALF', 'SECOND_HALF']).optional(),
       reason: z.string().optional(),

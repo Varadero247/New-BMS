@@ -16,7 +16,7 @@ const meterCreateSchema = z.object({
   assetId: z.string().uuid(),
   meterType: z.enum(['HOURS', 'MILES', 'KILOMETERS', 'CYCLES', 'UNITS']),
   reading: z.number(),
-  readingDate: z.string(),
+  readingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   previousReading: z.number().optional().nullable(),
   delta: z.number().optional().nullable(),
 });
@@ -24,7 +24,7 @@ const meterCreateSchema = z.object({
 const meterUpdateSchema = z.object({
   meterType: z.enum(['HOURS', 'MILES', 'KILOMETERS', 'CYCLES', 'UNITS']).optional(),
   reading: z.number().optional(),
-  readingDate: z.string().optional(),
+  readingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   previousReading: z.number().optional().nullable(),
   delta: z.number().optional().nullable(),
 });

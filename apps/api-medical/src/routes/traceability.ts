@@ -41,7 +41,7 @@ const createSchema = z.object({
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'RELEASED', 'OBSOLETE']).optional(),
   approvedBy: z.string().optional(),
-  approvedDate: z.string().optional(),
+  approvedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
 });
 
 const linkCreateSchema = z.object({

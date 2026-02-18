@@ -10,7 +10,7 @@ const createHmrcDeadlineSchema = z.object({
   title: z.string().min(1, 'title is required'),
   description: z.string().optional(),
   type: z.string().optional(),
-  dueDate: z.string().min(1, 'dueDate is required'),
+  dueDate: z.string().min(1, 'dueDate is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   filingRef: z.string().optional(),
   status: z.string().optional(),
   submittedDate: z.string().datetime().optional().nullable(),

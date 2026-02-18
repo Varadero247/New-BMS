@@ -45,14 +45,14 @@ const createSchema = z.object({
   treatmentStrategy: z.string().max(200).optional().nullable(),
   controls: z.string().max(5000).optional().nullable(),
   mitigationActions: z.string().max(5000).optional().nullable(),
-  reviewDate: z.string().optional().nullable(),
-  nextReviewDate: z.string().optional().nullable(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['OPEN', 'UNDER_REVIEW', 'MITIGATED', 'ACCEPTED', 'CLOSED', 'TRANSFERRED']).optional(),
-  lastReviewDate: z.string().optional().nullable(),
+  lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
 });
 
 // GET /heatmap — Risk heat map data

@@ -122,8 +122,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       regulatoryPathway: z.string().optional(),
       projectLead: z.string().trim().min(1).max(200),
       teamMembers: z.array(z.string()).optional().default([]),
-      startDate: z.string().trim().min(1).max(200),
-      targetDate: z.string().optional(),
+      startDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
     });
 
@@ -180,9 +180,9 @@ router.put('/:id', checkOwnership(prisma.designProject), async (req: AuthRequest
       status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
       projectLead: z.string().trim().min(1).max(200).optional(),
       teamMembers: z.array(z.string()).optional(),
-      startDate: z.string().optional(),
-      targetDate: z.string().optional(),
-      completedDate: z.string().optional(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -327,12 +327,12 @@ router.post('/:id/reviews', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       stage: z.enum(['PLANNING', 'INPUTS', 'OUTPUTS', 'REVIEW', 'VERIFICATION', 'VALIDATION', 'TRANSFER', 'COMPLETE']),
-      reviewDate: z.string().trim().min(1).max(2000),
+      reviewDate: z.string().trim().min(1).max(2000).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       reviewers: z.array(z.string()).min(1),
       decision: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'NEEDS_REWORK', 'REJECTED']),
       minutes: z.string().optional(),
       actionItems: z.string().optional(),
-      nextReviewDate: z.string().optional(),
+      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -377,7 +377,7 @@ router.post('/:id/verifications', async (req: AuthRequest, res: Response) => {
       acceptanceCriteria: z.string().trim().min(1).max(200),
       results: z.string().optional(),
       pass: z.boolean().optional(),
-      completedDate: z.string().optional(),
+      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       completedBy: z.string().optional(),
       traceToInput: z.string().optional(),
       traceToOutput: z.string().optional(),
@@ -428,7 +428,7 @@ router.post('/:id/validations', async (req: AuthRequest, res: Response) => {
       intendedUseConfirmed: z.boolean().optional(),
       results: z.string().optional(),
       pass: z.boolean().optional(),
-      completedDate: z.string().optional(),
+      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       completedBy: z.string().optional(),
     });
 

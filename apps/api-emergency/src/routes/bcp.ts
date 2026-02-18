@@ -23,7 +23,7 @@ const createBcpSchema = z.object({
   crisisTeamMembers: z.any().optional(),
   crisisTeamMeetingPoint: z.string().optional(),
   crisisTeamVirtualLink: z.string().optional(),
-  biaCompletedDate: z.string().optional(),
+  biaCompletedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   criticalFunctions: z.any().optional(),
   recoveryStrategies: z.any().optional(),
   alternativeSites: z.any().optional(),
@@ -37,7 +37,7 @@ const createBcpSchema = z.object({
   supplierCommPlan: z.string().optional(),
   mediaCommPlan: z.string().optional(),
   regulatoryCommPlan: z.string().optional(),
-  reviewDate: z.string(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
 });
 
 const updateBcpSchema = createBcpSchema.partial();
@@ -147,7 +147,7 @@ router.post('/:id/exercise', authenticate, async (req: Request, res: Response) =
     const schema = z.object({
       exerciseType: exerciseTypeEnum,
       title: z.string().trim().min(1).max(200),
-      scheduledDate: z.string(),
+      scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       scope: z.string().optional(),
       participantsCount: z.number().int().optional(),
       externalPartiesInvolved: z.boolean().optional(),
@@ -168,7 +168,7 @@ router.post('/:id/exercise', authenticate, async (req: Request, res: Response) =
 router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      actualDate: z.string().optional(),
+      actualDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       durationHours: z.number().optional(),
       outcome: exerciseOutcomeEnum.optional(),
       objectivesMet: z.boolean().optional(),
@@ -178,7 +178,7 @@ router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Respo
       actionsRequired: z.any().optional(),
       reportUrl: z.string().url('Invalid URL').optional(),
       facilitatorName: z.string().optional(),
-      nextExerciseDate: z.string().optional(),
+      nextExerciseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });

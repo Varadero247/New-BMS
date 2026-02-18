@@ -47,7 +47,7 @@ const createCounterfeitReportSchema = z.object({
   supplier: z.string().optional(),
   poNumber: z.string().optional(),
   quantity: z.number().int().positive().optional(),
-  dateDiscovered: z.string().min(1, 'Date discovered is required'),
+  dateDiscovered: z.string().min(1, 'Date discovered is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   discoveredBy: z.string().optional(),
   discrepancyDescription: z.string().min(1, 'Discrepancy description is required'),
   suspicionIndicators: z.array(z.string()).optional().default([]),

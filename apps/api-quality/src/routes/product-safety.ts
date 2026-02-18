@@ -527,7 +527,7 @@ router.post('/compliance', async (req: AuthRequest, res: Response) => {
       regulation: z.enum(['REACH', 'RoHS', 'IMDS', 'TSCA', 'PROP65', 'OTHER']),
       status: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'EXEMPT']),
       certificateRef: z.string().optional(),
-      expiryDate: z.string().optional(),
+      expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       substances: z.string().optional(),
       notes: z.string().optional(),
     });

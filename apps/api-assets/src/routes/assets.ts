@@ -18,7 +18,7 @@ const createSchema = z.object({
   condition: z.enum(['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'CRITICAL']).optional(),
   manufacturer: z.string().optional(),
   model: z.string().optional(),
-  purchaseDate: z.string().optional(),
+  purchaseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   purchaseCost: z.number().optional(),
   currentValue: z.number().optional(),
   warrantyExpiry: z.string().optional(),

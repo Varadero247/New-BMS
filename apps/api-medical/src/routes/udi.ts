@@ -219,8 +219,8 @@ router.post('/devices/:id/pi', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       lotNumber: z.string().optional(),
       serialNumber: z.string().optional(),
-      manufacturingDate: z.string().optional(),
-      expirationDate: z.string().optional(),
+      manufacturingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      expirationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -310,7 +310,7 @@ router.put('/devices/:id/submissions/:sid', async (req: AuthRequest, res: Respon
     const schema = z.object({
       status: z.enum(UDI_SUBMISSION_STATUSES).optional(),
       database: z.enum(UDI_DATABASES).optional(),
-      submissionDate: z.string().optional(),
+      submissionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       referenceNumber: z.string().optional(),
       notes: z.string().optional(),
     });

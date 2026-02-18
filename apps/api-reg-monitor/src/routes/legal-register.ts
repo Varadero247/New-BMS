@@ -15,8 +15,8 @@ const createSchema = z.object({
   requirements: z.string().optional(),
   complianceStatus: z.string().optional(),
   responsiblePerson: z.string().optional(),
-  reviewDate: z.string().optional(),
-  lastReviewDate: z.string().optional(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 

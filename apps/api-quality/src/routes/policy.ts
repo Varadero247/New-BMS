@@ -33,8 +33,8 @@ const updateSchema = z.object({
   version: z.string().max(50).optional(),
   status: z.enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ISSUED', 'OBSOLETE']).optional(),
   approvedBy: z.string().max(200).optional().nullable(),
-  effectiveDate: z.string().optional().nullable(),
-  nextReviewDate: z.string().optional().nullable(),
+  effectiveDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
 });
 
 // GET / — Get current Quality Policy

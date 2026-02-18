@@ -44,7 +44,7 @@ const createChangeRequestSchema = z.object({
   safetyImpact: z.boolean().optional().default(false),
   costEstimate: z.number().optional(),
   proposedBy: z.string().optional(),
-  requestedDate: z.string().optional(),
+  requestedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 

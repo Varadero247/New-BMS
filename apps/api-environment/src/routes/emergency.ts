@@ -53,8 +53,8 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
       recoveryActions: z.string().optional(),
       reviewSchedule: z.string().optional(),
       status: z.enum(['DRAFT', 'ACTIVE', 'UNDER_REVIEW', 'ARCHIVED']).optional(),
-      lastReviewDate: z.string().optional(),
-      nextReviewDate: z.string().optional(),
+      lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -139,8 +139,8 @@ const planUpdateSchema = z.object({
   responsiblePerson: z.string().optional(),
   status: z.string().optional(),
   priority: z.string().optional(),
-  lastReviewDate: z.string().optional(),
-  nextReviewDate: z.string().optional(),
+  lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   responseTeam: z.array(z.string()).optional(),
   procedures: z.string().optional(),
   communicationPlan: z.string().optional(),
@@ -187,7 +187,7 @@ router.post('/drills', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       planId: z.string().trim().min(1).max(200),
-      drillDate: z.string().trim().min(1).max(200),
+      drillDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       drillType: z.enum(['TABLETOP', 'FUNCTIONAL', 'FULL_SCALE']),
       participants: z.array(z.string()).min(1),
       scenario: z.string().optional(),
@@ -279,7 +279,7 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
       description: z.string().trim().min(1).max(2000),
-      incidentDate: z.string().trim().min(1).max(200),
+      incidentDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       location: z.string().optional(),
       environmentalImpact: z.string().optional(),
       containmentActions: z.string().optional(),

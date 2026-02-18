@@ -32,8 +32,8 @@ const createSchema = z.object({
   category: z.enum(CATEGORIES).default('OTHER'),
   owner: z.string().max(200).optional().nullable(),
   department: z.string().max(200).optional().nullable(),
-  assessmentDate: z.string().optional().nullable(),
-  nextReviewDate: z.string().optional().nullable(),
+  assessmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   evidence: z.string().max(5000).optional().nullable(),
   gaps: z.string().max(5000).optional().nullable(),
   remediation: z.string().max(5000).optional().nullable(),
@@ -44,7 +44,7 @@ const createSchema = z.object({
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(STATUSES).optional(),
-  closedDate: z.string().optional().nullable(),
+  closedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   closedBy: z.string().max(200).optional().nullable(),
   closureNotes: z.string().max(5000).optional().nullable(),
 });

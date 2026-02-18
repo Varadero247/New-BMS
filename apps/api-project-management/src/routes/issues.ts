@@ -64,7 +64,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       severity: z.string().optional(),
       priority: z.string().optional(),
       assignedTo: z.string().optional(),
-      targetResolutionDate: z.string().optional(),
+      targetResolutionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       impactOnSchedule: z.number().optional(),
       impactOnBudget: z.number().optional(),
       impactOnScope: z.string().optional(),

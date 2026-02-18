@@ -41,7 +41,7 @@ const impactCreateSchema = z.object({
   mitigationMeasures: z.string().max(10000).optional().nullable(),
   residualRisk: z.string().max(4000).optional().nullable(),
   assessor: z.string().max(200).optional().nullable(),
-  reviewDate: z.string().optional().nullable(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   notes: z.string().max(4000).optional().nullable(),
 });
 
@@ -61,7 +61,7 @@ const impactUpdateSchema = z.object({
   mitigationMeasures: z.string().max(10000).optional().nullable(),
   residualRisk: z.string().max(4000).optional().nullable(),
   assessor: z.string().max(200).optional().nullable(),
-  reviewDate: z.string().optional().nullable(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   notes: z.string().max(4000).optional().nullable(),
 });
 

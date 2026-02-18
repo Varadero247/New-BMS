@@ -68,7 +68,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       deviceId: z.string().optional(),
       lotNumber: z.string().optional(),
       serialNumber: z.string().optional(),
-      complaintDate: z.string().trim().min(1).max(200),
+      complaintDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       source: z.enum(COMPLAINT_SOURCES),
       reporterName: z.string().optional(),
       reporterContact: z.string().optional(),

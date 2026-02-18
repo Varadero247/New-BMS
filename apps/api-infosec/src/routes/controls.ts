@@ -149,7 +149,7 @@ const implementationUpdateSchema = z.object({
   implementationNotes: z.string().max(5000).optional(),
   evidence: z.string().max(5000).optional(),
   owner: z.string().max(200).optional(),
-  reviewDate: z.string().optional(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
 });
 
 // ---------------------------------------------------------------------------

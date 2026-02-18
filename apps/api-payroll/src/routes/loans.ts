@@ -72,7 +72,7 @@ router.post('/', async (req: Request, res: Response) => {
       principalAmount: z.number().positive(),
       interestRate: z.number().min(0).default(0),
       termMonths: z.number().positive(),
-      startDate: z.string(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       paymentFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY']).default('MONTHLY'),
       purpose: z.string().optional(),
       notes: z.string().optional(),

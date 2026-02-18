@@ -121,7 +121,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       // Review
       reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).default('ANNUALLY'),
       lastReviewed: z.string().optional(),
-      nextReviewDate: z.string().optional(),
+      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       reviewNotes: z.string().optional(),
     });
 
@@ -219,7 +219,7 @@ router.put('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, 
       // Review
       reviewFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE']).optional(),
       lastReviewed: z.string().nullable().optional(),
-      nextReviewDate: z.string().nullable().optional(),
+      nextReviewDate: z.string().nullable().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       reviewNotes: z.string().nullable().optional(),
       // AI fields
       aiAnalysis: z.string().nullable().optional(),

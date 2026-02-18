@@ -145,7 +145,7 @@ router.post('/runs', async (req: Request, res: Response) => {
     const schema = z.object({
       periodStart: z.string(),
       periodEnd: z.string(),
-      payDate: z.string(),
+      payDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       payFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY']),
     });
 

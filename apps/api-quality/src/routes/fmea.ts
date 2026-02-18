@@ -131,7 +131,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       linkedProcess: z.string().optional(),
       status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
       dateInitiated: z.string().optional(),
-      nextReviewDate: z.string().optional(),
+      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       // AIAG-VDA Harmonised Format fields
       fmeaFormat: z.enum(['TRADITIONAL', 'AIAG_VDA_2024']).optional(),
       actionPriority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
@@ -205,7 +205,7 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
       scopeDescription: z.string().optional(),
       linkedProcess: z.string().optional(),
       status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
-      nextReviewDate: z.string().optional(),
+      nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       // AIAG-VDA Harmonised Format fields
       fmeaFormat: z.enum(['TRADITIONAL', 'AIAG_VDA_2024']).optional(),
       actionPriority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().nullable(),
@@ -284,7 +284,7 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
       detection: z.number().min(1).max(10).default(1),
       recommendedActions: z.string().optional(),
       assignedTo: z.string().optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       actionsTaken: z.string().optional(),
       status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'ACCEPTED']).optional(),
     });
@@ -364,7 +364,7 @@ router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
       detection: z.number().min(1).max(10).optional(),
       recommendedActions: z.string().optional(),
       assignedTo: z.string().optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       actionsTaken: z.string().optional(),
       revisedSeverity: z.number().min(1).max(10).optional(),
       revisedOccurrence: z.number().min(1).max(10).optional(),

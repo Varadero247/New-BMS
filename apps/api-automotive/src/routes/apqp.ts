@@ -174,8 +174,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       partName: z.string().trim().min(1).max(200),
       customer: z.string().trim().min(1).max(200),
       programName: z.string().optional(),
-      startDate: z.string(),
-      targetDate: z.string(),
+      startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       teamLeader: z.string().trim().min(1).max(200),
       teamMembers: z.array(z.string()).optional().default([]),
       status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
@@ -269,8 +269,8 @@ router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
       customer: z.string().trim().min(1).max(200).optional(),
       programName: z.string().optional(),
       status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
-      targetDate: z.string().optional(),
-      completedDate: z.string().optional(),
+      targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       teamLeader: z.string().trim().min(1).max(200).optional(),
       teamMembers: z.array(z.string()).optional(),
     });
@@ -330,7 +330,7 @@ router.post('/:id/phases/:phaseNum/gate-review', async (req: AuthRequest, res: R
     }
 
     const schema = z.object({
-      reviewDate: z.string(),
+      reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       reviewers: z.array(z.string()).min(1),
       decision: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'REJECTED', 'DEFERRED']),
       conditions: z.string().optional(),
@@ -454,8 +454,8 @@ router.put('/:id/deliverables/:did', async (req: AuthRequest, res: Response) => 
     const schema = z.object({
       status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NOT_APPLICABLE', 'BLOCKED']).optional(),
       assignedTo: z.string().optional(),
-      dueDate: z.string().optional(),
-      completedDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       documentRef: z.string().optional(),
       notes: z.string().optional(),
     });

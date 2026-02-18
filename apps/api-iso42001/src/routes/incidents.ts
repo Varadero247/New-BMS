@@ -30,7 +30,7 @@ const incidentCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().max(10000).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
-  incidentDate: z.string(),
+  incidentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   category: z.enum([
     'BIAS_INCIDENT',
     'DATA_BREACH',

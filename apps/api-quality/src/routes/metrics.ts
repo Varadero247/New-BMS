@@ -35,7 +35,7 @@ const createSchema = z.object({
   owner: z.string().max(200).optional().nullable(),
   isoClause: z.string().max(200).optional().nullable(),
   period: z.string().max(100).optional().nullable(),
-  measurementDate: z.string().optional().nullable(),
+  measurementDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   trend: z.string().max(100).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });

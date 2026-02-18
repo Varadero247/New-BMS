@@ -49,8 +49,8 @@ const trainingCreateSchema = z.object({
     'SPECIALIST',
     'OTHER',
   ]),
-  assignedDate: z.string().trim().min(1).max(200),
-  dueDate: z.string().trim().min(1).max(200),
+  assignedDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   department: z.string().max(200).optional(),
   position: z.string().max(200).optional(),
   deliveryMethod: z.enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED']).optional(),
@@ -74,8 +74,8 @@ const trainingUpdateSchema = z.object({
     'SPECIALIST',
     'OTHER',
   ]).optional(),
-  assignedDate: z.string().optional(),
-  dueDate: z.string().optional(),
+  assignedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   department: z.string().max(200).optional(),
   position: z.string().max(200).optional(),
   deliveryMethod: z.enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED']).optional(),
@@ -87,7 +87,7 @@ const trainingUpdateSchema = z.object({
 
 const completeSchema = z.object({
   score: z.number().int().min(0).max(100),
-  completedDate: z.string().optional(),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   certificate: z.string().max(500).optional(),
   feedback: z.string().max(2000).optional(),
 });

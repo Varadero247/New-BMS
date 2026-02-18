@@ -21,8 +21,8 @@ const implementationUpdateSchema = z.object({
   implementationNotes: z.string().max(10000).optional().nullable(),
   evidence: z.string().max(10000).optional().nullable(),
   responsiblePerson: z.string().max(200).optional().nullable(),
-  targetDate: z.string().optional().nullable(),
-  completionDate: z.string().optional().nullable(),
+  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  completionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

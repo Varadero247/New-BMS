@@ -26,7 +26,7 @@ const createPeepSchema = z.object({
   communicationNeeds: z.string().optional(),
   medicalConditionSummary: z.string().optional(),
   medicationOnPerson: z.boolean().optional(),
-  reviewDate: z.string(),
+  reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
 });
 
 const updatePeepSchema = createPeepSchema.partial();

@@ -104,7 +104,7 @@ router.post('/jobs', async (req: Request, res: Response) => {
       salaryMax: z.number().optional(),
       showSalary: z.boolean().default(false),
       openings: z.number().default(1),
-      closeDate: z.string().optional(),
+      closeDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       internalOnly: z.boolean().default(false),
       hiringManagerId: z.string().optional(),
       recruiterId: z.string().optional(),
@@ -143,8 +143,8 @@ router.put('/jobs/:id', checkOwnership(prisma.jobPosting), async (req: Request, 
       title: z.string().optional(),
       description: z.string().optional(),
       status: z.enum(['DRAFT', 'PUBLISHED', 'ON_HOLD', 'CLOSED', 'FILLED', 'CANCELLED']).optional(),
-      publishDate: z.string().optional(),
-      closeDate: z.string().optional(),
+      publishDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+      closeDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     }).passthrough();
 
     const data = schema.parse(req.body);

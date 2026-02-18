@@ -27,7 +27,7 @@ const createSchema = z.object({
   thresholdType: z.enum(['ABOVE', 'BELOW', 'RANGE']).optional().nullable(),
   isoClause: z.string().max(200).optional().nullable(),
   measuredBy: z.string().max(200).optional().nullable(),
-  measurementDate: z.string().optional().nullable(),
+  measurementDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
   metadata: z.record(z.unknown()).optional().nullable(),
 });

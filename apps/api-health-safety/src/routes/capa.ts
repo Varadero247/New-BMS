@@ -121,7 +121,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES),
       owner: z.string().optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const schema = z.object({
@@ -130,7 +130,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       source: z.enum(CAPA_SOURCES),
       sourceReference: z.string().optional(),
       priority: z.enum(CAPA_PRIORITIES).optional(),
-      targetCompletionDate: z.string().optional(),
+      targetCompletionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       department: z.string().optional(),
       responsiblePerson: z.string().optional(),
       problemStatement: z.string().optional(),
@@ -217,7 +217,7 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
       source: z.enum(CAPA_SOURCES).optional(),
       sourceReference: z.string().optional(),
       priority: z.enum(CAPA_PRIORITIES).optional(),
-      targetCompletionDate: z.string().optional(),
+      targetCompletionDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       department: z.string().optional(),
       responsiblePerson: z.string().optional(),
       problemStatement: z.string().optional(),
@@ -289,7 +289,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES),
       owner: z.string().optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -331,7 +331,7 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES).optional(),
       owner: z.string().optional(),
-      dueDate: z.string().optional(),
+      dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       status: z.enum(CAPA_ACTION_STATUSES).optional(),
     });
 

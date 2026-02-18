@@ -78,7 +78,7 @@ const createComplianceItemSchema = z.object({
   standard: z.string().optional().default('AS9100D'),
   evidenceDocuments: z.array(z.string()).optional().default([]),
   responsiblePerson: z.string().optional(),
-  targetDate: z.string().optional(),
+  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 
@@ -90,9 +90,9 @@ const updateComplianceItemSchema = z.object({
   complianceStatus: z.enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_APPLICABLE', 'UNDER_REVIEW']).optional(),
   evidenceDocuments: z.array(z.string()).optional(),
   responsiblePerson: z.string().optional(),
-  targetDate: z.string().optional(),
-  lastReviewDate: z.string().optional(),
-  nextReviewDate: z.string().optional(),
+  targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  lastReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  nextReviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
 });
 

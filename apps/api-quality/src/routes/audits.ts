@@ -31,8 +31,8 @@ const createSchema = z.object({
   leadAuditor: z.string().trim().min(1).max(200),
   auditTeam: z.string().max(2000).optional().nullable(),
   auditee: z.string().max(200).optional().nullable(),
-  scheduledDate: z.string().optional().nullable(),
-  dueDate: z.string().optional().nullable(),
+  scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  dueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   objectives: z.string().max(2000).optional().nullable(),
   criteria: z.string().max(2000).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
@@ -42,8 +42,8 @@ const updateSchema = createSchema.partial().extend({
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
   findings: z.string().max(10000).optional().nullable(),
   conclusions: z.string().max(5000).optional().nullable(),
-  completedDate: z.string().optional().nullable(),
-  nextAuditDate: z.string().optional().nullable(),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
+  nextAuditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
 });
 
 // GET / — List audits

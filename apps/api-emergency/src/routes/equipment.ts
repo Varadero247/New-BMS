@@ -15,8 +15,8 @@ const createEquipmentSchema = z.object({
   manufacturer: z.string().optional(),
   extinguisherClass: z.string().optional(),
   capacityKg: z.number().optional(),
-  installDate: z.string().optional(),
-  lastServiceDate: z.string().optional(),
+  installDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
+  lastServiceDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   nextServiceDue: z.string(),
   serviceProvider: z.string().optional(),
 });

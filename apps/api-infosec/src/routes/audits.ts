@@ -51,7 +51,7 @@ const RESERVED_PATHS = new Set(['vulnerability-scans', 'penetration-tests']);
 const auditCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().max(5000).optional(),
-  auditDate: z.string(),
+  auditDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   leadAuditor: z.string().trim().min(1).max(200),
   auditTeam: z.array(z.string()).optional(),
   scope: z.string().max(5000).optional(),
@@ -73,7 +73,7 @@ const auditCompleteSchema = z.object({
 
 const vulnScanCreateSchema = z.object({
   scanName: z.string().trim().min(1).max(300),
-  scanDate: z.string(),
+  scanDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   scanner: z.string().max(200).optional(),
   targetSystems: z.array(z.string()).optional(),
   criticalCount: z.number().int().min(0).optional().default(0),
@@ -87,7 +87,7 @@ const vulnScanCreateSchema = z.object({
 
 const penTestCreateSchema = z.object({
   testName: z.string().trim().min(1).max(300),
-  testDate: z.string(),
+  testDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   tester: z.string().max(200).optional(),
   methodology: z.string().max(1000).optional(),
   scope: z.string().max(5000).optional(),

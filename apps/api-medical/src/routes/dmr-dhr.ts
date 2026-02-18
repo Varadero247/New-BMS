@@ -255,7 +255,7 @@ router.post('/dhr', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       dmrId: z.string().trim().min(1).max(200),
       batchNumber: z.string().trim().min(1).max(200),
-      manufacturingDate: z.string().trim().min(1).max(200),
+      manufacturingDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       quantityManufactured: z.number().int().positive(),
       labelsUsed: z.string().optional(),
       primaryId: z.string().optional(),
@@ -391,7 +391,7 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
       pass: z.boolean().optional(),
       documentRef: z.string().optional(),
       performedBy: z.string().optional(),
-      performedDate: z.string().optional(),
+      performedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);

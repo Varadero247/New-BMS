@@ -187,7 +187,7 @@ router.post('/projects/:id/soup', async (req: AuthRequest, res: Response) => {
       intendedUse: z.string().optional(),
       knownAnomalies: z.string().optional(),
       riskAcceptable: z.boolean().optional(),
-      verifiedDate: z.string().optional(),
+      verifiedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);
@@ -239,7 +239,7 @@ router.put('/projects/:id/phase/:phase', async (req: AuthRequest, res: Response)
       content: z.string().optional(),
       status: z.enum(PHASE_DOC_STATUSES).optional(),
       reviewedBy: z.string().optional(),
-      reviewedDate: z.string().optional(),
+      reviewedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
     });
 
     const data = schema.parse(req.body);

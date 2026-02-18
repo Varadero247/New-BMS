@@ -29,8 +29,8 @@ const createSchema = z.object({
   position: z.string().max(200).optional().nullable(),
   courseName: z.string().trim().min(1).max(300),
   trainingType: z.enum(['INDUCTION', 'ROLE_SPECIFIC', 'QUALITY_AWARENESS', 'PROCESS_TRAINING', 'AUDIT_TRAINING', 'REFRESHER', 'REGULATORY', 'OTHER']).default('ROLE_SPECIFIC'),
-  assignedDate: z.string().trim().min(1).max(200),
-  dueDate: z.string().trim().min(1).max(200),
+  assignedDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   deliveryMethod: z.enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED']).optional().nullable(),
   provider: z.string().max(300).optional().nullable(),
   duration: z.number().int().min(0).optional().nullable(),
@@ -40,7 +40,7 @@ const createSchema = z.object({
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'OVERDUE', 'CANCELLED']).optional(),
-  completedDate: z.string().optional().nullable(),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   score: z.number().int().min(0).max(100).optional().nullable(),
   passed: z.boolean().optional().nullable(),
   certificate: z.string().max(500).optional().nullable(),
@@ -49,7 +49,7 @@ const updateSchema = createSchema.partial().extend({
 
 const completeSchema = z.object({
   score: z.number().int().min(0).max(100),
-  completedDate: z.string().optional(),
+  completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   certificate: z.string().max(500).optional(),
   feedback: z.string().max(2000).optional(),
 });

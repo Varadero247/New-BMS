@@ -7,7 +7,7 @@ import { createLogger } from '@ims/monitoring';
 const createDeadlineSchema = z.object({
   name: z.string().min(1, 'name is required'),
   category: z.string().min(1, 'category is required'),
-  dueDate: z.string().min(1, 'dueDate is required'),
+  dueDate: z.string().min(1, 'dueDate is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   renewalFrequency: z.string().nullable().optional(),
   ownerEmail: z.string().nullable().optional(),
   status: z.string().optional(),
