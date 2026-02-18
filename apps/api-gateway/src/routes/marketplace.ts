@@ -73,8 +73,8 @@ const webhookSchema = z.object({
 router.get('/plugins', async (req: AuthRequest, res: Response) => {
   try {
     const { category, search, page = '1', limit = '20' } = req.query as Record<string, string>;
-    const skip = ((parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
-    const take = Math.min(parseInt(limit, 10) || 20, 100);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const take = Math.min(Math.max(1, parseInt(limit, 10) || 20), 100);
 
     const where: Record<string, unknown> = {
       deletedAt: null,

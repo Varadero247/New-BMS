@@ -32,9 +32,9 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
     if (search) where.title = { contains: search, mode: 'insensitive' };
-    const skip = ((parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
-      prisma.audProgramme.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { createdAt: 'desc' } }),
+      prisma.audProgramme.findMany({ where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100), orderBy: { createdAt: 'desc' } }),
       prisma.audProgramme.count({ where }),
     ]);
     res.json({

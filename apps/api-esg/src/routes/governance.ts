@@ -93,8 +93,8 @@ router.get('/ethics', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { category, periodStart, periodEnd, page = '1', limit = '20' } = req.query;
-    const skip = ((parseInt(page as string, 10) || 1) - 1) * (parseInt(limit as string, 10) || 20);
-    const take = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * (parseInt(limit as string, 10) || 20);
+    const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { deletedAt: null };
     if (category) where.category = category as string;

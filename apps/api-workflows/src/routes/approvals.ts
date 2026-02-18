@@ -197,7 +197,7 @@ router.get('/requests', scopeToUser, async (req: AuthRequest, res: Response) => 
     const [requests, total] = await Promise.all([
       prisma.approvalRequest.findMany({
         where,
-        take: Math.min(parseInt(limit as string, 10) || 20, 100),
+        take: Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100),
         skip: Math.max(0, parseInt(offset as string, 10) || 0),
         orderBy: { createdAt: 'desc' },
         include: {
@@ -218,7 +218,7 @@ router.get('/requests', scopeToUser, async (req: AuthRequest, res: Response) => 
       data: requests,
       pagination: {
         total,
-        limit: Math.min(parseInt(limit as string, 10) || 20, 100),
+        limit: Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100),
         offset: Math.max(0, parseInt(offset as string, 10) || 0),
       },
     });
@@ -593,7 +593,7 @@ router.get('/step', scopeToUser, async (req: AuthRequest, res: Response) => {
     const [approvals, total] = await Promise.all([
       prisma.workflowStepApproval.findMany({
         where,
-        take: Math.min(parseInt(limit as string, 10) || 20, 100),
+        take: Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100),
         skip: Math.max(0, parseInt(offset as string, 10) || 0),
         orderBy: { createdAt: 'desc' },
       }),
@@ -605,7 +605,7 @@ router.get('/step', scopeToUser, async (req: AuthRequest, res: Response) => {
       data: approvals,
       pagination: {
         total,
-        limit: Math.min(parseInt(limit as string, 10) || 20, 100),
+        limit: Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100),
         offset: Math.max(0, parseInt(offset as string, 10) || 0),
       },
     });

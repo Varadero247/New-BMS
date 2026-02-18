@@ -41,8 +41,8 @@ const wasteUpdateSchema = z.object({
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { wasteType, disposalMethod, page = '1', limit = '20' } = req.query;
-    const skip = ((parseInt(page as string, 10) || 1) - 1) * (parseInt(limit as string, 10) || 20);
-    const take = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * (parseInt(limit as string, 10) || 20);
+    const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { deletedAt: null };
     if (wasteType) where.wasteType = wasteType as string;

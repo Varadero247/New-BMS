@@ -29,7 +29,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
@@ -162,7 +162,7 @@ router.get('/product/:productId', async (req: AuthRequest, res: Response) => {
     const { page = '1', limit = '50' } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const [transactions, total, product] = await Promise.all([

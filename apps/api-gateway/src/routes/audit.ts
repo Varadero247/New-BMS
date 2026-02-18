@@ -35,7 +35,7 @@ router.get('/trail', async (req: AuthRequest, res: Response) => {
       startDate: startDate ? new Date(startDate as string) : undefined,
       endDate: endDate ? new Date(endDate as string) : undefined,
       page: Math.max(1, parseInt(page as string, 10) || 1),
-      limit: Math.min(parseInt(limit as string, 10) || 50, 100),
+      limit: Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 100),
     });
 
     res.json({ success: true, data: result });
@@ -56,7 +56,7 @@ router.get('/trail/:resourceType/:resourceId', async (req: AuthRequest, res: Res
       resourceId,
       {
         page: Math.max(1, parseInt(page as string, 10) || 1),
-        limit: Math.min(parseInt(limit as string, 10) || 50, 100),
+        limit: Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 100),
       }
     );
 

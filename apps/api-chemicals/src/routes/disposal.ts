@@ -31,10 +31,10 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const { chemicalId, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (chemicalId) where.chemicalId = chemicalId as any;
-    const skip = ((parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.chemDisposal.findMany({
-        where, skip, take: Math.min(parseInt(limit, 10) || 20, 100),
+        where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
         orderBy: { disposalDate: 'desc' },
         include: { chemical: { select: { id: true, productName: true, casNumber: true, wasteClassification: true } } },
       }),

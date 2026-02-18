@@ -287,7 +287,7 @@ router.get('/regulations', async (req: AuthRequest, res: Response) => {
     });
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const start = (pageNum - 1) * limitNum;
 
     res.json({

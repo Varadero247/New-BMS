@@ -334,7 +334,7 @@ router.get('/executions', async (req: Request, res: Response) => {
     const [executions, total] = await Promise.all([
       prisma.automationExecution.findMany({
         where,
-        take: Math.min(parseInt(limit as string, 10) || 20, 100),
+        take: Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100),
         skip: Math.max(0, parseInt(offset as string, 10) || 0),
         orderBy: { createdAt: 'desc' },
         include: {
@@ -351,7 +351,7 @@ router.get('/executions', async (req: Request, res: Response) => {
       data: executions,
       pagination: {
         total,
-        limit: Math.min(parseInt(limit as string, 10) || 20, 100),
+        limit: Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100),
         offset: Math.max(0, parseInt(offset as string, 10) || 0),
       },
     });

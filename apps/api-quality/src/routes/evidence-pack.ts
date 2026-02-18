@@ -713,7 +713,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { page = '1', limit = '20', standard, status } = req.query;
 
     const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     let items = Array.from(evidencePackStore.values());
 

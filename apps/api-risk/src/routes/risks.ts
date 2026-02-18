@@ -133,11 +133,11 @@ router.get('/register', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { page = '1', limit = '50' } = req.query as Record<string, string>;
-    const skip = ((parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
     const where = { orgId, deletedAt: null };
     const [data, total] = await Promise.all([
       prisma.riskRegister.findMany({
-        where, skip, take: Math.min(parseInt(limit, 10) || 20, 100),
+        where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100),
         include: { riskControls: { where: { isActive: true } }, keyRiskIndicators: { where: { isActive: true } }, treatmentActions: true },
         orderBy: { residualScore: 'desc' },
       }),
@@ -321,11 +321,11 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       { referenceNumber: { contains: search, mode: 'insensitive' } },
       { description: { contains: search, mode: 'insensitive' } },
     ];
-    const skip = ((parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
     const validSorts = ['createdAt', 'residualScore', 'category', 'nextReviewDate', 'title'];
     const orderField = validSorts.includes(sort) ? sort : 'createdAt';
     const [data, total] = await Promise.all([
-      prisma.riskRegister.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { [orderField]: order === 'asc' ? 'asc' : 'desc' } }),
+      prisma.riskRegister.findMany({ where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100), orderBy: { [orderField]: order === 'asc' ? 'asc' : 'desc' } }),
       prisma.riskRegister.count({ where }),
     ]);
     res.json({ success: true, data, pagination: { page: parseInt(page, 10) || 1, limit: parseInt(limit, 10) || 20, total, totalPages: Math.ceil(total / (parseInt(limit, 10) || 20)) } });
