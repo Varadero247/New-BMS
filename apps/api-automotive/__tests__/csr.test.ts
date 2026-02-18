@@ -160,6 +160,7 @@ describe('Automotive CSR API Routes', () => {
         distinct: ['oem'],
         select: { oem: true },
         orderBy: { oem: 'asc' },
+        take: 200,
       });
     });
 

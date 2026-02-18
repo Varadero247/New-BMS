@@ -14,6 +14,7 @@ router.get('/', async (_req: Request, res: Response) => {
   try {
     const checks = await prisma.uptimeCheck.findMany({
       orderBy: { serviceName: 'asc' },
+      take: 500,
     });
 
     res.json({ success: true, data: { checks } });

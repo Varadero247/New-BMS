@@ -32,6 +32,7 @@ router.get('/categories', async (_req: Request, res: Response) => {
   try {
     const categories = await prisma.gdprDataCategory.findMany({
       orderBy: { category: 'asc' },
+      take: 500,
     });
     res.json({ success: true, data: { categories } });
   } catch (err) {
@@ -47,6 +48,7 @@ router.get('/dpas', async (_req: Request, res: Response) => {
   try {
     const dpas = await prisma.dataProcessingAgreement.findMany({
       orderBy: { createdAt: 'desc' },
+      take: 500,
     });
     res.json({ success: true, data: { dpas } });
   } catch (err) {
@@ -61,8 +63,8 @@ router.get('/dpas', async (_req: Request, res: Response) => {
 router.get('/report', async (_req: Request, res: Response) => {
   try {
     const [categories, dpas, dataRequests] = await Promise.all([
-      prisma.gdprDataCategory.findMany({ orderBy: { category: 'asc' } }),
-      prisma.dataProcessingAgreement.findMany({ orderBy: { createdAt: 'desc' } }),
+      prisma.gdprDataCategory.findMany({ orderBy: { category: 'asc' }, take: 500 }),
+      prisma.dataProcessingAgreement.findMany({ orderBy: { createdAt: 'desc' }, take: 500 }),
       prisma.dataRequest.findMany({ take: 1000 }),
     ]);
 

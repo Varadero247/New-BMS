@@ -25,6 +25,7 @@ router.get('/oems', scopeToUser, async (req: AuthRequest, res: Response) => {
       distinct: ['oem'],
       select: { oem: true },
       orderBy: { oem: 'asc' },
+      take: 200,
     });
 
     const oems = results.map(r => r.oem);

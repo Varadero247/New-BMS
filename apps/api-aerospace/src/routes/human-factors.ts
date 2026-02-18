@@ -223,6 +223,7 @@ router.get('/dirty-dozen', async (req: AuthRequest, res: Response) => {
         category: true,
         incidentDate: true,
       },
+      take: 5000,
     });
 
     // Build month-by-month breakdown per category
@@ -311,6 +312,7 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         riskLevel: true,
         fitForDuty: true,
       },
+      take: 2000,
     });
 
     const fatigueStats = {

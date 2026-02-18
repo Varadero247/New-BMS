@@ -14,6 +14,7 @@ router.get('/', async (_req: Request, res: Response) => {
   try {
     const forecasts = await prisma.cashFlowForecast.findMany({
       orderBy: { weekStart: 'asc' },
+      take: 260,
     });
 
     res.json({
