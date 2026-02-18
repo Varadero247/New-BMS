@@ -17,7 +17,7 @@ const kriSchema = z.object({
   thresholdDirection: z.enum(['INCREASING_IS_WORSE', 'DECREASING_IS_WORSE']).optional(),
   measurementFrequency: z.string().optional(),
   dataSource: z.string().optional(),
-  nextMeasurementDue: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  nextMeasurementDue: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime().optional()),
 });
 
 function evaluateKriStatus(kri: Record<string, unknown>, value: number): string {

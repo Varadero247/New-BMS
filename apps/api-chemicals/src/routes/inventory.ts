@@ -16,8 +16,8 @@ const createInventorySchema = z.object({
   unit: z.string().trim().min(1).max(200),
   minStockLevel: z.number().optional(),
   maxStockLevel: z.number().optional(),
-  expiryDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
-  openedDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  expiryDate: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime().optional()),
+  openedDate: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime().optional()),
 });
 
 const updateInventorySchema = createInventorySchema.partial();

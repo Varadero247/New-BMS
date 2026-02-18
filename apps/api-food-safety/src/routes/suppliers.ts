@@ -21,8 +21,8 @@ const supplierCreateSchema = z.object({
   address: z.string().max(500).optional().nullable(),
   category: z.enum(['RAW_MATERIAL', 'PACKAGING', 'INGREDIENT', 'SERVICE']),
   status: z.enum(['APPROVED', 'CONDITIONAL', 'SUSPENDED', 'REJECTED']).optional().default('APPROVED'),
-  lastAuditDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  nextAuditDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  lastAuditDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  nextAuditDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
   rating: z.number().min(0).max(100).optional().nullable(),
   certifications: z.any().optional().nullable(),
 });
@@ -35,8 +35,8 @@ const supplierUpdateSchema = z.object({
   address: z.string().max(500).optional().nullable(),
   category: z.enum(['RAW_MATERIAL', 'PACKAGING', 'INGREDIENT', 'SERVICE']).optional(),
   status: z.enum(['APPROVED', 'CONDITIONAL', 'SUSPENDED', 'REJECTED']).optional(),
-  lastAuditDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  nextAuditDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  lastAuditDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  nextAuditDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
   rating: z.number().min(0).max(100).optional().nullable(),
   certifications: z.any().optional().nullable(),
 });

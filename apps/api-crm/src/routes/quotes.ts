@@ -23,7 +23,7 @@ const createQuoteSchema = z.object({
   dealId: z.string().optional(),
   accountId: z.string().optional(),
   contactId: z.string().optional(),
-  validUntil: z.string().datetime().optional(),
+  validUntil: z.string().trim().datetime().optional(),
   currency: z.string().default('GBP'),
   notes: z.string().optional(),
   terms: z.string().optional(),

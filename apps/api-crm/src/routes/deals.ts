@@ -49,7 +49,7 @@ const createDealSchema = z.object({
   pipelineId: z.string().trim().uuid().optional(),
   stageId: z.string().trim().uuid().optional(),
   probability: z.number().min(0).max(100).optional(),
-  expectedCloseDate: z.string().datetime().optional(),
+  expectedCloseDate: z.string().trim().datetime().optional(),
   assignedTo: z.string().optional(),
   source: z.string().optional(),
   tags: z.array(z.string()).optional(),

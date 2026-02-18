@@ -32,7 +32,7 @@ const projectCreateSchema = z.object({
   estimatedSavings: z.number().optional().nullable(),
   investmentCost: z.number().nonnegative().optional().nullable(),
   paybackMonths: z.number().int().min(0).optional().nullable(),
-  startDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  startDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
   owner: z.string().max(200).optional().nullable(),
 });
 
@@ -45,7 +45,7 @@ const projectUpdateSchema = z.object({
   actualSavings: z.number().optional().nullable(),
   investmentCost: z.number().nonnegative().optional().nullable(),
   paybackMonths: z.number().int().min(0).optional().nullable(),
-  startDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  startDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
   owner: z.string().max(200).optional().nullable(),
   roi: z.number().optional().nullable(),
 });

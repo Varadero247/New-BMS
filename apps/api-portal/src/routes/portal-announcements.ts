@@ -26,8 +26,8 @@ const announcementCreateSchema = z.object({
   content: z.string().min(1).max(10000),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']),
-  publishedAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  expiresAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  publishedAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  expiresAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 const announcementUpdateSchema = z.object({
@@ -36,8 +36,8 @@ const announcementUpdateSchema = z.object({
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
   isActive: z.boolean().optional(),
-  publishedAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  expiresAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  publishedAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  expiresAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

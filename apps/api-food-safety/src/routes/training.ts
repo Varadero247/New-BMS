@@ -17,16 +17,16 @@ const trainingCreateSchema = z.object({
   description: z.string().max(2000).optional().nullable(),
   type: z.enum(['INDUCTION', 'REFRESHER', 'HACCP', 'GMP', 'HYGIENE', 'ALLERGEN', 'FOOD_DEFENSE']),
   trainer: z.string().max(200).optional().nullable(),
-  scheduledDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   attendees: z.any().optional().nullable(),
   certificate: z.string().max(500).optional().nullable(),
-  validUntil: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  validUntil: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 const trainingCompleteSchema = z.object({
   attendees: z.any().optional().nullable(),
   certificate: z.string().max(500).optional().nullable(),
-  validUntil: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  validUntil: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 const trainingUpdateSchema = z.object({
@@ -34,11 +34,11 @@ const trainingUpdateSchema = z.object({
   description: z.string().max(2000).optional().nullable(),
   type: z.enum(['INDUCTION', 'REFRESHER', 'HACCP', 'GMP', 'HYGIENE', 'ALLERGEN', 'FOOD_DEFENSE']).optional(),
   trainer: z.string().max(200).optional().nullable(),
-  scheduledDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   status: z.enum(['PLANNED', 'COMPLETED', 'CANCELLED']).optional(),
   attendees: z.any().optional().nullable(),
   certificate: z.string().max(500).optional().nullable(),
-  validUntil: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  validUntil: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

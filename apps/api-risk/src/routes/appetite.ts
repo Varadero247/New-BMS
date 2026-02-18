@@ -20,7 +20,7 @@ const appetiteSchema = z.object({
   maximumTolerableScore: z.number().min(1).max(25),
   acceptableResidualScore: z.number().min(1).max(25),
   escalationThreshold: z.number().min(1).max(25),
-  reviewDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
+  reviewDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime()),
   approvedBy: z.string().optional(),
   organisationId: z.string().optional(),
 });
@@ -28,8 +28,8 @@ const appetiteSchema = z.object({
 const frameworkSchema = z.object({
   frameworkVersion: z.string().optional(),
   policyRef: z.string().optional(),
-  policyApprovedDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
-  policyReviewDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  policyApprovedDate: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime().optional()),
+  policyReviewDate: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime().optional()),
   likelihoodScale: z.any().optional(),
   consequenceScale: z.any().optional(),
   riskLevelBands: z.any().optional(),
@@ -39,7 +39,7 @@ const frameworkSchema = z.object({
   riskCommitteeMeetingFreq: z.string().optional(),
   boardReportingFreq: z.string().optional(),
   maturityLevel: z.string().optional(),
-  maturityAssessedDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  maturityAssessedDate: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime().optional()),
 });
 
 // GET /api/risks/appetite

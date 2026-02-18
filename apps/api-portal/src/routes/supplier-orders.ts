@@ -23,7 +23,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 
 const confirmOrderSchema = z.object({
   notes: z.string().max(2000).optional().nullable(),
-  expectedDelivery: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  expectedDelivery: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

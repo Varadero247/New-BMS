@@ -22,7 +22,7 @@ const ncrCreateSchema = z.object({
   rootCause: z.string().max(2000).optional().nullable(),
   correctiveAction: z.string().max(2000).optional().nullable(),
   preventiveAction: z.string().max(2000).optional().nullable(),
-  dueDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  dueDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
   assignedTo: z.string().max(200).optional().nullable(),
 });
 
@@ -42,7 +42,7 @@ const ncrUpdateSchema = z.object({
   rootCause: z.string().max(2000).optional().nullable(),
   correctiveAction: z.string().max(2000).optional().nullable(),
   preventiveAction: z.string().max(2000).optional().nullable(),
-  dueDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  dueDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
   assignedTo: z.string().max(200).optional().nullable(),
 });
 

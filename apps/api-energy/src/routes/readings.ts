@@ -15,7 +15,7 @@ router.use(authenticate);
 const readingCreateSchema = z.object({
   meterId: z.string().trim().uuid(),
   value: z.number().min(0),
-  readingDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  readingDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   source: z.enum(['MANUAL', 'AUTOMATIC', 'ESTIMATED', 'INVOICE']).optional().default('MANUAL'),
   cost: z.number().min(0).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),
@@ -23,7 +23,7 @@ const readingCreateSchema = z.object({
 
 const readingUpdateSchema = z.object({
   value: z.number().min(0).optional(),
-  readingDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  readingDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   source: z.enum(['MANUAL', 'AUTOMATIC', 'ESTIMATED', 'INVOICE']).optional(),
   cost: z.number().min(0).optional().nullable(),
   notes: z.string().max(1000).optional().nullable(),

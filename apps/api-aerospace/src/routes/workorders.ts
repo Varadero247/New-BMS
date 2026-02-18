@@ -40,8 +40,8 @@ const createWorkOrderSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   priority: z.enum(['AOG', 'URGENT', 'ROUTINE', 'DEFERRED']).optional(),
   assignedTo: z.string().optional(),
-  startDate: z.string().datetime().optional(),
-  dueDate: z.string().datetime().optional(),
+  startDate: z.string().trim().datetime().optional(),
+  dueDate: z.string().trim().datetime().optional(),
 });
 
 const addTaskCardSchema = z.object({

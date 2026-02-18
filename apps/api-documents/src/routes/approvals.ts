@@ -12,7 +12,7 @@ const createSchema = z.object({
   approverName: z.string().optional(),
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
   comments: z.string().optional(),
-  decidedAt: z.string().datetime().optional().or(z.null()),
+  decidedAt: z.string().trim().datetime().optional().or(z.null()),
 });
 const updateSchema = createSchema.partial();
 

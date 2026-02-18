@@ -16,13 +16,13 @@ const createMonitoringSchema = z.object({
   monitoringType: monitoringTypeEnum,
   location: z.string().optional(),
   sampledBy: z.string().optional(),
-  sampledAt: z.string().datetime({ offset: true }).or(z.string().datetime()),
+  sampledAt: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime()),
   resultValue: z.number().optional(),
   resultUnit: z.string().optional(),
   welTwaLimit: z.number().optional(),
   welStelLimit: z.number().optional(),
   reportUrl: z.string().trim().url('Invalid URL').optional(),
-  nextMonitoringDue: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
+  nextMonitoringDue: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime().optional()),
   actionTaken: z.string().optional(),
 });
 

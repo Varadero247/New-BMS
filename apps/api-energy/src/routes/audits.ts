@@ -17,7 +17,7 @@ const auditCreateSchema = z.object({
   type: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY', 'ISO_50001']),
   auditor: z.string().trim().min(1).max(200),
   facility: z.string().max(200).optional().nullable(),
-  scheduledDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   findings: z.any().optional().nullable(),
   recommendations: z.any().optional().nullable(),
 });
@@ -27,7 +27,7 @@ const auditUpdateSchema = z.object({
   type: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY', 'ISO_50001']).optional(),
   auditor: z.string().trim().min(1).max(200).optional(),
   facility: z.string().max(200).optional().nullable(),
-  scheduledDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  scheduledDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED']).optional(),
   findings: z.any().optional().nullable(),
   recommendations: z.any().optional().nullable(),

@@ -20,8 +20,8 @@ const foodDefenseCreateSchema = z.object({
   mitigationMeasure: z.string().max(2000).optional().nullable(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'MITIGATED', 'MONITORED']).optional().default('IDENTIFIED'),
   riskLevel: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
-  assessedDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  reviewDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  assessedDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  reviewDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 const foodDefenseUpdateSchema = z.object({
@@ -32,8 +32,8 @@ const foodDefenseUpdateSchema = z.object({
   mitigationMeasure: z.string().max(2000).optional().nullable(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'MITIGATED', 'MONITORED']).optional(),
   riskLevel: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  assessedDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
-  reviewDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  assessedDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  reviewDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

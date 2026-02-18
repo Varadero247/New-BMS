@@ -54,7 +54,7 @@ const journalLineSchema = z.object({
 });
 
 const journalEntryCreateSchema = z.object({
-  date: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  date: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   periodId: z.string().trim().uuid(),
   description: z.string().trim().min(1).max(1000),
   memo: z.string().max(2000).optional().nullable(),
@@ -64,7 +64,7 @@ const journalEntryCreateSchema = z.object({
 });
 
 const journalEntryUpdateSchema = z.object({
-  date: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  date: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   description: z.string().trim().min(1).max(1000).optional(),
   memo: z.string().max(2000).optional().nullable(),
   lines: z.array(journalLineSchema).min(2).optional(),
@@ -72,8 +72,8 @@ const journalEntryUpdateSchema = z.object({
 
 const periodCreateSchema = z.object({
   name: z.string().trim().min(1).max(100),
-  startDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  endDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  startDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  endDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   fiscalYear: z.number().int().min(2000).max(2100),
   quarter: z.number().int().min(1).max(4).optional().nullable(),
 });

@@ -15,26 +15,26 @@ router.use(authenticate);
 const monitoringCreateSchema = z.object({
   ccpId: z.string().trim().uuid(),
   monitoredBy: z.string().max(200).optional().nullable(),
-  monitoredAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  monitoredAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   value: z.string().trim().min(1).max(200),
   unit: z.string().max(50).optional().nullable(),
   withinLimits: z.boolean(),
   deviation: z.string().max(2000).optional().nullable(),
   correctiveActionTaken: z.string().max(2000).optional().nullable(),
   verifiedBy: z.string().max(200).optional().nullable(),
-  verifiedAt: z.string().datetime({ offset: true }).optional().nullable(),
+  verifiedAt: z.string().trim().datetime({ offset: true }).optional().nullable(),
 });
 
 const monitoringUpdateSchema = z.object({
   monitoredBy: z.string().max(200).optional().nullable(),
-  monitoredAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  monitoredAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   value: z.string().trim().min(1).max(200).optional(),
   unit: z.string().max(50).optional().nullable(),
   withinLimits: z.boolean().optional(),
   deviation: z.string().max(2000).optional().nullable(),
   correctiveActionTaken: z.string().max(2000).optional().nullable(),
   verifiedBy: z.string().max(200).optional().nullable(),
-  verifiedAt: z.string().datetime({ offset: true }).optional().nullable(),
+  verifiedAt: z.string().trim().datetime({ offset: true }).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

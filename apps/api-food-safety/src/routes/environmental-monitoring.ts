@@ -21,7 +21,7 @@ const envMonCreateSchema = z.object({
   limit: z.string().max(200).optional().nullable(),
   withinSpec: z.boolean(),
   testedBy: z.string().max(200).optional().nullable(),
-  testedAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  testedAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   notes: z.string().max(2000).optional().nullable(),
 });
 
@@ -34,7 +34,7 @@ const envMonUpdateSchema = z.object({
   limit: z.string().max(200).optional().nullable(),
   withinSpec: z.boolean().optional(),
   testedBy: z.string().max(200).optional().nullable(),
-  testedAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  testedAt: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
   notes: z.string().max(2000).optional().nullable(),
 });
 

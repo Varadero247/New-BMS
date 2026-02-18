@@ -35,8 +35,8 @@ const enpiUpdateSchema = z.object({
 
 const dataPointCreateSchema = z.object({
   value: z.number(),
-  periodStart: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  periodEnd: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  periodStart: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  periodEnd: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   variables: z.any().optional().nullable(),
 });
 

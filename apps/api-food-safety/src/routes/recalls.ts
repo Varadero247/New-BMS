@@ -19,7 +19,7 @@ const recallCreateSchema = z.object({
   reason: z.string().trim().min(1).max(2000),
   type: z.enum(['VOLUNTARY', 'MANDATORY', 'MARKET_WITHDRAWAL']),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
-  initiatedDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  initiatedDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   unitsAffected: z.number().int().min(0).optional().nullable(),
   unitsRecovered: z.number().int().min(0).optional().nullable(),
   regulatoryNotified: z.boolean().optional().default(false),

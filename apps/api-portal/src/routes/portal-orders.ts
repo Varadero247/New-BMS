@@ -42,7 +42,7 @@ const orderCreateSchema = z.object({
   items: z.any(),
   shippingAddress: z.any().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
-  expectedDelivery: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  expectedDelivery: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 const orderUpdateSchema = z.object({
@@ -50,7 +50,7 @@ const orderUpdateSchema = z.object({
   items: z.any().optional(),
   shippingAddress: z.any().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
-  expectedDelivery: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  expectedDelivery: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
 const statusUpdateSchema = z.object({

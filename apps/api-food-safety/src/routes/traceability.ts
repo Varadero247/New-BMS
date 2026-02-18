@@ -15,8 +15,8 @@ router.use(authenticate);
 const traceabilityCreateSchema = z.object({
   productName: z.string().trim().min(1).max(200),
   batchNumber: z.string().trim().min(1).max(100),
-  productionDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  expiryDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  productionDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+  expiryDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
   ingredients: z.any(),
   suppliers: z.any().optional().nullable(),
   processRecords: z.any().optional().nullable(),
@@ -27,8 +27,8 @@ const traceabilityCreateSchema = z.object({
 const traceabilityUpdateSchema = z.object({
   productName: z.string().trim().min(1).max(200).optional(),
   batchNumber: z.string().trim().min(1).max(100).optional(),
-  productionDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
-  expiryDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+  productionDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  expiryDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
   ingredients: z.any().optional(),
   suppliers: z.any().optional().nullable(),
   processRecords: z.any().optional().nullable(),

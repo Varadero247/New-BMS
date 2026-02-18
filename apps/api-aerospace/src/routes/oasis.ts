@@ -77,7 +77,7 @@ const monitorSupplierSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
   certStandard: z.string().optional(),
   certBody: z.string().optional(),
-  certExpiry: z.string().datetime().optional(),
+  certExpiry: z.string().trim().datetime().optional(),
 });
 
 // ============================================

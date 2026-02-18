@@ -31,7 +31,7 @@ function calcNextDue(lastPerformed: Date | null, frequency: string): Date {
 }
 
 const scheduleCompleteSchema = z.object({
-  completedDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+  completedDate: z.string().trim().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
 });
 
 const scheduleSchema = z.object({
