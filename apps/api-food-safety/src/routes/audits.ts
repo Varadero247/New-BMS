@@ -23,6 +23,11 @@ const auditCreateSchema = z.object({
   certificate: z.string().max(500).optional().nullable(),
 });
 
+const auditCompleteSchema = z.object({
+  score: z.number().min(0).max(100).optional().nullable(),
+  findings: z.any().optional().nullable(),
+});
+
 const auditUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   type: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY', 'CERTIFICATION', 'SUPPLIER']).optional(),
@@ -195,13 +200,19 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Audit is already completed' } });
     }
 
+    const completeParsed = auditCompleteSchema.safeParse(req.body);
+    if (!completeParsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+    }
+    const { score, findings } = completeParsed.data;
+
     const audit = await prisma.fsAudit.update({
       where: { id: req.params.id },
       data: {
         status: 'COMPLETED',
         completedDate: new Date(),
-        ...(req.body.score !== undefined ? { score: req.body.score } : {}),
-        ...(req.body.findings ? { findings: req.body.findings } : {}),
+        ...(score != null ? { score } : {}),
+        ...(findings != null ? { findings } : {}),
       },
     });
 

@@ -30,6 +30,10 @@ function calcNextDue(lastPerformed: Date | null, frequency: string): Date {
   return next;
 }
 
+const scheduleCompleteSchema = z.object({
+  completedDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional(),
+});
+
 const scheduleSchema = z.object({
   assetId: z.string().min(1),
   name: z.string().min(1).max(300),
@@ -226,7 +230,11 @@ router.post('/', async (req: Request, res: Response) => {
 // POST /:id/complete — Mark as completed, advance next due date
 router.post('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const completedDate = req.body.completedDate ? new Date(req.body.completedDate) : new Date();
+    const completeParsed = scheduleCompleteSchema.safeParse(req.body);
+    if (!completeParsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+    }
+    const completedDate = completeParsed.data.completedDate ? new Date(completeParsed.data.completedDate) : new Date();
 
     const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });

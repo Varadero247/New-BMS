@@ -26,6 +26,12 @@ const ncrCreateSchema = z.object({
   assignedTo: z.string().max(200).optional().nullable(),
 });
 
+const ncrCloseSchema = z.object({
+  rootCause: z.string().max(2000).optional().nullable(),
+  correctiveAction: z.string().max(2000).optional().nullable(),
+  preventiveAction: z.string().max(2000).optional().nullable(),
+});
+
 const ncrUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
@@ -232,14 +238,20 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'ALREADY_CLOSED', message: 'NCR is already closed' } });
     }
 
+    const closeParsed = ncrCloseSchema.safeParse(req.body);
+    if (!closeParsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: closeParsed.error.errors[0]?.message || 'Invalid close data' } });
+    }
+    const { rootCause, correctiveAction, preventiveAction } = closeParsed.data;
+
     const ncr = await prisma.fsNcr.update({
       where: { id: req.params.id },
       data: {
         status: 'CLOSED',
         closedDate: new Date(),
-        ...(req.body.rootCause ? { rootCause: req.body.rootCause } : {}),
-        ...(req.body.correctiveAction ? { correctiveAction: req.body.correctiveAction } : {}),
-        ...(req.body.preventiveAction ? { preventiveAction: req.body.preventiveAction } : {}),
+        ...(rootCause != null ? { rootCause } : {}),
+        ...(correctiveAction != null ? { correctiveAction } : {}),
+        ...(preventiveAction != null ? { preventiveAction } : {}),
       },
     });
 

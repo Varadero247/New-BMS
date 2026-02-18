@@ -28,6 +28,11 @@ const recallCreateSchema = z.object({
   notes: z.string().max(2000).optional().nullable(),
 });
 
+const recallCompleteSchema = z.object({
+  unitsRecovered: z.number().int().min(0).optional().nullable(),
+  rootCause: z.string().max(2000).optional().nullable(),
+});
+
 const recallUpdateSchema = z.object({
   productName: z.string().min(1).max(200).optional(),
   batchNumber: z.string().min(1).max(100).optional(),
@@ -231,13 +236,19 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Recall is already completed' } });
     }
 
+    const completeParsed = recallCompleteSchema.safeParse(req.body);
+    if (!completeParsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+    }
+    const { unitsRecovered, rootCause } = completeParsed.data;
+
     const recall = await prisma.fsRecall.update({
       where: { id: req.params.id },
       data: {
         status: 'COMPLETED',
         completedDate: new Date(),
-        ...(req.body.unitsRecovered !== undefined ? { unitsRecovered: req.body.unitsRecovered } : {}),
-        ...(req.body.rootCause ? { rootCause: req.body.rootCause } : {}),
+        ...(unitsRecovered != null ? { unitsRecovered } : {}),
+        ...(rootCause != null ? { rootCause } : {}),
       },
     });
 

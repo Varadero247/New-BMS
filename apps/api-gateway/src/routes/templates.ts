@@ -47,6 +47,7 @@ const updateTemplateSchema = z.object({
   fields: z.array(z.any()).optional(),
   defaultContent: z.record(z.any()).optional().nullable(),
   status: z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED', 'ARCHIVED']).optional(),
+  changeNote: z.string().max(500).optional(),
 });
 
 const useTemplateSchema = z.object({
@@ -310,7 +311,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
         fields: existing.fields,
         defaultContent: existing.defaultContent,
         changedById: req.user!.id,
-        changeNote: req.body.changeNote ?? `Updated to version ${existing.version + 1}`,
+        changeNote: parsed.data.changeNote ?? `Updated to version ${existing.version + 1}`,
       },
     });
 

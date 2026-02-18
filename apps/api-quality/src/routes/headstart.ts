@@ -685,7 +685,7 @@ router.get('/standards', async (_req, res: Response) => {
 
     res.json({ success: true, data: standards });
   } catch (error) {
-    console.error('Failed to list headstart standards:', error);
+    logger.error('Failed to list headstart standards', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list available standards' } });
   }
 });

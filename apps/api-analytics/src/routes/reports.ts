@@ -37,6 +37,10 @@ const reportCreateSchema = z.object({
   isActive: z.boolean().optional().default(true),
 });
 
+const reportRunSchema = z.object({
+  parameters: z.record(z.unknown()).optional().nullable(),
+});
+
 const reportUpdateSchema = z.object({
   name: z.string().min(1).max(200).optional(),
   description: z.string().max(1000).optional().nullable(),
@@ -151,11 +155,16 @@ router.post('/:id/run', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
+    const runParsed = reportRunSchema.safeParse(req.body);
+    if (!runParsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: runParsed.error.errors[0]?.message || 'Invalid run parameters' } });
+    }
+
     const run = await prisma.analyticsReportRun.create({
       data: {
         reportId: id,
         status: 'QUEUED',
-        parameters: req.body.parameters || null,
+        parameters: runParsed.data.parameters ?? null,
         createdBy: authReq.user!.id,
       },
     });

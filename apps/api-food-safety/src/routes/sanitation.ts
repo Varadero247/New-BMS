@@ -23,6 +23,12 @@ const sanitationCreateSchema = z.object({
   verifiedBy: z.string().max(200).optional().nullable(),
 });
 
+const sanitationCompleteSchema = z.object({
+  result: z.enum(['PASS', 'FAIL', 'CONDITIONAL']).optional().nullable(),
+  findings: z.string().max(2000).optional().nullable(),
+  verifiedBy: z.string().max(200).optional().nullable(),
+});
+
 const sanitationUpdateSchema = z.object({
   area: z.string().min(1).max(200).optional(),
   procedure: z.string().min(1).max(2000).optional(),
@@ -217,15 +223,21 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Sanitation task is already completed' } });
     }
 
+    const completeParsed = sanitationCompleteSchema.safeParse(req.body);
+    if (!completeParsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+    }
+    const { result, findings, verifiedBy } = completeParsed.data;
+
     const task = await prisma.fsSanitation.update({
       where: { id: req.params.id },
       data: {
         status: 'COMPLETED',
         completedDate: new Date(),
         completedBy: (req as AuthRequest).user?.id || 'system',
-        ...(req.body.result ? { result: req.body.result } : {}),
-        ...(req.body.findings ? { findings: req.body.findings } : {}),
-        ...(req.body.verifiedBy ? { verifiedBy: req.body.verifiedBy } : {}),
+        ...(result != null ? { result } : {}),
+        ...(findings != null ? { findings } : {}),
+        ...(verifiedBy != null ? { verifiedBy } : {}),
       },
     });
 

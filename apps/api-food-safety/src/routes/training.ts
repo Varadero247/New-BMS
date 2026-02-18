@@ -23,6 +23,12 @@ const trainingCreateSchema = z.object({
   validUntil: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
 });
 
+const trainingCompleteSchema = z.object({
+  attendees: z.any().optional().nullable(),
+  certificate: z.string().max(500).optional().nullable(),
+  validUntil: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)).optional().nullable(),
+});
+
 const trainingUpdateSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   description: z.string().max(2000).optional().nullable(),
@@ -197,14 +203,20 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'ALREADY_COMPLETED', message: 'Training is already completed' } });
     }
 
+    const completeParsed = trainingCompleteSchema.safeParse(req.body);
+    if (!completeParsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: completeParsed.error.errors[0]?.message || 'Invalid completion data' } });
+    }
+    const { attendees, certificate, validUntil } = completeParsed.data;
+
     const training = await prisma.fsTraining.update({
       where: { id: req.params.id },
       data: {
         status: 'COMPLETED',
         completedDate: new Date(),
-        ...(req.body.attendees ? { attendees: req.body.attendees } : {}),
-        ...(req.body.certificate ? { certificate: req.body.certificate } : {}),
-        ...(req.body.validUntil ? { validUntil: new Date(req.body.validUntil) } : {}),
+        ...(attendees != null ? { attendees } : {}),
+        ...(certificate != null ? { certificate } : {}),
+        ...(validUntil != null ? { validUntil: new Date(validUntil) } : {}),
       },
     });
 
