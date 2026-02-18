@@ -110,7 +110,7 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data,
-      pagination: { page: parseInt(page as string, 10) || 1, limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: { page: Math.max(1, parseInt(page as string, 10) || 1), limit: take, total, totalPages: Math.ceil(total / take) },
     });
   } catch (error: unknown) {
     logger.error('Error listing social metrics', { error: error instanceof Error ? error.message : 'Unknown error' });

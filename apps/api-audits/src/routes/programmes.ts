@@ -40,7 +40,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     res.json({
       success: true,
       data,
-      pagination: { page: parseInt(page, 10) || 1, limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) },
+      pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) },
     });
   } catch (error: unknown) {
     logger.error('Fetch failed', { error: (error as Error).message });

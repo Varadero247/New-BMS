@@ -40,7 +40,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       }),
       prisma.chemDisposal.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: parseInt(page, 10) || 1, limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) } });
+    res.json({ success: true, data, pagination: { page: Math.max(1, parseInt(page, 10) || 1), limit: Math.max(1, parseInt(limit, 10) || 20), total, totalPages: Math.ceil(total / Math.max(1, parseInt(limit, 10) || 20)) } });
   } catch (error: unknown) {
     logger.error('Failed to fetch disposal records', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch disposal records' } });

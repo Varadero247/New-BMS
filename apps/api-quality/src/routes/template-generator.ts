@@ -282,7 +282,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
       prisma.qualGeneratedTemplate.count({ where }),
     ]);
 
-    res.json({ success: true, data: templates, pagination: { page: parseInt(page as string, 10) || 1, limit: Math.max(1, parseInt(limit as string, 10) || 20), total } });
+    res.json({ success: true, data: templates, pagination: { page: Math.max(1, parseInt(page as string, 10) || 1), limit: Math.max(1, parseInt(limit as string, 10) || 20), total } });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch resource' } });

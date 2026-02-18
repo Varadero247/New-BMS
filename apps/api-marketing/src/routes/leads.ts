@@ -62,7 +62,7 @@ router.get('/', async (req: Request, res: Response) => {
       prisma.mktLead.count({ where }),
     ]);
 
-    res.json({ success: true, data: { leads, total, page: parseInt(page as string, 10) || 1 } });
+    res.json({ success: true, data: { leads, total, page: Math.max(1, parseInt(page as string, 10) || 1) } });
   } catch (error) {
     logger.error('Failed to fetch leads', { error: String(error) });
     res.status(500).json({

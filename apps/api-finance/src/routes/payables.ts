@@ -167,7 +167,7 @@ router.get('/suppliers', async (req: Request, res: Response) => {
       success: true,
       data: suppliers,
       pagination: {
-        page: parseInt(page as string, 10) || 1,
+        page: Math.max(1, parseInt(page as string, 10) || 1),
         limit: take,
         total,
         totalPages: Math.ceil(total / take),
@@ -355,7 +355,7 @@ router.get('/purchase-orders', async (req: Request, res: Response) => {
       success: true,
       data: orders,
       pagination: {
-        page: parseInt(page as string, 10) || 1,
+        page: Math.max(1, parseInt(page as string, 10) || 1),
         limit: take,
         total,
         totalPages: Math.ceil(total / take),
@@ -659,7 +659,7 @@ router.get('/', async (req: Request, res: Response) => {
       success: true,
       data: bills,
       pagination: {
-        page: parseInt(page as string, 10) || 1,
+        page: Math.max(1, parseInt(page as string, 10) || 1),
         limit: take,
         total,
         totalPages: Math.ceil(total / take),
@@ -953,7 +953,7 @@ router.get('/payments', async (req: Request, res: Response) => {
       success: true,
       data: payments,
       pagination: {
-        page: parseInt(page as string, 10) || 1,
+        page: Math.max(1, parseInt(page as string, 10) || 1),
         limit: take,
         total,
         totalPages: Math.ceil(total / take),
