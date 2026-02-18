@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-17
+> Last updated: 2026-02-18
 
 ## Summary
 
@@ -8,11 +8,11 @@
 |----------|-------|
 | API Services | 42 (+ 1 main API) |
 | Web Applications | 44 |
-| Shared Packages | 60 |
+| Shared Packages | 61 |
 | Prisma Schemas | 44 |
 | Database Tables (models) | ~590 |
 | Scripts | 23 |
-| Unit Tests | 12,326 across 578 suites (all passing) |
+| Unit Tests | 12,327 across 578 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
@@ -118,7 +118,7 @@
 
 ---
 
-## Shared Packages (60)
+## Shared Packages (61)
 
 | Package | Directory | Description |
 |---------|-----------|-------------|
@@ -149,17 +149,17 @@
 | `@ims/intercom-client` | `packages/intercom-client/` | Intercom integration |
 | `@ims/iso-checklists` | `packages/iso-checklists/` | ISO audit checklist engine |
 | `@ims/monitoring` | `packages/monitoring/` | Winston logging, Prometheus metrics, health checks |
-| `@ims/nlq` | `packages/nlq/` | Natural language query engine |
+| `@ims/nlq` | `packages/nlq/` | Natural language query engine (30+ additional patterns, AI fallback) |
 | `@ims/notifications` | `packages/notifications/` | WebSocket real-time notifications |
 | `@ims/nps` | `packages/nps/` | Net Promoter Score surveys |
 | `@ims/oee-engine` | `packages/oee-engine/` | Overall Equipment Effectiveness engine |
-| `@ims/openapi` | `packages/openapi/` | OpenAPI spec generation |
+| `@ims/openapi` | `packages/openapi/` | OpenAPI spec generation (Scalar UI at GET /api/docs) |
 | `@ims/pdf-generator` | `packages/pdf-generator/` | PDF report generation |
 | `@ims/performance` | `packages/performance/` | k6 load tests, Lighthouse CI, WCAG audit |
 | `@ims/plan-guard` | `packages/plan-guard/` | Subscription plan enforcement |
 | `@ims/portal-auth` | `packages/portal-auth/` | Portal authentication (customer/supplier) |
 | `@ims/presence` | `packages/presence/` | User presence/online status |
-| `@ims/pwa` | `packages/pwa/` | PWA (offline sync, push notifications, camera, geolocation, install) |
+| `@ims/pwa` | `packages/pwa/` | PWA (offline sync, push notifications, camera, geolocation, install, useOfflineForm hook) |
 | `@ims/rbac` | `packages/rbac/` | Role-based access control (39 roles, 17 modules) |
 | `@ims/readiness` | `packages/readiness/` | Service readiness checks |
 | `@ims/regulatory-feed` | `packages/regulatory-feed/` | Live regulatory change feed |
@@ -167,6 +167,7 @@
 | `@ims/scheduled-reports` | `packages/scheduled-reports/` | Scheduled report generation |
 | `@ims/sdk` | `packages/sdk/` | @ims/sdk external SDK |
 | `@ims/secrets` | `packages/secrets/` | HashiCorp Vault integration |
+| `@ims/sentry` | `packages/sentry/` | Sentry error tracking integration (initSentry, sentryErrorHandler, auth header stripping) |
 | `@ims/service-auth` | `packages/service-auth/` | Service-to-service JWT auth |
 | `@ims/shared` | `packages/shared/` | Shared utilities |
 | `@ims/spc-engine` | `packages/spc-engine/` | Statistical Process Control engine |
@@ -255,6 +256,11 @@
 | `/api/csrf-token` | CSRF token |
 | `/api/v1/templates/*` | Template library (192 templates) |
 | `/api/marketplace/*` | Plugin marketplace (10 endpoints) |
+| `/api/docs` | OpenAPI Scalar UI explorer |
+| `/api/docs/openapi.json` | OpenAPI JSON spec |
+| `/api/cookie-consent` | Cookie consent preferences |
+| `/api/auth/saml/*` | SAML SSO (AuthnRequest, callback with XML parsing, IdP metadata) |
+| `/api/scim/*` | SCIM user/group provisioning (filter queries, Groups endpoint) |
 
 ### Proxy Routes (v1 + legacy)
 | Route Pattern | Target Service | Port |
@@ -384,7 +390,7 @@ All routes also available under `/api/v1/` prefix.
 | api-training | 7 | ~125 |
 | api-workflows | 7 | ~231 |
 | **Shared packages** | — | ~1,109 |
-| **Total** | **578** | **12,326** |
+| **Total** | **578** | **12,327** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 
@@ -422,6 +428,7 @@ All routes also available under `/api/v1/` prefix.
 | Phase 12 | Sales & Marketing Automation | api-marketing, api-partners, web-partners, web-admin, ROI calculator, chatbot, partner portal, growth dashboard |
 | Phase 13 | Fire, Emergency & Disaster Management | api-emergency, web-emergency, emergency.prisma (16 models), 9 route files, 216 tests, 26 DOCX templates, FSO 2005 FRA wizard |
 | Phase 14 | Welcome Discovery Wizard | 7-step onboarding modal in web-dashboard, AI assistant endpoint (/api/ai/assistant), TourManager integration, OnboardingChecklist, sidebar re-entry, 12 new tests |
+| Phase 15 | Platform Enhancements (Feb 18) | Sentry integration (all 42 APIs), OpenAPI Scalar UI, SAML SSO (AuthnRequest XML + Response parsing + IdP metadata), SCIM (filter queries + Groups), NLQ 30+ patterns with AI fallback, useOfflineForm() hook, guided tours (quality + H&S dashboards), cookie consent (dashboard + marketing) |
 
 ---
 
@@ -436,7 +443,7 @@ All routes also available under `/api/v1/` prefix.
 | Phase 2: Software Design | Code quality & validation | Fixed 1 missing try/catch (`headstart.ts`), 1 unbounded `findMany` (`aerospace/audits.ts`), added Zod validation to 7 routes |
 | Phase 2B: Functionality | CRUD lifecycle testing | CRUD lifecycle verified, auth enforcement (401), input validation, pagination |
 | Phase 3: Security | Security audit | No hardcoded secrets, rate limiting verified (blocks at attempt 6), all security headers present, `X-Powered-By` stripped |
-| Phase 5: Testing | Unit test execution | 12,326 tests across 578 suites — ALL PASSING |
+| Phase 5: Testing | Unit test execution | 12,327 tests across 578 suites — ALL PASSING |
 | Phase 5B: UI/UX | Frontend consistency | 44/44 `error.tsx`, `not-found.tsx`, `loading.tsx` (100% coverage), 458 correct `Modal isOpen` usages, 0 violations |
 | Phase 6: Reporting | Documentation | Generated `docs/Full_System_Review_v3_Report.docx` (10-page Word report) |
 | Phase 7: Commit | Version control | Committed as `95b2f0b` |

@@ -51,6 +51,68 @@ The frontend stores the token in `localStorage` as `token` and attaches it via a
 
 On 401 response, the frontend clears `localStorage` and redirects to `/login`.
 
+### SAML SSO
+
+#### Initiate SAML Login
+```http
+GET /api/auth/saml/login
+```
+Generates an AuthnRequest XML document and redirects to the configured IdP SSO URL.
+
+#### SAML Callback
+```http
+POST /api/auth/saml/callback
+Content-Type: application/x-www-form-urlencoded
+
+SAMLResponse=<base64-encoded-response>
+```
+Parses the SAML Response XML, validates the assertion signature, extracts user attributes (email, name, groups), and returns a JWT access token. Creates the user if they do not already exist.
+
+#### IdP Metadata
+```http
+GET /api/auth/saml/idp-metadata
+```
+Returns the IdP metadata XML for configuring the SAML trust relationship.
+
+### SCIM Provisioning
+
+#### List Users (with filter)
+```http
+GET /api/scim/Users?filter=userName eq "user@example.com"&startIndex=1&count=100
+```
+Supports SCIM filter query syntax for `userName`, `emails.value`, `active`, and `externalId`.
+
+#### Get / Create / Update / Delete User
+```http
+GET /api/scim/Users/:id
+POST /api/scim/Users
+PUT /api/scim/Users/:id
+DELETE /api/scim/Users/:id
+```
+
+#### List Groups
+```http
+GET /api/scim/Groups
+```
+
+#### Get Group
+```http
+GET /api/scim/Groups/:id
+```
+
+#### Update Group (PATCH)
+```http
+PATCH /api/scim/Groups/:id
+Content-Type: application/scim+json
+
+{
+  "schemas": ["urn:ietf:params:scim:api:messages:2.0:PatchOp"],
+  "Operations": [
+    { "op": "add", "path": "members", "value": [{ "value": "user-id" }] }
+  ]
+}
+```
+
 ---
 
 ## CORS Configuration
@@ -1601,6 +1663,12 @@ GET|POST       /api/analytics/benchmarks
 GET|PUT|DELETE  /api/analytics/benchmarks/:id
 ```
 
+### Natural Language Query (NLQ)
+```http
+GET /api/analytics/nlq/history    # List previous NLQ queries for current user
+```
+The NLQ engine supports 30+ query patterns (e.g., "show overdue CAPAs", "count incidents by severity", "list risks above appetite"). When no built-in pattern matches, the engine falls back to an AI provider for query interpretation.
+
 ---
 
 ## Field Service API
@@ -1985,6 +2053,25 @@ Authorization: Bearer <token>
 ```http
 GET /api/dashboard/stats          # Aggregated dashboard statistics
 GET /api/dashboard/compliance     # Compliance scores across modules
+```
+
+### OpenAPI Documentation
+```http
+GET /api/docs                     # Scalar UI interactive API explorer
+GET /api/docs/openapi.json        # OpenAPI 3.0 JSON specification
+```
+The Scalar UI provides an interactive explorer for all gateway and proxied API routes.
+
+### Cookie Consent
+```http
+POST /api/cookie-consent          # Save cookie consent preferences
+Content-Type: application/json
+
+{
+  "analytics": true,
+  "marketing": false,
+  "functional": true
+}
 ```
 
 ### CSRF Token
