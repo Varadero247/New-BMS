@@ -67,7 +67,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes } = parsed.data;
     const data = await prisma.riskReview.create({ data: { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create review', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to create review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 router.put('/:id', authenticate, async (req: Request, res: Response) => {

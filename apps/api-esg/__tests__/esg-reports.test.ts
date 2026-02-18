@@ -216,7 +216,7 @@ describe('POST /api/esg-reports/generate', () => {
     );
   });
 
-  it('should return 400 when database create fails', async () => {
+  it('should return 500 when database create fails', async () => {
     (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
     (prisma.esgReport.create as jest.Mock).mockRejectedValue(new Error('Constraint violation'));
 
@@ -225,9 +225,9 @@ describe('POST /api/esg-reports/generate', () => {
       period: '2026',
     });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
     expect(res.body.error.message).toBe('Failed to create resource');
   });
 });

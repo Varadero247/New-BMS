@@ -201,7 +201,7 @@ describe('POST /api/sds', () => {
     expect(res.body.error.message).toBe('Chemical not found');
   });
 
-  it('should return 400 on database create error', async () => {
+  it('should return 500 on database create error', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
     (prisma as any).chemSds.updateMany.mockResolvedValue({ count: 0 });
     (prisma as any).chemSds.create.mockRejectedValue(new Error('DB error'));
@@ -212,9 +212,9 @@ describe('POST /api/sds', () => {
       issueDate: '2026-02-01T00:00:00.000Z',
       nextReviewDate: '2027-02-01T00:00:00.000Z',
     });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

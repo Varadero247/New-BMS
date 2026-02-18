@@ -130,7 +130,7 @@ describe('POST /api/defra-factors', () => {
     );
   });
 
-  it('should return 400 when database create fails', async () => {
+  it('should return 500 when database create fails', async () => {
     (prisma.esgDefraFactor.create as jest.Mock).mockRejectedValue(new Error('Unique constraint violation'));
 
     const res = await request(app).post('/api/defra-factors').send({
@@ -141,8 +141,8 @@ describe('POST /api/defra-factors', () => {
       year: 2026,
     });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

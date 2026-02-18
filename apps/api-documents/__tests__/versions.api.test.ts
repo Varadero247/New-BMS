@@ -98,11 +98,11 @@ describe('POST /api/versions', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).docVersion.create.mockRejectedValue(new Error('Unique constraint failed'));
     const res = await request(app).post('/api/versions').send({ documentId: 'doc-1', version: 1 });
-    expect(res.status).toBe(400);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

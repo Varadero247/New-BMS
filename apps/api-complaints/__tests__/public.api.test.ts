@@ -49,13 +49,13 @@ describe('POST /api/public/submit', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).compComplaint.count.mockResolvedValue(0);
     (prisma as any).compComplaint.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app).post('/api/public/submit').send({ title: 'Complaint' });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('SUBMIT_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('should use provided orgId', async () => {

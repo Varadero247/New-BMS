@@ -62,7 +62,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const orgId = (req as any).user?.orgId || 'default';
     const data = await prisma.femPremises.create({ data: { ...parsed.data, organisationId: orgId } });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create premises', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create premises' } }); }
+  } catch (error: unknown) { logger.error('Failed to create premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create premises' } }); }
 });
 
 // GET /api/premises/:id — get with all related data

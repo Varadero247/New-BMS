@@ -142,14 +142,14 @@ describe('POST /api/sod-matrix', () => {
     );
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).finSodRule.create.mockRejectedValue(new Error('Validation failed'));
 
     const res = await request(app).post('/api/sod-matrix').send(validRule);
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('should include the request body fields in the created record', async () => {

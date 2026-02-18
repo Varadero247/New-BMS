@@ -274,15 +274,15 @@ describe('POST /api/coshh', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on database create error', async () => {
+  it('should return 500 on database create error', async () => {
     (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
     (prisma as any).chemCoshh.count.mockResolvedValue(0);
     (prisma as any).chemCoshh.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/coshh').send(validCoshhBody);
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

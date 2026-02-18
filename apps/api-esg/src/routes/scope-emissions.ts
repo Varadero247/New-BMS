@@ -57,7 +57,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create resource' } });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create resource' } });
   }
 });
 

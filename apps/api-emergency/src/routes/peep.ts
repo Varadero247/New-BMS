@@ -64,7 +64,7 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
       data: { ...rest, premisesId: req.params.id, reviewDate: new Date(reviewDate), createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create PEEP', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create PEEP' } }); }
+  } catch (error: unknown) { logger.error('Failed to create PEEP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create PEEP' } }); }
 });
 
 // PUT /api/peep/:id — update PEEP

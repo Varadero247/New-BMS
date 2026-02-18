@@ -173,15 +173,15 @@ describe('POST /api/controls', () => {
     expect(res.body.data.referenceNumber).toBe('FCR-2026-0006');
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).finControl.count.mockResolvedValue(0);
     (prisma as any).finControl.create.mockRejectedValue(new Error('Validation failed'));
 
     const res = await request(app).post('/api/controls').send(validControl);
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

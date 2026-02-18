@@ -107,7 +107,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create FRA', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create fire risk assessment' } }); }
+  } catch (error: unknown) { logger.error('Failed to create FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create fire risk assessment' } }); }
 });
 
 // GET /api/fra/:id — get full FRA

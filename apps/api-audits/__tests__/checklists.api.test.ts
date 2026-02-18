@@ -109,13 +109,13 @@ describe('POST /api/checklists', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on database error during create', async () => {
+  it('should return 500 on database error during create', async () => {
     (prisma as any).audChecklist.count.mockResolvedValue(0);
     (prisma as any).audChecklist.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app).post('/api/checklists').send({ auditId: 'audit-1', title: 'Checklist' });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

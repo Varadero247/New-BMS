@@ -113,13 +113,13 @@ describe('POST /api/notices', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).contNotice.count.mockResolvedValue(0);
     (prisma as any).contNotice.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app).post('/api/notices').send({ contractId: 'c-1', title: 'Notice', dueDate: '2026-03-01' });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

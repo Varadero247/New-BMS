@@ -99,14 +99,14 @@ describe('POST /api/calibrations', () => {
     expect(res.body.success).toBe(false);
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).assetCalibration.count.mockResolvedValue(0);
     (prisma as any).assetCalibration.create.mockRejectedValue(new Error('DB error'));
     const res = await request(app).post('/api/calibrations').send({
       assetId: 'asset-1',
       scheduledDate: '2026-03-01',
     });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
 });

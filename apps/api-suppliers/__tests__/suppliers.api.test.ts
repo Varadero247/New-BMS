@@ -99,13 +99,13 @@ describe('POST /api/suppliers', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on database create error', async () => {
+  it('should return 500 on database create error', async () => {
     (prisma as any).suppSupplier.count.mockResolvedValue(0);
     (prisma as any).suppSupplier.create.mockRejectedValue(new Error('Unique constraint'));
     const res = await request(app).post('/api/suppliers').send({ name: 'Duplicate' });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

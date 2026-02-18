@@ -81,11 +81,11 @@ describe('POST /api/communications', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).compCommunication.count.mockResolvedValue(0);
     (prisma as any).compCommunication.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app).post('/api/communications').send({ complaintId: 'comp-1' });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
 });

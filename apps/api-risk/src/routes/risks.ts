@@ -374,7 +374,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       data: { ...calculated, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Operation failed' } }); }
 });
 
 // PUT /api/risks/:id — update risk

@@ -119,13 +119,13 @@ describe('POST /api/obligations', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).regObligation.count.mockResolvedValue(0);
     (prisma as any).regObligation.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app).post('/api/obligations').send({ title: 'Test' });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

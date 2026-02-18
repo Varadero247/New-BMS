@@ -98,7 +98,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create BCP', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create business continuity plan' } }); }
+  } catch (error: unknown) { logger.error('Failed to create BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create business continuity plan' } }); }
 });
 
 // GET /api/bcp/:id — get BCP with exercises
@@ -161,7 +161,7 @@ router.post('/:id/exercise', authenticate, async (req: Request, res: Response) =
       data: { ...rest, scheduledDate: new Date(scheduledDate), bcpId: req.params.id, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create exercise', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create exercise' } }); }
+  } catch (error: unknown) { logger.error('Failed to create exercise', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create exercise' } }); }
 });
 
 // PUT /api/bcp/:bcpId/exercise/:id — update exercise with results

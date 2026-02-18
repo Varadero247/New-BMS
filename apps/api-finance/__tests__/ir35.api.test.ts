@@ -201,15 +201,15 @@ describe('POST /api/ir35', () => {
     );
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).finIr35Assessment.count.mockResolvedValue(0);
     (prisma as any).finIr35Assessment.create.mockRejectedValue(new Error('Validation failed'));
 
     const res = await request(app).post('/api/ir35').send(validAssessment);
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 
   it('should include body fields in the created assessment', async () => {

@@ -99,13 +99,13 @@ describe('POST /api/records', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('should return 400 on database create error', async () => {
+  it('should return 500 on database create error', async () => {
     (prisma as any).trainRecord.count.mockResolvedValue(0);
     (prisma as any).trainRecord.create.mockRejectedValue(new Error('Unique constraint'));
     const res = await request(app).post('/api/records').send({ courseId: 'course-1', employeeId: 'emp-1' });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
-    expect(res.body.error.code).toBe('CREATE_ERROR');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 

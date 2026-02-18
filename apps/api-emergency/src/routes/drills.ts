@@ -79,7 +79,7 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
       data: { ...rest, premisesId: req.params.id, drillDate: new Date(drillDate), createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create drill', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create drill' } }); }
+  } catch (error: unknown) { logger.error('Failed to create drill', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create drill' } }); }
 });
 
 // PUT /api/drills/:id — update drill

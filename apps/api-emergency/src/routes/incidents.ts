@@ -126,7 +126,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     // Trigger notifications
     notifyEmergencyDeclared(incidentNumber, parsed.data.emergencyType, parsed.data.severity, data.premises?.name);
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to declare incident', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to declare incident' } }); }
+  } catch (error: unknown) { logger.error('Failed to declare incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to declare incident' } }); }
 });
 
 // GET /api/incidents/:id — full incident with all logs
@@ -214,7 +214,7 @@ router.post('/:id/decision', authenticate, async (req: Request, res: Response) =
       data: { incidentId: req.params.id, eventType: 'DECISION', description: `Decision: ${parsed.data.decisionMade}`, recordedBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to log decision', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to log decision' } }); }
+  } catch (error: unknown) { logger.error('Failed to log decision', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log decision' } }); }
 });
 
 // POST /api/incidents/:id/resource — log resource deployment
@@ -237,7 +237,7 @@ router.post('/:id/resource', authenticate, async (req: Request, res: Response) =
       data: { incidentId: req.params.id, eventType: 'RESOURCE', description: `Resource deployed: ${parsed.data.resourceType} - ${parsed.data.resourceName}`, recordedBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to log resource', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to log resource' } }); }
+  } catch (error: unknown) { logger.error('Failed to log resource', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log resource' } }); }
 });
 
 // POST /api/incidents/:id/communication — log communication
@@ -260,7 +260,7 @@ router.post('/:id/communication', authenticate, async (req: Request, res: Respon
       data: { incidentId: req.params.id, eventType: 'COMMUNICATION', description: `${parsed.data.communicationType} to ${parsed.data.recipient} via ${parsed.data.method}`, recordedBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to log communication', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to log communication' } }); }
+  } catch (error: unknown) { logger.error('Failed to log communication', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to log communication' } }); }
 });
 
 // POST /api/incidents/:id/timeline — add timeline event
@@ -274,7 +274,7 @@ router.post('/:id/timeline', authenticate, async (req: Request, res: Response) =
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     const data = await prisma.femIncidentTimelineEvent.create({ data: { incidentId: req.params.id, ...parsed.data, recordedBy: (req as AuthRequest).user?.id } });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to add timeline event', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to add timeline event' } }); }
+  } catch (error: unknown) { logger.error('Failed to add timeline event', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to add timeline event' } }); }
 });
 
 // GET /api/incidents/:id/timeline — full chronological log

@@ -103,11 +103,11 @@ describe('POST /api/competencies', () => {
     expect(res.body.success).toBe(false);
   });
 
-  it('should return 400 on create error', async () => {
+  it('should return 500 on create error', async () => {
     (prisma as any).trainCompetency.count.mockResolvedValue(0);
     (prisma as any).trainCompetency.create.mockRejectedValue(new Error('DB error'));
     const res = await request(app).post('/api/competencies').send({ name: 'New' });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
 });
