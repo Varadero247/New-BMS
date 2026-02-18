@@ -16,7 +16,7 @@ const generateSchema = z.object({
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).user?.orgId || 'default';
-    const data = await prisma.esgReport.findMany({ where: { orgId, deletedAt: null } as any as any, orderBy: { createdAt: 'desc' } });
+    const data = await prisma.esgReport.findMany({ where: { orgId, deletedAt: null } as any, orderBy: { createdAt: 'desc' }, take: 100 });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });

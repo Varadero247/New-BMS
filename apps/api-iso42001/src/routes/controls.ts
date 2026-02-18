@@ -88,6 +88,7 @@ router.get('/soa', async (_req: Request, res: Response) => {
   try {
     const controls = await prisma.aiControl.findMany({
       orderBy: { code: 'asc' },
+      take: 200,
     });
 
     // Build SOA with status summary

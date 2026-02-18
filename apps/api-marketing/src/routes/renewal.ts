@@ -26,6 +26,7 @@ router.get('/upcoming', authenticate, async (req: Request, res: Response) => {
         renewedAt: null,
       },
       orderBy: { renewalDate: 'asc' },
+      take: 1000,
     });
 
     res.json({ success: true, data: sequences });

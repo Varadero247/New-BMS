@@ -206,6 +206,7 @@ router.get('/soa', async (_req: Request, res: Response) => {
   try {
     const controls = await prisma.isControl.findMany({
       orderBy: { controlId: 'asc' },
+      take: 200,
       select: {
         id: true,
         controlId: true,
@@ -242,6 +243,7 @@ router.get('/soa/pdf', async (_req: Request, res: Response) => {
   try {
     const controls = await prisma.isControl.findMany({
       orderBy: { controlId: 'asc' },
+      take: 200,
       select: {
         controlId: true,
         domain: true,

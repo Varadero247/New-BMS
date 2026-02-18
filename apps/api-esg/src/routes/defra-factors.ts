@@ -21,7 +21,7 @@ const createSchema = z.object({
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as any).user?.orgId || 'default';
-    const data = await prisma.esgDefraFactor.findMany({ where: { orgId, deletedAt: null } as any });
+    const data = await prisma.esgDefraFactor.findMany({ where: { orgId, deletedAt: null } as any, take: 2000, orderBy: { category: 'asc' } });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
