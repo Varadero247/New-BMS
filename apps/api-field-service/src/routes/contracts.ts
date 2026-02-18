@@ -31,7 +31,10 @@ const contractCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
   type: z.enum(['WARRANTY', 'SLA', 'PREVENTIVE', 'FULL_SERVICE', 'TIME_AND_MATERIAL']),
   status: z.enum(['ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING']).optional(),
-  startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  startDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   endDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -41,7 +44,7 @@ const contractCreateSchema = z.object({
   responseTimeSla: z.number().int().optional().nullable(),
   resolutionTimeSla: z.number().int().optional().nullable(),
   coveredEquipment: z.any().optional().nullable(),
-  terms: z.string().max(5000).optional().nullable(),
+  terms: z.string().trim().max(5000).optional().nullable(),
 });
 
 const contractUpdateSchema = z.object({
@@ -61,7 +64,7 @@ const contractUpdateSchema = z.object({
   responseTimeSla: z.number().int().optional().nullable(),
   resolutionTimeSla: z.number().int().optional().nullable(),
   coveredEquipment: z.any().optional().nullable(),
-  terms: z.string().max(5000).optional().nullable(),
+  terms: z.string().trim().max(5000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

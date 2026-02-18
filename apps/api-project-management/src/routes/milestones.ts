@@ -58,20 +58,23 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 const createMilestoneSchema = z.object({
   projectId: z.string().trim().min(1).max(200),
   milestoneName: z.string().trim().min(1).max(200),
-  milestoneDescription: z.string().optional(),
-  plannedDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  milestoneDescription: z.string().trim().optional(),
+  plannedDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   baselineDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  deliverables: z.string().optional(),
+  deliverables: z.string().trim().optional(),
   requiresApproval: z.boolean().optional(),
   isCritical: z.boolean().optional(),
-  status: z.string().optional(),
+  status: z.string().trim().optional(),
 });
 const updateMilestoneSchema = createMilestoneSchema
   .extend({
-    actualDate: z.string().optional(),
+    actualDate: z.string().trim().optional(),
     achievementPercentage: z.number().min(0).max(100).optional(),
   })
   .partial();

@@ -44,8 +44,8 @@ const registerPluginSchema = z.object({
   iconUrl: z.string().trim().url().optional(),
   repositoryUrl: z.string().trim().url().optional(),
   documentationUrl: z.string().trim().url().optional(),
-  permissions: z.array(z.string()).optional().default([]),
-  webhookEvents: z.array(z.string()).optional().default([]),
+  permissions: z.array(z.string().trim()).optional().default([]),
+  webhookEvents: z.array(z.string().trim()).optional().default([]),
   configSchema: z.record(z.unknown()).optional(),
   isPublic: z.boolean().optional().default(false),
 });
@@ -59,8 +59,8 @@ const updatePluginSchema = z.object({
   iconUrl: z.string().trim().url().optional().nullable(),
   repositoryUrl: z.string().trim().url().optional().nullable(),
   documentationUrl: z.string().trim().url().optional().nullable(),
-  permissions: z.array(z.string()).optional(),
-  webhookEvents: z.array(z.string()).optional(),
+  permissions: z.array(z.string().trim()).optional(),
+  webhookEvents: z.array(z.string().trim()).optional(),
   configSchema: z.record(z.unknown()).optional().nullable(),
   isPublic: z.boolean().optional(),
   status: z.enum(['DRAFT', 'PENDING_REVIEW', 'PUBLISHED', 'SUSPENDED', 'DEPRECATED']).optional(),
@@ -73,10 +73,10 @@ const publishVersionSchema = z.object({
     .min(1)
     .max(50)
     .regex(/^\d+\.\d+\.\d+/, 'Version must follow semver (e.g. 1.0.0)'),
-  changelog: z.string().max(10000).optional(),
+  changelog: z.string().trim().max(10000).optional(),
   manifest: z.record(z.unknown()),
-  entryPoint: z.string().optional(),
-  minPlatformVersion: z.string().optional(),
+  entryPoint: z.string().trim().optional(),
+  minPlatformVersion: z.string().trim().optional(),
 });
 
 const installSchema = z.object({

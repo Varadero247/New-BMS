@@ -68,20 +68,20 @@ const createDocumentSchema = z.object({
     'DRAWING',
     'CONTRACT',
   ]),
-  documentCategory: z.string().optional(),
-  version: z.string().optional(),
+  documentCategory: z.string().trim().optional(),
+  version: z.string().trim().optional(),
   fileUrl: z.string().trim().url('Invalid URL').optional(),
   fileSize: z.number().nonnegative().optional(),
-  fileType: z.string().optional(),
-  description: z.string().optional(),
-  keywords: z.string().optional(),
-  accessLevel: z.string().optional(),
-  status: z.string().optional(),
+  fileType: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  keywords: z.string().trim().optional(),
+  accessLevel: z.string().trim().optional(),
+  status: z.string().trim().optional(),
 });
 const updateDocumentSchema = createDocumentSchema
   .extend({
-    reviewedAt: z.string().optional(),
-    approvedAt: z.string().optional(),
+    reviewedAt: z.string().trim().optional(),
+    approvedAt: z.string().trim().optional(),
   })
   .partial();
 

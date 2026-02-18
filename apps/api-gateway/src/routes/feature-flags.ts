@@ -31,13 +31,13 @@ const createFlagSchema = z.object({
     .min(1, 'Name is required')
     .max(100, 'Name must be 100 characters or less')
     .regex(/^[a-z0-9_]+$/, 'Name must be lowercase alphanumeric with underscores only'),
-  description: z.string().min(1, 'Description is required').max(500),
+  description: z.string().trim().min(1, 'Description is required').max(500),
   enabled: z.boolean().optional().default(false),
 });
 
 const updateFlagSchema = z.object({
   enabled: z.boolean().optional(),
-  description: z.string().max(500).optional(),
+  description: z.string().trim().max(500).optional(),
 });
 
 const orgOverrideSchema = z.object({
@@ -292,7 +292,7 @@ router.delete(
 router.get('/feature-flags/check', async (req: AuthRequest, res: Response) => {
   try {
     const nameSchema = z.object({
-      name: z.string().min(1, 'Flag name is required'),
+      name: z.string().trim().min(1, 'Flag name is required'),
     });
 
     const parsed = nameSchema.safeParse(req.query);

@@ -109,13 +109,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       partyName: z.string().trim().min(1).max(200),
       partyType: z.enum(['INTERNAL', 'EXTERNAL']),
       reasonForInclusion: z.string().trim().min(1).max(2000),
-      needsExpectations: z.string().optional(),
-      communicationMethod: z.string().optional(),
+      needsExpectations: z.string().trim().optional(),
+      communicationMethod: z.string().trim().optional(),
       reviewFrequency: z
         .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
         .default('ANNUALLY'),
       status: z.enum(['ACTIVE', 'INACTIVE', 'ARCHIVED']).default('ACTIVE'),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -168,13 +168,13 @@ router.put(
         partyName: z.string().trim().min(1).max(200).optional(),
         partyType: z.enum(['INTERNAL', 'EXTERNAL']).optional(),
         reasonForInclusion: z.string().trim().min(1).max(2000).optional(),
-        needsExpectations: z.string().nullable().optional(),
-        communicationMethod: z.string().nullable().optional(),
+        needsExpectations: z.string().trim().nullable().optional(),
+        communicationMethod: z.string().trim().nullable().optional(),
         reviewFrequency: z
           .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
           .optional(),
         status: z.enum(['ACTIVE', 'INACTIVE', 'ARCHIVED']).optional(),
-        notes: z.string().nullable().optional(),
+        notes: z.string().trim().nullable().optional(),
       });
 
       const data = schema.parse(req.body);

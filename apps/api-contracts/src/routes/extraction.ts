@@ -7,7 +7,7 @@ const logger = createLogger('api-contracts');
 const router = Router();
 
 const analyzeSchema = z.object({
-  text: z.string().min(1, 'Text is required'),
+  text: z.string().trim().min(1, 'Text is required'),
 });
 
 // ─── Extraction helpers ───────────────────────────────────────────────────────

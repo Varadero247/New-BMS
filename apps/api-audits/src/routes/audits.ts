@@ -10,18 +10,18 @@ router.param('id', validateIdParam());
 const logger = createLogger('audits-audits');
 
 const auditCreateSchema = z.object({
-  title: z.string().min(1, 'title is required'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'title is required'),
+  description: z.string().trim().optional(),
   type: z
     .enum(['INTERNAL', 'EXTERNAL', 'SUPPLIER', 'CERTIFICATION', 'SURVEILLANCE', 'PROCESS'])
     .optional(),
   status: z.enum(['PLANNED', 'SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
-  standard: z.string().optional(),
-  scope: z.string().optional(),
-  department: z.string().optional(),
-  leadAuditor: z.string().optional(),
-  leadAuditorName: z.string().optional(),
-  auditTeam: z.array(z.string()).optional(),
+  standard: z.string().trim().optional(),
+  scope: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  leadAuditor: z.string().trim().optional(),
+  leadAuditorName: z.string().trim().optional(),
+  auditTeam: z.array(z.string().trim()).optional(),
   scheduledDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -35,8 +35,8 @@ const auditCreateSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
   reportUrl: z.string().trim().url('Invalid URL').optional(),
-  conclusion: z.string().optional(),
-  notes: z.string().optional(),
+  conclusion: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const auditUpdateSchema = auditCreateSchema.partial();

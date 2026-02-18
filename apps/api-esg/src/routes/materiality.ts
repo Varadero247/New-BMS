@@ -23,7 +23,7 @@ const materialityCreateSchema = z.object({
   importanceToStakeholders: z.number().min(0).max(10),
   importanceToBusiness: z.number().min(0).max(10),
   isMaterial: z.boolean().optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
 });
 
 const materialityUpdateSchema = z.object({
@@ -32,7 +32,7 @@ const materialityUpdateSchema = z.object({
   importanceToStakeholders: z.number().min(0).max(10).optional(),
   importanceToBusiness: z.number().min(0).max(10).optional(),
   isMaterial: z.boolean().optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
 });
 
 const RESERVED_PATHS = new Set(['matrix']);

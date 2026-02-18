@@ -21,18 +21,18 @@ router.param('id', validateIdParam());
 const createSchema = z.object({
   projectId: z.string().trim().min(1).max(200),
   title: z.string().trim().min(1).max(200),
-  protocol: z.string().optional(),
+  protocol: z.string().trim().optional(),
   testMethod: z.string().trim().min(1).max(200),
   acceptanceCriteria: z.string().trim().min(1).max(200),
-  results: z.string().optional(),
+  results: z.string().trim().optional(),
   pass: z.boolean().optional(),
   completedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  completedBy: z.string().optional(),
-  traceToInput: z.string().optional(),
-  traceToOutput: z.string().optional(),
+  completedBy: z.string().trim().optional(),
+  traceToInput: z.string().trim().optional(),
+  traceToOutput: z.string().trim().optional(),
 });
 
 const updateSchema = createSchema.omit({ projectId: true }).partial();

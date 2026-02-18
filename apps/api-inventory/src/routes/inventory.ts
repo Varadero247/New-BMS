@@ -178,8 +178,8 @@ router.get('/availability/:productId', async (req: AuthRequest, res: Response) =
 router.post('/adjust', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      productId: z.string(),
-      warehouseId: z.string(),
+      productId: z.string().trim(),
+      warehouseId: z.string().trim(),
       adjustmentType: z.enum([
         'ADJUSTMENT_IN',
         'ADJUSTMENT_OUT',
@@ -189,9 +189,9 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
       ]),
       quantity: z.number().int(),
       reason: z.string().trim().min(1).max(2000),
-      notes: z.string().optional(),
-      binLocation: z.string().optional(),
-      lotNumber: z.string().optional(),
+      notes: z.string().trim().optional(),
+      binLocation: z.string().trim().optional(),
+      lotNumber: z.string().trim().optional(),
       unitCost: z.number().min(0).optional(),
     });
 
@@ -307,14 +307,14 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
 router.post('/transfer', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      productId: z.string(),
-      fromWarehouseId: z.string(),
-      toWarehouseId: z.string(),
+      productId: z.string().trim(),
+      fromWarehouseId: z.string().trim(),
+      toWarehouseId: z.string().trim(),
       quantity: z.number().int().positive(),
-      reason: z.string().optional(),
-      notes: z.string().optional(),
-      fromBinLocation: z.string().optional(),
-      toBinLocation: z.string().optional(),
+      reason: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
+      fromBinLocation: z.string().trim().optional(),
+      toBinLocation: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -479,19 +479,19 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
 router.post('/receive', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      productId: z.string(),
-      warehouseId: z.string(),
+      productId: z.string().trim(),
+      warehouseId: z.string().trim(),
       quantity: z.number().int().positive(),
       unitCost: z.number().min(0),
-      referenceType: z.string().optional(), // PO, RETURN, etc.
-      referenceId: z.string().optional(),
-      binLocation: z.string().optional(),
-      lotNumber: z.string().optional(),
+      referenceType: z.string().trim().optional(), // PO, RETURN, etc.
+      referenceId: z.string().trim().optional(),
+      binLocation: z.string().trim().optional(),
+      lotNumber: z.string().trim().optional(),
       expiryDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -600,14 +600,14 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
 router.post('/issue', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      productId: z.string(),
-      warehouseId: z.string(),
+      productId: z.string().trim(),
+      warehouseId: z.string().trim(),
       quantity: z.number().int().positive(),
-      referenceType: z.string().optional(), // SO, WO, etc.
-      referenceId: z.string().optional(),
-      binLocation: z.string().optional(),
-      lotNumber: z.string().optional(),
-      notes: z.string().optional(),
+      referenceType: z.string().trim().optional(), // SO, WO, etc.
+      referenceId: z.string().trim().optional(),
+      binLocation: z.string().trim().optional(),
+      lotNumber: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

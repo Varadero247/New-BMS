@@ -139,8 +139,8 @@ const testNotificationSchema = z.object({
     .enum(['ALERT', 'WARNING', 'INFO', 'SUCCESS', 'OVERDUE', 'DUE_SOON', 'ESCALATION'])
     .default('INFO'),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('LOW'),
-  module: z.string().optional(),
-  targetUserId: z.string().optional(),
+  module: z.string().trim().optional(),
+  targetUserId: z.string().trim().optional(),
 });
 
 router.post('/test', authenticate, (req: Request, res: Response) => {

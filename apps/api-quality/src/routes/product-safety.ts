@@ -62,11 +62,11 @@ router.post('/characteristics', async (req: AuthRequest, res: Response) => {
       characteristicType: z.enum(['SC', 'CC', 'KPC']),
       description: z.string().trim().min(1).max(2000),
       controlMethod: z.string().trim().min(1).max(200),
-      measurementMethod: z.string().optional(),
-      tolerance: z.string().optional(),
-      linkedFmeaId: z.string().optional(),
-      linkedControlPlanId: z.string().optional(),
-      notes: z.string().optional(),
+      measurementMethod: z.string().trim().optional(),
+      tolerance: z.string().trim().optional(),
+      linkedFmeaId: z.string().trim().optional(),
+      linkedControlPlanId: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -203,11 +203,11 @@ router.put(
         characteristicType: z.enum(['SC', 'CC', 'KPC']).optional(),
         description: z.string().trim().min(1).max(2000).optional(),
         controlMethod: z.string().trim().min(1).max(200).optional(),
-        measurementMethod: z.string().optional(),
-        tolerance: z.string().optional(),
-        linkedFmeaId: z.string().optional(),
-        linkedControlPlanId: z.string().optional(),
-        notes: z.string().optional(),
+        measurementMethod: z.string().trim().optional(),
+        tolerance: z.string().trim().optional(),
+        linkedFmeaId: z.string().trim().optional(),
+        linkedControlPlanId: z.string().trim().optional(),
+        notes: z.string().trim().optional(),
         status: z.enum(['ACTIVE', 'INACTIVE', 'UNDER_REVIEW']).optional(),
       });
 
@@ -250,12 +250,12 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
       title: z.string().trim().min(1).max(200),
       description: z.string().trim().min(1).max(2000),
       product: z.string().trim().min(1).max(200),
-      partNumber: z.string().optional(),
+      partNumber: z.string().trim().optional(),
       severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
       source: z.enum(['CUSTOMER', 'INTERNAL', 'REGULATORY', 'SUPPLIER', 'FIELD']).optional(),
-      affectedCharacteristicId: z.string().optional(),
-      immediateAction: z.string().optional(),
-      reportedBy: z.string().optional(),
+      affectedCharacteristicId: z.string().trim().optional(),
+      immediateAction: z.string().trim().optional(),
+      reportedBy: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -362,10 +362,10 @@ router.put(
         description: z.string().trim().min(1).max(2000).optional(),
         severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
         status: z.enum(['OPEN', 'INVESTIGATING', 'CONTAINED', 'CORRECTED', 'CLOSED']).optional(),
-        rootCause: z.string().optional(),
-        correctiveAction: z.string().optional(),
-        immediateAction: z.string().optional(),
-        notes: z.string().optional(),
+        rootCause: z.string().trim().optional(),
+        correctiveAction: z.string().trim().optional(),
+        immediateAction: z.string().trim().optional(),
+        notes: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -408,11 +408,11 @@ router.post('/recalls', async (req: AuthRequest, res: Response) => {
       reason: z.string().trim().min(1).max(2000),
       scope: z.string().trim().min(1).max(2000),
       affectedQuantity: z.number().int().nonnegative(),
-      linkedIncidentId: z.string().optional(),
-      regulatoryBody: z.string().optional(),
+      linkedIncidentId: z.string().trim().optional(),
+      regulatoryBody: z.string().trim().optional(),
       customerNotified: z.boolean().optional(),
       regulatoryNotified: z.boolean().optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -515,17 +515,17 @@ router.put(
 
       const schema = z.object({
         reason: z.string().trim().min(1).max(2000).optional(),
-        scope: z.string().optional(),
+        scope: z.string().trim().optional(),
         affectedQuantity: z.number().int().nonnegative().optional(),
         status: z
           .enum(['INITIATED', 'INVESTIGATING', 'CONTAINED', 'CORRECTED', 'CLOSED'])
           .optional(),
         customerNotified: z.boolean().optional(),
         regulatoryNotified: z.boolean().optional(),
-        regulatoryBody: z.string().optional(),
-        containmentAction: z.string().optional(),
-        correctiveAction: z.string().optional(),
-        notes: z.string().optional(),
+        regulatoryBody: z.string().trim().optional(),
+        containmentAction: z.string().trim().optional(),
+        correctiveAction: z.string().trim().optional(),
+        notes: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -619,13 +619,13 @@ router.post('/compliance', async (req: AuthRequest, res: Response) => {
       partName: z.string().trim().min(1).max(200),
       regulation: z.enum(['REACH', 'RoHS', 'IMDS', 'TSCA', 'PROP65', 'OTHER']),
       status: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'EXEMPT']),
-      certificateRef: z.string().optional(),
+      certificateRef: z.string().trim().optional(),
       expiryDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      substances: z.string().optional(),
-      notes: z.string().optional(),
+      substances: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

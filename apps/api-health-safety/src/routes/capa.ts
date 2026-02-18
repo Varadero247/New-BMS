@@ -144,9 +144,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const actionSchema = z.object({
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       type: z.enum(CAPA_ACTION_TYPES),
-      owner: z.string().optional(),
+      owner: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -157,25 +157,25 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       title: z.string().trim().min(1).max(200),
       capaType: z.enum(CAPA_TYPES),
       source: z.enum(CAPA_SOURCES),
-      sourceReference: z.string().optional(),
+      sourceReference: z.string().trim().optional(),
       priority: z.enum(CAPA_PRIORITIES).optional(),
       targetCompletionDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      department: z.string().optional(),
-      responsiblePerson: z.string().optional(),
-      problemStatement: z.string().optional(),
-      rootCauseAnalysis: z.string().optional(),
-      containmentActions: z.string().optional(),
-      successCriteria: z.string().optional(),
-      verificationMethod: z.string().optional(),
+      department: z.string().trim().optional(),
+      responsiblePerson: z.string().trim().optional(),
+      problemStatement: z.string().trim().optional(),
+      rootCauseAnalysis: z.string().trim().optional(),
+      containmentActions: z.string().trim().optional(),
+      successCriteria: z.string().trim().optional(),
+      verificationMethod: z.string().trim().optional(),
       // AI
-      aiAnalysis: z.string().optional(),
+      aiAnalysis: z.string().trim().optional(),
       aiAnalysisGenerated: z.boolean().optional(),
       // Relations
-      incidentId: z.string().optional(),
-      riskId: z.string().optional(),
+      incidentId: z.string().trim().optional(),
+      riskId: z.string().trim().optional(),
       // Nested actions
       actions: z.array(actionSchema).optional(),
     });
@@ -261,24 +261,24 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
       title: z.string().trim().min(1).max(200).optional(),
       capaType: z.enum(CAPA_TYPES).optional(),
       source: z.enum(CAPA_SOURCES).optional(),
-      sourceReference: z.string().optional(),
+      sourceReference: z.string().trim().optional(),
       priority: z.enum(CAPA_PRIORITIES).optional(),
       targetCompletionDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      department: z.string().optional(),
-      responsiblePerson: z.string().optional(),
-      problemStatement: z.string().optional(),
-      rootCauseAnalysis: z.string().optional(),
-      containmentActions: z.string().optional(),
-      successCriteria: z.string().optional(),
-      verificationMethod: z.string().optional(),
-      aiAnalysis: z.string().optional(),
+      department: z.string().trim().optional(),
+      responsiblePerson: z.string().trim().optional(),
+      problemStatement: z.string().trim().optional(),
+      rootCauseAnalysis: z.string().trim().optional(),
+      containmentActions: z.string().trim().optional(),
+      successCriteria: z.string().trim().optional(),
+      verificationMethod: z.string().trim().optional(),
+      aiAnalysis: z.string().trim().optional(),
       aiAnalysisGenerated: z.boolean().optional(),
       status: z.enum(CAPA_STATUSES).optional(),
-      closureNotes: z.string().optional(),
-      effectivenessRating: z.string().optional(),
+      closureNotes: z.string().trim().optional(),
+      effectivenessRating: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -353,9 +353,9 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       type: z.enum(CAPA_ACTION_TYPES),
-      owner: z.string().optional(),
+      owner: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -410,9 +410,9 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       type: z.enum(CAPA_ACTION_TYPES).optional(),
-      owner: z.string().optional(),
+      owner: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

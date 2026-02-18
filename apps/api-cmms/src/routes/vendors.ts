@@ -17,35 +17,41 @@ router.param('id', validateIdParam());
 const vendorCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   code: z.string().trim().min(1).max(50),
-  contactName: z.string().max(200).optional().nullable(),
+  contactName: z.string().trim().max(200).optional().nullable(),
   email: z.string().trim().email().optional().nullable(),
-  phone: z.string().max(50).optional().nullable(),
-  address: z.string().max(500).optional().nullable(),
-  specialization: z.string().max(200).optional().nullable(),
+  phone: z.string().trim().max(50).optional().nullable(),
+  address: z.string().trim().max(500).optional().nullable(),
+  specialization: z.string().trim().max(200).optional().nullable(),
   rating: z.number().min(0).max(5).optional().nullable(),
   isPreferred: z.boolean().optional(),
-  contractExpiry: z.string().optional().nullable(),
+  contractExpiry: z.string().trim().optional().nullable(),
 });
 
 const vendorUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  contactName: z.string().max(200).optional().nullable(),
+  contactName: z.string().trim().max(200).optional().nullable(),
   email: z.string().trim().email().optional().nullable(),
-  phone: z.string().max(50).optional().nullable(),
-  address: z.string().max(500).optional().nullable(),
-  specialization: z.string().max(200).optional().nullable(),
+  phone: z.string().trim().max(50).optional().nullable(),
+  address: z.string().trim().max(500).optional().nullable(),
+  specialization: z.string().trim().max(200).optional().nullable(),
   rating: z.number().min(0).max(5).optional().nullable(),
   isPreferred: z.boolean().optional(),
-  contractExpiry: z.string().optional().nullable(),
+  contractExpiry: z.string().trim().optional().nullable(),
 });
 
 const contractCreateSchema = z.object({
   assetId: z.string().trim().uuid().optional().nullable(),
   contractNumber: z.string().trim().min(1).max(50),
   title: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional().nullable(),
-  startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  description: z.string().trim().max(2000).optional().nullable(),
+  startDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  endDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   value: z.number().optional().nullable(),
   type: z.enum(['FULL_SERVICE', 'PARTS_ONLY', 'LABOR_ONLY', 'WARRANTY', 'SLA']),
   status: z.enum(['ACTIVE', 'EXPIRED', 'CANCELLED', 'PENDING']).optional(),
@@ -55,7 +61,7 @@ const contractCreateSchema = z.object({
 
 const contractUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   startDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

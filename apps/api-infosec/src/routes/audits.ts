@@ -50,11 +50,14 @@ const RESERVED_PATHS = new Set(['vulnerability-scans', 'penetration-tests']);
 
 const auditCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(5000).optional(),
-  auditDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  description: z.string().trim().max(5000).optional(),
+  auditDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   leadAuditor: z.string().trim().min(1).max(200),
-  auditTeam: z.array(z.string()).optional(),
-  scope: z.string().max(5000).optional(),
+  auditTeam: z.array(z.string().trim()).optional(),
+  scope: z.string().trim().max(5000).optional(),
   auditType: z
     .enum(['INTERNAL', 'EXTERNAL', 'SURVEILLANCE', 'CERTIFICATION', 'RECERTIFICATION'])
     .optional(),
@@ -69,40 +72,46 @@ const findingCreateSchema = z.object({
     'OPPORTUNITY_FOR_IMPROVEMENT',
   ]),
   description: z.string().trim().min(1).max(5000),
-  evidence: z.string().max(5000).optional(),
-  recommendation: z.string().max(5000).optional(),
+  evidence: z.string().trim().max(5000).optional(),
+  recommendation: z.string().trim().max(5000).optional(),
 });
 
 const auditCompleteSchema = z.object({
   summary: z.string().trim().min(1).max(10000),
-  overallConclusion: z.string().max(5000).optional(),
+  overallConclusion: z.string().trim().max(5000).optional(),
 });
 
 const vulnScanCreateSchema = z.object({
   scanName: z.string().trim().min(1).max(300),
-  scanDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  scanner: z.string().max(200).optional(),
-  targetSystems: z.array(z.string()).optional(),
+  scanDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  scanner: z.string().trim().max(200).optional(),
+  targetSystems: z.array(z.string().trim()).optional(),
   criticalCount: z.number().int().min(0).optional().default(0),
   highCount: z.number().int().min(0).optional().default(0),
   mediumCount: z.number().int().min(0).optional().default(0),
   lowCount: z.number().int().min(0).optional().default(0),
   infoCount: z.number().int().min(0).optional().default(0),
-  summary: z.string().max(5000).optional(),
-  reportUrl: z.string().max(1000).optional(),
+  summary: z.string().trim().max(5000).optional(),
+  reportUrl: z.string().trim().max(1000).optional(),
 });
 
 const penTestCreateSchema = z.object({
   testName: z.string().trim().min(1).max(300),
-  testDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  tester: z.string().max(200).optional(),
-  methodology: z.string().max(1000).optional(),
-  scope: z.string().max(5000).optional(),
+  testDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  tester: z.string().trim().max(200).optional(),
+  methodology: z.string().trim().max(1000).optional(),
+  scope: z.string().trim().max(5000).optional(),
   findingsCount: z.number().int().min(0).optional().default(0),
   criticalFindings: z.number().int().min(0).optional().default(0),
   highFindings: z.number().int().min(0).optional().default(0),
-  summary: z.string().max(5000).optional(),
-  reportUrl: z.string().max(1000).optional(),
+  summary: z.string().trim().max(5000).optional(),
+  reportUrl: z.string().trim().max(1000).optional(),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'REMEDIATION']).optional(),
 });
 

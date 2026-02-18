@@ -23,7 +23,7 @@ router.use(authenticate);
 const createSchema = z.object({
   type: z.enum(['EXPORT', 'ERASURE']),
   subjectEmail: z.string().trim().email('Valid email is required'),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // ─── Routes ─────────────────────────────────────────────────────────────────

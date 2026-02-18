@@ -25,7 +25,11 @@ const addCidrSchema = z.object({
       /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(\/\d{1,2})?$/,
       'Must be a valid IPv4 CIDR (e.g. 192.168.1.0/24 or 10.0.0.1)'
     ),
-  label: z.string().min(1, 'Label is required').max(100, 'Label must be 100 characters or less'),
+  label: z
+    .string()
+    .trim()
+    .min(1, 'Label is required')
+    .max(100, 'Label must be 100 characters or less'),
 });
 
 // ─── Routes ─────────────────────────────────────────────────────────────────

@@ -127,7 +127,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       supplierName: z.string().trim().min(1).max(200),
-      supplierCode: z.string().optional(),
+      supplierCode: z.string().trim().optional(),
       category: z.enum([
         'MATERIALS',
         'SERVICES',
@@ -138,11 +138,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'PROFESSIONAL_SERVICES',
         'OTHER',
       ]),
-      countryOfOrigin: z.string().optional(),
-      primaryContact: z.string().optional(),
+      countryOfOrigin: z.string().trim().optional(),
+      primaryContact: z.string().trim().optional(),
       contactEmail: z.string().trim().email('Invalid email').optional(),
-      contactPhone: z.string().optional(),
-      accountManager: z.string().optional(),
+      contactPhone: z.string().trim().optional(),
+      accountManager: z.string().trim().optional(),
       approvedStatus: z
         .enum([
           'APPROVED',
@@ -155,9 +155,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .optional(),
       // Quality Assessment
       iso9001Certified: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
-      certificationBody: z.string().optional(),
-      certificateExpiry: z.string().optional(),
-      qmsEvidence: z.string().optional(),
+      certificationBody: z.string().trim().optional(),
+      certificateExpiry: z.string().trim().optional(),
+      qmsEvidence: z.string().trim().optional(),
       onTimeDeliveryPct: z.number().optional(),
       qualityRejectPct: z.number().optional(),
       ncrsRaised: z.number().optional(),
@@ -172,7 +172,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       hsPolicyInPlace: z.boolean().optional(),
       methodStatements: z.boolean().optional(),
       hsAuditScore: z.number().min(0).max(100).optional(),
-      hsComments: z.string().optional(),
+      hsComments: z.string().trim().optional(),
       hsRating: z
         .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
         .optional(),
@@ -183,7 +183,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       wasteManagementPlan: z.boolean().optional(),
       envIncidents: z.number().optional(),
       envAuditScore: z.number().min(0).max(100).optional(),
-      envComments: z.string().optional(),
+      envComments: z.string().trim().optional(),
       envRating: z
         .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
         .optional(),
@@ -192,19 +192,19 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      nextAuditDue: z.string().optional(),
+      nextAuditDue: z.string().trim().optional(),
       auditType: z.enum(['DESK', 'ON_SITE', 'REMOTE', 'THIRD_PARTY']).optional(),
-      auditFindings: z.string().optional(),
+      auditFindings: z.string().trim().optional(),
       openNcrs: z.number().optional(),
-      correctiveActionsDue: z.string().optional(),
+      correctiveActionsDue: z.string().trim().optional(),
       reviewFrequency: z
         .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
         .optional(),
       // AI
-      aiAnalysis: z.string().optional(),
-      aiKeyRisks: z.string().optional(),
-      aiImprovementAreas: z.string().optional(),
-      aiApprovalRecommendation: z.string().optional(),
+      aiAnalysis: z.string().trim().optional(),
+      aiKeyRisks: z.string().trim().optional(),
+      aiImprovementAreas: z.string().trim().optional(),
+      aiApprovalRecommendation: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -308,7 +308,7 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
 
     const schema = z.object({
       supplierName: z.string().trim().min(1).max(200).optional(),
-      supplierCode: z.string().optional(),
+      supplierCode: z.string().trim().optional(),
       category: z
         .enum([
           'MATERIALS',
@@ -321,11 +321,11 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
           'OTHER',
         ])
         .optional(),
-      countryOfOrigin: z.string().optional(),
-      primaryContact: z.string().optional(),
+      countryOfOrigin: z.string().trim().optional(),
+      primaryContact: z.string().trim().optional(),
       contactEmail: z.string().trim().email('Invalid email').optional(),
-      contactPhone: z.string().optional(),
-      accountManager: z.string().optional(),
+      contactPhone: z.string().trim().optional(),
+      accountManager: z.string().trim().optional(),
       approvedStatus: z
         .enum([
           'APPROVED',
@@ -337,9 +337,9 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
         ])
         .optional(),
       iso9001Certified: z.enum(['YES', 'NO', 'IN_PROGRESS']).optional(),
-      certificationBody: z.string().optional(),
-      certificateExpiry: z.string().optional(),
-      qmsEvidence: z.string().optional(),
+      certificationBody: z.string().trim().optional(),
+      certificateExpiry: z.string().trim().optional(),
+      qmsEvidence: z.string().trim().optional(),
       onTimeDeliveryPct: z.number().optional(),
       qualityRejectPct: z.number().optional(),
       ncrsRaised: z.number().optional(),
@@ -353,7 +353,7 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
       hsPolicyInPlace: z.boolean().optional(),
       methodStatements: z.boolean().optional(),
       hsAuditScore: z.number().min(0).max(100).optional(),
-      hsComments: z.string().optional(),
+      hsComments: z.string().trim().optional(),
       hsRating: z
         .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
         .optional(),
@@ -363,7 +363,7 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
       wasteManagementPlan: z.boolean().optional(),
       envIncidents: z.number().optional(),
       envAuditScore: z.number().min(0).max(100).optional(),
-      envComments: z.string().optional(),
+      envComments: z.string().trim().optional(),
       envRating: z
         .enum(['EXCELLENT', 'GOOD', 'SATISFACTORY', 'REQUIRES_IMPROVEMENT', 'POOR'])
         .optional(),
@@ -371,18 +371,18 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      nextAuditDue: z.string().optional(),
+      nextAuditDue: z.string().trim().optional(),
       auditType: z.enum(['DESK', 'ON_SITE', 'REMOTE', 'THIRD_PARTY']).optional(),
-      auditFindings: z.string().optional(),
+      auditFindings: z.string().trim().optional(),
       openNcrs: z.number().optional(),
-      correctiveActionsDue: z.string().optional(),
+      correctiveActionsDue: z.string().trim().optional(),
       reviewFrequency: z
         .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
         .optional(),
-      aiAnalysis: z.string().optional(),
-      aiKeyRisks: z.string().optional(),
-      aiImprovementAreas: z.string().optional(),
-      aiApprovalRecommendation: z.string().optional(),
+      aiAnalysis: z.string().trim().optional(),
+      aiKeyRisks: z.string().trim().optional(),
+      aiImprovementAreas: z.string().trim().optional(),
+      aiApprovalRecommendation: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 

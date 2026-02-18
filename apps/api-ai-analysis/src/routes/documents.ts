@@ -75,7 +75,7 @@ function parseJsonResponse(content: string): unknown {
 router.post('/analyze', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      content: z.string().min(1).max(50000),
+      content: z.string().trim().min(1).max(50000),
       analysisType: z
         .enum(['SUMMARIZE', 'EXTRACT_KEY_TERMS', 'CLASSIFY', 'FULL_ANALYSIS'])
         .default('FULL_ANALYSIS'),

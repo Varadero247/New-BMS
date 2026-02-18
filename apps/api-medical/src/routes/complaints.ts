@@ -78,9 +78,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       deviceName: z.string().trim().min(1).max(200),
-      deviceId: z.string().optional(),
-      lotNumber: z.string().optional(),
-      serialNumber: z.string().optional(),
+      deviceId: z.string().trim().optional(),
+      lotNumber: z.string().trim().optional(),
+      serialNumber: z.string().trim().optional(),
       complaintDate: z
         .string()
         .trim()
@@ -88,12 +88,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       source: z.enum(COMPLAINT_SOURCES),
-      reporterName: z.string().optional(),
-      reporterContact: z.string().optional(),
+      reporterName: z.string().trim().optional(),
+      reporterContact: z.string().trim().optional(),
       description: z.string().trim().min(1).max(2000),
       patientInvolved: z.boolean().optional(),
       injuryOccurred: z.boolean().optional(),
-      injuryDescription: z.string().optional(),
+      injuryDescription: z.string().trim().optional(),
       deathOccurred: z.boolean().optional(),
       malfunctionOccurred: z.boolean().optional(),
       severity: z.enum(COMPLAINT_SEVERITIES).optional(),
@@ -384,10 +384,10 @@ router.put('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, re
     }
 
     const schema = z.object({
-      investigationSummary: z.string().optional(),
-      rootCause: z.string().optional(),
-      correctiveAction: z.string().optional(),
-      capaRef: z.string().optional(),
+      investigationSummary: z.string().trim().optional(),
+      rootCause: z.string().trim().optional(),
+      correctiveAction: z.string().trim().optional(),
+      capaRef: z.string().trim().optional(),
       status: z.enum(COMPLAINT_STATUSES).optional(),
     });
 
@@ -440,8 +440,8 @@ router.post('/:id/mdr', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       reportable: z.boolean(),
-      mdrReportRef: z.string().optional(),
-      notes: z.string().optional(),
+      mdrReportRef: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -522,7 +522,7 @@ router.post('/:id/close', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      disposition: z.string().optional(),
+      disposition: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

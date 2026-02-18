@@ -24,12 +24,17 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const confirmOrderSchema = z.object({
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   expectedDelivery: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
 });

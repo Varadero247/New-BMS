@@ -37,8 +37,8 @@ const createSchema = z.object({
   type: z.enum(ACTION_TYPES),
   priority: z.enum(PRIORITIES).default('MEDIUM'),
   ownerId: z.string().trim().min(1).max(200),
-  incidentId: z.string().optional().nullable(),
-  riskId: z.string().optional().nullable(),
+  incidentId: z.string().trim().optional().nullable(),
+  riskId: z.string().trim().optional().nullable(),
   dueDate: z
     .string()
     .trim()
@@ -46,14 +46,14 @@ const createSchema = z.object({
     .max(200)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   estimatedCost: z.number().nonnegative().optional().nullable(),
-  verificationMethod: z.string().max(500).optional().nullable(),
+  verificationMethod: z.string().trim().max(500).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(STATUSES).optional(),
-  completedAt: z.string().optional().nullable(),
-  verifiedAt: z.string().optional().nullable(),
-  verificationNotes: z.string().max(2000).optional().nullable(),
+  completedAt: z.string().trim().optional().nullable(),
+  verifiedAt: z.string().trim().optional().nullable(),
+  verificationNotes: z.string().trim().max(2000).optional().nullable(),
   effectivenessRating: z.number().int().min(1).max(5).optional().nullable(),
   actualCost: z.number().nonnegative().optional().nullable(),
 });

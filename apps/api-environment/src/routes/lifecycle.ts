@@ -44,7 +44,7 @@ router.post('/assessments', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
       productProcess: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       status: z.enum(['DRAFT', 'IN_PROGRESS', 'COMPLETED', 'ARCHIVED']).optional(),
     });
 
@@ -189,12 +189,12 @@ router.put(
         });
 
       const schema = z.object({
-        aspects: z.string().optional(),
-        impacts: z.string().optional(),
+        aspects: z.string().trim().optional(),
+        impacts: z.string().trim().optional(),
         severity: z.number().min(1).max(5).optional(),
-        controls: z.string().optional(),
-        supplierReqs: z.string().optional(),
-        notes: z.string().optional(),
+        controls: z.string().trim().optional(),
+        supplierReqs: z.string().trim().optional(),
+        notes: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);

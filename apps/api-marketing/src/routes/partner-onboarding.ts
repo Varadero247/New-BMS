@@ -5,7 +5,7 @@ import { prisma } from '../prisma';
 
 const enqueuePartnerSchema = z.object({
   email: z.string().trim().email('Valid email is required').min(1, 'Email is required'),
-  name: z.string().optional(),
+  name: z.string().trim().optional(),
 });
 
 const logger = createLogger('api-marketing:partner-onboarding');

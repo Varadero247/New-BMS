@@ -28,7 +28,7 @@ function generateReference(prefix: string): string {
 const impactCreateSchema = z.object({
   systemId: z.string().trim().uuid(),
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(10000).optional().nullable(),
+  description: z.string().trim().max(10000).optional().nullable(),
   impactLevel: z
     .enum(['MINIMAL', 'LIMITED', 'SIGNIFICANT', 'HIGH', 'UNACCEPTABLE'])
     .optional()
@@ -37,48 +37,48 @@ const impactCreateSchema = z.object({
     .enum(['INITIAL', 'PERIODIC', 'CHANGE_TRIGGERED', 'INCIDENT_TRIGGERED'])
     .optional()
     .default('INITIAL'),
-  scope: z.string().max(4000).optional().nullable(),
-  methodology: z.string().max(4000).optional().nullable(),
-  findings: z.string().max(10000).optional().nullable(),
-  humanRightsImpact: z.string().max(4000).optional().nullable(),
-  environmentalImpact: z.string().max(4000).optional().nullable(),
-  socialImpact: z.string().max(4000).optional().nullable(),
-  economicImpact: z.string().max(4000).optional().nullable(),
-  mitigationMeasures: z.string().max(10000).optional().nullable(),
-  residualRisk: z.string().max(4000).optional().nullable(),
-  assessor: z.string().max(200).optional().nullable(),
+  scope: z.string().trim().max(4000).optional().nullable(),
+  methodology: z.string().trim().max(4000).optional().nullable(),
+  findings: z.string().trim().max(10000).optional().nullable(),
+  humanRightsImpact: z.string().trim().max(4000).optional().nullable(),
+  environmentalImpact: z.string().trim().max(4000).optional().nullable(),
+  socialImpact: z.string().trim().max(4000).optional().nullable(),
+  economicImpact: z.string().trim().max(4000).optional().nullable(),
+  mitigationMeasures: z.string().trim().max(10000).optional().nullable(),
+  residualRisk: z.string().trim().max(4000).optional().nullable(),
+  assessor: z.string().trim().max(200).optional().nullable(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  notes: z.string().max(4000).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 const impactUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  description: z.string().max(10000).optional().nullable(),
+  description: z.string().trim().max(10000).optional().nullable(),
   impactLevel: z.enum(['MINIMAL', 'LIMITED', 'SIGNIFICANT', 'HIGH', 'UNACCEPTABLE']).optional(),
   status: z.enum(['DRAFT', 'IN_PROGRESS', 'REVIEW', 'APPROVED', 'ARCHIVED']).optional(),
   assessmentType: z
     .enum(['INITIAL', 'PERIODIC', 'CHANGE_TRIGGERED', 'INCIDENT_TRIGGERED'])
     .optional(),
-  scope: z.string().max(4000).optional().nullable(),
-  methodology: z.string().max(4000).optional().nullable(),
-  findings: z.string().max(10000).optional().nullable(),
-  humanRightsImpact: z.string().max(4000).optional().nullable(),
-  environmentalImpact: z.string().max(4000).optional().nullable(),
-  socialImpact: z.string().max(4000).optional().nullable(),
-  economicImpact: z.string().max(4000).optional().nullable(),
-  mitigationMeasures: z.string().max(10000).optional().nullable(),
-  residualRisk: z.string().max(4000).optional().nullable(),
-  assessor: z.string().max(200).optional().nullable(),
+  scope: z.string().trim().max(4000).optional().nullable(),
+  methodology: z.string().trim().max(4000).optional().nullable(),
+  findings: z.string().trim().max(10000).optional().nullable(),
+  humanRightsImpact: z.string().trim().max(4000).optional().nullable(),
+  environmentalImpact: z.string().trim().max(4000).optional().nullable(),
+  socialImpact: z.string().trim().max(4000).optional().nullable(),
+  economicImpact: z.string().trim().max(4000).optional().nullable(),
+  mitigationMeasures: z.string().trim().max(10000).optional().nullable(),
+  residualRisk: z.string().trim().max(4000).optional().nullable(),
+  assessor: z.string().trim().max(200).optional().nullable(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  notes: z.string().max(4000).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

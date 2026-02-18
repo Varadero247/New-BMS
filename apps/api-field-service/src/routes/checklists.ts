@@ -37,8 +37,8 @@ const checklistResultCreateSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   results: z.array(z.any()),
   overallResult: z.enum(['PASS', 'FAIL', 'PARTIAL']),
-  notes: z.string().max(2000).optional().nullable(),
-  signature: z.string().optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
+  signature: z.string().trim().optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

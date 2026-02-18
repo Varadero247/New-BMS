@@ -49,22 +49,22 @@ const dataSourceEnum = z.enum([
 
 const dashboardCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(1000).optional().nullable(),
+  description: z.string().trim().max(1000).optional().nullable(),
   layout: z.record(z.any()).default({}),
   widgets: z.array(z.any()).default([]),
   isDefault: z.boolean().optional().default(false),
   isPublic: z.boolean().optional().default(false),
-  tags: z.array(z.string()).optional().nullable(),
+  tags: z.array(z.string().trim()).optional().nullable(),
 });
 
 const dashboardUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(1000).optional().nullable(),
+  description: z.string().trim().max(1000).optional().nullable(),
   layout: z.record(z.any()).optional(),
   widgets: z.array(z.any()).optional(),
   isDefault: z.boolean().optional(),
   isPublic: z.boolean().optional(),
-  tags: z.array(z.string()).optional().nullable(),
+  tags: z.array(z.string().trim()).optional().nullable(),
 });
 
 const widgetCreateSchema = z.object({

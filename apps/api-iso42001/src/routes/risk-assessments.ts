@@ -63,7 +63,7 @@ function getRiskLevel(score: number): string {
 const riskCreateSchema = z.object({
   systemId: z.string().trim().uuid(),
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(4000).optional().nullable(),
+  description: z.string().trim().max(4000).optional().nullable(),
   category: z.enum([
     'BIAS_DISCRIMINATION',
     'PRIVACY_DATA_PROTECTION',
@@ -80,20 +80,20 @@ const riskCreateSchema = z.object({
   ]),
   likelihood: z.enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST_CERTAIN']),
   impact: z.enum(['NEGLIGIBLE', 'MINOR', 'MODERATE', 'MAJOR', 'CATASTROPHIC']),
-  existingControls: z.string().max(4000).optional().nullable(),
-  proposedMitigations: z.string().max(4000).optional().nullable(),
-  riskOwner: z.string().max(200).optional().nullable(),
+  existingControls: z.string().trim().max(4000).optional().nullable(),
+  proposedMitigations: z.string().trim().max(4000).optional().nullable(),
+  riskOwner: z.string().trim().max(200).optional().nullable(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  notes: z.string().max(4000).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 const riskUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  description: z.string().max(4000).optional().nullable(),
+  description: z.string().trim().max(4000).optional().nullable(),
   category: z
     .enum([
       'BIAS_DISCRIMINATION',
@@ -113,15 +113,15 @@ const riskUpdateSchema = z.object({
   likelihood: z.enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST_CERTAIN']).optional(),
   impact: z.enum(['NEGLIGIBLE', 'MINOR', 'MODERATE', 'MAJOR', 'CATASTROPHIC']).optional(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'MITIGATED', 'ACCEPTED', 'CLOSED']).optional(),
-  existingControls: z.string().max(4000).optional().nullable(),
-  proposedMitigations: z.string().max(4000).optional().nullable(),
-  riskOwner: z.string().max(200).optional().nullable(),
+  existingControls: z.string().trim().max(4000).optional().nullable(),
+  proposedMitigations: z.string().trim().max(4000).optional().nullable(),
+  riskOwner: z.string().trim().max(200).optional().nullable(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  notes: z.string().max(4000).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

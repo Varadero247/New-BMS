@@ -9,7 +9,7 @@ router.param('id', validateIdParam());
 const logger = createLogger('assets-calibrations');
 
 const createSchema = z.object({
-  assetId: z.string().min(1, 'Asset ID is required'),
+  assetId: z.string().trim().min(1, 'Asset ID is required'),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'PASSED', 'FAILED', 'OVERDUE']).optional(),
   scheduledDate: z
     .string()
@@ -23,11 +23,11 @@ const createSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  technician: z.string().optional(),
-  standard: z.string().optional(),
-  result: z.string().optional(),
-  certificate: z.string().optional(),
-  notes: z.string().optional(),
+  technician: z.string().trim().optional(),
+  standard: z.string().trim().optional(),
+  result: z.string().trim().optional(),
+  certificate: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

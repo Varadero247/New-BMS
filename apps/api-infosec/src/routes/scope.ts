@@ -14,14 +14,14 @@ router.use(authenticate);
 
 const scopeUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(5000).optional(),
-  boundaries: z.string().max(5000).optional(),
-  inclusions: z.string().max(5000).optional(),
-  exclusions: z.string().max(5000).optional(),
-  justification: z.string().max(5000).optional(),
-  interestedParties: z.array(z.string()).optional(),
-  applicableRequirements: z.array(z.string()).optional(),
-  interfaces: z.array(z.string()).optional(),
+  description: z.string().trim().max(5000).optional(),
+  boundaries: z.string().trim().max(5000).optional(),
+  inclusions: z.string().trim().max(5000).optional(),
+  exclusions: z.string().trim().max(5000).optional(),
+  justification: z.string().trim().max(5000).optional(),
+  interestedParties: z.array(z.string().trim()).optional(),
+  applicableRequirements: z.array(z.string().trim()).optional(),
+  interfaces: z.array(z.string().trim()).optional(),
   status: z.enum(['DRAFT', 'ACTIVE', 'UNDER_REVIEW', 'ARCHIVED']).optional(),
 });
 

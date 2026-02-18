@@ -5,14 +5,22 @@ import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 
 const createFeatureRequestSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  requestedBy: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
+  requestedBy: z.string().trim().optional(),
 });
 
 const updateFeatureRequestSchema = z.object({
-  status: z.string().optional(),
-  priority: z.union([z.number(), z.string().transform((v) => parseInt(v, 10))]).optional(),
+  status: z.string().trim().optional(),
+  priority: z
+    .union([
+      z.number(),
+      z
+        .string()
+        .trim()
+        .transform((v) => parseInt(v, 10)),
+    ])
+    .optional(),
 });
 
 const logger = createLogger('feature-requests');

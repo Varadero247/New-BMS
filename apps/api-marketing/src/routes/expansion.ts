@@ -8,7 +8,7 @@ const logger = createLogger('api-marketing:expansion');
 const router = Router();
 
 const expansionCheckSchema = z.object({
-  orgId: z.string().optional(),
+  orgId: z.string().trim().optional(),
   thresholds: z
     .object({
       userLimit: z.number().optional(),

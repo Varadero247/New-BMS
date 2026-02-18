@@ -17,47 +17,57 @@ router.param('id', validateIdParam());
 
 const ncrCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional().nullable(),
-  area: z.string().max(200).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  area: z.string().trim().max(200).optional().nullable(),
   category: z.enum(['PROCESS', 'PRODUCT', 'DOCUMENTATION', 'FACILITY', 'SUPPLIER']),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
-  rootCause: z.string().max(2000).optional().nullable(),
-  correctiveAction: z.string().max(2000).optional().nullable(),
-  preventiveAction: z.string().max(2000).optional().nullable(),
+  rootCause: z.string().trim().max(2000).optional().nullable(),
+  correctiveAction: z.string().trim().max(2000).optional().nullable(),
+  preventiveAction: z.string().trim().max(2000).optional().nullable(),
   dueDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
-  assignedTo: z.string().max(200).optional().nullable(),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
 });
 
 const ncrCloseSchema = z.object({
-  rootCause: z.string().max(2000).optional().nullable(),
-  correctiveAction: z.string().max(2000).optional().nullable(),
-  preventiveAction: z.string().max(2000).optional().nullable(),
+  rootCause: z.string().trim().max(2000).optional().nullable(),
+  correctiveAction: z.string().trim().max(2000).optional().nullable(),
+  preventiveAction: z.string().trim().max(2000).optional().nullable(),
 });
 
 const ncrUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
-  area: z.string().max(200).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  area: z.string().trim().max(200).optional().nullable(),
   category: z.enum(['PROCESS', 'PRODUCT', 'DOCUMENTATION', 'FACILITY', 'SUPPLIER']).optional(),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['OPEN', 'INVESTIGATING', 'CORRECTIVE_ACTION', 'CLOSED']).optional(),
-  rootCause: z.string().max(2000).optional().nullable(),
-  correctiveAction: z.string().max(2000).optional().nullable(),
-  preventiveAction: z.string().max(2000).optional().nullable(),
+  rootCause: z.string().trim().max(2000).optional().nullable(),
+  correctiveAction: z.string().trim().max(2000).optional().nullable(),
+  preventiveAction: z.string().trim().max(2000).optional().nullable(),
   dueDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
-  assignedTo: z.string().max(200).optional().nullable(),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

@@ -8,14 +8,14 @@ const logger = createLogger('api-esg');
 const router = Router();
 
 const createSchema = z.object({
-  category: z.string().min(1, 'Category is required'),
-  subcategory: z.string().optional(),
-  activity: z.string().min(1, 'Activity is required'),
-  unit: z.string().min(1, 'Unit is required'),
+  category: z.string().trim().min(1, 'Category is required'),
+  subcategory: z.string().trim().optional(),
+  activity: z.string().trim().min(1, 'Activity is required'),
+  unit: z.string().trim().min(1, 'Unit is required'),
   factor: z.number({ required_error: 'Factor is required' }),
   year: z.number().int({ message: 'Year must be an integer' }),
-  source: z.string().optional(),
-  notes: z.string().optional(),
+  source: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 router.get('/', authenticate, async (req: Request, res: Response) => {

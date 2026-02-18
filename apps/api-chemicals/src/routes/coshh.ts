@@ -29,50 +29,50 @@ const rpeClassEnum = z.enum([
 
 const createCoshhSchema = z.object({
   chemicalId: z.string().trim().min(1).max(200),
-  activityDescription: z.string().min(1, 'activityDescription is required'),
-  locationBuilding: z.string().optional(),
-  locationRoom: z.string().optional(),
-  locationSite: z.string().optional(),
-  personsExposed: z.array(z.string()).optional(),
+  activityDescription: z.string().trim().min(1, 'activityDescription is required'),
+  locationBuilding: z.string().trim().optional(),
+  locationRoom: z.string().trim().optional(),
+  locationSite: z.string().trim().optional(),
+  personsExposed: z.array(z.string().trim()).optional(),
   estimatedPersonsNum: z.number().optional(),
   includesContractors: z.boolean().optional(),
   includesVisitors: z.boolean().optional(),
   includesVulnerable: z.boolean().optional(),
   exposureRoutes: z.array(exposureRouteEnum).optional(),
   quantityUsed: z.number().nonnegative().optional(),
-  quantityUnit: z.string().optional(),
-  frequencyOfUse: z.string().optional(),
+  quantityUnit: z.string().trim().optional(),
+  frequencyOfUse: z.string().trim().optional(),
   durationPerUseMinutes: z.number().nonnegative().optional(),
   exposureDurationHrDay: z.number().nonnegative().optional(),
-  welComparisonResult: z.string().optional(),
+  welComparisonResult: z.string().trim().optional(),
   airMonitoringRequired: z.boolean().optional(),
-  airMonitoringFreq: z.string().optional(),
+  airMonitoringFreq: z.string().trim().optional(),
   inherentLikelihood: z.number().min(1).max(5),
   inherentSeverity: z.number().min(1).max(5),
   controlMeasures: z.any(),
-  respiratoryProtection: z.string().optional(),
+  respiratoryProtection: z.string().trim().optional(),
   rpeClass: rpeClassEnum.optional(),
-  handProtectionGlove: z.string().optional(),
-  gloveBreakthroughTime: z.string().optional(),
-  eyeProtection: z.string().optional(),
-  bodyProtection: z.string().optional(),
-  footProtection: z.string().optional(),
+  handProtectionGlove: z.string().trim().optional(),
+  gloveBreakthroughTime: z.string().trim().optional(),
+  eyeProtection: z.string().trim().optional(),
+  bodyProtection: z.string().trim().optional(),
+  footProtection: z.string().trim().optional(),
   residualLikelihood: z.number().min(1).max(5),
   residualSeverity: z.number().min(1).max(5),
   residualRiskAccepted: z.boolean().optional(),
-  spillMinorProcedure: z.string().optional(),
-  spillMajorProcedure: z.string().optional(),
-  fireEmergencyProc: z.string().optional(),
-  injuryProc: z.string().optional(),
-  emergencyPPERequired: z.string().optional(),
+  spillMinorProcedure: z.string().trim().optional(),
+  spillMajorProcedure: z.string().trim().optional(),
+  fireEmergencyProc: z.string().trim().optional(),
+  injuryProc: z.string().trim().optional(),
+  emergencyPPERequired: z.string().trim().optional(),
   healthSurveillanceReq: z.boolean().optional(),
-  healthSurvDetails: z.string().optional(),
+  healthSurvDetails: z.string().trim().optional(),
   recordRetentionYears: z.number().optional(),
-  wasteDisposalMethod: z.string().optional(),
+  wasteDisposalMethod: z.string().trim().optional(),
   substitutionConsidered: z.boolean().optional(),
-  substitutionOutcome: z.string().optional(),
-  assessorName: z.string().optional(),
-  assessorJobTitle: z.string().optional(),
+  substitutionOutcome: z.string().trim().optional(),
+  assessorName: z.string().trim().optional(),
+  assessorJobTitle: z.string().trim().optional(),
   assessmentDate: z
     .string()
     .trim()
@@ -83,7 +83,7 @@ const createCoshhSchema = z.object({
     .trim()
     .datetime({ offset: true })
     .or(z.string().trim().datetime({ offset: true })),
-  reviewTriggers: z.array(z.string()).optional(),
+  reviewTriggers: z.array(z.string().trim()).optional(),
 });
 
 const updateCoshhSchema = createCoshhSchema.partial();
@@ -306,7 +306,7 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
   try {
     const signOffSchema = z.object({
       role: z.enum(['assessor', 'supervisor']),
-      name: z.string().min(1, 'name is required'),
+      name: z.string().trim().min(1, 'name is required'),
     });
     const parsed = signOffSchema.safeParse(req.body);
     if (!parsed.success)

@@ -189,22 +189,22 @@ const DATA_MAP = [
 // Validation schemas
 // ---------------------------------------------------------------------------
 const erasureRequestSchema = z.object({
-  userId: z.string().min(1, 'User ID is required'),
+  userId: z.string().trim().min(1, 'User ID is required'),
   userEmail: z.string().trim().email('Valid email is required'),
-  reason: z.string().max(2000).optional(),
+  reason: z.string().trim().max(2000).optional(),
 });
 
 const processErasureSchema = z.object({
   status: z.enum(['IN_PROGRESS', 'COMPLETED', 'REJECTED']),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 const retentionPolicySchema = z.object({
-  dataCategory: z.string().min(1, 'Data category is required').max(100),
-  module: z.string().min(1, 'Module is required').max(100),
+  dataCategory: z.string().trim().min(1, 'Data category is required').max(100),
+  module: z.string().trim().min(1, 'Module is required').max(100),
   retentionDays: z.number().int().min(1, 'Retention days must be at least 1').max(36500),
   action: z.enum(['ARCHIVE', 'DELETE', 'ANONYMIZE']),
-  legalBasis: z.string().max(500).optional(),
+  legalBasis: z.string().trim().max(500).optional(),
   isActive: z.boolean().optional(),
 });
 

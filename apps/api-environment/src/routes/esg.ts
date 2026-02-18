@@ -259,7 +259,7 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
       unit: z.string().trim().min(1).max(200),
       status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED', 'CANCELLED']).optional(),
       currentValue: z.number().nonnegative().optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -330,7 +330,7 @@ router.put(
         unit: z.string().trim().min(1).max(200).optional(),
         status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED', 'CANCELLED']).optional(),
         currentValue: z.number().nonnegative().optional(),
-        notes: z.string().optional(),
+        notes: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -508,12 +508,15 @@ router.post('/metrics', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       category: z.enum(ESG_CATEGORIES),
       subcategory: z.string().trim().min(1).max(200),
-      period: z.string().regex(/^\d{4}-\d{2}$/, 'Period must be in YYYY-MM format'),
+      period: z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}$/, 'Period must be in YYYY-MM format'),
       value: z.number(),
       unit: z.string().trim().min(1).max(200),
-      source: z.string().optional(),
+      source: z.string().trim().optional(),
       verified: z.boolean().optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

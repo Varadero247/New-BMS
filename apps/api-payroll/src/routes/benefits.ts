@@ -46,7 +46,7 @@ router.post('/plans', async (req: Request, res: Response) => {
     const schema = z.object({
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       category: z.enum([
         'HEALTH_INSURANCE',
         'LIFE_INSURANCE',
@@ -60,7 +60,7 @@ router.post('/plans', async (req: Request, res: Response) => {
         'WELLNESS',
         'OTHER',
       ]),
-      provider: z.string().optional(),
+      provider: z.string().trim().optional(),
       coverageLevels: z.array(
         z.enum(['EMPLOYEE_ONLY', 'EMPLOYEE_SPOUSE', 'EMPLOYEE_CHILDREN', 'FAMILY'])
       ),
@@ -68,7 +68,7 @@ router.post('/plans', async (req: Request, res: Response) => {
       employeeContribution: z.number().optional(),
       employerContribution: z.number().optional(),
       waitingPeriodDays: z.number().default(0),
-      effectiveFrom: z.string(),
+      effectiveFrom: z.string().trim(),
     });
 
     const data = schema.parse(req.body);
@@ -126,7 +126,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
       dependents: z.array(z.record(z.unknown())).optional(),
       employeeContribution: z.number().default(0),
       employerContribution: z.number().default(0),
-      effectiveFrom: z.string(),
+      effectiveFrom: z.string().trim(),
     });
 
     const data = schema.parse(req.body);

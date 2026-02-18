@@ -27,18 +27,18 @@ async function generateRefNumber(): Promise<string> {
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().trim().min(1).max(5000),
-  source: z.string().max(200).optional().nullable(),
-  relatedId: z.string().max(100).optional().nullable(),
-  relatedType: z.string().max(100).optional().nullable(),
+  source: z.string().trim().max(200).optional().nullable(),
+  relatedId: z.string().trim().max(100).optional().nullable(),
+  relatedType: z.string().trim().max(100).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
-  assignedTo: z.string().max(200).optional().nullable(),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
   dueDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  methodology: z.string().max(200).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  methodology: z.string().trim().max(200).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
@@ -48,12 +48,12 @@ const updateSchema = createSchema.partial().extend({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  immediateCause: z.string().max(5000).optional().nullable(),
-  rootCause: z.string().max(5000).optional().nullable(),
-  contributingFactors: z.string().max(5000).optional().nullable(),
-  findings: z.string().max(10000).optional().nullable(),
-  recommendations: z.string().max(5000).optional().nullable(),
-  correctiveActions: z.string().max(5000).optional().nullable(),
+  immediateCause: z.string().trim().max(5000).optional().nullable(),
+  rootCause: z.string().trim().max(5000).optional().nullable(),
+  contributingFactors: z.string().trim().max(5000).optional().nullable(),
+  findings: z.string().trim().max(10000).optional().nullable(),
+  recommendations: z.string().trim().max(5000).optional().nullable(),
+  correctiveActions: z.string().trim().max(5000).optional().nullable(),
 });
 
 // GET /stats — Investigation statistics

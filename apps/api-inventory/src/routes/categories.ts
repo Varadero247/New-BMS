@@ -102,9 +102,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
-      parentId: z.string().optional(),
-      code: z.string().optional(),
+      description: z.string().trim().optional(),
+      parentId: z.string().trim().optional(),
+      code: z.string().trim().optional(),
       sortOrder: z.number().int().default(0),
     });
 
@@ -178,9 +178,9 @@ router.patch(
 
       const schema = z.object({
         name: z.string().trim().min(1).max(200).optional(),
-        description: z.string().optional().nullable(),
-        parentId: z.string().optional().nullable(),
-        code: z.string().optional().nullable(),
+        description: z.string().trim().optional().nullable(),
+        parentId: z.string().trim().optional().nullable(),
+        code: z.string().trim().optional().nullable(),
         sortOrder: z.number().int().optional(),
         isActive: z.boolean().optional(),
       });

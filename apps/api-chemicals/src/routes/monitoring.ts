@@ -14,17 +14,17 @@ const monitoringTypeEnum = z.enum(['AIR_SAMPLE', 'BIOLOGICAL', 'WIPE_SAMPLE']);
 
 const createMonitoringSchema = z.object({
   chemicalId: z.string().trim().min(1).max(200),
-  coshhAssessmentId: z.string().optional(),
+  coshhAssessmentId: z.string().trim().optional(),
   monitoringType: monitoringTypeEnum,
-  location: z.string().optional(),
-  sampledBy: z.string().optional(),
+  location: z.string().trim().optional(),
+  sampledBy: z.string().trim().optional(),
   sampledAt: z
     .string()
     .trim()
     .datetime({ offset: true })
     .or(z.string().trim().datetime({ offset: true })),
   resultValue: z.number().optional(),
-  resultUnit: z.string().optional(),
+  resultUnit: z.string().trim().optional(),
   welTwaLimit: z.number().optional(),
   welStelLimit: z.number().optional(),
   reportUrl: z.string().trim().url('Invalid URL').optional(),
@@ -34,7 +34,7 @@ const createMonitoringSchema = z.object({
     .datetime({ offset: true })
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
-  actionTaken: z.string().optional(),
+  actionTaken: z.string().trim().optional(),
 });
 
 const updateMonitoringSchema = createMonitoringSchema.partial();

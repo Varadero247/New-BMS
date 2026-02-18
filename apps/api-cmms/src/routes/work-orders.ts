@@ -27,35 +27,35 @@ function generateWONumber(): string {
 
 const workOrderCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   assetId: z.string().trim().uuid(),
   type: z.enum(['CORRECTIVE', 'PREVENTIVE', 'PREDICTIVE', 'EMERGENCY', 'INSPECTION']),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  assignedTo: z.string().max(200).optional().nullable(),
-  requestedBy: z.string().max(200).optional().nullable(),
-  scheduledStart: z.string().optional().nullable(),
-  scheduledEnd: z.string().optional().nullable(),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
+  requestedBy: z.string().trim().max(200).optional().nullable(),
+  scheduledStart: z.string().trim().optional().nullable(),
+  scheduledEnd: z.string().trim().optional().nullable(),
   laborHours: z.number().nonnegative().optional().nullable(),
   laborCost: z.number().nonnegative().optional().nullable(),
   partsCost: z.number().nonnegative().optional().nullable(),
-  failureCode: z.string().max(50).optional().nullable(),
+  failureCode: z.string().trim().max(50).optional().nullable(),
 });
 
 const workOrderUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   type: z.enum(['CORRECTIVE', 'PREVENTIVE', 'PREDICTIVE', 'EMERGENCY', 'INSPECTION']).optional(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
-  assignedTo: z.string().max(200).optional().nullable(),
-  scheduledStart: z.string().optional().nullable(),
-  scheduledEnd: z.string().optional().nullable(),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
+  scheduledStart: z.string().trim().optional().nullable(),
+  scheduledEnd: z.string().trim().optional().nullable(),
   laborHours: z.number().nonnegative().optional().nullable(),
   laborCost: z.number().nonnegative().optional().nullable(),
   partsCost: z.number().nonnegative().optional().nullable(),
   totalCost: z.number().nonnegative().optional().nullable(),
-  completionNotes: z.string().max(2000).optional().nullable(),
-  failureCode: z.string().max(50).optional().nullable(),
+  completionNotes: z.string().trim().max(2000).optional().nullable(),
+  failureCode: z.string().trim().max(50).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

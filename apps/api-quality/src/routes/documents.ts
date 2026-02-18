@@ -109,18 +109,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'PLAN',
         'REPORT',
       ]),
-      isoClause: z.string().optional(),
-      linkedProcess: z.string().optional(),
-      version: z.string().default('1.0'),
-      language: z.string().default('English'),
-      purpose: z.string().optional(),
-      scope: z.string().optional(),
-      summary: z.string().optional(),
-      keyChanges: z.string().optional(),
+      isoClause: z.string().trim().optional(),
+      linkedProcess: z.string().trim().optional(),
+      version: z.string().trim().default('1.0'),
+      language: z.string().trim().default('English'),
+      purpose: z.string().trim().optional(),
+      scope: z.string().trim().optional(),
+      summary: z.string().trim().optional(),
+      keyChanges: z.string().trim().optional(),
       author: z.string().trim().min(1).max(200),
       ownerCustodian: z.string().trim().min(1).max(200),
-      reviewer: z.string().optional(),
-      approvedBy: z.string().optional(),
+      reviewer: z.string().trim().optional(),
+      approvedBy: z.string().trim().optional(),
       issueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -133,16 +133,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      distributionList: z.string().optional(),
+      distributionList: z.string().trim().optional(),
       accessLevel: z
         .enum(['UNRESTRICTED', 'CONTROLLED', 'CONFIDENTIAL', 'RESTRICTED'])
         .default('UNRESTRICTED'),
       locationUrl: z.string().trim().url('Invalid URL').optional(),
       controlledCopies: z.number().default(0),
-      supersedesDocument: z.string().optional(),
-      relatedProcedures: z.string().optional(),
-      relatedForms: z.string().optional(),
-      relatedRecords: z.string().optional(),
+      supersedesDocument: z.string().trim().optional(),
+      relatedProcedures: z.string().trim().optional(),
+      relatedForms: z.string().trim().optional(),
+      relatedRecords: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -205,21 +205,21 @@ router.put('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
           'REPORT',
         ])
         .optional(),
-      isoClause: z.string().nullable().optional(),
-      linkedProcess: z.string().nullable().optional(),
-      version: z.string().optional(),
+      isoClause: z.string().trim().nullable().optional(),
+      linkedProcess: z.string().trim().nullable().optional(),
+      version: z.string().trim().optional(),
       status: z
         .enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ISSUED', 'OBSOLETE', 'SUPERSEDED', 'EXTERNAL'])
         .optional(),
-      language: z.string().optional(),
-      purpose: z.string().nullable().optional(),
-      scope: z.string().nullable().optional(),
-      summary: z.string().nullable().optional(),
-      keyChanges: z.string().nullable().optional(),
-      author: z.string().optional(),
-      ownerCustodian: z.string().optional(),
-      reviewer: z.string().nullable().optional(),
-      approvedBy: z.string().nullable().optional(),
+      language: z.string().trim().optional(),
+      purpose: z.string().trim().nullable().optional(),
+      scope: z.string().trim().nullable().optional(),
+      summary: z.string().trim().nullable().optional(),
+      keyChanges: z.string().trim().nullable().optional(),
+      author: z.string().trim().optional(),
+      ownerCustodian: z.string().trim().optional(),
+      reviewer: z.string().trim().nullable().optional(),
+      approvedBy: z.string().trim().nullable().optional(),
       issueDate: z
         .string()
         .nullable()
@@ -235,18 +235,18 @@ router.put('/:id', checkOwnership(prisma.qualDocument), async (req: AuthRequest,
         .nullable()
         .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      distributionList: z.string().nullable().optional(),
+      distributionList: z.string().trim().nullable().optional(),
       accessLevel: z.enum(['UNRESTRICTED', 'CONTROLLED', 'CONFIDENTIAL', 'RESTRICTED']).optional(),
-      locationUrl: z.string().nullable().optional(),
+      locationUrl: z.string().trim().nullable().optional(),
       controlledCopies: z.number().optional(),
-      supersedesDocument: z.string().nullable().optional(),
-      relatedProcedures: z.string().nullable().optional(),
-      relatedForms: z.string().nullable().optional(),
-      relatedRecords: z.string().nullable().optional(),
+      supersedesDocument: z.string().trim().nullable().optional(),
+      relatedProcedures: z.string().trim().nullable().optional(),
+      relatedForms: z.string().trim().nullable().optional(),
+      relatedRecords: z.string().trim().nullable().optional(),
       // AI fields
-      aiAnalysis: z.string().nullable().optional(),
-      aiGapAnalysis: z.string().nullable().optional(),
-      aiContentSuggestions: z.string().nullable().optional(),
+      aiAnalysis: z.string().trim().nullable().optional(),
+      aiGapAnalysis: z.string().trim().nullable().optional(),
+      aiContentSuggestions: z.string().trim().nullable().optional(),
       aiGenerated: z.boolean().optional(),
     });
 

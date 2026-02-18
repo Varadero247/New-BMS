@@ -31,7 +31,7 @@ const governanceCreateSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const governanceUpdateSchema = z.object({
@@ -40,9 +40,9 @@ const governanceUpdateSchema = z.object({
     .optional(),
   metric: z.string().trim().min(1).max(200).optional(),
   value: z.string().trim().min(1).max(1000).optional(),
-  periodStart: z.string().optional(),
-  periodEnd: z.string().optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  periodStart: z.string().trim().optional(),
+  periodEnd: z.string().trim().optional(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const RESERVED_PATHS = new Set(['policies', 'ethics']);

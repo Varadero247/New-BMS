@@ -16,27 +16,30 @@ router.param('id', validateIdParam());
 const createEmployeeSchema = z.object({
   employeeNumber: z.string().trim().min(1).max(200),
   firstName: z.string().trim().min(1).max(200),
-  middleName: z.string().optional(),
+  middleName: z.string().trim().optional(),
   lastName: z.string().trim().min(1).max(200),
-  dateOfBirth: z.string().optional(),
+  dateOfBirth: z.string().trim().optional(),
   gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'PREFER_NOT_TO_SAY']).optional(),
   personalEmail: z.string().trim().email().optional(),
   workEmail: z.string().trim().email(),
-  phone: z.string().optional(),
-  mobilePhone: z.string().optional(),
+  phone: z.string().trim().optional(),
+  mobilePhone: z.string().trim().optional(),
   departmentId: z.string().trim().uuid(),
   positionId: z.string().trim().uuid().optional(),
   managerId: z.string().trim().uuid().optional(),
   employmentType: z
     .enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'TEMPORARY', 'INTERN', 'CONSULTANT', 'FREELANCE'])
     .default('FULL_TIME'),
-  hireDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  hireDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   jobTitle: z.string().trim().min(1).max(200),
-  jobGrade: z.string().optional(),
-  workLocation: z.string().optional(),
-  currency: z.string().length(3).default('USD'),
-  bankName: z.string().optional(),
-  accountNumber: z.string().optional(),
+  jobGrade: z.string().trim().optional(),
+  workLocation: z.string().trim().optional(),
+  currency: z.string().trim().length(3).default('USD'),
+  bankName: z.string().trim().optional(),
+  accountNumber: z.string().trim().optional(),
 });
 
 const updateEmployeeSchema = createEmployeeSchema.partial();

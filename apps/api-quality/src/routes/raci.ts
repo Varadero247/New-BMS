@@ -21,12 +21,12 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   processName: z.string().trim().min(1).max(300),
-  processId: z.string().max(100).optional().nullable(),
+  processId: z.string().trim().max(100).optional().nullable(),
   activityName: z.string().trim().min(1).max(300),
   roleName: z.string().trim().min(1).max(200),
-  personName: z.string().max(200).optional().nullable(),
+  personName: z.string().trim().max(200).optional().nullable(),
   raciType: z.enum(['RESPONSIBLE', 'ACCOUNTABLE', 'CONSULTED', 'INFORMED']),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial();

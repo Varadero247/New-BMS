@@ -58,13 +58,13 @@ async function generateFAIRefNumber(): Promise<string> {
 // ============================================
 
 const createFAISchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  partNumber: z.string().min(1, 'Part number is required'),
-  partName: z.string().min(1, 'Part name is required'),
-  revision: z.string().min(1, 'Revision is required'),
-  drawingNumber: z.string().optional(),
-  customer: z.string().optional(),
-  poNumber: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  partNumber: z.string().trim().min(1, 'Part number is required'),
+  partName: z.string().trim().min(1, 'Part name is required'),
+  revision: z.string().trim().min(1, 'Revision is required'),
+  drawingNumber: z.string().trim().optional(),
+  customer: z.string().trim().optional(),
+  poNumber: z.string().trim().optional(),
   faiType: z.enum(['FULL', 'PARTIAL', 'DELTA']).optional(),
 });
 
@@ -72,10 +72,10 @@ const part1Schema = z.object({
   characteristics: z.array(
     z.object({
       charNumber: z.number().int().positive('Characteristic number must be a positive integer'),
-      charName: z.string().min(1, 'Characteristic name is required'),
-      nominal: z.string().min(1, 'Nominal value is required'),
-      tolerance: z.string().min(1, 'Tolerance is required'),
-      actual: z.string(),
+      charName: z.string().trim().min(1, 'Characteristic name is required'),
+      nominal: z.string().trim().min(1, 'Nominal value is required'),
+      tolerance: z.string().trim().min(1, 'Tolerance is required'),
+      actual: z.string().trim(),
       pass: z.boolean(),
     })
   ),
@@ -84,9 +84,9 @@ const part1Schema = z.object({
 const part2Schema = z.object({
   documents: z.array(
     z.object({
-      docType: z.string().min(1, 'Document type is required'),
-      docNumber: z.string().min(1, 'Document number is required'),
-      revision: z.string().min(1, 'Revision is required'),
+      docType: z.string().trim().min(1, 'Document type is required'),
+      docNumber: z.string().trim().min(1, 'Document number is required'),
+      revision: z.string().trim().min(1, 'Revision is required'),
       available: z.boolean(),
     })
   ),
@@ -95,10 +95,10 @@ const part2Schema = z.object({
 const part3Schema = z.object({
   testResults: z.array(
     z.object({
-      testName: z.string().min(1, 'Test name is required'),
-      testMethod: z.string().min(1, 'Test method is required'),
-      requirement: z.string().min(1, 'Requirement is required'),
-      result: z.string(),
+      testName: z.string().trim().min(1, 'Test name is required'),
+      testMethod: z.string().trim().min(1, 'Test method is required'),
+      requirement: z.string().trim().min(1, 'Requirement is required'),
+      result: z.string().trim(),
       pass: z.boolean(),
     })
   ),

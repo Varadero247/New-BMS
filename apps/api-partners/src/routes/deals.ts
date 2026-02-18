@@ -14,9 +14,9 @@ const createDealSchema = z.object({
   contactName: z.string().trim().min(1).max(200),
   contactEmail: z.string().trim().email(),
   estimatedUsers: z.number().int().min(1),
-  isoStandards: z.array(z.string()).min(1),
+  isoStandards: z.array(z.string().trim()).min(1),
   estimatedACV: z.number().min(0).optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const statusUpdateSchema = z.object({

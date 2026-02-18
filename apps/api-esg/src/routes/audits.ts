@@ -22,8 +22,8 @@ function generateReference(prefix: string): string {
 const auditCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY']),
-  framework: z.string().max(200).optional().nullable(),
-  auditor: z.string().max(200).optional().nullable(),
+  framework: z.string().trim().max(200).optional().nullable(),
+  auditor: z.string().trim().max(200).optional().nullable(),
   startDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -42,8 +42,8 @@ const auditCreateSchema = z.object({
 const auditUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'REGULATORY']).optional(),
-  framework: z.string().max(200).optional().nullable(),
-  auditor: z.string().max(200).optional().nullable(),
+  framework: z.string().trim().max(200).optional().nullable(),
+  auditor: z.string().trim().max(200).optional().nullable(),
   startDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

@@ -9,16 +9,16 @@ router.param('id', validateIdParam());
 const logger = createLogger('suppliers-documents');
 
 const createSchema = z.object({
-  supplierId: z.string().min(1, 'Supplier ID is required'),
+  supplierId: z.string().trim().min(1, 'Supplier ID is required'),
   type: z
     .enum(['CERTIFICATE', 'LICENSE', 'INSURANCE', 'AUDIT_REPORT', 'QUALITY_MANUAL', 'OTHER'])
     .optional(),
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().trim().min(1, 'Title is required'),
   fileUrl: z.string().trim().url('Invalid URL').optional(),
   expiryDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   isVerified: z.boolean().optional(),
-  verifiedBy: z.string().optional(),
-  notes: z.string().optional(),
+  verifiedBy: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

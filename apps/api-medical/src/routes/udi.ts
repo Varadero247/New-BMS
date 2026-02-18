@@ -57,9 +57,9 @@ router.post('/devices', async (req: AuthRequest, res: Response) => {
       modelNumber: z.string().trim().min(1).max(200),
       manufacturer: z.string().trim().min(1).max(200),
       deviceClass: z.enum(DEVICE_CLASSES),
-      riskClass: z.string().optional(),
-      gmdn: z.string().optional(),
-      emdn: z.string().optional(),
+      riskClass: z.string().trim().optional(),
+      gmdn: z.string().trim().optional(),
+      emdn: z.string().trim().optional(),
       status: z.enum(UDI_DEVICE_STATUSES).optional(),
     });
 
@@ -196,7 +196,7 @@ router.post('/devices/:id/di', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       issuingAgency: z.string().trim().min(1).max(200),
       diCode: z.string().trim().min(1).max(200),
-      version: z.string().optional(),
+      version: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -249,8 +249,8 @@ router.post('/devices/:id/pi', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      lotNumber: z.string().optional(),
-      serialNumber: z.string().optional(),
+      lotNumber: z.string().trim().optional(),
+      serialNumber: z.string().trim().optional(),
       manufacturingDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -369,8 +369,8 @@ router.put('/devices/:id/submissions/:sid', async (req: AuthRequest, res: Respon
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      referenceNumber: z.string().optional(),
-      notes: z.string().optional(),
+      referenceNumber: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

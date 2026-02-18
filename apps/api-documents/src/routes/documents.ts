@@ -9,23 +9,23 @@ router.param('id', validateIdParam());
 const logger = createLogger('documents-documents');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  category: z.string().optional(),
-  department: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
+  category: z.string().trim().optional(),
+  department: z.string().trim().optional(),
   status: z
     .enum(['DRAFT', 'PENDING_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED', 'OBSOLETE'])
     .optional(),
   currentVersion: z.number().int().optional(),
   fileUrl: z.string().trim().url('Invalid URL').optional(),
   fileSize: z.number().int().optional(),
-  mimeType: z.string().optional(),
-  owner: z.string().optional(),
-  ownerName: z.string().optional(),
+  mimeType: z.string().trim().optional(),
+  owner: z.string().trim().optional(),
+  ownerName: z.string().trim().optional(),
   reviewDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   retentionDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
-  tags: z.array(z.string()).optional(),
-  notes: z.string().optional(),
+  tags: z.array(z.string().trim()).optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

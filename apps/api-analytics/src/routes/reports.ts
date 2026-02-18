@@ -27,13 +27,13 @@ function generateReference(prefix: string): string {
 
 const reportCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(1000).optional().nullable(),
+  description: z.string().trim().max(1000).optional().nullable(),
   type: z.enum(['SCHEDULED', 'AD_HOC', 'TEMPLATE']),
   format: z.enum(['PDF', 'EXCEL', 'CSV', 'HTML']),
   schedule: z.record(z.any()).optional().nullable(),
   query: z.record(z.any()),
   filters: z.record(z.any()).optional().nullable(),
-  recipients: z.array(z.string()).optional().nullable(),
+  recipients: z.array(z.string().trim()).optional().nullable(),
   isActive: z.boolean().optional().default(true),
 });
 
@@ -43,13 +43,13 @@ const reportRunSchema = z.object({
 
 const reportUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(1000).optional().nullable(),
+  description: z.string().trim().max(1000).optional().nullable(),
   type: z.enum(['SCHEDULED', 'AD_HOC', 'TEMPLATE']).optional(),
   format: z.enum(['PDF', 'EXCEL', 'CSV', 'HTML']).optional(),
   schedule: z.record(z.any()).optional().nullable(),
   query: z.record(z.any()).optional(),
   filters: z.record(z.any()).optional().nullable(),
-  recipients: z.array(z.string()).optional().nullable(),
+  recipients: z.array(z.string().trim()).optional().nullable(),
   isActive: z.boolean().optional(),
 });
 

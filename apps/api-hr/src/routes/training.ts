@@ -83,10 +83,10 @@ router.post('/courses', async (req: Request, res: Response) => {
     const schema = z.object({
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       category: z.string().trim().min(1).max(100),
-      provider: z.string().optional(),
-      instructorName: z.string().optional(),
+      provider: z.string().trim().optional(),
+      instructorName: z.string().trim().optional(),
       deliveryMethod: z.enum([
         'CLASSROOM',
         'VIRTUAL',
@@ -99,9 +99,9 @@ router.post('/courses', async (req: Request, res: Response) => {
       ]),
       duration: z.number().nonnegative(),
       maxParticipants: z.number().optional(),
-      prerequisites: z.array(z.string()).default([]),
-      objectives: z.string().optional(),
-      syllabus: z.string().optional(),
+      prerequisites: z.array(z.string().trim()).default([]),
+      objectives: z.string().trim().optional(),
+      syllabus: z.string().trim().optional(),
       certificationAwarded: z.boolean().default(false),
       certificationValidity: z.number().optional(),
       costPerPerson: z.number().nonnegative().optional(),
@@ -167,13 +167,19 @@ router.post('/sessions', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       courseId: z.string().trim().uuid(),
-      startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      location: z.string().optional(),
+      startDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      location: z.string().trim().optional(),
       isVirtual: z.boolean().default(false),
       meetingUrl: z.string().trim().url().optional(),
-      instructorId: z.string().optional(),
-      instructorName: z.string().optional(),
+      instructorId: z.string().trim().optional(),
+      instructorName: z.string().trim().optional(),
       maxParticipants: z.number(),
     });
 
@@ -324,7 +330,7 @@ router.put(
         passed: z.boolean().optional(),
         certificateUrl: z.string().trim().url('Invalid URL').optional(),
         feedbackRating: z.number().min(1).max(5).optional(),
-        feedbackComments: z.string().optional(),
+        feedbackComments: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -400,10 +406,13 @@ router.post('/certifications', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
       name: z.string().trim().min(1).max(200),
-      issuingOrganization: z.string(),
-      credentialId: z.string().optional(),
+      issuingOrganization: z.string().trim(),
+      credentialId: z.string().trim().optional(),
       credentialUrl: z.string().trim().url().optional(),
-      issueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      issueDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       expiryDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

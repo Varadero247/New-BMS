@@ -17,12 +17,12 @@ const createDataRequestSchema = z.object({
     .trim()
     .email('Valid email is required')
     .min(1, 'requesterEmail is required'),
-  requesterName: z.string().min(1, 'requesterName is required'),
-  description: z.string().nullable().optional(),
+  requesterName: z.string().trim().min(1, 'requesterName is required'),
+  description: z.string().trim().nullable().optional(),
 });
 
 const updateDataRequestStatusSchema = z.object({
-  status: z.string().min(1, 'status is required'),
+  status: z.string().trim().min(1, 'status is required'),
 });
 
 const logger = createLogger('dsars');

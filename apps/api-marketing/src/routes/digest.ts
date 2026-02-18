@@ -9,7 +9,7 @@ const logger = createLogger('api-marketing:digest');
 const router = Router();
 
 const triggerDigestSchema = z.object({
-  date: z.string().optional(),
+  date: z.string().trim().optional(),
 });
 
 // POST /api/digest/trigger

@@ -15,12 +15,12 @@ router.param('id', validateIdParam());
 const createDepartmentSchema = z.object({
   code: z.string().trim().min(1).max(200),
   name: z.string().trim().min(1).max(200),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
   parentId: z.string().trim().uuid().optional(),
   headId: z.string().trim().uuid().optional(),
-  costCenter: z.string().optional(),
+  costCenter: z.string().trim().optional(),
   budget: z.number().nonnegative().optional(),
-  budgetCurrency: z.string().default('USD'),
+  budgetCurrency: z.string().trim().default('USD'),
 });
 
 const updateDepartmentSchema = createDepartmentSchema.partial();
@@ -229,14 +229,14 @@ router.post('/positions', async (req: Request, res: Response) => {
     const positionSchema = z.object({
       code: z.string().trim().min(1).max(200),
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       departmentId: z.string().trim().uuid(),
-      jobGrade: z.string().optional(),
+      jobGrade: z.string().trim().optional(),
       minSalary: z.number().nonnegative().optional(),
       maxSalary: z.number().nonnegative().optional(),
       headcount: z.number().int().nonnegative().default(1),
-      requirements: z.string().optional(),
-      responsibilities: z.string().optional(),
+      requirements: z.string().trim().optional(),
+      responsibilities: z.string().trim().optional(),
     });
 
     const data = positionSchema.parse(req.body);

@@ -9,8 +9,8 @@ router.param('id', validateIdParam());
 const logger = createLogger('complaints-complaints');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
   channel: z.enum(['EMAIL', 'PHONE', 'WEB_FORM', 'SOCIAL_MEDIA', 'IN_PERSON', 'LETTER']).optional(),
   category: z
     .enum([
@@ -28,26 +28,26 @@ const createSchema = z.object({
   status: z
     .enum(['NEW', 'ACKNOWLEDGED', 'INVESTIGATING', 'RESOLVED', 'CLOSED', 'ESCALATED'])
     .optional(),
-  complainantName: z.string().optional(),
+  complainantName: z.string().trim().optional(),
   complainantEmail: z.string().trim().email('Invalid email').optional(),
-  complainantPhone: z.string().optional(),
-  assignee: z.string().optional(),
-  assigneeName: z.string().optional(),
-  department: z.string().optional(),
-  productRef: z.string().optional(),
-  orderRef: z.string().optional(),
+  complainantPhone: z.string().trim().optional(),
+  assignee: z.string().trim().optional(),
+  assigneeName: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  productRef: z.string().trim().optional(),
+  orderRef: z.string().trim().optional(),
   isRegulatory: z.boolean().optional(),
-  regulatoryBody: z.string().optional(),
-  slaDeadline: z.string().optional(),
-  acknowledgedAt: z.string().optional(),
-  resolvedAt: z.string().optional(),
-  closedAt: z.string().optional(),
-  rootCause: z.string().optional(),
-  resolution: z.string().optional(),
-  preventiveAction: z.string().optional(),
+  regulatoryBody: z.string().trim().optional(),
+  slaDeadline: z.string().trim().optional(),
+  acknowledgedAt: z.string().trim().optional(),
+  resolvedAt: z.string().trim().optional(),
+  closedAt: z.string().trim().optional(),
+  rootCause: z.string().trim().optional(),
+  resolution: z.string().trim().optional(),
+  preventiveAction: z.string().trim().optional(),
   customerSatisfied: z.boolean().optional(),
-  linkedCapaId: z.string().optional(),
-  notes: z.string().optional(),
+  linkedCapaId: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

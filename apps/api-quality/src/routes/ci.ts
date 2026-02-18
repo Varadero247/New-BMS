@@ -27,22 +27,22 @@ async function generateRefNumber(): Promise<string> {
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().trim().min(1).max(5000),
-  source: z.string().max(200).optional().nullable(),
-  category: z.string().max(200).optional().nullable(),
+  source: z.string().trim().max(200).optional().nullable(),
+  category: z.string().trim().max(200).optional().nullable(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
-  submittedBy: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
-  assignedTo: z.string().max(200).optional().nullable(),
+  submittedBy: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
   targetDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  isoClause: z.string().max(200).optional().nullable(),
-  expectedBenefit: z.string().max(2000).optional().nullable(),
+  isoClause: z.string().trim().max(200).optional().nullable(),
+  expectedBenefit: z.string().trim().max(2000).optional().nullable(),
   estimatedCost: z.number().nonnegative().optional().nullable(),
   estimatedSaving: z.number().optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
@@ -55,8 +55,8 @@ const updateSchema = createSchema.partial().extend({
     .optional()
     .nullable(),
   actualSaving: z.number().optional().nullable(),
-  reviewNotes: z.string().max(5000).optional().nullable(),
-  approvedBy: z.string().max(200).optional().nullable(),
+  reviewNotes: z.string().trim().max(5000).optional().nullable(),
+  approvedBy: z.string().trim().max(200).optional().nullable(),
   approvedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

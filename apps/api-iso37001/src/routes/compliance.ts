@@ -45,11 +45,11 @@ const STATUSES = [
 
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(5000).optional().nullable(),
-  isoClause: z.string().max(200).optional().nullable(),
+  description: z.string().trim().max(5000).optional().nullable(),
+  isoClause: z.string().trim().max(200).optional().nullable(),
   category: z.enum(CATEGORIES).default('OTHER'),
-  owner: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
   assessmentDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -60,12 +60,12 @@ const createSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  evidence: z.string().max(5000).optional().nullable(),
-  gaps: z.string().max(5000).optional().nullable(),
-  remediation: z.string().max(5000).optional().nullable(),
-  remediationDue: z.string().optional().nullable(),
-  remediationBy: z.string().max(200).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  evidence: z.string().trim().max(5000).optional().nullable(),
+  gaps: z.string().trim().max(5000).optional().nullable(),
+  remediation: z.string().trim().max(5000).optional().nullable(),
+  remediationDue: z.string().trim().optional().nullable(),
+  remediationBy: z.string().trim().max(200).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
@@ -75,8 +75,8 @@ const updateSchema = createSchema.partial().extend({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  closedBy: z.string().max(200).optional().nullable(),
-  closureNotes: z.string().max(5000).optional().nullable(),
+  closedBy: z.string().trim().max(200).optional().nullable(),
+  closureNotes: z.string().trim().max(5000).optional().nullable(),
 });
 
 // GET /stats — Compliance statistics (must be before /:id)

@@ -44,7 +44,7 @@ router.post('/component-types', async (req: Request, res: Response) => {
     const schema = z.object({
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       category: z.enum(['EARNING', 'DEDUCTION', 'EMPLOYER_CONTRIBUTION', 'REIMBURSEMENT']),
       type: z.enum([
         'BASIC_SALARY',
@@ -73,7 +73,7 @@ router.post('/component-types', async (req: Request, res: Response) => {
       defaultAmount: z.number().nonnegative().optional(),
       defaultPercentage: z.number().nonnegative().optional(),
       isTaxable: z.boolean().default(true),
-      taxCode: z.string().optional(),
+      taxCode: z.string().trim().optional(),
       showInPayslip: z.boolean().default(true),
       sortOrder: z.number().int().default(0),
     });
@@ -126,12 +126,12 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       baseSalary: z.number().positive(),
-      currency: z.string().length(3).default('USD'),
+      currency: z.string().trim().length(3).default('USD'),
       payFrequency: z
         .enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY'])
         .default('MONTHLY'),
-      effectiveFrom: z.string(),
-      changeReason: z.string().optional(),
+      effectiveFrom: z.string().trim(),
+      changeReason: z.string().trim().optional(),
       changeType: z
         .enum([
           'PROMOTION',

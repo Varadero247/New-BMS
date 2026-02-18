@@ -47,11 +47,11 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
       scenario: z.string().trim().min(1).max(200),
       triggerConditions: z.string().trim().min(1).max(200),
       immediateResponse: z.string().trim().min(1).max(2000),
-      notificationReqs: z.string().optional(),
-      containmentProcs: z.string().optional(),
-      impactMitigation: z.string().optional(),
-      recoveryActions: z.string().optional(),
-      reviewSchedule: z.string().optional(),
+      notificationReqs: z.string().trim().optional(),
+      containmentProcs: z.string().trim().optional(),
+      impactMitigation: z.string().trim().optional(),
+      recoveryActions: z.string().trim().optional(),
+      reviewSchedule: z.string().trim().optional(),
       status: z.enum(['DRAFT', 'ACTIVE', 'UNDER_REVIEW', 'ARCHIVED']).optional(),
       lastReviewDate: z
         .string()
@@ -150,14 +150,14 @@ router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
 
 // PUT /plans/:id — Update plan
 const planUpdateSchema = z.object({
-  title: z.string().optional(),
-  scenario: z.string().optional(),
-  description: z.string().optional(),
-  location: z.string().optional(),
-  department: z.string().optional(),
-  responsiblePerson: z.string().optional(),
-  status: z.string().optional(),
-  priority: z.string().optional(),
+  title: z.string().trim().optional(),
+  scenario: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  location: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  responsiblePerson: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  priority: z.string().trim().optional(),
   lastReviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -166,14 +166,14 @@ const planUpdateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  responseTeam: z.array(z.string()).optional(),
-  procedures: z.string().optional(),
-  communicationPlan: z.string().optional(),
-  evacuationRoutes: z.string().optional(),
-  assemblyPoints: z.string().optional(),
-  equipmentRequired: z.string().optional(),
-  externalAgencies: z.string().optional(),
-  notes: z.string().optional(),
+  responseTeam: z.array(z.string().trim()).optional(),
+  procedures: z.string().trim().optional(),
+  communicationPlan: z.string().trim().optional(),
+  evacuationRoutes: z.string().trim().optional(),
+  assemblyPoints: z.string().trim().optional(),
+  equipmentRequired: z.string().trim().optional(),
+  externalAgencies: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 router.put(
@@ -239,12 +239,12 @@ router.post('/drills', async (req: AuthRequest, res: Response) => {
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       drillType: z.enum(['TABLETOP', 'FUNCTIONAL', 'FULL_SCALE']),
-      participants: z.array(z.string()).min(1),
-      scenario: z.string().optional(),
+      participants: z.array(z.string().trim()).min(1),
+      scenario: z.string().trim().optional(),
       outcome: z.enum(['SATISFACTORY', 'NEEDS_IMPROVEMENT', 'UNSATISFACTORY']).optional(),
-      lessonsLearned: z.string().optional(),
-      actionsRequired: z.string().optional(),
-      conductedBy: z.string().optional(),
+      lessonsLearned: z.string().trim().optional(),
+      actionsRequired: z.string().trim().optional(),
+      conductedBy: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -352,12 +352,12 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
         .min(1)
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      location: z.string().optional(),
-      environmentalImpact: z.string().optional(),
-      containmentActions: z.string().optional(),
+      location: z.string().trim().optional(),
+      environmentalImpact: z.string().trim().optional(),
+      containmentActions: z.string().trim().optional(),
       regulatoryNotified: z.boolean().optional(),
       status: z.enum(['ACTIVE', 'CONTAINED', 'RESOLVED', 'CLOSED']).optional(),
-      linkedPlanId: z.string().optional(),
+      linkedPlanId: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

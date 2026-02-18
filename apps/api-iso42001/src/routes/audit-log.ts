@@ -15,7 +15,7 @@ router.param('id', validateIdParam());
 // ---------------------------------------------------------------------------
 
 const auditLogCreateSchema = z.object({
-  systemId: z.string().max(100).optional().nullable(),
+  systemId: z.string().trim().max(100).optional().nullable(),
   action: z.enum([
     'DECISION',
     'OVERRIDE',
@@ -26,8 +26,8 @@ const auditLogCreateSchema = z.object({
     'CONFIG_CHANGE',
   ]),
   description: z.string().trim().min(1).max(2000),
-  inputSummary: z.string().max(5000).optional().nullable(),
-  outputSummary: z.string().max(5000).optional().nullable(),
+  inputSummary: z.string().trim().max(5000).optional().nullable(),
+  outputSummary: z.string().trim().max(5000).optional().nullable(),
   metadata: z.record(z.unknown()).optional().nullable(),
   riskScore: z.number().int().min(0).max(100).optional().nullable(),
 });

@@ -32,33 +32,33 @@ async function generateRefNumber(): Promise<string> {
 const studyCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
   fmeaType: z.enum(['DFMEA', 'PFMEA', 'MFMEA']).optional(),
-  partNumber: z.string().optional(),
-  partName: z.string().optional(),
-  customer: z.string().optional(),
-  revision: z.string().optional(),
+  partNumber: z.string().trim().optional(),
+  partName: z.string().trim().optional(),
+  customer: z.string().trim().optional(),
+  revision: z.string().trim().optional(),
   preparedBy: z.string().trim().min(1).max(200),
-  reviewedBy: z.string().optional(),
-  scope: z.string().optional(),
-  assumptions: z.string().optional(),
+  reviewedBy: z.string().trim().optional(),
+  scope: z.string().trim().optional(),
+  assumptions: z.string().trim().optional(),
 });
 
 const studyUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
   fmeaType: z.enum(['DFMEA', 'PFMEA', 'MFMEA']).optional(),
-  partNumber: z.string().optional(),
-  partName: z.string().optional(),
-  customer: z.string().optional(),
-  revision: z.string().optional(),
+  partNumber: z.string().trim().optional(),
+  partName: z.string().trim().optional(),
+  customer: z.string().trim().optional(),
+  revision: z.string().trim().optional(),
   status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'RELEASED', 'OBSOLETE']).optional(),
-  preparedBy: z.string().optional(),
-  reviewedBy: z.string().optional(),
-  approvedBy: z.string().optional(),
+  preparedBy: z.string().trim().optional(),
+  reviewedBy: z.string().trim().optional(),
+  approvedBy: z.string().trim().optional(),
   approvedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  scope: z.string().optional(),
-  assumptions: z.string().optional(),
+  scope: z.string().trim().optional(),
+  assumptions: z.string().trim().optional(),
 });
 
 const itemCreateSchema = z.object({
@@ -70,10 +70,10 @@ const itemCreateSchema = z.object({
   severity: z.number().int().min(1).max(10),
   potentialCauses: z.string().trim().min(1).max(200),
   occurrence: z.number().int().min(1).max(10),
-  currentControls: z.string().optional(),
+  currentControls: z.string().trim().optional(),
   detection: z.number().int().min(1).max(10),
-  recommendedAction: z.string().optional(),
-  responsibility: z.string().optional(),
+  recommendedAction: z.string().trim().optional(),
+  responsibility: z.string().trim().optional(),
   targetDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -81,7 +81,7 @@ const itemCreateSchema = z.object({
 });
 
 const itemUpdateSchema = itemCreateSchema.partial().extend({
-  actionTaken: z.string().optional(),
+  actionTaken: z.string().trim().optional(),
   severityAfter: z.number().int().min(1).max(10).optional(),
   occurrenceAfter: z.number().int().min(1).max(10).optional(),
   detectionAfter: z.number().int().min(1).max(10).optional(),

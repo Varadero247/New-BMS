@@ -11,7 +11,7 @@ const MIN_PAYOUT_AMOUNT = 100; // £100
 
 const requestPayoutSchema = z.object({
   paymentMethod: z.enum(['BANK_TRANSFER', 'PAYPAL', 'STRIPE']).optional(),
-  notes: z.string().max(1000).optional(),
+  notes: z.string().trim().max(1000).optional(),
 });
 
 // GET /api/payouts

@@ -10,16 +10,16 @@ const router = Router();
 router.param('id', validateIdParam());
 
 const assignSchema = z.object({
-  investigator: z.string().min(1, 'investigator is required'),
-  investigatorName: z.string().optional(),
+  investigator: z.string().trim().min(1, 'investigator is required'),
+  investigatorName: z.string().trim().optional(),
 });
 
 const reportSchema = z.object({
-  rootCause: z.string().optional(),
-  contributingFactors: z.string().optional(),
-  correctiveActions: z.string().optional(),
-  preventiveActions: z.string().optional(),
-  report: z.string().optional(),
+  rootCause: z.string().trim().optional(),
+  contributingFactors: z.string().trim().optional(),
+  correctiveActions: z.string().trim().optional(),
+  preventiveActions: z.string().trim().optional(),
+  report: z.string().trim().optional(),
 });
 
 router.post('/:id/assign', authenticate, async (req: Request, res: Response) => {

@@ -131,10 +131,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       title: z.string().trim().min(1).max(200),
       description: z.string().trim().min(1).max(2000),
       category: z.enum(LEGAL_CATEGORIES),
-      jurisdiction: z.string().optional(),
-      legislationRef: z.string().optional(),
-      section: z.string().optional(),
-      applicableAreas: z.string().optional(),
+      jurisdiction: z.string().trim().optional(),
+      legislationRef: z.string().trim().optional(),
+      section: z.string().trim().optional(),
+      applicableAreas: z.string().trim().optional(),
       effectiveDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -144,14 +144,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
       complianceStatus: z.enum(COMPLIANCE_STATUSES).optional(),
-      complianceNotes: z.string().optional(),
-      responsiblePerson: z.string().optional(),
+      complianceNotes: z.string().trim().optional(),
+      responsiblePerson: z.string().trim().optional(),
       // AI fields
-      aiKeyObligations: z.string().optional(),
-      aiGapAnalysis: z.string().optional(),
-      aiRequiredActions: z.string().optional(),
-      aiEvidenceRequired: z.string().optional(),
-      aiPenaltyForNonCompliance: z.string().optional(),
+      aiKeyObligations: z.string().trim().optional(),
+      aiGapAnalysis: z.string().trim().optional(),
+      aiRequiredActions: z.string().trim().optional(),
+      aiEvidenceRequired: z.string().trim().optional(),
+      aiPenaltyForNonCompliance: z.string().trim().optional(),
       aiAssessmentGenerated: z.boolean().optional(),
       status: z.enum(LEGAL_STATUSES).optional(),
     });
@@ -221,12 +221,12 @@ router.patch(
 
       const schema = z.object({
         title: z.string().trim().min(1).max(200).optional(),
-        description: z.string().optional(),
+        description: z.string().trim().optional(),
         category: z.enum(LEGAL_CATEGORIES).optional(),
-        jurisdiction: z.string().optional(),
-        legislationRef: z.string().optional(),
-        section: z.string().optional(),
-        applicableAreas: z.string().optional(),
+        jurisdiction: z.string().trim().optional(),
+        legislationRef: z.string().trim().optional(),
+        section: z.string().trim().optional(),
+        applicableAreas: z.string().trim().optional(),
         effectiveDate: z
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -236,13 +236,13 @@ router.patch(
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
         complianceStatus: z.enum(COMPLIANCE_STATUSES).optional(),
-        complianceNotes: z.string().optional(),
-        responsiblePerson: z.string().optional(),
-        aiKeyObligations: z.string().optional(),
-        aiGapAnalysis: z.string().optional(),
-        aiRequiredActions: z.string().optional(),
-        aiEvidenceRequired: z.string().optional(),
-        aiPenaltyForNonCompliance: z.string().optional(),
+        complianceNotes: z.string().trim().optional(),
+        responsiblePerson: z.string().trim().optional(),
+        aiKeyObligations: z.string().trim().optional(),
+        aiGapAnalysis: z.string().trim().optional(),
+        aiRequiredActions: z.string().trim().optional(),
+        aiEvidenceRequired: z.string().trim().optional(),
+        aiPenaltyForNonCompliance: z.string().trim().optional(),
         aiAssessmentGenerated: z.boolean().optional(),
         status: z.enum(LEGAL_STATUSES).optional(),
       });

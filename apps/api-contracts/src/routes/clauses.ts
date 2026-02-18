@@ -9,11 +9,11 @@ router.param('id', validateIdParam());
 const logger = createLogger('contracts-clauses');
 
 const createSchema = z.object({
-  contractId: z.string().min(1, 'Contract ID is required'),
-  title: z.string().min(1, 'Title is required'),
-  content: z.string().optional(),
-  clauseNumber: z.string().optional(),
-  category: z.string().optional(),
+  contractId: z.string().trim().min(1, 'Contract ID is required'),
+  title: z.string().trim().min(1, 'Title is required'),
+  content: z.string().trim().optional(),
+  clauseNumber: z.string().trim().optional(),
+  category: z.string().trim().optional(),
   isKey: z.boolean().optional(),
 });
 const updateSchema = createSchema.partial();

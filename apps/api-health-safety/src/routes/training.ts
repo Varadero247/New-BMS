@@ -75,12 +75,12 @@ router.post('/courses', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
-      provider: z.string().optional(),
-      duration: z.string().optional(),
-      frequency: z.string().optional(),
-      requiredForRoles: z.string().optional(),
-      requiredForDepartments: z.string().optional(),
+      description: z.string().trim().optional(),
+      provider: z.string().trim().optional(),
+      duration: z.string().trim().optional(),
+      frequency: z.string().trim().optional(),
+      requiredForRoles: z.string().trim().optional(),
+      requiredForDepartments: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -118,15 +118,15 @@ router.post('/courses', async (req: AuthRequest, res: Response) => {
 router.post('/records', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      userId: z.string(),
-      courseId: z.string(),
-      completedAt: z.string().optional(),
-      expiresAt: z.string().optional(),
+      userId: z.string().trim(),
+      courseId: z.string().trim(),
+      completedAt: z.string().trim().optional(),
+      expiresAt: z.string().trim().optional(),
       score: z.number().nonnegative().optional(),
       competenceLevel: z.enum(['AWARENESS', 'BASIC', 'PROFICIENT', 'EXPERT']).optional(),
-      assessedBy: z.string().optional(),
+      assessedBy: z.string().trim().optional(),
       certificateUrl: z.string().trim().url('Invalid URL').optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
       status: z
         .enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'FAILED'])
         .default('NOT_STARTED'),

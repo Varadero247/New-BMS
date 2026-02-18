@@ -174,13 +174,13 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
   try {
     const schema = z.object({
       email: z.string().trim().email(),
-      password: z.string().min(8),
+      password: z.string().trim().min(8),
       firstName: z.string().trim().min(1).max(200),
       lastName: z.string().trim().min(1).max(200),
-      phone: z.string().optional(),
+      phone: z.string().trim().optional(),
       role: z.enum(['ADMIN', 'MANAGER', 'AUDITOR', 'USER']).default('USER'),
-      department: z.string().optional(),
-      jobTitle: z.string().optional(),
+      department: z.string().trim().optional(),
+      jobTitle: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -254,10 +254,10 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       firstName: z.string().trim().min(1).max(200).optional(),
       lastName: z.string().trim().min(1).max(200).optional(),
-      phone: z.string().optional(),
-      avatar: z.string().optional(),
-      department: z.string().optional(),
-      jobTitle: z.string().optional(),
+      phone: z.string().trim().optional(),
+      avatar: z.string().trim().optional(),
+      department: z.string().trim().optional(),
+      jobTitle: z.string().trim().optional(),
       // Only admin can change these
       role: z.enum(['ADMIN', 'MANAGER', 'AUDITOR', 'USER']).optional(),
       isActive: z.boolean().optional(),

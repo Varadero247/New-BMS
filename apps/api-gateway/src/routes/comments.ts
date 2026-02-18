@@ -25,11 +25,11 @@ const createCommentSchema = z.object({
   recordType: z.string().trim().min(1).max(100),
   recordId: z.string().trim().min(1).max(100),
   parentId: z.string().trim().uuid().nullable().optional(),
-  body: z.string().min(1).max(5000),
+  body: z.string().trim().min(1).max(5000),
 });
 
 const updateCommentSchema = z.object({
-  body: z.string().min(1).max(5000),
+  body: z.string().trim().min(1).max(5000),
 });
 
 const reactionSchema = z.object({

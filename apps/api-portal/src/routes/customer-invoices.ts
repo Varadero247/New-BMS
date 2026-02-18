@@ -27,7 +27,7 @@ const paymentIntentSchema = z.object({
   paymentMethod: z
     .enum(['BANK_TRANSFER', 'CREDIT_CARD', 'CHECK', 'OTHER'])
     .default('BANK_TRANSFER'),
-  notes: z.string().max(1000).optional().nullable(),
+  notes: z.string().trim().max(1000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

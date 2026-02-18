@@ -27,14 +27,14 @@ async function generateRefNumber(): Promise<string> {
 const createSchema = z.object({
   factorName: z.string().trim().min(1).max(500),
   factorType: z.enum(['INTERNAL', 'EXTERNAL']),
-  category: z.string().max(200).optional().nullable(),
-  description: z.string().max(5000).optional().nullable(),
+  category: z.string().trim().max(200).optional().nullable(),
+  description: z.string().trim().max(5000).optional().nullable(),
   impact: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional().default('MEDIUM'),
   status: z
     .enum(['OPEN', 'UNDER_REVIEW', 'TREATED', 'MONITORED', 'CLOSED'])
     .optional()
     .default('OPEN'),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial();

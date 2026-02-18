@@ -27,8 +27,8 @@ async function generateRefNumber(): Promise<string> {
 const createSchema = z.object({
   employeeId: z.string().trim().min(1).max(100),
   employeeName: z.string().trim().min(1).max(200),
-  department: z.string().max(200).optional().nullable(),
-  position: z.string().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
+  position: z.string().trim().max(200).optional().nullable(),
   courseName: z.string().trim().min(1).max(300),
   trainingType: z
     .enum([
@@ -58,10 +58,10 @@ const createSchema = z.object({
     .enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED'])
     .optional()
     .nullable(),
-  provider: z.string().max(300).optional().nullable(),
+  provider: z.string().trim().max(300).optional().nullable(),
   duration: z.number().int().min(0).optional().nullable(),
   passMark: z.number().int().min(0).max(100).optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
@@ -75,8 +75,8 @@ const updateSchema = createSchema.partial().extend({
     .nullable(),
   score: z.number().int().min(0).max(100).optional().nullable(),
   passed: z.boolean().optional().nullable(),
-  certificate: z.string().max(500).optional().nullable(),
-  feedback: z.string().max(2000).optional().nullable(),
+  certificate: z.string().trim().max(500).optional().nullable(),
+  feedback: z.string().trim().max(2000).optional().nullable(),
 });
 
 const completeSchema = z.object({
@@ -85,8 +85,8 @@ const completeSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  certificate: z.string().max(500).optional(),
-  feedback: z.string().max(2000).optional(),
+  certificate: z.string().trim().max(500).optional(),
+  feedback: z.string().trim().max(2000).optional(),
 });
 
 // GET /overdue — Overdue training (must be before /:id)

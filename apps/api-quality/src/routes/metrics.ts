@@ -26,7 +26,7 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   name: z.string().trim().min(1).max(300),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   category: z
     .enum([
       'CUSTOMER_SATISFACTION',
@@ -41,22 +41,22 @@ const createSchema = z.object({
       'OTHER',
     ])
     .default('OTHER'),
-  unit: z.string().max(100).optional().nullable(),
+  unit: z.string().trim().max(100).optional().nullable(),
   targetValue: z.number().nonnegative().optional().nullable(),
   actualValue: z.number().optional().nullable(),
   lowerLimit: z.number().optional().nullable(),
   upperLimit: z.number().optional().nullable(),
-  frequency: z.string().max(100).optional().nullable(),
-  owner: z.string().max(200).optional().nullable(),
-  isoClause: z.string().max(200).optional().nullable(),
-  period: z.string().max(100).optional().nullable(),
+  frequency: z.string().trim().max(100).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
+  isoClause: z.string().trim().max(200).optional().nullable(),
+  period: z.string().trim().max(100).optional().nullable(),
   measurementDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  trend: z.string().max(100).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  trend: z.string().trim().max(100).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({

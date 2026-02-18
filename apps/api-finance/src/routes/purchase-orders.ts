@@ -33,14 +33,17 @@ const poLineSchema = z.object({
 
 const createSchema = z.object({
   supplierId: z.string().trim().uuid(),
-  orderDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  orderDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   expectedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  currency: z.string().length(3).default('GBP'),
-  notes: z.string().max(2000).optional().nullable(),
+  currency: z.string().trim().length(3).default('GBP'),
+  notes: z.string().trim().max(2000).optional().nullable(),
   lines: z.array(poLineSchema).min(1),
 });
 
@@ -55,8 +58,8 @@ const updateSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  currency: z.string().length(3).optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  currency: z.string().trim().length(3).optional(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   status: z
     .enum(['DRAFT', 'SENT', 'ACKNOWLEDGED', 'PARTIALLY_RECEIVED', 'RECEIVED', 'CANCELLED'])
     .optional(),

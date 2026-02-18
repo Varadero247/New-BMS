@@ -37,7 +37,7 @@ router.post('/types', async (req: Request, res: Response) => {
     const schema = z.object({
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       category: z.enum([
         'ANNUAL',
         'SICK',
@@ -50,7 +50,7 @@ router.post('/types', async (req: Request, res: Response) => {
         'SABBATICAL',
         'OTHER',
       ]),
-      color: z.string().optional(),
+      color: z.string().trim().optional(),
       defaultDaysPerYear: z.number().default(0),
       maxCarryForward: z.number().default(0),
       isPaid: z.boolean().default(true),
@@ -190,14 +190,20 @@ router.post('/requests', async (req: Request, res: Response) => {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
       leaveTypeId: z.string().trim().uuid(),
-      startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      startDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       isHalfDay: z.boolean().default(false),
       halfDayPeriod: z.enum(['FIRST_HALF', 'SECOND_HALF']).optional(),
-      reason: z.string().optional(),
-      contactDuring: z.string().optional(),
+      reason: z.string().trim().optional(),
+      contactDuring: z.string().trim().optional(),
       handoverToId: z.string().trim().uuid().optional(),
-      handoverNotes: z.string().optional(),
+      handoverNotes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -592,8 +598,8 @@ router.post('/holidays', async (req: Request, res: Response) => {
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       type: z.enum(['PUBLIC', 'COMPANY', 'OPTIONAL', 'RESTRICTED']),
       isFloating: z.boolean().default(false),
-      applicableLocations: z.array(z.string()).default([]),
-      description: z.string().optional(),
+      applicableLocations: z.array(z.string().trim()).default([]),
+      description: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

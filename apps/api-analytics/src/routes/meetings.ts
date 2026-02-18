@@ -6,11 +6,11 @@ import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 
 const createMeetingSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  type: z.string().min(1, 'type is required'),
-  date: z.string().min(1, 'date is required'),
-  attendees: z.array(z.string()).optional(),
-  summary: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  type: z.string().trim().min(1, 'type is required'),
+  date: z.string().trim().min(1, 'date is required'),
+  attendees: z.array(z.string().trim()).optional(),
+  summary: z.string().trim().optional(),
   actionItems: z.array(z.any()).optional(),
 });
 

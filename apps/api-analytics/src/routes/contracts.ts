@@ -6,9 +6,9 @@ import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 
 const createContractSchema = z.object({
-  name: z.string().min(1, 'name is required'),
-  vendor: z.string().min(1, 'vendor is required'),
-  category: z.string().min(1, 'category is required'),
+  name: z.string().trim().min(1, 'name is required'),
+  vendor: z.string().trim().min(1, 'vendor is required'),
+  category: z.string().trim().min(1, 'category is required'),
   startDate: z
     .string()
     .min(1, 'startDate is required')
@@ -18,8 +18,8 @@ const createContractSchema = z.object({
     .min(1, 'endDate is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   annualCost: z.number().nonnegative().optional(),
-  status: z.string().optional(),
-  notes: z.string().nullable().optional(),
+  status: z.string().trim().optional(),
+  notes: z.string().trim().nullable().optional(),
 });
 
 const updateContractSchema = createContractSchema.partial();

@@ -108,9 +108,9 @@ router.post('/schedule', async (req: AuthRequest, res: Response) => {
         .min(1)
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      iso14001Clauses: z.array(z.string()).min(1),
-      description: z.string().optional(),
-      assignedAuditor: z.string().optional(),
+      iso14001Clauses: z.array(z.string().trim()).min(1),
+      description: z.string().trim().optional(),
+      assignedAuditor: z.string().trim().optional(),
       active: z.boolean().optional(),
     });
 
@@ -183,13 +183,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       leadAuditor: z.string().trim().min(1).max(200),
-      iso14001Clauses: z.array(z.string()).min(1),
-      department: z.string().optional(),
-      auditTeam: z.array(z.string()).optional().default([]),
-      objective: z.string().optional(),
-      criteria: z.string().optional(),
-      methodology: z.string().optional(),
-      status: z.string().optional(),
+      iso14001Clauses: z.array(z.string().trim()).min(1),
+      department: z.string().trim().optional(),
+      auditTeam: z.array(z.string().trim()).optional().default([]),
+      objective: z.string().trim().optional(),
+      criteria: z.string().trim().optional(),
+      methodology: z.string().trim().optional(),
+      status: z.string().trim().optional(),
       openingMeetingDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -202,13 +202,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      summary: z.string().optional(),
-      conclusions: z.string().optional(),
-      recommendations: z.string().optional(),
-      aiAuditPlan: z.string().optional(),
-      aiClauseAnalysis: z.string().optional(),
-      aiRiskAssessment: z.string().optional(),
-      aiRecommendations: z.string().optional(),
+      summary: z.string().trim().optional(),
+      conclusions: z.string().trim().optional(),
+      recommendations: z.string().trim().optional(),
+      aiAuditPlan: z.string().trim().optional(),
+      aiClauseAnalysis: z.string().trim().optional(),
+      aiRiskAssessment: z.string().trim().optional(),
+      aiRecommendations: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -282,14 +282,14 @@ router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
-        leadAuditor: z.string().optional(),
-        iso14001Clauses: z.array(z.string()).optional(),
-        department: z.string().optional(),
-        auditTeam: z.array(z.string()).optional(),
-        objective: z.string().optional(),
-        criteria: z.string().optional(),
-        methodology: z.string().optional(),
-        status: z.string().optional(),
+        leadAuditor: z.string().trim().optional(),
+        iso14001Clauses: z.array(z.string().trim()).optional(),
+        department: z.string().trim().optional(),
+        auditTeam: z.array(z.string().trim()).optional(),
+        objective: z.string().trim().optional(),
+        criteria: z.string().trim().optional(),
+        methodology: z.string().trim().optional(),
+        status: z.string().trim().optional(),
         openingMeetingDate: z
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -302,13 +302,13 @@ router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
-        summary: z.string().optional(),
-        conclusions: z.string().optional(),
-        recommendations: z.string().optional(),
-        aiAuditPlan: z.string().optional(),
-        aiClauseAnalysis: z.string().optional(),
-        aiRiskAssessment: z.string().optional(),
-        aiRecommendations: z.string().optional(),
+        summary: z.string().trim().optional(),
+        conclusions: z.string().trim().optional(),
+        recommendations: z.string().trim().optional(),
+        aiAuditPlan: z.string().trim().optional(),
+        aiClauseAnalysis: z.string().trim().optional(),
+        aiRiskAssessment: z.string().trim().optional(),
+        aiRecommendations: z.string().trim().optional(),
         aiGenerated: z.boolean().optional(),
       })
       .strict();
@@ -385,15 +385,15 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
       clause: z.string().trim().min(1).max(200),
       type: z.enum(['CONFORMITY', 'MINOR_NC', 'MAJOR_NC', 'OBSERVATION', 'OFI']),
       description: z.string().trim().min(1).max(2000),
-      evidence: z.string().optional(),
-      requirement: z.string().optional(),
-      correctiveAction: z.string().optional(),
-      assignedTo: z.string().optional(),
+      evidence: z.string().trim().optional(),
+      requirement: z.string().trim().optional(),
+      correctiveAction: z.string().trim().optional(),
+      assignedTo: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      status: z.string().optional(),
+      status: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -446,18 +446,18 @@ router.put('/:id/findings/:fid', async (req: AuthRequest, res: Response) => {
 
     const schema = z
       .object({
-        clause: z.string().optional(),
+        clause: z.string().trim().optional(),
         type: z.enum(['CONFORMITY', 'MINOR_NC', 'MAJOR_NC', 'OBSERVATION', 'OFI']).optional(),
-        description: z.string().optional(),
-        evidence: z.string().optional(),
-        requirement: z.string().optional(),
-        correctiveAction: z.string().optional(),
-        assignedTo: z.string().optional(),
+        description: z.string().trim().optional(),
+        evidence: z.string().trim().optional(),
+        requirement: z.string().trim().optional(),
+        correctiveAction: z.string().trim().optional(),
+        assignedTo: z.string().trim().optional(),
         dueDate: z
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
-        status: z.string().optional(),
+        status: z.string().trim().optional(),
         closedDate: z
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -571,8 +571,8 @@ router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       summary: z.string().trim().min(1).max(2000),
-      conclusions: z.string().optional(),
-      recommendations: z.string().optional(),
+      conclusions: z.string().trim().optional(),
+      recommendations: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

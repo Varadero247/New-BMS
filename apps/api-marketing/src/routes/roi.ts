@@ -11,11 +11,11 @@ const roiCalculateSchema = z.object({
   companyName: z.string().trim().min(1).max(200),
   name: z.string().trim().min(1).max(200),
   email: z.string().trim().email(),
-  jobTitle: z.string().optional(),
-  employeeCount: z.string().optional(),
+  jobTitle: z.string().trim().optional(),
+  employeeCount: z.string().trim().optional(),
   isoCount: z.number().int().min(1).max(20).optional(),
   currentSpend: z.number().min(0).optional(),
-  industry: z.string().optional(),
+  industry: z.string().trim().optional(),
 });
 
 function calculateROI(data: { isoCount?: number; employeeCount?: string; currentSpend?: number }) {

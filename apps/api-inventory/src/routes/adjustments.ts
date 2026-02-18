@@ -32,10 +32,10 @@ const createSchema = z.object({
   adjustmentType: z.enum(ADJUSTMENT_TYPES),
   quantity: z.number().int().positive(),
   reason: z.string().trim().min(1).max(500),
-  notes: z.string().max(2000).optional().nullable(),
-  binLocation: z.string().max(100).optional().nullable(),
-  lotNumber: z.string().max(100).optional().nullable(),
-  serialNumber: z.string().max(100).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
+  binLocation: z.string().trim().max(100).optional().nullable(),
+  lotNumber: z.string().trim().max(100).optional().nullable(),
+  serialNumber: z.string().trim().max(100).optional().nullable(),
   unitCost: z.number().nonnegative().optional().nullable(),
   adjustmentDate: z
     .string()

@@ -26,14 +26,14 @@ function generateAssetCode(): string {
 
 const assetCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   assetType: z.enum(['EQUIPMENT', 'VEHICLE', 'BUILDING', 'INFRASTRUCTURE', 'IT_ASSET', 'TOOL']),
-  category: z.string().max(100).optional().nullable(),
-  manufacturer: z.string().max(200).optional().nullable(),
-  model: z.string().max(200).optional().nullable(),
-  serialNumber: z.string().max(200).optional().nullable(),
-  location: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
+  category: z.string().trim().max(100).optional().nullable(),
+  manufacturer: z.string().trim().max(200).optional().nullable(),
+  model: z.string().trim().max(200).optional().nullable(),
+  serialNumber: z.string().trim().max(200).optional().nullable(),
+  location: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
   status: z
     .enum(['ACTIVE', 'INACTIVE', 'UNDER_MAINTENANCE', 'DECOMMISSIONED', 'DISPOSED'])
     .optional(),
@@ -43,23 +43,23 @@ const assetCreateSchema = z.object({
     .optional()
     .nullable(),
   purchaseCost: z.number().nonnegative().optional().nullable(),
-  warrantyExpiry: z.string().optional().nullable(),
+  warrantyExpiry: z.string().trim().optional().nullable(),
   parentAssetId: z.string().trim().uuid().optional().nullable(),
   criticality: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
 });
 
 const assetUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   assetType: z
     .enum(['EQUIPMENT', 'VEHICLE', 'BUILDING', 'INFRASTRUCTURE', 'IT_ASSET', 'TOOL'])
     .optional(),
-  category: z.string().max(100).optional().nullable(),
-  manufacturer: z.string().max(200).optional().nullable(),
-  model: z.string().max(200).optional().nullable(),
-  serialNumber: z.string().max(200).optional().nullable(),
-  location: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
+  category: z.string().trim().max(100).optional().nullable(),
+  manufacturer: z.string().trim().max(200).optional().nullable(),
+  model: z.string().trim().max(200).optional().nullable(),
+  serialNumber: z.string().trim().max(200).optional().nullable(),
+  location: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
   status: z
     .enum(['ACTIVE', 'INACTIVE', 'UNDER_MAINTENANCE', 'DECOMMISSIONED', 'DISPOSED'])
     .optional(),
@@ -69,7 +69,7 @@ const assetUpdateSchema = z.object({
     .optional()
     .nullable(),
   purchaseCost: z.number().nonnegative().optional().nullable(),
-  warrantyExpiry: z.string().optional().nullable(),
+  warrantyExpiry: z.string().trim().optional().nullable(),
   parentAssetId: z.string().trim().uuid().optional().nullable(),
   criticality: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
 });

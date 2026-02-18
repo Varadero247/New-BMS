@@ -31,20 +31,20 @@ async function generateRefNumber(): Promise<string> {
 const createSchema = z.object({
   title: z.string().trim().min(1).max(200),
   problemStatement: z.string().trim().min(1).max(200),
-  customer: z.string().optional(),
-  partNumber: z.string().optional(),
-  partName: z.string().optional(),
+  customer: z.string().trim().optional(),
+  partNumber: z.string().trim().optional(),
+  partName: z.string().trim().optional(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   teamLeader: z.string().trim().min(1).max(200),
-  teamMembers: z.array(z.string()).optional().default([]),
+  teamMembers: z.array(z.string().trim()).optional().default([]),
 });
 
 const updateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  problemStatement: z.string().optional(),
-  customer: z.string().optional(),
-  partNumber: z.string().optional(),
-  partName: z.string().optional(),
+  problemStatement: z.string().trim().optional(),
+  customer: z.string().trim().optional(),
+  partNumber: z.string().trim().optional(),
+  partName: z.string().trim().optional(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   status: z
     .enum([
@@ -59,44 +59,44 @@ const updateSchema = z.object({
       'CLOSED',
     ])
     .optional(),
-  teamLeader: z.string().optional(),
-  teamMembers: z.array(z.string()).optional(),
+  teamLeader: z.string().trim().optional(),
+  teamMembers: z.array(z.string().trim()).optional(),
   // D2
-  problemDescription: z.string().optional(),
-  is: z.string().optional(),
-  isNot: z.string().optional(),
-  whenOccurred: z.string().optional(),
-  whereOccurred: z.string().optional(),
+  problemDescription: z.string().trim().optional(),
+  is: z.string().trim().optional(),
+  isNot: z.string().trim().optional(),
+  whenOccurred: z.string().trim().optional(),
+  whereOccurred: z.string().trim().optional(),
   // D3
-  containmentAction: z.string().optional(),
+  containmentAction: z.string().trim().optional(),
   containmentDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  containmentOwner: z.string().optional(),
+  containmentOwner: z.string().trim().optional(),
   // D4
-  rootCause: z.string().optional(),
-  rootCauseMethod: z.string().optional(),
+  rootCause: z.string().trim().optional(),
+  rootCauseMethod: z.string().trim().optional(),
   rootCauseAnalysis: z.record(z.unknown()).optional(),
   // D5
   correctiveActions: z.array(z.unknown()).optional(),
   // D6
-  implementationPlan: z.string().optional(),
+  implementationPlan: z.string().trim().optional(),
   implementationDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
   // D7
   preventiveActions: z.array(z.unknown()).optional(),
-  systemsUpdated: z.string().optional(),
+  systemsUpdated: z.string().trim().optional(),
   // D8
-  teamRecognition: z.string().optional(),
-  lessonsLearned: z.string().optional(),
+  teamRecognition: z.string().trim().optional(),
+  lessonsLearned: z.string().trim().optional(),
   closedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  closedBy: z.string().optional(),
+  closedBy: z.string().trim().optional(),
 });
 
 // GET / - List 8D reports

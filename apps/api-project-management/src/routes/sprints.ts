@@ -90,20 +90,26 @@ const createSprintSchema = z.object({
   projectId: z.string().trim().min(1).max(200),
   sprintNumber: z.number().min(1),
   sprintName: z.string().trim().min(1).max(200),
-  sprintGoal: z.string().optional(),
-  startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  sprintGoal: z.string().trim().optional(),
+  startDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  endDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   duration: z.number().min(1),
   plannedVelocity: z.number().optional(),
   teamCapacity: z.number().nonnegative().optional(),
-  status: z.string().optional(),
+  status: z.string().trim().optional(),
 });
 const updateSprintSchema = createSprintSchema
   .extend({
     actualVelocity: z.number().optional(),
     completedStoryPoints: z.number().int().nonnegative().optional(),
     committedStoryPoints: z.number().int().nonnegative().optional(),
-    retrospectiveNotes: z.string().optional(),
+    retrospectiveNotes: z.string().trim().optional(),
     teamSatisfactionScore: z.number().min(0).max(10).optional(),
   })
   .partial();

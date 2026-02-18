@@ -59,13 +59,13 @@ router.post('/filings', async (req: Request, res: Response) => {
         'STATE',
         'LOCAL',
       ]),
-      taxPeriod: z.string(),
+      taxPeriod: z.string().trim(),
       taxYear: z.number().nonnegative(),
       grossWages: z.number().nonnegative(),
       taxableWages: z.number().nonnegative(),
       taxWithheld: z.number().nonnegative(),
       employerTax: z.number().default(0),
-      filingDeadline: z.string(),
+      filingDeadline: z.string().trim(),
     });
 
     const data = schema.parse(req.body);
@@ -203,9 +203,9 @@ router.post('/brackets', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       taxYear: z.number().nonnegative(),
-      country: z.string(),
-      region: z.string().optional(),
-      filingStatus: z.string().optional(),
+      country: z.string().trim(),
+      region: z.string().trim().optional(),
+      filingStatus: z.string().trim().optional(),
       minIncome: z.number(),
       maxIncome: z.number().optional(),
       rate: z.number().nonnegative(),

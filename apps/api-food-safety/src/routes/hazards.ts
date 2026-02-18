@@ -34,27 +34,27 @@ const likelihoodScores: Record<string, number> = {
 const hazardCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   type: z.enum(['BIOLOGICAL', 'CHEMICAL', 'PHYSICAL', 'ALLERGEN', 'RADIOLOGICAL']),
-  description: z.string().max(2000).optional().nullable(),
-  source: z.string().max(500).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  source: z.string().trim().max(500).optional().nullable(),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']),
   likelihood: z.enum(['ALMOST_CERTAIN', 'LIKELY', 'POSSIBLE', 'UNLIKELY', 'RARE']),
-  controlMeasure: z.string().max(2000).optional().nullable(),
-  processStep: z.string().max(200).optional().nullable(),
+  controlMeasure: z.string().trim().max(2000).optional().nullable(),
+  processStep: z.string().trim().max(200).optional().nullable(),
   isSignificant: z.boolean().optional().default(false),
-  category: z.string().max(100).optional().nullable(),
+  category: z.string().trim().max(100).optional().nullable(),
 });
 
 const hazardUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['BIOLOGICAL', 'CHEMICAL', 'PHYSICAL', 'ALLERGEN', 'RADIOLOGICAL']).optional(),
-  description: z.string().max(2000).optional().nullable(),
-  source: z.string().max(500).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  source: z.string().trim().max(500).optional().nullable(),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   likelihood: z.enum(['ALMOST_CERTAIN', 'LIKELY', 'POSSIBLE', 'UNLIKELY', 'RARE']).optional(),
-  controlMeasure: z.string().max(2000).optional().nullable(),
-  processStep: z.string().max(200).optional().nullable(),
+  controlMeasure: z.string().trim().max(2000).optional().nullable(),
+  processStep: z.string().trim().max(200).optional().nullable(),
   isSignificant: z.boolean().optional(),
-  category: z.string().max(100).optional().nullable(),
+  category: z.string().trim().max(100).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

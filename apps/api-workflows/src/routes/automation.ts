@@ -16,11 +16,11 @@ router.param('id', validateIdParam());
 // Validation schemas
 const createRuleSchema = z.object({
   name: z.string().trim().min(1).max(255),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
   code: z.string().trim().min(1).max(100),
   triggerType: z.enum(['EVENT', 'SCHEDULED', 'CONDITION', 'WORKFLOW_EVENT', 'API', 'WEBHOOK']),
-  triggerEvent: z.string().optional(),
-  triggerSchedule: z.string().optional(),
+  triggerEvent: z.string().trim().optional(),
+  triggerSchedule: z.string().trim().optional(),
   triggerCondition: z.record(z.unknown()).optional(),
   actionType: z.enum([
     'CREATE_WORKFLOW',
@@ -35,7 +35,7 @@ const createRuleSchema = z.object({
     'CUSTOM',
   ]),
   actionConfig: z.record(z.unknown()),
-  entityType: z.string().optional(),
+  entityType: z.string().trim().optional(),
   workflowCategory: z
     .enum([
       'APPROVAL',

@@ -9,9 +9,9 @@ router.param('id', validateIdParam());
 const logger = createLogger('documents-read-receipts');
 
 const createSchema = z.object({
-  documentId: z.string().min(1, 'Document ID is required'),
-  userId: z.string().min(1, 'User ID is required'),
-  userName: z.string().optional(),
+  documentId: z.string().trim().min(1, 'Document ID is required'),
+  userId: z.string().trim().min(1, 'User ID is required'),
+  userName: z.string().trim().optional(),
   status: z.enum(['UNREAD', 'READ', 'ACKNOWLEDGED']).optional(),
   readAt: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   acknowledgedAt: z.string().trim().datetime({ offset: true }).optional().or(z.null()),

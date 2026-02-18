@@ -24,8 +24,8 @@ const stakeholderCreateSchema = z.object({
   type: z.enum(['INVESTOR', 'CUSTOMER', 'EMPLOYEE', 'REGULATOR', 'COMMUNITY', 'SUPPLIER', 'NGO']),
   contactEmail: z.string().trim().email().max(200).optional().nullable(),
   engagementLevel: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
-  lastEngagement: z.string().optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  lastEngagement: z.string().trim().optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const stakeholderUpdateSchema = z.object({
@@ -35,8 +35,8 @@ const stakeholderUpdateSchema = z.object({
     .optional(),
   contactEmail: z.string().trim().email().max(200).optional().nullable(),
   engagementLevel: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
-  lastEngagement: z.string().optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  lastEngagement: z.string().trim().optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 // GET /api/stakeholders

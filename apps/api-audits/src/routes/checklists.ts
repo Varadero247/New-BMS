@@ -10,13 +10,13 @@ router.param('id', validateIdParam());
 const logger = createLogger('audits-checklists');
 
 const checklistCreateSchema = z.object({
-  auditId: z.string().min(1, 'auditId is required'),
-  title: z.string().min(1, 'title is required'),
-  standard: z.string().optional(),
-  items: z.string().optional(),
+  auditId: z.string().trim().min(1, 'auditId is required'),
+  title: z.string().trim().min(1, 'title is required'),
+  standard: z.string().trim().optional(),
+  items: z.string().trim().optional(),
   completedItems: z.number().optional(),
   totalItems: z.number().nonnegative().optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const checklistUpdateSchema = checklistCreateSchema.partial();

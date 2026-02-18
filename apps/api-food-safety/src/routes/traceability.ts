@@ -21,12 +21,22 @@ const traceabilityCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   expiryDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
   ingredients: z.any(),
@@ -46,13 +56,23 @@ const traceabilityUpdateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional(),
   expiryDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
   ingredients: z.any().optional(),

@@ -9,8 +9,8 @@ import { AppError } from '../middleware/error-handler';
 const router: IRouter = Router();
 
 const createAlertSchema = z.object({
-  buildingId: z.string(),
-  deviceId: z.string().optional(),
+  buildingId: z.string().trim(),
+  deviceId: z.string().trim().optional(),
   type: z.enum(['SYSTEM', 'DEVICE', 'SECURITY', 'ENVIRONMENTAL', 'MAINTENANCE', 'ENERGY']),
   severity: z.enum(['INFO', 'WARNING', 'CRITICAL', 'EMERGENCY']),
   title: z.string().trim().min(1).max(200),

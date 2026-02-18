@@ -9,29 +9,29 @@ router.param('id', validateIdParam());
 const logger = createLogger('assets-assets');
 
 const createSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  assetTag: z.string().optional(),
-  serialNumber: z.string().optional(),
-  category: z.string().optional(),
-  location: z.string().optional(),
-  department: z.string().optional(),
+  name: z.string().trim().min(1, 'Name is required'),
+  description: z.string().trim().optional(),
+  assetTag: z.string().trim().optional(),
+  serialNumber: z.string().trim().optional(),
+  category: z.string().trim().optional(),
+  location: z.string().trim().optional(),
+  department: z.string().trim().optional(),
   status: z
     .enum(['ACTIVE', 'IN_SERVICE', 'OUT_OF_SERVICE', 'MAINTENANCE', 'DECOMMISSIONED', 'DISPOSED'])
     .optional(),
   condition: z.enum(['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'CRITICAL']).optional(),
-  manufacturer: z.string().optional(),
-  model: z.string().optional(),
+  manufacturer: z.string().trim().optional(),
+  model: z.string().trim().optional(),
   purchaseDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
   purchaseCost: z.number().nonnegative().optional(),
   currentValue: z.number().nonnegative().optional(),
-  warrantyExpiry: z.string().optional(),
-  assignedTo: z.string().optional(),
-  parentAssetId: z.string().optional(),
-  notes: z.string().optional(),
+  warrantyExpiry: z.string().trim().optional(),
+  assignedTo: z.string().trim().optional(),
+  parentAssetId: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

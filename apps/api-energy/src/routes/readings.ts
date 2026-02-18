@@ -19,10 +19,15 @@ const readingCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   source: z.enum(['MANUAL', 'AUTOMATIC', 'ESTIMATED', 'INVOICE']).optional().default('MANUAL'),
   cost: z.number().min(0).optional().nullable(),
-  notes: z.string().max(1000).optional().nullable(),
+  notes: z.string().trim().max(1000).optional().nullable(),
 });
 
 const readingUpdateSchema = z.object({
@@ -31,11 +36,16 @@ const readingUpdateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional(),
   source: z.enum(['MANUAL', 'AUTOMATIC', 'ESTIMATED', 'INVOICE']).optional(),
   cost: z.number().min(0).optional().nullable(),
-  notes: z.string().max(1000).optional().nullable(),
+  notes: z.string().trim().max(1000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

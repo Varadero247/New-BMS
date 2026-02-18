@@ -19,13 +19,13 @@ router.use(authenticate);
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
 const validateSchema = z.object({
-  csvData: z.string().min(1, 'CSV data is required'),
-  recordType: z.string().min(1, 'Record type is required'),
+  csvData: z.string().trim().min(1, 'CSV data is required'),
+  recordType: z.string().trim().min(1, 'Record type is required'),
 });
 
 const executeSchema = z.object({
   rows: z.array(z.record(z.unknown())).min(1, 'At least one row is required'),
-  recordType: z.string().min(1, 'Record type is required'),
+  recordType: z.string().trim().min(1, 'Record type is required'),
 });
 
 // ─── Routes ─────────────────────────────────────────────────────────────────

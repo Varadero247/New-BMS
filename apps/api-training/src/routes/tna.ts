@@ -9,19 +9,19 @@ router.param('id', validateIdParam());
 const logger = createLogger('training-tna');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  department: z.string().optional(),
-  role: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  department: z.string().trim().optional(),
+  role: z.string().trim().optional(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  identifiedGap: z.string().optional(),
-  recommendedTraining: z.string().optional(),
+  identifiedGap: z.string().trim().optional(),
+  recommendedTraining: z.string().trim().optional(),
   targetDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'CANCELLED']).optional(),
-  assignee: z.string().optional(),
-  assigneeName: z.string().optional(),
+  assignee: z.string().trim().optional(),
+  assigneeName: z.string().trim().optional(),
   budget: z.number().nonnegative().optional(),
-  approvedBy: z.string().optional(),
-  notes: z.string().optional(),
+  approvedBy: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

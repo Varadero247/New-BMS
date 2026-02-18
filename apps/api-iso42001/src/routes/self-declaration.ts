@@ -29,30 +29,33 @@ const declarationCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
   scope: z.string().trim().min(1).max(4000),
   conformanceStatement: z.string().trim().min(1).max(10000),
-  standard: z.string().max(100).optional().default('ISO 42001:2023'),
-  declarationDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  validUntil: z.string().optional().nullable(),
-  signedBy: z.string().max(200).optional().nullable(),
-  exclusions: z.string().max(4000).optional().nullable(),
-  supportingEvidence: z.string().max(4000).optional().nullable(),
-  notes: z.string().max(4000).optional().nullable(),
+  standard: z.string().trim().max(100).optional().default('ISO 42001:2023'),
+  declarationDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  validUntil: z.string().trim().optional().nullable(),
+  signedBy: z.string().trim().max(200).optional().nullable(),
+  exclusions: z.string().trim().max(4000).optional().nullable(),
+  supportingEvidence: z.string().trim().max(4000).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 const declarationUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
   scope: z.string().trim().min(1).max(4000).optional(),
   conformanceStatement: z.string().trim().min(1).max(10000).optional(),
-  standard: z.string().max(100).optional(),
+  standard: z.string().trim().max(100).optional(),
   status: z.enum(['DRAFT', 'PUBLISHED', 'EXPIRED']).optional(),
   declarationDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  validUntil: z.string().optional().nullable(),
-  signedBy: z.string().max(200).optional().nullable(),
-  exclusions: z.string().max(4000).optional().nullable(),
-  supportingEvidence: z.string().max(4000).optional().nullable(),
-  notes: z.string().max(4000).optional().nullable(),
+  validUntil: z.string().trim().optional().nullable(),
+  signedBy: z.string().trim().max(200).optional().nullable(),
+  exclusions: z.string().trim().max(4000).optional().nullable(),
+  supportingEvidence: z.string().trim().max(4000).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

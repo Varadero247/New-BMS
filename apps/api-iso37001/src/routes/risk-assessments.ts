@@ -47,7 +47,7 @@ function determineRiskLevel(score: number): string {
 
 const riskAssessmentCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(5000).optional(),
+  description: z.string().trim().max(5000).optional(),
   category: z.enum([
     'BRIBERY_OF_PUBLIC_OFFICIALS',
     'COMMERCIAL_BRIBERY',
@@ -66,19 +66,19 @@ const riskAssessmentCreateSchema = z.object({
   businessFunction: z.string().trim().min(1).max(200),
   likelihood: z.number().int().min(1).max(5),
   impact: z.number().int().min(1).max(5),
-  country: z.string().max(100).optional(),
-  existingControls: z.string().max(5000).optional(),
-  owner: z.string().max(200).optional(),
+  country: z.string().trim().max(100).optional(),
+  existingControls: z.string().trim().max(5000).optional(),
+  owner: z.string().trim().max(200).optional(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 const riskAssessmentUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  description: z.string().max(5000).optional(),
+  description: z.string().trim().max(5000).optional(),
   category: z
     .enum([
       'BRIBERY_OF_PUBLIC_OFFICIALS',
@@ -99,22 +99,22 @@ const riskAssessmentUpdateSchema = z.object({
   businessFunction: z.string().trim().min(1).max(200).optional(),
   likelihood: z.number().int().min(1).max(5).optional(),
   impact: z.number().int().min(1).max(5).optional(),
-  country: z.string().max(100).optional(),
-  existingControls: z.string().max(5000).optional(),
-  owner: z.string().max(200).optional(),
+  country: z.string().trim().max(100).optional(),
+  existingControls: z.string().trim().max(5000).optional(),
+  owner: z.string().trim().max(200).optional(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 const mitigateSchema = z.object({
   mitigationPlan: z.string().trim().min(1).max(5000),
   residualLikelihood: z.number().int().min(1).max(5),
   residualImpact: z.number().int().min(1).max(5),
-  controlsAdded: z.string().max(5000).optional(),
-  mitigationOwner: z.string().max(200).optional(),
+  controlsAdded: z.string().trim().max(5000).optional(),
+  mitigationOwner: z.string().trim().max(200).optional(),
   targetDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

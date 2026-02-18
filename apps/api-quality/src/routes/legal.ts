@@ -113,20 +113,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'CERTIFICATION_REQUIREMENT',
         'VOLUNTARY_COMMITMENT',
       ]),
-      issuingBody: z.string().optional(),
-      referenceDoc: z.string().optional(),
+      issuingBody: z.string().trim().optional(),
+      referenceDoc: z.string().trim().optional(),
       description: z.string().trim().min(1).max(2000),
-      requirements: z.string().optional(),
-      applicableScope: z.string().optional(),
-      customerName: z.string().optional(),
-      contractNumber: z.string().optional(),
-      productServiceScope: z.string().optional(),
-      certificationBody: z.string().optional(),
+      requirements: z.string().trim().optional(),
+      applicableScope: z.string().trim().optional(),
+      customerName: z.string().trim().optional(),
+      contractNumber: z.string().trim().optional(),
+      productServiceScope: z.string().trim().optional(),
+      certificationBody: z.string().trim().optional(),
       complianceStatus: z
         .enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_ASSESSED', 'UNDER_REVIEW'])
         .default('NOT_ASSESSED'),
-      complianceNotes: z.string().optional(),
-      gapAnalysis: z.string().optional(),
+      complianceNotes: z.string().trim().optional(),
+      gapAnalysis: z.string().trim().optional(),
       lastAssessmentDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -135,7 +135,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      responsiblePerson: z.string().optional(),
+      responsiblePerson: z.string().trim().optional(),
       reviewFrequency: z
         .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
         .default('ANNUALLY'),
@@ -209,20 +209,20 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
           'VOLUNTARY_COMMITMENT',
         ])
         .optional(),
-      issuingBody: z.string().nullable().optional(),
-      referenceDoc: z.string().nullable().optional(),
-      description: z.string().optional(),
-      requirements: z.string().nullable().optional(),
-      applicableScope: z.string().nullable().optional(),
-      customerName: z.string().nullable().optional(),
-      contractNumber: z.string().nullable().optional(),
-      productServiceScope: z.string().nullable().optional(),
-      certificationBody: z.string().nullable().optional(),
+      issuingBody: z.string().trim().nullable().optional(),
+      referenceDoc: z.string().trim().nullable().optional(),
+      description: z.string().trim().optional(),
+      requirements: z.string().trim().nullable().optional(),
+      applicableScope: z.string().trim().nullable().optional(),
+      customerName: z.string().trim().nullable().optional(),
+      contractNumber: z.string().trim().nullable().optional(),
+      productServiceScope: z.string().trim().nullable().optional(),
+      certificationBody: z.string().trim().nullable().optional(),
       complianceStatus: z
         .enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_ASSESSED', 'UNDER_REVIEW'])
         .optional(),
-      complianceNotes: z.string().nullable().optional(),
-      gapAnalysis: z.string().nullable().optional(),
+      complianceNotes: z.string().trim().nullable().optional(),
+      gapAnalysis: z.string().trim().nullable().optional(),
       lastAssessmentDate: z
         .string()
         .nullable()
@@ -233,7 +233,7 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
         .nullable()
         .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      responsiblePerson: z.string().nullable().optional(),
+      responsiblePerson: z.string().trim().nullable().optional(),
       reviewFrequency: z
         .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
         .optional(),
@@ -251,9 +251,9 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
       trackedInHs: z.boolean().optional(),
       trackedInEnv: z.boolean().optional(),
       // AI fields
-      aiAnalysis: z.string().nullable().optional(),
-      aiComplianceChecklist: z.string().nullable().optional(),
-      aiGapAnalysis: z.string().nullable().optional(),
+      aiAnalysis: z.string().trim().nullable().optional(),
+      aiComplianceChecklist: z.string().trim().nullable().optional(),
+      aiGapAnalysis: z.string().trim().nullable().optional(),
       aiGenerated: z.boolean().optional(),
     });
 

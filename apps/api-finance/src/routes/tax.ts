@@ -28,9 +28,9 @@ const createTaxRateSchema = z.object({
     .enum(['UK_VAT', 'US_SALES', 'EU_VAT', 'CANADA_GST', 'AUSTRALIA_GST', 'OTHER'])
     .default('UK_VAT'),
   isDefault: z.boolean().optional(),
-  description: z.string().optional(),
-  effectiveFrom: z.string().optional(),
-  effectiveTo: z.string().optional(),
+  description: z.string().trim().optional(),
+  effectiveFrom: z.string().trim().optional(),
+  effectiveTo: z.string().trim().optional(),
 });
 
 const createTaxReturnSchema = z.object({
@@ -45,7 +45,7 @@ const createTaxReturnSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // ============================================

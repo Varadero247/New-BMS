@@ -77,7 +77,7 @@ router.post('/projects', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       safetyClass: z.enum(SOFTWARE_SAFETY_CLASSES),
       currentPhase: z.enum(SOFTWARE_PHASES).optional(),
       status: z.enum(SOFTWARE_PROJECT_STATUSES).optional(),
@@ -209,10 +209,10 @@ router.post('/projects/:id/soup', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      vendor: z.string().optional(),
+      vendor: z.string().trim().optional(),
       version: z.string().trim().min(1).max(200),
-      intendedUse: z.string().optional(),
-      knownAnomalies: z.string().optional(),
+      intendedUse: z.string().trim().optional(),
+      knownAnomalies: z.string().trim().optional(),
       riskAcceptable: z.boolean().optional(),
       verifiedDate: z
         .string()
@@ -275,10 +275,10 @@ router.put('/projects/:id/phase/:phase', async (req: AuthRequest, res: Response)
     const validPhase = phaseSchema.parse(phaseParam);
 
     const schema = z.object({
-      documentRef: z.string().optional(),
-      content: z.string().optional(),
+      documentRef: z.string().trim().optional(),
+      content: z.string().trim().optional(),
       status: z.enum(PHASE_DOC_STATUSES).optional(),
-      reviewedBy: z.string().optional(),
+      reviewedBy: z.string().trim().optional(),
       reviewedDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -351,7 +351,7 @@ router.post('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =
       description: z.string().trim().min(1).max(2000),
       severity: z.enum(ANOMALY_SEVERITIES).optional(),
       status: z.enum(ANOMALY_STATUSES).optional(),
-      resolution: z.string().optional(),
+      resolution: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

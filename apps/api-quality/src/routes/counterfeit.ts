@@ -47,13 +47,13 @@ router.post('/reports', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       partNumber: z.string().trim().min(1).max(200),
-      partName: z.string().optional(),
+      partName: z.string().trim().optional(),
       manufacturer: z.string().trim().min(1).max(200),
-      distributor: z.string().optional(),
-      lotNumber: z.string().optional(),
-      serialNumber: z.string().optional(),
+      distributor: z.string().trim().optional(),
+      lotNumber: z.string().trim().optional(),
+      serialNumber: z.string().trim().optional(),
       suspicionReason: z.string().trim().min(1).max(2000),
-      evidence: z.string().optional(),
+      evidence: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -183,7 +183,7 @@ router.put(
       }
 
       const schema = z.object({
-        investigationNotes: z.string().optional(),
+        investigationNotes: z.string().trim().optional(),
         status: z
           .enum([
             'REPORTED',
@@ -195,7 +195,7 @@ router.put(
           ])
           .optional(),
         disposition: z.enum(['DESTROY', 'RETURN_TO_SUPPLIER', 'QUARANTINE', 'CLEARED']).optional(),
-        evidence: z.string().optional(),
+        evidence: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -254,7 +254,7 @@ router.post(
       const schema = z.object({
         quantity: z.number().int().positive(),
         location: z.string().trim().min(1).max(200),
-        reason: z.string().optional(),
+        reason: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -316,7 +316,7 @@ router.post(
 
       const schema = z.object({
         notifyGidep: z.boolean().optional(),
-        gidepRef: z.string().optional(),
+        gidepRef: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -360,15 +360,18 @@ router.post('/approved-sources', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       companyName: z.string().trim().min(1).max(200),
-      cageCode: z.string().optional(),
-      partNumbers: z.array(z.string()),
-      certifications: z.array(z.string()),
-      approvalDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      cageCode: z.string().trim().optional(),
+      partNumbers: z.array(z.string().trim()),
+      certifications: z.array(z.string().trim()),
+      approvalDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       expiryDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
       riskRating: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
     });
 

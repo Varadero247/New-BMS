@@ -55,15 +55,15 @@ router.post('/dmr', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       deviceName: z.string().trim().min(1).max(200),
       deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']),
-      description: z.string().optional(),
-      specifications: z.string().optional(),
-      productionProcesses: z.string().optional(),
-      qualityProcedures: z.string().optional(),
-      acceptanceCriteria: z.string().optional(),
-      labellingSpecs: z.string().optional(),
-      packagingSpecs: z.string().optional(),
-      installationProcs: z.string().optional(),
-      servicingProcs: z.string().optional(),
+      description: z.string().trim().optional(),
+      specifications: z.string().trim().optional(),
+      productionProcesses: z.string().trim().optional(),
+      qualityProcedures: z.string().trim().optional(),
+      acceptanceCriteria: z.string().trim().optional(),
+      labellingSpecs: z.string().trim().optional(),
+      packagingSpecs: z.string().trim().optional(),
+      installationProcs: z.string().trim().optional(),
+      servicingProcs: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -211,15 +211,15 @@ router.put(
         deviceClass: z
           .enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB'])
           .optional(),
-        description: z.string().optional(),
-        specifications: z.string().optional(),
-        productionProcesses: z.string().optional(),
-        qualityProcedures: z.string().optional(),
-        acceptanceCriteria: z.string().optional(),
-        labellingSpecs: z.string().optional(),
-        packagingSpecs: z.string().optional(),
-        installationProcs: z.string().optional(),
-        servicingProcs: z.string().optional(),
+        description: z.string().trim().optional(),
+        specifications: z.string().trim().optional(),
+        productionProcesses: z.string().trim().optional(),
+        qualityProcedures: z.string().trim().optional(),
+        acceptanceCriteria: z.string().trim().optional(),
+        labellingSpecs: z.string().trim().optional(),
+        packagingSpecs: z.string().trim().optional(),
+        installationProcs: z.string().trim().optional(),
+        servicingProcs: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -310,8 +310,8 @@ router.post('/dhr', async (req: AuthRequest, res: Response) => {
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       quantityManufactured: z.number().int().positive(),
-      labelsUsed: z.string().optional(),
-      primaryId: z.string().optional(),
+      labelsUsed: z.string().trim().optional(),
+      primaryId: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -475,11 +475,11 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
         'OTHER',
       ]),
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
-      result: z.string().optional(),
+      description: z.string().trim().optional(),
+      result: z.string().trim().optional(),
       pass: z.boolean().optional(),
-      documentRef: z.string().optional(),
-      performedBy: z.string().optional(),
+      documentRef: z.string().trim().optional(),
+      performedBy: z.string().trim().optional(),
       performedDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

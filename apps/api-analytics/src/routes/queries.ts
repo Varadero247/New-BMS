@@ -16,16 +16,16 @@ router.param('id', validateIdParam());
 
 const queryCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(1000).optional().nullable(),
-  sql: z.string().min(1),
+  description: z.string().trim().max(1000).optional().nullable(),
+  sql: z.string().trim().min(1),
   parameters: z.record(z.any()).optional().nullable(),
   isPublic: z.boolean().optional().default(false),
 });
 
 const queryUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(1000).optional().nullable(),
-  sql: z.string().min(1).optional(),
+  description: z.string().trim().max(1000).optional().nullable(),
+  sql: z.string().trim().min(1).optional(),
   parameters: z.record(z.any()).optional().nullable(),
   isPublic: z.boolean().optional(),
 });

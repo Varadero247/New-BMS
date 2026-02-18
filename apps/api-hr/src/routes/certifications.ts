@@ -18,9 +18,12 @@ const createSchema = z.object({
   employeeId: z.string().trim().uuid(),
   name: z.string().trim().min(1).max(200),
   issuingOrganization: z.string().trim().min(1).max(200),
-  credentialId: z.string().optional(),
+  credentialId: z.string().trim().optional(),
   credentialUrl: z.string().trim().url().optional(),
-  issueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  issueDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   expiryDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

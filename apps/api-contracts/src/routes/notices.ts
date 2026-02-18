@@ -9,17 +9,17 @@ router.param('id', validateIdParam());
 const logger = createLogger('contracts-notices');
 
 const createSchema = z.object({
-  contractId: z.string().min(1, 'Contract ID is required'),
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
+  contractId: z.string().trim().min(1, 'Contract ID is required'),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   dueDate: z
     .string()
     .min(1, 'Due date is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   acknowledged: z.boolean().optional(),
-  acknowledgedBy: z.string().optional(),
-  acknowledgedAt: z.string().optional(),
+  acknowledgedBy: z.string().trim().optional(),
+  acknowledgedAt: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

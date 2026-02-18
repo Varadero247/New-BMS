@@ -48,28 +48,28 @@ const evacuationTypeEnum = z.enum([
 const declareIncidentSchema = z.object({
   emergencyType: emergencyTypeEnum,
   severity: severityEnum,
-  premisesId: z.string().optional(),
-  title: z.string().min(1, 'title is required'),
-  description: z.string().min(1, 'description is required'),
+  premisesId: z.string().trim().optional(),
+  title: z.string().trim().min(1, 'title is required'),
+  description: z.string().trim().min(1, 'description is required'),
   evacuationOrdered: z.boolean().optional(),
   evacuationType: evacuationTypeEnum.optional(),
 });
 
 const updateIncidentSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
   severity: severityEnum.optional(),
   status: statusEnum.optional(),
-  locationDescription: z.string().optional(),
-  affectedAreas: z.array(z.string()).optional(),
+  locationDescription: z.string().trim().optional(),
+  affectedAreas: z.array(z.string().trim()).optional(),
   evacuationOrdered: z.boolean().optional(),
   evacuationType: evacuationTypeEnum.optional(),
-  assemblyPointUsed: z.string().optional(),
+  assemblyPointUsed: z.string().trim().optional(),
   estimatedPersonsAffected: z.number().int().optional(),
   injuriesReported: z.boolean().optional(),
   fatalitiesReported: z.boolean().optional(),
-  incidentCommanderName: z.string().optional(),
-  commandCentreLocation: z.string().optional(),
+  incidentCommanderName: z.string().trim().optional(),
+  commandCentreLocation: z.string().trim().optional(),
   commandCentreActivated: z.boolean().optional(),
   fireServiceNotified: z.boolean().optional(),
   policeNotified: z.boolean().optional(),
@@ -78,14 +78,14 @@ const updateIncidentSchema = z.object({
   regulatorNotified: z.boolean().optional(),
   mediaStatementIssued: z.boolean().optional(),
   riddorReportable: z.boolean().optional(),
-  riddorCategory: z.string().optional(),
+  riddorCategory: z.string().trim().optional(),
   bcpActivated: z.boolean().optional(),
-  bcpReference: z.string().optional(),
-  continuityImpact: z.string().optional(),
+  bcpReference: z.string().trim().optional(),
+  continuityImpact: z.string().trim().optional(),
   estimatedRecoveryHrs: z.number().int().optional(),
-  immediateActions: z.string().optional(),
-  rootCauseCategory: z.string().optional(),
-  lessonsLearned: z.string().optional(),
+  immediateActions: z.string().trim().optional(),
+  rootCauseCategory: z.string().trim().optional(),
+  lessonsLearned: z.string().trim().optional(),
 });
 
 async function generateIncidentNumber(orgId: string): Promise<string> {
@@ -352,11 +352,11 @@ router.post('/:id/decision', authenticate, async (req: Request, res: Response) =
   try {
     const schema = z.object({
       decisionMaker: z.string().trim().min(1).max(200),
-      decisionMakerRole: z.string().optional(),
+      decisionMakerRole: z.string().trim().optional(),
       situationSummary: z.string().trim().min(1).max(2000),
       decisionMade: z.string().trim().min(1).max(200),
-      rationaleForDecision: z.string().optional(),
-      resourcesAllocated: z.string().optional(),
+      rationaleForDecision: z.string().trim().optional(),
+      resourcesAllocated: z.string().trim().optional(),
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success)
@@ -399,9 +399,9 @@ router.post('/:id/resource', authenticate, async (req: Request, res: Response) =
     const schema = z.object({
       resourceType: z.string().trim().min(1).max(200),
       resourceName: z.string().trim().min(1).max(200),
-      deployedBy: z.string().optional(),
-      location: z.string().optional(),
-      notes: z.string().optional(),
+      deployedBy: z.string().trim().optional(),
+      location: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success)
@@ -445,8 +445,8 @@ router.post('/:id/communication', authenticate, async (req: Request, res: Respon
       communicationType: z.string().trim().min(1).max(200),
       recipient: z.string().trim().min(1).max(200),
       method: z.string().trim().min(1).max(200),
-      messageContent: z.string().min(1),
-      sentBy: z.string().optional(),
+      messageContent: z.string().trim().min(1),
+      sentBy: z.string().trim().optional(),
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success)

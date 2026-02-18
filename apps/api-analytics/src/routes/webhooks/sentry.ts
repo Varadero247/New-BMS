@@ -4,14 +4,14 @@ import { prisma } from '../../prisma';
 import { createLogger } from '@ims/monitoring';
 
 const sentryEventSchema = z.object({
-  event_id: z.string().optional(),
-  id: z.string().optional(),
-  title: z.string().optional(),
-  message: z.string().optional(),
-  level: z.string().optional(),
-  platform: z.string().optional(),
-  environment: z.string().optional(),
-  tags: z.record(z.string()).optional(),
+  event_id: z.string().trim().optional(),
+  id: z.string().trim().optional(),
+  title: z.string().trim().optional(),
+  message: z.string().trim().optional(),
+  level: z.string().trim().optional(),
+  platform: z.string().trim().optional(),
+  environment: z.string().trim().optional(),
+  tags: z.record(z.string().trim()).optional(),
 });
 
 const sentryWebhookSchema = z.object({

@@ -41,16 +41,16 @@ setInterval(
 
 const registerSchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(12).max(72),
+  password: z.string().trim().min(12).max(72),
   name: z.string().trim().min(1).max(200),
   company: z.string().trim().min(1).max(200),
-  phone: z.string().optional(),
-  isoSpecialisms: z.array(z.string()).optional(),
+  phone: z.string().trim().optional(),
+  isoSpecialisms: z.array(z.string().trim()).optional(),
 });
 
 const loginSchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(1),
+  password: z.string().trim().min(1),
 });
 
 // POST /api/auth/register

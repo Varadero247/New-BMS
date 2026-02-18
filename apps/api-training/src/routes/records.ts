@@ -9,21 +9,21 @@ router.param('id', validateIdParam());
 const logger = createLogger('training-records');
 
 const createSchema = z.object({
-  courseId: z.string().min(1, 'Course ID is required'),
-  employeeId: z.string().min(1, 'Employee ID is required'),
-  employeeName: z.string().optional(),
+  courseId: z.string().trim().min(1, 'Course ID is required'),
+  employeeId: z.string().trim().min(1, 'Employee ID is required'),
+  employeeName: z.string().trim().optional(),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'CANCELLED']).optional(),
   scheduledDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   completedDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   expiryDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   score: z.number().nonnegative().optional(),
   passed: z.boolean().optional(),
-  trainer: z.string().optional(),
-  trainerName: z.string().optional(),
-  location: z.string().optional(),
+  trainer: z.string().trim().optional(),
+  trainerName: z.string().trim().optional(),
+  location: z.string().trim().optional(),
   certificateUrl: z.string().trim().url('Invalid URL').optional(),
-  feedback: z.string().optional(),
-  notes: z.string().optional(),
+  feedback: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

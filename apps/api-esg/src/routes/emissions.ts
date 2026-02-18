@@ -34,8 +34,8 @@ const emissionCreateSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  methodology: z.string().max(500).optional().nullable(),
-  verifiedBy: z.string().max(200).optional().nullable(),
+  methodology: z.string().trim().max(500).optional().nullable(),
+  verifiedBy: z.string().trim().max(200).optional().nullable(),
 });
 
 const emissionUpdateSchema = z.object({
@@ -45,10 +45,10 @@ const emissionUpdateSchema = z.object({
   quantity: z.number().positive().optional(),
   unit: z.string().trim().min(1).max(50).optional(),
   co2Equivalent: z.number().min(0).optional(),
-  periodStart: z.string().optional(),
-  periodEnd: z.string().optional(),
-  methodology: z.string().max(500).optional().nullable(),
-  verifiedBy: z.string().max(200).optional().nullable(),
+  periodStart: z.string().trim().optional(),
+  periodEnd: z.string().trim().optional(),
+  methodology: z.string().trim().max(500).optional().nullable(),
+  verifiedBy: z.string().trim().max(200).optional().nullable(),
 });
 
 const RESERVED_PATHS = new Set(['summary', 'trend']);

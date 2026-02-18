@@ -96,12 +96,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       obligationType: z.string().trim().min(1).max(200),
       title: z.string().trim().min(1).max(200),
       jurisdiction: z.string().trim().min(1).max(200),
-      regulatoryBody: z.string().min(1),
+      regulatoryBody: z.string().trim().min(1),
       legislationReference: z.string().trim().min(1).max(200),
       description: z.string().trim().min(1).max(2000),
       applicableActivities: z.string().trim().min(1).max(200),
       responsiblePerson: z.string().trim().min(1).max(200),
-      relevantSection: z.string().optional(),
+      relevantSection: z.string().trim().optional(),
       effectiveDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -110,40 +110,40 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      status: z.string().optional(),
-      applicableSites: z.string().optional(),
-      linkedAspects: z.array(z.string()).optional().default([]),
-      penalties: z.string().optional(),
-      complianceStatus: z.string().optional(),
-      complianceEvidence: z.string().optional(),
-      evidenceReference: z.string().optional(),
+      status: z.string().trim().optional(),
+      applicableSites: z.string().trim().optional(),
+      linkedAspects: z.array(z.string().trim()).optional().default([]),
+      penalties: z.string().trim().optional(),
+      complianceStatus: z.string().trim().optional(),
+      complianceEvidence: z.string().trim().optional(),
+      evidenceReference: z.string().trim().optional(),
       lastAssessedDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      assessedBy: z.string().optional(),
-      assessmentMethod: z.string().optional(),
-      complianceGaps: z.string().optional(),
-      requiredActions: z.string().optional(),
-      actionPriority: z.string().optional(),
+      assessedBy: z.string().trim().optional(),
+      assessmentMethod: z.string().trim().optional(),
+      complianceGaps: z.string().trim().optional(),
+      requiredActions: z.string().trim().optional(),
+      actionPriority: z.string().trim().optional(),
       actionsDueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
       capaRequired: z.boolean().optional(),
-      monitoringRequirements: z.string().optional(),
-      reportingRequirements: z.string().optional(),
-      reportingFrequency: z.string().optional(),
-      nextReportingDue: z.string().optional(),
-      permitConditions: z.string().optional(),
-      aiKeyObligations: z.string().optional(),
-      aiComplianceChecklist: z.string().optional(),
-      aiGapAnalysis: z.string().optional(),
-      aiRequiredActions: z.string().optional(),
-      aiEvidenceRequired: z.string().optional(),
-      aiMonitoring: z.string().optional(),
-      aiPenalty: z.string().optional(),
-      aiRecentChanges: z.string().optional(),
+      monitoringRequirements: z.string().trim().optional(),
+      reportingRequirements: z.string().trim().optional(),
+      reportingFrequency: z.string().trim().optional(),
+      nextReportingDue: z.string().trim().optional(),
+      permitConditions: z.string().trim().optional(),
+      aiKeyObligations: z.string().trim().optional(),
+      aiComplianceChecklist: z.string().trim().optional(),
+      aiGapAnalysis: z.string().trim().optional(),
+      aiRequiredActions: z.string().trim().optional(),
+      aiEvidenceRequired: z.string().trim().optional(),
+      aiMonitoring: z.string().trim().optional(),
+      aiPenalty: z.string().trim().optional(),
+      aiRecentChanges: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -218,15 +218,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 // PUT /:id
 const legalUpdateSchema = z.object({
-  obligationType: z.string().optional(),
-  title: z.string().optional(),
-  jurisdiction: z.string().optional(),
-  regulatoryBody: z.string().optional(),
-  legislationReference: z.string().optional(),
-  description: z.string().optional(),
-  applicableActivities: z.array(z.string()).optional(),
-  responsiblePerson: z.string().optional(),
-  relevantSection: z.string().optional(),
+  obligationType: z.string().trim().optional(),
+  title: z.string().trim().optional(),
+  jurisdiction: z.string().trim().optional(),
+  regulatoryBody: z.string().trim().optional(),
+  legislationReference: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  applicableActivities: z.array(z.string().trim()).optional(),
+  responsiblePerson: z.string().trim().optional(),
+  relevantSection: z.string().trim().optional(),
   effectiveDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -235,35 +235,35 @@ const legalUpdateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  complianceStatus: z.string().optional(),
+  complianceStatus: z.string().trim().optional(),
   lastAssessedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  assessedBy: z.string().optional(),
-  assessmentMethod: z.string().optional(),
-  complianceGaps: z.string().optional(),
-  requiredActions: z.string().optional(),
-  actionPriority: z.string().optional(),
+  assessedBy: z.string().trim().optional(),
+  assessmentMethod: z.string().trim().optional(),
+  complianceGaps: z.string().trim().optional(),
+  requiredActions: z.string().trim().optional(),
+  actionPriority: z.string().trim().optional(),
   actionsDueDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
   capaRequired: z.boolean().optional(),
-  monitoringRequirements: z.string().optional(),
-  reportingRequirements: z.string().optional(),
-  reportingFrequency: z.string().optional(),
-  nextReportingDue: z.string().optional(),
-  permitConditions: z.string().optional(),
-  status: z.string().optional(),
-  aiKeyObligations: z.string().optional(),
-  aiComplianceChecklist: z.string().optional(),
-  aiGapAnalysis: z.string().optional(),
-  aiRequiredActions: z.string().optional(),
-  aiEvidenceRequired: z.string().optional(),
-  aiMonitoring: z.string().optional(),
-  aiPenalty: z.string().optional(),
-  aiRecentChanges: z.string().optional(),
+  monitoringRequirements: z.string().trim().optional(),
+  reportingRequirements: z.string().trim().optional(),
+  reportingFrequency: z.string().trim().optional(),
+  nextReportingDue: z.string().trim().optional(),
+  permitConditions: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  aiKeyObligations: z.string().trim().optional(),
+  aiComplianceChecklist: z.string().trim().optional(),
+  aiGapAnalysis: z.string().trim().optional(),
+  aiRequiredActions: z.string().trim().optional(),
+  aiEvidenceRequired: z.string().trim().optional(),
+  aiMonitoring: z.string().trim().optional(),
+  aiPenalty: z.string().trim().optional(),
+  aiRecentChanges: z.string().trim().optional(),
   aiGenerated: z.boolean().optional(),
 });
 

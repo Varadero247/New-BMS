@@ -65,11 +65,11 @@ const samlConfigSchema = z.object({
     .trim()
     .url('Must be a valid URL')
     .refine((url) => url.startsWith('https://'), 'Entry point must use HTTPS'),
-  issuer: z.string().min(1, 'Issuer is required').max(500),
-  cert: z.string().min(1, 'Certificate is required').max(10000),
+  issuer: z.string().trim().min(1, 'Issuer is required').max(500),
+  cert: z.string().trim().min(1, 'Certificate is required').max(10000),
   signatureAlgorithm: z.enum(['sha256', 'sha512']).optional().default('sha256'),
   enabled: z.boolean().optional().default(true),
-  entityId: z.string().max(500).optional(),
+  entityId: z.string().trim().max(500).optional(),
   assertionConsumerUrl: z
     .string()
     .trim()
@@ -298,7 +298,12 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
       .string()
       .trim()
       .uuid()
-      .or(z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/));
+      .or(
+        z
+          .string()
+          .trim()
+          .regex(/^[a-zA-Z0-9_-]{1,128}$/)
+      );
     const orgIdResult = orgIdSchema.safeParse(orgId);
     if (!orgIdResult.success) {
       return res.status(400).json({

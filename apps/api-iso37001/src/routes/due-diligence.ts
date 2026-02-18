@@ -49,14 +49,14 @@ const dueDiligenceCreateSchema = z.object({
   ]),
   level: z.enum(['BASIC', 'STANDARD', 'ENHANCED']),
   country: z.string().trim().min(1).max(100),
-  industry: z.string().max(200).optional(),
-  contactName: z.string().max(200).optional(),
+  industry: z.string().trim().max(200).optional(),
+  contactName: z.string().trim().max(200).optional(),
   contactEmail: z.string().trim().email().optional(),
   contractValue: z.number().optional(),
-  currency: z.string().length(3).default('USD'),
+  currency: z.string().trim().length(3).default('USD'),
   riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-  notes: z.string().max(5000).optional(),
-  scopeOfEngagement: z.string().max(2000).optional(),
+  notes: z.string().trim().max(5000).optional(),
+  scopeOfEngagement: z.string().trim().max(2000).optional(),
 });
 
 const dueDiligenceUpdateSchema = z.object({
@@ -76,14 +76,14 @@ const dueDiligenceUpdateSchema = z.object({
     .optional(),
   level: z.enum(['BASIC', 'STANDARD', 'ENHANCED']).optional(),
   country: z.string().trim().min(1).max(100).optional(),
-  industry: z.string().max(200).optional(),
-  contactName: z.string().max(200).optional(),
+  industry: z.string().trim().max(200).optional(),
+  contactName: z.string().trim().max(200).optional(),
   contactEmail: z.string().trim().email().optional(),
   contractValue: z.number().optional(),
-  currency: z.string().length(3).optional(),
+  currency: z.string().trim().length(3).optional(),
   riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-  notes: z.string().max(5000).optional(),
-  scopeOfEngagement: z.string().max(2000).optional(),
+  notes: z.string().trim().max(5000).optional(),
+  scopeOfEngagement: z.string().trim().max(2000).optional(),
 });
 
 const completeSchema = z.object({
@@ -92,7 +92,7 @@ const completeSchema = z.object({
   recommendation: z
     .enum(['APPROVE', 'APPROVE_WITH_CONDITIONS', 'REJECT', 'FURTHER_REVIEW'])
     .optional(),
-  conditions: z.string().max(2000).optional(),
+  conditions: z.string().trim().max(2000).optional(),
 });
 
 // ---------------------------------------------------------------------------

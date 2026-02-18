@@ -36,7 +36,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 
 const npsCreateSchema = z.object({
   score: z.number().int().min(0).max(10),
-  comment: z.string().max(2000).optional().nullable(),
+  comment: z.string().trim().max(2000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

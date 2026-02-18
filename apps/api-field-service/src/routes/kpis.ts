@@ -50,8 +50,8 @@ const kpiUpdateSchema = z.object({
     .optional(),
   value: z.number().optional(),
   unit: z.string().trim().min(1).max(50).optional(),
-  periodStart: z.string().optional(),
-  periodEnd: z.string().optional(),
+  periodStart: z.string().trim().optional(),
+  periodEnd: z.string().trim().optional(),
   target: z.number().optional().nullable(),
 });
 

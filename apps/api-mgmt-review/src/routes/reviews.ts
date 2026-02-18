@@ -9,8 +9,8 @@ router.param('id', validateIdParam());
 const logger = createLogger('mgmt-review-reviews');
 
 const createMgmtReviewSchema = z.object({
-  title: z.string().min(1, 'title is required'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'title is required'),
+  description: z.string().trim().optional(),
   status: z.enum(['DRAFT', 'SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
   scheduledDate: z
     .string()
@@ -24,22 +24,22 @@ const createMgmtReviewSchema = z.object({
     .datetime({ offset: true })
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
-  chairperson: z.string().optional(),
-  chairpersonName: z.string().optional(),
-  attendees: z.array(z.string()).optional(),
-  standards: z.array(z.string()).optional(),
-  agendaItems: z.string().optional(),
-  riskSummary: z.string().optional(),
-  auditSummary: z.string().optional(),
-  incidentSummary: z.string().optional(),
-  capaSummary: z.string().optional(),
-  kpiSummary: z.string().optional(),
-  customerFeedback: z.string().optional(),
-  supplierPerformance: z.string().optional(),
-  trainingStatus: z.string().optional(),
-  complianceStatus: z.string().optional(),
-  decisions: z.string().optional(),
-  actions: z.string().optional(),
+  chairperson: z.string().trim().optional(),
+  chairpersonName: z.string().trim().optional(),
+  attendees: z.array(z.string().trim()).optional(),
+  standards: z.array(z.string().trim()).optional(),
+  agendaItems: z.string().trim().optional(),
+  riskSummary: z.string().trim().optional(),
+  auditSummary: z.string().trim().optional(),
+  incidentSummary: z.string().trim().optional(),
+  capaSummary: z.string().trim().optional(),
+  kpiSummary: z.string().trim().optional(),
+  customerFeedback: z.string().trim().optional(),
+  supplierPerformance: z.string().trim().optional(),
+  trainingStatus: z.string().trim().optional(),
+  complianceStatus: z.string().trim().optional(),
+  decisions: z.string().trim().optional(),
+  actions: z.string().trim().optional(),
   nextReviewDate: z
     .string()
     .trim()
@@ -47,7 +47,7 @@ const createMgmtReviewSchema = z.object({
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
   minutesUrl: z.string().trim().url('Invalid URL').optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateMgmtReviewSchema = createMgmtReviewSchema.partial();

@@ -35,16 +35,16 @@ const exerciseTypeEnum = z.enum(['TABLETOP', 'FUNCTIONAL', 'FULL_SCALE', 'DRILL'
 const exerciseOutcomeEnum = z.enum(['PASSED', 'PASSED_WITH_ACTIONS', 'FAILED', 'CANCELLED']);
 
 const createBcpSchema = z.object({
-  title: z.string().min(1, 'title is required'),
-  version: z.string().optional(),
+  title: z.string().trim().min(1, 'title is required'),
+  version: z.string().trim().optional(),
   emergencyTypes: z.array(emergencyTypeEnum).optional().default([]),
-  scopeDescription: z.string().optional(),
-  businessFunctions: z.array(z.string()).optional().default([]),
-  crisisTeamLead: z.string().optional(),
-  crisisTeamLeadPhone: z.string().optional(),
+  scopeDescription: z.string().trim().optional(),
+  businessFunctions: z.array(z.string().trim()).optional().default([]),
+  crisisTeamLead: z.string().trim().optional(),
+  crisisTeamLeadPhone: z.string().trim().optional(),
   crisisTeamMembers: z.any().optional(),
-  crisisTeamMeetingPoint: z.string().optional(),
-  crisisTeamVirtualLink: z.string().optional(),
+  crisisTeamMeetingPoint: z.string().trim().optional(),
+  crisisTeamVirtualLink: z.string().trim().optional(),
   biaCompletedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -52,17 +52,20 @@ const createBcpSchema = z.object({
   criticalFunctions: z.any().optional(),
   recoveryStrategies: z.any().optional(),
   alternativeSites: z.any().optional(),
-  itRecoveryApproach: z.string().optional(),
-  communicationsBackup: z.string().optional(),
-  activationCriteria: z.string().optional(),
-  activationProcess: z.string().optional(),
-  deactivationProcess: z.string().optional(),
-  staffCommunicationPlan: z.string().optional(),
-  customerCommPlan: z.string().optional(),
-  supplierCommPlan: z.string().optional(),
-  mediaCommPlan: z.string().optional(),
-  regulatoryCommPlan: z.string().optional(),
-  reviewDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  itRecoveryApproach: z.string().trim().optional(),
+  communicationsBackup: z.string().trim().optional(),
+  activationCriteria: z.string().trim().optional(),
+  activationProcess: z.string().trim().optional(),
+  deactivationProcess: z.string().trim().optional(),
+  staffCommunicationPlan: z.string().trim().optional(),
+  customerCommPlan: z.string().trim().optional(),
+  supplierCommPlan: z.string().trim().optional(),
+  mediaCommPlan: z.string().trim().optional(),
+  regulatoryCommPlan: z.string().trim().optional(),
+  reviewDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
 });
 
 const updateBcpSchema = createBcpSchema.partial();
@@ -250,8 +253,11 @@ router.post('/:id/exercise', authenticate, async (req: Request, res: Response) =
     const schema = z.object({
       exerciseType: exerciseTypeEnum,
       title: z.string().trim().min(1).max(200),
-      scheduledDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      scope: z.string().optional(),
+      scheduledDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      scope: z.string().trim().optional(),
       participantsCount: z.number().int().optional(),
       externalPartiesInvolved: z.boolean().optional(),
     });
@@ -299,12 +305,12 @@ router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Respo
       durationHours: z.number().nonnegative().optional(),
       outcome: exerciseOutcomeEnum.optional(),
       objectivesMet: z.boolean().optional(),
-      findings: z.string().optional(),
-      strengthsIdentified: z.array(z.string()).optional(),
-      weaknessesIdentified: z.array(z.string()).optional(),
+      findings: z.string().trim().optional(),
+      strengthsIdentified: z.array(z.string().trim()).optional(),
+      weaknessesIdentified: z.array(z.string().trim()).optional(),
       actionsRequired: z.any().optional(),
       reportUrl: z.string().trim().url('Invalid URL').optional(),
-      facilitatorName: z.string().optional(),
+      facilitatorName: z.string().trim().optional(),
       nextExerciseDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

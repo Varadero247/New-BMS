@@ -14,7 +14,7 @@ router.param('riskId', validateIdParam('riskId'));
 const controlSchema = z.object({
   controlType: z.enum(['PREVENTIVE', 'DETECTIVE', 'REACTIVE', 'DIRECTIVE']),
   description: z.string().trim().min(1).max(2000),
-  owner: z.string().optional(),
+  owner: z.string().trim().optional(),
   effectiveness: z.enum(['STRONG', 'ADEQUATE', 'WEAK', 'NONE_EFFECTIVE']).optional(),
   lastTestedDate: z
     .string()
@@ -22,17 +22,17 @@ const controlSchema = z.object({
     .datetime({ offset: true })
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
-  testingFrequency: z.string().optional(),
-  testingMethod: z.string().optional(),
+  testingFrequency: z.string().trim().optional(),
+  testingMethod: z.string().trim().optional(),
   nextTestDate: z
     .string()
     .trim()
     .datetime({ offset: true })
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
-  testingNotes: z.string().optional(),
-  linkedProcedureRef: z.string().optional(),
-  linkedTrainingRef: z.string().optional(),
+  testingNotes: z.string().trim().optional(),
+  linkedProcedureRef: z.string().trim().optional(),
+  linkedTrainingRef: z.string().trim().optional(),
 });
 
 // POST /api/risks/:id/controls
@@ -168,7 +168,7 @@ router.post('/:riskId/controls/:id/test', authenticate, async (req: Request, res
   try {
     const orgId = ((req as any).user as any)?.orgId || 'default';
     const testSchema = z.object({
-      testingNotes: z.string().optional(),
+      testingNotes: z.string().trim().optional(),
       effectiveness: z.enum(['STRONG', 'ADEQUATE', 'WEAK', 'NONE_EFFECTIVE']).optional(),
     });
     const parsed = testSchema.safeParse(req.body);

@@ -138,9 +138,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'ALL_PROCESSES',
       ]),
       riskDescription: z.string().trim().min(1).max(2000),
-      reportedBy: z.string().optional(),
+      reportedBy: z.string().trim().optional(),
       likelihood: z.number().int().min(1).max(6).default(1),
-      previousOccurrences: z.string().optional(),
+      previousOccurrences: z.string().trim().optional(),
       lossOfContracts: z.number().int().min(0).max(5).default(0),
       harmToUser: z.number().int().min(0).max(5).default(0),
       unableToMeetTerms: z.number().int().min(0).max(5).default(0),
@@ -150,8 +150,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       treatmentOption: z
         .enum(['ACCEPT', 'REDUCE', 'TRANSFER', 'AVOID', 'CONTINGENCY'])
         .default('ACCEPT'),
-      treatmentActions: z.string().optional(),
-      responsiblePerson: z.string().optional(),
+      treatmentActions: z.string().trim().optional(),
+      responsiblePerson: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -238,9 +238,9 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
         ])
         .optional(),
       riskDescription: z.string().trim().min(1).max(2000).optional(),
-      reportedBy: z.string().nullable().optional(),
+      reportedBy: z.string().trim().nullable().optional(),
       likelihood: z.number().int().min(1).max(6).optional(),
-      previousOccurrences: z.string().nullable().optional(),
+      previousOccurrences: z.string().trim().nullable().optional(),
       lossOfContracts: z.number().int().min(0).max(5).optional(),
       harmToUser: z.number().int().min(0).max(5).optional(),
       unableToMeetTerms: z.number().int().min(0).max(5).optional(),
@@ -248,8 +248,8 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
       reputationImpact: z.number().int().min(0).max(5).optional(),
       costOfCorrection: z.number().int().min(0).max(5).optional(),
       treatmentOption: z.enum(['ACCEPT', 'REDUCE', 'TRANSFER', 'AVOID', 'CONTINGENCY']).optional(),
-      treatmentActions: z.string().nullable().optional(),
-      responsiblePerson: z.string().nullable().optional(),
+      treatmentActions: z.string().trim().nullable().optional(),
+      responsiblePerson: z.string().trim().nullable().optional(),
       dueDate: z
         .string()
         .nullable()

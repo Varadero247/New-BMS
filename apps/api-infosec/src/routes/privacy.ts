@@ -56,15 +56,15 @@ const ropaCreateSchema = z.object({
     'PUBLIC_TASK',
     'LEGITIMATE_INTERESTS',
   ]),
-  dataCategories: z.array(z.string()).optional(),
-  dataSubjects: z.array(z.string()).optional(),
-  recipients: z.array(z.string()).optional(),
-  retentionPeriod: z.string().max(200).optional(),
+  dataCategories: z.array(z.string().trim()).optional(),
+  dataSubjects: z.array(z.string().trim()).optional(),
+  recipients: z.array(z.string().trim()).optional(),
+  retentionPeriod: z.string().trim().max(200).optional(),
   transfersOutsideEEA: z.boolean().optional().default(false),
-  safeguards: z.string().max(2000).optional(),
-  controller: z.string().max(200).optional(),
-  processor: z.string().max(200).optional(),
-  description: z.string().max(5000).optional(),
+  safeguards: z.string().trim().max(2000).optional(),
+  controller: z.string().trim().max(200).optional(),
+  processor: z.string().trim().max(200).optional(),
+  description: z.string().trim().max(5000).optional(),
 });
 
 const ropaUpdateSchema = z.object({
@@ -80,30 +80,30 @@ const ropaUpdateSchema = z.object({
       'LEGITIMATE_INTERESTS',
     ])
     .optional(),
-  dataCategories: z.array(z.string()).optional(),
-  dataSubjects: z.array(z.string()).optional(),
-  recipients: z.array(z.string()).optional(),
-  retentionPeriod: z.string().max(200).optional(),
+  dataCategories: z.array(z.string().trim()).optional(),
+  dataSubjects: z.array(z.string().trim()).optional(),
+  recipients: z.array(z.string().trim()).optional(),
+  retentionPeriod: z.string().trim().max(200).optional(),
   transfersOutsideEEA: z.boolean().optional(),
-  safeguards: z.string().max(2000).optional(),
-  controller: z.string().max(200).optional(),
-  processor: z.string().max(200).optional(),
-  description: z.string().max(5000).optional(),
+  safeguards: z.string().trim().max(2000).optional(),
+  controller: z.string().trim().max(200).optional(),
+  processor: z.string().trim().max(200).optional(),
+  description: z.string().trim().max(5000).optional(),
   status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'ARCHIVED']).optional(),
 });
 
 const dpiaCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(5000).optional(),
-  processingDescription: z.string().max(5000).optional(),
-  necessity: z.string().max(5000).optional(),
-  risksIdentified: z.array(z.string()).optional(),
-  mitigationMeasures: z.array(z.string()).optional(),
+  description: z.string().trim().max(5000).optional(),
+  processingDescription: z.string().trim().max(5000).optional(),
+  necessity: z.string().trim().max(5000).optional(),
+  risksIdentified: z.array(z.string().trim()).optional(),
+  mitigationMeasures: z.array(z.string().trim()).optional(),
   ropaId: z.string().trim().uuid().optional(),
 });
 
 const dpiaApproveSchema = z.object({
-  approvalNotes: z.string().max(5000).optional(),
+  approvalNotes: z.string().trim().max(5000).optional(),
 });
 
 const dsarCreateSchema = z.object({
@@ -117,13 +117,13 @@ const dsarCreateSchema = z.object({
     'PORTABILITY',
     'OBJECTION',
   ]),
-  description: z.string().max(5000).optional(),
+  description: z.string().trim().max(5000).optional(),
   identityVerified: z.boolean().optional().default(false),
 });
 
 const dsarRespondSchema = z.object({
   responseNotes: z.string().trim().min(1).max(10000),
-  actionTaken: z.string().max(5000).optional(),
+  actionTaken: z.string().trim().max(5000).optional(),
 });
 
 // ===================================================================

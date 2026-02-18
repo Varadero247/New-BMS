@@ -21,7 +21,7 @@ function generateReference(prefix: string): string {
 
 const waterCreateSchema = z.object({
   usageType: z.enum(['INTAKE', 'DISCHARGE', 'RECYCLED', 'CONSUMED']),
-  source: z.string().max(200).optional().nullable(),
+  source: z.string().trim().max(200).optional().nullable(),
   quantity: z.number().positive(),
   unit: z.string().trim().min(1).max(50),
   periodStart: z
@@ -34,17 +34,17 @@ const waterCreateSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  facility: z.string().max(200).optional().nullable(),
+  facility: z.string().trim().max(200).optional().nullable(),
 });
 
 const waterUpdateSchema = z.object({
   usageType: z.enum(['INTAKE', 'DISCHARGE', 'RECYCLED', 'CONSUMED']).optional(),
-  source: z.string().max(200).optional().nullable(),
+  source: z.string().trim().max(200).optional().nullable(),
   quantity: z.number().positive().optional(),
   unit: z.string().trim().min(1).max(50).optional(),
-  periodStart: z.string().optional(),
-  periodEnd: z.string().optional(),
-  facility: z.string().max(200).optional().nullable(),
+  periodStart: z.string().trim().optional(),
+  periodEnd: z.string().trim().optional(),
+  facility: z.string().trim().max(200).optional().nullable(),
 });
 
 // GET /api/water

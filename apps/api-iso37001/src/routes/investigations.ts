@@ -36,7 +36,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 
 const investigationCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(5000).optional(),
+  description: z.string().trim().max(5000).optional(),
   allegationType: z.enum([
     'BRIBERY',
     'CORRUPTION',
@@ -59,18 +59,18 @@ const investigationCreateSchema = z.object({
     .max(200)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   anonymous: z.boolean().default(false),
-  department: z.string().max(200).optional(),
-  location: z.string().max(300).optional(),
-  involvedParties: z.string().max(2000).optional(),
+  department: z.string().trim().max(200).optional(),
+  location: z.string().trim().max(300).optional(),
+  involvedParties: z.string().trim().max(2000).optional(),
   estimatedValue: z.number().optional(),
-  currency: z.string().length(3).default('USD'),
+  currency: z.string().trim().length(3).default('USD'),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
-  notes: z.string().max(5000).optional(),
+  notes: z.string().trim().max(5000).optional(),
 });
 
 const investigationUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  description: z.string().max(5000).optional(),
+  description: z.string().trim().max(5000).optional(),
   allegationType: z
     .enum([
       'BRIBERY',
@@ -87,19 +87,19 @@ const investigationUpdateSchema = z.object({
       'OTHER',
     ])
     .optional(),
-  department: z.string().max(200).optional(),
-  location: z.string().max(300).optional(),
-  involvedParties: z.string().max(2000).optional(),
+  department: z.string().trim().max(200).optional(),
+  location: z.string().trim().max(300).optional(),
+  involvedParties: z.string().trim().max(2000).optional(),
   estimatedValue: z.number().optional(),
-  currency: z.string().length(3).optional(),
+  currency: z.string().trim().length(3).optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-  notes: z.string().max(5000).optional(),
+  notes: z.string().trim().max(5000).optional(),
 });
 
 const investigateSchema = z.object({
-  investigatorId: z.string().max(100).optional(),
-  investigatorName: z.string().max(200).optional(),
-  investigationNotes: z.string().max(5000).optional(),
+  investigatorId: z.string().trim().max(100).optional(),
+  investigatorName: z.string().trim().max(200).optional(),
+  investigationNotes: z.string().trim().max(5000).optional(),
 });
 
 const closeSchema = z.object({
@@ -112,11 +112,11 @@ const closeSchema = z.object({
     'DISMISSED',
   ]),
   findings: z.string().trim().min(1).max(5000),
-  actions: z.string().max(5000).optional(),
-  lessonsLearned: z.string().max(2000).optional(),
-  disciplinaryAction: z.string().max(2000).optional(),
+  actions: z.string().trim().max(5000).optional(),
+  lessonsLearned: z.string().trim().max(2000).optional(),
+  disciplinaryAction: z.string().trim().max(2000).optional(),
   reportedToAuthorities: z.boolean().default(false),
-  authorityDetails: z.string().max(1000).optional(),
+  authorityDetails: z.string().trim().max(1000).optional(),
 });
 
 // ---------------------------------------------------------------------------

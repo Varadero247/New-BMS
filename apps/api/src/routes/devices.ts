@@ -9,8 +9,8 @@ import { AppError } from '../middleware/error-handler';
 const router: IRouter = Router();
 
 const createDeviceSchema = z.object({
-  buildingId: z.string(),
-  zoneId: z.string().optional(),
+  buildingId: z.string().trim(),
+  zoneId: z.string().trim().optional(),
   name: z.string().trim().min(1).max(200),
   type: z.enum([
     'HVAC',
@@ -33,12 +33,12 @@ const createDeviceSchema = z.object({
     'UPS',
     'OTHER',
   ]),
-  manufacturer: z.string().optional(),
-  model: z.string().optional(),
-  serialNumber: z.string().optional(),
-  ipAddress: z.string().optional(),
-  macAddress: z.string().optional(),
-  firmware: z.string().optional(),
+  manufacturer: z.string().trim().optional(),
+  model: z.string().trim().optional(),
+  serialNumber: z.string().trim().optional(),
+  ipAddress: z.string().trim().optional(),
+  macAddress: z.string().trim().optional(),
+  firmware: z.string().trim().optional(),
   metadata: z.record(z.unknown()).optional(),
 });
 

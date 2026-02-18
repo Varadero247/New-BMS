@@ -25,18 +25,23 @@ const recallCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   unitsAffected: z.number().int().min(0).optional().nullable(),
   unitsRecovered: z.number().int().min(0).optional().nullable(),
   regulatoryNotified: z.boolean().optional().default(false),
   publicNotice: z.boolean().optional().default(false),
-  rootCause: z.string().max(2000).optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  rootCause: z.string().trim().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const recallCompleteSchema = z.object({
   unitsRecovered: z.number().int().min(0).optional().nullable(),
-  rootCause: z.string().max(2000).optional().nullable(),
+  rootCause: z.string().trim().max(2000).optional().nullable(),
 });
 
 const recallUpdateSchema = z.object({
@@ -50,8 +55,8 @@ const recallUpdateSchema = z.object({
   unitsRecovered: z.number().int().min(0).optional().nullable(),
   regulatoryNotified: z.boolean().optional(),
   publicNotice: z.boolean().optional(),
-  rootCause: z.string().max(2000).optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  rootCause: z.string().trim().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

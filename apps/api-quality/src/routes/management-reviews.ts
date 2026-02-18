@@ -21,32 +21,35 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  meetingDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  chairperson: z.string().max(200).optional().nullable(),
-  attendees: z.string().max(5000).optional().nullable(),
+  meetingDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  chairperson: z.string().trim().max(200).optional().nullable(),
+  attendees: z.string().trim().max(5000).optional().nullable(),
   // §9.3.2 inputs
-  previousActions: z.string().max(10000).optional().nullable(),
-  changesInContext: z.string().max(5000).optional().nullable(),
-  customerFeedback: z.string().max(5000).optional().nullable(),
-  qualityObjectives: z.string().max(5000).optional().nullable(),
-  processPerformance: z.string().max(5000).optional().nullable(),
-  nonconformanceSummary: z.string().max(5000).optional().nullable(),
-  auditResults: z.string().max(5000).optional().nullable(),
-  supplierPerformance: z.string().max(5000).optional().nullable(),
-  resourceAdequacy: z.string().max(5000).optional().nullable(),
-  riskAssessment: z.string().max(5000).optional().nullable(),
+  previousActions: z.string().trim().max(10000).optional().nullable(),
+  changesInContext: z.string().trim().max(5000).optional().nullable(),
+  customerFeedback: z.string().trim().max(5000).optional().nullable(),
+  qualityObjectives: z.string().trim().max(5000).optional().nullable(),
+  processPerformance: z.string().trim().max(5000).optional().nullable(),
+  nonconformanceSummary: z.string().trim().max(5000).optional().nullable(),
+  auditResults: z.string().trim().max(5000).optional().nullable(),
+  supplierPerformance: z.string().trim().max(5000).optional().nullable(),
+  resourceAdequacy: z.string().trim().max(5000).optional().nullable(),
+  riskAssessment: z.string().trim().max(5000).optional().nullable(),
   // §9.3.3 outputs
-  improvements: z.string().max(5000).optional().nullable(),
-  resourceNeeds: z.string().max(5000).optional().nullable(),
-  decisions: z.string().max(5000).optional().nullable(),
-  actionItems: z.string().max(5000).optional().nullable(),
+  improvements: z.string().trim().max(5000).optional().nullable(),
+  resourceNeeds: z.string().trim().max(5000).optional().nullable(),
+  decisions: z.string().trim().max(5000).optional().nullable(),
+  actionItems: z.string().trim().max(5000).optional().nullable(),
   nextReviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  minutes: z.string().max(50000).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  minutes: z.string().trim().max(50000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial();

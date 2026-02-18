@@ -57,7 +57,7 @@ router.post('/schedules', async (req: AuthRequest, res: Response) => {
         .array(
           z.object({
             questionText: z.string().trim().min(1).max(200),
-            category: z.string().optional(),
+            category: z.string().trim().optional(),
           })
         )
         .min(1),
@@ -304,7 +304,7 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
           z.object({
             questionId: z.string().trim().min(1).max(200),
             result: z.enum(['PASS', 'FAIL', 'NOT_APPLICABLE']),
-            notes: z.string().optional(),
+            notes: z.string().trim().optional(),
           })
         )
         .min(1),
@@ -434,7 +434,7 @@ router.post('/audits/:id/complete', async (req: AuthRequest, res: Response) => {
       applicableQuestions > 0 ? Math.round((passCount / applicableQuestions) * 10000) / 100 : 0;
 
     const notesSchema = z.object({
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
     const body = notesSchema.parse(req.body || {});
 

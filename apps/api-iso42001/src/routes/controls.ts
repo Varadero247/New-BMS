@@ -20,13 +20,13 @@ const statusUpdateSchema = z.object({
     'FULLY_IMPLEMENTED',
     'PLANNED',
   ]),
-  justification: z.string().max(4000).optional().nullable(),
+  justification: z.string().trim().max(4000).optional().nullable(),
 });
 
 const implementationUpdateSchema = z.object({
-  implementationNotes: z.string().max(10000).optional().nullable(),
-  evidence: z.string().max(10000).optional().nullable(),
-  responsiblePerson: z.string().max(200).optional().nullable(),
+  implementationNotes: z.string().trim().max(10000).optional().nullable(),
+  evidence: z.string().trim().max(10000).optional().nullable(),
+  responsiblePerson: z.string().trim().max(200).optional().nullable(),
   targetDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

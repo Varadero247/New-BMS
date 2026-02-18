@@ -9,16 +9,16 @@ router.param('id', validateIdParam());
 const logger = createLogger('assets-work-orders');
 
 const createSchema = z.object({
-  assetId: z.string().min(1, 'Asset ID is required'),
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  type: z.string().optional(),
+  assetId: z.string().trim().min(1, 'Asset ID is required'),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
+  type: z.string().trim().optional(),
   priority: z.enum(['EMERGENCY', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z
     .enum(['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED'])
     .optional(),
-  assignee: z.string().optional(),
-  assigneeName: z.string().optional(),
+  assignee: z.string().trim().optional(),
+  assigneeName: z.string().trim().optional(),
   scheduledDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -30,7 +30,7 @@ const createSchema = z.object({
   estimatedHours: z.number().nonnegative().optional(),
   actualHours: z.number().nonnegative().optional(),
   cost: z.number().nonnegative().optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

@@ -22,17 +22,22 @@ const sanitationCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  completedBy: z.string().max(200).optional().nullable(),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
+  completedBy: z.string().trim().max(200).optional().nullable(),
   result: z.enum(['PASS', 'FAIL', 'CONDITIONAL']).optional().nullable(),
-  findings: z.string().max(2000).optional().nullable(),
-  verifiedBy: z.string().max(200).optional().nullable(),
+  findings: z.string().trim().max(2000).optional().nullable(),
+  verifiedBy: z.string().trim().max(200).optional().nullable(),
 });
 
 const sanitationCompleteSchema = z.object({
   result: z.enum(['PASS', 'FAIL', 'CONDITIONAL']).optional().nullable(),
-  findings: z.string().max(2000).optional().nullable(),
-  verifiedBy: z.string().max(200).optional().nullable(),
+  findings: z.string().trim().max(2000).optional().nullable(),
+  verifiedBy: z.string().trim().max(200).optional().nullable(),
 });
 
 const sanitationUpdateSchema = z.object({
@@ -43,13 +48,18 @@ const sanitationUpdateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional(),
   status: z.enum(['SCHEDULED', 'COMPLETED', 'OVERDUE', 'FAILED']).optional(),
-  completedBy: z.string().max(200).optional().nullable(),
+  completedBy: z.string().trim().max(200).optional().nullable(),
   result: z.enum(['PASS', 'FAIL', 'CONDITIONAL']).optional().nullable(),
-  findings: z.string().max(2000).optional().nullable(),
-  verifiedBy: z.string().max(200).optional().nullable(),
+  findings: z.string().trim().max(2000).optional().nullable(),
+  verifiedBy: z.string().trim().max(200).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

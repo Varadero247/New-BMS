@@ -86,9 +86,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       sourceType: z.enum(['risk', 'incident', 'aspect', 'nonconformance']),
-      sourceId: z.string(),
-      selectedText: z.string().optional(),
-      customPrompt: z.string().optional(),
+      sourceId: z.string().trim(),
+      selectedText: z.string().trim().optional(),
+      customPrompt: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

@@ -26,11 +26,11 @@ async function generateRefNumber(): Promise<string> {
 
 const updateSchema = z.object({
   scope: z.string().trim().min(1).max(10000),
-  purpose: z.string().max(5000).optional().nullable(),
-  exclusions: z.string().max(5000).optional().nullable(),
-  boundaries: z.string().max(5000).optional().nullable(),
-  applicableStandards: z.string().max(2000).optional().nullable(),
-  version: z.string().max(50).optional(),
+  purpose: z.string().trim().max(5000).optional().nullable(),
+  exclusions: z.string().trim().max(5000).optional().nullable(),
+  boundaries: z.string().trim().max(5000).optional().nullable(),
+  applicableStandards: z.string().trim().max(2000).optional().nullable(),
+  version: z.string().trim().max(50).optional(),
   status: z.enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ISSUED', 'OBSOLETE']).optional(),
 });
 

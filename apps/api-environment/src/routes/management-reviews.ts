@@ -117,20 +117,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .max(2000)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       chair: z.string().trim().min(1).max(200),
-      attendees: z.array(z.string()).min(1),
+      attendees: z.array(z.string().trim()).min(1),
       // ISO 14001 Clause 9.3 inputs (all optional)
-      prevActionStatus: z.string().optional(),
-      changesInIssues: z.string().optional(),
-      objectivesProgress: z.string().optional(),
-      aspectsPerformance: z.string().optional(),
-      legalCompliance: z.string().optional(),
-      incidentSummary: z.string().optional(),
-      auditResults: z.string().optional(),
-      supplierPerformance: z.string().optional(),
+      prevActionStatus: z.string().trim().optional(),
+      changesInIssues: z.string().trim().optional(),
+      objectivesProgress: z.string().trim().optional(),
+      aspectsPerformance: z.string().trim().optional(),
+      legalCompliance: z.string().trim().optional(),
+      incidentSummary: z.string().trim().optional(),
+      auditResults: z.string().trim().optional(),
+      supplierPerformance: z.string().trim().optional(),
       // Outputs (optional at creation)
-      continualImprovement: z.string().optional(),
-      resourceNeeds: z.string().optional(),
-      systemChanges: z.string().optional(),
+      continualImprovement: z.string().trim().optional(),
+      resourceNeeds: z.string().trim().optional(),
+      systemChanges: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -208,21 +208,21 @@ router.put(
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
-        chair: z.string().optional(),
-        attendees: z.array(z.string()).optional(),
+        chair: z.string().trim().optional(),
+        attendees: z.array(z.string().trim()).optional(),
         // Inputs
-        prevActionStatus: z.string().optional(),
-        changesInIssues: z.string().optional(),
-        objectivesProgress: z.string().optional(),
-        aspectsPerformance: z.string().optional(),
-        legalCompliance: z.string().optional(),
-        incidentSummary: z.string().optional(),
-        auditResults: z.string().optional(),
-        supplierPerformance: z.string().optional(),
+        prevActionStatus: z.string().trim().optional(),
+        changesInIssues: z.string().trim().optional(),
+        objectivesProgress: z.string().trim().optional(),
+        aspectsPerformance: z.string().trim().optional(),
+        legalCompliance: z.string().trim().optional(),
+        incidentSummary: z.string().trim().optional(),
+        auditResults: z.string().trim().optional(),
+        supplierPerformance: z.string().trim().optional(),
         // Outputs
-        continualImprovement: z.string().optional(),
-        resourceNeeds: z.string().optional(),
-        systemChanges: z.string().optional(),
+        continualImprovement: z.string().trim().optional(),
+        resourceNeeds: z.string().trim().optional(),
+        systemChanges: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -346,7 +346,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
         .min(1)
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -394,15 +394,15 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
       });
 
     const schema = z.object({
-      action: z.string().optional(),
-      owner: z.string().optional(),
+      action: z.string().trim().optional(),
+      owner: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      status: z.string().optional(),
-      completedAt: z.string().optional(),
-      notes: z.string().optional(),
+      status: z.string().trim().optional(),
+      completedAt: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

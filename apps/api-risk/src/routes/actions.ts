@@ -13,7 +13,7 @@ const actionSchema = z.object({
   actionTitle: z.string().trim().min(1).max(2000),
   description: z.string().trim().min(1).max(2000),
   actionType: z.enum(['PREVENTIVE', 'MITIGATIVE', 'TRANSFER', 'ACCEPT']),
-  owner: z.string().optional(),
+  owner: z.string().trim().optional(),
   ownerEmail: z.string().trim().email().optional(),
   targetDate: z
     .string()
@@ -22,7 +22,7 @@ const actionSchema = z.object({
     .or(z.string().trim().datetime({ offset: true })),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   estimatedCost: z.number().nonnegative().optional(),
-  linkedCapaId: z.string().optional(),
+  linkedCapaId: z.string().trim().optional(),
 });
 
 // GET /api/risks/:id/actions
@@ -113,8 +113,8 @@ router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, 
   try {
     const orgId = ((req as any).user as any)?.orgId || 'default';
     const completeSchema = z.object({
-      evidenceOfCompletion: z.string().optional(),
-      effectiveness: z.string().optional(),
+      evidenceOfCompletion: z.string().trim().optional(),
+      effectiveness: z.string().trim().optional(),
     });
     const parsed = completeSchema.safeParse(req.body);
     if (!parsed.success)

@@ -319,7 +319,7 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
   try {
     const auth = req as AuthRequest;
     const resolutionParsed = z
-      .object({ resolution: z.string().max(5000).optional() })
+      .object({ resolution: z.string().trim().max(5000).optional() })
       .safeParse(req.body);
     const resolution = resolutionParsed.success ? resolutionParsed.data.resolution : undefined;
 

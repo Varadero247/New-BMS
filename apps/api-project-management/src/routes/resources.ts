@@ -58,17 +58,17 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 const createResourceSchema = z.object({
   projectId: z.string().trim().min(1).max(200),
   resourceType: z.enum(['HUMAN', 'EQUIPMENT', 'MATERIAL', 'FACILITY']),
-  resourceId: z.string().optional(),
+  resourceId: z.string().trim().optional(),
   resourceName: z.string().trim().min(1).max(200),
-  resourceRole: z.string().optional(),
+  resourceRole: z.string().trim().optional(),
   responsibility: z.enum(['RESPONSIBLE', 'ACCOUNTABLE', 'CONSULTED', 'INFORMED']).optional(),
   allocationPercentage: z.number().min(0).max(100).optional(),
-  allocatedFrom: z.string(),
-  allocatedTo: z.string(),
+  allocatedFrom: z.string().trim(),
+  allocatedTo: z.string().trim(),
   costPerHour: z.number().nonnegative().optional(),
   totalAllocatedCost: z.number().nonnegative().optional(),
   plannedHours: z.number().nonnegative().optional(),
-  status: z.string().optional(),
+  status: z.string().trim().optional(),
 });
 const updateResourceSchema = createResourceSchema
   .extend({

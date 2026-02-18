@@ -22,8 +22,8 @@ function generateRefNumber(): string {
 const RESERVED_PATHS = new Set(['pipelines', 'forecast', 'board']);
 
 const createPipelineSchema = z.object({
-  name: z.string().min(1, 'Pipeline name is required'),
-  description: z.string().optional(),
+  name: z.string().trim().min(1, 'Pipeline name is required'),
+  description: z.string().trim().optional(),
   stages: z
     .array(
       z.object({
@@ -49,19 +49,19 @@ const updateStagesSchema = z.object({
 });
 
 const createDealSchema = z.object({
-  title: z.string().min(1, 'Deal title is required'),
+  title: z.string().trim().min(1, 'Deal title is required'),
   value: z.number().min(0, 'Value is required'),
-  currency: z.string().length(3).default('USD'),
+  currency: z.string().trim().length(3).default('USD'),
   accountId: z.string().trim().uuid().optional(),
   contactId: z.string().trim().uuid().optional(),
   pipelineId: z.string().trim().uuid().optional(),
   stageId: z.string().trim().uuid().optional(),
   probability: z.number().min(0).max(100).optional(),
   expectedCloseDate: z.string().trim().datetime({ offset: true }).optional(),
-  assignedTo: z.string().optional(),
-  source: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  notes: z.string().optional(),
+  assignedTo: z.string().trim().optional(),
+  source: z.string().trim().optional(),
+  tags: z.array(z.string().trim()).optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateDealSchema = createDealSchema.partial();

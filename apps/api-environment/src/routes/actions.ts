@@ -95,37 +95,37 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .min(1)
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      sourceReference: z.string().optional(),
-      expectedOutcome: z.string().optional(),
-      linkedAspectId: z.string().optional(),
-      linkedEventId: z.string().optional(),
-      linkedLegalId: z.string().optional(),
-      linkedObjectiveId: z.string().optional(),
-      department: z.string().optional(),
+      sourceReference: z.string().trim().optional(),
+      expectedOutcome: z.string().trim().optional(),
+      linkedAspectId: z.string().trim().optional(),
+      linkedEventId: z.string().trim().optional(),
+      linkedLegalId: z.string().trim().optional(),
+      linkedObjectiveId: z.string().trim().optional(),
+      department: z.string().trim().optional(),
       estimatedHours: z.number().nonnegative().optional(),
       estimatedCost: z.number().nonnegative().optional(),
-      resourcesRequired: z.string().optional(),
-      status: z.string().optional(),
-      progressNotes: z.string().optional(),
+      resourcesRequired: z.string().trim().optional(),
+      status: z.string().trim().optional(),
+      progressNotes: z.string().trim().optional(),
       completionDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
       percentComplete: z.number().min(0).max(100).optional(),
-      evidenceRefs: z.string().optional(),
-      verificationMethod: z.string().optional(),
-      verifiedBy: z.string().optional(),
+      evidenceRefs: z.string().trim().optional(),
+      verificationMethod: z.string().trim().optional(),
+      verifiedBy: z.string().trim().optional(),
       verificationDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      verificationNotes: z.string().optional(),
-      effective: z.string().optional(),
-      aiActionPlan: z.string().optional(),
-      aiPriorityJustification: z.string().optional(),
-      aiResourceEstimate: z.string().optional(),
-      aiObstacles: z.string().optional(),
-      aiSuccessCriteria: z.string().optional(),
+      verificationNotes: z.string().trim().optional(),
+      effective: z.string().trim().optional(),
+      aiActionPlan: z.string().trim().optional(),
+      aiPriorityJustification: z.string().trim().optional(),
+      aiResourceEstimate: z.string().trim().optional(),
+      aiObstacles: z.string().trim().optional(),
+      aiSuccessCriteria: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -193,14 +193,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 // PUT /:id
 const actionUpdateSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  category: z.string().optional(),
-  linkedAspectId: z.string().optional(),
-  linkedObjectiveId: z.string().optional(),
-  assignedTo: z.string().optional(),
-  department: z.string().optional(),
-  priority: z.string().optional(),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  category: z.string().trim().optional(),
+  linkedAspectId: z.string().trim().optional(),
+  linkedObjectiveId: z.string().trim().optional(),
+  assignedTo: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  priority: z.string().trim().optional(),
   dueDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -213,16 +213,16 @@ const actionUpdateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  verifiedBy: z.string().optional(),
-  status: z.string().optional(),
+  verifiedBy: z.string().trim().optional(),
+  status: z.string().trim().optional(),
   progress: z.number().min(0).max(100).optional(),
-  evidence: z.string().optional(),
-  resources: z.string().optional(),
+  evidence: z.string().trim().optional(),
+  resources: z.string().trim().optional(),
   budget: z.number().nonnegative().optional(),
   actualCost: z.number().nonnegative().optional(),
-  aiSuggestedActions: z.string().optional(),
-  aiTimeline: z.string().optional(),
-  aiSuccessCriteria: z.string().optional(),
+  aiSuggestedActions: z.string().trim().optional(),
+  aiTimeline: z.string().trim().optional(),
+  aiSuccessCriteria: z.string().trim().optional(),
   aiGenerated: z.boolean().optional(),
 });
 

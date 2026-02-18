@@ -167,20 +167,23 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'OBJECTIVE',
         'OTHER',
       ]),
-      sourceReference: z.string().optional(),
+      sourceReference: z.string().trim().optional(),
       description: z.string().trim().min(1).max(2000),
       expectedOutcome: z.string().trim().min(1).max(200),
       assignedTo: z.string().trim().min(1).max(200),
       department: z.string().trim().min(1).max(200),
-      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      progressNotes: z.string().optional(),
+      dueDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      progressNotes: z.string().trim().optional(),
       verificationMethod: z
         .enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF'])
         .optional(),
-      linkedNc: z.string().optional(),
-      linkedCapa: z.string().optional(),
-      linkedProcess: z.string().optional(),
-      linkedFmea: z.string().optional(),
+      linkedNc: z.string().trim().optional(),
+      linkedCapa: z.string().trim().optional(),
+      linkedProcess: z.string().trim().optional(),
+      linkedFmea: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -256,11 +259,11 @@ router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
           'OTHER',
         ])
         .optional(),
-      sourceReference: z.string().nullable().optional(),
-      description: z.string().optional(),
-      expectedOutcome: z.string().optional(),
-      assignedTo: z.string().optional(),
-      department: z.string().optional(),
+      sourceReference: z.string().trim().nullable().optional(),
+      description: z.string().trim().optional(),
+      expectedOutcome: z.string().trim().optional(),
+      assignedTo: z.string().trim().optional(),
+      department: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -268,7 +271,7 @@ router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
       status: z
         .enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'])
         .optional(),
-      progressNotes: z.string().nullable().optional(),
+      progressNotes: z.string().trim().nullable().optional(),
       completionDate: z
         .string()
         .nullable()
@@ -279,22 +282,22 @@ router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
         .enum(['DOCUMENT_REVIEW', 'INSPECTION', 'AUDIT', 'TEST', 'SIGN_OFF'])
         .nullable()
         .optional(),
-      verifiedBy: z.string().nullable().optional(),
+      verifiedBy: z.string().trim().nullable().optional(),
       verificationDate: z
         .string()
         .nullable()
         .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
       effective: z.enum(['YES', 'NO', 'PENDING']).nullable().optional(),
-      linkedNc: z.string().nullable().optional(),
-      linkedCapa: z.string().nullable().optional(),
-      linkedProcess: z.string().nullable().optional(),
-      linkedFmea: z.string().nullable().optional(),
+      linkedNc: z.string().trim().nullable().optional(),
+      linkedCapa: z.string().trim().nullable().optional(),
+      linkedProcess: z.string().trim().nullable().optional(),
+      linkedFmea: z.string().trim().nullable().optional(),
       // AI fields
-      aiAnalysis: z.string().nullable().optional(),
-      aiActionPlan: z.string().nullable().optional(),
-      aiResourceEstimate: z.string().nullable().optional(),
-      aiSuccessCriteria: z.string().nullable().optional(),
+      aiAnalysis: z.string().trim().nullable().optional(),
+      aiActionPlan: z.string().trim().nullable().optional(),
+      aiResourceEstimate: z.string().trim().nullable().optional(),
+      aiSuccessCriteria: z.string().trim().nullable().optional(),
       aiGenerated: z.boolean().optional(),
     });
 

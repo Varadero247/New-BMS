@@ -126,7 +126,7 @@ router.post('/', async (req: Request, res: Response) => {
     const schema = z.object({
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       category: workflowCategoryEnum,
       industryType: industryTypeEnum.optional(),
       definitionTemplate: z.record(z.unknown()),
@@ -170,7 +170,7 @@ router.put(
     try {
       const schema = z.object({
         name: z.string().trim().min(1).max(200).optional(),
-        description: z.string().optional(),
+        description: z.string().trim().optional(),
         category: workflowCategoryEnum.optional(),
         industryType: industryTypeEnum.optional(),
         definitionTemplate: z.record(z.unknown()).optional(),

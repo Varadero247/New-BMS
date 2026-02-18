@@ -63,22 +63,22 @@ const createIssueSchema = z.object({
   issueTitle: z.string().trim().min(1).max(200),
   issueDescription: z.string().trim().min(1).max(2000),
   issueType: z.enum(['DEFECT', 'BLOCKER', 'DEPENDENCY', 'RESOURCE', 'SCOPE_CREEP', 'CHANGE']),
-  category: z.string().optional(),
-  severity: z.string().optional(),
-  priority: z.string().optional(),
-  assignedTo: z.string().optional(),
+  category: z.string().trim().optional(),
+  severity: z.string().trim().optional(),
+  priority: z.string().trim().optional(),
+  assignedTo: z.string().trim().optional(),
   targetResolutionDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
   impactOnSchedule: z.number().optional(),
   impactOnBudget: z.number().nonnegative().optional(),
-  impactOnScope: z.string().optional(),
+  impactOnScope: z.string().trim().optional(),
 });
 const updateIssueSchema = createIssueSchema
   .extend({
-    actualResolutionDate: z.string().optional(),
-    escalationDate: z.string().optional(),
+    actualResolutionDate: z.string().trim().optional(),
+    escalationDate: z.string().trim().optional(),
   })
   .partial();
 

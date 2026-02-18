@@ -72,17 +72,17 @@ const createProjectRiskSchema = z.object({
   riskTitle: z.string().trim().min(1).max(200),
   riskDescription: z.string().trim().min(1).max(2000),
   riskCategory: z.enum(['TECHNICAL', 'RESOURCE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'EXTERNAL']),
-  riskTrigger: z.string().optional(),
+  riskTrigger: z.string().trim().optional(),
   probability: z.number().min(1).max(5),
   impact: z.number().min(1).max(5),
   expectedMonetaryValue: z.number().optional(),
   contingencyAmount: z.number().nonnegative().optional(),
-  responseStrategy: z.string().optional(),
-  responsePlan: z.string().optional(),
-  responseOwner: z.string().optional(),
-  mitigationActions: z.string().optional(),
-  contingencyPlan: z.string().optional(),
-  status: z.string().optional(),
+  responseStrategy: z.string().trim().optional(),
+  responsePlan: z.string().trim().optional(),
+  responseOwner: z.string().trim().optional(),
+  mitigationActions: z.string().trim().optional(),
+  contingencyPlan: z.string().trim().optional(),
+  status: z.string().trim().optional(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -92,7 +92,7 @@ const updateProjectRiskSchema = createProjectRiskSchema
   .extend({
     residualProbability: z.number().min(1).max(5).optional(),
     residualImpact: z.number().min(1).max(5).optional(),
-    closedDate: z.string().optional(),
+    closedDate: z.string().trim().optional(),
   })
   .partial();
 

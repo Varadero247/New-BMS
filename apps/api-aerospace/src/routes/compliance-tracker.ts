@@ -72,29 +72,29 @@ async function generateComplianceItemRefNumber(): Promise<string> {
 // ============================================
 
 const createComplianceItemSchema = z.object({
-  clause: z.string().min(1, 'Clause reference is required'),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  standard: z.string().optional().default('AS9100D'),
-  evidenceDocuments: z.array(z.string()).optional().default([]),
-  responsiblePerson: z.string().optional(),
+  clause: z.string().trim().min(1, 'Clause reference is required'),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  standard: z.string().trim().optional().default('AS9100D'),
+  evidenceDocuments: z.array(z.string().trim()).optional().default([]),
+  responsiblePerson: z.string().trim().optional(),
   targetDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateComplianceItemSchema = z.object({
-  clause: z.string().optional(),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  standard: z.string().optional(),
+  clause: z.string().trim().optional(),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  standard: z.string().trim().optional(),
   complianceStatus: z
     .enum(['COMPLIANT', 'PARTIALLY_COMPLIANT', 'NON_COMPLIANT', 'NOT_APPLICABLE', 'UNDER_REVIEW'])
     .optional(),
-  evidenceDocuments: z.array(z.string()).optional(),
-  responsiblePerson: z.string().optional(),
+  evidenceDocuments: z.array(z.string().trim()).optional(),
+  responsiblePerson: z.string().trim().optional(),
   targetDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -107,7 +107,7 @@ const updateComplianceItemSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // ============================================

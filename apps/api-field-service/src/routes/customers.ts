@@ -25,22 +25,22 @@ function generateCustomerCode(): string {
 
 const customerCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  contactName: z.string().max(200).optional().nullable(),
+  contactName: z.string().trim().max(200).optional().nullable(),
   email: z.string().trim().email().optional().nullable(),
-  phone: z.string().max(30).optional().nullable(),
+  phone: z.string().trim().max(30).optional().nullable(),
   address: z.record(z.any()),
   billingAddress: z.record(z.any()).optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const customerUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  contactName: z.string().max(200).optional().nullable(),
+  contactName: z.string().trim().max(200).optional().nullable(),
   email: z.string().trim().email().optional().nullable(),
-  phone: z.string().max(30).optional().nullable(),
+  phone: z.string().trim().max(30).optional().nullable(),
   address: z.record(z.any()).optional(),
   billingAddress: z.record(z.any()).optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   isActive: z.boolean().optional(),
 });
 

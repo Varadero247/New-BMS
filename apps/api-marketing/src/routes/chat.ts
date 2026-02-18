@@ -26,11 +26,11 @@ When you have captured name + email, include this exact JSON in your response (i
 CAPTURE:{"name":"[name]","email":"[email]","isoStandards":"[list]","companySize":"[size]","isDecisionMaker":[true/false],"preferredDemoTime":"[time]"}`;
 
 const chatStartSchema = z.object({
-  visitorId: z.string().optional(),
+  visitorId: z.string().trim().optional(),
 });
 
 const chatMessageSchema = z.object({
-  sessionId: z.string(),
+  sessionId: z.string().trim(),
   message: z.string().trim().min(1).max(2000),
 });
 

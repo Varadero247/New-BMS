@@ -707,8 +707,8 @@ const standardEnum = z.enum([
 
 const createEvidencePackSchema = z.object({
   standard: standardEnum,
-  dateFrom: z.string().optional(),
-  dateTo: z.string().optional(),
+  dateFrom: z.string().trim().optional(),
+  dateTo: z.string().trim().optional(),
   includeDocuments: z.boolean().default(true),
   includeAudits: z.boolean().default(true),
   includeCapa: z.boolean().default(true),

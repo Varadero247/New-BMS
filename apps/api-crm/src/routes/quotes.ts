@@ -12,7 +12,7 @@ const logger = createLogger('api-crm');
 router.use(authenticate);
 
 const quoteLineSchema = z.object({
-  description: z.string().min(1, 'Description is required'),
+  description: z.string().trim().min(1, 'Description is required'),
   quantity: z.number().positive('Quantity must be positive'),
   unitPrice: z.number().min(0, 'Unit price must be non-negative'),
   discount: z.number().min(0).max(100).default(0),
@@ -21,14 +21,14 @@ const quoteLineSchema = z.object({
 });
 
 const createQuoteSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  dealId: z.string().optional(),
-  accountId: z.string().optional(),
-  contactId: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  dealId: z.string().trim().optional(),
+  accountId: z.string().trim().optional(),
+  contactId: z.string().trim().optional(),
   validUntil: z.string().trim().datetime({ offset: true }).optional(),
-  currency: z.string().length(3).default('GBP'),
-  notes: z.string().optional(),
-  terms: z.string().optional(),
+  currency: z.string().trim().length(3).default('GBP'),
+  notes: z.string().trim().optional(),
+  terms: z.string().trim().optional(),
   lines: z.array(quoteLineSchema).optional(),
 });
 

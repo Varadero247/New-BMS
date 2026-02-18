@@ -160,12 +160,12 @@ router.get('/:id', checkOwnership(prisma.workflowTask), async (req: AuthRequest,
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      instanceId: z.string(),
-      assignedToId: z.string().optional(),
-      assignedToName: z.string().optional(),
+      instanceId: z.string().trim(),
+      assignedToId: z.string().trim().optional(),
+      assignedToName: z.string().trim().optional(),
       taskType: taskTypeEnum,
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -251,9 +251,9 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
-        outcome: z.string().optional(),
-        notes: z.string().optional(),
-        completedBy: z.string().optional(),
+        outcome: z.string().trim().optional(),
+        notes: z.string().trim().optional(),
+        completedBy: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);

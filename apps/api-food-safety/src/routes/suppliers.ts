@@ -17,10 +17,10 @@ router.param('id', validateIdParam());
 
 const supplierCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  contactName: z.string().max(200).optional().nullable(),
+  contactName: z.string().trim().max(200).optional().nullable(),
   email: z.string().trim().email().optional().nullable(),
-  phone: z.string().max(50).optional().nullable(),
-  address: z.string().max(500).optional().nullable(),
+  phone: z.string().trim().max(50).optional().nullable(),
+  address: z.string().trim().max(500).optional().nullable(),
   category: z.enum(['RAW_MATERIAL', 'PACKAGING', 'INGREDIENT', 'SERVICE']),
   status: z
     .enum(['APPROVED', 'CONDITIONAL', 'SUSPENDED', 'REJECTED'])
@@ -30,14 +30,24 @@ const supplierCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
   nextAuditDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
   rating: z.number().min(0).max(100).optional().nullable(),
@@ -46,24 +56,34 @@ const supplierCreateSchema = z.object({
 
 const supplierUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  contactName: z.string().max(200).optional().nullable(),
+  contactName: z.string().trim().max(200).optional().nullable(),
   email: z.string().trim().email().optional().nullable(),
-  phone: z.string().max(50).optional().nullable(),
-  address: z.string().max(500).optional().nullable(),
+  phone: z.string().trim().max(50).optional().nullable(),
+  address: z.string().trim().max(500).optional().nullable(),
   category: z.enum(['RAW_MATERIAL', 'PACKAGING', 'INGREDIENT', 'SERVICE']).optional(),
   status: z.enum(['APPROVED', 'CONDITIONAL', 'SUSPENDED', 'REJECTED']).optional(),
   lastAuditDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
   nextAuditDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
   rating: z.number().min(0).max(100).optional().nullable(),

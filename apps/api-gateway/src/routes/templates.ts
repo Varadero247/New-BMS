@@ -19,7 +19,7 @@ router.use(authenticate);
 
 const createTemplateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional(),
+  description: z.string().trim().max(2000).optional(),
   module: z.enum([
     'HEALTH_SAFETY',
     'ENVIRONMENT',
@@ -63,7 +63,7 @@ const createTemplateSchema = z.object({
     'GENERAL',
     'CERTIFICATION',
   ]),
-  tags: z.array(z.string()).optional().default([]),
+  tags: z.array(z.string().trim()).optional().default([]),
   fields: z.array(z.any()).min(1, 'At least one field is required'),
   defaultContent: z.record(z.any()).optional(),
   status: z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED', 'ARCHIVED']).optional().default('ACTIVE'),
@@ -71,7 +71,7 @@ const createTemplateSchema = z.object({
 
 const updateTemplateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   category: z
     .enum([
       'RISK_ASSESSMENT',
@@ -93,16 +93,16 @@ const updateTemplateSchema = z.object({
       'CERTIFICATION',
     ])
     .optional(),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string().trim()).optional(),
   fields: z.array(z.any()).optional(),
   defaultContent: z.record(z.any()).optional().nullable(),
   status: z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED', 'ARCHIVED']).optional(),
-  changeNote: z.string().max(500).optional(),
+  changeNote: z.string().trim().max(500).optional(),
 });
 
 const useTemplateSchema = z.object({
   filledData: z.record(z.any()),
-  referenceId: z.string().optional(),
+  referenceId: z.string().trim().optional(),
 });
 
 // ---------------------------------------------------------------------------
@@ -504,7 +504,9 @@ router.post(
       }
 
       const code = await generateCode(original.module);
-      const nameBody = z.object({ name: z.string().max(300).optional() }).safeParse(req.body);
+      const nameBody = z
+        .object({ name: z.string().trim().max(300).optional() })
+        .safeParse(req.body);
       const cloneName =
         (nameBody.success ? nameBody.data.name : undefined) || `${original.name} (Copy)`;
 

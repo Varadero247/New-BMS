@@ -25,13 +25,13 @@ const icsRoleEnum = z.enum([
 ]);
 
 const createWardenSchema = z.object({
-  name: z.string().min(1, 'name is required'),
+  name: z.string().trim().min(1, 'name is required'),
   email: z.string().trim().email().optional().or(z.literal('')),
-  phone: z.string().optional(),
-  jobTitle: z.string().optional(),
+  phone: z.string().trim().optional(),
+  jobTitle: z.string().trim().optional(),
   icsRole: icsRoleEnum,
-  areaResponsible: z.string().optional(),
-  trainingProvider: z.string().optional(),
+  areaResponsible: z.string().trim().optional(),
+  trainingProvider: z.string().trim().optional(),
   trainingDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -40,10 +40,10 @@ const createWardenSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  certificateRef: z.string().optional(),
+  certificateRef: z.string().trim().optional(),
   trainingCurrent: z.boolean().optional(),
-  deputyName: z.string().optional(),
-  deputyPhone: z.string().optional(),
+  deputyName: z.string().trim().optional(),
+  deputyPhone: z.string().trim().optional(),
 });
 
 const updateWardenSchema = createWardenSchema.partial();

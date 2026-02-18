@@ -10,8 +10,8 @@ const router = Router();
 const updateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   company: z.string().trim().min(1).max(200).optional(),
-  phone: z.string().optional(),
-  isoSpecialisms: z.array(z.string()).optional(),
+  phone: z.string().trim().optional(),
+  isoSpecialisms: z.array(z.string().trim()).optional(),
 });
 
 // GET /api/profile

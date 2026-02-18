@@ -73,10 +73,10 @@ function generateMockOasisData(cageCode?: string, companyName?: string): OasisLo
 // ============================================
 
 const monitorSupplierSchema = z.object({
-  cageCode: z.string().min(1, 'CAGE code is required'),
-  companyName: z.string().min(1, 'Company name is required'),
-  certStandard: z.string().optional(),
-  certBody: z.string().optional(),
+  cageCode: z.string().trim().min(1, 'CAGE code is required'),
+  companyName: z.string().trim().min(1, 'Company name is required'),
+  certStandard: z.string().trim().optional(),
+  certBody: z.string().trim().optional(),
   certExpiry: z.string().trim().datetime({ offset: true }).optional(),
 });
 

@@ -160,12 +160,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'RISK_REGISTER',
         'OTHER',
       ]),
-      sourceReference: z.string().optional(),
+      sourceReference: z.string().trim().optional(),
       description: z.string().trim().min(1).max(2000),
-      isoClause: z.string().optional(),
+      isoClause: z.string().trim().optional(),
       immediateActionRequired: z.boolean().default(false),
-      actionsTaken: z.string().optional(),
-      containmentVerifiedBy: z.string().optional(),
+      actionsTaken: z.string().trim().optional(),
+      containmentVerifiedBy: z.string().trim().optional(),
       containmentDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -173,28 +173,28 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       rcaMethod: z
         .enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER'])
         .optional(),
-      problemStatement: z.string().optional(),
-      why1: z.string().optional(),
-      why2: z.string().optional(),
-      why3: z.string().optional(),
-      why4: z.string().optional(),
-      why5: z.string().optional(),
-      rootCauseStatement: z.string().optional(),
-      fishbonePeople: z.string().optional(),
-      fishboneMethod: z.string().optional(),
-      fishboneMachine: z.string().optional(),
-      fishboneMaterial: z.string().optional(),
-      fishboneMeasurement: z.string().optional(),
-      fishboneEnvironment: z.string().optional(),
-      d0EmergencyResponse: z.string().optional(),
-      d1Team: z.string().optional(),
-      d2ProblemDescription: z.string().optional(),
-      d3Containment: z.string().optional(),
-      d4RootCause: z.string().optional(),
-      d5CorrectiveActions: z.string().optional(),
-      d6Implementation: z.string().optional(),
-      d7Prevention: z.string().optional(),
-      d8CongratulateTeam: z.string().optional(),
+      problemStatement: z.string().trim().optional(),
+      why1: z.string().trim().optional(),
+      why2: z.string().trim().optional(),
+      why3: z.string().trim().optional(),
+      why4: z.string().trim().optional(),
+      why5: z.string().trim().optional(),
+      rootCauseStatement: z.string().trim().optional(),
+      fishbonePeople: z.string().trim().optional(),
+      fishboneMethod: z.string().trim().optional(),
+      fishboneMachine: z.string().trim().optional(),
+      fishboneMaterial: z.string().trim().optional(),
+      fishboneMeasurement: z.string().trim().optional(),
+      fishboneEnvironment: z.string().trim().optional(),
+      d0EmergencyResponse: z.string().trim().optional(),
+      d1Team: z.string().trim().optional(),
+      d2ProblemDescription: z.string().trim().optional(),
+      d3Containment: z.string().trim().optional(),
+      d4RootCause: z.string().trim().optional(),
+      d5CorrectiveActions: z.string().trim().optional(),
+      d6Implementation: z.string().trim().optional(),
+      d7Prevention: z.string().trim().optional(),
+      d8CongratulateTeam: z.string().trim().optional(),
       rootCauseCategory: z
         .enum([
           'HUMAN_ERROR',
@@ -207,20 +207,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           'SUPPLIER',
         ])
         .optional(),
-      effectivenessCriteria: z.string().optional(),
-      effectivenessKpi: z.string().optional(),
-      effectivenessTarget: z.string().optional(),
-      effectivenessMeasureMethod: z.string().optional(),
+      effectivenessCriteria: z.string().trim().optional(),
+      effectivenessKpi: z.string().trim().optional(),
+      effectivenessTarget: z.string().trim().optional(),
+      effectivenessMeasureMethod: z.string().trim().optional(),
       targetClosureDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      linkedNc: z.string().optional(),
-      linkedProcess: z.string().optional(),
-      linkedFmea: z.string().optional(),
-      linkedDocument: z.string().optional(),
-      linkedHsCapa: z.string().optional(),
-      linkedEnvCapa: z.string().optional(),
+      linkedNc: z.string().trim().optional(),
+      linkedProcess: z.string().trim().optional(),
+      linkedFmea: z.string().trim().optional(),
+      linkedDocument: z.string().trim().optional(),
+      linkedHsCapa: z.string().trim().optional(),
+      linkedEnvCapa: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -288,12 +288,12 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
           'OTHER',
         ])
         .optional(),
-      sourceReference: z.string().nullable().optional(),
-      description: z.string().optional(),
-      isoClause: z.string().nullable().optional(),
+      sourceReference: z.string().trim().nullable().optional(),
+      description: z.string().trim().optional(),
+      isoClause: z.string().trim().nullable().optional(),
       immediateActionRequired: z.boolean().optional(),
-      actionsTaken: z.string().nullable().optional(),
-      containmentVerifiedBy: z.string().nullable().optional(),
+      actionsTaken: z.string().trim().nullable().optional(),
+      containmentVerifiedBy: z.string().trim().nullable().optional(),
       containmentDate: z
         .string()
         .nullable()
@@ -303,28 +303,28 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
         .enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER'])
         .nullable()
         .optional(),
-      problemStatement: z.string().nullable().optional(),
-      why1: z.string().nullable().optional(),
-      why2: z.string().nullable().optional(),
-      why3: z.string().nullable().optional(),
-      why4: z.string().nullable().optional(),
-      why5: z.string().nullable().optional(),
-      rootCauseStatement: z.string().nullable().optional(),
-      fishbonePeople: z.string().nullable().optional(),
-      fishboneMethod: z.string().nullable().optional(),
-      fishboneMachine: z.string().nullable().optional(),
-      fishboneMaterial: z.string().nullable().optional(),
-      fishboneMeasurement: z.string().nullable().optional(),
-      fishboneEnvironment: z.string().nullable().optional(),
-      d0EmergencyResponse: z.string().nullable().optional(),
-      d1Team: z.string().nullable().optional(),
-      d2ProblemDescription: z.string().nullable().optional(),
-      d3Containment: z.string().nullable().optional(),
-      d4RootCause: z.string().nullable().optional(),
-      d5CorrectiveActions: z.string().nullable().optional(),
-      d6Implementation: z.string().nullable().optional(),
-      d7Prevention: z.string().nullable().optional(),
-      d8CongratulateTeam: z.string().nullable().optional(),
+      problemStatement: z.string().trim().nullable().optional(),
+      why1: z.string().trim().nullable().optional(),
+      why2: z.string().trim().nullable().optional(),
+      why3: z.string().trim().nullable().optional(),
+      why4: z.string().trim().nullable().optional(),
+      why5: z.string().trim().nullable().optional(),
+      rootCauseStatement: z.string().trim().nullable().optional(),
+      fishbonePeople: z.string().trim().nullable().optional(),
+      fishboneMethod: z.string().trim().nullable().optional(),
+      fishboneMachine: z.string().trim().nullable().optional(),
+      fishboneMaterial: z.string().trim().nullable().optional(),
+      fishboneMeasurement: z.string().trim().nullable().optional(),
+      fishboneEnvironment: z.string().trim().nullable().optional(),
+      d0EmergencyResponse: z.string().trim().nullable().optional(),
+      d1Team: z.string().trim().nullable().optional(),
+      d2ProblemDescription: z.string().trim().nullable().optional(),
+      d3Containment: z.string().trim().nullable().optional(),
+      d4RootCause: z.string().trim().nullable().optional(),
+      d5CorrectiveActions: z.string().trim().nullable().optional(),
+      d6Implementation: z.string().trim().nullable().optional(),
+      d7Prevention: z.string().trim().nullable().optional(),
+      d8CongratulateTeam: z.string().trim().nullable().optional(),
       rootCauseCategory: z
         .enum([
           'HUMAN_ERROR',
@@ -338,10 +338,10 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
         ])
         .nullable()
         .optional(),
-      effectivenessCriteria: z.string().nullable().optional(),
-      effectivenessKpi: z.string().nullable().optional(),
-      effectivenessTarget: z.string().nullable().optional(),
-      effectivenessMeasureMethod: z.string().nullable().optional(),
+      effectivenessCriteria: z.string().trim().nullable().optional(),
+      effectivenessKpi: z.string().trim().nullable().optional(),
+      effectivenessTarget: z.string().trim().nullable().optional(),
+      effectivenessMeasureMethod: z.string().trim().nullable().optional(),
       status: z
         .enum([
           'INITIATED',
@@ -353,7 +353,7 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
           'CANCELLED',
         ])
         .optional(),
-      progressNotes: z.string().nullable().optional(),
+      progressNotes: z.string().trim().nullable().optional(),
       percentComplete: z.number().min(0).max(100).optional(),
       targetClosureDate: z
         .string()
@@ -370,23 +370,23 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
         .nullable()
         .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      verifiedBy: z.string().nullable().optional(),
-      effectivenessAssessment: z.string().nullable().optional(),
+      verifiedBy: z.string().trim().nullable().optional(),
+      effectivenessAssessment: z.string().trim().nullable().optional(),
       recurrenceCheck: z.boolean().nullable().optional(),
       actionsEffective: z.enum(['YES', 'NO', 'PENDING']).nullable().optional(),
-      lessonsLearned: z.string().nullable().optional(),
-      linkedNc: z.string().nullable().optional(),
-      linkedProcess: z.string().nullable().optional(),
-      linkedFmea: z.string().nullable().optional(),
-      linkedDocument: z.string().nullable().optional(),
-      linkedHsCapa: z.string().nullable().optional(),
-      linkedEnvCapa: z.string().nullable().optional(),
+      lessonsLearned: z.string().trim().nullable().optional(),
+      linkedNc: z.string().trim().nullable().optional(),
+      linkedProcess: z.string().trim().nullable().optional(),
+      linkedFmea: z.string().trim().nullable().optional(),
+      linkedDocument: z.string().trim().nullable().optional(),
+      linkedHsCapa: z.string().trim().nullable().optional(),
+      linkedEnvCapa: z.string().trim().nullable().optional(),
       // AI fields
-      aiAnalysis: z.string().nullable().optional(),
-      aiRootCauseValidation: z.string().nullable().optional(),
-      aiActionSuggestions: z.string().nullable().optional(),
-      aiEffectivenessCriteria: z.string().nullable().optional(),
-      aiSystemicImplications: z.string().nullable().optional(),
+      aiAnalysis: z.string().trim().nullable().optional(),
+      aiRootCauseValidation: z.string().trim().nullable().optional(),
+      aiActionSuggestions: z.string().trim().nullable().optional(),
+      aiEffectivenessCriteria: z.string().trim().nullable().optional(),
+      aiSystemicImplications: z.string().trim().nullable().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -488,12 +488,15 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       action: z.string().trim().min(1).max(2000),
       assignedTo: z.string().trim().min(1).max(200),
-      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
       status: z
         .enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'])
         .default('OPEN'),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -540,7 +543,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
 
     const schema = z.object({
       action: z.string().trim().min(1).max(2000).optional(),
-      assignedTo: z.string().optional(),
+      assignedTo: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -549,7 +552,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
       status: z
         .enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'])
         .optional(),
-      notes: z.string().nullable().optional(),
+      notes: z.string().trim().nullable().optional(),
       completedDate: z
         .string()
         .nullable()

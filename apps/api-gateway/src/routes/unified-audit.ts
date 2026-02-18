@@ -88,10 +88,10 @@ router.get('/standards/:standard/checklist', async (req: AuthRequest, res: Respo
 // POST /plans - Create a new audit plan
 // ---------------------------------------------------------------------------
 const createPlanSchema = z.object({
-  standard: z.string().min(1, 'Standard code is required'),
+  standard: z.string().trim().min(1, 'Standard code is required'),
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'SURVEILLANCE', 'CERTIFICATION']),
-  title: z.string().min(1, 'Title is required').max(200),
-  scope: z.string().min(1, 'Scope is required').max(2000),
+  title: z.string().trim().min(1, 'Title is required').max(200),
+  scope: z.string().trim().min(1, 'Scope is required').max(2000),
 });
 
 router.post('/plans', async (req: AuthRequest, res: Response) => {
@@ -259,9 +259,9 @@ const updateClauseSchema = z.object({
       'NOT_APPLICABLE',
     ])
     .optional(),
-  findings: z.array(z.string()).optional(),
-  objectiveEvidence: z.array(z.string()).optional(),
-  auditorNotes: z.string().optional(),
+  findings: z.array(z.string().trim()).optional(),
+  objectiveEvidence: z.array(z.string().trim()).optional(),
+  auditorNotes: z.string().trim().optional(),
 });
 
 router.patch('/plans/:id/clauses/:clause', async (req: AuthRequest, res: Response) => {

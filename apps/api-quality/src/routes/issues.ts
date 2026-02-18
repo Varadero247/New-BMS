@@ -101,15 +101,15 @@ router.get('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, re
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      partyId: z.string().optional(),
+      partyId: z.string().trim().optional(),
       issueOfConcern: z.string().trim().min(1).max(200),
       bias: z.enum(['RISK', 'OPPORTUNITY', 'MIXED']),
-      processesAffected: z.string().optional(),
+      processesAffected: z.string().trim().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
       treatmentMethod: z.string().trim().min(1).max(200),
-      recordReference: z.string().optional(),
+      recordReference: z.string().trim().optional(),
       status: z.enum(['OPEN', 'UNDER_REVIEW', 'TREATED', 'MONITORED', 'CLOSED']).default('OPEN'),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -167,15 +167,15 @@ router.put('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, re
     }
 
     const schema = z.object({
-      partyId: z.string().nullable().optional(),
+      partyId: z.string().trim().nullable().optional(),
       issueOfConcern: z.string().trim().min(1).max(200).optional(),
       bias: z.enum(['RISK', 'OPPORTUNITY', 'MIXED']).optional(),
-      processesAffected: z.string().nullable().optional(),
+      processesAffected: z.string().trim().nullable().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       treatmentMethod: z.string().trim().min(1).max(200).optional(),
-      recordReference: z.string().nullable().optional(),
+      recordReference: z.string().trim().nullable().optional(),
       status: z.enum(['OPEN', 'UNDER_REVIEW', 'TREATED', 'MONITORED', 'CLOSED']).optional(),
-      notes: z.string().nullable().optional(),
+      notes: z.string().trim().nullable().optional(),
     });
 
     const data = schema.parse(req.body);

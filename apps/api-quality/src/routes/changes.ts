@@ -109,17 +109,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'EMERGENCY_CHANGE',
       ]),
       priority: z.enum(['ROUTINE', 'URGENT', 'EMERGENCY']).optional(),
-      isoClause: z.string().optional(),
+      isoClause: z.string().trim().optional(),
       requestedBy: z.string().trim().min(1).max(200),
       department: z.string().trim().min(1).max(200),
-      dateRequested: z.string().optional(),
+      dateRequested: z.string().trim().optional(),
       // Description
       currentState: z.string().trim().min(1).max(200),
       proposedChange: z.string().trim().min(1).max(200),
       reasonForChange: z.string().trim().min(1).max(2000),
-      linkedDocument: z.string().optional(),
-      linkedProcess: z.string().optional(),
-      linkedNcCapa: z.string().optional(),
+      linkedDocument: z.string().trim().optional(),
+      linkedProcess: z.string().trim().optional(),
+      linkedNcCapa: z.string().trim().optional(),
       // Impact Assessment
       qualityImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       customerImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
@@ -129,13 +129,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       regulatoryImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
       financialImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
       estimatedCost: z.number().nonnegative().optional(),
-      affectedProcesses: z.string().optional(),
-      affectedDocuments: z.string().optional(),
-      stakeholdersToNotify: z.string().optional(),
+      affectedProcesses: z.string().trim().optional(),
+      affectedDocuments: z.string().trim().optional(),
+      stakeholdersToNotify: z.string().trim().optional(),
       trainingRequired: z.boolean().optional(),
-      trainingDescription: z.string().optional(),
+      trainingDescription: z.string().trim().optional(),
       validationRequired: z.boolean().optional(),
-      validationDescription: z.string().optional(),
+      validationDescription: z.string().trim().optional(),
       // Approval
       status: z
         .enum([
@@ -149,17 +149,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           'CANCELLED',
         ])
         .optional(),
-      reviewedBy: z.string().optional(),
-      approvalAuthority: z.string().optional(),
-      approvedBy: z.string().optional(),
+      reviewedBy: z.string().trim().optional(),
+      approvalAuthority: z.string().trim().optional(),
+      approvedBy: z.string().trim().optional(),
       approvalDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      approvalNotes: z.string().optional(),
-      rejectionReason: z.string().optional(),
+      approvalNotes: z.string().trim().optional(),
+      rejectionReason: z.string().trim().optional(),
       // Implementation
-      implementationPlan: z.string().optional(),
+      implementationPlan: z.string().trim().optional(),
       targetDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -168,24 +168,24 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      implementedBy: z.string().optional(),
-      docVersionUpdated: z.string().optional(),
+      implementedBy: z.string().trim().optional(),
+      docVersionUpdated: z.string().trim().optional(),
       communicationSent: z.boolean().optional(),
       trainingCompleted: z.boolean().optional(),
       // Verification
-      verificationMethod: z.string().optional(),
+      verificationMethod: z.string().trim().optional(),
       verificationDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      verifiedBy: z.string().optional(),
+      verifiedBy: z.string().trim().optional(),
       effective: z.enum(['YES', 'NO', 'PENDING']).optional(),
-      lessonsLearned: z.string().optional(),
+      lessonsLearned: z.string().trim().optional(),
       // AI
-      aiAnalysis: z.string().optional(),
-      aiHiddenRisks: z.string().optional(),
-      aiAffectedProcesses: z.string().optional(),
-      aiImplementationSteps: z.string().optional(),
+      aiAnalysis: z.string().trim().optional(),
+      aiHiddenRisks: z.string().trim().optional(),
+      aiAffectedProcesses: z.string().trim().optional(),
+      aiImplementationSteps: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -296,15 +296,15 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
         ])
         .optional(),
       priority: z.enum(['ROUTINE', 'URGENT', 'EMERGENCY']).optional(),
-      isoClause: z.string().optional(),
-      requestedBy: z.string().optional(),
-      department: z.string().optional(),
-      currentState: z.string().optional(),
-      proposedChange: z.string().optional(),
-      reasonForChange: z.string().optional(),
-      linkedDocument: z.string().optional(),
-      linkedProcess: z.string().optional(),
-      linkedNcCapa: z.string().optional(),
+      isoClause: z.string().trim().optional(),
+      requestedBy: z.string().trim().optional(),
+      department: z.string().trim().optional(),
+      currentState: z.string().trim().optional(),
+      proposedChange: z.string().trim().optional(),
+      reasonForChange: z.string().trim().optional(),
+      linkedDocument: z.string().trim().optional(),
+      linkedProcess: z.string().trim().optional(),
+      linkedNcCapa: z.string().trim().optional(),
       qualityImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       customerImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       processImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
@@ -313,13 +313,13 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
       regulatoryImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
       financialImpact: z.enum(['NONE', 'LOW', 'MEDIUM', 'HIGH']).optional(),
       estimatedCost: z.number().nonnegative().optional(),
-      affectedProcesses: z.string().optional(),
-      affectedDocuments: z.string().optional(),
-      stakeholdersToNotify: z.string().optional(),
+      affectedProcesses: z.string().trim().optional(),
+      affectedDocuments: z.string().trim().optional(),
+      stakeholdersToNotify: z.string().trim().optional(),
       trainingRequired: z.boolean().optional(),
-      trainingDescription: z.string().optional(),
+      trainingDescription: z.string().trim().optional(),
       validationRequired: z.boolean().optional(),
-      validationDescription: z.string().optional(),
+      validationDescription: z.string().trim().optional(),
       status: z
         .enum([
           'REQUESTED',
@@ -332,16 +332,16 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
           'CANCELLED',
         ])
         .optional(),
-      reviewedBy: z.string().optional(),
-      approvalAuthority: z.string().optional(),
-      approvedBy: z.string().optional(),
+      reviewedBy: z.string().trim().optional(),
+      approvalAuthority: z.string().trim().optional(),
+      approvedBy: z.string().trim().optional(),
       approvalDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      approvalNotes: z.string().optional(),
-      rejectionReason: z.string().optional(),
-      implementationPlan: z.string().optional(),
+      approvalNotes: z.string().trim().optional(),
+      rejectionReason: z.string().trim().optional(),
+      implementationPlan: z.string().trim().optional(),
       targetDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -350,22 +350,22 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      implementedBy: z.string().optional(),
-      docVersionUpdated: z.string().optional(),
+      implementedBy: z.string().trim().optional(),
+      docVersionUpdated: z.string().trim().optional(),
       communicationSent: z.boolean().optional(),
       trainingCompleted: z.boolean().optional(),
-      verificationMethod: z.string().optional(),
+      verificationMethod: z.string().trim().optional(),
       verificationDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      verifiedBy: z.string().optional(),
+      verifiedBy: z.string().trim().optional(),
       effective: z.enum(['YES', 'NO', 'PENDING']).optional(),
-      lessonsLearned: z.string().optional(),
-      aiAnalysis: z.string().optional(),
-      aiHiddenRisks: z.string().optional(),
-      aiAffectedProcesses: z.string().optional(),
-      aiImplementationSteps: z.string().optional(),
+      lessonsLearned: z.string().trim().optional(),
+      aiAnalysis: z.string().trim().optional(),
+      aiHiddenRisks: z.string().trim().optional(),
+      aiAffectedProcesses: z.string().trim().optional(),
+      aiImplementationSteps: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 

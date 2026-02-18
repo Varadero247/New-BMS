@@ -170,7 +170,7 @@ const SUPPORTED_CODES = Object.keys(JURISDICTION_RULES);
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      code: z.string().length(2).toUpperCase(),
+      code: z.string().trim().length(2).toUpperCase(),
       customRules: z.record(z.any()).optional(),
     });
 

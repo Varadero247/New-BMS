@@ -8,9 +8,9 @@ const logger = createLogger('api-esg');
 const router = Router();
 
 const generateSchema = z.object({
-  title: z.string().optional(),
-  framework: z.string().min(1, 'Framework is required'),
-  period: z.string().min(1, 'Period is required'),
+  title: z.string().trim().optional(),
+  framework: z.string().trim().min(1, 'Framework is required'),
+  period: z.string().trim().min(1, 'Period is required'),
 });
 
 router.get('/', authenticate, async (req: Request, res: Response) => {

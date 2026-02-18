@@ -9,13 +9,13 @@ router.param('id', validateIdParam());
 const logger = createLogger('suppliers-spend');
 
 const createSchema = z.object({
-  supplierId: z.string().min(1, 'Supplier ID is required'),
-  period: z.string().min(1, 'Period is required'),
+  supplierId: z.string().trim().min(1, 'Supplier ID is required'),
+  period: z.string().trim().min(1, 'Period is required'),
   amount: z.number().min(0, 'Amount must be non-negative'),
-  currency: z.string().length(3).optional(),
-  category: z.string().optional(),
-  poNumber: z.string().optional(),
-  notes: z.string().optional(),
+  currency: z.string().trim().length(3).optional(),
+  category: z.string().trim().optional(),
+  poNumber: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

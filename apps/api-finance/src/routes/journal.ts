@@ -26,7 +26,7 @@ const lineSchema = z.object({
   accountId: z.string().trim().uuid(),
   debit: z.number().min(0).default(0),
   credit: z.number().min(0).default(0),
-  description: z.string().max(500).optional().nullable(),
+  description: z.string().trim().max(500).optional().nullable(),
 });
 
 const createSchema = z.object({
@@ -36,16 +36,16 @@ const createSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   periodId: z.string().trim().uuid(),
   description: z.string().trim().min(1).max(1000),
-  memo: z.string().max(2000).optional().nullable(),
-  source: z.string().max(100).optional().nullable(),
+  memo: z.string().trim().max(2000).optional().nullable(),
+  source: z.string().trim().max(100).optional().nullable(),
   sourceId: z.string().trim().uuid().optional().nullable(),
   lines: z.array(lineSchema).min(2),
 });
 
 const updateSchema = z.object({
-  date: z.string().optional(),
+  date: z.string().trim().optional(),
   description: z.string().trim().min(1).max(1000).optional(),
-  memo: z.string().max(2000).optional().nullable(),
+  memo: z.string().trim().max(2000).optional().nullable(),
   lines: z.array(lineSchema).min(2).optional(),
 });
 

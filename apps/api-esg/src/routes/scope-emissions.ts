@@ -9,21 +9,21 @@ const router = Router();
 
 const createSchema = z.object({
   scope: z.number().int().min(1).max(3, 'Scope must be 1, 2, or 3'),
-  category: z.string().optional(),
-  source: z.string().optional(),
-  activity: z.string().optional(),
+  category: z.string().trim().optional(),
+  source: z.string().trim().optional(),
+  activity: z.string().trim().optional(),
   quantity: z.number().nonnegative().optional(),
-  unit: z.string().optional(),
+  unit: z.string().trim().optional(),
   emissionFactor: z.number().optional(),
   co2e: z.number().optional(),
-  period: z.string().optional(),
-  location: z.string().optional(),
-  verifiedBy: z.string().optional(),
+  period: z.string().trim().optional(),
+  location: z.string().trim().optional(),
+  verifiedBy: z.string().trim().optional(),
   verifiedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 router.get('/', authenticate, async (req: Request, res: Response) => {

@@ -37,13 +37,13 @@ const appetiteSchema = z.object({
     .trim()
     .datetime({ offset: true })
     .or(z.string().trim().datetime({ offset: true })),
-  approvedBy: z.string().optional(),
-  organisationId: z.string().optional(),
+  approvedBy: z.string().trim().optional(),
+  organisationId: z.string().trim().optional(),
 });
 
 const frameworkSchema = z.object({
-  frameworkVersion: z.string().optional(),
-  policyRef: z.string().optional(),
+  frameworkVersion: z.string().trim().optional(),
+  policyRef: z.string().trim().optional(),
   policyApprovedDate: z
     .string()
     .trim()
@@ -63,10 +63,10 @@ const frameworkSchema = z.object({
     .enum(['VERY_LOW', 'LOW', 'MODERATE_APPETITE', 'HIGH_APPETITE', 'VERY_HIGH'])
     .optional(),
   riskCommitteeExists: z.boolean().optional(),
-  riskCommitteeName: z.string().optional(),
-  riskCommitteeMeetingFreq: z.string().optional(),
-  boardReportingFreq: z.string().optional(),
-  maturityLevel: z.string().optional(),
+  riskCommitteeName: z.string().trim().optional(),
+  riskCommitteeMeetingFreq: z.string().trim().optional(),
+  boardReportingFreq: z.string().trim().optional(),
+  maturityLevel: z.string().trim().optional(),
   maturityAssessedDate: z
     .string()
     .trim()

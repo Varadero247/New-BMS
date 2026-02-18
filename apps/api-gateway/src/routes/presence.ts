@@ -8,14 +8,14 @@ const logger = createLogger('api-gateway:presence');
 const router = Router();
 
 const lockSchema = z.object({
-  recordType: z.string().min(1, 'recordType is required'),
-  recordId: z.string().min(1, 'recordId is required'),
+  recordType: z.string().trim().min(1, 'recordType is required'),
+  recordId: z.string().trim().min(1, 'recordId is required'),
   force: z.boolean().optional(),
 });
 
 const recordRefSchema = z.object({
-  recordType: z.string().min(1, 'recordType is required'),
-  recordId: z.string().min(1, 'recordId is required'),
+  recordType: z.string().trim().min(1, 'recordType is required'),
+  recordId: z.string().trim().min(1, 'recordId is required'),
 });
 
 // ============================================

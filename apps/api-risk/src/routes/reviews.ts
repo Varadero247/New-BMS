@@ -12,9 +12,9 @@ const likelihoodEnum = z.enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST
 const consequenceEnum = z.enum(['INSIGNIFICANT', 'MINOR', 'MODERATE', 'MAJOR', 'CATASTROPHIC']);
 
 const createReviewSchema = z.object({
-  riskId: z.string().min(1, 'riskId is required'),
-  reviewer: z.string().optional(),
-  reviewerName: z.string().optional(),
+  riskId: z.string().trim().min(1, 'riskId is required'),
+  reviewer: z.string().trim().optional(),
+  reviewerName: z.string().trim().optional(),
   scheduledDate: z
     .string()
     .trim()
@@ -31,9 +31,9 @@ const createReviewSchema = z.object({
   newLikelihood: likelihoodEnum.optional(),
   newConsequence: consequenceEnum.optional(),
   newScore: z.number().nonnegative().optional(),
-  findings: z.string().optional(),
-  recommendations: z.string().optional(),
-  notes: z.string().optional(),
+  findings: z.string().trim().optional(),
+  recommendations: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateReviewSchema = createReviewSchema.partial();

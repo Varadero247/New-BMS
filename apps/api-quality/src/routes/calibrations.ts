@@ -21,15 +21,15 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   equipmentName: z.string().trim().min(1).max(300),
-  equipmentId: z.string().max(100).optional().nullable(),
-  manufacturer: z.string().max(200).optional().nullable(),
-  modelNumber: z.string().max(200).optional().nullable(),
-  serialNumber: z.string().max(200).optional().nullable(),
-  location: z.string().max(300).optional().nullable(),
-  calibrationMethod: z.string().max(2000).optional().nullable(),
-  standardUsed: z.string().max(500).optional().nullable(),
-  acceptanceCriteria: z.string().max(2000).optional().nullable(),
-  calibrationFrequency: z.string().max(100).optional().nullable(),
+  equipmentId: z.string().trim().max(100).optional().nullable(),
+  manufacturer: z.string().trim().max(200).optional().nullable(),
+  modelNumber: z.string().trim().max(200).optional().nullable(),
+  serialNumber: z.string().trim().max(200).optional().nullable(),
+  location: z.string().trim().max(300).optional().nullable(),
+  calibrationMethod: z.string().trim().max(2000).optional().nullable(),
+  standardUsed: z.string().trim().max(500).optional().nullable(),
+  acceptanceCriteria: z.string().trim().max(2000).optional().nullable(),
+  calibrationFrequency: z.string().trim().max(100).optional().nullable(),
   lastCalibrationDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -40,12 +40,12 @@ const createSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  calibratedBy: z.string().max(200).optional().nullable(),
-  certificateNumber: z.string().max(200).optional().nullable(),
-  results: z.string().max(5000).optional().nullable(),
-  deviation: z.string().max(2000).optional().nullable(),
-  adjustments: z.string().max(2000).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  calibratedBy: z.string().trim().max(200).optional().nullable(),
+  certificateNumber: z.string().trim().max(200).optional().nullable(),
+  results: z.string().trim().max(5000).optional().nullable(),
+  deviation: z.string().trim().max(2000).optional().nullable(),
+  adjustments: z.string().trim().max(2000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial();

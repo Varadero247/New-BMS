@@ -17,7 +17,7 @@ router.param('id', validateIdParam());
 const planCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   assetId: z.string().trim().uuid(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   frequency: z.enum([
     'DAILY',
     'WEEKLY',
@@ -27,10 +27,10 @@ const planCreateSchema = z.object({
     'SEMI_ANNUALLY',
     'ANNUALLY',
   ]),
-  lastPerformed: z.string().optional().nullable(),
-  nextDue: z.string().optional().nullable(),
+  lastPerformed: z.string().trim().optional().nullable(),
+  nextDue: z.string().trim().optional().nullable(),
   tasks: z.any(),
-  assignedTo: z.string().max(200).optional().nullable(),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
   isActive: z.boolean().optional(),
   estimatedDuration: z.number().int().optional().nullable(),
   estimatedCost: z.number().nonnegative().optional().nullable(),
@@ -38,14 +38,14 @@ const planCreateSchema = z.object({
 
 const planUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   frequency: z
     .enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY'])
     .optional(),
-  lastPerformed: z.string().optional().nullable(),
-  nextDue: z.string().optional().nullable(),
+  lastPerformed: z.string().trim().optional().nullable(),
+  nextDue: z.string().trim().optional().nullable(),
   tasks: z.any().optional(),
-  assignedTo: z.string().max(200).optional().nullable(),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
   isActive: z.boolean().optional(),
   estimatedDuration: z.number().int().optional().nullable(),
   estimatedCost: z.number().nonnegative().optional().nullable(),

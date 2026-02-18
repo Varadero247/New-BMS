@@ -119,9 +119,9 @@ router.get('/baselines/:id', async (req: AuthRequest, res: Response) => {
 router.post('/baselines', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1, 'Title is required'),
-      description: z.string().min(1, 'Description is required'),
-      program: z.string().optional(),
+      title: z.string().trim().min(1, 'Title is required'),
+      description: z.string().trim().min(1, 'Description is required'),
+      program: z.string().trim().optional(),
       status: z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
       effectiveDate: z
         .string()
@@ -176,14 +176,14 @@ router.put('/baselines/:id', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      description: z.string().optional(),
-      program: z.string().optional(),
+      description: z.string().trim().optional(),
+      program: z.string().trim().optional(),
       status: z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
       effectiveDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      approvedBy: z.string().optional(),
+      approvedBy: z.string().trim().optional(),
       approvedDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -254,10 +254,10 @@ router.delete('/baselines/:id', async (req: AuthRequest, res: Response) => {
 router.post('/items', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      baselineId: z.string().min(1, 'Baseline ID is required'),
-      partNumber: z.string().min(1, 'Part number is required'),
-      nomenclature: z.string().min(1, 'Nomenclature is required'),
-      revision: z.string().min(1, 'Revision is required'),
+      baselineId: z.string().trim().min(1, 'Baseline ID is required'),
+      partNumber: z.string().trim().min(1, 'Part number is required'),
+      nomenclature: z.string().trim().min(1, 'Nomenclature is required'),
+      revision: z.string().trim().min(1, 'Revision is required'),
       category: z.enum([
         'HARDWARE',
         'SOFTWARE',
@@ -267,13 +267,13 @@ router.post('/items', async (req: AuthRequest, res: Response) => {
         'TEST_EQUIPMENT',
         'MATERIAL',
       ]),
-      serialNumber: z.string().optional(),
-      lotNumber: z.string().optional(),
+      serialNumber: z.string().trim().optional(),
+      lotNumber: z.string().trim().optional(),
       status: z.enum(['CURRENT', 'SUPERSEDED', 'OBSOLETE', 'PENDING_CHANGE']).optional(),
-      documentRef: z.string().optional(),
-      specifications: z.string().optional(),
-      supplier: z.string().optional(),
-      notes: z.string().optional(),
+      documentRef: z.string().trim().optional(),
+      specifications: z.string().trim().optional(),
+      supplier: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -349,13 +349,13 @@ router.put('/items/:id', async (req: AuthRequest, res: Response) => {
           'MATERIAL',
         ])
         .optional(),
-      serialNumber: z.string().optional(),
-      lotNumber: z.string().optional(),
+      serialNumber: z.string().trim().optional(),
+      lotNumber: z.string().trim().optional(),
       status: z.enum(['CURRENT', 'SUPERSEDED', 'OBSOLETE', 'PENDING_CHANGE']).optional(),
-      documentRef: z.string().optional(),
-      specifications: z.string().optional(),
-      supplier: z.string().optional(),
-      notes: z.string().optional(),
+      documentRef: z.string().trim().optional(),
+      specifications: z.string().trim().optional(),
+      supplier: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -393,13 +393,13 @@ router.put('/items/:id', async (req: AuthRequest, res: Response) => {
 router.post('/changes', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1, 'Title is required'),
-      description: z.string().min(1, 'Description is required'),
-      reason: z.string().min(1, 'Reason is required'),
+      title: z.string().trim().min(1, 'Title is required'),
+      description: z.string().trim().min(1, 'Description is required'),
+      reason: z.string().trim().min(1, 'Reason is required'),
       urgency: z.enum(['EMERGENCY', 'URGENT', 'ROUTINE']).optional(),
-      affectedItems: z.array(z.string()).min(1, 'At least one affected item is required'),
-      affectedBaselines: z.array(z.string()).optional().default([]),
-      proposedBy: z.string().optional(),
+      affectedItems: z.array(z.string().trim()).min(1, 'At least one affected item is required'),
+      affectedBaselines: z.array(z.string().trim()).optional().default([]),
+      proposedBy: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -504,8 +504,8 @@ router.put('/changes/:id/approve', async (req: AuthRequest, res: Response) => {
         'DEFER',
         'MORE_INFO_NEEDED',
       ]),
-      ccbMembers: z.array(z.string()).min(1, 'At least one CCB member is required'),
-      ccbNotes: z.string().optional(),
+      ccbMembers: z.array(z.string().trim()).min(1, 'At least one CCB member is required'),
+      ccbNotes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -567,14 +567,14 @@ router.put('/changes/:id/approve', async (req: AuthRequest, res: Response) => {
 router.post('/audits/fca', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1, 'Title is required'),
-      baselineId: z.string().min(1, 'Baseline ID is required'),
+      title: z.string().trim().min(1, 'Title is required'),
+      baselineId: z.string().trim().min(1, 'Baseline ID is required'),
       auditDate: z
         .string()
         .min(1, 'Audit date is required')
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      auditors: z.array(z.string()).min(1, 'At least one auditor is required'),
-      notes: z.string().optional(),
+      auditors: z.array(z.string().trim()).min(1, 'At least one auditor is required'),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -624,14 +624,14 @@ router.post('/audits/fca', async (req: AuthRequest, res: Response) => {
 router.post('/audits/pca', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().min(1, 'Title is required'),
-      baselineId: z.string().min(1, 'Baseline ID is required'),
+      title: z.string().trim().min(1, 'Title is required'),
+      baselineId: z.string().trim().min(1, 'Baseline ID is required'),
       auditDate: z
         .string()
         .min(1, 'Audit date is required')
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      auditors: z.array(z.string()).min(1, 'At least one auditor is required'),
-      notes: z.string().optional(),
+      auditors: z.array(z.string().trim()).min(1, 'At least one auditor is required'),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

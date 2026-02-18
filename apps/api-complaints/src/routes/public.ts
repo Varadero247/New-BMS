@@ -7,11 +7,11 @@ const logger = createLogger('complaints-public');
 
 const submitSchema = z.object({
   orgId: z.string().trim().uuid().optional(),
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  complainantName: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
+  complainantName: z.string().trim().optional(),
   complainantEmail: z.string().trim().email('Invalid email').optional(),
-  complainantPhone: z.string().optional(),
+  complainantPhone: z.string().trim().optional(),
   category: z
     .enum([
       'PRODUCT',
@@ -25,8 +25,8 @@ const submitSchema = z.object({
     ])
     .optional(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  productRef: z.string().optional(),
-  orderRef: z.string().optional(),
+  productRef: z.string().trim().optional(),
+  orderRef: z.string().trim().optional(),
 });
 
 router.post('/submit', async (req: Request, res: Response) => {

@@ -42,33 +42,33 @@ const RESERVED_PATHS = new Set(['heat-map']);
 
 const riskCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(5000).optional(),
+  description: z.string().trim().max(5000).optional(),
   threat: z.string().trim().min(1).max(500),
   vulnerability: z.string().trim().min(1).max(500),
   likelihood: z.number().int().min(1).max(5),
   impact: z.number().int().min(1).max(5),
   assetId: z.string().trim().uuid().optional(),
-  category: z.string().max(100).optional(),
-  owner: z.string().max(200).optional(),
+  category: z.string().trim().max(100).optional(),
+  owner: z.string().trim().max(200).optional(),
 });
 
 const riskUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  description: z.string().max(5000).optional(),
+  description: z.string().trim().max(5000).optional(),
   threat: z.string().trim().min(1).max(500).optional(),
   vulnerability: z.string().trim().min(1).max(500).optional(),
   likelihood: z.number().int().min(1).max(5).optional(),
   impact: z.number().int().min(1).max(5).optional(),
   assetId: z.string().trim().uuid().optional().nullable(),
-  category: z.string().max(100).optional(),
-  owner: z.string().max(200).optional(),
+  category: z.string().trim().max(100).optional(),
+  owner: z.string().trim().max(200).optional(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'TREATING', 'ACCEPTED', 'CLOSED']).optional(),
 });
 
 const treatmentSchema = z.object({
   treatment: z.enum(['MITIGATE', 'TRANSFER', 'AVOID', 'ACCEPT']),
   treatmentPlan: z.string().trim().min(1).max(5000),
-  controlIds: z.array(z.string()).optional(),
+  controlIds: z.array(z.string().trim()).optional(),
   residualLikelihood: z.number().int().min(1).max(5).optional(),
   residualImpact: z.number().int().min(1).max(5).optional(),
 });

@@ -54,7 +54,7 @@ const linkSchema = z.object({
   permissions: z.array(z.enum(['READ', 'AUDIT', 'MANAGE', 'BILLING'])).min(1),
   whiteLabel: z
     .object({
-      brandName: z.string().max(100).optional(),
+      brandName: z.string().trim().max(100).optional(),
       logoUrl: z.string().trim().url().optional(),
       primaryColor: z
         .string()
@@ -72,7 +72,7 @@ const updateLinkSchema = z.object({
     .optional(),
   whiteLabel: z
     .object({
-      brandName: z.string().max(100).optional(),
+      brandName: z.string().trim().max(100).optional(),
       logoUrl: z.string().trim().url().optional(),
       primaryColor: z
         .string()

@@ -18,8 +18,8 @@ router.param('id', validateIdParam());
 const allergenCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   type: z.enum(['MAJOR', 'MINOR']),
-  description: z.string().max(2000).optional().nullable(),
-  controlMeasures: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  controlMeasures: z.string().trim().max(2000).optional().nullable(),
   labellingRequired: z.boolean().optional().default(true),
   isActive: z.boolean().optional().default(true),
 });
@@ -27,8 +27,8 @@ const allergenCreateSchema = z.object({
 const allergenUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   type: z.enum(['MAJOR', 'MINOR']).optional(),
-  description: z.string().max(2000).optional().nullable(),
-  controlMeasures: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  controlMeasures: z.string().trim().max(2000).optional().nullable(),
   labellingRequired: z.boolean().optional(),
   isActive: z.boolean().optional(),
 });

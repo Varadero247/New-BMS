@@ -28,45 +28,65 @@ function generateReference(prefix: string): string {
 const billCreateSchema = z.object({
   meterId: z.string().trim().uuid().optional().nullable(),
   provider: z.string().trim().min(1).max(200),
-  accountNumber: z.string().max(100).optional().nullable(),
-  invoiceNumber: z.string().max(100).optional().nullable(),
+  accountNumber: z.string().trim().max(100).optional().nullable(),
+  invoiceNumber: z.string().trim().max(100).optional().nullable(),
   periodStart: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   periodEnd: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   consumption: z.number().min(0),
   unit: z.string().trim().min(1).max(50),
   cost: z.number().min(0),
-  currency: z.string().length(3).optional().default('GBP'),
+  currency: z.string().trim().length(3).optional().default('GBP'),
 });
 
 const billUpdateSchema = z.object({
   meterId: z.string().trim().uuid().optional().nullable(),
   provider: z.string().trim().min(1).max(200).optional(),
-  accountNumber: z.string().max(100).optional().nullable(),
-  invoiceNumber: z.string().max(100).optional().nullable(),
+  accountNumber: z.string().trim().max(100).optional().nullable(),
+  invoiceNumber: z.string().trim().max(100).optional().nullable(),
   periodStart: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional(),
   periodEnd: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional(),
   consumption: z.number().min(0).optional(),
   unit: z.string().trim().min(1).max(50).optional(),
   cost: z.number().min(0).optional(),
-  currency: z.string().length(3).optional(),
+  currency: z.string().trim().length(3).optional(),
   status: z.enum(['PENDING', 'VERIFIED', 'DISPUTED', 'PAID']).optional(),
 });
 

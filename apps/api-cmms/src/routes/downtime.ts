@@ -20,7 +20,7 @@ const downtimeCreateSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  endTime: z.string().optional().nullable(),
+  endTime: z.string().trim().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
   reason: z.string().trim().min(1).max(500),
   impact: z
@@ -30,8 +30,8 @@ const downtimeCreateSchema = z.object({
 });
 
 const downtimeUpdateSchema = z.object({
-  startTime: z.string().optional(),
-  endTime: z.string().optional().nullable(),
+  startTime: z.string().trim().optional(),
+  endTime: z.string().trim().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
   reason: z.string().trim().min(1).max(500).optional(),
   impact: z

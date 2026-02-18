@@ -9,18 +9,18 @@ router.param('id', validateIdParam());
 const logger = createLogger('contracts-contracts');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
   type: z
     .enum(['SUPPLIER', 'CUSTOMER', 'SERVICE', 'NDA', 'LEASE', 'EMPLOYMENT', 'PARTNERSHIP', 'OTHER'])
     .optional(),
   status: z
     .enum(['DRAFT', 'PENDING_APPROVAL', 'ACTIVE', 'EXPIRED', 'TERMINATED', 'RENEWED'])
     .optional(),
-  counterparty: z.string().optional(),
-  counterpartyContact: z.string().optional(),
+  counterparty: z.string().trim().optional(),
+  counterpartyContact: z.string().trim().optional(),
   value: z.number().optional(),
-  currency: z.string().length(3).optional(),
+  currency: z.string().trim().length(3).optional(),
   startDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -35,13 +35,13 @@ const createSchema = z.object({
     .optional(),
   autoRenew: z.boolean().optional(),
   noticePeriodDays: z.number().int().optional(),
-  paymentTerms: z.string().optional(),
+  paymentTerms: z.string().trim().optional(),
   fileUrl: z.string().trim().url('Invalid URL').optional(),
-  owner: z.string().optional(),
-  ownerName: z.string().optional(),
-  department: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  notes: z.string().optional(),
+  owner: z.string().trim().optional(),
+  ownerName: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  tags: z.array(z.string().trim()).optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

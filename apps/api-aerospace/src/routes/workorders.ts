@@ -35,42 +35,42 @@ async function generateWORefNumber(): Promise<string> {
 // ============================================
 
 const createWorkOrderSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  aircraftType: z.string().min(1, 'Aircraft type is required'),
-  aircraftReg: z.string().optional(),
-  description: z.string().min(1, 'Description is required'),
+  title: z.string().trim().min(1, 'Title is required'),
+  aircraftType: z.string().trim().min(1, 'Aircraft type is required'),
+  aircraftReg: z.string().trim().optional(),
+  description: z.string().trim().min(1, 'Description is required'),
   priority: z.enum(['AOG', 'URGENT', 'ROUTINE', 'DEFERRED']).optional(),
-  assignedTo: z.string().optional(),
+  assignedTo: z.string().trim().optional(),
   startDate: z.string().trim().datetime({ offset: true }).optional(),
   dueDate: z.string().trim().datetime({ offset: true }).optional(),
 });
 
 const addTaskCardSchema = z.object({
-  taskNumber: z.string().min(1, 'Task number is required'),
-  description: z.string().min(1, 'Description is required'),
-  zone: z.string().optional(),
-  access: z.string().optional(),
+  taskNumber: z.string().trim().min(1, 'Task number is required'),
+  description: z.string().trim().min(1, 'Description is required'),
+  zone: z.string().trim().optional(),
+  access: z.string().trim().optional(),
   estimatedHours: z.number().positive().optional(),
-  technicianId: z.string().optional(),
-  technicianName: z.string().optional(),
-  notes: z.string().optional(),
+  technicianId: z.string().trim().optional(),
+  technicianName: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const completeTaskSchema = z.object({
   actualHours: z.number().positive('Actual hours must be positive'),
-  technicianId: z.string().min(1, 'Technician ID is required'),
-  technicianName: z.string().min(1, 'Technician name is required'),
-  notes: z.string().optional(),
+  technicianId: z.string().trim().min(1, 'Technician ID is required'),
+  technicianName: z.string().trim().min(1, 'Technician name is required'),
+  notes: z.string().trim().optional(),
 });
 
 const releaseSchema = z.object({
   releaseCertType: z.enum(['EASA_FORM_1', 'FAA_8130_3', 'CRS']),
-  releaseCertRef: z.string().min(1, 'Release certificate reference is required'),
+  releaseCertRef: z.string().trim().min(1, 'Release certificate reference is required'),
 });
 
 const deferSchema = z.object({
-  deferralRef: z.string().min(1, 'MEL/CDL reference is required'),
-  deferralNotes: z.string().min(1, 'Deferral notes are required'),
+  deferralRef: z.string().trim().min(1, 'MEL/CDL reference is required'),
+  deferralNotes: z.string().trim().min(1, 'Deferral notes are required'),
 });
 
 // ============================================

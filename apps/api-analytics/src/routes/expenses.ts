@@ -6,12 +6,12 @@ import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 
 const createExpenseSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  amount: z.union([z.number(), z.string().transform(Number)]),
-  category: z.string().min(1, 'category is required'),
-  vendor: z.string().nullable().optional(),
-  receiptUrl: z.string().nullable().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
+  amount: z.union([z.number(), z.string().trim().transform(Number)]),
+  category: z.string().trim().min(1, 'category is required'),
+  vendor: z.string().trim().nullable().optional(),
+  receiptUrl: z.string().trim().nullable().optional(),
 });
 
 const updateExpenseSchema = createExpenseSchema.partial();

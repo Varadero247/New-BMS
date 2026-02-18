@@ -10,17 +10,17 @@ router.param('id', validateIdParam());
 const logger = createLogger('audits-findings');
 
 const findingCreateSchema = z.object({
-  auditId: z.string().min(1, 'auditId is required'),
-  title: z.string().min(1, 'title is required'),
-  description: z.string().optional(),
+  auditId: z.string().trim().min(1, 'auditId is required'),
+  title: z.string().trim().min(1, 'title is required'),
+  description: z.string().trim().optional(),
   severity: z.enum(['MAJOR_NC', 'MINOR_NC', 'OBSERVATION', 'OPPORTUNITY', 'POSITIVE']).optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'CLOSED', 'VERIFIED', 'OVERDUE']).optional(),
-  clauseRef: z.string().optional(),
-  evidence: z.string().optional(),
-  rootCause: z.string().optional(),
-  correctiveAction: z.string().optional(),
-  assignee: z.string().optional(),
-  assigneeName: z.string().optional(),
+  clauseRef: z.string().trim().optional(),
+  evidence: z.string().trim().optional(),
+  rootCause: z.string().trim().optional(),
+  correctiveAction: z.string().trim().optional(),
+  assignee: z.string().trim().optional(),
+  assigneeName: z.string().trim().optional(),
   dueDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -29,13 +29,13 @@ const findingCreateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  verifiedBy: z.string().optional(),
+  verifiedBy: z.string().trim().optional(),
   verifiedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  linkedCapaId: z.string().optional(),
-  notes: z.string().optional(),
+  linkedCapaId: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const findingUpdateSchema = findingCreateSchema.partial();

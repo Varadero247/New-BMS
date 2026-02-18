@@ -21,10 +21,10 @@ router.use(authenticate);
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
 const createCertSchema = z.object({
-  standard: z.string().min(1, 'Standard is required'),
-  scope: z.string().min(1, 'Scope is required'),
-  certificationBody: z.string().min(1, 'Certification body is required'),
-  certificateNumber: z.string().min(1, 'Certificate number is required'),
+  standard: z.string().trim().min(1, 'Standard is required'),
+  scope: z.string().trim().min(1, 'Scope is required'),
+  certificationBody: z.string().trim().min(1, 'Certification body is required'),
+  certificateNumber: z.string().trim().min(1, 'Certificate number is required'),
   issueDate: z
     .string()
     .min(1, 'Issue date is required')
@@ -47,7 +47,7 @@ const createCertSchema = z.object({
 const updateCertSchema = z.object({
   standard: z.string().trim().min(1).max(200).optional(),
   scope: z.string().trim().min(1).max(2000).optional(),
-  certificationBody: z.string().min(1).optional(),
+  certificationBody: z.string().trim().min(1).optional(),
   certificateNumber: z.string().trim().min(1).max(200).optional(),
   issueDate: z
     .string()

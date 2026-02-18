@@ -9,8 +9,8 @@ const logger = createLogger('api-marketing:health-score');
 const router = Router();
 
 const recalculateSchema = z.object({
-  userId: z.string().optional(),
-  orgId: z.string().optional(),
+  userId: z.string().trim().optional(),
+  orgId: z.string().trim().optional(),
 });
 
 export function calculateHealthScore(metrics: {

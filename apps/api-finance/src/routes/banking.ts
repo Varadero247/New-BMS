@@ -13,15 +13,15 @@ router.param('id', validateIdParam());
 // Validation schemas
 const createBankAccountSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  accountNumber: z.string().optional(),
-  sortCode: z.string().optional(),
-  iban: z.string().optional(),
-  swift: z.string().optional(),
+  accountNumber: z.string().trim().optional(),
+  sortCode: z.string().trim().optional(),
+  iban: z.string().trim().optional(),
+  swift: z.string().trim().optional(),
   type: z
     .enum(['CURRENT', 'SAVINGS', 'CREDIT_CARD', 'LOAN', 'MERCHANT', 'OTHER'])
     .default('CURRENT'),
-  currency: z.string().length(3).default('GBP'),
-  bankName: z.string().optional(),
+  currency: z.string().trim().length(3).default('GBP'),
+  bankName: z.string().trim().optional(),
   accountId: z.string().trim().uuid().optional(),
   currentBalance: z.number().optional(),
 });
@@ -33,10 +33,10 @@ const createTransactionSchema = z.object({
     .trim()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   description: z.string().trim().min(1).max(2000),
-  reference: z.string().optional(),
+  reference: z.string().trim().optional(),
   amount: z.number(),
-  sourceType: z.string().optional(),
-  sourceId: z.string().optional(),
+  sourceType: z.string().trim().optional(),
+  sourceId: z.string().trim().optional(),
 });
 
 const importTransactionsSchema = z.object({
@@ -48,7 +48,7 @@ const importTransactionsSchema = z.object({
         .trim()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       description: z.string().trim().min(1).max(2000),
-      reference: z.string().optional(),
+      reference: z.string().trim().optional(),
       amount: z.number(),
     })
   ),
@@ -56,8 +56,14 @@ const importTransactionsSchema = z.object({
 
 const startReconciliationSchema = z.object({
   bankAccountId: z.string().trim().uuid(),
-  startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  startDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  endDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   openingBalance: z.number(),
   closingBalance: z.number(),
 });

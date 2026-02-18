@@ -14,15 +14,21 @@ const riskLevelEnum = z.enum(['TRIVIAL', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH', '
 
 const createFraSchema = z.object({
   premisesId: z.string().trim().min(1).max(200),
-  assessmentDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  nextReviewDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  assessmentDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  nextReviewDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   assessorName: z.string().trim().min(1).max(200),
-  assessorCompany: z.string().optional(),
-  assessorQualification: z.string().optional(),
+  assessorCompany: z.string().trim().optional(),
+  assessorQualification: z.string().trim().optional(),
   assessorIsCompetent: z.boolean().optional(),
-  ignitionSources: z.array(z.string()).optional().default([]),
-  fuelSources: z.array(z.string()).optional().default([]),
-  oxygenSources: z.array(z.string()).optional().default([]),
+  ignitionSources: z.array(z.string().trim()).optional().default([]),
+  fuelSources: z.array(z.string().trim()).optional().default([]),
+  oxygenSources: z.array(z.string().trim()).optional().default([]),
   totalPersonsAtRisk: z.number().int().optional(),
   employeesAtRisk: z.number().int().optional(),
   visitorsAtRisk: z.number().int().optional(),
@@ -32,7 +38,7 @@ const createFraSchema = z.object({
   existingPrecautions: z.any().optional(),
   likelihoodRating: z.number().int().min(1).max(5),
   consequenceRating: z.number().int().min(1).max(5),
-  significantFindings: z.string().optional(),
+  significantFindings: z.string().trim().optional(),
   actionPlan: z.any().optional(),
   staffInformedDate: z
     .string()
@@ -40,8 +46,8 @@ const createFraSchema = z.object({
     .optional(),
   emergencyPlanInPlace: z.boolean().optional(),
   trainingConducted: z.boolean().optional(),
-  reviewTriggered: z.array(z.string()).optional().default([]),
-  reviewNotes: z.string().optional(),
+  reviewTriggered: z.array(z.string().trim()).optional().default([]),
+  reviewNotes: z.string().trim().optional(),
   writtenRecordComplete: z.boolean().optional(),
   fireArrangementsDocumented: z.boolean().optional(),
   sharedWithIncomingRP: z.boolean().optional(),

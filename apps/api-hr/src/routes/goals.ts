@@ -35,14 +35,17 @@ const createSchema = z.object({
   ]),
   weight: z.number().min(0).max(100).optional(),
   measurementCriteria: z.string().trim().min(1).max(200),
-  targetValue: z.string().optional(),
-  unit: z.string().optional(),
+  targetValue: z.string().trim().optional(),
+  unit: z.string().trim().optional(),
   startDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  alignedToObjective: z.string().optional(),
+  dueDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  alignedToObjective: z.string().trim().optional(),
 });
 
 const updateSchema = createSchema
@@ -51,11 +54,11 @@ const updateSchema = createSchema
   .extend({
     status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ON_HOLD']).optional(),
     progress: z.number().int().min(0).max(100).optional(),
-    actualValue: z.string().optional(),
+    actualValue: z.string().trim().optional(),
     selfRating: z.number().min(0).max(5).optional(),
     managerRating: z.number().min(0).max(5).optional(),
     finalRating: z.number().min(0).max(5).optional(),
-    ratingComments: z.string().optional(),
+    ratingComments: z.string().trim().optional(),
   });
 
 const updateSchema_ = updateSchema;

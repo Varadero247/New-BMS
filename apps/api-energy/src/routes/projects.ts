@@ -27,7 +27,7 @@ function generateReference(prefix: string): string {
 
 const projectCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   type: z.enum(['EFFICIENCY', 'RENEWABLE', 'BEHAVIORAL', 'PROCESS', 'EQUIPMENT']),
   estimatedSavings: z.number().optional().nullable(),
   investmentCost: z.number().nonnegative().optional().nullable(),
@@ -36,15 +36,20 @@ const projectCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
-  owner: z.string().max(200).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
 });
 
 const projectUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   type: z.enum(['EFFICIENCY', 'RENEWABLE', 'BEHAVIORAL', 'PROCESS', 'EQUIPMENT']).optional(),
   status: z.enum(['PROPOSED', 'APPROVED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
   estimatedSavings: z.number().optional().nullable(),
@@ -55,10 +60,15 @@ const projectUpdateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
-  owner: z.string().max(200).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
   roi: z.number().optional().nullable(),
 });
 

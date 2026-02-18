@@ -22,10 +22,10 @@ router.use(authenticate);
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
 const createEndpointSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  name: z.string().trim().min(1, 'Name is required').max(100),
   url: z.string().trim().url('Must be a valid URL'),
   events: z.array(z.string().trim().min(1).max(200)).min(1, 'At least one event is required'),
-  headers: z.record(z.string()).optional(),
+  headers: z.record(z.string().trim()).optional(),
 });
 
 const updateEndpointSchema = z.object({
@@ -33,7 +33,7 @@ const updateEndpointSchema = z.object({
   url: z.string().trim().url().optional(),
   events: z.array(z.string().trim().min(1).max(200)).min(1).optional(),
   enabled: z.boolean().optional(),
-  headers: z.record(z.string()).optional(),
+  headers: z.record(z.string().trim()).optional(),
 });
 
 // ─── Routes ─────────────────────────────────────────────────────────────────

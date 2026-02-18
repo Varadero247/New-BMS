@@ -26,23 +26,23 @@ function generateJobNumber(): string {
 
 const jobCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
-  description: z.string().max(5000).optional().nullable(),
+  description: z.string().trim().max(5000).optional().nullable(),
   customerId: z.string().trim().uuid(),
   siteId: z.string().trim().uuid(),
   technicianId: z.string().trim().uuid().optional().nullable(),
   contractId: z.string().trim().uuid().optional().nullable(),
   type: z.enum(['INSTALLATION', 'REPAIR', 'MAINTENANCE', 'INSPECTION', 'WARRANTY', 'EMERGENCY']),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  scheduledStart: z.string().optional().nullable(),
-  scheduledEnd: z.string().optional().nullable(),
+  scheduledStart: z.string().trim().optional().nullable(),
+  scheduledEnd: z.string().trim().optional().nullable(),
   estimatedDuration: z.number().int().optional().nullable(),
   skills: z.any().optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const jobUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(5000).optional().nullable(),
+  description: z.string().trim().max(5000).optional().nullable(),
   technicianId: z.string().trim().uuid().optional().nullable(),
   contractId: z.string().trim().uuid().optional().nullable(),
   type: z
@@ -60,11 +60,11 @@ const jobUpdateSchema = z.object({
       'CANCELLED',
     ])
     .optional(),
-  scheduledStart: z.string().optional().nullable(),
-  scheduledEnd: z.string().optional().nullable(),
+  scheduledStart: z.string().trim().optional().nullable(),
+  scheduledEnd: z.string().trim().optional().nullable(),
   estimatedDuration: z.number().int().optional().nullable(),
   skills: z.any().optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

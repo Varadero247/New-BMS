@@ -225,9 +225,9 @@ router.put('/:id/elements/:elementNumber', async (req: AuthRequest, res: Respons
       status: z
         .enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NOT_APPLICABLE', 'REJECTED'])
         .optional(),
-      documentRef: z.string().optional(),
-      notes: z.string().optional(),
-      reviewedBy: z.string().optional(),
+      documentRef: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
+      reviewedBy: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -294,7 +294,7 @@ router.post('/:id/psw', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       submissionLevel: z.number().int().min(1).max(5).optional(),
-      customerNotes: z.string().optional(),
+      customerNotes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

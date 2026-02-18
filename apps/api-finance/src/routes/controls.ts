@@ -9,19 +9,19 @@ router.param('id', validateIdParam());
 const logger = createLogger('finance-controls');
 
 const createControlSchema = z.object({
-  title: z.string().min(1, 'title is required'),
-  description: z.string().optional(),
-  controlType: z.string().optional(),
-  riskArea: z.string().optional(),
-  owner: z.string().optional(),
-  ownerName: z.string().optional(),
+  title: z.string().trim().min(1, 'title is required'),
+  description: z.string().trim().optional(),
+  controlType: z.string().trim().optional(),
+  riskArea: z.string().trim().optional(),
+  owner: z.string().trim().optional(),
+  ownerName: z.string().trim().optional(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'UNDER_REVIEW', 'REMEDIATION']).optional(),
-  frequency: z.string().optional(),
+  frequency: z.string().trim().optional(),
   lastTestedDate: z.string().trim().datetime({ offset: true }).optional().nullable(),
   nextTestDate: z.string().trim().datetime({ offset: true }).optional().nullable(),
-  testResult: z.string().optional(),
-  evidence: z.string().optional(),
-  notes: z.string().optional(),
+  testResult: z.string().trim().optional(),
+  evidence: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateControlSchema = createControlSchema.partial();

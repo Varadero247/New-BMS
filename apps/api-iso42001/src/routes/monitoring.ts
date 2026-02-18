@@ -34,28 +34,28 @@ const createSchema = z.object({
   systemId: z.string().trim().min(1).max(100),
   metricType: z.enum(METRIC_TYPES).default('PERFORMANCE'),
   metricName: z.string().trim().min(1).max(300),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   value: z.number().optional().nullable(),
-  unit: z.string().max(100).optional().nullable(),
+  unit: z.string().trim().max(100).optional().nullable(),
   threshold: z.number().optional().nullable(),
   thresholdType: z.enum(['ABOVE', 'BELOW', 'RANGE']).optional().nullable(),
-  isoClause: z.string().max(200).optional().nullable(),
-  measuredBy: z.string().max(200).optional().nullable(),
+  isoClause: z.string().trim().max(200).optional().nullable(),
+  measuredBy: z.string().trim().max(200).optional().nullable(),
   measurementDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
   metadata: z.record(z.unknown()).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(STATUSES).optional(),
   alertSent: z.boolean().optional(),
-  resolvedAt: z.string().optional().nullable(),
-  resolvedBy: z.string().max(200).optional().nullable(),
-  resolutionNotes: z.string().max(5000).optional().nullable(),
+  resolvedAt: z.string().trim().optional().nullable(),
+  resolvedBy: z.string().trim().max(200).optional().nullable(),
+  resolutionNotes: z.string().trim().max(5000).optional().nullable(),
 });
 
 // GET /dashboard — Monitoring dashboard summary (must be before /:id)

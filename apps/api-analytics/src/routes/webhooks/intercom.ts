@@ -4,26 +4,26 @@ import { prisma } from '../../prisma';
 import { createLogger } from '@ims/monitoring';
 
 const intercomWebhookSchema = z.object({
-  topic: z.string().optional(),
+  topic: z.string().trim().optional(),
   data: z.object({
-    id: z.string().optional(),
-    subject: z.string().optional(),
-    body: z.string().optional(),
+    id: z.string().trim().optional(),
+    subject: z.string().trim().optional(),
+    body: z.string().trim().optional(),
     item: z
       .object({
-        id: z.string().optional(),
-        subject: z.string().optional(),
-        body: z.string().optional(),
+        id: z.string().trim().optional(),
+        subject: z.string().trim().optional(),
+        body: z.string().trim().optional(),
         customer: z
           .object({
-            email: z.string().optional(),
+            email: z.string().trim().optional(),
           })
           .optional(),
       })
       .optional(),
     customer: z
       .object({
-        email: z.string().optional(),
+        email: z.string().trim().optional(),
       })
       .optional(),
   }),

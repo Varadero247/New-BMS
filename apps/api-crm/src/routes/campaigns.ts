@@ -16,20 +16,20 @@ campaignRouter.use(authenticate);
 campaignRouter.param('id', validateIdParam());
 
 const createCampaignSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
+  name: z.string().trim().min(1, 'Name is required'),
   type: z.enum(['EMAIL', 'EVENT', 'SOCIAL', 'CONTENT', 'PAID_ADS', 'REFERRAL']),
   status: z.enum(['DRAFT', 'ACTIVE', 'PAUSED', 'COMPLETED']).optional(),
   startDate: z.string().trim().datetime({ offset: true }).optional(),
   endDate: z.string().trim().datetime({ offset: true }).optional(),
   budget: z.number().min(0).optional(),
-  targetAudience: z.string().optional(),
-  description: z.string().optional(),
+  targetAudience: z.string().trim().optional(),
+  description: z.string().trim().optional(),
 });
 
 const updateCampaignSchema = createCampaignSchema.partial();
 
 const addContactsSchema = z.object({
-  contactIds: z.array(z.string()).min(1, 'At least one contact ID is required'),
+  contactIds: z.array(z.string().trim()).min(1, 'At least one contact ID is required'),
 });
 
 // POST / — Create campaign
@@ -266,8 +266,8 @@ export const emailSequenceRouter = Router();
 emailSequenceRouter.use(authenticate);
 
 const createSequenceSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
+  name: z.string().trim().min(1, 'Name is required'),
+  description: z.string().trim().optional(),
   steps: z.any().optional(),
   status: z.enum(['DRAFT', 'ACTIVE', 'PAUSED']).optional(),
 });
@@ -275,7 +275,7 @@ const createSequenceSchema = z.object({
 const updateSequenceSchema = createSequenceSchema.partial();
 
 const enrollContactsSchema = z.object({
-  contactIds: z.array(z.string()).min(1, 'At least one contact ID is required'),
+  contactIds: z.array(z.string().trim()).min(1, 'At least one contact ID is required'),
 });
 
 // POST / — Create email sequence

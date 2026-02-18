@@ -10,13 +10,13 @@ router.param('id', validateIdParam());
 const logger = createLogger('reg-monitor-legal-register');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  legislation: z.string().optional(),
-  jurisdiction: z.string().optional(),
-  applicability: z.string().optional(),
-  requirements: z.string().optional(),
-  complianceStatus: z.string().optional(),
-  responsiblePerson: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  legislation: z.string().trim().optional(),
+  jurisdiction: z.string().trim().optional(),
+  applicability: z.string().trim().optional(),
+  requirements: z.string().trim().optional(),
+  complianceStatus: z.string().trim().optional(),
+  responsiblePerson: z.string().trim().optional(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -25,7 +25,7 @@ const createSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateSchema = createSchema.partial();

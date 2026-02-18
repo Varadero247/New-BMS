@@ -12,7 +12,7 @@ router.param('id', validateIdParam());
 
 const outreachSchema = z.object({
   prospectName: z.string().trim().min(1).max(200),
-  prospectTitle: z.string().optional(),
+  prospectTitle: z.string().trim().optional(),
   company: z.string().trim().min(1).max(200),
   linkedinUrl: z.string().trim().url('Invalid URL').trim().min(1),
   template: z.enum([
@@ -22,7 +22,7 @@ const outreachSchema = z.object({
     'GCC_PROCUREMENT',
     'CERTIFICATION_BODY',
   ]),
-  customContext: z.string().optional(),
+  customContext: z.string().trim().optional(),
 });
 
 const statusUpdateSchema = z.object({
@@ -35,7 +35,7 @@ const statusUpdateSchema = z.object({
     'CLOSED_WON',
     'CLOSED_LOST',
   ]),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // POST /api/linkedin/outreach

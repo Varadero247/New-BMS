@@ -16,9 +16,9 @@ router.param('id', validateIdParam());
 
 const seuCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional().nullable(),
-  facility: z.string().max(200).optional().nullable(),
-  process: z.string().max(200).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  facility: z.string().trim().max(200).optional().nullable(),
+  process: z.string().trim().max(200).optional().nullable(),
   consumptionPercentage: z.number().min(0).max(100),
   annualConsumption: z.number().min(0),
   unit: z.string().trim().min(1).max(50),
@@ -28,9 +28,9 @@ const seuCreateSchema = z.object({
 
 const seuUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
-  facility: z.string().max(200).optional().nullable(),
-  process: z.string().max(200).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  facility: z.string().trim().max(200).optional().nullable(),
+  process: z.string().trim().max(200).optional().nullable(),
   consumptionPercentage: z.number().min(0).max(100).optional(),
   annualConsumption: z.number().min(0).optional(),
   unit: z.string().trim().min(1).max(50).optional(),

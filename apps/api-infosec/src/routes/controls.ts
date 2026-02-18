@@ -177,9 +177,9 @@ const implementationUpdateSchema = z.object({
     'FULLY_IMPLEMENTED',
     'NOT_APPLICABLE',
   ]),
-  implementationNotes: z.string().max(5000).optional(),
-  evidence: z.string().max(5000).optional(),
-  owner: z.string().max(200).optional(),
+  implementationNotes: z.string().trim().max(5000).optional(),
+  evidence: z.string().trim().max(5000).optional(),
+  owner: z.string().trim().max(200).optional(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

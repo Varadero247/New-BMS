@@ -9,13 +9,13 @@ router.param('id', validateIdParam());
 const logger = createLogger('complaints-communications');
 
 const createSchema = z.object({
-  complaintId: z.string().min(1, 'Complaint ID is required'),
-  direction: z.string().optional(),
-  channel: z.string().optional(),
-  subject: z.string().optional(),
-  content: z.string().optional(),
-  sentAt: z.string().optional(),
-  sentBy: z.string().optional(),
+  complaintId: z.string().trim().min(1, 'Complaint ID is required'),
+  direction: z.string().trim().optional(),
+  channel: z.string().trim().optional(),
+  subject: z.string().trim().optional(),
+  content: z.string().trim().optional(),
+  sentAt: z.string().trim().optional(),
+  sentBy: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

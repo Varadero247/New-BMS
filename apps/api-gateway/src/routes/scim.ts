@@ -116,37 +116,37 @@ export function removeScimToken(tokenId: string): void {
 // ─── Validation ─────────────────────────────────────────────────────────────
 
 const createUserSchema = z.object({
-  schemas: z.array(z.string()).optional(),
-  externalId: z.string().optional(),
-  userName: z.string().min(1, 'userName is required'),
+  schemas: z.array(z.string().trim()).optional(),
+  externalId: z.string().trim().optional(),
+  userName: z.string().trim().min(1, 'userName is required'),
   name: z
     .object({
-      formatted: z.string().optional(),
-      givenName: z.string().optional().default(''),
-      familyName: z.string().optional().default(''),
+      formatted: z.string().trim().optional(),
+      givenName: z.string().trim().optional().default(''),
+      familyName: z.string().trim().optional().default(''),
     })
     .optional(),
   emails: z
     .array(
       z.object({
         value: z.string().trim().email(),
-        type: z.string().optional().default('work'),
+        type: z.string().trim().optional().default('work'),
         primary: z.boolean().optional().default(true),
       })
     )
     .optional(),
   active: z.boolean().optional().default(true),
-  displayName: z.string().optional(),
-  title: z.string().optional(),
+  displayName: z.string().trim().optional(),
+  title: z.string().trim().optional(),
 });
 
 const patchUserSchema = z.object({
-  schemas: z.array(z.string()).optional(),
+  schemas: z.array(z.string().trim()).optional(),
   Operations: z
     .array(
       z.object({
         op: z.enum(['add', 'replace', 'remove']),
-        path: z.string().max(200).optional(),
+        path: z.string().trim().max(200).optional(),
         value: z.any().optional(),
       })
     )
@@ -154,12 +154,12 @@ const patchUserSchema = z.object({
 });
 
 const patchGroupSchema = z.object({
-  schemas: z.array(z.string()).optional(),
+  schemas: z.array(z.string().trim()).optional(),
   Operations: z
     .array(
       z.object({
         op: z.enum(['add', 'replace', 'remove']),
-        path: z.string().max(200).optional(),
+        path: z.string().trim().max(200).optional(),
         value: z.any().optional(),
       })
     )

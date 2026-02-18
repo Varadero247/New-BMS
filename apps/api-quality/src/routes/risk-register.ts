@@ -47,11 +47,11 @@ function calcRiskScore(likelihood: string, impact: string): number {
 const createSchema = z.object({
   title: z.string().trim().min(1).max(300),
   description: z.string().trim().min(1).max(5000),
-  category: z.string().max(200).optional().nullable(),
-  source: z.string().max(200).optional().nullable(),
-  isoClause: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
-  owner: z.string().max(200).optional().nullable(),
+  category: z.string().trim().max(200).optional().nullable(),
+  source: z.string().trim().max(200).optional().nullable(),
+  isoClause: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
   likelihood: z
     .enum(['RARE', 'UNLIKELY', 'POSSIBLE', 'LIKELY', 'ALMOST_CERTAIN'])
     .default('POSSIBLE'),
@@ -64,9 +64,9 @@ const createSchema = z.object({
     .enum(['NEGLIGIBLE', 'MINOR', 'MODERATE', 'MAJOR', 'CATASTROPHIC'])
     .optional()
     .nullable(),
-  treatmentStrategy: z.string().max(200).optional().nullable(),
-  controls: z.string().max(5000).optional().nullable(),
-  mitigationActions: z.string().max(5000).optional().nullable(),
+  treatmentStrategy: z.string().trim().max(200).optional().nullable(),
+  controls: z.string().trim().max(5000).optional().nullable(),
+  mitigationActions: z.string().trim().max(5000).optional().nullable(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -77,7 +77,7 @@ const createSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({

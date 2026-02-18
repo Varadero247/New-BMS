@@ -11,14 +11,14 @@ const router: IRouter = Router();
 // ===== 5 WHYS =====
 
 const fiveWhySchema = z.object({
-  incidentId: z.string(),
-  why1: z.string().optional(),
-  why2: z.string().optional(),
-  why3: z.string().optional(),
-  why4: z.string().optional(),
-  why5: z.string().optional(),
-  rootCause: z.string().optional(),
-  conclusion: z.string().optional(),
+  incidentId: z.string().trim(),
+  why1: z.string().trim().optional(),
+  why2: z.string().trim().optional(),
+  why3: z.string().trim().optional(),
+  why4: z.string().trim().optional(),
+  why5: z.string().trim().optional(),
+  rootCause: z.string().trim().optional(),
+  conclusion: z.string().trim().optional(),
 });
 
 // GET /api/analytics/five-why - List all 5 Why analyses
@@ -123,15 +123,15 @@ router.delete('/five-why/:id', authenticate, async (req, res, next) => {
 // ===== FISHBONE =====
 
 const fishboneSchema = z.object({
-  incidentId: z.string(),
-  problemStatement: z.string(),
-  manpower: z.string().optional(),
-  method: z.string().optional(),
-  machine: z.string().optional(),
-  material: z.string().optional(),
-  measurement: z.string().optional(),
-  environment: z.string().optional(),
-  conclusion: z.string().optional(),
+  incidentId: z.string().trim(),
+  problemStatement: z.string().trim(),
+  manpower: z.string().trim().optional(),
+  method: z.string().trim().optional(),
+  machine: z.string().trim().optional(),
+  material: z.string().trim().optional(),
+  measurement: z.string().trim().optional(),
+  environment: z.string().trim().optional(),
+  conclusion: z.string().trim().optional(),
 });
 
 // GET /api/analytics/fishbone
@@ -236,21 +236,21 @@ router.delete('/fishbone/:id', authenticate, async (req, res, next) => {
 // ===== PARETO =====
 
 const paretoDataItemSchema = z.object({
-  category: z.string(),
+  category: z.string().trim(),
   count: z.number().nonnegative(),
   percentage: z.number().nonnegative(),
   cumulative: z.number(),
 });
 
 const paretoSchema = z.object({
-  incidentId: z.string().optional(),
+  incidentId: z.string().trim().optional(),
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']).optional(),
-  title: z.string(),
-  description: z.string().optional(),
+  title: z.string().trim(),
+  description: z.string().trim().optional(),
   data: z.array(paretoDataItemSchema),
-  periodStart: z.string().datetime({ offset: true }).optional(),
-  periodEnd: z.string().datetime({ offset: true }).optional(),
-  conclusion: z.string().optional(),
+  periodStart: z.string().trim().datetime({ offset: true }).optional(),
+  periodEnd: z.string().trim().datetime({ offset: true }).optional(),
+  conclusion: z.string().trim().optional(),
 });
 
 // GET /api/analytics/pareto
@@ -392,48 +392,48 @@ router.delete('/pareto/:id', authenticate, async (req, res, next) => {
 // ===== BOW-TIE =====
 
 const bowTieSchema = z.object({
-  riskId: z.string(),
-  topEvent: z.string(),
+  riskId: z.string().trim(),
+  topEvent: z.string().trim(),
   threats: z.array(
     z.object({
-      id: z.string().optional(),
-      description: z.string(),
+      id: z.string().trim().optional(),
+      description: z.string().trim(),
       likelihood: z.number().min(1).max(5).optional(),
     })
   ),
   consequences: z.array(
     z.object({
-      id: z.string().optional(),
-      description: z.string(),
+      id: z.string().trim().optional(),
+      description: z.string().trim(),
       severity: z.number().min(1).max(5).optional(),
     })
   ),
   preventiveControls: z.array(
     z.object({
-      id: z.string().optional(),
-      description: z.string(),
+      id: z.string().trim().optional(),
+      description: z.string().trim(),
       effectiveness: z.number().min(1).max(5).optional(),
-      threatId: z.string().optional(),
+      threatId: z.string().trim().optional(),
     })
   ),
   mitigatingControls: z.array(
     z.object({
-      id: z.string().optional(),
-      description: z.string(),
+      id: z.string().trim().optional(),
+      description: z.string().trim(),
       effectiveness: z.number().min(1).max(5).optional(),
-      consequenceId: z.string().optional(),
+      consequenceId: z.string().trim().optional(),
     })
   ),
   escalationFactors: z
     .array(
       z.object({
-        id: z.string().optional(),
-        description: z.string(),
-        controlId: z.string().optional(),
+        id: z.string().trim().optional(),
+        description: z.string().trim(),
+        controlId: z.string().trim().optional(),
       })
     )
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // GET /api/analytics/bow-tie
@@ -602,13 +602,13 @@ router.delete('/bow-tie/:id', authenticate, async (req, res, next) => {
 
 const wasteItemSchema = z.object({
   identified: z.boolean(),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
   estimatedCost: z.number().nonnegative().optional(),
 });
 
 const leanWasteSchema = z.object({
-  title: z.string(),
-  description: z.string().optional(),
+  title: z.string().trim(),
+  description: z.string().trim().optional(),
   defects: wasteItemSchema.optional(),
   overproduction: wasteItemSchema.optional(),
   waiting: wasteItemSchema.optional(),
@@ -617,7 +617,7 @@ const leanWasteSchema = z.object({
   inventory: wasteItemSchema.optional(),
   motion: wasteItemSchema.optional(),
   extraProcessing: wasteItemSchema.optional(),
-  recommendations: z.string().optional(),
+  recommendations: z.string().trim().optional(),
 });
 
 // GET /api/analytics/lean-waste

@@ -16,7 +16,7 @@ const createTicketSchema = z.object({
 });
 
 const addMessageSchema = z.object({
-  body: z.string().min(1),
+  body: z.string().trim().min(1),
 });
 
 const SLA_HOURS: Record<string, number> = {

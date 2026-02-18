@@ -9,11 +9,11 @@ router.param('id', validateIdParam());
 const logger = createLogger('documents-versions');
 
 const createSchema = z.object({
-  documentId: z.string().min(1, 'Document ID is required'),
+  documentId: z.string().trim().min(1, 'Document ID is required'),
   version: z.number().int().min(1, 'Version must be at least 1'),
   fileUrl: z.string().trim().url('Invalid URL').optional(),
   fileSize: z.number().int().optional(),
-  changeNotes: z.string().optional(),
+  changeNotes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

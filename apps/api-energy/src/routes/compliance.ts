@@ -14,36 +14,46 @@ router.use(authenticate);
 
 const complianceCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   regulation: z.string().trim().min(1).max(200),
-  jurisdiction: z.string().max(200).optional().nullable(),
+  jurisdiction: z.string().trim().max(200).optional().nullable(),
   requirement: z.string().trim().min(1).max(2000),
-  evidenceRequired: z.string().max(2000).optional().nullable(),
+  evidenceRequired: z.string().trim().max(2000).optional().nullable(),
   dueDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
 });
 
 const complianceUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   regulation: z.string().trim().min(1).max(200).optional(),
-  jurisdiction: z.string().max(200).optional().nullable(),
+  jurisdiction: z.string().trim().max(200).optional().nullable(),
   requirement: z.string().trim().min(1).max(2000).optional(),
-  evidenceRequired: z.string().max(2000).optional().nullable(),
+  evidenceRequired: z.string().trim().max(2000).optional().nullable(),
   status: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED']).optional(),
   dueDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

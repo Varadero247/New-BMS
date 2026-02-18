@@ -11,14 +11,14 @@ const logger = createLogger('risk-kri');
 
 const kriSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().optional(),
-  unit: z.string().optional(),
+  description: z.string().trim().optional(),
+  unit: z.string().trim().optional(),
   greenThreshold: z.number().optional(),
   amberThreshold: z.number().optional(),
   redThreshold: z.number().optional(),
   thresholdDirection: z.enum(['INCREASING_IS_WORSE', 'DECREASING_IS_WORSE']).optional(),
-  measurementFrequency: z.string().optional(),
-  dataSource: z.string().optional(),
+  measurementFrequency: z.string().trim().optional(),
+  dataSource: z.string().trim().optional(),
   nextMeasurementDue: z
     .string()
     .trim()
@@ -122,7 +122,7 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
     const orgId = ((req as any).user as any)?.orgId || 'default';
     const readingSchema = z.object({
       value: z.number({ required_error: 'value is required' }),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
     const parsed = readingSchema.safeParse(req.body);
     if (!parsed.success)

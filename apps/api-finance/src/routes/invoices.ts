@@ -38,17 +38,17 @@ const customerCreateSchema = z.object({
   code: z.string().trim().min(1).max(50),
   name: z.string().trim().min(1).max(200),
   email: z.string().trim().email().optional(),
-  phone: z.string().max(50).optional(),
-  contactPerson: z.string().max(200).optional(),
-  addressLine1: z.string().max(255).optional(),
-  addressLine2: z.string().max(255).optional(),
-  city: z.string().max(100).optional(),
-  state: z.string().max(100).optional(),
-  postalCode: z.string().max(20).optional(),
-  country: z.string().max(100).optional(),
-  taxNumber: z.string().max(50).optional(),
-  currency: z.string().length(3).default('USD'),
-  paymentTerms: z.string().max(50).optional(),
+  phone: z.string().trim().max(50).optional(),
+  contactPerson: z.string().trim().max(200).optional(),
+  addressLine1: z.string().trim().max(255).optional(),
+  addressLine2: z.string().trim().max(255).optional(),
+  city: z.string().trim().max(100).optional(),
+  state: z.string().trim().max(100).optional(),
+  postalCode: z.string().trim().max(20).optional(),
+  country: z.string().trim().max(100).optional(),
+  taxNumber: z.string().trim().max(50).optional(),
+  currency: z.string().trim().length(3).default('USD'),
+  paymentTerms: z.string().trim().max(50).optional(),
   creditLimit: z.number().min(0).optional(),
 });
 
@@ -64,9 +64,15 @@ const invoiceLineSchema = z.object({
 
 const invoiceCreateSchema = z.object({
   customerId: z.string().trim().uuid(),
-  issueDate: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
-  dueDate: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
-  notes: z.string().max(2000).optional(),
+  issueDate: z
+    .string()
+    .trim()
+    .refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
+  dueDate: z
+    .string()
+    .trim()
+    .refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
+  notes: z.string().trim().max(2000).optional(),
   lines: z.array(invoiceLineSchema).min(1, 'At least one line item is required'),
 });
 
@@ -80,23 +86,29 @@ const invoiceUpdateSchema = z.object({
     .string()
     .refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' })
     .optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   lines: z.array(invoiceLineSchema).min(1).optional(),
 });
 
 const paymentCreateSchema = z.object({
   customerId: z.string().trim().uuid(),
   invoiceId: z.string().trim().uuid().optional(),
-  date: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
+  date: z
+    .string()
+    .trim()
+    .refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
   amount: z.number().positive(),
   method: z.string().trim().min(1).max(50),
   bankAccountId: z.string().trim().uuid().optional(),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 const creditNoteCreateSchema = z.object({
   customerId: z.string().trim().uuid(),
-  date: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
+  date: z
+    .string()
+    .trim()
+    .refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
   amount: z.number().positive(),
   reason: z.string().trim().min(1).max(2000),
   invoiceId: z.string().trim().uuid().optional(),

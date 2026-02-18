@@ -9,9 +9,9 @@ router.param('id', validateIdParam());
 const logger = createLogger('assets-inspections');
 
 const createSchema = z.object({
-  assetId: z.string().min(1, 'Asset ID is required'),
-  inspector: z.string().optional(),
-  inspectorName: z.string().optional(),
+  assetId: z.string().trim().min(1, 'Asset ID is required'),
+  inspector: z.string().trim().optional(),
+  inspectorName: z.string().trim().optional(),
   scheduledDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -22,10 +22,10 @@ const createSchema = z.object({
     .optional(),
   condition: z.enum(['EXCELLENT', 'GOOD', 'FAIR', 'POOR', 'CRITICAL']).optional(),
   passed: z.boolean().optional(),
-  findings: z.string().optional(),
-  recommendations: z.string().optional(),
-  nextInspection: z.string().optional(),
-  notes: z.string().optional(),
+  findings: z.string().trim().optional(),
+  recommendations: z.string().trim().optional(),
+  nextInspection: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

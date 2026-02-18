@@ -30,11 +30,11 @@ function generateReference(prefix: string): string {
 const reviewCreateSchema = z.object({
   systemId: z.string().trim().min(1).max(100),
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(5000).optional().nullable(),
+  description: z.string().trim().max(5000).optional().nullable(),
   aiDecision: z.string().trim().min(1).max(5000),
   aiConfidence: z.number().min(0).max(1).optional().nullable(),
-  aiReasoning: z.string().max(10000).optional().nullable(),
-  expiresAt: z.string().optional().nullable(),
+  aiReasoning: z.string().trim().max(10000).optional().nullable(),
+  expiresAt: z.string().trim().optional().nullable(),
   metadata: z.record(z.unknown()).optional().nullable(),
 });
 

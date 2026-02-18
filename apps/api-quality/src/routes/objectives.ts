@@ -123,11 +123,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       status: z
         .enum(['NOT_STARTED', 'ON_TRACK', 'AT_RISK', 'BEHIND', 'ACHIEVED', 'CANCELLED', 'DEFERRED'])
         .optional(),
-      policyCommitment: z.string().optional(),
-      isoClause: z.string().optional(),
-      linkedProcesses: z.string().optional(),
-      linkedRisks: z.string().optional(),
-      linkedOpportunities: z.string().optional(),
+      policyCommitment: z.string().trim().optional(),
+      isoClause: z.string().trim().optional(),
+      linkedProcesses: z.string().trim().optional(),
+      linkedRisks: z.string().trim().optional(),
+      linkedOpportunities: z.string().trim().optional(),
       // KPI
       kpiDescription: z.string().trim().min(1).max(2000),
       baselineValue: z.number(),
@@ -137,16 +137,19 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       // Ownership
       owner: z.string().trim().min(1).max(200),
       department: z.string().trim().min(1).max(200),
-      targetDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      resourcesRequired: z.string().optional(),
+      targetDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      resourcesRequired: z.string().trim().optional(),
       // Progress
-      progressNotes: z.string().optional(),
+      progressNotes: z.string().trim().optional(),
       progressPercent: z.number().min(0).max(100).optional(),
       // AI
-      aiAnalysis: z.string().optional(),
-      aiSmartScore: z.string().optional(),
-      aiKpiSuggestions: z.string().optional(),
-      aiMilestones: z.string().optional(),
+      aiAnalysis: z.string().trim().optional(),
+      aiSmartScore: z.string().trim().optional(),
+      aiKpiSuggestions: z.string().trim().optional(),
+      aiMilestones: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -220,7 +223,7 @@ router.put(
 
       const schema = z.object({
         title: z.string().trim().min(1).max(200).optional(),
-        objectiveStatement: z.string().optional(),
+        objectiveStatement: z.string().trim().optional(),
         category: z
           .enum([
             'CUSTOMER_SATISFACTION',
@@ -249,29 +252,29 @@ router.put(
             'DEFERRED',
           ])
           .optional(),
-        policyCommitment: z.string().optional(),
-        isoClause: z.string().optional(),
-        linkedProcesses: z.string().optional(),
-        linkedRisks: z.string().optional(),
-        linkedOpportunities: z.string().optional(),
-        kpiDescription: z.string().optional(),
+        policyCommitment: z.string().trim().optional(),
+        isoClause: z.string().trim().optional(),
+        linkedProcesses: z.string().trim().optional(),
+        linkedRisks: z.string().trim().optional(),
+        linkedOpportunities: z.string().trim().optional(),
+        kpiDescription: z.string().trim().optional(),
         baselineValue: z.number().optional(),
         targetValue: z.number().nonnegative().optional(),
         currentValue: z.number().nonnegative().optional(),
-        unit: z.string().optional(),
-        owner: z.string().optional(),
-        department: z.string().optional(),
+        unit: z.string().trim().optional(),
+        owner: z.string().trim().optional(),
+        department: z.string().trim().optional(),
         targetDate: z
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
-        resourcesRequired: z.string().optional(),
-        progressNotes: z.string().optional(),
+        resourcesRequired: z.string().trim().optional(),
+        progressNotes: z.string().trim().optional(),
         progressPercent: z.number().min(0).max(100).optional(),
-        aiAnalysis: z.string().optional(),
-        aiSmartScore: z.string().optional(),
-        aiKpiSuggestions: z.string().optional(),
-        aiMilestones: z.string().optional(),
+        aiAnalysis: z.string().trim().optional(),
+        aiSmartScore: z.string().trim().optional(),
+        aiKpiSuggestions: z.string().trim().optional(),
+        aiMilestones: z.string().trim().optional(),
         aiGenerated: z.boolean().optional(),
       });
 
@@ -352,9 +355,12 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      targetDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      targetDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'CANCELLED']).optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
       completedDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -413,7 +419,7 @@ router.put('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respons
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
       status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'CANCELLED']).optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
       completedDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

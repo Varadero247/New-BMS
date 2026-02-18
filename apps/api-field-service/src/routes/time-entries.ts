@@ -23,18 +23,18 @@ const timeEntryCreateSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  endTime: z.string().optional().nullable(),
+  endTime: z.string().trim().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   billable: z.boolean().optional(),
 });
 
 const timeEntryUpdateSchema = z.object({
   type: z.enum(['TRAVEL', 'WORK', 'BREAK', 'ADMIN']).optional(),
-  startTime: z.string().optional(),
-  endTime: z.string().optional().nullable(),
+  startTime: z.string().trim().optional(),
+  endTime: z.string().trim().optional().nullable(),
   duration: z.number().nonnegative().optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   billable: z.boolean().optional(),
 });
 

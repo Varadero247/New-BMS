@@ -102,14 +102,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       owner: z.string().trim().min(1).max(200),
-      status: z.string().optional(),
-      policyCommitment: z.string().optional(),
-      iso14001Clause: z.string().optional(),
-      linkedAspects: z.array(z.string()).optional().default([]),
-      sdgAlignment: z.array(z.string()).optional().default([]),
+      status: z.string().trim().optional(),
+      policyCommitment: z.string().trim().optional(),
+      iso14001Clause: z.string().trim().optional(),
+      linkedAspects: z.array(z.string().trim()).optional().default([]),
+      sdgAlignment: z.array(z.string().trim()).optional().default([]),
       netZeroTarget: z.boolean().optional(),
-      netZeroDescription: z.string().optional(),
-      kpiDescription: z.string().optional(),
+      netZeroDescription: z.string().trim().optional(),
+      kpiDescription: z.string().trim().optional(),
       baselineValue: z.number().optional(),
       baselineDate: z
         .string()
@@ -117,26 +117,26 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .optional(),
       targetValue: z.number().nonnegative().optional(),
       currentValue: z.number().nonnegative().optional(),
-      unit: z.string().optional(),
-      measurementMethod: z.string().optional(),
-      dataSource: z.string().optional(),
+      unit: z.string().trim().optional(),
+      measurementMethod: z.string().trim().optional(),
+      dataSource: z.string().trim().optional(),
       startDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      department: z.string().optional(),
-      resourcesRequired: z.string().optional(),
+      department: z.string().trim().optional(),
+      resourcesRequired: z.string().trim().optional(),
       estimatedCost: z.number().nonnegative().optional(),
       actionsRequired: z.boolean().optional(),
-      reviewFrequency: z.string().optional(),
-      progressNotes: z.string().optional(),
+      reviewFrequency: z.string().trim().optional(),
+      progressNotes: z.string().trim().optional(),
       progressPercent: z.number().min(0).max(100).optional(),
-      aiSmartAnalysis: z.string().optional(),
-      aiImprovedStatement: z.string().optional(),
-      aiSuggestedKPIs: z.string().optional(),
-      aiSuggestedMilestones: z.string().optional(),
-      aiBenchmarks: z.string().optional(),
-      aiRisks: z.string().optional(),
+      aiSmartAnalysis: z.string().trim().optional(),
+      aiImprovedStatement: z.string().trim().optional(),
+      aiSuggestedKPIs: z.string().trim().optional(),
+      aiSuggestedMilestones: z.string().trim().optional(),
+      aiBenchmarks: z.string().trim().optional(),
+      aiRisks: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
       milestones: z
         .array(
@@ -230,12 +230,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 // PUT /:id
 const objectiveUpdateSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  category: z.string().optional(),
-  relatedAspectId: z.string().optional(),
-  department: z.string().optional(),
-  responsiblePerson: z.string().optional(),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  category: z.string().trim().optional(),
+  relatedAspectId: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  responsiblePerson: z.string().trim().optional(),
   targetDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -251,20 +251,20 @@ const objectiveUpdateSchema = z.object({
   baselineValue: z.number().optional(),
   targetValue: z.number().nonnegative().optional(),
   currentValue: z.number().nonnegative().optional(),
-  unit: z.string().optional(),
-  kpiFormula: z.string().optional(),
-  measurementFrequency: z.string().optional(),
-  status: z.string().optional(),
-  priority: z.string().optional(),
+  unit: z.string().trim().optional(),
+  kpiFormula: z.string().trim().optional(),
+  measurementFrequency: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  priority: z.string().trim().optional(),
   budget: z.number().nonnegative().optional(),
   actualCost: z.number().nonnegative().optional(),
-  resourceRequirements: z.string().optional(),
-  risks: z.string().optional(),
-  aiSuggestedKPIs: z.string().optional(),
-  aiActionPlan: z.string().optional(),
-  aiBenchmarkComparison: z.string().optional(),
-  aiProgressAnalysis: z.string().optional(),
-  aiRiskAssessment: z.string().optional(),
+  resourceRequirements: z.string().trim().optional(),
+  risks: z.string().trim().optional(),
+  aiSuggestedKPIs: z.string().trim().optional(),
+  aiActionPlan: z.string().trim().optional(),
+  aiBenchmarkComparison: z.string().trim().optional(),
+  aiProgressAnalysis: z.string().trim().optional(),
+  aiRiskAssessment: z.string().trim().optional(),
   aiGenerated: z.boolean().optional(),
 });
 
@@ -334,12 +334,12 @@ router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respo
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      title: z.string().optional(),
+      title: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
       sortOrder: z.number().int().nonnegative().optional(),
     });
 

@@ -62,20 +62,20 @@ const createChangeSchema = z.object({
   changeDescription: z.string().trim().min(1).max(2000),
   changeReason: z.string().trim().min(1).max(2000),
   changeType: z.enum(['SCOPE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'RESOURCE', 'PROCESS']),
-  impactOnScope: z.string().optional(),
+  impactOnScope: z.string().trim().optional(),
   impactOnSchedule: z.number().optional(),
   impactOnBudget: z.number().nonnegative().optional(),
-  impactOnQuality: z.string().optional(),
-  impactOnRisk: z.string().optional(),
-  impactOnResources: z.string().optional(),
-  benefits: z.string().optional(),
-  implementationPlan: z.string().optional(),
-  priority: z.string().optional(),
-  urgency: z.string().optional(),
+  impactOnQuality: z.string().trim().optional(),
+  impactOnRisk: z.string().trim().optional(),
+  impactOnResources: z.string().trim().optional(),
+  benefits: z.string().trim().optional(),
+  implementationPlan: z.string().trim().optional(),
+  priority: z.string().trim().optional(),
+  urgency: z.string().trim().optional(),
 });
 const updateChangeSchema = createChangeSchema
   .extend({
-    implementedAt: z.string().optional(),
+    implementedAt: z.string().trim().optional(),
   })
   .partial();
 

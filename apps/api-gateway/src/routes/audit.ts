@@ -99,7 +99,7 @@ router.get('/trail/verify/:entryId', async (req: AuthRequest, res: Response) => 
 router.post('/esignature', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      password: z.string().min(1),
+      password: z.string().trim().min(1),
       meaning: z.string().trim().min(1).max(200),
       reason: z.string().trim().min(1).max(2000),
       resourceType: z.string().trim().min(1).max(200),

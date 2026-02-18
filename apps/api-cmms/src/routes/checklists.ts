@@ -16,7 +16,7 @@ router.param('id', validateIdParam());
 
 const checklistCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   assetType: z
     .enum(['EQUIPMENT', 'VEHICLE', 'BUILDING', 'INFRASTRUCTURE', 'IT_ASSET', 'TOOL'])
     .optional()
@@ -27,7 +27,7 @@ const checklistCreateSchema = z.object({
 
 const checklistUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   assetType: z
     .enum(['EQUIPMENT', 'VEHICLE', 'BUILDING', 'INFRASTRUCTURE', 'IT_ASSET', 'TOOL'])
     .optional()
@@ -47,7 +47,7 @@ const checklistResultSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   results: z.any(),
   overallResult: z.enum(['PASS', 'FAIL', 'CONDITIONAL', 'NA']),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

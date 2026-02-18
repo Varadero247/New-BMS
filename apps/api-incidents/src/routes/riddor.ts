@@ -11,7 +11,7 @@ router.param('id', validateIdParam());
 
 const assessSchema = z.object({
   reportable: z.boolean({ required_error: 'reportable is required' }),
-  riddorRef: z.string().optional(),
+  riddorRef: z.string().trim().optional(),
 });
 
 router.get('/', authenticate, async (req: Request, res: Response) => {

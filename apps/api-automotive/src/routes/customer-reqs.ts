@@ -31,7 +31,7 @@ async function generateRefNumber(): Promise<string> {
 const createSchema = z.object({
   customer: z.string().trim().min(1).max(200),
   requirementTitle: z.string().trim().min(1).max(200),
-  requirementRef: z.string().optional(),
+  requirementRef: z.string().trim().optional(),
   category: z
     .enum([
       'QUALITY',
@@ -46,9 +46,9 @@ const createSchema = z.object({
     ])
     .optional(),
   description: z.string().trim().min(1).max(2000),
-  applicableProducts: z.string().optional(),
-  evidenceRef: z.string().optional(),
-  reviewedBy: z.string().optional(),
+  applicableProducts: z.string().trim().optional(),
+  evidenceRef: z.string().trim().optional(),
+  reviewedBy: z.string().trim().optional(),
   reviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -57,7 +57,7 @@ const createSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateSchema = createSchema.partial().extend({

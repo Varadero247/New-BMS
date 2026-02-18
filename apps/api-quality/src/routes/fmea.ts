@@ -136,13 +136,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       fmeaType: z.enum(['DFMEA', 'PFMEA', 'SFMEA']),
       title: z.string().trim().min(1).max(200),
       productProcess: z.string().trim().min(1).max(200),
-      partNumberRev: z.string().optional(),
-      customer: z.string().optional(),
-      teamMembers: z.string().optional(),
-      scopeDescription: z.string().optional(),
-      linkedProcess: z.string().optional(),
+      partNumberRev: z.string().trim().optional(),
+      customer: z.string().trim().optional(),
+      teamMembers: z.string().trim().optional(),
+      scopeDescription: z.string().trim().optional(),
+      linkedProcess: z.string().trim().optional(),
       status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
-      dateInitiated: z.string().optional(),
+      dateInitiated: z.string().trim().optional(),
       nextReviewDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -150,14 +150,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       // AIAG-VDA Harmonised Format fields
       fmeaFormat: z.enum(['TRADITIONAL', 'AIAG_VDA_2024']).optional(),
       actionPriority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
-      preventionControls: z.string().optional(),
-      detectionControls: z.string().optional(),
-      apRating: z.string().optional(),
+      preventionControls: z.string().trim().optional(),
+      detectionControls: z.string().trim().optional(),
+      apRating: z.string().trim().optional(),
       // AI fields
-      aiAnalysis: z.string().optional(),
-      aiMissingFailureModes: z.string().optional(),
-      aiControlGaps: z.string().optional(),
-      aiTopPriorityActions: z.string().optional(),
+      aiAnalysis: z.string().trim().optional(),
+      aiMissingFailureModes: z.string().trim().optional(),
+      aiControlGaps: z.string().trim().optional(),
+      aiTopPriorityActions: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -225,12 +225,12 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
     const schema = z.object({
       fmeaType: z.enum(['DFMEA', 'PFMEA', 'SFMEA']).optional(),
       title: z.string().trim().min(1).max(200).optional(),
-      productProcess: z.string().optional(),
-      partNumberRev: z.string().optional(),
-      customer: z.string().optional(),
-      teamMembers: z.string().optional(),
-      scopeDescription: z.string().optional(),
-      linkedProcess: z.string().optional(),
+      productProcess: z.string().trim().optional(),
+      partNumberRev: z.string().trim().optional(),
+      customer: z.string().trim().optional(),
+      teamMembers: z.string().trim().optional(),
+      scopeDescription: z.string().trim().optional(),
+      linkedProcess: z.string().trim().optional(),
       status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'ACTIVE', 'ARCHIVED']).optional(),
       nextReviewDate: z
         .string()
@@ -239,14 +239,14 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
       // AIAG-VDA Harmonised Format fields
       fmeaFormat: z.enum(['TRADITIONAL', 'AIAG_VDA_2024']).optional(),
       actionPriority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().nullable(),
-      preventionControls: z.string().optional().nullable(),
-      detectionControls: z.string().optional().nullable(),
-      apRating: z.string().optional().nullable(),
+      preventionControls: z.string().trim().optional().nullable(),
+      detectionControls: z.string().trim().optional().nullable(),
+      apRating: z.string().trim().optional().nullable(),
       // AI fields
-      aiAnalysis: z.string().optional(),
-      aiMissingFailureModes: z.string().optional(),
-      aiControlGaps: z.string().optional(),
-      aiTopPriorityActions: z.string().optional(),
+      aiAnalysis: z.string().trim().optional(),
+      aiMissingFailureModes: z.string().trim().optional(),
+      aiControlGaps: z.string().trim().optional(),
+      aiTopPriorityActions: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
     });
 
@@ -322,23 +322,23 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       sortOrder: z.number().int().nonnegative().optional(),
-      itemProcessStep: z.string().optional(),
-      functionRequirement: z.string().optional(),
+      itemProcessStep: z.string().trim().optional(),
+      functionRequirement: z.string().trim().optional(),
       failureMode: z.string().trim().min(1).max(200),
       effectOfFailure: z.string().trim().min(1).max(200),
       severity: z.number().min(1).max(10).default(1),
       potentialCauses: z.string().trim().min(1).max(200),
-      currentPreventionControls: z.string().optional(),
+      currentPreventionControls: z.string().trim().optional(),
       occurrence: z.number().min(1).max(10).default(1),
-      currentDetectionControls: z.string().optional(),
+      currentDetectionControls: z.string().trim().optional(),
       detection: z.number().min(1).max(10).default(1),
-      recommendedActions: z.string().optional(),
-      assignedTo: z.string().optional(),
+      recommendedActions: z.string().trim().optional(),
+      assignedTo: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      actionsTaken: z.string().optional(),
+      actionsTaken: z.string().trim().optional(),
       status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'ACCEPTED']).optional(),
     });
 
@@ -417,23 +417,23 @@ router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       sortOrder: z.number().int().nonnegative().optional(),
-      itemProcessStep: z.string().optional(),
-      functionRequirement: z.string().optional(),
-      failureMode: z.string().optional(),
-      effectOfFailure: z.string().optional(),
+      itemProcessStep: z.string().trim().optional(),
+      functionRequirement: z.string().trim().optional(),
+      failureMode: z.string().trim().optional(),
+      effectOfFailure: z.string().trim().optional(),
       severity: z.number().min(1).max(10).optional(),
-      potentialCauses: z.string().optional(),
-      currentPreventionControls: z.string().optional(),
+      potentialCauses: z.string().trim().optional(),
+      currentPreventionControls: z.string().trim().optional(),
       occurrence: z.number().min(1).max(10).optional(),
-      currentDetectionControls: z.string().optional(),
+      currentDetectionControls: z.string().trim().optional(),
       detection: z.number().min(1).max(10).optional(),
-      recommendedActions: z.string().optional(),
-      assignedTo: z.string().optional(),
+      recommendedActions: z.string().trim().optional(),
+      assignedTo: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      actionsTaken: z.string().optional(),
+      actionsTaken: z.string().trim().optional(),
       revisedSeverity: z.number().min(1).max(10).optional(),
       revisedOccurrence: z.number().min(1).max(10).optional(),
       revisedDetection: z.number().min(1).max(10).optional(),
@@ -529,7 +529,7 @@ router.post('/:id/rows/reorder', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       rows: z.array(
         z.object({
-          id: z.string(),
+          id: z.string().trim(),
           sortOrder: z.number().int().nonnegative(),
         })
       ),

@@ -14,8 +14,8 @@ const researchSchema = z.object({
   companyName: z.string().trim().min(1).max(200),
   website: z.string().trim().url().optional(),
   linkedinUrl: z.string().trim().url('Invalid URL').optional(),
-  industry: z.string().optional(),
-  sourceContext: z.string().optional(),
+  industry: z.string().trim().optional(),
+  sourceContext: z.string().trim().optional(),
 });
 
 // POST /api/prospects/research

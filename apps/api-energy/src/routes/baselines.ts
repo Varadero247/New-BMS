@@ -30,7 +30,7 @@ function generateReference(prefix: string): string {
 const baselineCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   year: z.number().int().min(2000).max(2100),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   totalConsumption: z.number().min(0),
   unit: z.string().trim().min(1).max(50),
   methodology: z.string().trim().min(1).max(500),
@@ -40,7 +40,7 @@ const baselineCreateSchema = z.object({
 const baselineUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   year: z.number().int().min(2000).max(2100).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   totalConsumption: z.number().min(0).optional(),
   unit: z.string().trim().min(1).max(50).optional(),
   methodology: z.string().trim().min(1).max(500).optional(),

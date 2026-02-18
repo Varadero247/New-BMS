@@ -13,33 +13,33 @@ const logger = createLogger('api-crm:contacts');
 router.use(authenticate);
 
 const createContactSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  firstName: z.string().trim().min(1, 'First name is required'),
+  lastName: z.string().trim().min(1, 'Last name is required'),
   email: z.string().trim().email('Valid email is required'),
-  phone: z.string().optional(),
-  mobile: z.string().optional(),
-  jobTitle: z.string().optional(),
-  department: z.string().optional(),
+  phone: z.string().trim().optional(),
+  mobile: z.string().trim().optional(),
+  jobTitle: z.string().trim().optional(),
+  department: z.string().trim().optional(),
   accountId: z.string().trim().uuid().optional(),
-  source: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  postalCode: z.string().optional(),
-  notes: z.string().optional(),
+  source: z.string().trim().optional(),
+  tags: z.array(z.string().trim()).optional(),
+  address: z.string().trim().optional(),
+  city: z.string().trim().optional(),
+  state: z.string().trim().optional(),
+  country: z.string().trim().optional(),
+  postalCode: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateContactSchema = createContactSchema.partial();
 
 const activitySchema = z.object({
   type: z.enum(['CALL', 'EMAIL', 'MEETING', 'NOTE', 'TASK']),
-  subject: z.string().min(1, 'Subject is required'),
-  description: z.string().optional(),
+  subject: z.string().trim().min(1, 'Subject is required'),
+  description: z.string().trim().optional(),
   dueDate: z.string().trim().datetime({ offset: true }).optional(),
   duration: z.number().int().positive().optional(),
-  outcome: z.string().optional(),
+  outcome: z.string().trim().optional(),
 });
 
 // POST / — Create contact

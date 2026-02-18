@@ -11,9 +11,9 @@ const logger = createLogger('chem-inventory');
 
 const createInventorySchema = z.object({
   chemicalId: z.string().trim().min(1).max(200),
-  location: z.string().min(1, 'location is required'),
-  storageArea: z.string().optional(),
-  containerRef: z.string().optional(),
+  location: z.string().trim().min(1, 'location is required'),
+  storageArea: z.string().trim().optional(),
+  containerRef: z.string().trim().optional(),
   quantityOnhand: z.number().min(0),
   unit: z.string().trim().min(1).max(200),
   minStockLevel: z.number().optional(),

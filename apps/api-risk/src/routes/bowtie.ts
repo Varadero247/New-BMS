@@ -13,44 +13,44 @@ const bowtieSchema = z.object({
   topEvent: z.string().trim().min(1).max(200),
   threats: z.array(
     z.object({
-      id: z.string(),
-      description: z.string(),
+      id: z.string().trim(),
+      description: z.string().trim(),
       likelihood: z.number().min(1).max(5).optional(),
     })
   ),
   preventionBarriers: z.array(
     z.object({
-      id: z.string(),
-      description: z.string(),
-      type: z.string().optional(),
-      effectiveness: z.string().optional(),
-      owner: z.string().optional(),
-      degradationFactors: z.array(z.string()).optional(),
-      linkedThreatIds: z.array(z.string()).optional(),
+      id: z.string().trim(),
+      description: z.string().trim(),
+      type: z.string().trim().optional(),
+      effectiveness: z.string().trim().optional(),
+      owner: z.string().trim().optional(),
+      degradationFactors: z.array(z.string().trim()).optional(),
+      linkedThreatIds: z.array(z.string().trim()).optional(),
     })
   ),
   consequences: z.array(
     z.object({
-      id: z.string(),
-      description: z.string(),
+      id: z.string().trim(),
+      description: z.string().trim(),
       severity: z.number().min(1).max(5).optional(),
     })
   ),
   mitigationBarriers: z.array(
     z.object({
-      id: z.string(),
-      description: z.string(),
-      type: z.string().optional(),
-      effectiveness: z.string().optional(),
-      owner: z.string().optional(),
-      degradationFactors: z.array(z.string()).optional(),
-      linkedConsequenceIds: z.array(z.string()).optional(),
+      id: z.string().trim(),
+      description: z.string().trim(),
+      type: z.string().trim().optional(),
+      effectiveness: z.string().trim().optional(),
+      owner: z.string().trim().optional(),
+      degradationFactors: z.array(z.string().trim()).optional(),
+      linkedConsequenceIds: z.array(z.string().trim()).optional(),
     })
   ),
-  escalationFactors: z.array(z.string()).optional(),
-  criticalPath: z.string().optional(),
-  keyGaps: z.string().optional(),
-  priorityActions: z.string().optional(),
+  escalationFactors: z.array(z.string().trim()).optional(),
+  criticalPath: z.string().trim().optional(),
+  keyGaps: z.string().trim().optional(),
+  priorityActions: z.string().trim().optional(),
 });
 
 // GET /api/risks/:id/bowtie

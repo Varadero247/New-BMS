@@ -6,16 +6,16 @@ import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 
 const createCompetitorSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  website: z.string().nullable().optional(),
-  category: z.string().optional(),
+  name: z.string().trim().min(1, 'Name is required'),
+  website: z.string().trim().nullable().optional(),
+  category: z.string().trim().optional(),
 });
 
 const updateCompetitorSchema = createCompetitorSchema.partial();
 
 const createIntelSchema = z.object({
-  type: z.string().min(1, 'Type is required'),
-  detail: z.string().min(1, 'Detail is required'),
+  type: z.string().trim().min(1, 'Type is required'),
+  detail: z.string().trim().min(1, 'Detail is required'),
 });
 
 const logger = createLogger('competitors');

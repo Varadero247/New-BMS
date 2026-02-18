@@ -25,18 +25,18 @@ const supplierCreateSchema = z.object({
   code: z.string().trim().min(1).max(20),
   name: z.string().trim().min(1).max(200),
   email: z.string().trim().email().optional().nullable(),
-  phone: z.string().max(30).optional().nullable(),
-  contactPerson: z.string().max(200).optional().nullable(),
-  addressLine1: z.string().max(200).optional().nullable(),
-  addressLine2: z.string().max(200).optional().nullable(),
-  city: z.string().max(100).optional().nullable(),
-  region: z.string().max(100).optional().nullable(),
-  postalCode: z.string().max(20).optional().nullable(),
-  country: z.string().length(3).optional(),
-  taxNumber: z.string().max(50).optional().nullable(),
-  currency: z.string().length(3).optional(),
+  phone: z.string().trim().max(30).optional().nullable(),
+  contactPerson: z.string().trim().max(200).optional().nullable(),
+  addressLine1: z.string().trim().max(200).optional().nullable(),
+  addressLine2: z.string().trim().max(200).optional().nullable(),
+  city: z.string().trim().max(100).optional().nullable(),
+  region: z.string().trim().max(100).optional().nullable(),
+  postalCode: z.string().trim().max(20).optional().nullable(),
+  country: z.string().trim().length(3).optional(),
+  taxNumber: z.string().trim().max(50).optional().nullable(),
+  currency: z.string().trim().length(3).optional(),
   paymentTerms: z.number().int().min(0).optional(),
-  notes: z.string().optional().nullable(),
+  notes: z.string().trim().optional().nullable(),
 });
 
 const supplierUpdateSchema = supplierCreateSchema.partial();
@@ -52,19 +52,19 @@ const poLineSchema = z.object({
 
 const poCreateSchema = z.object({
   supplierId: z.string().trim().uuid(),
-  orderDate: z.string().or(z.date()),
-  expectedDate: z.string().or(z.date()).optional().nullable(),
-  notes: z.string().optional().nullable(),
-  currency: z.string().length(3).optional(),
+  orderDate: z.string().trim().or(z.date()),
+  expectedDate: z.string().trim().or(z.date()).optional().nullable(),
+  notes: z.string().trim().optional().nullable(),
+  currency: z.string().trim().length(3).optional(),
   lines: z.array(poLineSchema).min(1),
 });
 
 const poUpdateSchema = z.object({
   supplierId: z.string().trim().uuid().optional(),
-  orderDate: z.string().or(z.date()).optional(),
-  expectedDate: z.string().or(z.date()).optional().nullable(),
-  notes: z.string().optional().nullable(),
-  currency: z.string().length(3).optional(),
+  orderDate: z.string().trim().or(z.date()).optional(),
+  expectedDate: z.string().trim().or(z.date()).optional().nullable(),
+  notes: z.string().trim().optional().nullable(),
+  currency: z.string().trim().length(3).optional(),
   lines: z.array(poLineSchema).optional(),
 });
 
@@ -80,29 +80,29 @@ const billLineSchema = z.object({
 const billCreateSchema = z.object({
   supplierId: z.string().trim().uuid(),
   purchaseOrderId: z.string().trim().uuid().optional().nullable(),
-  billDate: z.string().or(z.date()),
-  dueDate: z.string().or(z.date()),
-  supplierRef: z.string().max(100).optional().nullable(),
-  notes: z.string().optional().nullable(),
-  currency: z.string().length(3).optional(),
+  billDate: z.string().trim().or(z.date()),
+  dueDate: z.string().trim().or(z.date()),
+  supplierRef: z.string().trim().max(100).optional().nullable(),
+  notes: z.string().trim().optional().nullable(),
+  currency: z.string().trim().length(3).optional(),
   lines: z.array(billLineSchema).min(1),
 });
 
 const billUpdateSchema = z.object({
   supplierId: z.string().trim().uuid().optional(),
   purchaseOrderId: z.string().trim().uuid().optional().nullable(),
-  billDate: z.string().or(z.date()).optional(),
-  dueDate: z.string().or(z.date()).optional(),
-  supplierRef: z.string().max(100).optional().nullable(),
-  notes: z.string().optional().nullable(),
-  currency: z.string().length(3).optional(),
+  billDate: z.string().trim().or(z.date()).optional(),
+  dueDate: z.string().trim().or(z.date()).optional(),
+  supplierRef: z.string().trim().max(100).optional().nullable(),
+  notes: z.string().trim().optional().nullable(),
+  currency: z.string().trim().length(3).optional(),
   lines: z.array(billLineSchema).optional(),
 });
 
 const paymentMadeCreateSchema = z.object({
   supplierId: z.string().trim().uuid(),
   billId: z.string().trim().uuid().optional().nullable(),
-  date: z.string().or(z.date()),
+  date: z.string().trim().or(z.date()),
   amount: z.number().positive(),
   method: z.enum([
     'BANK_TRANSFER',
@@ -114,7 +114,7 @@ const paymentMadeCreateSchema = z.object({
     'OTHER',
   ]),
   bankAccountId: z.string().trim().uuid().optional().nullable(),
-  notes: z.string().optional().nullable(),
+  notes: z.string().trim().optional().nullable(),
 });
 
 // ============================================

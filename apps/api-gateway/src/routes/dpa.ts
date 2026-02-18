@@ -13,9 +13,9 @@ router.use(authenticate);
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
 const acceptSchema = z.object({
-  signerName: z.string().min(1, 'Signer name is required'),
-  signerTitle: z.string().min(1, 'Signer title is required'),
-  signature: z.string().optional(),
+  signerName: z.string().trim().min(1, 'Signer name is required'),
+  signerTitle: z.string().trim().min(1, 'Signer title is required'),
+  signature: z.string().trim().optional(),
 });
 
 // ─── Routes ─────────────────────────────────────────────────────────────────

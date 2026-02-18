@@ -21,7 +21,7 @@ function generateReference(prefix: string): string {
 
 const initiativeCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   category: z.enum(['ENVIRONMENTAL', 'SOCIAL', 'GOVERNANCE']),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
   startDate: z
@@ -36,13 +36,13 @@ const initiativeCreateSchema = z.object({
     .nullable(),
   budget: z.number().min(0).optional().nullable(),
   actualCost: z.number().min(0).optional().nullable(),
-  owner: z.string().max(200).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
   impact: z.any().optional().nullable(),
 });
 
 const initiativeUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   category: z.enum(['ENVIRONMENTAL', 'SOCIAL', 'GOVERNANCE']).optional(),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
   startDate: z
@@ -57,7 +57,7 @@ const initiativeUpdateSchema = z.object({
     .nullable(),
   budget: z.number().min(0).optional().nullable(),
   actualCost: z.number().min(0).optional().nullable(),
-  owner: z.string().max(200).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
   impact: z.any().optional().nullable(),
 });
 

@@ -11,12 +11,12 @@ const router: IRouter = Router();
 const createCourseSchema = z.object({
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']).optional(),
   title: z.string().trim().min(1).max(200),
-  description: z.string().optional(),
-  provider: z.string().optional(),
-  duration: z.string().optional(),
-  frequency: z.string().optional(),
-  requiredForRoles: z.string().optional(),
-  requiredForDepartments: z.string().optional(),
+  description: z.string().trim().optional(),
+  provider: z.string().trim().optional(),
+  duration: z.string().trim().optional(),
+  frequency: z.string().trim().optional(),
+  requiredForRoles: z.string().trim().optional(),
+  requiredForDepartments: z.string().trim().optional(),
 });
 
 const updateCourseSchema = createCourseSchema.partial().extend({
@@ -24,19 +24,19 @@ const updateCourseSchema = createCourseSchema.partial().extend({
 });
 
 const createRecordSchema = z.object({
-  userId: z.string(),
-  courseId: z.string(),
-  completedAt: z.string().datetime({ offset: true }).optional(),
-  expiresAt: z.string().datetime({ offset: true }).optional(),
+  userId: z.string().trim(),
+  courseId: z.string().trim(),
+  completedAt: z.string().trim().datetime({ offset: true }).optional(),
+  expiresAt: z.string().trim().datetime({ offset: true }).optional(),
   score: z.number().min(0).max(100).optional(),
   competenceLevel: z.enum(['AWARENESS', 'BASIC', 'PROFICIENT', 'EXPERT']).optional(),
-  certificateUrl: z.string().url('Invalid URL').optional(),
-  notes: z.string().optional(),
+  certificateUrl: z.string().trim().url('Invalid URL').optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateRecordSchema = createRecordSchema.partial().extend({
   status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'FAILED']).optional(),
-  assessedBy: z.string().optional(),
+  assessedBy: z.string().trim().optional(),
 });
 
 // ===== COURSES =====

@@ -40,54 +40,54 @@ async function generateSuspectPartRefNumber(): Promise<string> {
 // ============================================
 
 const createCounterfeitReportSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  partNumber: z.string().min(1, 'Part number is required'),
-  partDescription: z.string().optional(),
-  manufacturer: z.string().optional(),
-  supplier: z.string().optional(),
-  poNumber: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  partNumber: z.string().trim().min(1, 'Part number is required'),
+  partDescription: z.string().trim().optional(),
+  manufacturer: z.string().trim().optional(),
+  supplier: z.string().trim().optional(),
+  poNumber: z.string().trim().optional(),
   quantity: z.number().int().positive().optional(),
   dateDiscovered: z
     .string()
     .min(1, 'Date discovered is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  discoveredBy: z.string().optional(),
-  discrepancyDescription: z.string().min(1, 'Discrepancy description is required'),
-  suspicionIndicators: z.array(z.string()).optional().default([]),
+  discoveredBy: z.string().trim().optional(),
+  discrepancyDescription: z.string().trim().min(1, 'Discrepancy description is required'),
+  suspicionIndicators: z.array(z.string().trim()).optional().default([]),
   disposition: z
     .enum(['QUARANTINE', 'RETURN_TO_SUPPLIER', 'DESTROY', 'PENDING_INVESTIGATION'])
     .optional()
     .default('QUARANTINE'),
   reportedToGidep: z.boolean().optional().default(false),
   safetyImpact: z.boolean().optional().default(false),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateCounterfeitReportSchema = z.object({
-  title: z.string().optional(),
-  discrepancyDescription: z.string().optional(),
-  suspicionIndicators: z.array(z.string()).optional(),
+  title: z.string().trim().optional(),
+  discrepancyDescription: z.string().trim().optional(),
+  suspicionIndicators: z.array(z.string().trim()).optional(),
   disposition: z
     .enum(['QUARANTINE', 'RETURN_TO_SUPPLIER', 'DESTROY', 'PENDING_INVESTIGATION'])
     .optional(),
   status: z.enum(['OPEN', 'INVESTIGATING', 'CONFIRMED', 'CLEARED', 'CLOSED']).optional(),
-  investigationFindings: z.string().optional(),
-  correctiveAction: z.string().optional(),
+  investigationFindings: z.string().trim().optional(),
+  correctiveAction: z.string().trim().optional(),
   reportedToGidep: z.boolean().optional(),
-  gidepReportRef: z.string().optional(),
+  gidepReportRef: z.string().trim().optional(),
   safetyImpact: z.boolean().optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const createSuspectPartSchema = z.object({
-  partNumber: z.string().min(1, 'Part number is required'),
-  nomenclature: z.string().min(1, 'Nomenclature is required'),
-  manufacturer: z.string().optional(),
-  nsn: z.string().optional(),
+  partNumber: z.string().trim().min(1, 'Part number is required'),
+  nomenclature: z.string().trim().min(1, 'Nomenclature is required'),
+  manufacturer: z.string().trim().optional(),
+  nsn: z.string().trim().optional(),
   riskLevel: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
-  indicators: z.array(z.string()).optional().default([]),
-  sources: z.array(z.string()).optional().default([]),
-  notes: z.string().optional(),
+  indicators: z.array(z.string().trim()).optional().default([]),
+  sources: z.array(z.string().trim()).optional().default([]),
+  notes: z.string().trim().optional(),
 });
 
 // ============================================

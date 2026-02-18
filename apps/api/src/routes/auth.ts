@@ -10,16 +10,16 @@ import { AppError } from '../middleware/error-handler';
 const router: IRouter = Router();
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().trim().email(),
+  password: z.string().trim().min(6),
 });
 
 const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+  email: z.string().trim().email(),
+  password: z.string().trim().min(6),
   firstName: z.string().trim().min(1).max(200),
   lastName: z.string().trim().min(1).max(200),
-  phone: z.string().optional(),
+  phone: z.string().trim().optional(),
 });
 
 // Login

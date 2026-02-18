@@ -20,23 +20,26 @@ const mobilityLevelEnum = z.enum([
 ]);
 
 const createPeepSchema = z.object({
-  personName: z.string().min(1, 'person name is required'),
-  jobTitle: z.string().optional(),
-  department: z.string().optional(),
-  normalLocation: z.string().optional(),
+  personName: z.string().trim().min(1, 'person name is required'),
+  jobTitle: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  normalLocation: z.string().trim().optional(),
   mobilityLevel: mobilityLevelEnum,
-  mobilityNotes: z.string().optional(),
+  mobilityNotes: z.string().trim().optional(),
   requiresAssistance: z.boolean().optional(),
-  evacuationMethod: z.string().optional(),
+  evacuationMethod: z.string().trim().optional(),
   assistantsRequired: z.number().int().optional(),
-  namedAssistants: z.array(z.string()).optional().default([]),
+  namedAssistants: z.array(z.string().trim()).optional().default([]),
   refugeAreaRequired: z.boolean().optional(),
-  refugeLocation: z.string().optional(),
-  specialEquipment: z.string().optional(),
-  communicationNeeds: z.string().optional(),
-  medicalConditionSummary: z.string().optional(),
+  refugeLocation: z.string().trim().optional(),
+  specialEquipment: z.string().trim().optional(),
+  communicationNeeds: z.string().trim().optional(),
+  medicalConditionSummary: z.string().trim().optional(),
   medicationOnPerson: z.boolean().optional(),
-  reviewDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  reviewDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
 });
 
 const updatePeepSchema = createPeepSchema.partial();

@@ -10,14 +10,14 @@ router.param('id', validateIdParam());
 const logger = createLogger('ptw-method-statements');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  permitId: z.string().optional(),
-  steps: z.string().optional(),
-  hazards: z.string().optional(),
-  controls: z.string().optional(),
-  ppe: z.string().optional(),
-  approvedBy: z.string().optional(),
-  approvedAt: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  permitId: z.string().trim().optional(),
+  steps: z.string().trim().optional(),
+  hazards: z.string().trim().optional(),
+  controls: z.string().trim().optional(),
+  ppe: z.string().trim().optional(),
+  approvedBy: z.string().trim().optional(),
+  approvedAt: z.string().trim().optional(),
   version: z.number().int().optional(),
 });
 

@@ -46,22 +46,22 @@ async function generateRefNumber(): Promise<string> {
 const createChartSchema = z.object({
   title: z.string().trim().min(1).max(200),
   partNumber: z.string().trim().min(1).max(200),
-  partName: z.string().optional(),
+  partName: z.string().trim().optional(),
   characteristic: z.string().trim().min(1).max(200),
   chartType: z.enum(['XBAR_R', 'XBAR_S', 'IMR', 'P', 'NP', 'C', 'U']),
   subgroupSize: z.number().int().min(1).max(25).optional().default(5),
   usl: z.number().optional(),
   lsl: z.number().optional(),
   target: z.number().optional(),
-  unit: z.string().optional(),
-  frequency: z.string().optional(),
-  notes: z.string().optional(),
+  unit: z.string().trim().optional(),
+  frequency: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const addDataPointSchema = z.union([
   z.object({
     value: z.number(),
-    timestamp: z.string().optional(),
+    timestamp: z.string().trim().optional(),
     subgroup: z.number().int().optional(),
     defectives: z.number().int().optional(),
     sampleSize: z.number().int().optional(),
@@ -69,7 +69,7 @@ const addDataPointSchema = z.union([
   z.array(
     z.object({
       value: z.number(),
-      timestamp: z.string().optional(),
+      timestamp: z.string().trim().optional(),
       subgroup: z.number().int().optional(),
       defectives: z.number().int().optional(),
       sampleSize: z.number().int().optional(),
@@ -78,12 +78,12 @@ const addDataPointSchema = z.union([
 ]);
 
 const listQuerySchema = z.object({
-  page: z.string().optional().default('1'),
-  limit: z.string().optional().default('20'),
-  status: z.string().optional(),
-  partNumber: z.string().optional(),
-  chartType: z.string().optional(),
-  search: z.string().optional(),
+  page: z.string().trim().optional().default('1'),
+  limit: z.string().trim().optional().default('20'),
+  status: z.string().trim().optional(),
+  partNumber: z.string().trim().optional(),
+  chartType: z.string().trim().optional(),
+  search: z.string().trim().optional(),
 });
 
 // ============================================

@@ -125,11 +125,11 @@ router.post('/', async (req: Request, res: Response) => {
         'OTHER',
       ]),
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       fileName: z.string().trim().min(1).max(500),
       fileUrl: z.string().trim().url(),
       fileSize: z.number().nonnegative().optional(),
-      mimeType: z.string().optional(),
+      mimeType: z.string().trim().optional(),
       issueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -138,11 +138,11 @@ router.post('/', async (req: Request, res: Response) => {
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      issuingAuthority: z.string().optional(),
-      documentNumber: z.string().optional(),
+      issuingAuthority: z.string().trim().optional(),
+      documentNumber: z.string().trim().optional(),
       requiresSignature: z.boolean().default(false),
       isConfidential: z.boolean().default(false),
-      accessRoles: z.array(z.string()).default([]),
+      accessRoles: z.array(z.string().trim()).default([]),
     });
 
     const data = schema.parse(req.body);
@@ -177,8 +177,8 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', checkOwnership(prisma.employeeDocument), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().optional(),
-      description: z.string().optional(),
+      title: z.string().trim().optional(),
+      description: z.string().trim().optional(),
       status: z
         .enum(['ACTIVE', 'EXPIRED', 'PENDING_VERIFICATION', 'VERIFIED', 'REJECTED', 'ARCHIVED'])
         .optional(),
@@ -186,7 +186,7 @@ router.put('/:id', checkOwnership(prisma.employeeDocument), async (req: Request,
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      verifiedById: z.string().optional(),
+      verifiedById: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -303,10 +303,10 @@ router.post('/qualifications', async (req: Request, res: Response) => {
         'PROFESSIONAL',
         'OTHER',
       ]),
-      institution: z.string(),
-      degree: z.string().optional(),
-      fieldOfStudy: z.string().optional(),
-      grade: z.string().optional(),
+      institution: z.string().trim(),
+      degree: z.string().trim().optional(),
+      fieldOfStudy: z.string().trim().optional(),
+      grade: z.string().trim().optional(),
       startDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -317,7 +317,7 @@ router.post('/qualifications', async (req: Request, res: Response) => {
         .optional(),
       isOngoing: z.boolean().default(false),
       documentUrl: z.string().trim().url('Invalid URL').optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -370,7 +370,7 @@ router.post('/assets', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
-      assetTag: z.string(),
+      assetTag: z.string().trim(),
       assetType: z.enum([
         'LAPTOP',
         'DESKTOP',
@@ -388,14 +388,17 @@ router.post('/assets', async (req: Request, res: Response) => {
         'OTHER',
       ]),
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
-      serialNumber: z.string().optional(),
-      model: z.string().optional(),
-      manufacturer: z.string().optional(),
-      assignedDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      description: z.string().trim().optional(),
+      serialNumber: z.string().trim().optional(),
+      model: z.string().trim().optional(),
+      manufacturer: z.string().trim().optional(),
+      assignedDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       purchaseValue: z.number().optional(),
       condition: z.enum(['NEW', 'GOOD', 'FAIR', 'POOR', 'DAMAGED', 'LOST']).default('GOOD'),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

@@ -165,7 +165,10 @@ router.post('/runs', async (req: Request, res: Response) => {
         .trim()
         .min(1)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      payDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      payDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       payFrequency: z.enum(['WEEKLY', 'BI_WEEKLY', 'SEMI_MONTHLY', 'MONTHLY']),
     });
 

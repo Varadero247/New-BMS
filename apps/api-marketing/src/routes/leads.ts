@@ -11,8 +11,8 @@ router.param('id', validateIdParam());
 const captureSchema = z.object({
   email: z.string().trim().email(),
   name: z.string().trim().min(1).max(200),
-  company: z.string().optional(),
-  jobTitle: z.string().optional(),
+  company: z.string().trim().optional(),
+  jobTitle: z.string().trim().optional(),
   source: z.enum([
     'ROI_CALCULATOR',
     'CHATBOT',
@@ -23,8 +23,8 @@ const captureSchema = z.object({
     'DIRECT',
     'LINKEDIN',
   ]),
-  industry: z.string().optional(),
-  employeeCount: z.string().optional(),
+  industry: z.string().trim().optional(),
+  employeeCount: z.string().trim().optional(),
   isoCount: z.number().int().optional(),
   roiEstimate: z.number().optional(),
 });

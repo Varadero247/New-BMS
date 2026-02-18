@@ -23,7 +23,7 @@ const frameworkCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   code: z.string().trim().min(1).max(50),
   version: z.string().trim().min(1).max(50),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   isActive: z.boolean().optional(),
   modules: z.any().optional().nullable(),
 });
@@ -31,7 +31,7 @@ const frameworkCreateSchema = z.object({
 const frameworkUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   version: z.string().trim().min(1).max(50).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   isActive: z.boolean().optional(),
   modules: z.any().optional().nullable(),
 });
@@ -43,7 +43,7 @@ const metricCreateSchema = z.object({
   code: z.string().trim().min(1).max(50),
   unit: z.string().trim().min(1).max(50),
   targetValue: z.number().nonnegative().optional().nullable(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   frequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY']),
   isRequired: z.boolean().optional(),
 });
@@ -61,8 +61,8 @@ const dataPointCreateSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
-  source: z.string().max(200).optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  source: z.string().trim().max(200).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   status: z.enum(['DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED']).optional(),
 });
 

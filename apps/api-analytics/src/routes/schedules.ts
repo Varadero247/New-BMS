@@ -22,7 +22,7 @@ const scheduleCreateSchema = z.object({
   referenceId: z.string().trim().uuid(),
   cronExpression: z.string().trim().min(1).max(100),
   isActive: z.boolean().optional().default(true),
-  timezone: z.string().max(50).optional().default('UTC'),
+  timezone: z.string().trim().max(50).optional().default('UTC'),
 });
 
 const scheduleUpdateSchema = z.object({
@@ -31,7 +31,7 @@ const scheduleUpdateSchema = z.object({
   referenceId: z.string().trim().uuid().optional(),
   cronExpression: z.string().trim().min(1).max(100).optional(),
   isActive: z.boolean().optional(),
-  timezone: z.string().max(50).optional(),
+  timezone: z.string().trim().max(50).optional(),
 });
 
 // ---------------------------------------------------------------------------

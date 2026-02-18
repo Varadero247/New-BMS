@@ -24,7 +24,7 @@ const reportCreateSchema = z.object({
   quarter: z.number().int().min(1).max(4).optional().nullable(),
   status: z.enum(['DRAFT', 'REVIEW', 'APPROVED', 'PUBLISHED']).optional(),
   content: z.any().optional().nullable(),
-  generatedBy: z.string().max(200).optional().nullable(),
+  generatedBy: z.string().trim().max(200).optional().nullable(),
 });
 
 const reportUpdateSchema = z.object({
@@ -35,9 +35,9 @@ const reportUpdateSchema = z.object({
   year: z.number().int().min(2000).max(2100).optional(),
   quarter: z.number().int().min(1).max(4).optional().nullable(),
   status: z.enum(['DRAFT', 'REVIEW', 'APPROVED', 'PUBLISHED']).optional(),
-  publishedAt: z.string().optional().nullable(),
+  publishedAt: z.string().trim().optional().nullable(),
   content: z.any().optional().nullable(),
-  generatedBy: z.string().max(200).optional().nullable(),
+  generatedBy: z.string().trim().max(200).optional().nullable(),
 });
 
 const RESERVED_PATHS = new Set(['dashboard', 'csrd', 'tcfd']);

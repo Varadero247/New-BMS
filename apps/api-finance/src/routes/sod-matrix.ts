@@ -7,11 +7,11 @@ const router = Router();
 const logger = createLogger('finance-sod-matrix');
 
 const createSodRuleSchema = z.object({
-  role1: z.string().min(1, 'role1 is required'),
-  role2: z.string().min(1, 'role2 is required'),
-  conflictType: z.string().optional(),
-  description: z.string().optional(),
-  mitigatingControl: z.string().optional(),
+  role1: z.string().trim().min(1, 'role1 is required'),
+  role2: z.string().trim().min(1, 'role2 is required'),
+  conflictType: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  mitigatingControl: z.string().trim().optional(),
   isActive: z.boolean().optional(),
 });
 router.get('/', authenticate, async (req: Request, res: Response) => {

@@ -10,7 +10,7 @@ const router = Router();
 router.param('id', validateIdParam());
 
 const generateAgendaSchema = z.object({
-  customItems: z.array(z.string()).optional(),
+  customItems: z.array(z.string().trim()).optional(),
   includeAiNote: z.boolean().optional(),
 });
 

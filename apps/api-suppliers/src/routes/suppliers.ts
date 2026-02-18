@@ -9,29 +9,29 @@ router.param('id', validateIdParam());
 const logger = createLogger('suppliers-suppliers');
 
 const createSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  tradingName: z.string().optional(),
-  registrationNo: z.string().optional(),
-  vatNumber: z.string().optional(),
+  name: z.string().trim().min(1, 'Name is required'),
+  tradingName: z.string().trim().optional(),
+  registrationNo: z.string().trim().optional(),
+  vatNumber: z.string().trim().optional(),
   status: z
     .enum(['PROSPECTIVE', 'APPROVED', 'CONDITIONAL', 'SUSPENDED', 'BLACKLISTED', 'INACTIVE'])
     .optional(),
   tier: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  category: z.string().optional(),
-  primaryContact: z.string().optional(),
+  category: z.string().trim().optional(),
+  primaryContact: z.string().trim().optional(),
   email: z.string().trim().email().optional().or(z.literal('')),
-  phone: z.string().optional(),
+  phone: z.string().trim().optional(),
   website: z.string().trim().url('Invalid URL').optional(),
-  addressLine1: z.string().optional(),
-  city: z.string().optional(),
-  postcode: z.string().optional(),
-  country: z.string().optional(),
-  notes: z.string().optional(),
+  addressLine1: z.string().trim().optional(),
+  city: z.string().trim().optional(),
+  postcode: z.string().trim().optional(),
+  country: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
   approvedDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   reviewDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   annualSpend: z.number().optional(),
-  paymentTerms: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  paymentTerms: z.string().trim().optional(),
+  tags: z.array(z.string().trim()).optional(),
 });
 const updateSchema = createSchema.partial();
 

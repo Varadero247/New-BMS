@@ -36,7 +36,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 
 const policyCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  content: z.string().min(1),
+  content: z.string().trim().min(1),
   policyType: z.enum([
     'ANTI_BRIBERY_POLICY',
     'GIFTS_HOSPITALITY_POLICY',
@@ -49,7 +49,7 @@ const policyCreateSchema = z.object({
     'SPONSORSHIPS',
     'OTHER',
   ]),
-  version: z.string().max(20).optional(),
+  version: z.string().trim().max(20).optional(),
   effectiveDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -58,14 +58,14 @@ const policyCreateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  scope: z.string().max(2000).optional(),
-  owner: z.string().max(200).optional(),
-  notes: z.string().max(2000).optional(),
+  scope: z.string().trim().max(2000).optional(),
+  owner: z.string().trim().max(200).optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 const policyUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  content: z.string().min(1).optional(),
+  content: z.string().trim().min(1).optional(),
   policyType: z
     .enum([
       'ANTI_BRIBERY_POLICY',
@@ -80,7 +80,7 @@ const policyUpdateSchema = z.object({
       'OTHER',
     ])
     .optional(),
-  version: z.string().max(20).optional(),
+  version: z.string().trim().max(20).optional(),
   effectiveDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -89,9 +89,9 @@ const policyUpdateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  scope: z.string().max(2000).optional(),
-  owner: z.string().max(200).optional(),
-  notes: z.string().max(2000).optional(),
+  scope: z.string().trim().max(2000).optional(),
+  owner: z.string().trim().max(200).optional(),
+  notes: z.string().trim().max(2000).optional(),
   status: z.enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'SUPERSEDED', 'ARCHIVED']).optional(),
 });
 

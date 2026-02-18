@@ -16,7 +16,7 @@ router.param('id', validateIdParam());
 
 const enpiCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   formula: z.string().trim().min(1).max(500),
   unit: z.string().trim().min(1).max(50),
   baselineValue: z.number().optional().nullable(),
@@ -29,7 +29,7 @@ const enpiCreateSchema = z.object({
 
 const enpiUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   formula: z.string().trim().min(1).max(500).optional(),
   unit: z.string().trim().min(1).max(50).optional(),
   baselineValue: z.number().optional().nullable(),
@@ -44,12 +44,22 @@ const dataPointCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   periodEnd: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   variables: z.any().optional().nullable(),
 });
 

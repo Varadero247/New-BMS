@@ -12,8 +12,8 @@ const router = Router();
 // ============================================
 
 const getActivitySchema = z.object({
-  recordType: z.string().min(1, 'recordType is required'),
-  recordId: z.string().min(1, 'recordId is required'),
+  recordType: z.string().trim().min(1, 'recordType is required'),
+  recordId: z.string().trim().min(1, 'recordId is required'),
   limit: z.coerce.number().int().min(1).max(100).optional().default(20),
   offset: z.coerce.number().int().min(0).optional().default(0),
 });
@@ -40,10 +40,10 @@ const postActivitySchema = z.object({
   recordType: z.string().trim().min(1).max(200),
   recordId: z.string().trim().min(1).max(200),
   action: z.enum(VALID_ACTIONS),
-  field: z.string().optional(),
+  field: z.string().trim().optional(),
   oldValue: z.unknown().optional(),
   newValue: z.unknown().optional(),
-  comment: z.string().optional(),
+  comment: z.string().trim().optional(),
   metadata: z.record(z.unknown()).optional(),
 });
 

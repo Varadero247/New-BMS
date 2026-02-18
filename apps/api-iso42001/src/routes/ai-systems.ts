@@ -41,19 +41,19 @@ const aiSystemCreateSchema = z.object({
     'OTHER',
   ]),
   riskTier: z.enum(['UNACCEPTABLE', 'HIGH', 'LIMITED', 'MINIMAL']),
-  purpose: z.string().max(2000).optional().nullable(),
-  vendor: z.string().max(200).optional().nullable(),
-  version: z.string().max(50).optional().nullable(),
+  purpose: z.string().trim().max(2000).optional().nullable(),
+  vendor: z.string().trim().max(200).optional().nullable(),
+  version: z.string().trim().max(50).optional().nullable(),
   deploymentDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  owner: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
-  dataTypes: z.string().max(2000).optional().nullable(),
-  userBase: z.string().max(1000).optional().nullable(),
-  notes: z.string().max(4000).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
+  dataTypes: z.string().trim().max(2000).optional().nullable(),
+  userBase: z.string().trim().max(1000).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 const aiSystemUpdateSchema = z.object({
@@ -77,19 +77,19 @@ const aiSystemUpdateSchema = z.object({
   status: z
     .enum(['ACTIVE', 'INACTIVE', 'DEVELOPMENT', 'DECOMMISSIONED', 'UNDER_REVIEW'])
     .optional(),
-  purpose: z.string().max(2000).optional().nullable(),
-  vendor: z.string().max(200).optional().nullable(),
-  version: z.string().max(50).optional().nullable(),
+  purpose: z.string().trim().max(2000).optional().nullable(),
+  vendor: z.string().trim().max(200).optional().nullable(),
+  version: z.string().trim().max(50).optional().nullable(),
   deploymentDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  owner: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
-  dataTypes: z.string().max(2000).optional().nullable(),
-  userBase: z.string().max(1000).optional().nullable(),
-  notes: z.string().max(4000).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
+  dataTypes: z.string().trim().max(2000).optional().nullable(),
+  userBase: z.string().trim().max(1000).optional().nullable(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

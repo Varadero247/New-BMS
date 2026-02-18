@@ -9,8 +9,8 @@ router.param('id', validateIdParam());
 const logger = createLogger('suppliers-scorecards');
 
 const createSchema = z.object({
-  supplierId: z.string().min(1, 'Supplier ID is required'),
-  period: z.string().optional(),
+  supplierId: z.string().trim().min(1, 'Supplier ID is required'),
+  period: z.string().trim().optional(),
   quality: z.number().int().min(0).max(100).optional(),
   delivery: z.number().int().min(0).max(100).optional(),
   cost: z.number().int().min(0).max(100).optional(),
@@ -18,8 +18,8 @@ const createSchema = z.object({
   compliance: z.number().int().min(0).max(100).optional(),
   overallScore: z.number().nonnegative().optional(),
   status: z.enum(['DRAFT', 'IN_REVIEW', 'COMPLETED']).optional(),
-  assessor: z.string().optional(),
-  comments: z.string().optional(),
+  assessor: z.string().trim().optional(),
+  comments: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

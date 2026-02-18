@@ -48,7 +48,7 @@ const qualityReportUpdateSchema = z.object({
   description: z.string().trim().min(1).max(5000).optional(),
   severity: z.enum(['CRITICAL', 'MAJOR', 'MINOR']).optional(),
   status: z.enum(['OPEN', 'INVESTIGATING', 'RESOLVED', 'CLOSED']).optional(),
-  resolution: z.string().max(5000).optional().nullable(),
+  resolution: z.string().trim().max(5000).optional().nullable(),
   attachments: z.any().optional().nullable(),
 });
 

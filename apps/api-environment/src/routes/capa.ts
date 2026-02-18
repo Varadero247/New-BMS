@@ -99,7 +99,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .min(1)
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      priority: z.string().optional(),
+      priority: z.string().trim().optional(),
     });
 
     const schema = z.object({
@@ -116,66 +116,66 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .min(1)
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      sourceReference: z.string().optional(),
-      iso14001Clause: z.string().optional(),
+      sourceReference: z.string().trim().optional(),
+      iso14001Clause: z.string().trim().optional(),
       immediateActionRequired: z.boolean().optional(),
-      immediateActions: z.string().optional(),
-      containmentVerifiedBy: z.string().optional(),
+      immediateActions: z.string().trim().optional(),
+      containmentVerifiedBy: z.string().trim().optional(),
       containmentDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      rcaMethod: z.string().optional(),
-      problemStatement: z.string().optional(),
-      why1: z.string().optional(),
-      why2: z.string().optional(),
-      why3: z.string().optional(),
-      why4: z.string().optional(),
-      why5: z.string().optional(),
-      fishbonePeople: z.string().optional(),
-      fishboneProcess: z.string().optional(),
-      fishbonePlant: z.string().optional(),
-      fishbonePolicy: z.string().optional(),
-      fishboneEnvironment: z.string().optional(),
-      fishboneMeasurement: z.string().optional(),
-      bowtieHazard: z.string().optional(),
-      bowtieThreats: z.string().optional(),
-      bowtiePreventive: z.string().optional(),
-      bowtieConsequences: z.string().optional(),
-      bowtieMitigating: z.string().optional(),
-      rootCauseStatement: z.string().optional(),
-      rootCauseCategory: z.string().optional(),
-      effectivenessCriteria: z.string().optional(),
-      effectivenessKPI: z.string().optional(),
-      effectivenessTarget: z.string().optional(),
-      effectivenessMethod: z.string().optional(),
-      status: z.string().optional(),
-      progressNotes: z.string().optional(),
+      rcaMethod: z.string().trim().optional(),
+      problemStatement: z.string().trim().optional(),
+      why1: z.string().trim().optional(),
+      why2: z.string().trim().optional(),
+      why3: z.string().trim().optional(),
+      why4: z.string().trim().optional(),
+      why5: z.string().trim().optional(),
+      fishbonePeople: z.string().trim().optional(),
+      fishboneProcess: z.string().trim().optional(),
+      fishbonePlant: z.string().trim().optional(),
+      fishbonePolicy: z.string().trim().optional(),
+      fishboneEnvironment: z.string().trim().optional(),
+      fishboneMeasurement: z.string().trim().optional(),
+      bowtieHazard: z.string().trim().optional(),
+      bowtieThreats: z.string().trim().optional(),
+      bowtiePreventive: z.string().trim().optional(),
+      bowtieConsequences: z.string().trim().optional(),
+      bowtieMitigating: z.string().trim().optional(),
+      rootCauseStatement: z.string().trim().optional(),
+      rootCauseCategory: z.string().trim().optional(),
+      effectivenessCriteria: z.string().trim().optional(),
+      effectivenessKPI: z.string().trim().optional(),
+      effectivenessTarget: z.string().trim().optional(),
+      effectivenessMethod: z.string().trim().optional(),
+      status: z.string().trim().optional(),
+      progressNotes: z.string().trim().optional(),
       percentComplete: z.number().min(0).max(100).optional(),
       verificationDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      verifiedBy: z.string().optional(),
-      effectivenessAssessment: z.string().optional(),
+      verifiedBy: z.string().trim().optional(),
+      effectivenessAssessment: z.string().trim().optional(),
       recurrenceCheck: z.boolean().optional(),
-      actionsEffective: z.string().optional(),
-      furtherActions: z.string().optional(),
-      managementSignoff: z.string().optional(),
+      actionsEffective: z.string().trim().optional(),
+      furtherActions: z.string().trim().optional(),
+      managementSignoff: z.string().trim().optional(),
       closureDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      lessonsLearned: z.string().optional(),
+      lessonsLearned: z.string().trim().optional(),
       sharedLessonsLearned: z.boolean().optional(),
-      aiRootCauseValidation: z.string().optional(),
-      aiFiveWhyAnalysis: z.string().optional(),
-      aiFishboneAnalysis: z.string().optional(),
-      aiActionSufficiency: z.string().optional(),
-      aiEffectivenessCriteria: z.string().optional(),
-      aiRecurrenceRisk: z.string().optional(),
-      aiSystemicImplications: z.string().optional(),
-      aiLessonsLearned: z.string().optional(),
+      aiRootCauseValidation: z.string().trim().optional(),
+      aiFiveWhyAnalysis: z.string().trim().optional(),
+      aiFishboneAnalysis: z.string().trim().optional(),
+      aiActionSufficiency: z.string().trim().optional(),
+      aiEffectivenessCriteria: z.string().trim().optional(),
+      aiRecurrenceRisk: z.string().trim().optional(),
+      aiSystemicImplications: z.string().trim().optional(),
+      aiLessonsLearned: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
       capaActions: z.array(capaActionSchema).optional(),
     });
@@ -282,47 +282,47 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
 // PUT /:id
 const capaUpdateSchema = z.object({
-  type: z.string().optional(),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  sourceType: z.string().optional(),
-  sourceReference: z.string().optional(),
-  linkedEventId: z.string().optional(),
-  severity: z.string().optional(),
-  priority: z.string().optional(),
-  status: z.string().optional(),
-  assignedTo: z.string().optional(),
-  department: z.string().optional(),
-  rootCauseMethod: z.string().optional(),
-  rootCauseAnalysis: z.string().optional(),
-  containmentAction: z.string().optional(),
+  type: z.string().trim().optional(),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  sourceType: z.string().trim().optional(),
+  sourceReference: z.string().trim().optional(),
+  linkedEventId: z.string().trim().optional(),
+  severity: z.string().trim().optional(),
+  priority: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  assignedTo: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  rootCauseMethod: z.string().trim().optional(),
+  rootCauseAnalysis: z.string().trim().optional(),
+  containmentAction: z.string().trim().optional(),
   containmentDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  correctiveAction: z.string().optional(),
-  preventiveAction: z.string().optional(),
+  correctiveAction: z.string().trim().optional(),
+  preventiveAction: z.string().trim().optional(),
   targetClosureDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  verificationMethod: z.string().optional(),
+  verificationMethod: z.string().trim().optional(),
   verificationDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  verifiedBy: z.string().optional(),
-  effectivenessReview: z.string().optional(),
+  verifiedBy: z.string().trim().optional(),
+  effectivenessReview: z.string().trim().optional(),
   closureDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  closedBy: z.string().optional(),
-  evidence: z.string().optional(),
-  aiRootCauseAnalysis: z.string().optional(),
-  aiCorrectiveActions: z.string().optional(),
-  aiPreventiveActions: z.string().optional(),
-  aiEffectivenessMetrics: z.string().optional(),
+  closedBy: z.string().trim().optional(),
+  evidence: z.string().trim().optional(),
+  aiRootCauseAnalysis: z.string().trim().optional(),
+  aiCorrectiveActions: z.string().trim().optional(),
+  aiPreventiveActions: z.string().trim().optional(),
+  aiEffectivenessMetrics: z.string().trim().optional(),
   aiGenerated: z.boolean().optional(),
 });
 
@@ -413,8 +413,8 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
         .min(1)
         .max(200)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      priority: z.string().optional(),
-      notes: z.string().optional(),
+      priority: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -452,8 +452,8 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
 
 // PUT /:id/actions/:actionId - Update a CAPA action
 const capaActionUpdateSchema = z.object({
-  description: z.string().optional(),
-  assignedTo: z.string().optional(),
+  description: z.string().trim().optional(),
+  assignedTo: z.string().trim().optional(),
   dueDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -462,10 +462,10 @@ const capaActionUpdateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  priority: z.string().optional(),
-  status: z.string().optional(),
-  notes: z.string().optional(),
-  evidence: z.string().optional(),
+  priority: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
+  evidence: z.string().trim().optional(),
 });
 
 router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => {

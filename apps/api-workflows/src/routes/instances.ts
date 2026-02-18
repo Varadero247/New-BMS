@@ -149,13 +149,13 @@ router.get(
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      definitionId: z.string(),
-      initiatedById: z.string(),
+      definitionId: z.string().trim(),
+      initiatedById: z.string().trim(),
       priority: priorityEnum.default('NORMAL'),
-      entityType: z.string().optional(),
-      entityId: z.string().optional(),
+      entityType: z.string().trim().optional(),
+      entityId: z.string().trim().optional(),
       contextData: z.record(z.unknown()).optional(),
-      slaDeadline: z.string().optional(),
+      slaDeadline: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -229,7 +229,7 @@ router.post('/', async (req: Request, res: Response) => {
 const advanceInstanceSchema = z.object({
   nextStepId: z.string().trim().min(1).max(200),
   actionBy: z.string().trim().min(1).max(2000).optional(),
-  comments: z.string().max(2000).optional(),
+  comments: z.string().trim().max(2000).optional(),
 });
 
 router.put(
@@ -294,7 +294,7 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
-        completedById: z.string().optional(),
+        completedById: z.string().trim().optional(),
         outcome: z.enum(['APPROVED', 'REJECTED', 'COMPLETED', 'CANCELLED']).optional(),
       });
 

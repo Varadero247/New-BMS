@@ -9,16 +9,16 @@ router.param('id', validateIdParam());
 const logger = createLogger('training-matrix');
 
 const createSchema = z.object({
-  competencyId: z.string().min(1, 'Competency ID is required'),
-  employeeId: z.string().min(1, 'Employee ID is required'),
-  employeeName: z.string().optional(),
+  competencyId: z.string().trim().min(1, 'Competency ID is required'),
+  employeeId: z.string().trim().min(1, 'Employee ID is required'),
+  employeeName: z.string().trim().optional(),
   currentLevel: z.enum(['NOT_STARTED', 'DEVELOPING', 'COMPETENT', 'EXPERT', 'EXPIRED']).optional(),
   targetLevel: z.enum(['NOT_STARTED', 'DEVELOPING', 'COMPETENT', 'EXPERT', 'EXPIRED']).optional(),
   assessedDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
-  assessedBy: z.string().optional(),
+  assessedBy: z.string().trim().optional(),
   nextReviewDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   gap: z.boolean().optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

@@ -10,12 +10,12 @@ router.param('id', validateIdParam());
 const logger = createLogger('emergency-equipment');
 
 const createEquipmentSchema = z.object({
-  equipmentType: z.string().min(1, 'equipment type is required'),
-  description: z.string().optional(),
-  location: z.string().min(1, 'location is required'),
-  serialNumber: z.string().optional(),
-  manufacturer: z.string().optional(),
-  extinguisherClass: z.string().optional(),
+  equipmentType: z.string().trim().min(1, 'equipment type is required'),
+  description: z.string().trim().optional(),
+  location: z.string().trim().min(1, 'location is required'),
+  serialNumber: z.string().trim().optional(),
+  manufacturer: z.string().trim().optional(),
+  extinguisherClass: z.string().trim().optional(),
   capacityKg: z.number().nonnegative().optional(),
   installDate: z
     .string()
@@ -30,7 +30,7 @@ const createEquipmentSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  serviceProvider: z.string().optional(),
+  serviceProvider: z.string().trim().optional(),
 });
 
 const updateEquipmentSchema = createEquipmentSchema.partial();
@@ -144,7 +144,7 @@ router.post('/:id/inspect', authenticate, async (req: Request, res: Response) =>
   try {
     const schema = z.object({
       inspectionResult: z.string().trim().min(1).max(200),
-      defects: z.string().optional(),
+      defects: z.string().trim().optional(),
       isOperational: z.boolean().optional(),
     });
     const parsed = schema.safeParse(req.body);

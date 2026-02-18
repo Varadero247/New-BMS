@@ -12,19 +12,19 @@ const logger = createLogger('api-crm');
 router.use(authenticate);
 
 const createLeadSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  firstName: z.string().trim().min(1, 'First name is required'),
+  lastName: z.string().trim().min(1, 'Last name is required'),
   email: z.string().trim().email('Valid email is required'),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  source: z.string().optional(),
-  notes: z.string().optional(),
+  phone: z.string().trim().optional(),
+  company: z.string().trim().optional(),
+  source: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateLeadSchema = createLeadSchema.partial();
 
 const disqualifySchema = z.object({
-  disqualifyReason: z.string().min(1, 'Disqualify reason is required'),
+  disqualifyReason: z.string().trim().min(1, 'Disqualify reason is required'),
 });
 
 function calculateLeadScore(source?: string, company?: string): number {

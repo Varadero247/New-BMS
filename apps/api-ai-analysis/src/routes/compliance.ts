@@ -74,17 +74,17 @@ function parseJsonResponse(content: string): unknown {
 router.post('/gap-analysis', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      standards: z.array(z.string()).min(1).max(10),
+      standards: z.array(z.string().trim()).min(1).max(10),
       currentEvidence: z.array(
         z.object({
-          clause: z.string(),
-          evidence: z.string(),
+          clause: z.string().trim(),
+          evidence: z.string().trim(),
           status: z
             .enum(['COMPLIANT', 'PARTIAL', 'NON_COMPLIANT', 'NOT_ASSESSED'])
             .default('NOT_ASSESSED'),
         })
       ),
-      organisationContext: z.string().optional(),
+      organisationContext: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -177,10 +177,10 @@ router.post('/predictive-risk', async (req: AuthRequest, res: Response) => {
         .array(
           z.object({
             type: z.string().trim().min(1).max(100),
-            severity: z.string(),
-            date: z.string(),
-            department: z.string().optional(),
-            rootCause: z.string().optional(),
+            severity: z.string().trim(),
+            date: z.string().trim(),
+            department: z.string().trim().optional(),
+            rootCause: z.string().trim().optional(),
           })
         )
         .min(1),
@@ -294,8 +294,8 @@ Provide predictive risk analysis. Respond with ONLY valid JSON:
 router.post('/search', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      query: z.string().min(3).max(500),
-      modules: z.array(z.string()).optional(),
+      query: z.string().trim().min(3).max(500),
+      modules: z.array(z.string().trim()).optional(),
       limit: z.number().min(1).max(50).default(10),
     });
 

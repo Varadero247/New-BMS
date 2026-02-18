@@ -9,14 +9,14 @@ import { AppError } from '../middleware/error-handler';
 const router: IRouter = Router();
 
 const createScheduleSchema = z.object({
-  buildingId: z.string(),
-  zoneId: z.string().optional(),
+  buildingId: z.string().trim(),
+  zoneId: z.string().trim().optional(),
   name: z.string().trim().min(1).max(200),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
   type: z.enum(['HVAC', 'LIGHTING', 'ACCESS', 'MAINTENANCE', 'CUSTOM']),
   config: z.object({
-    startTime: z.string().optional(),
-    endTime: z.string().optional(),
+    startTime: z.string().trim().optional(),
+    endTime: z.string().trim().optional(),
     daysOfWeek: z.array(z.number().min(0).max(6)).optional(),
     temperature: z.number().optional(),
     brightness: z.number().min(0).max(100).optional(),
@@ -24,8 +24,8 @@ const createScheduleSchema = z.object({
     actions: z
       .array(
         z.object({
-          deviceId: z.string().optional(),
-          command: z.string(),
+          deviceId: z.string().trim().optional(),
+          command: z.string().trim(),
           params: z.record(z.unknown()).optional(),
         })
       )

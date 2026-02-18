@@ -6,20 +6,20 @@ import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 
 const createDeadlineSchema = z.object({
-  name: z.string().min(1, 'name is required'),
-  category: z.string().min(1, 'category is required'),
+  name: z.string().trim().min(1, 'name is required'),
+  category: z.string().trim().min(1, 'category is required'),
   dueDate: z
     .string()
     .min(1, 'dueDate is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  renewalFrequency: z.string().nullable().optional(),
-  ownerEmail: z.string().nullable().optional(),
-  status: z.string().optional(),
-  notes: z.string().nullable().optional(),
+  renewalFrequency: z.string().trim().nullable().optional(),
+  ownerEmail: z.string().trim().nullable().optional(),
+  status: z.string().trim().optional(),
+  notes: z.string().trim().nullable().optional(),
 });
 
 const updateDeadlineSchema = createDeadlineSchema.partial().extend({
-  lastCompletedAt: z.string().nullable().optional(),
+  lastCompletedAt: z.string().trim().nullable().optional(),
 });
 
 const logger = createLogger('certifications');

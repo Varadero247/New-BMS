@@ -40,15 +40,20 @@ const orderCreateSchema = z.object({
   portalUserId: z.string().trim().uuid(),
   type: z.enum(['PURCHASE', 'SALES', 'RETURN']),
   totalAmount: z.number().positive(),
-  currency: z.string().length(3).default('GBP'),
+  currency: z.string().trim().length(3).default('GBP'),
   items: z.any(),
   shippingAddress: z.any().optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   expectedDelivery: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
 });
@@ -57,12 +62,17 @@ const orderUpdateSchema = z.object({
   totalAmount: z.number().positive().optional(),
   items: z.any().optional(),
   shippingAddress: z.any().optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   expectedDelivery: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
 });

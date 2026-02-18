@@ -4,27 +4,27 @@ import { prisma } from '../../prisma';
 import { createLogger } from '@ims/monitoring';
 
 const githubPushSchema = z.object({
-  ref: z.string().optional(),
+  ref: z.string().trim().optional(),
   commits: z
     .array(
       z.object({
-        id: z.string().optional(),
-        sha: z.string().optional(),
-        message: z.string().optional(),
-        title: z.string().optional(),
+        id: z.string().trim().optional(),
+        sha: z.string().trim().optional(),
+        message: z.string().trim().optional(),
+        title: z.string().trim().optional(),
       })
     )
     .optional(),
   head_commit: z
     .object({
-      message: z.string().optional(),
+      message: z.string().trim().optional(),
     })
     .nullable()
     .optional(),
   repository: z
     .object({
-      full_name: z.string().optional(),
-      name: z.string().optional(),
+      full_name: z.string().trim().optional(),
+      name: z.string().trim().optional(),
     })
     .optional(),
 });

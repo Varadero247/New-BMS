@@ -34,7 +34,7 @@ function generateIncidentRef(): string {
 
 const incidentCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  description: z.string().max(5000).optional(),
+  description: z.string().trim().max(5000).optional(),
   type: z.enum([
     'DATA_BREACH',
     'UNAUTHORIZED_ACCESS',
@@ -47,24 +47,24 @@ const incidentCreateSchema = z.object({
     'OTHER',
   ]),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
-  affectedSystems: z.array(z.string()).optional(),
-  affectedAssetIds: z.array(z.string()).optional(),
+  affectedSystems: z.array(z.string().trim()).optional(),
+  affectedAssetIds: z.array(z.string().trim()).optional(),
   personalDataInvolved: z.boolean().optional().default(false),
-  reportedBy: z.string().max(200).optional(),
-  detectedAt: z.string().optional(),
+  reportedBy: z.string().trim().max(200).optional(),
+  detectedAt: z.string().trim().optional(),
 });
 
 const investigateSchema = z.object({
   investigationNotes: z.string().trim().min(1).max(10000),
-  rootCause: z.string().max(5000).optional(),
-  containmentActions: z.string().max(5000).optional(),
-  assignedTo: z.string().max(200).optional(),
+  rootCause: z.string().trim().max(5000).optional(),
+  containmentActions: z.string().trim().max(5000).optional(),
+  assignedTo: z.string().trim().max(200).optional(),
 });
 
 const closeSchema = z.object({
   lessonsLearned: z.string().trim().min(1).max(5000),
-  correctiveActions: z.string().max(5000).optional(),
-  preventiveActions: z.string().max(5000).optional(),
+  correctiveActions: z.string().trim().max(5000).optional(),
+  preventiveActions: z.string().trim().max(5000).optional(),
 });
 
 // ---------------------------------------------------------------------------

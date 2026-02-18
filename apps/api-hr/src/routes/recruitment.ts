@@ -95,10 +95,10 @@ router.post('/jobs', async (req: Request, res: Response) => {
       departmentId: z.string().trim().uuid(),
       positionId: z.string().trim().uuid().optional(),
       description: z.string().trim().min(1),
-      responsibilities: z.string(),
-      requirements: z.string(),
-      preferredSkills: z.string().optional(),
-      benefits: z.string().optional(),
+      responsibilities: z.string().trim(),
+      requirements: z.string().trim(),
+      preferredSkills: z.string().trim().optional(),
+      benefits: z.string().trim().optional(),
       employmentType: z.enum([
         'FULL_TIME',
         'PART_TIME',
@@ -110,8 +110,8 @@ router.post('/jobs', async (req: Request, res: Response) => {
       ]),
       experienceMin: z.number().optional(),
       experienceMax: z.number().optional(),
-      educationLevel: z.string().optional(),
-      location: z.string(),
+      educationLevel: z.string().trim().optional(),
+      location: z.string().trim(),
       isRemote: z.boolean().default(false),
       remoteType: z.enum(['FULLY_REMOTE', 'HYBRID', 'OCCASIONAL']).optional(),
       salaryMin: z.number().nonnegative().optional(),
@@ -123,8 +123,8 @@ router.post('/jobs', async (req: Request, res: Response) => {
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
       internalOnly: z.boolean().default(false),
-      hiringManagerId: z.string().optional(),
-      recruiterId: z.string().optional(),
+      hiringManagerId: z.string().trim().optional(),
+      recruiterId: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -162,8 +162,8 @@ router.put('/jobs/:id', checkOwnership(prisma.jobPosting), async (req: Request, 
   try {
     const schema = z
       .object({
-        title: z.string().optional(),
-        description: z.string().optional(),
+        title: z.string().trim().optional(),
+        description: z.string().trim().optional(),
         status: z
           .enum(['DRAFT', 'PUBLISHED', 'ON_HOLD', 'CLOSED', 'FILLED', 'CANCELLED'])
           .optional(),
@@ -289,9 +289,9 @@ router.post('/applicants', async (req: Request, res: Response) => {
       firstName: z.string().trim().min(1).max(200),
       lastName: z.string().trim().min(1).max(200),
       email: z.string().trim().email(),
-      phone: z.string().optional(),
+      phone: z.string().trim().optional(),
       linkedinUrl: z.string().trim().url().optional(),
-      coverLetter: z.string().optional(),
+      coverLetter: z.string().trim().optional(),
       resumeUrl: z.string().trim().url('Invalid URL').optional(),
       portfolioUrl: z.string().trim().url().optional(),
       source: z.enum([
@@ -305,9 +305,9 @@ router.post('/applicants', async (req: Request, res: Response) => {
         'INTERNAL',
         'OTHER',
       ]),
-      referredBy: z.string().optional(),
-      currentCompany: z.string().optional(),
-      currentTitle: z.string().optional(),
+      referredBy: z.string().trim().optional(),
+      currentCompany: z.string().trim().optional(),
+      currentTitle: z.string().trim().optional(),
       yearsExperience: z.number().optional(),
       noticePeriod: z.number().optional(),
       expectedSalary: z.number().nonnegative().optional(),
@@ -374,7 +374,7 @@ router.put(
             'ONBOARDING',
           ])
           .optional(),
-        rejectionReason: z.string().optional(),
+        rejectionReason: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -423,11 +423,11 @@ router.post('/interviews', async (req: Request, res: Response) => {
         .min(1)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       duration: z.number().default(60),
-      location: z.string().optional(),
+      location: z.string().trim().optional(),
       meetingUrl: z.string().trim().url().optional(),
-      interviewerIds: z.array(z.string()),
-      organizerId: z.string(),
-      agenda: z.string().optional(),
+      interviewerIds: z.array(z.string().trim()),
+      organizerId: z.string().trim(),
+      agenda: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -477,9 +477,9 @@ router.put(
             'RESCHEDULED',
           ])
           .optional(),
-        scheduledAt: z.string().optional(),
-        cancelledReason: z.string().optional(),
-        notes: z.string().optional(),
+        scheduledAt: z.string().trim().optional(),
+        cancelledReason: z.string().trim().optional(),
+        notes: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -512,15 +512,15 @@ router.put(
 router.post('/interviews/:id/evaluate', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      evaluatorId: z.string(),
+      evaluatorId: z.string().trim(),
       overallRating: z.number().min(1).max(5),
       technicalRating: z.number().min(1).max(5).optional(),
       communicationRating: z.number().min(1).max(5).optional(),
       cultureFitRating: z.number().min(1).max(5).optional(),
       leadershipRating: z.number().min(1).max(5).optional(),
-      strengths: z.string().optional(),
-      concerns: z.string().optional(),
-      additionalNotes: z.string().optional(),
+      strengths: z.string().trim().optional(),
+      concerns: z.string().trim().optional(),
+      additionalNotes: z.string().trim().optional(),
       recommendation: z.enum(['STRONG_HIRE', 'HIRE', 'MAYBE', 'NO_HIRE', 'STRONG_NO_HIRE']),
       recommendedSalary: z.number().nonnegative().optional(),
     });

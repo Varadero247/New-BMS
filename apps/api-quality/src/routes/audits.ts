@@ -30,11 +30,11 @@ const createSchema = z.object({
     .enum(['INTERNAL', 'EXTERNAL', 'SUPPLIER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE'])
     .default('INTERNAL'),
   scope: z.string().trim().min(1).max(2000),
-  isoClause: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
+  isoClause: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
   leadAuditor: z.string().trim().min(1).max(200),
-  auditTeam: z.string().max(2000).optional().nullable(),
-  auditee: z.string().max(200).optional().nullable(),
+  auditTeam: z.string().trim().max(2000).optional().nullable(),
+  auditee: z.string().trim().max(200).optional().nullable(),
   scheduledDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -45,15 +45,15 @@ const createSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  objectives: z.string().max(2000).optional().nullable(),
-  criteria: z.string().max(2000).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  objectives: z.string().trim().max(2000).optional().nullable(),
+  criteria: z.string().trim().max(2000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']).optional(),
-  findings: z.string().max(10000).optional().nullable(),
-  conclusions: z.string().max(5000).optional().nullable(),
+  findings: z.string().trim().max(10000).optional().nullable(),
+  conclusions: z.string().trim().max(5000).optional().nullable(),
   completedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

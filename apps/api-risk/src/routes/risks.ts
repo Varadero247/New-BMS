@@ -40,22 +40,22 @@ const categoryEnum = z.enum([
 ]);
 
 const createRiskSchema = z.object({
-  title: z.string().min(1, 'title is required'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'title is required'),
+  description: z.string().trim().optional(),
   category: categoryEnum,
-  subcategory: z.string().optional(),
-  source: z.string().optional(),
-  owner: z.string().optional(),
-  ownerName: z.string().optional(),
-  ownerJobTitle: z.string().optional(),
-  department: z.string().optional(),
-  causes: z.array(z.string()).optional(),
-  riskEvent: z.string().optional(),
-  consequences: z.array(z.string()).optional(),
-  affectedObjectives: z.array(z.string()).optional(),
-  internalContext: z.string().optional(),
-  externalContext: z.string().optional(),
-  regulatoryRef: z.string().optional(),
+  subcategory: z.string().trim().optional(),
+  source: z.string().trim().optional(),
+  owner: z.string().trim().optional(),
+  ownerName: z.string().trim().optional(),
+  ownerJobTitle: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  causes: z.array(z.string().trim()).optional(),
+  riskEvent: z.string().trim().optional(),
+  consequences: z.array(z.string().trim()).optional(),
+  affectedObjectives: z.array(z.string().trim()).optional(),
+  internalContext: z.string().trim().optional(),
+  externalContext: z.string().trim().optional(),
+  regulatoryRef: z.string().trim().optional(),
   sourceModule: z
     .enum([
       'MANUAL',
@@ -72,18 +72,18 @@ const createRiskSchema = z.object({
       'AUDIT_MOD',
     ])
     .optional(),
-  sourceCoshhId: z.string().optional(),
-  sourceFireRiskId: z.string().optional(),
-  sourceChemicalId: z.string().optional(),
-  sourceIncidentId: z.string().optional(),
-  sourceAuditFindingId: z.string().optional(),
-  sourceEmergencyId: z.string().optional(),
+  sourceCoshhId: z.string().trim().optional(),
+  sourceFireRiskId: z.string().trim().optional(),
+  sourceChemicalId: z.string().trim().optional(),
+  sourceIncidentId: z.string().trim().optional(),
+  sourceAuditFindingId: z.string().trim().optional(),
+  sourceEmergencyId: z.string().trim().optional(),
   likelihood: likelihoodEnum.optional(),
   consequence: consequenceEnum.optional(),
   inherentScore: z.number().nonnegative().optional(),
   inherentLikelihood: z.number().min(1).max(5).optional(),
   inherentConsequence: z.number().min(1).max(5).optional(),
-  inherentRiskLevel: z.string().optional(),
+  inherentRiskLevel: z.string().trim().optional(),
   inherentVelocity: z.enum(['IMMEDIATE', 'SHORT_TERM', 'MEDIUM_TERM', 'LONG_TERM']).optional(),
   controlEffectiveness: z.enum(['STRONG', 'ADEQUATE', 'WEAK', 'NONE_EFFECTIVE']).optional(),
   residualLikelihood: likelihoodEnum.optional(),
@@ -91,12 +91,12 @@ const createRiskSchema = z.object({
   residualScore: z.number().nonnegative().optional(),
   residualLikelihoodNum: z.number().min(1).max(5).optional(),
   residualConsequenceNum: z.number().min(1).max(5).optional(),
-  residualRiskLevel: z.string().optional(),
-  appetiteStatus: z.string().optional(),
-  alarpStatus: z.string().optional(),
+  residualRiskLevel: z.string().trim().optional(),
+  appetiteStatus: z.string().trim().optional(),
+  alarpStatus: z.string().trim().optional(),
   acceptedByManagement: z.boolean().optional(),
-  acceptedBy: z.string().optional(),
-  acceptanceJustification: z.string().optional(),
+  acceptedBy: z.string().trim().optional(),
+  acceptanceJustification: z.string().trim().optional(),
   treatment: z
     .enum([
       'ACCEPT',
@@ -110,8 +110,8 @@ const createRiskSchema = z.object({
       'EXPLOIT',
     ])
     .optional(),
-  treatmentPlan: z.string().optional(),
-  treatmentDescription: z.string().optional(),
+  treatmentPlan: z.string().trim().optional(),
+  treatmentDescription: z.string().trim().optional(),
   treatmentTargetScore: z.number().nonnegative().optional(),
   treatmentTargetDate: z
     .string()
@@ -120,18 +120,18 @@ const createRiskSchema = z.object({
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
   treatmentCost: z.number().nonnegative().optional(),
-  treatmentBenefit: z.string().optional(),
-  earlyWarningSigns: z.array(z.string()).optional(),
-  reviewFrequency: z.string().optional(),
+  treatmentBenefit: z.string().trim().optional(),
+  earlyWarningSigns: z.array(z.string().trim()).optional(),
+  reviewFrequency: z.string().trim().optional(),
   nextReviewDate: z
     .string()
     .trim()
     .datetime({ offset: true })
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
-  relatedRiskIds: z.array(z.string()).optional(),
-  aggregationGroup: z.string().optional(),
-  controls: z.string().optional(),
+  relatedRiskIds: z.array(z.string().trim()).optional(),
+  aggregationGroup: z.string().trim().optional(),
+  controls: z.string().trim().optional(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'TREATING', 'MONITORING', 'CLOSED']).optional(),
   dueDate: z
     .string()
@@ -145,10 +145,10 @@ const createRiskSchema = z.object({
     .datetime({ offset: true })
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
-  linkedIncident: z.string().optional(),
-  linkedAudit: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  notes: z.string().optional(),
+  linkedIncident: z.string().trim().optional(),
+  linkedAudit: z.string().trim().optional(),
+  tags: z.array(z.string().trim()).optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateRiskSchema = createRiskSchema.partial();
@@ -418,7 +418,10 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const crossModuleSchema = z
-      .object({ id: z.string().min(1, 'id is required'), title: z.string().optional() })
+      .object({
+        id: z.string().trim().min(1, 'id is required'),
+        title: z.string().trim().optional(),
+      })
       .passthrough();
     const parsed = crossModuleSchema.safeParse(req.body);
     if (!parsed.success)
@@ -452,7 +455,10 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const fraSchema = z
-      .object({ id: z.string().min(1, 'id is required'), title: z.string().optional() })
+      .object({
+        id: z.string().trim().min(1, 'id is required'),
+        title: z.string().trim().optional(),
+      })
       .passthrough();
     const parsedFra = fraSchema.safeParse(req.body);
     if (!parsedFra.success)
@@ -486,7 +492,10 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const incidentSchema = z
-      .object({ id: z.string().min(1, 'id is required'), title: z.string().optional() })
+      .object({
+        id: z.string().trim().min(1, 'id is required'),
+        title: z.string().trim().optional(),
+      })
       .passthrough();
     const parsedInc = incidentSchema.safeParse(req.body);
     if (!parsedInc.success)
@@ -520,7 +529,7 @@ router.post('/from-audit/:id', authenticate, async (req: Request, res: Response)
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const auditSchema = z
-      .object({ id: z.string().optional(), title: z.string().optional() })
+      .object({ id: z.string().trim().optional(), title: z.string().trim().optional() })
       .passthrough();
     const parsedAudit = auditSchema.safeParse(req.body);
     if (!parsedAudit.success)

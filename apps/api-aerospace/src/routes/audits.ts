@@ -38,7 +38,7 @@ async function generateFindingRefNumber(auditRef: string): Promise<string> {
 // ============================================
 
 const createAuditSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().trim().min(1, 'Title is required'),
   auditType: z.enum([
     'INTERNAL',
     'EXTERNAL',
@@ -47,19 +47,19 @@ const createAuditSchema = z.object({
     'CERTIFICATION',
     'SURVEILLANCE',
   ]),
-  standard: z.string().optional().default('AS9100D'),
-  scope: z.string().min(1, 'Scope is required'),
+  standard: z.string().trim().optional().default('AS9100D'),
+  scope: z.string().trim().min(1, 'Scope is required'),
   scheduledDate: z
     .string()
     .min(1, 'Scheduled date is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  leadAuditor: z.string().min(1, 'Lead auditor is required'),
-  auditTeam: z.array(z.string()).optional().default([]),
-  auditee: z.string().optional(),
-  location: z.string().optional(),
-  clauses: z.array(z.string()).optional().default([]),
-  objectives: z.string().optional(),
-  notes: z.string().optional(),
+  leadAuditor: z.string().trim().min(1, 'Lead auditor is required'),
+  auditTeam: z.array(z.string().trim()).optional().default([]),
+  auditee: z.string().trim().optional(),
+  location: z.string().trim().optional(),
+  clauses: z.array(z.string().trim()).optional().default([]),
+  objectives: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateAuditSchema = z.object({
@@ -67,8 +67,8 @@ const updateAuditSchema = z.object({
   auditType: z
     .enum(['INTERNAL', 'EXTERNAL', 'CUSTOMER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE'])
     .optional(),
-  standard: z.string().optional(),
-  scope: z.string().optional(),
+  standard: z.string().trim().optional(),
+  scope: z.string().trim().optional(),
   scheduledDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -77,19 +77,19 @@ const updateAuditSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  leadAuditor: z.string().optional(),
-  auditTeam: z.array(z.string()).optional(),
-  auditee: z.string().optional(),
-  location: z.string().optional(),
-  clauses: z.array(z.string()).optional(),
-  objectives: z.string().optional(),
+  leadAuditor: z.string().trim().optional(),
+  auditTeam: z.array(z.string().trim()).optional(),
+  auditee: z.string().trim().optional(),
+  location: z.string().trim().optional(),
+  clauses: z.array(z.string().trim()).optional(),
+  objectives: z.string().trim().optional(),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'DEFERRED']).optional(),
-  summary: z.string().optional(),
-  notes: z.string().optional(),
+  summary: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const createFindingSchema = z.object({
-  auditId: z.string().min(1, 'Audit ID is required'),
+  auditId: z.string().trim().min(1, 'Audit ID is required'),
   findingType: z.enum([
     'NONCONFORMITY',
     'OBSERVATION',
@@ -97,11 +97,11 @@ const createFindingSchema = z.object({
     'POSITIVE_FINDING',
   ]),
   severity: z.enum(['MAJOR', 'MINOR']).optional(),
-  clause: z.string().optional(),
-  description: z.string().min(1, 'Description is required'),
-  evidence: z.string().optional(),
-  requirement: z.string().optional(),
-  responsiblePerson: z.string().optional(),
+  clause: z.string().trim().optional(),
+  description: z.string().trim().min(1, 'Description is required'),
+  evidence: z.string().trim().optional(),
+  requirement: z.string().trim().optional(),
+  responsiblePerson: z.string().trim().optional(),
   targetDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -109,9 +109,9 @@ const createFindingSchema = z.object({
 });
 
 const closeFindingSchema = z.object({
-  correctiveAction: z.string().min(1, 'Corrective action is required'),
-  closedBy: z.string().optional(),
-  verificationEvidence: z.string().optional(),
+  correctiveAction: z.string().trim().min(1, 'Corrective action is required'),
+  closedBy: z.string().trim().optional(),
+  verificationEvidence: z.string().trim().optional(),
 });
 
 // ============================================

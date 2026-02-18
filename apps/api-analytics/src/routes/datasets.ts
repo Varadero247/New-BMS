@@ -41,21 +41,21 @@ const dataSourceEnum = z.enum([
 
 const datasetCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  description: z.string().max(1000).optional().nullable(),
+  description: z.string().trim().max(1000).optional().nullable(),
   source: dataSourceEnum,
-  query: z.string().min(1),
+  query: z.string().trim().min(1),
   schema: z.record(z.any()),
-  refreshSchedule: z.string().max(100).optional().nullable(),
+  refreshSchedule: z.string().trim().max(100).optional().nullable(),
   isActive: z.boolean().optional().default(true),
 });
 
 const datasetUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(1000).optional().nullable(),
+  description: z.string().trim().max(1000).optional().nullable(),
   source: dataSourceEnum.optional(),
-  query: z.string().min(1).optional(),
+  query: z.string().trim().min(1).optional(),
   schema: z.record(z.any()).optional(),
-  refreshSchedule: z.string().max(100).optional().nullable(),
+  refreshSchedule: z.string().trim().max(100).optional().nullable(),
   isActive: z.boolean().optional(),
 });
 

@@ -49,16 +49,16 @@ async function generateHFRefNumber(): Promise<string> {
 // ============================================
 
 const createIncidentSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().min(1, 'Description is required'),
   category: z.enum(DIRTY_DOZEN_CATEGORIES),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-  location: z.string().optional(),
-  shift: z.string().optional(),
-  personnelInvolved: z.array(z.string()).optional(),
-  rootCause: z.string().optional(),
-  correctiveAction: z.string().optional(),
-  capaRef: z.string().optional(),
+  location: z.string().trim().optional(),
+  shift: z.string().trim().optional(),
+  personnelInvolved: z.array(z.string().trim()).optional(),
+  rootCause: z.string().trim().optional(),
+  correctiveAction: z.string().trim().optional(),
+  capaRef: z.string().trim().optional(),
   incidentDate: z
     .string()
     .trim()
@@ -66,8 +66,8 @@ const createIncidentSchema = z.object({
 });
 
 const createFatigueSchema = z.object({
-  personnelId: z.string().min(1, 'Personnel ID is required'),
-  personnelName: z.string().min(1, 'Personnel name is required'),
+  personnelId: z.string().trim().min(1, 'Personnel ID is required'),
+  personnelName: z.string().trim().min(1, 'Personnel name is required'),
   assessmentDate: z
     .string()
     .trim()
@@ -80,9 +80,9 @@ const createFatigueSchema = z.object({
     .min(1, 'Fatigue score must be at least 1')
     .max(10, 'Fatigue score must be at most 10'),
   riskLevel: z.enum(['LOW', 'MODERATE', 'HIGH', 'CRITICAL']),
-  mitigations: z.string().optional(),
+  mitigations: z.string().trim().optional(),
   fitForDuty: z.boolean(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // ============================================

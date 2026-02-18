@@ -26,11 +26,11 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 const approvalCreateSchema = z.object({
   type: z.enum(['DOCUMENT', 'ORDER', 'CHANGE_REQUEST', 'QUALITY']),
   referenceId: z.string().trim().min(1).max(200),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const decisionSchema = z.object({
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

@@ -28,16 +28,16 @@ const createIncidentSchema = z.object({
     .trim()
     .datetime({ offset: true })
     .or(z.string().trim().datetime({ offset: true })),
-  location: z.string().min(1, 'location is required'),
-  description: z.string().min(1, 'description is required'),
-  personsInvolved: z.array(z.string()).optional(),
-  immediateActions: z.string().optional(),
+  location: z.string().trim().min(1, 'location is required'),
+  description: z.string().trim().min(1, 'description is required'),
+  personsInvolved: z.array(z.string().trim()).optional(),
+  immediateActions: z.string().trim().optional(),
   exposureRoutes: z.array(exposureRouteEnum).optional(),
   medicalAttentionGiven: z.boolean().optional(),
   riddorReportable: z.boolean().optional(),
-  linkedIncidentId: z.string().optional(),
-  rootCauseAnalysis: z.string().optional(),
-  correctiveActions: z.string().optional(),
+  linkedIncidentId: z.string().trim().optional(),
+  rootCauseAnalysis: z.string().trim().optional(),
+  correctiveActions: z.string().trim().optional(),
 });
 
 const updateIncidentSchema = createIncidentSchema.partial();

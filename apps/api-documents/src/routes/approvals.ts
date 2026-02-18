@@ -9,11 +9,11 @@ router.param('id', validateIdParam());
 const logger = createLogger('documents-approvals');
 
 const createSchema = z.object({
-  documentId: z.string().min(1, 'Document ID is required'),
-  approver: z.string().min(1, 'Approver is required'),
-  approverName: z.string().optional(),
+  documentId: z.string().trim().min(1, 'Document ID is required'),
+  approver: z.string().trim().min(1, 'Approver is required'),
+  approverName: z.string().trim().optional(),
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
-  comments: z.string().optional(),
+  comments: z.string().trim().optional(),
   decidedAt: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
 });
 const updateSchema = createSchema.partial();

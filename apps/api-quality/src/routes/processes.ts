@@ -97,45 +97,45 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       processName: z.string().trim().min(1).max(200),
       processType: z.enum(['MANAGEMENT', 'CORE', 'SUPPORT']),
-      isoClause: z.string().optional(),
+      isoClause: z.string().trim().optional(),
       department: z.string().trim().min(1).max(200),
       processOwner: z.string().trim().min(1).max(200),
-      version: z.string().default('1.0'),
+      version: z.string().trim().default('1.0'),
       status: z.enum(['DRAFT', 'ACTIVE', 'UNDER_REVIEW', 'RETIRED']).default('DRAFT'),
       // Turtle Diagram
       purposeScope: z.string().trim().min(1).max(2000),
       inputs: z.string().trim().min(1).max(200),
       outputs: z.string().trim().min(1).max(200),
-      customerOfOutput: z.string().optional(),
-      resourcesRequired: z.string().optional(),
-      competenceNeeded: z.string().optional(),
-      keyActivities: z.string().optional(),
-      controlsMethods: z.string().optional(),
+      customerOfOutput: z.string().trim().optional(),
+      resourcesRequired: z.string().trim().optional(),
+      competenceNeeded: z.string().trim().optional(),
+      keyActivities: z.string().trim().optional(),
+      controlsMethods: z.string().trim().optional(),
       // Performance KPIs
-      kpi1Description: z.string().optional(),
-      kpi1Target: z.string().optional(),
-      kpi2Description: z.string().optional(),
-      kpi2Target: z.string().optional(),
-      kpi3Description: z.string().optional(),
-      kpi3Target: z.string().optional(),
-      monitoringMethod: z.string().optional(),
+      kpi1Description: z.string().trim().optional(),
+      kpi1Target: z.string().trim().optional(),
+      kpi2Description: z.string().trim().optional(),
+      kpi2Target: z.string().trim().optional(),
+      kpi3Description: z.string().trim().optional(),
+      kpi3Target: z.string().trim().optional(),
+      monitoringMethod: z.string().trim().optional(),
       measurementFrequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY']).optional(),
       // Linkage
-      precedingProcesses: z.string().optional(),
-      followingProcesses: z.string().optional(),
-      relatedDocuments: z.string().optional(),
-      relatedRiskRef: z.string().optional(),
-      relatedLegalRef: z.string().optional(),
+      precedingProcesses: z.string().trim().optional(),
+      followingProcesses: z.string().trim().optional(),
+      relatedDocuments: z.string().trim().optional(),
+      relatedRiskRef: z.string().trim().optional(),
+      relatedLegalRef: z.string().trim().optional(),
       // Review
       reviewFrequency: z
         .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
         .default('ANNUALLY'),
-      lastReviewed: z.string().optional(),
+      lastReviewed: z.string().trim().optional(),
       nextReviewDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      reviewNotes: z.string().optional(),
+      reviewNotes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -212,55 +212,55 @@ router.put('/:id', checkOwnership(prisma.qualProcess), async (req: AuthRequest, 
     const schema = z.object({
       processName: z.string().trim().min(1).max(200).optional(),
       processType: z.enum(['MANAGEMENT', 'CORE', 'SUPPORT']).optional(),
-      isoClause: z.string().nullable().optional(),
+      isoClause: z.string().trim().nullable().optional(),
       department: z.string().trim().min(1).max(200).optional(),
       processOwner: z.string().trim().min(1).max(200).optional(),
-      version: z.string().optional(),
+      version: z.string().trim().optional(),
       status: z.enum(['DRAFT', 'ACTIVE', 'UNDER_REVIEW', 'RETIRED']).optional(),
       // Turtle Diagram
       purposeScope: z.string().trim().min(1).max(2000).optional(),
       inputs: z.string().trim().min(1).max(200).optional(),
       outputs: z.string().trim().min(1).max(200).optional(),
-      customerOfOutput: z.string().nullable().optional(),
-      resourcesRequired: z.string().nullable().optional(),
-      competenceNeeded: z.string().nullable().optional(),
-      keyActivities: z.string().nullable().optional(),
-      controlsMethods: z.string().nullable().optional(),
+      customerOfOutput: z.string().trim().nullable().optional(),
+      resourcesRequired: z.string().trim().nullable().optional(),
+      competenceNeeded: z.string().trim().nullable().optional(),
+      keyActivities: z.string().trim().nullable().optional(),
+      controlsMethods: z.string().trim().nullable().optional(),
       // Performance KPIs
-      kpi1Description: z.string().nullable().optional(),
-      kpi1Target: z.string().nullable().optional(),
-      kpi2Description: z.string().nullable().optional(),
-      kpi2Target: z.string().nullable().optional(),
-      kpi3Description: z.string().nullable().optional(),
-      kpi3Target: z.string().nullable().optional(),
-      monitoringMethod: z.string().nullable().optional(),
+      kpi1Description: z.string().trim().nullable().optional(),
+      kpi1Target: z.string().trim().nullable().optional(),
+      kpi2Description: z.string().trim().nullable().optional(),
+      kpi2Target: z.string().trim().nullable().optional(),
+      kpi3Description: z.string().trim().nullable().optional(),
+      kpi3Target: z.string().trim().nullable().optional(),
+      monitoringMethod: z.string().trim().nullable().optional(),
       measurementFrequency: z
         .enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY'])
         .nullable()
         .optional(),
       // Linkage
-      precedingProcesses: z.string().nullable().optional(),
-      followingProcesses: z.string().nullable().optional(),
-      relatedDocuments: z.string().nullable().optional(),
-      relatedRiskRef: z.string().nullable().optional(),
-      relatedLegalRef: z.string().nullable().optional(),
+      precedingProcesses: z.string().trim().nullable().optional(),
+      followingProcesses: z.string().trim().nullable().optional(),
+      relatedDocuments: z.string().trim().nullable().optional(),
+      relatedRiskRef: z.string().trim().nullable().optional(),
+      relatedLegalRef: z.string().trim().nullable().optional(),
       // Review
       reviewFrequency: z
         .enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY', 'BI_ANNUALLY', 'ON_CHANGE'])
         .optional(),
-      lastReviewed: z.string().nullable().optional(),
+      lastReviewed: z.string().trim().nullable().optional(),
       nextReviewDate: z
         .string()
         .nullable()
         .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      reviewNotes: z.string().nullable().optional(),
+      reviewNotes: z.string().trim().nullable().optional(),
       // AI fields
-      aiAnalysis: z.string().nullable().optional(),
-      aiProcessGaps: z.string().nullable().optional(),
-      aiRiskPoints: z.string().nullable().optional(),
-      aiKpiSuggestions: z.string().nullable().optional(),
-      aiIsoAlignment: z.string().nullable().optional(),
+      aiAnalysis: z.string().trim().nullable().optional(),
+      aiProcessGaps: z.string().trim().nullable().optional(),
+      aiRiskPoints: z.string().trim().nullable().optional(),
+      aiKpiSuggestions: z.string().trim().nullable().optional(),
+      aiIsoAlignment: z.string().trim().nullable().optional(),
       aiGenerated: z.boolean().optional(),
     });
 

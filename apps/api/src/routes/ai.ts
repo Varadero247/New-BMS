@@ -26,16 +26,16 @@ Format your response as JSON with the following structure:
 // Validation schemas
 const settingsSchema = z.object({
   provider: z.enum(['OPENAI', 'ANTHROPIC', 'GROK']),
-  apiKey: z.string().optional(),
-  model: z.string().optional(),
-  defaultPrompt: z.string().optional(),
+  apiKey: z.string().trim().optional(),
+  model: z.string().trim().optional(),
+  defaultPrompt: z.string().trim().optional(),
 });
 
 const analyseSchema = z.object({
   sourceType: z.enum(['risk', 'incident', 'aspect', 'nonconformance']),
-  sourceId: z.string(),
-  selectedText: z.string().optional(),
-  customPrompt: z.string().optional(),
+  sourceId: z.string().trim(),
+  selectedText: z.string().trim().optional(),
+  customPrompt: z.string().trim().optional(),
 });
 
 // Helper function to call AI providers

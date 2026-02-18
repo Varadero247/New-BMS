@@ -87,7 +87,7 @@ router.post('/', async (req: Request, res: Response) => {
     const schema = z.object({
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       category: z.enum([
         'APPROVAL',
         'REVIEW',
@@ -109,7 +109,7 @@ router.post('/', async (req: Request, res: Response) => {
       rules: z.record(z.unknown()).optional(),
       defaultSlaHours: z.number().nonnegative().optional(),
       escalationConfig: z.record(z.unknown()).optional(),
-      createdById: z.string().optional(),
+      createdById: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -155,7 +155,7 @@ router.put(
     try {
       const schema = z.object({
         name: z.string().trim().min(1).max(200).optional(),
-        description: z.string().optional(),
+        description: z.string().trim().optional(),
         triggerType: triggerTypeEnum.optional(),
         triggerConfig: z.record(z.unknown()).optional(),
         steps: z.unknown().optional(),

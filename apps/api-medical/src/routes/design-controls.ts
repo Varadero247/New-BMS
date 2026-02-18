@@ -137,10 +137,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       deviceName: z.string().trim().min(1).max(200),
       deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']),
       intendedUse: z.string().trim().min(1).max(200),
-      patientPopulation: z.string().optional(),
-      regulatoryPathway: z.string().optional(),
+      patientPopulation: z.string().trim().optional(),
+      regulatoryPathway: z.string().trim().optional(),
       projectLead: z.string().trim().min(1).max(200),
-      teamMembers: z.array(z.string()).optional().default([]),
+      teamMembers: z.array(z.string().trim()).optional().default([]),
       startDate: z
         .string()
         .trim()
@@ -219,8 +219,8 @@ router.put(
           .enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB'])
           .optional(),
         intendedUse: z.string().trim().min(1).max(200).optional(),
-        patientPopulation: z.string().optional(),
-        regulatoryPathway: z.string().optional(),
+        patientPopulation: z.string().trim().optional(),
+        regulatoryPathway: z.string().trim().optional(),
         currentStage: z
           .enum([
             'PLANNING',
@@ -235,7 +235,7 @@ router.put(
           .optional(),
         status: z.enum(['ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
         projectLead: z.string().trim().min(1).max(200).optional(),
-        teamMembers: z.array(z.string()).optional(),
+        teamMembers: z.array(z.string().trim()).optional(),
         startDate: z
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -342,8 +342,8 @@ router.post('/:id/inputs', async (req: AuthRequest, res: Response) => {
       requirement: z.string().trim().min(1).max(200),
       source: z.string().trim().min(1).max(200),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-      traceToOutput: z.string().optional(),
-      traceToVerification: z.string().optional(),
+      traceToOutput: z.string().trim().optional(),
+      traceToVerification: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -405,9 +405,9 @@ router.post('/:id/outputs', async (req: AuthRequest, res: Response) => {
         'RISK_ANALYSIS',
       ]),
       description: z.string().trim().min(1).max(2000),
-      documentRef: z.string().optional(),
+      documentRef: z.string().trim().optional(),
       acceptanceCriteria: z.string().trim().min(1).max(200),
-      traceToInput: z.string().optional(),
+      traceToInput: z.string().trim().optional(),
       status: z.enum(['DRAFT', 'REVIEWED', 'APPROVED', 'SUPERSEDED']).optional(),
     });
 
@@ -475,10 +475,10 @@ router.post('/:id/reviews', async (req: AuthRequest, res: Response) => {
         .min(1)
         .max(2000)
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      reviewers: z.array(z.string()).min(1),
+      reviewers: z.array(z.string().trim()).min(1),
       decision: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'NEEDS_REWORK', 'REJECTED']),
-      minutes: z.string().optional(),
-      actionItems: z.string().optional(),
+      minutes: z.string().trim().optional(),
+      actionItems: z.string().trim().optional(),
       nextReviewDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -535,18 +535,18 @@ router.post('/:id/verifications', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      protocol: z.string().optional(),
+      protocol: z.string().trim().optional(),
       testMethod: z.string().trim().min(1).max(200),
       acceptanceCriteria: z.string().trim().min(1).max(200),
-      results: z.string().optional(),
+      results: z.string().trim().optional(),
       pass: z.boolean().optional(),
       completedDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      completedBy: z.string().optional(),
-      traceToInput: z.string().optional(),
-      traceToOutput: z.string().optional(),
+      completedBy: z.string().trim().optional(),
+      traceToInput: z.string().trim().optional(),
+      traceToOutput: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -602,16 +602,16 @@ router.post('/:id/validations', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      protocol: z.string().optional(),
+      protocol: z.string().trim().optional(),
       testMethod: z.string().trim().min(1).max(200),
       intendedUseConfirmed: z.boolean().optional(),
-      results: z.string().optional(),
+      results: z.string().trim().optional(),
       pass: z.boolean().optional(),
       completedDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      completedBy: z.string().optional(),
+      completedBy: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -674,10 +674,10 @@ router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response)
     }
 
     const schema = z.object({
-      reviewers: z.array(z.string()).min(1),
+      reviewers: z.array(z.string().trim()).min(1),
       decision: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'NEEDS_REWORK', 'REJECTED']),
-      minutes: z.string().optional(),
-      actionItems: z.string().optional(),
+      minutes: z.string().trim().optional(),
+      actionItems: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -874,7 +874,7 @@ router.post('/:id/transfer', async (req: AuthRequest, res: Response) => {
       mfgReadiness: z.boolean(),
       qaApproval: z.boolean(),
       raApproval: z.boolean(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -967,7 +967,7 @@ router.post('/:id/dhf', async (req: AuthRequest, res: Response) => {
         'OTHER',
       ]),
       documentRef: z.string().trim().min(1).max(200),
-      version: z.string().optional(),
+      version: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

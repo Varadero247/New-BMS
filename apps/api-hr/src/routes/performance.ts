@@ -50,16 +50,22 @@ router.post('/cycles', async (req: Request, res: Response) => {
       name: z.string().trim().min(1).max(200),
       year: z.number().int().min(2000).max(2100),
       cycleType: z.enum(['ANNUAL', 'SEMI_ANNUAL', 'QUARTERLY', 'CONTINUOUS']),
-      startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      endDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      goalSettingStart: z.string().optional(),
-      goalSettingEnd: z.string().optional(),
-      midYearReviewStart: z.string().optional(),
-      midYearReviewEnd: z.string().optional(),
-      annualReviewStart: z.string().optional(),
-      annualReviewEnd: z.string().optional(),
+      startDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      endDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      goalSettingStart: z.string().trim().optional(),
+      goalSettingEnd: z.string().trim().optional(),
+      midYearReviewStart: z.string().trim().optional(),
+      midYearReviewEnd: z.string().trim().optional(),
+      annualReviewStart: z.string().trim().optional(),
+      annualReviewEnd: z.string().trim().optional(),
       ratingScale: z.number().default(5),
-      ratingLabels: z.record(z.string()).optional(),
+      ratingLabels: z.record(z.string().trim()).optional(),
     });
 
     const data = schema.parse(req.body);
@@ -252,16 +258,16 @@ router.put(
   async (req: Request, res: Response) => {
     try {
       const schema = z.object({
-        selfAssessment: z.string().optional(),
+        selfAssessment: z.string().trim().optional(),
         selfRating: z.number().optional(),
-        managerAssessment: z.string().optional(),
+        managerAssessment: z.string().trim().optional(),
         managerRating: z.number().nonnegative().optional(),
         competencyRatings: z.record(z.number()).optional(),
         overallRating: z.number().optional(),
-        overallComments: z.string().optional(),
-        strengths: z.string().optional(),
-        improvementAreas: z.string().optional(),
-        developmentPlan: z.string().optional(),
+        overallComments: z.string().trim().optional(),
+        strengths: z.string().trim().optional(),
+        improvementAreas: z.string().trim().optional(),
+        developmentPlan: z.string().trim().optional(),
         status: z
           .enum([
             'DRAFT',
@@ -345,15 +351,18 @@ router.post('/goals', async (req: Request, res: Response) => {
       description: z.string().trim().min(1),
       category: z.enum(['PERFORMANCE', 'DEVELOPMENT', 'BEHAVIORAL', 'STRATEGIC', 'OPERATIONAL']),
       weight: z.number().min(0).max(100).default(0),
-      measurementCriteria: z.string(),
-      targetValue: z.string().optional(),
-      unit: z.string().optional(),
+      measurementCriteria: z.string().trim(),
+      targetValue: z.string().trim().optional(),
+      unit: z.string().trim().optional(),
       startDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      alignedToObjective: z.string().optional(),
+      dueDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      alignedToObjective: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -390,17 +399,17 @@ router.put(
   async (req: Request, res: Response) => {
     try {
       const schema = z.object({
-        title: z.string().optional(),
-        description: z.string().optional(),
+        title: z.string().trim().optional(),
+        description: z.string().trim().optional(),
         progress: z.number().min(0).max(100).optional(),
-        actualValue: z.string().optional(),
+        actualValue: z.string().trim().optional(),
         status: z
           .enum(['NOT_STARTED', 'IN_PROGRESS', 'AT_RISK', 'COMPLETED', 'EXCEEDED', 'CANCELLED'])
           .optional(),
         selfRating: z.number().optional(),
         managerRating: z.number().nonnegative().optional(),
         finalRating: z.number().optional(),
-        ratingComments: z.string().optional(),
+        ratingComments: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -431,8 +440,8 @@ router.post('/goals/:id/update', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       progressAfter: z.number().min(0).max(100),
-      updateNotes: z.string(),
-      updatedById: z.string(),
+      updateNotes: z.string().trim(),
+      updatedById: z.string().trim(),
       evidence: z.record(z.unknown()).optional(),
     });
 

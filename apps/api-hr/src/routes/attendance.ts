@@ -214,7 +214,7 @@ router.post('/clock-in', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
-      location: z.string().optional(),
+      location: z.string().trim().optional(),
       method: z
         .enum([
           'MANUAL',
@@ -302,7 +302,7 @@ router.post('/clock-out', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string().trim().uuid(),
-      location: z.string().optional(),
+      location: z.string().trim().optional(),
       method: z
         .enum([
           'MANUAL',
@@ -375,8 +375,8 @@ router.post('/clock-out', async (req: Request, res: Response) => {
 router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      clockIn: z.string().optional(),
-      clockOut: z.string().optional(),
+      clockIn: z.string().trim().optional(),
+      clockOut: z.string().trim().optional(),
       status: z
         .enum([
           'PRESENT',
@@ -389,7 +389,7 @@ router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: 
           'LATE',
         ])
         .optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -433,12 +433,12 @@ router.post('/', async (req: Request, res: Response) => {
         .string()
         .trim()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      clockIn: z.string().optional(),
-      clockOut: z.string().optional(),
+      clockIn: z.string().trim().optional(),
+      clockOut: z.string().trim().optional(),
       status: z
         .enum(['PRESENT', 'ABSENT', 'LATE', 'HALF_DAY', 'ON_LEAVE', 'WORK_FROM_HOME', 'HOLIDAY'])
         .default('PRESENT'),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -530,9 +530,15 @@ router.post('/shifts', async (req: Request, res: Response) => {
     const schema = z.object({
       name: z.string().trim().min(1).max(200),
       code: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
-      startTime: z.string().regex(/^\d{2}:\d{2}$/),
-      endTime: z.string().regex(/^\d{2}:\d{2}$/),
+      description: z.string().trim().optional(),
+      startTime: z
+        .string()
+        .trim()
+        .regex(/^\d{2}:\d{2}$/),
+      endTime: z
+        .string()
+        .trim()
+        .regex(/^\d{2}:\d{2}$/),
       breakDuration: z.number().default(60),
       workingHours: z.number().nonnegative(),
       monday: z.boolean().default(true),

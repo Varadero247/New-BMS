@@ -19,7 +19,10 @@ const evacuationTypeEnum = z.enum([
 ]);
 
 const createDrillSchema = z.object({
-  drillDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  drillDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   drillType: z.string().trim().min(1).max(200),
   evacuationType: evacuationTypeEnum,
   alarmedOrSilent: z.string().trim().min(1).max(200),
@@ -27,15 +30,15 @@ const createDrillSchema = z.object({
   evacuationTimeMinutes: z.number().nonnegative().optional(),
   targetTimeMinutes: z.number().nonnegative().optional(),
   targetAchieved: z.boolean().optional(),
-  issuesIdentified: z.array(z.string()).optional().default([]),
+  issuesIdentified: z.array(z.string().trim()).optional().default([]),
   assemblyPointReached: z.boolean().optional(),
   rollCallCompleted: z.boolean().optional(),
   rollCallTimeMinutes: z.number().nonnegative().optional(),
   peepEvacuationTested: z.boolean().optional(),
-  peepIssues: z.string().optional(),
-  correctiveActions: z.string().optional(),
-  completedBy: z.string().optional(),
-  witnesses: z.array(z.string()).optional().default([]),
+  peepIssues: z.string().trim().optional(),
+  correctiveActions: z.string().trim().optional(),
+  completedBy: z.string().trim().optional(),
+  witnesses: z.array(z.string().trim()).optional().default([]),
 });
 
 const updateDrillSchema = createDrillSchema.partial();

@@ -9,21 +9,21 @@ import { AppError } from '../middleware/error-handler';
 const router: IRouter = Router();
 
 const createMaintenanceSchema = z.object({
-  deviceId: z.string(),
+  deviceId: z.string().trim(),
   type: z.enum(['PREVENTIVE', 'CORRECTIVE', 'INSPECTION', 'EMERGENCY']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(2000),
-  scheduledAt: z.string().datetime({ offset: true }).optional(),
+  scheduledAt: z.string().trim().datetime({ offset: true }).optional(),
 });
 
 const updateMaintenanceSchema = z.object({
   status: z.enum(['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
   cost: z.number().min(0).optional(),
-  scheduledAt: z.string().datetime({ offset: true }).optional(),
-  completedAt: z.string().datetime({ offset: true }).optional(),
+  scheduledAt: z.string().trim().datetime({ offset: true }).optional(),
+  completedAt: z.string().trim().datetime({ offset: true }).optional(),
 });
 
 // Get all maintenance reports

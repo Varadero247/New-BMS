@@ -31,7 +31,7 @@ const scorecardCreateSchema = z.object({
   deliveryScore: z.number().min(0).max(100).optional().nullable(),
   responseScore: z.number().min(0).max(100).optional().nullable(),
   complianceScore: z.number().min(0).max(100).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

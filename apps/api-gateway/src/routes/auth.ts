@@ -27,17 +27,17 @@ const lockoutManager = getAccountLockoutManager();
 // Validation schemas
 const loginSchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(1),
+  password: z.string().trim().min(1),
 });
 
 const registerSchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(12).max(72),
+  password: z.string().trim().min(12).max(72),
   firstName: z.string().trim().min(1).max(200),
   lastName: z.string().trim().min(1).max(200),
-  phone: z.string().optional(),
-  department: z.string().optional(),
-  jobTitle: z.string().optional(),
+  phone: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  jobTitle: z.string().trim().optional(),
 });
 
 // POST /api/auth/login
@@ -322,7 +322,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
 // Refresh access token using refresh token
 router.post('/refresh', async (req, res) => {
   try {
-    const { refreshToken } = z.object({ refreshToken: z.string().min(1) }).parse(req.body);
+    const { refreshToken } = z.object({ refreshToken: z.string().trim().min(1) }).parse(req.body);
 
     // Verify refresh token
     const payload = verifyRefreshToken(refreshToken);
@@ -484,8 +484,8 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
   try {
     const { token, password } = z
       .object({
-        token: z.string().min(1),
-        password: z.string().min(12).max(72),
+        token: z.string().trim().min(1),
+        password: z.string().trim().min(12).max(72),
       })
       .parse(req.body);
 

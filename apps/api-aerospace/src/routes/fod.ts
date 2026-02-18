@@ -40,56 +40,56 @@ async function generateFodInspectionRefNumber(): Promise<string> {
 // ============================================
 
 const createFodIncidentSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
-  location: z.string().min(1, 'Location is required'),
-  area: z.string().optional(),
-  workCenter: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().min(1, 'Description is required'),
+  location: z.string().trim().min(1, 'Location is required'),
+  area: z.string().trim().optional(),
+  workCenter: z.string().trim().optional(),
   fodType: z
     .enum(['METALLIC', 'NON_METALLIC', 'HARDWARE', 'TOOLING', 'UNKNOWN'])
     .optional()
     .default('UNKNOWN'),
   severity: z.enum(['CRITICAL', 'MAJOR', 'MINOR']).optional().default('MINOR'),
-  foundBy: z.string().optional(),
+  foundBy: z.string().trim().optional(),
   dateFound: z
     .string()
     .min(1, 'Date found is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  affectedEquipment: z.string().optional(),
-  partNumberAffected: z.string().optional(),
-  immediateAction: z.string().optional(),
-  rootCause: z.string().optional(),
-  preventiveAction: z.string().optional(),
+  affectedEquipment: z.string().trim().optional(),
+  partNumberAffected: z.string().trim().optional(),
+  immediateAction: z.string().trim().optional(),
+  rootCause: z.string().trim().optional(),
+  preventiveAction: z.string().trim().optional(),
   safetyImpact: z.boolean().optional().default(false),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateFodIncidentSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  location: z.string().optional(),
-  area: z.string().optional(),
-  workCenter: z.string().optional(),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  location: z.string().trim().optional(),
+  area: z.string().trim().optional(),
+  workCenter: z.string().trim().optional(),
   fodType: z.enum(['METALLIC', 'NON_METALLIC', 'HARDWARE', 'TOOLING', 'UNKNOWN']).optional(),
   severity: z.enum(['CRITICAL', 'MAJOR', 'MINOR']).optional(),
-  affectedEquipment: z.string().optional(),
-  partNumberAffected: z.string().optional(),
-  immediateAction: z.string().optional(),
-  rootCause: z.string().optional(),
-  preventiveAction: z.string().optional(),
+  affectedEquipment: z.string().trim().optional(),
+  partNumberAffected: z.string().trim().optional(),
+  immediateAction: z.string().trim().optional(),
+  rootCause: z.string().trim().optional(),
+  preventiveAction: z.string().trim().optional(),
   status: z.enum(['OPEN', 'INVESTIGATING', 'CORRECTIVE_ACTION', 'CLOSED', 'CANCELLED']).optional(),
   closedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  closedBy: z.string().optional(),
+  closedBy: z.string().trim().optional(),
   safetyImpact: z.boolean().optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const createFodInspectionSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  area: z.string().min(1, 'Area is required'),
+  title: z.string().trim().min(1, 'Title is required'),
+  area: z.string().trim().min(1, 'Area is required'),
   inspectionType: z
     .enum(['SCHEDULED', 'POST_MAINTENANCE', 'SHIFT_CHANGE', 'SPECIAL'])
     .optional()
@@ -98,18 +98,18 @@ const createFodInspectionSchema = z.object({
     .string()
     .min(1, 'Scheduled date is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  inspector: z.string().min(1, 'Inspector is required'),
-  checklistItems: z.array(z.string()).optional().default([]),
-  notes: z.string().optional(),
+  inspector: z.string().trim().min(1, 'Inspector is required'),
+  checklistItems: z.array(z.string().trim()).optional().default([]),
+  notes: z.string().trim().optional(),
 });
 
 const completeFodInspectionSchema = z.object({
   result: z.enum(['PASS', 'PASS_WITH_FINDINGS', 'FAIL']),
-  findings: z.array(z.string()).optional().default([]),
+  findings: z.array(z.string().trim()).optional().default([]),
   fodFound: z.boolean().optional().default(false),
-  fodDescription: z.string().optional(),
-  completedBy: z.string().optional(),
-  notes: z.string().optional(),
+  fodDescription: z.string().trim().optional(),
+  completedBy: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // ============================================

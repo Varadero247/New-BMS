@@ -7,17 +7,17 @@ const router = Router();
 const logger = createLogger('finance-ir35');
 
 const createIr35Schema = z.object({
-  contractorName: z.string().min(1, 'contractorName is required'),
+  contractorName: z.string().trim().min(1, 'contractorName is required'),
   contractorEmail: z.string().trim().email().optional().nullable(),
-  engagementDesc: z.string().optional(),
-  clientName: z.string().optional(),
+  engagementDesc: z.string().trim().optional(),
+  clientName: z.string().trim().optional(),
   determination: z.enum(['PENDING', 'INSIDE', 'OUTSIDE', 'UNKNOWN']).optional(),
   assessmentDate: z.string().trim().datetime({ offset: true }).optional().nullable(),
-  assessedBy: z.string().optional(),
-  reasoning: z.string().optional(),
+  assessedBy: z.string().trim().optional(),
+  reasoning: z.string().trim().optional(),
   evidenceUrl: z.string().trim().url('Invalid URL').optional(),
   reviewDate: z.string().trim().datetime({ offset: true }).optional().nullable(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {

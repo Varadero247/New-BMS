@@ -8,10 +8,10 @@ import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-quality');
 
 const generateTemplateSchema = z.object({
-  prompt: z.string().min(5, 'Please provide a descriptive prompt (at least 5 characters)'),
-  category: z.string().optional(),
-  isoStandard: z.string().optional(),
-  title: z.string().optional(),
+  prompt: z.string().trim().min(5, 'Please provide a descriptive prompt (at least 5 characters)'),
+  category: z.string().trim().optional(),
+  isoStandard: z.string().trim().optional(),
+  title: z.string().trim().optional(),
 });
 
 const router: Router = Router();

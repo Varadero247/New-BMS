@@ -21,7 +21,7 @@ const alertCreateSchema = z.object({
   condition: conditionEnum,
   threshold: z.number(),
   status: alertStatusEnum.optional().default('ACTIVE'),
-  notificationChannels: z.array(z.string()).optional().nullable(),
+  notificationChannels: z.array(z.string().trim()).optional().nullable(),
   cooldownMinutes: z.number().int().min(1).optional().default(60),
 });
 
@@ -31,7 +31,7 @@ const alertUpdateSchema = z.object({
   condition: conditionEnum.optional(),
   threshold: z.number().optional(),
   status: alertStatusEnum.optional(),
-  notificationChannels: z.array(z.string()).optional().nullable(),
+  notificationChannels: z.array(z.string().trim()).optional().nullable(),
   cooldownMinutes: z.number().int().min(1).optional(),
 });
 

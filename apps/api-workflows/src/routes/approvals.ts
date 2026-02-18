@@ -76,7 +76,7 @@ router.post('/chains', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']),
       levels: z.array(z.record(z.unknown())),
       requireAllLevels: z.boolean().default(true),
@@ -122,7 +122,7 @@ router.put(
     try {
       const schema = z.object({
         name: z.string().trim().min(1).max(200).optional(),
-        description: z.string().optional(),
+        description: z.string().trim().optional(),
         chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']).optional(),
         levels: z.array(z.record(z.unknown())).optional(),
         requireAllLevels: z.boolean().optional(),
@@ -326,7 +326,7 @@ router.post('/requests', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(255),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       requestType: z.enum([
         'DOCUMENT_APPROVAL',
         'PURCHASE_REQUEST',
@@ -340,13 +340,13 @@ router.post('/requests', async (req: Request, res: Response) => {
         'CUSTOM',
       ]),
       priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL']).default('NORMAL'),
-      requesterId: z.string(),
-      requesterName: z.string().optional(),
-      departmentId: z.string().optional(),
-      entityType: z.string().optional(),
-      entityId: z.string().optional(),
+      requesterId: z.string().trim(),
+      requesterName: z.string().trim().optional(),
+      departmentId: z.string().trim().optional(),
+      entityType: z.string().trim().optional(),
+      entityId: z.string().trim().optional(),
       entityData: z.record(z.unknown()).optional(),
-      approvalChainId: z.string().optional(),
+      approvalChainId: z.string().trim().optional(),
       totalLevels: z.number().int().min(1).default(1),
       dueDate: z.string().trim().datetime({ offset: true }).optional(),
     });
@@ -396,9 +396,9 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
-        approverId: z.string(),
-        approverName: z.string().optional(),
-        approverRole: z.string().optional(),
+        approverId: z.string().trim(),
+        approverName: z.string().trim().optional(),
+        approverRole: z.string().trim().optional(),
         decision: z.enum([
           'APPROVE',
           'APPROVED',
@@ -410,8 +410,8 @@ router.put(
           'DELEGATE',
           'ABSTAIN',
         ]),
-        comments: z.string().optional(),
-        conditions: z.string().optional(),
+        comments: z.string().trim().optional(),
+        conditions: z.string().trim().optional(),
         attachments: z.record(z.unknown()).optional(),
       });
 
@@ -587,7 +587,7 @@ router.put(
           'DELEGATE',
           'ABSTAIN',
         ]),
-        comments: z.string().optional(),
+        comments: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -664,9 +664,9 @@ router.get('/step', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/step', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      stepId: z.string(),
-      approverId: z.string(),
-      approverName: z.string().optional(),
+      stepId: z.string().trim(),
+      approverId: z.string().trim(),
+      approverName: z.string().trim().optional(),
       approvalOrder: z.number().int().min(1).default(1),
     });
 

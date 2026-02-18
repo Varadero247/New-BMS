@@ -31,18 +31,18 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   title: z.string().trim().min(1).max(200),
-  deviceId: z.string().optional(),
+  deviceId: z.string().trim().optional(),
   deviceName: z.string().trim().min(1).max(200),
-  version: z.string().optional(),
-  scope: z.string().optional(),
+  version: z.string().trim().optional(),
+  scope: z.string().trim().optional(),
   preparedBy: z.string().trim().min(1).max(200),
-  reviewedBy: z.string().optional(),
-  notes: z.string().optional(),
+  reviewedBy: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateSchema = createSchema.partial().extend({
   status: z.enum(['DRAFT', 'IN_REVIEW', 'APPROVED', 'RELEASED', 'OBSOLETE']).optional(),
-  approvedBy: z.string().optional(),
+  approvedBy: z.string().trim().optional(),
   approvedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -52,17 +52,17 @@ const updateSchema = createSchema.partial().extend({
 const linkCreateSchema = z.object({
   userNeedRef: z.string().trim().min(1).max(200),
   userNeedDesc: z.string().trim().min(1).max(200),
-  designInputRef: z.string().optional(),
-  designInputDesc: z.string().optional(),
-  designOutputRef: z.string().optional(),
-  designOutputDesc: z.string().optional(),
-  verificationRef: z.string().optional(),
-  verificationResult: z.string().optional(),
-  validationRef: z.string().optional(),
-  validationResult: z.string().optional(),
-  riskRef: z.string().optional(),
+  designInputRef: z.string().trim().optional(),
+  designInputDesc: z.string().trim().optional(),
+  designOutputRef: z.string().trim().optional(),
+  designOutputDesc: z.string().trim().optional(),
+  verificationRef: z.string().trim().optional(),
+  verificationResult: z.string().trim().optional(),
+  validationRef: z.string().trim().optional(),
+  validationResult: z.string().trim().optional(),
+  riskRef: z.string().trim().optional(),
   status: z.enum(['OPEN', 'VERIFIED', 'VALIDATED', 'COMPLETE', 'GAP']).optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const linkUpdateSchema = linkCreateSchema.partial();

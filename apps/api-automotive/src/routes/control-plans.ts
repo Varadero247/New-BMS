@@ -36,7 +36,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       partNumber: z.string().trim().min(1).max(200),
       partName: z.string().trim().min(1).max(200),
       planType: z.enum(['PROTOTYPE', 'PRE_LAUNCH', 'PRODUCTION']).optional().default('PROTOTYPE'),
-      revision: z.string().optional(),
+      revision: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -165,22 +165,22 @@ router.put('/:id/characteristics/:charId', async (req: AuthRequest, res: Respons
     }
 
     const schema = z.object({
-      processNumber: z.string().optional(),
-      processName: z.string().optional(),
-      machineDevice: z.string().optional(),
-      characteristicName: z.string().optional(),
+      processNumber: z.string().trim().optional(),
+      processName: z.string().trim().optional(),
+      machineDevice: z.string().trim().optional(),
+      characteristicName: z.string().trim().optional(),
       characteristicType: z.enum(['PRODUCT', 'PROCESS']).optional(),
-      specialCharClass: z.string().optional(),
-      specification: z.string().optional(),
-      tolerance: z.string().optional(),
-      evalTechnique: z.string().optional(),
-      sampleSize: z.string().optional(),
-      sampleFrequency: z.string().optional(),
-      controlMethod: z.string().optional(),
-      reactionPlan: z.string().optional(),
-      pfmeaRef: z.string().optional(),
-      spcChartId: z.string().optional(),
-      workInstructionRef: z.string().optional(),
+      specialCharClass: z.string().trim().optional(),
+      specification: z.string().trim().optional(),
+      tolerance: z.string().trim().optional(),
+      evalTechnique: z.string().trim().optional(),
+      sampleSize: z.string().trim().optional(),
+      sampleFrequency: z.string().trim().optional(),
+      controlMethod: z.string().trim().optional(),
+      reactionPlan: z.string().trim().optional(),
+      pfmeaRef: z.string().trim().optional(),
+      spcChartId: z.string().trim().optional(),
+      workInstructionRef: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -231,20 +231,20 @@ router.post('/:id/characteristics', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       processNumber: z.string().trim().min(1).max(200),
       processName: z.string().trim().min(1).max(200),
-      machineDevice: z.string().optional(),
+      machineDevice: z.string().trim().optional(),
       characteristicName: z.string().trim().min(1).max(200),
       characteristicType: z.enum(['PRODUCT', 'PROCESS']),
-      specialCharClass: z.string().optional(),
-      specification: z.string().optional(),
-      tolerance: z.string().optional(),
+      specialCharClass: z.string().trim().optional(),
+      specification: z.string().trim().optional(),
+      tolerance: z.string().trim().optional(),
       evalTechnique: z.string().trim().min(1).max(200),
       sampleSize: z.string().trim().min(1).max(200),
       sampleFrequency: z.string().trim().min(1).max(200),
       controlMethod: z.string().trim().min(1).max(200),
       reactionPlan: z.string().trim().min(1).max(2000),
-      pfmeaRef: z.string().optional(),
-      spcChartId: z.string().optional(),
-      workInstructionRef: z.string().optional(),
+      pfmeaRef: z.string().trim().optional(),
+      spcChartId: z.string().trim().optional(),
+      workInstructionRef: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

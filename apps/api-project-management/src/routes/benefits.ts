@@ -57,16 +57,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       type: z.enum(BENEFIT_TYPES),
-      projectId: z.string().optional(),
-      owner: z.string().optional(),
+      projectId: z.string().trim().optional(),
+      owner: z.string().trim().optional(),
       baselineValue: z.number().optional(),
       targetValue: z.number().nonnegative().optional(),
       currentValue: z.number().nonnegative().optional(),
-      unit: z.string().optional(),
+      unit: z.string().trim().optional(),
       measurementMethod: z.enum(MEASUREMENT_METHODS).optional(),
-      measurementSchedule: z.string().optional(),
+      measurementSchedule: z.string().trim().optional(),
       expectedRealisationDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -282,15 +282,15 @@ router.put('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200).optional(),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       type: z.enum(BENEFIT_TYPES).optional(),
-      owner: z.string().optional(),
+      owner: z.string().trim().optional(),
       baselineValue: z.number().optional(),
       targetValue: z.number().nonnegative().optional(),
       currentValue: z.number().nonnegative().optional(),
-      unit: z.string().optional(),
+      unit: z.string().trim().optional(),
       measurementMethod: z.enum(MEASUREMENT_METHODS).optional(),
-      measurementSchedule: z.string().optional(),
+      measurementSchedule: z.string().trim().optional(),
       expectedRealisationDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -373,9 +373,9 @@ router.post(
 
       const schema = z.object({
         value: z.number(),
-        notes: z.string().optional(),
-        measuredAt: z.string().optional(),
-        source: z.string().optional(),
+        notes: z.string().trim().optional(),
+        measuredAt: z.string().trim().optional(),
+        source: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);

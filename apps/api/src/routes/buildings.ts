@@ -14,13 +14,13 @@ const createBuildingSchema = z.object({
   city: z.string().trim().min(1).max(200),
   state: z.string().trim().min(1).max(200),
   zipCode: z.string().trim().min(1).max(200),
-  country: z.string().default('USA'),
+  country: z.string().trim().default('USA'),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   totalArea: z.number().positive().optional(),
   floors: z.number().int().positive().default(1),
   yearBuilt: z.number().int().optional(),
-  imageUrl: z.string().url().optional(),
+  imageUrl: z.string().trim().url().optional(),
 });
 
 const updateBuildingSchema = createBuildingSchema.partial();
@@ -44,7 +44,7 @@ const createZoneSchema = z.object({
   ]),
   area: z.number().positive().optional(),
   capacity: z.number().int().positive().optional(),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
 });
 
 // List all buildings

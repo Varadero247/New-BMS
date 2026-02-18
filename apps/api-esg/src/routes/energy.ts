@@ -34,7 +34,7 @@ const energyCreateSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  facility: z.string().max(200).optional().nullable(),
+  facility: z.string().trim().max(200).optional().nullable(),
   cost: z.number().min(0).optional().nullable(),
 });
 
@@ -43,9 +43,9 @@ const energyUpdateSchema = z.object({
   quantity: z.number().positive().optional(),
   unit: z.string().trim().min(1).max(50).optional(),
   renewable: z.boolean().optional(),
-  periodStart: z.string().optional(),
-  periodEnd: z.string().optional(),
-  facility: z.string().max(200).optional().nullable(),
+  periodStart: z.string().trim().optional(),
+  periodEnd: z.string().trim().optional(),
+  facility: z.string().trim().max(200).optional().nullable(),
   cost: z.number().min(0).optional().nullable(),
 });
 

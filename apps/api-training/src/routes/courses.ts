@@ -9,19 +9,19 @@ router.param('id', validateIdParam());
 const logger = createLogger('training-courses');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
   type: z.enum(['MANDATORY', 'OPTIONAL', 'REFRESHER', 'INDUCTION', 'CERTIFICATION', 'COMPETENCY']),
   delivery: z
     .enum(['CLASSROOM', 'ONLINE', 'ON_THE_JOB', 'BLENDED', 'SELF_PACED', 'WORKSHOP'])
     .optional(),
   duration: z.number().int().optional(),
   validityMonths: z.number().int().optional(),
-  provider: z.string().optional(),
+  provider: z.string().trim().optional(),
   cost: z.number().nonnegative().optional(),
   maxParticipants: z.number().int().optional(),
-  prerequisites: z.string().optional(),
-  objectives: z.string().optional(),
+  prerequisites: z.string().trim().optional(),
+  objectives: z.string().trim().optional(),
   isActive: z.boolean().optional(),
 });
 const updateSchema = createSchema.partial();

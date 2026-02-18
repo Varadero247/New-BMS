@@ -240,7 +240,7 @@ const importSchema = z.object({
     'iso42001',
     'iso37001',
   ]),
-  notes: z.string().max(1000).optional(),
+  notes: z.string().trim().max(1000).optional(),
   assignedTo: z.string().trim().uuid().optional(),
   reviewDate: z
     .string()
@@ -447,7 +447,7 @@ router.put('/regulations/:id/status', async (req: AuthRequest, res: Response) =>
 
     const statusSchema = z.object({
       status: z.enum(['REVIEWED', 'DISMISSED']),
-      notes: z.string().max(1000).optional(),
+      notes: z.string().trim().max(1000).optional(),
     });
 
     const parsed = statusSchema.safeParse(req.body);

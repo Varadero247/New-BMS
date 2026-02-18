@@ -20,7 +20,7 @@ const createSchema = z.object({
   month: z.number().int().min(1).max(12).optional().nullable(),
   quarter: z.number().int().min(1).max(4).optional().nullable(),
   budgetAmount: z.number().min(0),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial().extend({

@@ -26,13 +26,13 @@ async function generateRefNumber(): Promise<string> {
 
 const updateSchema = z.object({
   policyStatement: z.string().trim().min(1).max(20000),
-  purpose: z.string().max(5000).optional().nullable(),
-  commitments: z.string().max(10000).optional().nullable(),
-  objectives: z.string().max(10000).optional().nullable(),
-  applicability: z.string().max(5000).optional().nullable(),
-  version: z.string().max(50).optional(),
+  purpose: z.string().trim().max(5000).optional().nullable(),
+  commitments: z.string().trim().max(10000).optional().nullable(),
+  objectives: z.string().trim().max(10000).optional().nullable(),
+  applicability: z.string().trim().max(5000).optional().nullable(),
+  version: z.string().trim().max(50).optional(),
   status: z.enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ISSUED', 'OBSOLETE']).optional(),
-  approvedBy: z.string().max(200).optional().nullable(),
+  approvedBy: z.string().trim().max(200).optional().nullable(),
   effectiveDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

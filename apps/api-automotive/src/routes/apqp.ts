@@ -176,11 +176,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       partNumber: z.string().trim().min(1).max(200),
       partName: z.string().trim().min(1).max(200),
       customer: z.string().trim().min(1).max(200),
-      programName: z.string().optional(),
-      startDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      targetDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      programName: z.string().trim().optional(),
+      startDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      targetDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
       teamLeader: z.string().trim().min(1).max(200),
-      teamMembers: z.array(z.string()).optional().default([]),
+      teamMembers: z.array(z.string().trim()).optional().default([]),
       status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
     });
 
@@ -282,7 +288,7 @@ router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
       partNumber: z.string().trim().min(1).max(200).optional(),
       partName: z.string().trim().min(1).max(200).optional(),
       customer: z.string().trim().min(1).max(200).optional(),
-      programName: z.string().optional(),
+      programName: z.string().trim().optional(),
       status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
       targetDate: z
         .string()
@@ -293,7 +299,7 @@ router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
       teamLeader: z.string().trim().min(1).max(200).optional(),
-      teamMembers: z.array(z.string()).optional(),
+      teamMembers: z.array(z.string().trim()).optional(),
     });
 
     const data = schema.parse(req.body);
@@ -374,12 +380,15 @@ router.post('/:id/phases/:phaseNum/gate-review', async (req: AuthRequest, res: R
     }
 
     const schema = z.object({
-      reviewDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      reviewers: z.array(z.string()).min(1),
+      reviewDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      reviewers: z.array(z.string().trim()).min(1),
       decision: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'REJECTED', 'DEFERRED']),
-      conditions: z.string().optional(),
-      notes: z.string().optional(),
-      nextActions: z.string().optional(),
+      conditions: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
+      nextActions: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -515,7 +524,7 @@ router.put('/:id/deliverables/:did', async (req: AuthRequest, res: Response) => 
       status: z
         .enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NOT_APPLICABLE', 'BLOCKED'])
         .optional(),
-      assignedTo: z.string().optional(),
+      assignedTo: z.string().trim().optional(),
       dueDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -524,8 +533,8 @@ router.put('/:id/deliverables/:did', async (req: AuthRequest, res: Response) => 
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      documentRef: z.string().optional(),
-      notes: z.string().optional(),
+      documentRef: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

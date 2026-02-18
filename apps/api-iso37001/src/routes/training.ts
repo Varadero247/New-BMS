@@ -61,15 +61,15 @@ const trainingCreateSchema = z.object({
     .min(1)
     .max(200)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  department: z.string().max(200).optional(),
-  position: z.string().max(200).optional(),
+  department: z.string().trim().max(200).optional(),
+  position: z.string().trim().max(200).optional(),
   deliveryMethod: z
     .enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED'])
     .optional(),
   duration: z.number().int().min(0).optional(),
-  provider: z.string().max(300).optional(),
+  provider: z.string().trim().max(300).optional(),
   passMark: z.number().int().min(0).max(100).optional(),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 const trainingUpdateSchema = z.object({
@@ -96,15 +96,15 @@ const trainingUpdateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  department: z.string().max(200).optional(),
-  position: z.string().max(200).optional(),
+  department: z.string().trim().max(200).optional(),
+  position: z.string().trim().max(200).optional(),
   deliveryMethod: z
     .enum(['ONLINE', 'CLASSROOM', 'WORKSHOP', 'WEBINAR', 'SELF_STUDY', 'BLENDED'])
     .optional(),
   duration: z.number().int().min(0).optional(),
-  provider: z.string().max(300).optional(),
+  provider: z.string().trim().max(300).optional(),
   passMark: z.number().int().min(0).max(100).optional(),
-  notes: z.string().max(2000).optional(),
+  notes: z.string().trim().max(2000).optional(),
 });
 
 const completeSchema = z.object({
@@ -113,8 +113,8 @@ const completeSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  certificate: z.string().max(500).optional(),
-  feedback: z.string().max(2000).optional(),
+  certificate: z.string().trim().max(500).optional(),
+  feedback: z.string().trim().max(2000).optional(),
 });
 
 // ---------------------------------------------------------------------------

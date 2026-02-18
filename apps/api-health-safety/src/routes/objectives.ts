@@ -133,31 +133,37 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const milestoneSchema = z.object({
       title: z.string().trim().min(1).max(200),
-      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      objectiveStatement: z.string().optional(),
+      objectiveStatement: z.string().trim().optional(),
       category: z.enum(OBJECTIVE_CATEGORIES),
-      ohsPolicyLink: z.string().optional(),
-      department: z.string().optional(),
-      owner: z.string().optional(),
+      ohsPolicyLink: z.string().trim().optional(),
+      department: z.string().trim().optional(),
+      owner: z.string().trim().optional(),
       startDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      targetDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      kpiDescription: z.string().optional(),
+      targetDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      kpiDescription: z.string().trim().optional(),
       baselineValue: z.number().optional(),
       targetValue: z.number().nonnegative().optional(),
       currentValue: z.number().nonnegative().optional(),
-      unit: z.string().optional(),
-      monitoringFrequency: z.string().optional(),
-      resourcesRequired: z.string().optional(),
-      progressNotes: z.string().optional(),
+      unit: z.string().trim().optional(),
+      monitoringFrequency: z.string().trim().optional(),
+      resourcesRequired: z.string().trim().optional(),
+      progressNotes: z.string().trim().optional(),
       // AI
-      aiRecommendations: z.string().optional(),
+      aiRecommendations: z.string().trim().optional(),
       aiGenerated: z.boolean().optional(),
       status: z.enum(OBJECTIVE_STATUSES).optional(),
       milestones: z.array(milestoneSchema).optional(),
@@ -241,11 +247,11 @@ router.patch(
 
       const schema = z.object({
         title: z.string().trim().min(1).max(200).optional(),
-        objectiveStatement: z.string().optional(),
+        objectiveStatement: z.string().trim().optional(),
         category: z.enum(OBJECTIVE_CATEGORIES).optional(),
-        ohsPolicyLink: z.string().optional(),
-        department: z.string().optional(),
-        owner: z.string().optional(),
+        ohsPolicyLink: z.string().trim().optional(),
+        department: z.string().trim().optional(),
+        owner: z.string().trim().optional(),
         startDate: z
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -254,15 +260,15 @@ router.patch(
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
-        kpiDescription: z.string().optional(),
+        kpiDescription: z.string().trim().optional(),
         baselineValue: z.number().optional(),
         targetValue: z.number().nonnegative().optional(),
         currentValue: z.number().nonnegative().optional(),
-        unit: z.string().optional(),
-        monitoringFrequency: z.string().optional(),
-        resourcesRequired: z.string().optional(),
-        progressNotes: z.string().optional(),
-        aiRecommendations: z.string().optional(),
+        unit: z.string().trim().optional(),
+        monitoringFrequency: z.string().trim().optional(),
+        resourcesRequired: z.string().trim().optional(),
+        progressNotes: z.string().trim().optional(),
+        aiRecommendations: z.string().trim().optional(),
         aiGenerated: z.boolean().optional(),
         status: z.enum(OBJECTIVE_STATUSES).optional(),
       });
@@ -352,7 +358,10 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      dueDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      dueDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
     });
 
     const data = schema.parse(req.body);

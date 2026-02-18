@@ -10,18 +10,18 @@ router.param('id', validateIdParam());
 const logger = createLogger('reg-monitor-obligations');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  source: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
+  source: z.string().trim().optional(),
   dueDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  frequency: z.string().optional(),
-  responsible: z.string().optional(),
-  status: z.string().optional(),
-  evidence: z.string().optional(),
-  notes: z.string().optional(),
+  frequency: z.string().trim().optional(),
+  responsible: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  evidence: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateSchema = createSchema.partial();

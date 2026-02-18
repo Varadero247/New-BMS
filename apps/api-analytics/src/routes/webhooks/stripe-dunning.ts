@@ -4,19 +4,19 @@ import { prisma } from '../../prisma';
 import { createLogger } from '@ims/monitoring';
 
 const stripeEventSchema = z.object({
-  id: z.string().optional(),
-  type: z.string().min(1, 'Missing or invalid Stripe event'),
+  id: z.string().trim().optional(),
+  type: z.string().trim().min(1, 'Missing or invalid Stripe event'),
   data: z
     .object({
       object: z
         .object({
-          id: z.string().optional(),
-          customer: z.string().optional(),
-          customer_email: z.string().optional(),
-          customer_name: z.string().optional(),
+          id: z.string().trim().optional(),
+          customer: z.string().trim().optional(),
+          customer_email: z.string().trim().optional(),
+          customer_name: z.string().trim().optional(),
           amount_due: z.number().nonnegative().optional(),
-          currency: z.string().optional(),
-          number: z.string().optional(),
+          currency: z.string().trim().optional(),
+          number: z.string().trim().optional(),
         })
         .optional(),
     })

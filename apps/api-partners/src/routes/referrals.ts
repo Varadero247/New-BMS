@@ -10,7 +10,7 @@ const router = Router();
 
 const trackReferralSchema = z.object({
   prospectEmail: z.string().trim().email(),
-  prospectName: z.string().optional(),
+  prospectName: z.string().trim().optional(),
 });
 
 // GET /api/referrals — list partner's referrals

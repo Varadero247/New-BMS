@@ -9,12 +9,12 @@ router.param('id', validateIdParam());
 const logger = createLogger('training-competencies');
 
 const createSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  department: z.string().optional(),
-  role: z.string().optional(),
+  name: z.string().trim().min(1, 'Name is required'),
+  description: z.string().trim().optional(),
+  department: z.string().trim().optional(),
+  role: z.string().trim().optional(),
   requiredLevel: z.enum(['NOT_STARTED', 'DEVELOPING', 'COMPETENT', 'EXPERT', 'EXPIRED']).optional(),
-  assessmentMethod: z.string().optional(),
+  assessmentMethod: z.string().trim().optional(),
   isActive: z.boolean().optional(),
 });
 const updateSchema = createSchema.partial();

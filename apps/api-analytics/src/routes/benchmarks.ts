@@ -19,8 +19,8 @@ const benchmarkCreateSchema = z.object({
   industryAverage: z.number().nonnegative(),
   topPerformer: z.number(),
   currentValue: z.number().nonnegative().optional().nullable(),
-  unit: z.string().max(50).optional().nullable(),
-  source: z.string().max(200).optional().nullable(),
+  unit: z.string().trim().max(50).optional().nullable(),
+  source: z.string().trim().max(200).optional().nullable(),
   year: z.number().int().min(2000).max(2100).optional(),
 });
 

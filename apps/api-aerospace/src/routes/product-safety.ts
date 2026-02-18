@@ -40,9 +40,9 @@ async function generateSafetyReviewRefNumber(): Promise<string> {
 // ============================================
 
 const createProductSafetyItemSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
-  partNumber: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().min(1, 'Description is required'),
+  partNumber: z.string().trim().optional(),
   category: z.enum([
     'CRITICAL_SAFETY_ITEM',
     'FLIGHT_SAFETY_PART',
@@ -51,30 +51,30 @@ const createProductSafetyItemSchema = z.object({
     'LIFE_LIMITED',
     'OTHER',
   ]),
-  regulatoryBasis: z.string().optional(),
-  hazardDescription: z.string().optional(),
+  regulatoryBasis: z.string().trim().optional(),
+  hazardDescription: z.string().trim().optional(),
   riskLevel: z
     .enum(['CATASTROPHIC', 'CRITICAL', 'MARGINAL', 'NEGLIGIBLE'])
     .optional()
     .default('MARGINAL'),
-  mitigations: z.array(z.string()).optional().default([]),
-  verificationMethod: z.string().optional(),
+  mitigations: z.array(z.string().trim()).optional().default([]),
+  verificationMethod: z.string().trim().optional(),
   complianceStatus: z
     .enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED'])
     .optional()
     .default('NOT_ASSESSED'),
-  responsibleEngineer: z.string().optional(),
+  responsibleEngineer: z.string().trim().optional(),
   nextReviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateProductSafetyItemSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
-  partNumber: z.string().optional(),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  partNumber: z.string().trim().optional(),
   category: z
     .enum([
       'CRITICAL_SAFETY_ITEM',
@@ -85,16 +85,16 @@ const updateProductSafetyItemSchema = z.object({
       'OTHER',
     ])
     .optional(),
-  regulatoryBasis: z.string().optional(),
-  hazardDescription: z.string().optional(),
+  regulatoryBasis: z.string().trim().optional(),
+  hazardDescription: z.string().trim().optional(),
   riskLevel: z.enum(['CATASTROPHIC', 'CRITICAL', 'MARGINAL', 'NEGLIGIBLE']).optional(),
-  mitigations: z.array(z.string()).optional(),
-  verificationMethod: z.string().optional(),
+  mitigations: z.array(z.string().trim()).optional(),
+  verificationMethod: z.string().trim().optional(),
   complianceStatus: z
     .enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT', 'NOT_ASSESSED'])
     .optional(),
   status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'CLOSED', 'SUPERSEDED']).optional(),
-  responsibleEngineer: z.string().optional(),
+  responsibleEngineer: z.string().trim().optional(),
   lastReviewDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -103,11 +103,11 @@ const updateProductSafetyItemSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const createSafetyReviewSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+  title: z.string().trim().min(1, 'Title is required'),
   reviewType: z.enum([
     'PRELIMINARY_HAZARD',
     'SYSTEM_SAFETY',
@@ -117,24 +117,24 @@ const createSafetyReviewSchema = z.object({
     'COMMON_CAUSE',
     'DESIGN_REVIEW',
   ]),
-  productSafetyItemIds: z.array(z.string()).optional().default([]),
-  scope: z.string().optional(),
+  productSafetyItemIds: z.array(z.string().trim()).optional().default([]),
+  scope: z.string().trim().optional(),
   scheduledDate: z
     .string()
     .min(1, 'Scheduled date is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  reviewTeam: z.array(z.string()).optional().default([]),
-  leadReviewer: z.string().optional(),
-  notes: z.string().optional(),
+  reviewTeam: z.array(z.string().trim()).optional().default([]),
+  leadReviewer: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const completeSafetyReviewSchema = z.object({
-  findings: z.string().optional(),
-  recommendations: z.array(z.string()).optional().default([]),
+  findings: z.string().trim().optional(),
+  recommendations: z.array(z.string().trim()).optional().default([]),
   result: z.enum(['APPROVED', 'APPROVED_WITH_CONDITIONS', 'REQUIRES_REWORK', 'REJECTED']),
-  completedBy: z.string().optional(),
-  approvedBy: z.string().optional(),
-  notes: z.string().optional(),
+  completedBy: z.string().trim().optional(),
+  approvedBy: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // ============================================

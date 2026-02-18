@@ -14,21 +14,21 @@ const createActionSchema = z.object({
   description: z.string().trim().min(1).max(2000),
   type: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'IMMEDIATE', 'LONG_TERM']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
-  ownerId: z.string(),
-  dueDate: z.string().datetime({ offset: true }),
-  verificationMethod: z.string().optional(),
+  ownerId: z.string().trim(),
+  dueDate: z.string().trim().datetime({ offset: true }),
+  verificationMethod: z.string().trim().optional(),
   estimatedCost: z.number().nonnegative().optional(),
-  riskId: z.string().optional(),
-  incidentId: z.string().optional(),
-  legalRequirementId: z.string().optional(),
-  objectiveId: z.string().optional(),
+  riskId: z.string().trim().optional(),
+  incidentId: z.string().trim().optional(),
+  legalRequirementId: z.string().trim().optional(),
+  objectiveId: z.string().trim().optional(),
 });
 
 const updateActionSchema = createActionSchema.partial().extend({
   status: z
     .enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED'])
     .optional(),
-  verificationNotes: z.string().optional(),
+  verificationNotes: z.string().trim().optional(),
   effectivenessRating: z.number().min(1).max(5).optional(),
   actualCost: z.number().nonnegative().optional(),
 });

@@ -9,9 +9,9 @@ router.param('id', validateIdParam());
 const logger = createLogger('risk-capa');
 
 const createCapaSchema = z.object({
-  riskId: z.string().optional(),
-  title: z.string().min(1, 'title is required'),
-  description: z.string().optional(),
+  riskId: z.string().trim().optional(),
+  title: z.string().trim().min(1, 'title is required'),
+  description: z.string().trim().optional(),
   type: z.enum(['CORRECTIVE', 'PREVENTIVE']),
   source: z
     .enum([
@@ -27,12 +27,12 @@ const createCapaSchema = z.object({
     .optional(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'VERIFICATION', 'CLOSED', 'OVERDUE']).optional(),
-  assignee: z.string().optional(),
-  assigneeName: z.string().optional(),
-  rootCause: z.string().optional(),
-  actionPlan: z.string().optional(),
-  verificationMethod: z.string().optional(),
-  verificationResult: z.string().optional(),
+  assignee: z.string().trim().optional(),
+  assigneeName: z.string().trim().optional(),
+  rootCause: z.string().trim().optional(),
+  actionPlan: z.string().trim().optional(),
+  verificationMethod: z.string().trim().optional(),
+  verificationResult: z.string().trim().optional(),
   dueDate: z
     .string()
     .trim()
@@ -51,7 +51,7 @@ const createCapaSchema = z.object({
     .datetime({ offset: true })
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
-  verifiedBy: z.string().optional(),
+  verifiedBy: z.string().trim().optional(),
   effectivenessCheck: z.boolean().optional(),
   effectivenessDate: z
     .string()
@@ -59,10 +59,10 @@ const createCapaSchema = z.object({
     .datetime({ offset: true })
     .optional()
     .or(z.string().trim().datetime({ offset: true }).optional()),
-  effectivenessResult: z.string().optional(),
-  linkedIncident: z.string().optional(),
-  linkedAudit: z.string().optional(),
-  notes: z.string().optional(),
+  effectivenessResult: z.string().trim().optional(),
+  linkedIncident: z.string().trim().optional(),
+  linkedAudit: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateCapaSchema = createCapaSchema.partial();

@@ -85,16 +85,16 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
     }
 
     const schema = z.object({
-      respondentName: z.string().optional(),
+      respondentName: z.string().trim().optional(),
       respondentEmail: z.string().trim().email().optional(),
-      respondentCompany: z.string().optional(),
+      respondentCompany: z.string().trim().optional(),
       answers: z
         .array(
           z.object({
             questionId: z.string().trim().min(1).max(200),
-            textValue: z.string().optional(),
+            textValue: z.string().trim().optional(),
             numericValue: z.number().optional(),
-            selectedOptions: z.array(z.string()).optional(),
+            selectedOptions: z.array(z.string().trim()).optional(),
           })
         )
         .min(1),
@@ -172,7 +172,7 @@ router.post('/surveys', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       type: z.enum(['NPS', 'CSAT', 'CUSTOM', 'POST_DELIVERY', 'ANNUAL']),
       isPublic: z.boolean().optional(),
       questions: z
@@ -181,7 +181,7 @@ router.post('/surveys', async (req: AuthRequest, res: Response) => {
             text: z.string().trim().min(1).max(200),
             type: z.enum(['RATING', 'TEXT', 'MULTIPLE_CHOICE', 'YES_NO', 'NPS_SCALE']),
             required: z.boolean().optional(),
-            options: z.array(z.string()).optional(),
+            options: z.array(z.string().trim()).optional(),
             minValue: z.number().optional(),
             maxValue: z.number().optional(),
           })
@@ -326,16 +326,16 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       surveyId: z.string().trim().min(1).max(200),
-      respondentName: z.string().optional(),
+      respondentName: z.string().trim().optional(),
       respondentEmail: z.string().trim().email().optional(),
-      respondentCompany: z.string().optional(),
+      respondentCompany: z.string().trim().optional(),
       answers: z
         .array(
           z.object({
             questionId: z.string().trim().min(1).max(200),
-            textValue: z.string().optional(),
+            textValue: z.string().trim().optional(),
             numericValue: z.number().optional(),
-            selectedOptions: z.array(z.string()).optional(),
+            selectedOptions: z.array(z.string().trim()).optional(),
           })
         )
         .min(1),

@@ -27,7 +27,7 @@ function generateReference(prefix: string): string {
 
 const policyCreateSchema = z.object({
   title: z.string().trim().min(1).max(300),
-  content: z.string().min(1).max(50000),
+  content: z.string().trim().min(1).max(50000),
   policyType: z.enum([
     'AI_GOVERNANCE',
     'DATA_MANAGEMENT',
@@ -43,8 +43,8 @@ const policyCreateSchema = z.object({
     'THIRD_PARTY',
     'OTHER',
   ]),
-  summary: z.string().max(2000).optional().nullable(),
-  scope: z.string().max(2000).optional().nullable(),
+  summary: z.string().trim().max(2000).optional().nullable(),
+  scope: z.string().trim().max(2000).optional().nullable(),
   effectiveDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -55,15 +55,15 @@ const policyCreateSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  owner: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
-  version: z.string().max(50).optional().default('1.0'),
-  notes: z.string().max(4000).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
+  version: z.string().trim().max(50).optional().default('1.0'),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 const policyUpdateSchema = z.object({
   title: z.string().trim().min(1).max(300).optional(),
-  content: z.string().min(1).max(50000).optional(),
+  content: z.string().trim().min(1).max(50000).optional(),
   policyType: z
     .enum([
       'AI_GOVERNANCE',
@@ -81,8 +81,8 @@ const policyUpdateSchema = z.object({
       'OTHER',
     ])
     .optional(),
-  summary: z.string().max(2000).optional().nullable(),
-  scope: z.string().max(2000).optional().nullable(),
+  summary: z.string().trim().max(2000).optional().nullable(),
+  scope: z.string().trim().max(2000).optional().nullable(),
   effectiveDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -93,10 +93,10 @@ const policyUpdateSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  owner: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
-  version: z.string().max(50).optional(),
-  notes: z.string().max(4000).optional().nullable(),
+  owner: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
+  version: z.string().trim().max(50).optional(),
+  notes: z.string().trim().max(4000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

@@ -9,12 +9,12 @@ router.param('id', validateIdParam());
 const logger = createLogger('contracts-approvals');
 
 const createSchema = z.object({
-  contractId: z.string().min(1, 'Contract ID is required'),
-  approver: z.string().min(1, 'Approver is required'),
-  approverName: z.string().optional(),
+  contractId: z.string().trim().min(1, 'Contract ID is required'),
+  approver: z.string().trim().min(1, 'Approver is required'),
+  approverName: z.string().trim().optional(),
   status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
-  comments: z.string().optional(),
-  decidedAt: z.string().optional(),
+  comments: z.string().trim().optional(),
+  decidedAt: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

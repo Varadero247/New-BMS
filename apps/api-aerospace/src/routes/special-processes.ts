@@ -40,8 +40,8 @@ async function generateNadcapApprovalRefNumber(): Promise<string> {
 // ============================================
 
 const createSpecialProcessSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
   processType: z.enum([
     'CHEMICAL_PROCESSING',
     'COATINGS',
@@ -55,20 +55,20 @@ const createSpecialProcessSchema = z.object({
     'BRAZING',
     'OTHER',
   ]),
-  specification: z.string().optional(),
+  specification: z.string().trim().optional(),
   approvalBody: z.enum(['NADCAP', 'CUSTOMER', 'INTERNAL', 'OTHER']).optional().default('NADCAP'),
-  applicableParts: z.array(z.string()).optional().default([]),
-  qualityRequirements: z.array(z.string()).optional().default([]),
-  equipmentRequired: z.array(z.string()).optional().default([]),
-  personnelQualifications: z.array(z.string()).optional().default([]),
-  controlPlan: z.string().optional(),
-  responsibleEngineer: z.string().optional(),
-  notes: z.string().optional(),
+  applicableParts: z.array(z.string().trim()).optional().default([]),
+  qualityRequirements: z.array(z.string().trim()).optional().default([]),
+  equipmentRequired: z.array(z.string().trim()).optional().default([]),
+  personnelQualifications: z.array(z.string().trim()).optional().default([]),
+  controlPlan: z.string().trim().optional(),
+  responsibleEngineer: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateSpecialProcessSchema = z.object({
-  title: z.string().optional(),
-  description: z.string().optional(),
+  title: z.string().trim().optional(),
+  description: z.string().trim().optional(),
   processType: z
     .enum([
       'CHEMICAL_PROCESSING',
@@ -84,24 +84,24 @@ const updateSpecialProcessSchema = z.object({
       'OTHER',
     ])
     .optional(),
-  specification: z.string().optional(),
+  specification: z.string().trim().optional(),
   approvalBody: z.enum(['NADCAP', 'CUSTOMER', 'INTERNAL', 'OTHER']).optional(),
-  applicableParts: z.array(z.string()).optional(),
-  qualityRequirements: z.array(z.string()).optional(),
-  equipmentRequired: z.array(z.string()).optional(),
-  personnelQualifications: z.array(z.string()).optional(),
-  controlPlan: z.string().optional(),
-  responsibleEngineer: z.string().optional(),
+  applicableParts: z.array(z.string().trim()).optional(),
+  qualityRequirements: z.array(z.string().trim()).optional(),
+  equipmentRequired: z.array(z.string().trim()).optional(),
+  personnelQualifications: z.array(z.string().trim()).optional(),
+  controlPlan: z.string().trim().optional(),
+  responsibleEngineer: z.string().trim().optional(),
   status: z.enum(['ACTIVE', 'UNDER_REVIEW', 'SUSPENDED', 'OBSOLETE']).optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const createNadcapApprovalSchema = z.object({
-  specialProcessId: z.string().min(1, 'Special process ID is required'),
-  supplier: z.string().min(1, 'Supplier is required'),
-  commodity: z.string().min(1, 'Commodity is required'),
-  accreditationBody: z.string().optional().default('PRI - Performance Review Institute'),
-  certificateNumber: z.string().optional(),
+  specialProcessId: z.string().trim().min(1, 'Special process ID is required'),
+  supplier: z.string().trim().min(1, 'Supplier is required'),
+  commodity: z.string().trim().min(1, 'Commodity is required'),
+  accreditationBody: z.string().trim().optional().default('PRI - Performance Review Institute'),
+  certificateNumber: z.string().trim().optional(),
   auditDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -114,13 +114,13 @@ const createNadcapApprovalSchema = z.object({
     .string()
     .min(1, 'Expiry date is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  scope: z.string().optional(),
-  limitations: z.string().optional(),
-  notes: z.string().optional(),
+  scope: z.string().trim().optional(),
+  limitations: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateNadcapApprovalSchema = z.object({
-  certificateNumber: z.string().optional(),
+  certificateNumber: z.string().trim().optional(),
   auditDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -133,10 +133,10 @@ const updateNadcapApprovalSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  scope: z.string().optional(),
-  limitations: z.string().optional(),
+  scope: z.string().trim().optional(),
+  limitations: z.string().trim().optional(),
   approvalStatus: z.enum(['ACTIVE', 'EXPIRING_SOON', 'EXPIRED', 'SUSPENDED', 'REVOKED']).optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // ============================================

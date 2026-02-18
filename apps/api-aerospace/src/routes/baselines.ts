@@ -31,34 +31,34 @@ async function generateBaselineRefNumber(): Promise<string> {
 // ============================================
 
 const createBaselineSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  program: z.string().optional(),
-  version: z.string().optional().default('1.0'),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
+  program: z.string().trim().optional(),
+  version: z.string().trim().optional().default('1.0'),
   baselineType: z
     .enum(['FUNCTIONAL', 'ALLOCATED', 'PRODUCT', 'DESIGN'])
     .optional()
     .default('FUNCTIONAL'),
-  program_phase: z.string().optional(),
-  configuration_items: z.array(z.string()).optional().default([]),
-  documents: z.array(z.string()).optional().default([]),
+  program_phase: z.string().trim().optional(),
+  configuration_items: z.array(z.string().trim()).optional().default([]),
+  documents: z.array(z.string().trim()).optional().default([]),
   effectiveDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  approvedBy: z.string().optional(),
-  notes: z.string().optional(),
+  approvedBy: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateBaselineSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  description: z.string().optional(),
-  program: z.string().optional(),
-  version: z.string().optional(),
+  description: z.string().trim().optional(),
+  program: z.string().trim().optional(),
+  version: z.string().trim().optional(),
   baselineType: z.enum(['FUNCTIONAL', 'ALLOCATED', 'PRODUCT', 'DESIGN']).optional(),
-  program_phase: z.string().optional(),
-  configuration_items: z.array(z.string()).optional(),
-  documents: z.array(z.string()).optional(),
+  program_phase: z.string().trim().optional(),
+  configuration_items: z.array(z.string().trim()).optional(),
+  documents: z.array(z.string().trim()).optional(),
   status: z
     .enum(['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED'])
     .optional(),
@@ -66,12 +66,12 @@ const updateBaselineSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  approvedBy: z.string().optional(),
+  approvedBy: z.string().trim().optional(),
   approvedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // ============================================
@@ -268,8 +268,8 @@ router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      approvedBy: z.string().min(1, 'Approver is required'),
-      approvalNotes: z.string().optional(),
+      approvedBy: z.string().trim().min(1, 'Approver is required'),
+      approvalNotes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

@@ -21,9 +21,9 @@ const ccpCreateSchema = z.object({
   criticalLimit: z.string().trim().min(1).max(500),
   monitoringMethod: z.string().trim().min(1).max(500),
   monitoringFrequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']),
-  correctiveAction: z.string().max(2000).optional().nullable(),
-  verificationMethod: z.string().max(500).optional().nullable(),
-  recordKeeping: z.string().max(500).optional().nullable(),
+  correctiveAction: z.string().trim().max(2000).optional().nullable(),
+  verificationMethod: z.string().trim().max(500).optional().nullable(),
+  recordKeeping: z.string().trim().max(500).optional().nullable(),
   isActive: z.boolean().optional().default(true),
 });
 
@@ -34,25 +34,30 @@ const ccpUpdateSchema = z.object({
   criticalLimit: z.string().trim().min(1).max(500).optional(),
   monitoringMethod: z.string().trim().min(1).max(500).optional(),
   monitoringFrequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']).optional(),
-  correctiveAction: z.string().max(2000).optional().nullable(),
-  verificationMethod: z.string().max(500).optional().nullable(),
-  recordKeeping: z.string().max(500).optional().nullable(),
+  correctiveAction: z.string().trim().max(2000).optional().nullable(),
+  verificationMethod: z.string().trim().max(500).optional().nullable(),
+  recordKeeping: z.string().trim().max(500).optional().nullable(),
   isActive: z.boolean().optional(),
 });
 
 const monitoringRecordCreateSchema = z.object({
-  monitoredBy: z.string().max(200).optional().nullable(),
+  monitoredBy: z.string().trim().max(200).optional().nullable(),
   monitoredAt: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   value: z.string().trim().min(1).max(200),
-  unit: z.string().max(50).optional().nullable(),
+  unit: z.string().trim().max(50).optional().nullable(),
   withinLimits: z.boolean(),
-  deviation: z.string().max(2000).optional().nullable(),
-  correctiveActionTaken: z.string().max(2000).optional().nullable(),
-  verifiedBy: z.string().max(200).optional().nullable(),
+  deviation: z.string().trim().max(2000).optional().nullable(),
+  correctiveActionTaken: z.string().trim().max(2000).optional().nullable(),
+  verifiedBy: z.string().trim().max(200).optional().nullable(),
   verifiedAt: z.string().trim().datetime({ offset: true }).optional().nullable(),
 });
 

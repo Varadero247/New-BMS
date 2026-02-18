@@ -29,20 +29,20 @@ function generateRequestNumber(): string {
 
 const requestCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   requestedBy: z.string().trim().min(1).max(200),
   assetId: z.string().trim().uuid().optional().nullable(),
   locationId: z.string().trim().uuid().optional().nullable(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const requestUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['NEW', 'APPROVED', 'REJECTED', 'CONVERTED']).optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

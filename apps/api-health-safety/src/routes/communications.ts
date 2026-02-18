@@ -55,16 +55,16 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       subject: z.string().trim().min(1).max(200),
       type: z.enum(COMMUNICATION_TYPES),
       direction: z.enum(DIRECTIONS),
-      content: z.string().min(1),
-      recipients: z.string().optional(),
-      sender: z.string().optional(),
-      relatedIncidentId: z.string().optional(),
+      content: z.string().trim().min(1),
+      recipients: z.string().trim().optional(),
+      sender: z.string().trim().optional(),
+      relatedIncidentId: z.string().trim().optional(),
       scheduledDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      attendees: z.string().optional(),
-      location: z.string().optional(),
+      attendees: z.string().trim().optional(),
+      location: z.string().trim().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
     });
 
@@ -285,18 +285,18 @@ router.put(
 
       const schema = z.object({
         subject: z.string().trim().min(1).max(200).optional(),
-        content: z.string().optional(),
-        recipients: z.string().optional(),
-        response: z.string().optional(),
+        content: z.string().trim().optional(),
+        recipients: z.string().trim().optional(),
+        response: z.string().trim().optional(),
         status: z.enum(['DRAFT', 'SENT', 'ACKNOWLEDGED', 'RESPONDED', 'CLOSED']).optional(),
-        attendees: z.string().optional(),
-        location: z.string().optional(),
+        attendees: z.string().trim().optional(),
+        location: z.string().trim().optional(),
         priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
         scheduledDate: z
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
-        outcome: z.string().optional(),
+        outcome: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);

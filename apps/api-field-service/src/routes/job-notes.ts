@@ -17,14 +17,14 @@ router.param('id', validateIdParam());
 const jobNoteCreateSchema = z.object({
   jobId: z.string().trim().uuid(),
   type: z.enum(['NOTE', 'PHOTO', 'SIGNATURE', 'CHECKLIST', 'FORM']).optional(),
-  content: z.string().min(1),
+  content: z.string().trim().min(1),
   attachments: z.any().optional().nullable(),
   isInternal: z.boolean().optional(),
 });
 
 const jobNoteUpdateSchema = z.object({
   type: z.enum(['NOTE', 'PHOTO', 'SIGNATURE', 'CHECKLIST', 'FORM']).optional(),
-  content: z.string().min(1).optional(),
+  content: z.string().trim().min(1).optional(),
   attachments: z.any().optional().nullable(),
   isInternal: z.boolean().optional(),
 });

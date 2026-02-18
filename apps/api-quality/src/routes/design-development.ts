@@ -53,9 +53,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       productName: z.string().trim().min(1).max(200),
-      projectManager: z.string().optional(),
+      projectManager: z.string().trim().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       plannedStartDate: z
         .string()
@@ -65,7 +65,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      requirements: z.string().optional(),
+      requirements: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -234,9 +234,9 @@ router.put(
 
       const schema = z.object({
         title: z.string().trim().min(1).max(200).optional(),
-        description: z.string().optional(),
+        description: z.string().trim().optional(),
         productName: z.string().trim().min(1).max(200).optional(),
-        projectManager: z.string().optional(),
+        projectManager: z.string().trim().optional(),
         priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
         status: z.enum(['DRAFT', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),
         plannedStartDate: z
@@ -247,7 +247,7 @@ router.put(
           .string()
           .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
-        requirements: z.string().optional(),
+        requirements: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -318,9 +318,9 @@ router.post(
       }
 
       const schema = z.object({
-        deliverables: z.string().optional(),
-        notes: z.string().optional(),
-        attachments: z.string().optional(),
+        deliverables: z.string().trim().optional(),
+        notes: z.string().trim().optional(),
+        attachments: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);
@@ -403,7 +403,7 @@ router.post(
       }
 
       const schema = z.object({
-        approvalNotes: z.string().optional(),
+        approvalNotes: z.string().trim().optional(),
       });
 
       const data = schema.parse(req.body);

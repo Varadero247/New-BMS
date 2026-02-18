@@ -23,8 +23,8 @@ const dataPointCreateSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
-  source: z.string().max(200).optional().nullable(),
-  notes: z.string().max(2000).optional().nullable(),
+  source: z.string().trim().max(200).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
   status: z.enum(['DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED']).optional(),
 });
 

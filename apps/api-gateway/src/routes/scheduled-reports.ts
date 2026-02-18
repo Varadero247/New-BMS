@@ -28,9 +28,9 @@ router.use(authenticate);
 const reportTypeValues = REPORT_TYPES.map((r) => r.value) as [string, ...string[]];
 
 const createSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
+  name: z.string().trim().min(1, 'Name is required').max(200),
   reportType: z.enum(reportTypeValues as [ReportType, ...ReportType[]]),
-  schedule: z.string().min(1, 'Cron schedule is required'),
+  schedule: z.string().trim().min(1, 'Cron schedule is required'),
   recipients: z.array(z.string().trim().email()).min(1, 'At least one recipient is required'),
   format: z.enum(['pdf', 'excel', 'csv'] as [ReportFormat, ...ReportFormat[]]),
   enabled: z.boolean().optional(),

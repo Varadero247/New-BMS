@@ -21,23 +21,23 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   productName: z.string().trim().min(1).max(300),
-  productId: z.string().max(100).optional().nullable(),
-  batchNumber: z.string().max(200).optional().nullable(),
-  releaseStage: z.string().max(200).optional().nullable(),
-  inspectionCriteria: z.string().max(5000).optional().nullable(),
-  testResults: z.string().max(10000).optional().nullable(),
+  productId: z.string().trim().max(100).optional().nullable(),
+  batchNumber: z.string().trim().max(200).optional().nullable(),
+  releaseStage: z.string().trim().max(200).optional().nullable(),
+  inspectionCriteria: z.string().trim().max(5000).optional().nullable(),
+  testResults: z.string().trim().max(10000).optional().nullable(),
   decision: z.enum(['APPROVED', 'REJECTED', 'CONDITIONAL', 'ON_HOLD']).optional(),
-  conditions: z.string().max(5000).optional().nullable(),
-  nonconformanceRef: z.string().max(200).optional().nullable(),
-  evidence: z.string().max(5000).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  conditions: z.string().trim().max(5000).optional().nullable(),
+  nonconformanceRef: z.string().trim().max(200).optional().nullable(),
+  evidence: z.string().trim().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial();
 
 const authoriseSchema = z.object({
   decision: z.enum(['APPROVED', 'REJECTED', 'CONDITIONAL']),
-  conditions: z.string().max(5000).optional().nullable(),
+  conditions: z.string().trim().max(5000).optional().nullable(),
 });
 
 function parseIntParam(val: unknown, fallback: number, max = Infinity): number {

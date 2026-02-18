@@ -58,8 +58,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       title: z.string().trim().min(1).max(200),
       deviceName: z.string().trim().min(1).max(200),
       deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']),
-      intendedUse: z.string().optional(),
-      riskPolicy: z.string().optional(),
+      intendedUse: z.string().trim().optional(),
+      riskPolicy: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -284,17 +284,17 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
       implementationStatus: z
         .enum(['PLANNED', 'IN_PROGRESS', 'IMPLEMENTED', 'VERIFIED'])
         .optional() as any,
-      verificationMethod: z.string().optional(),
+      verificationMethod: z.string().trim().optional(),
     });
 
     const schema = z.object({
       hazardDescription: z.string().trim().min(1).max(2000).optional(),
-      hazardousSituation: z.string().optional(),
-      harm: z.string().optional(),
+      hazardousSituation: z.string().trim().optional(),
+      harm: z.string().trim().optional(),
       severityAfter: z.number().int().min(1).max(5).optional(),
       probabilityAfter: z.number().int().min(1).max(5).optional(),
       residualRiskAcceptable: z.boolean().optional(),
-      notes: z.string().optional(),
+      notes: z.string().trim().optional(),
       controls: z.array(controlSchema).optional(),
     });
 

@@ -10,11 +10,11 @@ router.param('id', validateIdParam());
 const logger = createLogger('ptw-toolbox-talks');
 
 const createSchema = z.object({
-  topic: z.string().min(1, 'Topic is required'),
-  permitId: z.string().optional(),
-  content: z.string().optional(),
-  presenter: z.string().optional(),
-  presenterName: z.string().optional(),
+  topic: z.string().trim().min(1, 'Topic is required'),
+  permitId: z.string().trim().optional(),
+  content: z.string().trim().optional(),
+  presenter: z.string().trim().optional(),
+  presenterName: z.string().trim().optional(),
   scheduledDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -23,9 +23,9 @@ const createSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  attendees: z.array(z.string()).optional(),
+  attendees: z.array(z.string().trim()).optional(),
   attendeeCount: z.number().int().optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateSchema = createSchema.partial();

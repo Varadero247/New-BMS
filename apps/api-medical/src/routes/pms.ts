@@ -61,9 +61,9 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       deviceName: z.string().trim().min(1).max(200),
-      deviceClass: z.string().optional(),
-      dataSources: z.array(z.string()).optional(),
-      reviewFrequency: z.string().optional(),
+      deviceClass: z.string().trim().optional(),
+      dataSources: z.array(z.string().trim()).optional(),
+      reviewFrequency: z.string().trim().optional(),
       status: z.enum(PMS_PLAN_STATUSES).optional(),
       lastReviewDate: z
         .string()
@@ -203,9 +203,9 @@ router.put(
 
       const schema = z.object({
         deviceName: z.string().trim().min(1).max(200).optional(),
-        deviceClass: z.string().optional(),
-        dataSources: z.array(z.string()).optional(),
-        reviewFrequency: z.string().optional(),
+        deviceClass: z.string().trim().optional(),
+        dataSources: z.array(z.string().trim()).optional(),
+        reviewFrequency: z.string().trim().optional(),
         status: z.enum(PMS_PLAN_STATUSES).optional(),
         lastReviewDate: z
           .string()
@@ -269,10 +269,10 @@ router.post('/reports/psur', async (req: AuthRequest, res: Response) => {
       complaintCount: z.number().int().min(0).optional(),
       mdrCount: z.number().int().min(0).optional(),
       adverseEvents: z.number().int().min(0).optional(),
-      literatureRefs: z.string().optional(),
-      trendAnalysis: z.string().optional(),
-      conclusions: z.string().optional(),
-      actions: z.string().optional(),
+      literatureRefs: z.string().trim().optional(),
+      trendAnalysis: z.string().trim().optional(),
+      conclusions: z.string().trim().optional(),
+      actions: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -338,10 +338,10 @@ router.post('/reports/pmcf', async (req: AuthRequest, res: Response) => {
       complaintCount: z.number().int().min(0).optional(),
       mdrCount: z.number().int().min(0).optional(),
       adverseEvents: z.number().int().min(0).optional(),
-      literatureRefs: z.string().optional(),
-      trendAnalysis: z.string().optional(),
-      conclusions: z.string().optional(),
-      actions: z.string().optional(),
+      literatureRefs: z.string().trim().optional(),
+      trendAnalysis: z.string().trim().optional(),
+      conclusions: z.string().trim().optional(),
+      actions: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

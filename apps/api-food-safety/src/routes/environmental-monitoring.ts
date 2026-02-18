@@ -19,16 +19,21 @@ const envMonCreateSchema = z.object({
   testType: z.enum(['SWAB', 'AIR', 'WATER', 'SURFACE']),
   parameter: z.string().trim().min(1).max(200),
   result: z.string().trim().min(1).max(200),
-  unit: z.string().max(50).optional().nullable(),
-  limit: z.string().max(200).optional().nullable(),
+  unit: z.string().trim().max(50).optional().nullable(),
+  limit: z.string().trim().max(200).optional().nullable(),
   withinSpec: z.boolean(),
-  testedBy: z.string().max(200).optional().nullable(),
+  testedBy: z.string().trim().max(200).optional().nullable(),
   testedAt: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  notes: z.string().max(2000).optional().nullable(),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const envMonUpdateSchema = z.object({
@@ -36,17 +41,22 @@ const envMonUpdateSchema = z.object({
   testType: z.enum(['SWAB', 'AIR', 'WATER', 'SURFACE']).optional(),
   parameter: z.string().trim().min(1).max(200).optional(),
   result: z.string().trim().min(1).max(200).optional(),
-  unit: z.string().max(50).optional().nullable(),
-  limit: z.string().max(200).optional().nullable(),
+  unit: z.string().trim().max(50).optional().nullable(),
+  limit: z.string().trim().max(200).optional().nullable(),
   withinSpec: z.boolean().optional(),
-  testedBy: z.string().max(200).optional().nullable(),
+  testedBy: z.string().trim().max(200).optional().nullable(),
   testedAt: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

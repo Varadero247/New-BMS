@@ -25,28 +25,38 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 
 const announcementCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
-  content: z.string().min(1).max(10000),
+  content: z.string().trim().min(1).max(10000),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']),
   publishedAt: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
   expiresAt: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
 });
 
 const announcementUpdateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  content: z.string().min(1).max(10000).optional(),
+  content: z.string().trim().min(1).max(10000).optional(),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
   isActive: z.boolean().optional(),
@@ -54,14 +64,24 @@ const announcementUpdateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
   expiresAt: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional()
     .nullable(),
 });

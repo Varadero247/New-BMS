@@ -18,14 +18,14 @@ const createDisposalSchema = z.object({
     .trim()
     .datetime({ offset: true })
     .or(z.string().trim().datetime({ offset: true })),
-  disposalMethod: z.string().min(1, 'disposalMethod is required'),
-  wasteContractorName: z.string().optional(),
-  consignmentNoteRef: z.string().optional(),
-  ewcCode: z.string().optional(),
-  collectionSite: z.string().optional(),
-  disposalFacility: z.string().optional(),
-  certificateRef: z.string().optional(),
-  approvedBy: z.string().optional(),
+  disposalMethod: z.string().trim().min(1, 'disposalMethod is required'),
+  wasteContractorName: z.string().trim().optional(),
+  consignmentNoteRef: z.string().trim().optional(),
+  ewcCode: z.string().trim().optional(),
+  collectionSite: z.string().trim().optional(),
+  disposalFacility: z.string().trim().optional(),
+  certificateRef: z.string().trim().optional(),
+  approvedBy: z.string().trim().optional(),
 });
 
 const updateDisposalSchema = createDisposalSchema.partial();

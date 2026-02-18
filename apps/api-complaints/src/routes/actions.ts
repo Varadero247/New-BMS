@@ -9,16 +9,16 @@ router.param('id', validateIdParam());
 const logger = createLogger('complaints-actions');
 
 const createSchema = z.object({
-  complaintId: z.string().min(1, 'Complaint ID is required'),
-  action: z.string().min(1, 'Action is required'),
-  assignee: z.string().optional(),
+  complaintId: z.string().trim().min(1, 'Complaint ID is required'),
+  action: z.string().trim().min(1, 'Action is required'),
+  assignee: z.string().trim().optional(),
   dueDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  completedAt: z.string().optional(),
-  status: z.string().optional(),
-  notes: z.string().optional(),
+  completedAt: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 const updateSchema = createSchema.partial();
 

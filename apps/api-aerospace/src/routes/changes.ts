@@ -31,8 +31,8 @@ async function generateChangeRequestRefNumber(): Promise<string> {
 // ============================================
 
 const createChangeRequestSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().min(1, 'Description is required'),
   changeType: z.enum([
     'DESIGN',
     'PROCESS',
@@ -44,33 +44,33 @@ const createChangeRequestSchema = z.object({
     'OTHER',
   ]),
   priority: z.enum(['EMERGENCY', 'HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
-  reason: z.string().min(1, 'Reason is required'),
-  affectedDocuments: z.array(z.string()).optional().default([]),
-  affectedProcesses: z.array(z.string()).optional().default([]),
-  affectedParts: z.array(z.string()).optional().default([]),
+  reason: z.string().trim().min(1, 'Reason is required'),
+  affectedDocuments: z.array(z.string().trim()).optional().default([]),
+  affectedProcesses: z.array(z.string().trim()).optional().default([]),
+  affectedParts: z.array(z.string().trim()).optional().default([]),
   customerImpact: z.boolean().optional().default(false),
   regulatoryImpact: z.boolean().optional().default(false),
   safetyImpact: z.boolean().optional().default(false),
   costEstimate: z.number().nonnegative().optional(),
-  proposedBy: z.string().optional(),
+  proposedBy: z.string().trim().optional(),
   requestedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateChangeRequestSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
   changeType: z
     .enum(['DESIGN', 'PROCESS', 'MATERIAL', 'SUPPLIER', 'DOCUMENT', 'SOFTWARE', 'TOOLING', 'OTHER'])
     .optional(),
   priority: z.enum(['EMERGENCY', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  reason: z.string().optional(),
-  affectedDocuments: z.array(z.string()).optional(),
-  affectedProcesses: z.array(z.string()).optional(),
-  affectedParts: z.array(z.string()).optional(),
+  reason: z.string().trim().optional(),
+  affectedDocuments: z.array(z.string().trim()).optional(),
+  affectedProcesses: z.array(z.string().trim()).optional(),
+  affectedParts: z.array(z.string().trim()).optional(),
   customerImpact: z.boolean().optional(),
   regulatoryImpact: z.boolean().optional(),
   safetyImpact: z.boolean().optional(),
@@ -89,19 +89,19 @@ const updateChangeRequestSchema = z.object({
       'CANCELLED',
     ])
     .optional(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const reviewChangeRequestSchema = z.object({
   decision: z.enum(['APPROVE', 'REJECT', 'DEFER', 'REQUEST_MORE_INFO']),
-  reviewNotes: z.string().optional(),
-  reviewedBy: z.string().optional(),
-  conditions: z.string().optional(),
+  reviewNotes: z.string().trim().optional(),
+  reviewedBy: z.string().trim().optional(),
+  conditions: z.string().trim().optional(),
 });
 
 const implementChangeRequestSchema = z.object({
-  implementationNotes: z.string().optional(),
-  implementedBy: z.string().optional(),
+  implementationNotes: z.string().trim().optional(),
+  implementedBy: z.string().trim().optional(),
   verificationRequired: z.boolean().optional().default(true),
 });
 

@@ -21,15 +21,15 @@ async function generateRefNumber(): Promise<string> {
 
 const createSchema = z.object({
   employeeName: z.string().trim().min(1).max(200),
-  employeeId: z.string().max(100).optional().nullable(),
-  role: z.string().max(200).optional().nullable(),
-  department: z.string().max(200).optional().nullable(),
+  employeeId: z.string().trim().max(100).optional().nullable(),
+  role: z.string().trim().max(200).optional().nullable(),
+  department: z.string().trim().max(200).optional().nullable(),
   competencyArea: z.string().trim().min(1).max(300),
-  requiredLevel: z.string().max(100).optional().nullable(),
-  currentLevel: z.string().max(100).optional().nullable(),
+  requiredLevel: z.string().trim().max(100).optional().nullable(),
+  currentLevel: z.string().trim().max(100).optional().nullable(),
   status: z.enum(['COMPETENT', 'IN_TRAINING', 'NOT_COMPETENT', 'EXPIRED']).optional(),
-  trainingCompleted: z.string().max(5000).optional().nullable(),
-  certifications: z.string().max(2000).optional().nullable(),
+  trainingCompleted: z.string().trim().max(5000).optional().nullable(),
+  certifications: z.string().trim().max(2000).optional().nullable(),
   assessmentDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -40,11 +40,11 @@ const createSchema = z.object({
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional()
     .nullable(),
-  assessor: z.string().max(200).optional().nullable(),
-  evidence: z.string().max(5000).optional().nullable(),
-  gapAnalysis: z.string().max(5000).optional().nullable(),
-  actionPlan: z.string().max(5000).optional().nullable(),
-  notes: z.string().max(5000).optional().nullable(),
+  assessor: z.string().trim().max(200).optional().nullable(),
+  evidence: z.string().trim().max(5000).optional().nullable(),
+  gapAnalysis: z.string().trim().max(5000).optional().nullable(),
+  actionPlan: z.string().trim().max(5000).optional().nullable(),
+  notes: z.string().trim().max(5000).optional().nullable(),
 });
 
 const updateSchema = createSchema.partial();

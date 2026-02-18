@@ -53,14 +53,19 @@ const scheduleCompleteSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional(),
 });
 
 const scheduleSchema = z.object({
   assetId: z.string().trim().min(1).max(200),
   name: z.string().trim().min(1).max(300),
-  description: z.string().max(2000).optional().nullable(),
+  description: z.string().trim().max(2000).optional().nullable(),
   frequency: z
     .enum([
       'DAILY',
@@ -73,12 +78,12 @@ const scheduleSchema = z.object({
       'AS_NEEDED',
     ])
     .default('MONTHLY'),
-  tasks: z.array(z.string()).default([]),
-  assignedTo: z.string().max(200).optional().nullable(),
+  tasks: z.array(z.string().trim()).default([]),
+  assignedTo: z.string().trim().max(200).optional().nullable(),
   estimatedDuration: z.number().int().min(0).optional().nullable(),
   estimatedCost: z.number().nonnegative().optional().nullable(),
-  lastPerformed: z.string().optional().nullable(),
-  nextDue: z.string().optional().nullable(),
+  lastPerformed: z.string().trim().optional().nullable(),
+  nextDue: z.string().trim().optional().nullable(),
   isActive: z.boolean().default(true),
 });
 

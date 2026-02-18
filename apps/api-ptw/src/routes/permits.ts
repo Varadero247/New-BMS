@@ -10,8 +10,8 @@ router.param('id', validateIdParam());
 const logger = createLogger('ptw-permits');
 
 const createSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, 'Title is required'),
+  description: z.string().trim().optional(),
   type: z
     .enum([
       'HOT_WORK',
@@ -26,12 +26,12 @@ const createSchema = z.object({
     .enum(['DRAFT', 'REQUESTED', 'APPROVED', 'ACTIVE', 'SUSPENDED', 'CLOSED', 'CANCELLED'])
     .optional(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
-  location: z.string().optional(),
-  area: z.string().optional(),
-  requestedBy: z.string().optional(),
-  requestedByName: z.string().optional(),
-  approvedBy: z.string().optional(),
-  approvedByName: z.string().optional(),
+  location: z.string().trim().optional(),
+  area: z.string().trim().optional(),
+  requestedBy: z.string().trim().optional(),
+  requestedByName: z.string().trim().optional(),
+  approvedBy: z.string().trim().optional(),
+  approvedByName: z.string().trim().optional(),
   startDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -40,14 +40,14 @@ const createSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  hazards: z.string().optional(),
-  precautions: z.string().optional(),
-  ppe: z.string().optional(),
-  emergencyProcedure: z.string().optional(),
-  isolations: z.string().optional(),
+  hazards: z.string().trim().optional(),
+  precautions: z.string().trim().optional(),
+  ppe: z.string().trim().optional(),
+  emergencyProcedure: z.string().trim().optional(),
+  isolations: z.string().trim().optional(),
   gasTestRequired: z.boolean().optional(),
-  gasTestResult: z.string().optional(),
-  notes: z.string().optional(),
+  gasTestResult: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateSchema = createSchema.partial();

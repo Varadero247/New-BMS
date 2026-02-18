@@ -65,13 +65,16 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
 const createTimesheetSchema = z.object({
   projectId: z.string().trim().min(1).max(200),
-  taskId: z.string().optional(),
+  taskId: z.string().trim().optional(),
   employeeId: z.string().trim().min(1).max(200),
-  workDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  workDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   hoursWorked: z.number().min(0),
   overtime: z.number().optional(),
   activityType: z.enum(['DEVELOPMENT', 'TESTING', 'DESIGN', 'MEETING', 'DOCUMENTATION', 'ADMIN']),
-  description: z.string().optional(),
+  description: z.string().trim().optional(),
   isBillable: z.boolean().optional(),
   billableHours: z.number().nonnegative().optional(),
   hourlyRate: z.number().nonnegative().optional(),

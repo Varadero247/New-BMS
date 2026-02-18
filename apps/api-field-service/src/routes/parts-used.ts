@@ -22,7 +22,7 @@ const partUsedCreateSchema = z.object({
   unitCost: z.number().min(0),
   totalCost: z.number().min(0),
   fromInventory: z.boolean().optional(),
-  serialNumber: z.string().max(100).optional().nullable(),
+  serialNumber: z.string().trim().max(100).optional().nullable(),
 });
 
 const partUsedUpdateSchema = z.object({
@@ -32,7 +32,7 @@ const partUsedUpdateSchema = z.object({
   unitCost: z.number().min(0).optional(),
   totalCost: z.number().min(0).optional(),
   fromInventory: z.boolean().optional(),
-  serialNumber: z.string().max(100).optional().nullable(),
+  serialNumber: z.string().trim().max(100).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

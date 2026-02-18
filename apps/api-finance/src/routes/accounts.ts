@@ -31,16 +31,16 @@ const accountCreateSchema = z.object({
   type: z.enum(['ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE']),
   normalBalance: z.enum(['DEBIT', 'CREDIT']),
   parentId: z.string().trim().uuid().optional().nullable(),
-  description: z.string().max(1000).optional().nullable(),
-  currency: z.string().length(3).default('USD'),
+  description: z.string().trim().max(1000).optional().nullable(),
+  currency: z.string().trim().length(3).default('USD'),
   taxRateId: z.string().trim().uuid().optional().nullable(),
   openingBalance: z.number().optional().default(0),
 });
 
 const accountUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(1000).optional().nullable(),
-  currency: z.string().length(3).optional(),
+  description: z.string().trim().max(1000).optional().nullable(),
+  currency: z.string().trim().length(3).optional(),
   taxRateId: z.string().trim().uuid().optional().nullable(),
   isActive: z.boolean().optional(),
   parentId: z.string().trim().uuid().optional().nullable(),
@@ -50,7 +50,7 @@ const journalLineSchema = z.object({
   accountId: z.string().trim().uuid(),
   debit: z.number().min(0).default(0),
   credit: z.number().min(0).default(0),
-  description: z.string().max(500).optional().nullable(),
+  description: z.string().trim().max(500).optional().nullable(),
 });
 
 const journalEntryCreateSchema = z.object({
@@ -58,11 +58,16 @@ const journalEntryCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   periodId: z.string().trim().uuid(),
   description: z.string().trim().min(1).max(1000),
-  memo: z.string().max(2000).optional().nullable(),
-  source: z.string().max(100).optional().nullable(),
+  memo: z.string().trim().max(2000).optional().nullable(),
+  source: z.string().trim().max(100).optional().nullable(),
   sourceId: z.string().trim().uuid().optional().nullable(),
   lines: z.array(journalLineSchema).min(2),
 });
@@ -72,10 +77,15 @@ const journalEntryUpdateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    )
     .optional(),
   description: z.string().trim().min(1).max(1000).optional(),
-  memo: z.string().max(2000).optional().nullable(),
+  memo: z.string().trim().max(2000).optional().nullable(),
   lines: z.array(journalLineSchema).min(2).optional(),
 });
 
@@ -85,12 +95,22 @@ const periodCreateSchema = z.object({
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   endDate: z
     .string()
     .trim()
     .datetime({ offset: true })
-    .or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
+    .or(
+      z
+        .string()
+        .trim()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+    ),
   fiscalYear: z.number().int().min(2000).max(2100),
   quarter: z.number().int().min(1).max(4).optional().nullable(),
 });

@@ -54,10 +54,10 @@ const createSchema = z.object({
   title: z.string().trim().min(1).max(200),
   capaType: z.enum(['CORRECTIVE', 'PREVENTIVE']).optional(),
   source: z.enum(CAPA_SOURCES),
-  sourceRef: z.string().optional(),
+  sourceRef: z.string().trim().optional(),
   description: z.string().trim().min(1).max(2000),
-  deviceName: z.string().optional(),
-  deviceId: z.string().optional(),
+  deviceName: z.string().trim().optional(),
+  deviceId: z.string().trim().optional(),
   severity: z.enum(CAPA_SEVERITIES).optional(),
 });
 
@@ -65,36 +65,36 @@ const updateSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
   capaType: z.enum(['CORRECTIVE', 'PREVENTIVE']).optional(),
   source: z.enum(CAPA_SOURCES).optional(),
-  sourceRef: z.string().optional(),
-  description: z.string().optional(),
-  deviceName: z.string().optional(),
-  deviceId: z.string().optional(),
+  sourceRef: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  deviceName: z.string().trim().optional(),
+  deviceId: z.string().trim().optional(),
   severity: z.enum(CAPA_SEVERITIES).optional(),
   status: z.enum(CAPA_STATUSES).optional(),
-  rootCause: z.string().optional(),
-  rootCauseMethod: z.string().optional(),
-  containmentAction: z.string().optional(),
+  rootCause: z.string().trim().optional(),
+  rootCauseMethod: z.string().trim().optional(),
+  containmentAction: z.string().trim().optional(),
   containmentDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  plannedAction: z.string().optional(),
+  plannedAction: z.string().trim().optional(),
   plannedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  implementedAction: z.string().optional(),
+  implementedAction: z.string().trim().optional(),
   implementedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  verificationMethod: z.string().optional(),
+  verificationMethod: z.string().trim().optional(),
   verificationDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  verifiedBy: z.string().optional(),
-  effectivenessCheck: z.string().optional(),
+  verifiedBy: z.string().trim().optional(),
+  effectivenessCheck: z.string().trim().optional(),
   effectivenessDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -106,7 +106,7 @@ const updateSchema = z.object({
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  closedBy: z.string().optional(),
+  closedBy: z.string().trim().optional(),
 });
 
 // GET / - List CAPAs

@@ -13,12 +13,12 @@ const createObjectiveSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(2000),
   targetValue: z.number().nonnegative().optional(),
-  unit: z.string().optional(),
+  unit: z.string().trim().optional(),
   baselineValue: z.number().optional(),
-  startDate: z.string().datetime({ offset: true }).optional(),
-  targetDate: z.string().datetime({ offset: true }).optional(),
-  ownerId: z.string().optional(),
-  department: z.string().optional(),
+  startDate: z.string().trim().datetime({ offset: true }).optional(),
+  targetDate: z.string().trim().datetime({ offset: true }).optional(),
+  ownerId: z.string().trim().optional(),
+  department: z.string().trim().optional(),
 });
 
 const updateObjectiveSchema = createObjectiveSchema.partial().extend({
@@ -31,7 +31,7 @@ const updateObjectiveSchema = createObjectiveSchema.partial().extend({
 
 const progressSchema = z.object({
   value: z.number(),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 // Calculate progress percentage

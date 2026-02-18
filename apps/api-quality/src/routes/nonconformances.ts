@@ -160,23 +160,23 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'OBSERVATION',
       ]),
       severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).default('MINOR'),
-      isoClause: z.string().optional(),
-      dateReported: z.string().optional(),
+      isoClause: z.string().trim().optional(),
+      dateReported: z.string().trim().optional(),
       reportedBy: z.string().trim().min(1).max(200),
       department: z.string().trim().min(1).max(200),
       title: z.string().trim().min(1).max(200),
       description: z.string().trim().min(1).max(2000),
-      evidenceRef: z.string().optional(),
-      whereDetected: z.string().optional(),
+      evidenceRef: z.string().trim().optional(),
+      whereDetected: z.string().trim().optional(),
       quantityAffected: z.number().nonnegative().optional(),
-      quantityUnit: z.string().optional(),
+      quantityUnit: z.string().trim().optional(),
       customerImpact: z.boolean().default(false),
-      customerImpactDesc: z.string().optional(),
+      customerImpactDesc: z.string().trim().optional(),
       containmentRequired: z.boolean().default(false),
-      containmentActions: z.string().optional(),
+      containmentActions: z.string().trim().optional(),
       productsQuarantined: z.boolean().default(false),
       customersNotified: z.boolean().default(false),
-      containmentEffectiveBy: z.string().optional(),
+      containmentEffectiveBy: z.string().trim().optional(),
       containmentDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
@@ -184,12 +184,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       rcaMethod: z
         .enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER'])
         .optional(),
-      why1: z.string().optional(),
-      why2: z.string().optional(),
-      why3: z.string().optional(),
-      why4: z.string().optional(),
-      why5: z.string().optional(),
-      rootCause: z.string().optional(),
+      why1: z.string().trim().optional(),
+      why2: z.string().trim().optional(),
+      why3: z.string().trim().optional(),
+      why4: z.string().trim().optional(),
+      why5: z.string().trim().optional(),
+      rootCause: z.string().trim().optional(),
       rootCauseCategory: z
         .enum([
           'HUMAN_ERROR',
@@ -203,14 +203,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         ])
         .optional(),
       capaRequired: z.boolean().default(false),
-      capaReference: z.string().optional(),
-      correctiveActions: z.string().optional(),
-      preventiveActions: z.string().optional(),
-      recurrencePrevention: z.string().optional(),
-      linkedProcess: z.string().optional(),
-      linkedFmea: z.string().optional(),
-      linkedHsIncident: z.string().optional(),
-      linkedEnvEvent: z.string().optional(),
+      capaReference: z.string().trim().optional(),
+      correctiveActions: z.string().trim().optional(),
+      preventiveActions: z.string().trim().optional(),
+      recurrencePrevention: z.string().trim().optional(),
+      linkedProcess: z.string().trim().optional(),
+      linkedFmea: z.string().trim().optional(),
+      linkedHsIncident: z.string().trim().optional(),
+      linkedEnvEvent: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -286,22 +286,22 @@ router.put(
           ])
           .optional(),
         severity: z.enum(['MINOR', 'MODERATE', 'MAJOR', 'CRITICAL']).optional(),
-        isoClause: z.string().nullable().optional(),
-        reportedBy: z.string().optional(),
-        department: z.string().optional(),
+        isoClause: z.string().trim().nullable().optional(),
+        reportedBy: z.string().trim().optional(),
+        department: z.string().trim().optional(),
         title: z.string().trim().min(1).max(200).optional(),
-        description: z.string().optional(),
-        evidenceRef: z.string().nullable().optional(),
-        whereDetected: z.string().nullable().optional(),
+        description: z.string().trim().optional(),
+        evidenceRef: z.string().trim().nullable().optional(),
+        whereDetected: z.string().trim().nullable().optional(),
         quantityAffected: z.number().nonnegative().nullable().optional(),
-        quantityUnit: z.string().nullable().optional(),
+        quantityUnit: z.string().trim().nullable().optional(),
         customerImpact: z.boolean().optional(),
-        customerImpactDesc: z.string().nullable().optional(),
+        customerImpactDesc: z.string().trim().nullable().optional(),
         containmentRequired: z.boolean().optional(),
-        containmentActions: z.string().nullable().optional(),
+        containmentActions: z.string().trim().nullable().optional(),
         productsQuarantined: z.boolean().optional(),
         customersNotified: z.boolean().optional(),
-        containmentEffectiveBy: z.string().nullable().optional(),
+        containmentEffectiveBy: z.string().trim().nullable().optional(),
         containmentDate: z
           .string()
           .nullable()
@@ -311,12 +311,12 @@ router.put(
           .enum(['FIVE_WHY', 'FISHBONE', 'IS_IS_NOT', 'EIGHT_D', 'FAULT_TREE', 'OTHER'])
           .nullable()
           .optional(),
-        why1: z.string().nullable().optional(),
-        why2: z.string().nullable().optional(),
-        why3: z.string().nullable().optional(),
-        why4: z.string().nullable().optional(),
-        why5: z.string().nullable().optional(),
-        rootCause: z.string().nullable().optional(),
+        why1: z.string().trim().nullable().optional(),
+        why2: z.string().trim().nullable().optional(),
+        why3: z.string().trim().nullable().optional(),
+        why4: z.string().trim().nullable().optional(),
+        why5: z.string().trim().nullable().optional(),
+        rootCause: z.string().trim().nullable().optional(),
         rootCauseCategory: z
           .enum([
             'HUMAN_ERROR',
@@ -331,10 +331,10 @@ router.put(
           .nullable()
           .optional(),
         capaRequired: z.boolean().optional(),
-        capaReference: z.string().nullable().optional(),
-        correctiveActions: z.string().nullable().optional(),
-        preventiveActions: z.string().nullable().optional(),
-        recurrencePrevention: z.string().nullable().optional(),
+        capaReference: z.string().trim().nullable().optional(),
+        correctiveActions: z.string().trim().nullable().optional(),
+        preventiveActions: z.string().trim().nullable().optional(),
+        recurrencePrevention: z.string().trim().nullable().optional(),
         status: z
           .enum([
             'REPORTED',
@@ -346,24 +346,24 @@ router.put(
             'CLOSED',
           ])
           .optional(),
-        closedBy: z.string().nullable().optional(),
+        closedBy: z.string().trim().nullable().optional(),
         closureDate: z
           .string()
           .nullable()
           .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
           .optional(),
         effectivenessVerified: z.enum(['YES', 'NO', 'PENDING']).optional(),
-        lessonsLearned: z.string().nullable().optional(),
-        linkedProcess: z.string().nullable().optional(),
-        linkedFmea: z.string().nullable().optional(),
-        linkedHsIncident: z.string().nullable().optional(),
-        linkedEnvEvent: z.string().nullable().optional(),
+        lessonsLearned: z.string().trim().nullable().optional(),
+        linkedProcess: z.string().trim().nullable().optional(),
+        linkedFmea: z.string().trim().nullable().optional(),
+        linkedHsIncident: z.string().trim().nullable().optional(),
+        linkedEnvEvent: z.string().trim().nullable().optional(),
         // AI fields
-        aiAnalysis: z.string().nullable().optional(),
-        aiRootCauseSuggestions: z.string().nullable().optional(),
-        aiContainmentAdequacy: z.string().nullable().optional(),
-        aiCapaRecommendations: z.string().nullable().optional(),
-        aiIsoClause: z.string().nullable().optional(),
+        aiAnalysis: z.string().trim().nullable().optional(),
+        aiRootCauseSuggestions: z.string().trim().nullable().optional(),
+        aiContainmentAdequacy: z.string().trim().nullable().optional(),
+        aiCapaRecommendations: z.string().trim().nullable().optional(),
+        aiIsoClause: z.string().trim().nullable().optional(),
         aiGenerated: z.boolean().optional(),
       });
 

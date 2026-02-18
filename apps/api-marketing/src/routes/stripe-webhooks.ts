@@ -6,14 +6,14 @@ import { prisma } from '../prisma';
 import { AutomationConfig } from '../config';
 
 const stripeWebhookSchema = z.object({
-  type: z.string().min(1, 'Invalid event'),
+  type: z.string().trim().min(1, 'Invalid event'),
   data: z
     .object({
       object: z
         .object({
-          id: z.string().optional(),
-          metadata: z.record(z.string()).optional(),
-          status: z.string().optional(),
+          id: z.string().trim().optional(),
+          metadata: z.record(z.string().trim()).optional(),
+          status: z.string().trim().optional(),
         })
         .optional(),
     })

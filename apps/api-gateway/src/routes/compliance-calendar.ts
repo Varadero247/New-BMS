@@ -81,21 +81,24 @@ function enrichEvent(event: Record<string, any>) {
 // Validation schemas
 // ---------------------------------------------------------------------------
 const createEventSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200),
-  description: z.string().max(2000).optional(),
+  title: z.string().trim().min(1, 'Title is required').max(200),
+  description: z.string().trim().max(2000).optional(),
   type: z.enum(VALID_EVENT_TYPES),
   standard: z.enum(VALID_STANDARDS),
-  dueDate: z.string().refine((d) => !isNaN(Date.parse(d)), 'Invalid date'),
-  assigneeId: z.string().optional(),
-  assignee: z.string().max(200).optional(),
-  location: z.string().max(500).optional(),
-  notes: z.string().max(5000).optional(),
+  dueDate: z
+    .string()
+    .trim()
+    .refine((d) => !isNaN(Date.parse(d)), 'Invalid date'),
+  assigneeId: z.string().trim().optional(),
+  assignee: z.string().trim().max(200).optional(),
+  location: z.string().trim().max(500).optional(),
+  notes: z.string().trim().max(5000).optional(),
   recurrence: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).optional(),
 });
 
 const updateEventSchema = z.object({
   title: z.string().trim().min(1).max(200).optional(),
-  description: z.string().max(2000).optional(),
+  description: z.string().trim().max(2000).optional(),
   type: z.enum(VALID_EVENT_TYPES).optional(),
   standard: z.enum(VALID_STANDARDS).optional(),
   status: z.enum(VALID_STATUSES).optional(),
@@ -108,10 +111,10 @@ const updateEventSchema = z.object({
     .refine((d) => !isNaN(Date.parse(d)), 'Invalid date')
     .nullable()
     .optional(),
-  assigneeId: z.string().optional(),
-  assignee: z.string().max(200).optional(),
-  location: z.string().max(500).optional(),
-  notes: z.string().max(5000).optional(),
+  assigneeId: z.string().trim().optional(),
+  assignee: z.string().trim().max(200).optional(),
+  location: z.string().trim().max(500).optional(),
+  notes: z.string().trim().max(5000).optional(),
   recurrence: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).nullable().optional(),
 });
 

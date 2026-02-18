@@ -5,17 +5,17 @@ import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 
 const createCategorySchema = z.object({
-  category: z.string().min(1, 'category is required'),
-  legalBasis: z.string().min(1, 'legalBasis is required'),
+  category: z.string().trim().min(1, 'category is required'),
+  legalBasis: z.string().trim().min(1, 'legalBasis is required'),
   retentionDays: z.number().optional(),
-  systems: z.string().nullable().optional(),
-  complianceStatus: z.string().optional(),
+  systems: z.string().trim().nullable().optional(),
+  complianceStatus: z.string().trim().optional(),
 });
 
 const createDpaSchema = z.object({
-  processorName: z.string().min(1, 'processorName is required'),
-  purpose: z.string().min(1, 'purpose is required'),
-  dataTypes: z.array(z.string()).optional(),
+  processorName: z.string().trim().min(1, 'processorName is required'),
+  purpose: z.string().trim().min(1, 'purpose is required'),
+  dataTypes: z.array(z.string().trim()).optional(),
   signedDate: z
     .string()
     .nullable()
@@ -26,7 +26,7 @@ const createDpaSchema = z.object({
     .nullable()
     .refine((s) => s === null || !isNaN(Date.parse(s)), 'Invalid date format')
     .optional(),
-  documentUrl: z.string().nullable().optional(),
+  documentUrl: z.string().trim().nullable().optional(),
 });
 
 const logger = createLogger('gdpr');

@@ -10,11 +10,11 @@ router.param('id', validateIdParam());
 const logger = createLogger('audits-programmes');
 
 const programmeCreateSchema = z.object({
-  title: z.string().min(1, 'title is required'),
+  title: z.string().trim().min(1, 'title is required'),
   year: z.number({ required_error: 'year is required' }),
-  description: z.string().optional(),
-  status: z.string().optional(),
-  auditIds: z.array(z.string()).optional(),
+  description: z.string().trim().optional(),
+  status: z.string().trim().optional(),
+  auditIds: z.array(z.string().trim()).optional(),
 });
 
 const programmeUpdateSchema = programmeCreateSchema.partial();

@@ -16,7 +16,10 @@ const inspectionCreateSchema = z.object({
   assetId: z.string().trim().uuid(),
   inspectionType: z.string().trim().min(1).max(100),
   inspector: z.string().trim().min(1).max(200),
-  scheduledDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+  scheduledDate: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   completedDate: z
     .string()
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')

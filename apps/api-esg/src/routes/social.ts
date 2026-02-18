@@ -28,7 +28,7 @@ const socialCreateSchema = z.object({
   ]),
   metric: z.string().trim().min(1).max(200),
   value: z.number(),
-  unit: z.string().max(50).optional().nullable(),
+  unit: z.string().trim().max(50).optional().nullable(),
   periodStart: z
     .string()
     .trim()
@@ -39,7 +39,7 @@ const socialCreateSchema = z.object({
     .trim()
     .min(1)
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const socialUpdateSchema = z.object({
@@ -48,10 +48,10 @@ const socialUpdateSchema = z.object({
     .optional(),
   metric: z.string().trim().min(1).max(200).optional(),
   value: z.number().optional(),
-  unit: z.string().max(50).optional().nullable(),
-  periodStart: z.string().optional(),
-  periodEnd: z.string().optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  unit: z.string().trim().max(50).optional().nullable(),
+  periodStart: z.string().trim().optional(),
+  periodEnd: z.string().trim().optional(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const RESERVED_PATHS = new Set(['workforce', 'safety']);

@@ -36,7 +36,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       name: z.string().trim().min(1).max(255),
       url: z.string().trim().url(),
       events: z.array(webhookEventTypeEnum).min(1),
-      headers: z.record(z.string()).optional(),
+      headers: z.record(z.string().trim()).optional(),
       retryCount: z.number().int().min(0).max(10).optional(),
       timeout: z.number().int().min(1000).max(30000).optional(),
     });
@@ -164,7 +164,7 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
       url: z.string().trim().url().optional(),
       events: z.array(webhookEventTypeEnum).min(1).optional(),
       isActive: z.boolean().optional(),
-      headers: z.record(z.string()).optional(),
+      headers: z.record(z.string().trim()).optional(),
       retryCount: z.number().int().min(0).max(10).optional(),
       timeout: z.number().int().min(1000).max(30000).optional(),
     });

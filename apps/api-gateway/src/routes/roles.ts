@@ -192,7 +192,7 @@ router.get('/modules', (_req: AuthRequest, res: Response) => {
 router.post('/resolve', (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      roles: z.array(z.string()).min(1, 'At least one role ID is required'),
+      roles: z.array(z.string().trim()).min(1, 'At least one role ID is required'),
     });
 
     const { roles } = schema.parse(req.body);
@@ -299,12 +299,12 @@ router.get('/', async (_req: AuthRequest, res: Response) => {
 router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-      description: z.string().max(500).optional().default(''),
+      name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
+      description: z.string().trim().max(500).optional().default(''),
       permissions: z
         .array(
           z.object({
-            module: z.string(),
+            module: z.string().trim(),
             level: z.number().min(0).max(6),
           })
         )
@@ -426,12 +426,12 @@ router.put('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response)
     }
 
     const schema = z.object({
-      name: z.string().min(2).max(100).optional(),
-      description: z.string().max(500).optional(),
+      name: z.string().trim().min(2).max(100).optional(),
+      description: z.string().trim().max(500).optional(),
       permissions: z
         .array(
           z.object({
-            module: z.string(),
+            module: z.string().trim(),
             level: z.number().min(0).max(6),
           })
         )
@@ -626,8 +626,8 @@ router.post('/access-log', (req: AuthRequest, res: Response) => {
     const schema = z.object({
       module: z.string().trim().min(1).max(200),
       action: z.string().trim().min(1).max(2000),
-      resource: z.string().optional(),
-      details: z.string().optional(),
+      resource: z.string().trim().optional(),
+      details: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -762,7 +762,7 @@ router.patch(
       const { userId } = req.params;
 
       const schema = z.object({
-        roles: z.array(z.string()).min(1, 'At least one role is required'),
+        roles: z.array(z.string().trim()).min(1, 'At least one role is required'),
       });
 
       const { roles } = schema.parse(req.body);

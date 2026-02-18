@@ -70,10 +70,10 @@ async function generateRefNumber(): Promise<string> {
 // ============================================
 
 const createSubmissionSchema = z.object({
-  deviceName: z.string().min(1, 'Device name is required'),
+  deviceName: z.string().trim().min(1, 'Device name is required'),
   market: z.enum(REGULATORY_MARKETS),
   submissionType: z.enum(SUBMISSION_TYPES),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateSubmissionSchema = z.object({
@@ -81,13 +81,13 @@ const updateSubmissionSchema = z.object({
   submittedDate: z.string().trim().datetime({ offset: true }).optional(),
   approvalDate: z.string().trim().datetime({ offset: true }).optional(),
   expiryDate: z.string().trim().datetime({ offset: true }).optional(),
-  referenceNumber: z.string().optional(),
-  conditions: z.string().optional(),
+  referenceNumber: z.string().trim().optional(),
+  conditions: z.string().trim().optional(),
 });
 
 const createChangeSchema = z.object({
-  changeType: z.string().min(1, 'Change type is required'),
-  description: z.string().min(1, 'Description is required'),
+  changeType: z.string().trim().min(1, 'Change type is required'),
+  description: z.string().trim().min(1, 'Description is required'),
   notificationDate: z.string().trim().datetime({ offset: true }).optional(),
 });
 

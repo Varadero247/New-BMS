@@ -62,9 +62,9 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
   try {
     const schema = z.object({
       provider: z.enum(['OPENAI', 'ANTHROPIC', 'GROK']),
-      apiKey: z.string().min(1),
-      model: z.string().optional(),
-      defaultPrompt: z.string().optional(),
+      apiKey: z.string().trim().min(1),
+      model: z.string().trim().optional(),
+      defaultPrompt: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

@@ -28,7 +28,7 @@ const userCreateSchema = z.object({
   company: z.string().trim().min(1).max(200),
   role: z.enum(['CUSTOMER_ADMIN', 'CUSTOMER_USER', 'SUPPLIER_ADMIN', 'SUPPLIER_USER']),
   portalType: z.enum(['CUSTOMER', 'SUPPLIER']),
-  phone: z.string().max(50).optional().nullable(),
+  phone: z.string().trim().max(50).optional().nullable(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING', 'SUSPENDED']).default('PENDING'),
 });
 
@@ -36,7 +36,7 @@ const userUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   company: z.string().trim().min(1).max(200).optional(),
   role: z.enum(['CUSTOMER_ADMIN', 'CUSTOMER_USER', 'SUPPLIER_ADMIN', 'SUPPLIER_USER']).optional(),
-  phone: z.string().max(50).optional().nullable(),
+  phone: z.string().trim().max(50).optional().nullable(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'PENDING', 'SUSPENDED']).optional(),
 });
 

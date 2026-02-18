@@ -14,16 +14,19 @@ router.use(authenticate);
 
 const scheduleCreateSchema = z.object({
   technicianId: z.string().trim().uuid(),
-  date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
+  date: z
+    .string()
+    .trim()
+    .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
   slots: z.array(z.any()),
   isAvailable: z.boolean().optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 const scheduleUpdateSchema = z.object({
   slots: z.array(z.any()).optional(),
   isAvailable: z.boolean().optional(),
-  notes: z.string().max(2000).optional().nullable(),
+  notes: z.string().trim().max(2000).optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------
@@ -56,7 +59,13 @@ router.get('/', async (req: Request, res: Response) => {
     if (isAvailable !== undefined) where.isAvailable = isAvailable === 'true';
 
     const [data, total] = await Promise.all([
-      prisma.fsSvcSchedule.findMany({ where, skip, take: limit, orderBy: { date: 'desc' }, include: { technician: true } }),
+      prisma.fsSvcSchedule.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { date: 'desc' },
+        include: { technician: true },
+      }),
       prisma.fsSvcSchedule.count({ where }),
     ]);
 
@@ -66,8 +75,15 @@ router.get('/', async (req: Request, res: Response) => {
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
     });
   } catch (error: unknown) {
-    logger.error('Failed to list schedules', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list schedules' } });
+    logger.error('Failed to list schedules', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to list schedules' },
+      });
   }
 });
 
@@ -79,9 +95,13 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
     const { technicianId } = req.params;
     const { startDate, endDate } = req.query;
 
-    const technician = await prisma.fsSvcTechnician.findFirst({ where: { id: technicianId, deletedAt: null } as any });
+    const technician = await prisma.fsSvcTechnician.findFirst({
+      where: { id: technicianId, deletedAt: null } as any,
+    });
     if (!technician) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }
 
     const where: Record<string, unknown> = { technicianId, deletedAt: null };
@@ -94,28 +114,39 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
     const schedules = await prisma.fsSvcSchedule.findMany({
       where,
       orderBy: { date: 'asc' },
-      take: 1000});
+      take: 1000,
+    });
 
     const jobs = await prisma.fsSvcJob.findMany({
       where: {
         technicianId,
         deletedAt: null,
         status: { notIn: ['CANCELLED'] } as any,
-        ...(startDate || endDate ? {
-          scheduledStart: {
-            ...(startDate ? { gte: new Date(String(startDate)) } : {}),
-            ...(endDate ? { lte: new Date(String(endDate)) } : {}),
-          },
-        } : {}),
+        ...(startDate || endDate
+          ? {
+              scheduledStart: {
+                ...(startDate ? { gte: new Date(String(startDate)) } : {}),
+                ...(endDate ? { lte: new Date(String(endDate)) } : {}),
+              },
+            }
+          : {}),
       },
       orderBy: { scheduledStart: 'asc' },
       include: { customer: true, site: true },
-      take: 1000});
+      take: 1000,
+    });
 
     res.json({ success: true, data: { technician, schedules, jobs } });
   } catch (error: unknown) {
-    logger.error('Failed to get calendar', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get calendar' } });
+    logger.error('Failed to get calendar', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get calendar' },
+      });
   }
 });
 
@@ -126,7 +157,12 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = scheduleCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+        });
     }
 
     const authReq = req as AuthRequest;
@@ -141,8 +177,15 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to create schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create schedule' } });
+    logger.error('Failed to create schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to create schedule' },
+      });
   }
 });
 
@@ -158,12 +201,21 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!data) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to get schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get schedule' } });
+    logger.error('Failed to get schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to get schedule' },
+      });
   }
 });
 
@@ -172,14 +224,23 @@ router.get('/:id', async (req: Request, res: Response, next) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcSchedule.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcSchedule.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
 
     const parsed = scheduleUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.issues } });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: { code: 'VALIDATION_ERROR', details: parsed.error.issues },
+        });
     }
 
     const data = await prisma.fsSvcSchedule.update({
@@ -189,8 +250,15 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     res.json({ success: true, data });
   } catch (error: unknown) {
-    logger.error('Failed to update schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to update schedule' } });
+    logger.error('Failed to update schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to update schedule' },
+      });
   }
 });
 
@@ -199,16 +267,30 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcSchedule.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const existing = await prisma.fsSvcSchedule.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
+    });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
+      return res
+        .status(404)
+        .json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
 
-    await prisma.fsSvcSchedule.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.fsSvcSchedule.update({
+      where: { id: req.params.id },
+      data: { deletedAt: new Date() },
+    });
     res.json({ success: true, data: { message: 'Schedule deleted' } });
   } catch (error: unknown) {
-    logger.error('Failed to delete schedule', { error: error instanceof Error ? error.message : 'Unknown error' });
-    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to delete schedule' } });
+    logger.error('Failed to delete schedule', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res
+      .status(500)
+      .json({
+        success: false,
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to delete schedule' },
+      });
   }
 });
 

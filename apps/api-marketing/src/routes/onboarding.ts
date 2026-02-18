@@ -6,8 +6,8 @@ import { AutomationConfig } from '../config';
 
 const enqueueOnboardingSchema = z.object({
   email: z.string().trim().email('Valid email is required').min(1, 'Email is required'),
-  firstName: z.string().optional(),
-  companyName: z.string().optional(),
+  firstName: z.string().trim().optional(),
+  companyName: z.string().trim().optional(),
 });
 
 const logger = createLogger('api-marketing:onboarding');

@@ -21,9 +21,9 @@ const TIER_CONFIG: Record<
 };
 
 const createPartnerSchema = z.object({
-  accountId: z.string().min(1, 'Account ID is required'),
+  accountId: z.string().trim().min(1, 'Account ID is required'),
   tier: z.enum(['TIER_1_REFERRAL', 'TIER_2_COSELL', 'TIER_3_RESELLER']),
-  notes: z.string().optional(),
+  notes: z.string().trim().optional(),
 });
 
 const updateTierSchema = z.object({
@@ -31,11 +31,11 @@ const updateTierSchema = z.object({
 });
 
 const createReferralSchema = z.object({
-  dealId: z.string().min(1, 'Deal ID is required'),
+  dealId: z.string().trim().min(1, 'Deal ID is required'),
 });
 
 const payCommissionsSchema = z.object({
-  commissionIds: z.array(z.string()).min(1, 'At least one commission ID is required'),
+  commissionIds: z.array(z.string().trim()).min(1, 'At least one commission ID is required'),
 });
 
 // POST / — Register partner

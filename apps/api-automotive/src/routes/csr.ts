@@ -133,8 +133,8 @@ router.put('/:id/status', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       complianceStatus: z.enum(['COMPLIANT', 'PARTIAL', 'NOT_ASSESSED', 'NON_COMPLIANT']),
-      gapNotes: z.string().optional(),
-      actionRequired: z.string().optional(),
+      gapNotes: z.string().trim().optional(),
+      actionRequired: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);

@@ -7,18 +7,18 @@ const router = Router();
 const logger = createLogger('finance-hmrc-calendar');
 
 const createHmrcDeadlineSchema = z.object({
-  title: z.string().min(1, 'title is required'),
-  description: z.string().optional(),
-  type: z.string().optional(),
+  title: z.string().trim().min(1, 'title is required'),
+  description: z.string().trim().optional(),
+  type: z.string().trim().optional(),
   dueDate: z
     .string()
     .min(1, 'dueDate is required')
     .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-  filingRef: z.string().optional(),
-  status: z.string().optional(),
+  filingRef: z.string().trim().optional(),
+  status: z.string().trim().optional(),
   submittedDate: z.string().trim().datetime({ offset: true }).optional().nullable(),
-  submittedBy: z.string().optional(),
-  notes: z.string().optional(),
+  submittedBy: z.string().trim().optional(),
+  notes: z.string().trim().optional(),
 });
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {

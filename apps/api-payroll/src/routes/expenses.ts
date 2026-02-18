@@ -94,18 +94,21 @@ router.post('/', async (req: Request, res: Response) => {
         'CLIENT_ENTERTAINMENT',
         'MISCELLANEOUS',
       ]),
-      subcategory: z.string().optional(),
+      subcategory: z.string().trim().optional(),
       description: z.string().trim().min(1).max(2000),
-      merchant: z.string().optional(),
+      merchant: z.string().trim().optional(),
       amount: z.number().positive(),
-      currency: z.string().length(3).default('USD'),
-      expenseDate: z.string().refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
-      receiptUrls: z.array(z.string()).default([]),
-      projectCode: z.string().optional(),
-      costCenter: z.string().optional(),
+      currency: z.string().trim().length(3).default('USD'),
+      expenseDate: z
+        .string()
+        .trim()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format'),
+      receiptUrls: z.array(z.string().trim()).default([]),
+      projectCode: z.string().trim().optional(),
+      costCenter: z.string().trim().optional(),
       isBillable: z.boolean().default(false),
-      clientName: z.string().optional(),
-      notes: z.string().optional(),
+      clientName: z.string().trim().optional(),
+      notes: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -281,9 +284,9 @@ router.get('/reports/all', async (req: Request, res: Response) => {
 router.post('/reports', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string(),
+      employeeId: z.string().trim(),
       title: z.string().trim().min(1).max(200),
-      description: z.string().optional(),
+      description: z.string().trim().optional(),
       periodStart: z
         .string()
         .trim()
