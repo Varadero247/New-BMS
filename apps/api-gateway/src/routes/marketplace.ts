@@ -91,7 +91,7 @@ router.get('/plugins', async (req: AuthRequest, res: Response) => {
       (prisma as any).mktPlugin.count({ where }),
     ]);
 
-    res.json({ success: true, data: plugins, meta: { total, page: parseInt(page, 10), limit: take } });
+    res.json({ success: true, data: plugins, meta: { total, page: parseInt(page, 10) || 1, limit: take } });
   } catch (error) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to list plugins' } });
