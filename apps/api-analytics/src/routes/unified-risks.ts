@@ -98,9 +98,9 @@ const SEED_RISKS: UnifiedRisk[] = [
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 function buildHeatmap(risks: UnifiedRisk[]): number[][] {
@@ -154,7 +154,7 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
 
     const { source, minScore, maxScore, status, owner, sortBy, sortOrder } = parsed.data;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 50);
+    const limit = parseIntParam(req.query.limit, 50, 100);
 
     // Filter seed data
     let filtered = [...SEED_RISKS];

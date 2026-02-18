@@ -57,9 +57,9 @@ const reportUpdateSchema = z.object({
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 const RESERVED_PATHS = new Set(['runs']);
@@ -72,7 +72,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { type, isActive, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 50);
+    const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };
@@ -191,7 +191,7 @@ router.get('/:id/runs', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 20);
+    const limit = parseIntParam(req.query.limit, 20, 100);
     const skip = (page - 1) * limit;
 
     const report = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });

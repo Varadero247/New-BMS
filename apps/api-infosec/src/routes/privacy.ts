@@ -13,9 +13,9 @@ router.use(authenticate);
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 function generateRopaRef(): string {
@@ -112,7 +112,7 @@ router.get('/ropa', async (req: Request, res: Response) => {
   try {
     const { search, status } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };
@@ -293,7 +293,7 @@ router.get('/dpia', async (req: Request, res: Response) => {
   try {
     const { status, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };
@@ -399,7 +399,7 @@ router.get('/dsar', async (req: Request, res: Response) => {
   try {
     const { status, requestType, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {};
@@ -525,7 +525,7 @@ router.get('/consents', async (req: Request, res: Response) => {
   try {
     const { subjectEmail, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {};
@@ -568,7 +568,7 @@ router.get('/consents', async (req: Request, res: Response) => {
 router.get('/retention', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const [schedules, total] = await Promise.all([

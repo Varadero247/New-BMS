@@ -8,9 +8,9 @@ const logger = createLogger('api-quality');
 const router: Router = Router();
 router.use(authenticate);
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 async function generateRefNumber(): Promise<string> {
@@ -58,7 +58,7 @@ const completeSchema = z.object({
 router.get('/overdue', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 50);
+    const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
     const where = {
@@ -102,7 +102,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { status, trainingType, department, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };

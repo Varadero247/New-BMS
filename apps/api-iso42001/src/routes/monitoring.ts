@@ -8,9 +8,9 @@ const logger = createLogger('api-iso42001');
 const router: Router = Router();
 router.use(authenticate);
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 const METRIC_TYPES = ['PERFORMANCE', 'ACCURACY', 'BIAS', 'DRIFT', 'AVAILABILITY', 'LATENCY', 'ERROR_RATE', 'USAGE', 'SAFETY', 'COMPLIANCE', 'OTHER'] as const;
@@ -80,7 +80,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
 router.get('/system/:systemId', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null, systemId: req.params.systemId };
@@ -104,7 +104,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { status, metricType, systemId, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };

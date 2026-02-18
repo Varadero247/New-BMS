@@ -12,9 +12,9 @@ router.use(authenticate);
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 // ---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ const scorecardCreateSchema = z.object({
 router.get('/', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 20);
+    const limit = parseIntParam(req.query.limit, 20, 100);
     const skip = (page - 1) * limit;
     const portalUserId = req.query.portalUserId as string | undefined;
     const period = req.query.period as string | undefined;

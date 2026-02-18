@@ -54,9 +54,9 @@ const monitoringRecordCreateSchema = z.object({
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 async function generateCcpNumber(): Promise<string> {
@@ -71,7 +71,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { isActive } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 50);
+    const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };
@@ -204,7 +204,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 50);
+    const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
     const ccp = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });

@@ -34,9 +34,9 @@ const createSchema = z.object({
 
 const updateSchema = createSchema.partial();
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 // GET / — List context factors
@@ -44,7 +44,7 @@ router.get('/', requirePermission('quality', 'read' as any), async (req: Request
   try {
     const { factorType, status, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {

@@ -8,9 +8,9 @@ const logger = createLogger('api-cmms');
 const router: Router = Router();
 router.use(authenticate);
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 // Calculate next due date based on frequency and last performed
@@ -55,7 +55,7 @@ router.get('/upcoming', async (req: Request, res: Response) => {
   try {
     const days = parseIntParam(req.query.days, 30);
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const cutoff = new Date();
@@ -89,7 +89,7 @@ router.get('/upcoming', async (req: Request, res: Response) => {
 router.get('/overdue', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where = {
@@ -157,7 +157,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { assetId, isActive, frequency, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };

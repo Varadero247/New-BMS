@@ -13,9 +13,9 @@ router.use(authenticate);
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 // ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ const inviteSchema = z.object({
 router.get('/', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 20);
+    const limit = parseIntParam(req.query.limit, 20, 100);
     const skip = (page - 1) * limit;
     const portalType = req.query.portalType as string | undefined;
     const status = req.query.status as string | undefined;

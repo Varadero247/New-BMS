@@ -82,9 +82,9 @@ const periodCreateSchema = z.object({
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 function buildAccountTree(accounts: Record<string, unknown>[]): Record<string, unknown>[] {
@@ -116,7 +116,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { type, isActive, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 50);
+    const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
     const where: any = { deletedAt: null };
@@ -489,7 +489,7 @@ router.get('/periods', async (req: Request, res: Response) => {
   try {
     const { fiscalYear, status } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 20);
+    const limit = parseIntParam(req.query.limit, 20, 100);
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -791,7 +791,7 @@ router.get('/entries', async (req: Request, res: Response) => {
   try {
     const { status, periodId, dateFrom, dateTo } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: any = {};

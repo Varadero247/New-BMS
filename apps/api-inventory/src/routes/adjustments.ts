@@ -9,9 +9,9 @@ const logger = createLogger('api-inventory');
 const router: IRouter = Router();
 router.use(authenticate);
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 const ADJUSTMENT_TYPES = ['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'DAMAGE', 'EXPIRED', 'WRITE_OFF', 'FOUND', 'RECOUNT'] as const;
@@ -35,7 +35,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { productId, warehouseId, adjustmentType, startDate, endDate } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {

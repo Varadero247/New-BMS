@@ -8,16 +8,16 @@ const logger = createLogger('api-inventory');
 const router: IRouter = Router();
 router.use(authenticate);
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 // GET /low-stock — Products below reorder point (must be before /:id)
 router.get('/low-stock', async (req: AuthRequest, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     // Join inventory with product to find items below reorder point
@@ -99,7 +99,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const { warehouseId, productId, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: any = {};

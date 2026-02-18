@@ -26,9 +26,9 @@ const auditLogCreateSchema = z.object({
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 function parseDateParam(val: unknown): Date | null {
@@ -120,7 +120,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { action, systemId, userId, search, startDate, endDate } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 50);
+    const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {};

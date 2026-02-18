@@ -9,9 +9,9 @@ const logger = createLogger('api-finance');
 const router: Router = Router();
 router.use(authenticate);
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 function generateReference(): string {
@@ -51,7 +51,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { status, periodId, dateFrom, dateTo } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: any = {};

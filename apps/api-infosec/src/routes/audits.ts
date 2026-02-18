@@ -13,9 +13,9 @@ router.use(authenticate);
 // Helpers
 // ---------------------------------------------------------------------------
 
-function parseIntParam(val: unknown, fallback: number): number {
+function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   const n = parseInt(String(val), 10);
-  return Number.isFinite(n) && n > 0 ? n : fallback;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
 function generateAuditRef(): string {
@@ -146,7 +146,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { status, auditType, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };
@@ -191,7 +191,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/vulnerability-scans', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const [scans, total] = await Promise.all([
@@ -260,7 +260,7 @@ router.post('/vulnerability-scans', async (req: Request, res: Response) => {
 router.get('/penetration-tests', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
-    const limit = parseIntParam(req.query.limit, 25);
+    const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
     const [tests, total] = await Promise.all([
