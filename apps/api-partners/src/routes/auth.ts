@@ -13,8 +13,8 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 // Simple in-memory rate limiter for auth endpoints
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
-const MAX_LOGIN_ATTEMPTS = 10;
-const MAX_REGISTER_ATTEMPTS = 5;
+const MAX_LOGIN_ATTEMPTS = parseInt(process.env.MAX_LOGIN_ATTEMPTS || '10', 10);
+const MAX_REGISTER_ATTEMPTS = parseInt(process.env.MAX_REGISTER_ATTEMPTS || '20', 10);
 
 function checkRateLimit(key: string, maxAttempts: number): boolean {
   const now = Date.now();

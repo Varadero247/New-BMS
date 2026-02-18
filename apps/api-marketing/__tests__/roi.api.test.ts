@@ -16,6 +16,13 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-1', email: 'admin@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
 // Mock fetch for HubSpot
 global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) })) as any;
 

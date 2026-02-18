@@ -40,7 +40,8 @@ describe('POST /api/leads/capture', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.id).toBe('lead-1');
+    // Route returns { captured: true } (not the full DB record) to avoid exposing internals
+    expect(res.body.data.captured).toBe(true);
   });
 
   it('returns 400 for missing email', async () => {
