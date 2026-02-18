@@ -47,7 +47,7 @@ router.post('/capture', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { source, page = '1', limit = '25' } = req.query;
-    const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
+    const skip = ((parseInt(page as string, 10) || 1) - 1) * (parseInt(limit as string, 10) || 20);
 
     const where: Record<string, unknown> = {};
     if (source) where.source = source;
@@ -57,12 +57,12 @@ router.get('/', async (req: Request, res: Response) => {
         where,
         orderBy: { createdAt: 'desc' },
         skip,
-        take: parseInt(limit as string, 10),
+        take: Math.min(parseInt(limit as string, 10) || 20, 100),
       }),
       prisma.mktLead.count({ where }),
     ]);
 
-    res.json({ success: true, data: { leads, total, page: parseInt(page as string, 10) } });
+    res.json({ success: true, data: { leads, total, page: parseInt(page as string, 10) || 1 } });
   } catch (error) {
     logger.error('Failed to fetch leads', { error: String(error) });
     res.status(500).json({

@@ -122,8 +122,8 @@ router.get('/trend', async (req: Request, res: Response) => {
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { scope, category, periodStart, periodEnd, page = '1', limit = '20' } = req.query;
-    const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
-    const take = parseInt(limit as string, 10);
+    const skip = ((parseInt(page as string, 10) || 1) - 1) * (parseInt(limit as string, 10) || 20);
+    const take = Math.min(parseInt(limit as string, 10) || 20, 100);
 
     const where: Record<string, any> = { deletedAt: null };
     if (scope) where.scope = scope as string;
@@ -139,7 +139,7 @@ router.get('/', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data,
-      pagination: { page: parseInt(page as string, 10), limit: take, total, totalPages: Math.ceil(total / take) },
+      pagination: { page: parseInt(page as string, 10) || 1, limit: take, total, totalPages: Math.ceil(total / take) },
     });
   } catch (error: unknown) {
     logger.error('Error listing emissions', { error: error instanceof Error ? error.message : 'Unknown error' });
