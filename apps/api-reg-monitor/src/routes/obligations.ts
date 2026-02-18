@@ -75,7 +75,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create resource' } });
   }
 });
 
@@ -101,7 +101,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     const data = await prisma.regObligation.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
 
@@ -112,7 +112,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     await prisma.regObligation.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'obligation deleted successfully' } });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
   }
 });
 

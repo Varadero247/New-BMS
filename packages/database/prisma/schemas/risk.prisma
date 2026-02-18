@@ -322,7 +322,7 @@ model RiskReview {
   createdBy                 String?
   updatedBy                 String?
   deletedAt                 DateTime?
-  risk                      RiskRegister  @relation(fields: [riskId], references: [id])
+  risk                      RiskRegister  @relation(fields: [riskId], references: [id], onDelete: Cascade)
   @@map("risk_reviews")
   @@index([orgId])
   @@index([riskId])
@@ -376,8 +376,9 @@ model RiskCapa {
 
 model RiskControl {
   id                  String              @id @default(cuid())
+  orgId               String?
   riskId              String
-  risk                RiskRegister        @relation(fields: [riskId], references: [id])
+  risk                RiskRegister        @relation(fields: [riskId], references: [id], onDelete: Cascade)
   controlType         ControlType
   description         String
   owner               String?
@@ -390,18 +391,22 @@ model RiskControl {
   linkedProcedureRef  String?
   linkedTrainingRef   String?
   isActive            Boolean             @default(true)
+  deletedAt           DateTime?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   @@map("risk_controls")
   @@index([riskId])
+  @@index([orgId])
+  @@index([deletedAt])
 }
 
 // ── Key Risk Indicators (NEW) ────────────────────────────────
 
 model RiskKri {
   id                    String      @id @default(cuid())
+  orgId                 String?
   riskId                String
-  risk                  RiskRegister @relation(fields: [riskId], references: [id])
+  risk                  RiskRegister @relation(fields: [riskId], references: [id], onDelete: Cascade)
   name                  String
   description           String?
   unit                  String?
@@ -417,11 +422,14 @@ model RiskKri {
   dataSource            String?
   nextMeasurementDue    DateTime?
   isActive              Boolean     @default(true)
+  deletedAt             DateTime?
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
   readings              RiskKriReading[]
   @@map("risk_kris")
   @@index([riskId])
+  @@index([orgId])
+  @@index([deletedAt])
 }
 
 // ── KRI Historical Readings (NEW) ────────────────────────────
@@ -429,7 +437,7 @@ model RiskKri {
 model RiskKriReading {
   id            String    @id @default(cuid())
   kriId         String
-  kri           RiskKri   @relation(fields: [kriId], references: [id])
+  kri           RiskKri   @relation(fields: [kriId], references: [id], onDelete: Cascade)
   value         Float
   status        KriStatus
   recordedAt    DateTime  @default(now())
@@ -444,8 +452,9 @@ model RiskKriReading {
 
 model RiskAction {
   id                    String    @id @default(cuid())
+  orgId                 String?
   riskId                String
-  risk                  RiskRegister @relation(fields: [riskId], references: [id])
+  risk                  RiskRegister @relation(fields: [riskId], references: [id], onDelete: Cascade)
   actionTitle           String
   description           String
   actionType            String    // PREVENTIVE/MITIGATIVE/TRANSFER/ACCEPT
@@ -460,21 +469,25 @@ model RiskAction {
   linkedCapaId          String?
   estimatedCost         Float?
   actualCost            Float?
+  deletedAt             DateTime?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   createdBy             String?
   @@map("risk_actions")
   @@index([riskId])
+  @@index([orgId])
   @@index([targetDate])
   @@index([status])
+  @@index([deletedAt])
 }
 
 // ── Risk Bow-Tie Analysis (NEW — ISO 31010) ──────────────────
 
 model RiskBowtie {
   id                    String    @id @default(cuid())
+  orgId                 String?
   riskId                String    @unique
-  risk                  RiskRegister @relation(fields: [riskId], references: [id])
+  risk                  RiskRegister @relation(fields: [riskId], references: [id], onDelete: Cascade)
   topEvent              String
   threats               Json      // [{id, description, likelihood}]
   preventionBarriers    Json      // [{id, description, type, effectiveness, owner, degradationFactors, linkedThreatIds}]

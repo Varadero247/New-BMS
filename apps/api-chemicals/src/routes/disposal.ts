@@ -61,7 +61,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create disposal record', { error: (error as Error).message });
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create resource' } });
   }
 });
 
@@ -70,13 +70,14 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateDisposalSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.chemDisposal.findFirst({ where: { id: req.params.id } });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.chemDisposal.findFirst({ where: { id: req.params.id, chemical: { orgId, deletedAt: null } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Disposal record not found' } });
     const data = await prisma.chemDisposal.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update disposal record', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
 

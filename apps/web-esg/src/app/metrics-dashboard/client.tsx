@@ -103,7 +103,7 @@ export default function MetricsDashboardClient() {
       </div>
 
       {/* Category Overview */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {(['environmental', 'social', 'governance'] as Category[]).map((cat) => {
           const catMetrics = metrics.filter((m) => m.category === cat);
           const catOnTrack = catMetrics.filter((m) => m.status === 'on-track').length;

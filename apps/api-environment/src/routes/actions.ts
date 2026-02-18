@@ -163,12 +163,41 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
+const actionUpdateSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  linkedAspectId: z.string().optional(),
+  linkedObjectiveId: z.string().optional(),
+  assignedTo: z.string().optional(),
+  department: z.string().optional(),
+  priority: z.string().optional(),
+  dueDate: z.string().optional(),
+  completionDate: z.string().optional(),
+  verificationDate: z.string().optional(),
+  verifiedBy: z.string().optional(),
+  status: z.string().optional(),
+  progress: z.number().optional(),
+  evidence: z.string().optional(),
+  resources: z.string().optional(),
+  budget: z.number().optional(),
+  actualCost: z.number().optional(),
+  aiSuggestedActions: z.string().optional(),
+  aiTimeline: z.string().optional(),
+  aiSuccessCriteria: z.string().optional(),
+  aiGenerated: z.boolean().optional(),
+});
+
 router.put('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envAction.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
 
-    const data = req.body;
+    const parsed = actionUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+    }
+    const data: Record<string, unknown> = { ...parsed.data };
 
     // Auto-set completionDate when status changes to COMPLETED
     if (data.status === 'COMPLETED' && existing.status !== 'COMPLETED' && !data.completionDate) {
@@ -176,9 +205,9 @@ router.put('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, re
     }
 
     // Convert date strings to Date objects
-    if (data.dueDate && typeof data.dueDate === 'string') data.dueDate = new Date(data.dueDate);
-    if (data.completionDate && typeof data.completionDate === 'string') data.completionDate = new Date(data.completionDate);
-    if (data.verificationDate && typeof data.verificationDate === 'string') data.verificationDate = new Date(data.verificationDate);
+    if (data.dueDate && typeof data.dueDate === 'string') data.dueDate = new Date(data.dueDate as string);
+    if (data.completionDate && typeof data.completionDate === 'string') data.completionDate = new Date(data.completionDate as string);
+    if (data.verificationDate && typeof data.verificationDate === 'string') data.verificationDate = new Date(data.verificationDate as string);
 
     const action = await prisma.envAction.update({
       where: { id: req.params.id },

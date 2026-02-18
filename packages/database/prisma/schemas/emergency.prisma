@@ -177,7 +177,7 @@ model FemFireRiskAssessment {
   id                    String    @id @default(cuid())
   referenceNumber       String    @unique
   premisesId            String
-  premises              FemPremises @relation(fields: [premisesId], references: [id])
+  premises              FemPremises @relation(fields: [premisesId], references: [id], onDelete: Cascade)
 
   assessmentDate        DateTime
   nextReviewDate        DateTime
@@ -286,7 +286,7 @@ model FemEvacuationRoute {
 model FemPeep {
   id                    String    @id @default(cuid())
   premisesId            String
-  premises              FemPremises @relation(fields: [premisesId], references: [id])
+  premises              FemPremises @relation(fields: [premisesId], references: [id], onDelete: Cascade)
 
   personName            String
   jobTitle              String?
@@ -383,7 +383,7 @@ model FemEmergencyContact {
 model FemEmergencyEquipment {
   id                    String    @id @default(cuid())
   premisesId            String
-  premises              FemPremises @relation(fields: [premisesId], references: [id])
+  premises              FemPremises @relation(fields: [premisesId], references: [id], onDelete: Cascade)
 
   equipmentType         String
   description           String?
@@ -500,7 +500,7 @@ model FemEmergencyIncident {
 model FemIncidentDecisionLog {
   id                  String    @id @default(cuid())
   incidentId          String
-  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id])
+  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   timestamp           DateTime  @default(now())
   decisionMaker       String
@@ -519,7 +519,7 @@ model FemIncidentDecisionLog {
 model FemIncidentResourceLog {
   id                  String    @id @default(cuid())
   incidentId          String
-  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id])
+  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   resourceType        String
   resourceName        String
@@ -538,7 +538,7 @@ model FemIncidentResourceLog {
 model FemIncidentCommunicationLog {
   id                  String    @id @default(cuid())
   incidentId          String
-  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id])
+  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   timestamp           DateTime  @default(now())
   communicationType   String
@@ -558,7 +558,7 @@ model FemIncidentCommunicationLog {
 model FemIncidentTimelineEvent {
   id                  String    @id @default(cuid())
   incidentId          String
-  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id])
+  incident            FemEmergencyIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
   timestamp           DateTime  @default(now())
   eventType           String
@@ -575,7 +575,7 @@ model FemIncidentTimelineEvent {
 model FemEvacuationDrill {
   id                    String    @id @default(cuid())
   premisesId            String
-  premises              FemPremises @relation(fields: [premisesId], references: [id])
+  premises              FemPremises @relation(fields: [premisesId], references: [id], onDelete: Cascade)
 
   drillDate             DateTime
   drillType             String
@@ -668,7 +668,7 @@ model FemBusinessContinuityPlan {
 model FemBcpExercise {
   id                  String    @id @default(cuid())
   bcpId               String
-  bcp                 FemBusinessContinuityPlan @relation(fields: [bcpId], references: [id])
+  bcp                 FemBusinessContinuityPlan @relation(fields: [bcpId], references: [id], onDelete: Cascade)
 
   exerciseType        FemExerciseType
   title               String

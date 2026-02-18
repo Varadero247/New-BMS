@@ -73,7 +73,7 @@ model DocVersion {
   changeNotes  String?
   createdAt    DateTime @default(now())
   createdBy    String?
-  document     DocDocument @relation(fields: [documentId], references: [id])
+  document     DocDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
   @@map("doc_versions")
   @@index([documentId])
 }

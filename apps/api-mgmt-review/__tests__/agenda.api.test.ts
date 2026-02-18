@@ -88,7 +88,7 @@ describe('POST /api/agenda/:id/generate', () => {
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('GENERATE_ERROR');
-    expect(res.body.error.message).toBe('Database connection failed');
+    expect(res.body.error.message).toBe('Failed to generate resource');
   });
 
   it('should return 500 when update throws an error', async () => {
@@ -102,7 +102,7 @@ describe('POST /api/agenda/:id/generate', () => {
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('GENERATE_ERROR');
-    expect(res.body.error.message).toBe('Update failed');
+    expect(res.body.error.message).toBe('Failed to generate resource');
   });
 
   it('should include the review title in the generated agenda title', async () => {

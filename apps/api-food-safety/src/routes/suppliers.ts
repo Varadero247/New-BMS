@@ -70,6 +70,7 @@ router.get('/due-audit', async (req: Request, res: Response) => {
         status: { not: 'REJECTED' },
       },
       orderBy: { nextAuditDate: 'asc' },
+      take: 500,
     });
 
     res.json({ success: true, data });

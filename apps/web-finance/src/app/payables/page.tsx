@@ -239,8 +239,8 @@ export default function PayablesPage() {
                         <td className="py-3 px-4"><Badge className={statusColors[bill.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{bill.status}</Badge></td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setViewBill(bill); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"><Eye className="h-4 w-4" /></button>
-                            {bill.status === 'DRAFT' && <button onClick={() => handleVoid(bill.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>}
+                            <button onClick={() => { setViewBill(bill); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600" aria-label="View bill"><Eye className="h-4 w-4" /></button>
+                            {bill.status === 'DRAFT' && <button onClick={() => handleVoid(bill.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600" aria-label="Void bill"><Trash2 className="h-4 w-4" /></button>}
                           </div>
                         </td>
                       </tr>

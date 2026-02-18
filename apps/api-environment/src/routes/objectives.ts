@@ -180,20 +180,51 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
+const objectiveUpdateSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  relatedAspectId: z.string().optional(),
+  department: z.string().optional(),
+  responsiblePerson: z.string().optional(),
+  targetDate: z.string().optional(),
+  baselineDate: z.string().optional(),
+  startDate: z.string().optional(),
+  baselineValue: z.number().optional(),
+  targetValue: z.number().optional(),
+  currentValue: z.number().optional(),
+  unit: z.string().optional(),
+  kpiFormula: z.string().optional(),
+  measurementFrequency: z.string().optional(),
+  status: z.string().optional(),
+  priority: z.string().optional(),
+  budget: z.number().optional(),
+  actualCost: z.number().optional(),
+  resourceRequirements: z.string().optional(),
+  risks: z.string().optional(),
+  aiSuggestedKPIs: z.string().optional(),
+  aiActionPlan: z.string().optional(),
+  aiBenchmarkComparison: z.string().optional(),
+  aiProgressAnalysis: z.string().optional(),
+  aiRiskAssessment: z.string().optional(),
+  aiGenerated: z.boolean().optional(),
+});
+
 router.put('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
 
-    const data = req.body;
+    const parsed = objectiveUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+    }
+    const data: Record<string, unknown> = { ...parsed.data };
 
     // Convert date strings to Date objects
-    if (data.targetDate) data.targetDate = new Date(data.targetDate);
-    if (data.baselineDate) data.baselineDate = new Date(data.baselineDate);
-    if (data.startDate) data.startDate = new Date(data.startDate);
-
-    // Remove milestones from the update data (handle separately if needed)
-    delete data.milestones;
+    if (data.targetDate) data.targetDate = new Date(data.targetDate as string);
+    if (data.baselineDate) data.baselineDate = new Date(data.baselineDate as string);
+    if (data.startDate) data.startDate = new Date(data.startDate as string);
 
     const objective = await prisma.envObjective.update({
       where: { id: req.params.id },

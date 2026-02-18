@@ -30,7 +30,7 @@ describe('GET /api/timeline/:id', () => {
     expect(res.body.data[0].event).toBe('Incident occurred');
     expect(res.body.data[1].event).toBe('Reported');
     expect((prisma as any).incIncident.findFirst).toHaveBeenCalledWith({
-      where: { id: 'inc-1', deletedAt: null },
+      where: { id: 'inc-1', deletedAt: null, orgId: 'org-1' },
     });
   });
 

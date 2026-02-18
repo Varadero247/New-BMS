@@ -70,6 +70,7 @@ router.get('/active', async (req: Request, res: Response) => {
         status: { in: ['INITIATED', 'IN_PROGRESS'] } as any,
       },
       orderBy: { initiatedDate: 'desc' },
+      take: 500,
     });
 
     res.json({ success: true, data });

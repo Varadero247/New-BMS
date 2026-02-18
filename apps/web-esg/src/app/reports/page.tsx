@@ -192,9 +192,9 @@ export default function ReportsPage() {
                         <td className="py-3 px-4 text-gray-600">{r.generatedAt ? new Date(r.generatedAt).toLocaleDateString() : '-'}</td>
                         <td className="py-3 px-4 text-right"><div className="flex justify-end gap-2">
                           <button className="text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors" title="Download" aria-label="Download"><Download className="h-4 w-4" /></button>
-                          {r.status === 'DRAFT' && <button className="text-gray-400 dark:text-gray-500 hover:text-green-600 transition-colors" title="Publish"><Send className="h-4 w-4" /></button>}
-                          <button onClick={() => openEdit(r)} className="text-gray-400 dark:text-gray-500 hover:text-green-600"><Pencil className="h-4 w-4" /></button>
-                          <button onClick={() => setDeleteId(r.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                          {r.status === 'DRAFT' && <button className="text-gray-400 dark:text-gray-500 hover:text-green-600 transition-colors" title="Publish" aria-label="Publish"><Send className="h-4 w-4" /></button>}
+                          <button onClick={() => openEdit(r)} className="text-gray-400 dark:text-gray-500 hover:text-green-600" aria-label="Edit"><Pencil className="h-4 w-4" /></button>
+                          <button onClick={() => setDeleteId(r.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600" aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
                         </div></td>
                       </tr>
                     ))}

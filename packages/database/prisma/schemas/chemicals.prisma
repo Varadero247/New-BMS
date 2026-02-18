@@ -248,14 +248,16 @@ model ChemRegister {
   @@index([orgId])
   @@index([isActive])
   @@index([deletedAt])
+  @@index([createdAt])
 }
 
 // ── Safety Data Sheet (ISO 11014 — 16 sections) ──────────
 
 model ChemSds {
   id                    String    @id @default(cuid())
+  orgId                 String?
   chemicalId            String
-  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
 
   // Version control
   version               String
@@ -367,6 +369,7 @@ model ChemSds {
 
   @@map("chem_sds")
   @@index([chemicalId])
+  @@index([orgId])
   @@index([status])
   @@index([nextReviewDate])
 }
@@ -377,7 +380,7 @@ model ChemCoshh {
   id                    String    @id @default(cuid())
   referenceNumber       String    @unique
   chemicalId            String
-  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
 
   // Activity being assessed
   activityDescription   String
@@ -490,8 +493,9 @@ model ChemCoshh {
 
 model ChemInventory {
   id              String    @id @default(cuid())
+  orgId           String?
   chemicalId      String
-  chemical        ChemRegister @relation(fields: [chemicalId], references: [id])
+  chemical        ChemRegister @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
 
   location        String
   storageArea     String?
@@ -524,8 +528,9 @@ model ChemInventory {
 
 model ChemUsage {
   id                    String    @id @default(cuid())
+  orgId                 String?
   chemicalId            String
-  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
   locationId            String?
   location              ChemInventory? @relation(fields: [locationId], references: [id])
 
@@ -550,8 +555,9 @@ model ChemUsage {
 
 model ChemMonitoring {
   id                    String    @id @default(cuid())
+  orgId                 String?
   chemicalId            String
-  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
   coshhAssessmentId     String?
   coshhAssessment       ChemCoshh? @relation(fields: [coshhAssessmentId], references: [id])
 
@@ -586,8 +592,9 @@ model ChemMonitoring {
 
 model ChemDisposal {
   id                    String    @id @default(cuid())
+  orgId                 String?
   chemicalId            String
-  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
 
   quantityDisposed      Float
   unit                  String
@@ -616,7 +623,7 @@ model ChemDisposal {
 model ChemIncident {
   id                    String    @id @default(cuid())
   chemicalId            String
-  chemical              ChemRegister @relation(fields: [chemicalId], references: [id])
+  chemical              ChemRegister @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
 
   incidentType          ChemIncidentType
   severity              ChemIncidentSeverity
@@ -652,8 +659,9 @@ model ChemIncident {
 
 model ChemIncompatAlert {
   id              String    @id @default(cuid())
+  orgId           String?
   chemicalId      String
-  chemical        ChemRegister @relation(fields: [chemicalId], references: [id])
+  chemical        ChemRegister @relation(fields: [chemicalId], references: [id], onDelete: Cascade)
 
   incompatibleWithCas   String
   incompatibleWithName  String

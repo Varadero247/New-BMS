@@ -25,7 +25,7 @@ RUN pnpm install --frozen-lockfile --prod=false
 RUN pnpm --filter @ims/database generate:all
 
 # Build shared packages first, then the target service
-RUN pnpm --filter './packages/*' build || true
+RUN pnpm --filter './packages/*' build
 ARG SERVICE=api-gateway
 RUN pnpm --filter ${SERVICE} build
 

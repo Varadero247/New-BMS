@@ -33,7 +33,7 @@ router.post('/capture', async (req: Request, res: Response) => {
       data: parsed.data,
     });
 
-    res.status(201).json({ success: true, data: lead });
+    res.status(201).json({ success: true, data: { captured: true } });
   } catch (error) {
     logger.error('Lead capture failed', { error: String(error) });
     res.status(500).json({

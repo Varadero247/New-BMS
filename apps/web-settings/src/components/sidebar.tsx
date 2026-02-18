@@ -58,8 +58,10 @@ const navigation = [
   { name: 'System Settings', href: '/system', icon: SettingsIcon },
 ];
 
+const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
+
 const externalLinks = [
-  { name: 'IMS Dashboard', href: 'http://localhost:3000', icon: Home },
+  { name: 'IMS Dashboard', href: `${APP_BASE}:3000`, icon: Home },
 ];
 
 export function Sidebar() {

@@ -49,6 +49,7 @@ import scheduledReportsRouter from './routes/scheduled-reports';
 import dsarRouter from './routes/dsar';
 import dpaRouter from './routes/dpa';
 import marketplaceRouter from './routes/marketplace';
+import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { errorHandler } from './middleware/error-handler';
 import { apiKeyAuth } from './middleware/apiKeyAuth';
 import { notFoundHandler } from './middleware/not-found';
@@ -205,6 +206,8 @@ app.use(metricsMiddleware('api-gateway'));
 // Request size limits to prevent DoS attacks
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+app.use(sanitizeMiddleware());
+app.use(sanitizeQueryMiddleware());
 
 // Request timeout (30 seconds)
 app.use((req, res, next) => {
@@ -518,26 +521,27 @@ if (secretsValidation.warnings.length > 0) {
 const sessionCleanupJob = createSessionCleanupJob(prisma, logger);
 sessionCleanupJob.start(60 * 60 * 1000); // 1 hour
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.info(`API Gateway running on port ${PORT}`);
   logger.info('Proxied services configured', { services: SERVICES });
   logger.info('Session cleanup job started');
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully');
+const gracefulShutdown = async (signal: string) => {
+  logger.info(`${signal} received, shutting down gracefully`);
   sessionCleanupJob.stop();
   stopOrgRateLimitCleanup();
-  process.exit(0);
-});
+  server.close(async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+  // Force exit after 10 seconds if connections don't close
+  setTimeout(() => { process.exit(1); }, 10000);
+};
 
-process.on('SIGINT', () => {
-  logger.info('SIGINT received, shutting down gracefully');
-  sessionCleanupJob.stop();
-  stopOrgRateLimitCleanup();
-  process.exit(0);
-});
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 process.on('unhandledRejection', (reason) => {
   logger.error('Unhandled rejection', { reason: String(reason) });

@@ -99,7 +99,7 @@ model TrainRecord {
   createdBy       String?
   updatedBy       String?
   deletedAt       DateTime?
-  course          TrainCourse       @relation(fields: [courseId], references: [id])
+  course          TrainCourse       @relation(fields: [courseId], references: [id], onDelete: Cascade)
   @@map("train_records")
   @@index([orgId])
   @@index([employeeId])
@@ -146,7 +146,7 @@ model TrainMatrix {
   createdBy       String?
   updatedBy       String?
   deletedAt       DateTime?
-  competency      TrainCompetency @relation(fields: [competencyId], references: [id])
+  competency      TrainCompetency @relation(fields: [competencyId], references: [id], onDelete: Cascade)
   @@map("train_matrix")
   @@index([orgId])
   @@index([employeeId])

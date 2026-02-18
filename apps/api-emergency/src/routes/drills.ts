@@ -79,7 +79,7 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
       data: { ...rest, premisesId: req.params.id, drillDate: new Date(drillDate), createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create drill', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create drill', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create drill' } }); }
 });
 
 // PUT /api/drills/:id — update drill
@@ -87,13 +87,13 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateDrillSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femEvacuationDrill.findUnique({ where: { id: req.params.id } });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default'; const existing = await prisma.femEvacuationDrill.findFirst({ where: { id: req.params.id, premises: { organisationId: orgId } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Drill not found' } });
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.drillDate) updateData.drillDate = new Date(parsed.data.drillDate);
     const data = await prisma.femEvacuationDrill.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update drill', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update drill', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update drill' } }); }
 });
 
 export default router;

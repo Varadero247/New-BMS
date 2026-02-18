@@ -7,7 +7,7 @@ export async function runGdprMonitorJob(): Promise<void> {
   logger.info('Running GDPR monitor job');
 
   try {
-    const categories = await prisma.gdprDataCategory.findMany();
+    const categories = await prisma.gdprDataCategory.findMany({ take: 10000 });
     const now = new Date();
     let flaggedCount = 0;
 

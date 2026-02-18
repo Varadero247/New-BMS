@@ -7,7 +7,7 @@ export async function runFeatureAggregationJob(): Promise<void> {
   logger.info('Starting feature aggregation job');
 
   try {
-    const allRequests = await prisma.featureRequest.findMany();
+    const allRequests = await prisma.featureRequest.findMany({ take: 10000 });
 
     const statusGroups: Record<string, number> = {};
     for (const fr of allRequests) {

@@ -90,7 +90,7 @@ model ContApproval {
   decidedAt    DateTime?
   createdAt    DateTime               @default(now())
   updatedAt    DateTime               @updatedAt
-  contract     ContContract           @relation(fields: [contractId], references: [id])
+  contract     ContContract           @relation(fields: [contractId], references: [id], onDelete: Cascade)
   @@map("cont_approvals")
   @@index([contractId])
 }
@@ -110,7 +110,7 @@ model ContNotice {
   updatedAt    DateTime                @updatedAt
   createdBy    String?
   deletedAt    DateTime?
-  contract     ContContract            @relation(fields: [contractId], references: [id])
+  contract     ContContract            @relation(fields: [contractId], references: [id], onDelete: Cascade)
   @@map("cont_notices")
   @@index([contractId])
   @@index([deletedAt])
@@ -129,7 +129,7 @@ model ContClause {
   updatedAt    DateTime @updatedAt
   createdBy    String?
   deletedAt    DateTime?
-  contract     ContContract @relation(fields: [contractId], references: [id])
+  contract     ContContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
   @@map("cont_clauses")
   @@index([contractId])
   @@index([deletedAt])

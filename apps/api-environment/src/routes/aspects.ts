@@ -194,12 +194,58 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
+const aspectUpdateSchema = z.object({
+  activityProcess: z.string().min(1).optional(),
+  activityCategory: z.enum(['ENERGY_USE', 'WATER_USE', 'WASTE_GENERATION', 'EMISSIONS_TO_AIR', 'DISCHARGES_TO_WATER', 'LAND_CONTAMINATION', 'RESOURCE_USE', 'NOISE_VIBRATION', 'BIODIVERSITY', 'TRANSPORT', 'PROCUREMENT', 'PRODUCT_DESIGN', 'OTHER']).optional(),
+  department: z.string().min(1).optional(),
+  location: z.string().optional(),
+  lifecyclePhases: z.array(z.string()).optional(),
+  operatingCondition: z.string().optional(),
+  description: z.string().optional(),
+  aspect: z.string().min(1).optional(),
+  impact: z.string().min(1).optional(),
+  impactDirection: z.string().optional(),
+  environmentalMedia: z.array(z.string()).optional(),
+  scaleOfImpact: z.string().optional(),
+  scoreSeverity: z.number().min(1).max(5).optional(),
+  scoreProbability: z.number().min(1).max(5).optional(),
+  scoreDuration: z.number().min(1).max(5).optional(),
+  scoreExtent: z.number().min(1).max(5).optional(),
+  scoreReversibility: z.number().min(1).max(5).optional(),
+  scoreRegulatory: z.number().min(1).max(5).optional(),
+  scoreStakeholder: z.number().min(1).max(5).optional(),
+  significanceOverride: z.boolean().optional(),
+  overrideReason: z.string().optional(),
+  existingControls: z.string().optional(),
+  controlHierarchy: z.string().optional(),
+  residualScore: z.number().optional(),
+  targetScore: z.number().optional(),
+  legalReferences: z.string().optional(),
+  permitReference: z.string().optional(),
+  applicableStandards: z.string().optional(),
+  responsiblePerson: z.string().optional(),
+  reviewFrequency: z.string().optional(),
+  nextReviewDate: z.string().optional(),
+  status: z.string().optional(),
+  aiSignificanceJustification: z.string().optional(),
+  aiControlRecommendations: z.string().optional(),
+  aiLegalObligations: z.string().optional(),
+  aiBenchmarkComparison: z.string().optional(),
+  aiImprovementOpportunities: z.string().optional(),
+  aiClimateRelevance: z.string().optional(),
+  aiGenerated: z.boolean().optional(),
+});
+
 router.put('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
 
-    const data = req.body;
+    const parsed = aspectUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+    }
+    const data = parsed.data;
     const scores = {
       severity: data.scoreSeverity ?? existing.scoreSeverity,
       probability: data.scoreProbability ?? existing.scoreProbability,

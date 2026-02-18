@@ -6,6 +6,7 @@ jest.mock('../src/prisma', () => ({
     femEmergencyEquipment: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
@@ -198,7 +199,7 @@ describe('POST /api/equipment/premises/:id', () => {
 describe('PUT /api/equipment/:id', () => {
   it('updates an existing equipment record', async () => {
     const updated = { ...fakeEquipment, location: 'Server Room', serviceProvider: 'NewFire Co' };
-    mockEquipment.findUnique.mockResolvedValue(fakeEquipment);
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
     mockEquipment.update.mockResolvedValue(updated);
 
     const res = await request(app).put(`/api/equipment/${EQUIPMENT_ID}`).send({
@@ -212,7 +213,7 @@ describe('PUT /api/equipment/:id', () => {
   });
 
   it('returns 404 when equipment does not exist on update', async () => {
-    mockEquipment.findUnique.mockResolvedValue(null);
+    mockEquipment.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/equipment/00000000-0000-0000-0000-000000000999').send({
       location: 'Kitchen',
@@ -223,7 +224,7 @@ describe('PUT /api/equipment/:id', () => {
   });
 
   it('returns 500 on database error during update', async () => {
-    mockEquipment.findUnique.mockResolvedValue(fakeEquipment);
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
     mockEquipment.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/equipment/${EQUIPMENT_ID}`).send({ location: 'Kitchen' });
@@ -242,7 +243,7 @@ describe('POST /api/equipment/:id/inspect', () => {
       inspectionResult: 'PASS',
       isOperational: true,
     };
-    mockEquipment.findUnique.mockResolvedValue(fakeEquipment);
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
     mockEquipment.update.mockResolvedValue(inspected);
 
     const res = await request(app).post(`/api/equipment/${EQUIPMENT_ID}/inspect`).send({
@@ -264,7 +265,7 @@ describe('POST /api/equipment/:id/inspect', () => {
       defects: 'Pressure gauge faulty',
       isOperational: false,
     };
-    mockEquipment.findUnique.mockResolvedValue(fakeEquipment);
+    mockEquipment.findFirst.mockResolvedValue(fakeEquipment);
     mockEquipment.update.mockResolvedValue(failedInspection);
 
     const res = await request(app).post(`/api/equipment/${EQUIPMENT_ID}/inspect`).send({
@@ -288,7 +289,7 @@ describe('POST /api/equipment/:id/inspect', () => {
   });
 
   it('returns 404 when equipment does not exist for inspection', async () => {
-    mockEquipment.findUnique.mockResolvedValue(null);
+    mockEquipment.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/equipment/00000000-0000-0000-0000-000000000999/inspect').send({
       inspectionResult: 'PASS',

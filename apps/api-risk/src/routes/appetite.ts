@@ -75,7 +75,7 @@ router.post('/appetite', authenticate, async (req: Request, res: Response) => {
       });
     }
     res.status(existing ? 200 : 201).json({ success: true, data: statement });
-  } catch (error: unknown) { logger.error('Failed to save appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to save appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to save appetite statement' } }); }
 });
 
 // GET /api/risks/framework
@@ -127,7 +127,7 @@ router.put('/framework', authenticate, async (req: Request, res: Response) => {
       });
     }
     res.json({ success: true, data: framework });
-  } catch (error: unknown) { logger.error('Failed to save framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to save framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to save framework' } }); }
 });
 
 export default router;

@@ -10,9 +10,35 @@ const router = Router();
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
+// Simple in-memory rate limiter for auth endpoints
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW = 15 * 60 * 1000; // 15 minutes
+const MAX_LOGIN_ATTEMPTS = 10;
+const MAX_REGISTER_ATTEMPTS = 5;
+
+function checkRateLimit(key: string, maxAttempts: number): boolean {
+  const now = Date.now();
+  const entry = loginAttempts.get(key);
+  if (!entry || entry.resetAt < now) {
+    loginAttempts.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  if (entry.count >= maxAttempts) return false;
+  entry.count++;
+  return true;
+}
+
+// Clean up stale entries every 30 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of loginAttempts.entries()) {
+    if (entry.resetAt < now) loginAttempts.delete(key);
+  }
+}, 30 * 60 * 1000).unref();
+
 const registerSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(12).max(72),
   name: z.string().min(1),
   company: z.string().min(1),
   phone: z.string().optional(),
@@ -26,6 +52,10 @@ const loginSchema = z.object({
 
 // POST /api/auth/register
 router.post('/register', async (req: Request, res: Response) => {
+  const ip = req.ip || 'unknown';
+  if (!checkRateLimit(`register:${ip}`, MAX_REGISTER_ATTEMPTS)) {
+    return res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Too many registration attempts. Please try again later.' } });
+  }
   try {
     const parsed = registerSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -96,6 +126,10 @@ router.post('/register', async (req: Request, res: Response) => {
 
 // POST /api/auth/login
 router.post('/login', async (req: Request, res: Response) => {
+  const ip = req.ip || 'unknown';
+  if (!checkRateLimit(`login:${ip}`, MAX_LOGIN_ATTEMPTS)) {
+    return res.status(429).json({ success: false, error: { code: 'RATE_LIMITED', message: 'Too many login attempts. Please try again later.' } });
+  }
   try {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) {

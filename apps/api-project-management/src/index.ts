@@ -86,6 +86,11 @@ app.use('/api/timesheets', timesheetsRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/benefits', benefitsRouter);
 
+// 404 handler
+app.use((_req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
+});
+
 // Error handling
 app.use((err: Error & { statusCode?: number; code?: string }, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Unhandled error', { error: err.message, stack: err.stack });

@@ -30,7 +30,7 @@ configMapGenerator:
     literals:
       - NODE_ENV=development
       - LOG_LEVEL=debug
-      - CORS_ORIGIN=http://localhost:3000
+      # NOTE: Do NOT set CORS_ORIGIN — see CLAUDE.md Known Issue #3
 
 secretGenerator:
   - name: ims-secrets

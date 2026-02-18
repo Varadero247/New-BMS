@@ -202,6 +202,6 @@ describe('POST /api/scope-emissions', () => {
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('CREATE_ERROR');
-    expect(res.body.error.message).toBe('Validation failed');
+    expect(res.body.error.message).toBe('Failed to create resource');
   });
 });

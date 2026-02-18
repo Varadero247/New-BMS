@@ -93,7 +93,7 @@ model PtwMethodStatement {
   createdBy    String?
   updatedBy    String?
   deletedAt    DateTime?
-  permit       PtwPermit? @relation(fields: [permitId], references: [id])
+  permit       PtwPermit? @relation(fields: [permitId], references: [id], onDelete: SetNull)
   @@map("ptw_method_statements")
   @@index([orgId])
   @@index([deletedAt])
@@ -117,7 +117,7 @@ model PtwToolboxTalk {
   updatedAt    DateTime @updatedAt
   createdBy    String?
   deletedAt    DateTime?
-  permit       PtwPermit? @relation(fields: [permitId], references: [id])
+  permit       PtwPermit? @relation(fields: [permitId], references: [id], onDelete: SetNull)
   @@map("ptw_toolbox_talks")
   @@index([orgId])
   @@index([deletedAt])

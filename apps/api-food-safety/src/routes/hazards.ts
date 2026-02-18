@@ -65,6 +65,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     const hazards = await prisma.fsHazard.findMany({
       where: { deletedAt: null } as any,
       select: { type: true, severity: true, isSignificant: true },
+      take: 10000,
     });
 
     const byType: Record<string, number> = {};

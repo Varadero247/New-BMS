@@ -123,8 +123,9 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/coshh/:id — single COSHH assessment
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const item = await prisma.chemCoshh.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
       include: { chemical: true, exposureMonitoring: true },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
@@ -173,7 +174,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create COSHH assessment', { error: (error as Error).message });
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create resource' } });
   }
 });
 
@@ -182,7 +183,8 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateCoshhSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
 
     const d = parsed.data;
@@ -202,7 +204,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update COSHH assessment', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
 
@@ -213,7 +215,8 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
     const parsed = signOffSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { role, name } = parsed.data;
-    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
 
     const updates: Record<string, unknown> = {};
@@ -229,7 +232,7 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to sign off COSHH', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
 

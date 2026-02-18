@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN apk add --no-cache dumb-init && corepack enable && corepack prepare pnpm@9.15.4 --activate
 
 FROM base AS deps
 WORKDIR /app
@@ -25,14 +25,18 @@ RUN pnpm --filter=@ims/api-chemicals build
 FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
-COPY --from=builder /app/node_modules/.modules.yaml ./node_modules/.modules.yaml
-COPY --from=builder /app/packages ./packages
-COPY --from=builder /app/apps/api-chemicals/dist ./apps/api-chemicals/dist
-COPY --from=builder /app/apps/api-chemicals/package.json ./apps/api-chemicals/
-COPY --from=builder /app/apps/api-chemicals/node_modules ./apps/api-chemicals/node_modules
-COPY apps/api-chemicals/entrypoint.sh /entrypoint.sh
+RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 appuser
+COPY --from=builder --chown=appuser:nodejs /app/node_modules/.pnpm ./node_modules/.pnpm
+COPY --from=builder --chown=appuser:nodejs /app/node_modules/.modules.yaml ./node_modules/.modules.yaml
+COPY --from=builder --chown=appuser:nodejs /app/packages ./packages
+COPY --from=builder --chown=appuser:nodejs /app/apps/api-chemicals/dist ./apps/api-chemicals/dist
+COPY --from=builder --chown=appuser:nodejs /app/apps/api-chemicals/package.json ./apps/api-chemicals/
+COPY --from=builder --chown=appuser:nodejs /app/apps/api-chemicals/node_modules ./apps/api-chemicals/node_modules
+COPY --chown=appuser:nodejs apps/api-chemicals/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+USER appuser
 WORKDIR /app/apps/api-chemicals
 EXPOSE 4040
-ENTRYPOINT ["/entrypoint.sh"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4040/health || exit 1
+ENTRYPOINT ["dumb-init", "/entrypoint.sh"]

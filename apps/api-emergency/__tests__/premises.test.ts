@@ -6,6 +6,7 @@ jest.mock('../src/prisma', () => ({
     femPremises: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
@@ -174,7 +175,7 @@ describe('POST /api/premises', () => {
 
 describe('GET /api/premises/:id', () => {
   it('returns a single premises by id', async () => {
-    mockPremises.findUnique.mockResolvedValue({ ...fakePremises, fireRiskAssessments: [], wardens: [], activeIncidents: [] });
+    mockPremises.findFirst.mockResolvedValue({ ...fakePremises, fireRiskAssessments: [], wardens: [], activeIncidents: [] });
 
     const res = await request(app).get(`/api/premises/${PREMISES_ID}`);
 
@@ -184,7 +185,7 @@ describe('GET /api/premises/:id', () => {
   });
 
   it('returns 404 when premises does not exist', async () => {
-    mockPremises.findUnique.mockResolvedValue(null);
+    mockPremises.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/premises/00000000-0000-0000-0000-000000000999');
 
@@ -194,7 +195,7 @@ describe('GET /api/premises/:id', () => {
   });
 
   it('returns 500 on database error', async () => {
-    mockPremises.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPremises.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(`/api/premises/${PREMISES_ID}`);
 
@@ -206,7 +207,7 @@ describe('GET /api/premises/:id', () => {
 describe('PUT /api/premises/:id', () => {
   it('updates an existing premises', async () => {
     const updated = { ...fakePremises, name: 'Updated Office' };
-    mockPremises.findUnique.mockResolvedValue(fakePremises);
+    mockPremises.findFirst.mockResolvedValue(fakePremises);
     mockPremises.update.mockResolvedValue(updated);
 
     const res = await request(app).put(`/api/premises/${PREMISES_ID}`).send({ name: 'Updated Office' });
@@ -217,7 +218,7 @@ describe('PUT /api/premises/:id', () => {
   });
 
   it('returns 404 when premises does not exist on update', async () => {
-    mockPremises.findUnique.mockResolvedValue(null);
+    mockPremises.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/premises/00000000-0000-0000-0000-000000000999').send({ name: 'Ghost' });
 

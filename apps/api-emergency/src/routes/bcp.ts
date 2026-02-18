@@ -98,7 +98,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create BCP', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create BCP', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create business continuity plan' } }); }
 });
 
 // GET /api/bcp/:id — get BCP with exercises
@@ -118,27 +118,27 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateBcpSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femBusinessContinuityPlan.findUnique({ where: { id: req.params.id } });
+    const orgId = ((req as any).user as any)?.orgId || 'default'; const existing = await prisma.femBusinessContinuityPlan.findFirst({ where: { id: req.params.id, organisationId: orgId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'BCP not found' } });
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.reviewDate) updateData.reviewDate = new Date(parsed.data.reviewDate);
     if (parsed.data.biaCompletedDate) updateData.biaCompletedDate = new Date(parsed.data.biaCompletedDate);
     const data = await prisma.femBusinessContinuityPlan.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update business continuity plan' } }); }
 });
 
 // POST /api/bcp/:id/activate — activate BCP
 router.post('/:id/activate', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.femBusinessContinuityPlan.findUnique({ where: { id: req.params.id } });
+    const orgId = ((req as any).user as any)?.orgId || 'default'; const existing = await prisma.femBusinessContinuityPlan.findFirst({ where: { id: req.params.id, organisationId: orgId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'BCP not found' } });
     const data = await prisma.femBusinessContinuityPlan.update({
       where: { id: req.params.id },
       data: { status: 'ACTIVE' },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to activate BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'ACTIVATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to activate BCP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'ACTIVATE_ERROR', message: 'Failed to activate business continuity plan' } }); }
 });
 
 // POST /api/bcp/:id/exercise — create exercise
@@ -154,14 +154,14 @@ router.post('/:id/exercise', authenticate, async (req: Request, res: Response) =
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femBusinessContinuityPlan.findUnique({ where: { id: req.params.id } });
+    const orgId = ((req as any).user as any)?.orgId || 'default'; const existing = await prisma.femBusinessContinuityPlan.findFirst({ where: { id: req.params.id, organisationId: orgId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'BCP not found' } });
     const { scheduledDate, ...rest } = parsed.data;
     const data = await prisma.femBcpExercise.create({
       data: { ...rest, scheduledDate: new Date(scheduledDate), bcpId: req.params.id, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create exercise', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create exercise', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create exercise' } }); }
 });
 
 // PUT /api/bcp/:bcpId/exercise/:id — update exercise with results
@@ -182,7 +182,7 @@ router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Respo
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femBcpExercise.findUnique({ where: { id: req.params.id } });
+    const existing = await prisma.femBcpExercise.findFirst({ where: { id: req.params.id, bcp: { organisationId: ((req as any).user as any)?.orgId || 'default' } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Exercise not found' } });
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.actualDate) updateData.actualDate = new Date(parsed.data.actualDate);
@@ -196,7 +196,7 @@ router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Respo
       });
     }
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update exercise', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update exercise', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update exercise' } }); }
 });
 
 export default router;

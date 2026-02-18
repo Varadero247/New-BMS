@@ -57,7 +57,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       where.periodEnd = { lte: new Date(`${y}-12-31`) };
     }
 
-    const emissions = await prisma.esgEmission.findMany({ where });
+    const emissions = await prisma.esgEmission.findMany({ where, take: 10000 });
 
     const summary: Record<string, number> = { SCOPE_1: 0, SCOPE_2: 0, SCOPE_3: 0 };
     for (const e of emissions) {

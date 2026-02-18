@@ -62,14 +62,15 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const orgId = (req as any).user?.orgId || 'default';
     const data = await prisma.femPremises.create({ data: { ...parsed.data, organisationId: orgId } });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create premises', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create premises', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create premises' } }); }
 });
 
 // GET /api/premises/:id — get with all related data
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await prisma.femPremises.findUnique({
-      where: { id: req.params.id },
+    const orgId = (req as any).user?.orgId || 'default';
+    const item = await prisma.femPremises.findFirst({
+      where: { id: req.params.id, organisationId: orgId },
       include: {
         fireRiskAssessments: { orderBy: { assessmentDate: 'desc' }, take: 5 },
         assemblyPoints: true,
@@ -92,11 +93,12 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updatePremisesSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femPremises.findUnique({ where: { id: req.params.id } });
+    const orgId = (req as any).user?.orgId || 'default';
+    const existing = await prisma.femPremises.findFirst({ where: { id: req.params.id, organisationId: orgId } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Premises not found' } });
     const data = await prisma.femPremises.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update premises', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update premises' } }); }
 });
 
 // GET /api/premises/:id/dashboard — full premises safety dashboard

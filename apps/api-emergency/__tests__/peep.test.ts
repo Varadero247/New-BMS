@@ -6,6 +6,7 @@ jest.mock('../src/prisma', () => ({
     femPeep: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
@@ -215,7 +216,7 @@ describe('POST /api/peep/premises/:id', () => {
 describe('PUT /api/peep/:id', () => {
   it('updates an existing PEEP', async () => {
     const updated = { ...fakePeep, evacuationMethod: 'Stairclimber', assistantsRequired: 1 };
-    mockPeep.findUnique.mockResolvedValue(fakePeep);
+    mockPeep.findFirst.mockResolvedValue(fakePeep);
     mockPeep.update.mockResolvedValue(updated);
 
     const res = await request(app).put(`/api/peep/${PEEP_ID}`).send({
@@ -229,7 +230,7 @@ describe('PUT /api/peep/:id', () => {
   });
 
   it('returns 404 when PEEP does not exist on update', async () => {
-    mockPeep.findUnique.mockResolvedValue(null);
+    mockPeep.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/peep/00000000-0000-0000-0000-000000000999').send({
       evacuationMethod: 'Stairclimber',
@@ -241,7 +242,7 @@ describe('PUT /api/peep/:id', () => {
 
   it('updates reviewDate correctly', async () => {
     const updatedWithDate = { ...fakePeep, reviewDate: '2028-01-01T00:00:00.000Z' };
-    mockPeep.findUnique.mockResolvedValue(fakePeep);
+    mockPeep.findFirst.mockResolvedValue(fakePeep);
     mockPeep.update.mockResolvedValue(updatedWithDate);
 
     const res = await request(app).put(`/api/peep/${PEEP_ID}`).send({
@@ -253,7 +254,7 @@ describe('PUT /api/peep/:id', () => {
   });
 
   it('returns 500 on database error during update', async () => {
-    mockPeep.findUnique.mockResolvedValue(fakePeep);
+    mockPeep.findFirst.mockResolvedValue(fakePeep);
     mockPeep.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/peep/${PEEP_ID}`).send({

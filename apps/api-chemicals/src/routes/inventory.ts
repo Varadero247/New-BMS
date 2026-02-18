@@ -89,8 +89,9 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/inventory/:id — single inventory record
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const item = await prisma.chemInventory.findFirst({
-      where: { id: req.params.id, isActive: true },
+      where: { id: req.params.id, isActive: true, chemical: { orgId, deletedAt: null } },
       include: { chemical: true, usageRecords: { orderBy: { usedAt: 'desc' }, take: 20 } },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Inventory record not found' } });
@@ -142,7 +143,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create inventory record', { error: (error as Error).message });
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create resource' } });
   }
 });
 
@@ -151,20 +152,22 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateInventorySchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.chemInventory.findFirst({ where: { id: req.params.id, isActive: true } });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.chemInventory.findFirst({ where: { id: req.params.id, isActive: true, chemical: { orgId, deletedAt: null } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Inventory record not found' } });
     const data = await prisma.chemInventory.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to update inventory', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
 
 // POST /api/inventory/:id/inspect — record inspection
 router.post('/:id/inspect', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.chemInventory.findFirst({ where: { id: req.params.id, isActive: true } });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.chemInventory.findFirst({ where: { id: req.params.id, isActive: true, chemical: { orgId, deletedAt: null } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Inventory record not found' } });
     const { meetsStorageReqs, storageIssues } = req.body;
     const data = await prisma.chemInventory.update({
@@ -179,7 +182,7 @@ router.post('/:id/inspect', authenticate, async (req: Request, res: Response) =>
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to record inspection', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
 

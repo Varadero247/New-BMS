@@ -234,21 +234,55 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
+const capaUpdateSchema = z.object({
+  type: z.string().optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  sourceType: z.string().optional(),
+  sourceReference: z.string().optional(),
+  linkedEventId: z.string().optional(),
+  severity: z.string().optional(),
+  priority: z.string().optional(),
+  status: z.string().optional(),
+  assignedTo: z.string().optional(),
+  department: z.string().optional(),
+  rootCauseMethod: z.string().optional(),
+  rootCauseAnalysis: z.string().optional(),
+  containmentAction: z.string().optional(),
+  containmentDate: z.string().optional(),
+  correctiveAction: z.string().optional(),
+  preventiveAction: z.string().optional(),
+  targetClosureDate: z.string().optional(),
+  verificationMethod: z.string().optional(),
+  verificationDate: z.string().optional(),
+  verifiedBy: z.string().optional(),
+  effectivenessReview: z.string().optional(),
+  closureDate: z.string().optional(),
+  closedBy: z.string().optional(),
+  evidence: z.string().optional(),
+  aiRootCauseAnalysis: z.string().optional(),
+  aiCorrectiveActions: z.string().optional(),
+  aiPreventiveActions: z.string().optional(),
+  aiEffectivenessMetrics: z.string().optional(),
+  aiGenerated: z.boolean().optional(),
+});
+
 router.put('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envCapa.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
 
-    const data = req.body;
+    const parsed = capaUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+    }
+    const data: Record<string, unknown> = { ...parsed.data };
 
     // Convert date strings to Date objects
-    if (data.targetClosureDate && typeof data.targetClosureDate === 'string') data.targetClosureDate = new Date(data.targetClosureDate);
-    if (data.containmentDate && typeof data.containmentDate === 'string') data.containmentDate = new Date(data.containmentDate);
-    if (data.verificationDate && typeof data.verificationDate === 'string') data.verificationDate = new Date(data.verificationDate);
-    if (data.closureDate && typeof data.closureDate === 'string') data.closureDate = new Date(data.closureDate);
-
-    // Remove capaActions from data to avoid Prisma relation error on flat update
-    delete data.capaActions;
+    if (data.targetClosureDate && typeof data.targetClosureDate === 'string') data.targetClosureDate = new Date(data.targetClosureDate as string);
+    if (data.containmentDate && typeof data.containmentDate === 'string') data.containmentDate = new Date(data.containmentDate as string);
+    if (data.verificationDate && typeof data.verificationDate === 'string') data.verificationDate = new Date(data.verificationDate as string);
+    if (data.closureDate && typeof data.closureDate === 'string') data.closureDate = new Date(data.closureDate as string);
 
     const capa = await prisma.envCapa.update({
       where: { id: req.params.id },
@@ -314,6 +348,17 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/actions/:actionId - Update a CAPA action
+const capaActionUpdateSchema = z.object({
+  description: z.string().optional(),
+  assignedTo: z.string().optional(),
+  dueDate: z.string().optional(),
+  completedDate: z.string().optional(),
+  priority: z.string().optional(),
+  status: z.string().optional(),
+  notes: z.string().optional(),
+  evidence: z.string().optional(),
+});
+
 router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envCapaAction.findFirst({
@@ -321,11 +366,15 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
     });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
 
-    const data = req.body;
+    const parsed = capaActionUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+    }
+    const data: Record<string, unknown> = { ...parsed.data };
 
     // Convert date strings to Date objects
-    if (data.dueDate && typeof data.dueDate === 'string') data.dueDate = new Date(data.dueDate);
-    if (data.completedDate && typeof data.completedDate === 'string') data.completedDate = new Date(data.completedDate);
+    if (data.dueDate && typeof data.dueDate === 'string') data.dueDate = new Date(data.dueDate as string);
+    if (data.completedDate && typeof data.completedDate === 'string') data.completedDate = new Date(data.completedDate as string);
 
     // Auto-set completedDate when status changes to COMPLETED
     if (data.status === 'COMPLETED' && existing.status !== 'COMPLETED' && !data.completedDate) {

@@ -177,19 +177,61 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
+const legalUpdateSchema = z.object({
+  obligationType: z.string().optional(),
+  title: z.string().optional(),
+  jurisdiction: z.string().optional(),
+  regulatoryBody: z.string().optional(),
+  legislationReference: z.string().optional(),
+  description: z.string().optional(),
+  applicableActivities: z.array(z.string()).optional(),
+  responsiblePerson: z.string().optional(),
+  relevantSection: z.string().optional(),
+  effectiveDate: z.string().optional(),
+  expiryReviewDate: z.string().optional(),
+  complianceStatus: z.string().optional(),
+  lastAssessedDate: z.string().optional(),
+  assessedBy: z.string().optional(),
+  assessmentMethod: z.string().optional(),
+  complianceGaps: z.string().optional(),
+  requiredActions: z.string().optional(),
+  actionPriority: z.string().optional(),
+  actionsDueDate: z.string().optional(),
+  capaRequired: z.boolean().optional(),
+  monitoringRequirements: z.string().optional(),
+  reportingRequirements: z.string().optional(),
+  reportingFrequency: z.string().optional(),
+  nextReportingDue: z.string().optional(),
+  permitConditions: z.string().optional(),
+  status: z.string().optional(),
+  aiKeyObligations: z.string().optional(),
+  aiComplianceChecklist: z.string().optional(),
+  aiGapAnalysis: z.string().optional(),
+  aiRequiredActions: z.string().optional(),
+  aiEvidenceRequired: z.string().optional(),
+  aiMonitoring: z.string().optional(),
+  aiPenalty: z.string().optional(),
+  aiRecentChanges: z.string().optional(),
+  aiGenerated: z.boolean().optional(),
+});
+
 router.put('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Legal obligation not found' } });
 
-    const data = req.body;
+    const parsed = legalUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+    }
+    const data: Record<string, unknown> = { ...parsed.data };
 
     // Convert date strings to Date objects
-    if (data.effectiveDate) data.effectiveDate = new Date(data.effectiveDate);
-    if (data.expiryReviewDate) data.expiryReviewDate = new Date(data.expiryReviewDate);
-    if (data.lastAssessedDate) data.lastAssessedDate = new Date(data.lastAssessedDate);
-    if (data.actionsDueDate) data.actionsDueDate = new Date(data.actionsDueDate);
-    if (data.nextReportingDue) data.nextReportingDue = new Date(data.nextReportingDue);
+    if (data.effectiveDate) data.effectiveDate = new Date(data.effectiveDate as string);
+    if (data.expiryReviewDate) data.expiryReviewDate = new Date(data.expiryReviewDate as string);
+    if (data.lastAssessedDate) data.lastAssessedDate = new Date(data.lastAssessedDate as string);
+    if (data.actionsDueDate) data.actionsDueDate = new Date(data.actionsDueDate as string);
+    if (data.nextReportingDue) data.nextReportingDue = new Date(data.nextReportingDue as string);
 
     const obligation = await prisma.envLegal.update({
       where: { id: req.params.id },

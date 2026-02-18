@@ -63,7 +63,7 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
       },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create equipment', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create equipment', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create equipment' } }); }
 });
 
 // PUT /api/equipment/:id — update
@@ -71,7 +71,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateEquipmentSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femEmergencyEquipment.findUnique({ where: { id: req.params.id } });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default'; const existing = await prisma.femEmergencyEquipment.findFirst({ where: { id: req.params.id, premises: { organisationId: orgId } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Equipment not found' } });
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.nextServiceDue) updateData.nextServiceDue = new Date(parsed.data.nextServiceDue);
@@ -79,7 +79,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     if (parsed.data.lastServiceDate) updateData.lastServiceDate = new Date(parsed.data.lastServiceDate);
     const data = await prisma.femEmergencyEquipment.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update equipment' } }); }
 });
 
 // POST /api/equipment/:id/inspect — record inspection
@@ -92,7 +92,7 @@ router.post('/:id/inspect', authenticate, async (req: Request, res: Response) =>
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femEmergencyEquipment.findUnique({ where: { id: req.params.id } });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default'; const existing = await prisma.femEmergencyEquipment.findFirst({ where: { id: req.params.id, premises: { organisationId: orgId } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Equipment not found' } });
     const data = await prisma.femEmergencyEquipment.update({
       where: { id: req.params.id },
@@ -105,7 +105,7 @@ router.post('/:id/inspect', authenticate, async (req: Request, res: Response) =>
       },
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to record inspection', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INSPECT_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to record inspection', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INSPECT_ERROR', message: 'Failed to record inspection' } }); }
 });
 
 export default router;

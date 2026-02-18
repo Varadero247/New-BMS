@@ -177,11 +177,12 @@ router.post('/message', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/chat/session/:id
+// GET /api/chat/session/:id — returns only message history (no captured PII)
 router.get('/session/:id', async (req: Request, res: Response) => {
   try {
     const session = await prisma.mktChatSession.findUnique({
       where: { id: req.params.id },
+      select: { id: true, messages: true, createdAt: true },
     });
 
     if (!session) {
@@ -194,8 +195,9 @@ router.get('/session/:id', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-        ...session,
+        id: session.id,
         messages: JSON.parse(session.messages as string),
+        createdAt: session.createdAt,
       },
     });
   } catch (error) {

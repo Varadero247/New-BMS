@@ -6,6 +6,7 @@ jest.mock('../src/prisma', () => ({
     femEvacuationDrill: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
@@ -235,7 +236,7 @@ describe('POST /api/drills/premises/:id', () => {
 describe('PUT /api/drills/:id', () => {
   it('updates an existing drill record', async () => {
     const updated = { ...fakeDrill, correctiveActions: 'Fire exits cleared and signed', evacuationTimeMinutes: 4.2 };
-    mockDrill.findUnique.mockResolvedValue(fakeDrill);
+    mockDrill.findFirst.mockResolvedValue(fakeDrill);
     mockDrill.update.mockResolvedValue(updated);
 
     const res = await request(app).put(`/api/drills/${DRILL_ID}`).send({
@@ -249,7 +250,7 @@ describe('PUT /api/drills/:id', () => {
   });
 
   it('returns 404 when drill does not exist on update', async () => {
-    mockDrill.findUnique.mockResolvedValue(null);
+    mockDrill.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/drills/00000000-0000-0000-0000-000000000999').send({
       correctiveActions: 'No issues',
@@ -261,7 +262,7 @@ describe('PUT /api/drills/:id', () => {
 
   it('updates drill date correctly', async () => {
     const updatedDate = { ...fakeDrill, drillDate: '2026-02-01T09:00:00.000Z' };
-    mockDrill.findUnique.mockResolvedValue(fakeDrill);
+    mockDrill.findFirst.mockResolvedValue(fakeDrill);
     mockDrill.update.mockResolvedValue(updatedDate);
 
     const res = await request(app).put(`/api/drills/${DRILL_ID}`).send({
@@ -273,7 +274,7 @@ describe('PUT /api/drills/:id', () => {
   });
 
   it('returns 500 on database error during update', async () => {
-    mockDrill.findUnique.mockResolvedValue(fakeDrill);
+    mockDrill.findFirst.mockResolvedValue(fakeDrill);
     mockDrill.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/drills/${DRILL_ID}`).send({

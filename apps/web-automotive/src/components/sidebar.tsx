@@ -41,10 +41,12 @@ const modulesNavigation = [
   { name: 'Templates', href: '/templates', icon: FileText },
 ];
 
+const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
+
 const externalLinks = [
-  { name: 'IMS Dashboard', href: 'http://localhost:3000', icon: Home },
-  { name: 'Quality', href: 'http://localhost:3003', icon: Award },
-  { name: 'Settings', href: 'http://localhost:3004', icon: Settings },
+  { name: 'IMS Dashboard', href: `${APP_BASE}:3000`, icon: Home },
+  { name: 'Quality', href: `${APP_BASE}:3003`, icon: Award },
+  { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings },
 ];
 
 function NavSection({ title, items, pathname }: { title?: string; items: typeof coreNavigation; pathname: string }) {

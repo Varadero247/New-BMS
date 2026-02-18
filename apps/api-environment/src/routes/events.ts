@@ -212,12 +212,77 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id
+const eventUpdateSchema = z.object({
+  eventType: z.string().optional(),
+  severity: z.string().optional(),
+  dateOfEvent: z.string().optional(),
+  location: z.string().optional(),
+  department: z.string().optional(),
+  reportedBy: z.string().optional(),
+  description: z.string().optional(),
+  regulatoryNotification: z.boolean().optional(),
+  regulatoryBody: z.string().optional(),
+  notificationReference: z.string().optional(),
+  gpsCoordinates: z.string().optional(),
+  immediateCause: z.string().optional(),
+  contributingFactors: z.string().optional(),
+  mediaAffected: z.array(z.string()).optional(),
+  substanceInvolved: z.string().optional(),
+  quantityReleased: z.number().optional(),
+  quantityUnit: z.string().optional(),
+  concentration: z.string().optional(),
+  receptorDistance: z.string().optional(),
+  areaSecured: z.boolean().optional(),
+  immediateActions: z.string().optional(),
+  spillKitUsed: z.boolean().optional(),
+  emergencyServicesCalled: z.boolean().optional(),
+  materialsUsed: z.string().optional(),
+  cleanupDuration: z.string().optional(),
+  rcaMethod: z.string().optional(),
+  rootCause: z.string().optional(),
+  linkedAspectId: z.string().optional(),
+  investigationLead: z.string().optional(),
+  investigationDueDate: z.string().optional(),
+  investigationCompleted: z.string().optional(),
+  environmentalDamage: z.string().optional(),
+  biodiversityImpact: z.boolean().optional(),
+  biodiversityDescription: z.string().optional(),
+  waterCourseImpact: z.boolean().optional(),
+  waterCourseName: z.string().optional(),
+  airQualityImpact: z.boolean().optional(),
+  remediationCost: z.number().optional(),
+  reputationalImpact: z.string().optional(),
+  capaRequired: z.boolean().optional(),
+  capaReference: z.string().optional(),
+  preventiveMeasures: z.string().optional(),
+  monitoringRequired: z.boolean().optional(),
+  monitoringDescription: z.string().optional(),
+  followUpDate: z.string().optional(),
+  status: z.string().optional(),
+  closedBy: z.string().optional(),
+  closureDate: z.string().optional(),
+  lessonsLearned: z.string().optional(),
+  sharedWithTeam: z.boolean().optional(),
+  aiRootCauseAnalysis: z.string().optional(),
+  aiImmediateActions: z.string().optional(),
+  aiRegulatoryObligations: z.string().optional(),
+  aiEnvironmentalImpact: z.string().optional(),
+  aiPreventiveMeasures: z.string().optional(),
+  aiCAPARecommendations: z.string().optional(),
+  aiLessonsLearned: z.string().optional(),
+  aiGenerated: z.boolean().optional(),
+});
+
 router.put('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envEvent.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Event not found' } });
 
-    const data = req.body;
+    const parsed = eventUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+    }
+    const data: Record<string, unknown> = { ...parsed.data };
 
     // Auto-set closureDate when status changes to CLOSED
     if (data.status === 'CLOSED' && existing.status !== 'CLOSED') {
@@ -225,10 +290,10 @@ router.put('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res
     }
 
     // Convert date strings to Date objects
-    if (data.dateOfEvent) data.dateOfEvent = new Date(data.dateOfEvent);
-    if (data.investigationDueDate) data.investigationDueDate = new Date(data.investigationDueDate);
-    if (data.investigationCompleted) data.investigationCompleted = new Date(data.investigationCompleted);
-    if (data.followUpDate) data.followUpDate = new Date(data.followUpDate);
+    if (data.dateOfEvent) data.dateOfEvent = new Date(data.dateOfEvent as string);
+    if (data.investigationDueDate) data.investigationDueDate = new Date(data.investigationDueDate as string);
+    if (data.investigationCompleted) data.investigationCompleted = new Date(data.investigationCompleted as string);
+    if (data.followUpDate) data.followUpDate = new Date(data.followUpDate as string);
     if (data.closureDate && typeof data.closureDate === 'string') data.closureDate = new Date(data.closureDate);
 
     const event = await prisma.envEvent.update({

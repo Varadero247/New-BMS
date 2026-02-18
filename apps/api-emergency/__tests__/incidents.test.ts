@@ -6,6 +6,7 @@ jest.mock('../src/prisma', () => ({
     femEmergencyIncident: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
@@ -215,7 +216,7 @@ describe('POST /api/incidents', () => {
 
 describe('GET /api/incidents/:id', () => {
   it('returns a single incident with logs', async () => {
-    mockIncident.findUnique.mockResolvedValue({
+    mockIncident.findFirst.mockResolvedValue({
       ...fakeIncident,
       decisions: [],
       resourceDeployments: [],
@@ -231,7 +232,7 @@ describe('GET /api/incidents/:id', () => {
   });
 
   it('returns 404 when incident does not exist', async () => {
-    mockIncident.findUnique.mockResolvedValue(null);
+    mockIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000999');
 
@@ -243,7 +244,7 @@ describe('GET /api/incidents/:id', () => {
 describe('PUT /api/incidents/:id', () => {
   it('updates an incident', async () => {
     const updated = { ...fakeIncident, status: 'CONTAINED', containedAt: new Date().toISOString() };
-    mockIncident.findUnique.mockResolvedValue(fakeIncident);
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockIncident.update.mockResolvedValue(updated);
     mockTimeline.create.mockResolvedValue({ id: 'tl-2' });
 
@@ -255,7 +256,7 @@ describe('PUT /api/incidents/:id', () => {
   });
 
   it('returns 404 when incident does not exist on update', async () => {
-    mockIncident.findUnique.mockResolvedValue(null);
+    mockIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/incidents/00000000-0000-0000-0000-000000000999').send({ status: 'CONTAINED' });
 
@@ -267,7 +268,7 @@ describe('PUT /api/incidents/:id', () => {
 describe('POST /api/incidents/:id/close', () => {
   it('closes an incident and returns updated data', async () => {
     const closed = { ...fakeIncident, status: 'CLOSED', closedAt: new Date().toISOString() };
-    mockIncident.findUnique.mockResolvedValue(fakeIncident);
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockIncident.update.mockResolvedValue(closed);
     mockTimeline.create.mockResolvedValue({ id: 'tl-close' });
 
@@ -283,7 +284,7 @@ describe('POST /api/incidents/:id/close', () => {
   });
 
   it('returns 404 when incident does not exist on close', async () => {
-    mockIncident.findUnique.mockResolvedValue(null);
+    mockIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/close').send({});
 
@@ -295,7 +296,7 @@ describe('POST /api/incidents/:id/close', () => {
 describe('POST /api/incidents/:id/decision', () => {
   it('logs a decision for an incident', async () => {
     const decision = { id: 'dec-1', incidentId: INCIDENT_ID, decisionMaker: 'Incident Commander', decisionMade: 'Evacuate north wing' };
-    mockIncident.findUnique.mockResolvedValue(fakeIncident);
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockDecision.create.mockResolvedValue(decision);
     mockTimeline.create.mockResolvedValue({ id: 'tl-3' });
 
@@ -321,7 +322,7 @@ describe('POST /api/incidents/:id/decision', () => {
   });
 
   it('returns 404 when incident not found for decision', async () => {
-    mockIncident.findUnique.mockResolvedValue(null);
+    mockIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/decision').send({
       decisionMaker: 'IC',
@@ -337,7 +338,7 @@ describe('POST /api/incidents/:id/decision', () => {
 describe('POST /api/incidents/:id/resource', () => {
   it('logs a resource deployment', async () => {
     const resourceLog = { id: 'res-1', incidentId: INCIDENT_ID, resourceType: 'FIRE_ENGINE', resourceName: 'Engine 1' };
-    mockIncident.findUnique.mockResolvedValue(fakeIncident);
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockResource.create.mockResolvedValue(resourceLog);
     mockTimeline.create.mockResolvedValue({ id: 'tl-4' });
 
@@ -361,7 +362,7 @@ describe('POST /api/incidents/:id/resource', () => {
   });
 
   it('returns 404 when incident not found for resource', async () => {
-    mockIncident.findUnique.mockResolvedValue(null);
+    mockIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/resource').send({
       resourceType: 'AMBULANCE',
@@ -376,7 +377,7 @@ describe('POST /api/incidents/:id/resource', () => {
 describe('POST /api/incidents/:id/communication', () => {
   it('logs a communication entry', async () => {
     const commLog = { id: 'comm-1', incidentId: INCIDENT_ID, communicationType: 'INTERNAL', recipient: 'All Staff', method: 'EMAIL', messageContent: 'Evacuate now' };
-    mockIncident.findUnique.mockResolvedValue(fakeIncident);
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockComm.create.mockResolvedValue(commLog);
     mockTimeline.create.mockResolvedValue({ id: 'tl-5' });
 
@@ -404,7 +405,7 @@ describe('POST /api/incidents/:id/communication', () => {
   });
 
   it('returns 404 when incident not found for communication', async () => {
-    mockIncident.findUnique.mockResolvedValue(null);
+    mockIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/communication').send({
       communicationType: 'EXTERNAL',
@@ -421,7 +422,7 @@ describe('POST /api/incidents/:id/communication', () => {
 describe('POST /api/incidents/:id/timeline', () => {
   it('adds a timeline event', async () => {
     const event = { id: 'evt-1', incidentId: INCIDENT_ID, eventType: 'UPDATE', description: 'Water supply cut' };
-    mockIncident.findUnique.mockResolvedValue(fakeIncident);
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
     mockTimeline.create.mockResolvedValue(event);
 
     const res = await request(app).post(`/api/incidents/${INCIDENT_ID}/timeline`).send({
@@ -444,7 +445,7 @@ describe('POST /api/incidents/:id/timeline', () => {
   });
 
   it('returns 404 when incident not found for timeline', async () => {
-    mockIncident.findUnique.mockResolvedValue(null);
+    mockIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/incidents/00000000-0000-0000-0000-000000000999/timeline').send({
       eventType: 'UPDATE',

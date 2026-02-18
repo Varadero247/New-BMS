@@ -131,6 +131,7 @@ router.get('/active', async (req: Request, res: Response) => {
     const sequences = await prisma.mktWinBackSequence.findMany({
       where: { reactivatedAt: null },
       orderBy: { cancelledAt: 'desc' },
+      take: 100,
     });
 
     res.json({ success: true, data: sequences });

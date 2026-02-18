@@ -254,7 +254,7 @@ export default function PurchaseOrdersPage() {
                         <td className="py-3 px-4"><Badge className={statusColors[order.status] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}>{order.status.replace('_', ' ')}</Badge></td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setViewOrder(order); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"><Eye className="h-4 w-4" /></button>
+                            <button onClick={() => { setViewOrder(order); setViewModalOpen(true); }} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600" aria-label="View purchase order"><Eye className="h-4 w-4" /></button>
                             {(order.status === 'DRAFT' || order.status === 'PENDING_APPROVAL') && (
                               <button onClick={() => handleApprove(order.id)} className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 flex items-center gap-1">
                                 <Check className="h-3 w-3" />Approve
@@ -266,7 +266,7 @@ export default function PurchaseOrdersPage() {
                               </button>
                             )}
                             {order.status === 'DRAFT' && (
-                              <button onClick={() => handleCancel(order.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                              <button onClick={() => handleCancel(order.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600" aria-label="Cancel order"><Trash2 className="h-4 w-4" /></button>
                             )}
                           </div>
                         </td>

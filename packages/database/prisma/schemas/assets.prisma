@@ -107,7 +107,7 @@ model AssetWorkOrder {
   createdBy       String?
   updatedBy       String?
   deletedAt       DateTime?
-  asset           AssetRegister   @relation(fields: [assetId], references: [id])
+  asset           AssetRegister   @relation(fields: [assetId], references: [id], onDelete: Cascade)
   @@map("asset_work_orders")
   @@index([orgId])
   @@index([assetId])
@@ -134,7 +134,7 @@ model AssetCalibration {
   createdBy       String?
   updatedBy       String?
   deletedAt       DateTime?
-  asset           AssetRegister   @relation(fields: [assetId], references: [id])
+  asset           AssetRegister   @relation(fields: [assetId], references: [id], onDelete: Cascade)
   @@map("asset_calibrations")
   @@index([orgId])
   @@index([assetId])
@@ -161,7 +161,7 @@ model AssetInspection {
   createdBy       String?
   updatedBy       String?
   deletedAt       DateTime?
-  asset           AssetRegister @relation(fields: [assetId], references: [id])
+  asset           AssetRegister @relation(fields: [assetId], references: [id], onDelete: Cascade)
   @@map("asset_inspections")
   @@index([orgId])
   @@index([assetId])

@@ -33,7 +33,8 @@ router.get('/:id/actions', authenticate, async (req: Request, res: Response) => 
 // POST /api/risks/:id/actions
 router.post('/:id/actions', authenticate, async (req: Request, res: Response) => {
   try {
-    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!risk) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     const parsed = actionSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
@@ -41,7 +42,7 @@ router.post('/:id/actions', authenticate, async (req: Request, res: Response) =>
       data: { ...parsed.data, riskId: req.params.id, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data: action });
-  } catch (error: unknown) { logger.error('Failed to create action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // PUT /api/risks/:riskId/actions/:id
@@ -53,7 +54,7 @@ router.put('/:riskId/actions/:id', authenticate, async (req: Request, res: Respo
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     const action = await prisma.riskAction.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: action });
-  } catch (error: unknown) { logger.error('Failed to update action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/:riskId/actions/:id/complete
@@ -70,7 +71,7 @@ router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, 
       data: { status: 'COMPLETED', completedDate: new Date(), evidenceOfCompletion, effectiveness },
     });
     res.json({ success: true, data: action });
-  } catch (error: unknown) { logger.error('Failed to complete action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to complete action', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // GET /api/risks/actions/overdue

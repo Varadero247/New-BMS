@@ -356,6 +356,46 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/projects/:id - Update project
+const projectUpdateSchema = z.object({
+  projectName: z.string().min(1).optional(),
+  projectDescription: z.string().optional(),
+  projectType: z.enum(['INTERNAL', 'CLIENT', 'R_D', 'IMPROVEMENT', 'COMPLIANCE']).optional(),
+  status: z.enum(['PLANNING', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED', 'CLOSED']).optional(),
+  businessCase: z.string().optional(),
+  businessJustification: z.string().optional(),
+  expectedBenefits: z.string().optional(),
+  roi: z.number().optional(),
+  paybackPeriod: z.number().optional(),
+  scopeStatement: z.string().optional(),
+  objectives: z.string().optional(),
+  deliverables: z.string().optional(),
+  exclusions: z.string().optional(),
+  assumptions: z.string().optional(),
+  constraints: z.string().optional(),
+  startDate: z.string().optional(),
+  plannedEndDate: z.string().optional(),
+  actualEndDate: z.string().optional(),
+  baselineEndDate: z.string().optional(),
+  plannedBudget: z.number().optional(),
+  budgetCurrency: z.string().optional(),
+  contingencyReserve: z.number().optional(),
+  managementReserve: z.number().optional(),
+  projectManagerId: z.string().optional(),
+  projectSponsorId: z.string().optional(),
+  teamMembers: z.string().optional(),
+  methodology: z.enum(['WATERFALL', 'AGILE', 'HYBRID', 'PRINCE2']).optional(),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+  complianceStandards: z.string().optional(),
+  linkedProcessIds: z.string().optional(),
+  linkedRiskIds: z.string().optional(),
+  linkedAspectIds: z.string().optional(),
+  linkedDepartmentIds: z.string().optional(),
+  earnedValue: z.number().optional(),
+  actualCost: z.number().optional(),
+  plannedValue: z.number().optional(),
+  progressPercentage: z.number().min(0).max(100).optional(),
+});
+
 router.put('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
@@ -363,7 +403,11 @@ router.put('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res:
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
-    const data = req.body;
+    const parsed = projectUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.errors } });
+    }
+    const data = parsed.data;
     const updateData: any = { ...data, updatedBy: req.user?.id };
 
     // Handle date conversions

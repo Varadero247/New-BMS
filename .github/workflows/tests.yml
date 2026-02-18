@@ -78,4 +78,3 @@ jobs:
 
       - name: Type check
         run: pnpm -r run build
-        continue-on-error: true

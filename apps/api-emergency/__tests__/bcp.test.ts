@@ -6,12 +6,14 @@ jest.mock('../src/prisma', () => ({
     femBusinessContinuityPlan: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
     },
     femBcpExercise: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
     },
@@ -195,7 +197,7 @@ describe('GET /api/bcp/:id', () => {
 describe('PUT /api/bcp/:id', () => {
   it('updates an existing BCP', async () => {
     const updated = { ...fakeBcp, title: 'Updated BCP', status: 'APPROVED' };
-    mockBcp.findUnique.mockResolvedValue(fakeBcp);
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
     mockBcp.update.mockResolvedValue(updated);
 
     const res = await request(app).put(`/api/bcp/${BCP_ID}`).send({ title: 'Updated BCP', status: 'APPROVED' });
@@ -206,7 +208,7 @@ describe('PUT /api/bcp/:id', () => {
   });
 
   it('returns 404 when BCP does not exist on update', async () => {
-    mockBcp.findUnique.mockResolvedValue(null);
+    mockBcp.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/bcp/00000000-0000-0000-0000-000000000999').send({ title: 'Ghost' });
 
@@ -218,7 +220,7 @@ describe('PUT /api/bcp/:id', () => {
 describe('POST /api/bcp/:id/activate', () => {
   it('activates a BCP and sets status to ACTIVE', async () => {
     const activated = { ...fakeBcp, status: 'ACTIVE' };
-    mockBcp.findUnique.mockResolvedValue(fakeBcp);
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
     mockBcp.update.mockResolvedValue(activated);
 
     const res = await request(app).post(`/api/bcp/${BCP_ID}/activate`);
@@ -229,7 +231,7 @@ describe('POST /api/bcp/:id/activate', () => {
   });
 
   it('returns 404 when BCP does not exist on activate', async () => {
-    mockBcp.findUnique.mockResolvedValue(null);
+    mockBcp.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/bcp/00000000-0000-0000-0000-000000000999/activate');
 
@@ -247,7 +249,7 @@ describe('POST /api/bcp/:id/exercise', () => {
       title: 'Annual Tabletop Exercise',
       scheduledDate: '2026-06-01T00:00:00.000Z',
     };
-    mockBcp.findUnique.mockResolvedValue(fakeBcp);
+    mockBcp.findFirst.mockResolvedValue(fakeBcp);
     mockExercise.create.mockResolvedValue(exercise);
 
     const res = await request(app).post(`/api/bcp/${BCP_ID}/exercise`).send({
@@ -273,7 +275,7 @@ describe('POST /api/bcp/:id/exercise', () => {
   });
 
   it('returns 404 when BCP not found for exercise creation', async () => {
-    mockBcp.findUnique.mockResolvedValue(null);
+    mockBcp.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/bcp/00000000-0000-0000-0000-000000000999/exercise').send({
       exerciseType: 'TABLETOP',
@@ -295,7 +297,7 @@ describe('PUT /api/bcp/:bcpId/exercise/:id', () => {
       outcome: 'PASSED',
       objectivesMet: true,
     };
-    mockExercise.findUnique.mockResolvedValue({ id: EXERCISE_ID, bcpId: BCP_ID });
+    mockExercise.findFirst.mockResolvedValue({ id: EXERCISE_ID, bcpId: BCP_ID });
     mockExercise.update.mockResolvedValue(updatedExercise);
     mockBcp.update.mockResolvedValue({ ...fakeBcp, lastTestedDate: new Date().toISOString(), lastTestOutcome: 'PASSED' });
 
@@ -311,7 +313,7 @@ describe('PUT /api/bcp/:bcpId/exercise/:id', () => {
   });
 
   it('returns 404 when exercise does not exist', async () => {
-    mockExercise.findUnique.mockResolvedValue(null);
+    mockExercise.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(`/api/bcp/${BCP_ID}/exercise/00000000-0000-0000-0000-000000000999`).send({
       outcome: 'PASSED',

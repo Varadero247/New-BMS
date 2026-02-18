@@ -58,7 +58,8 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await prisma.riskCapa.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const item = await prisma.riskCapa.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) { logger.error('Failed to fetch CAPA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch CAPA' } }); }
@@ -73,28 +74,30 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const { riskId, title, description, type, source, priority, status, assignee, assigneeName, rootCause, actionPlan, verificationMethod, verificationResult, dueDate, completedDate, verifiedDate, verifiedBy, effectivenessCheck, effectivenessDate, effectivenessResult, linkedIncident, linkedAudit, notes } = parsed.data;
     const data = await prisma.riskCapa.create({ data: { riskId, title, description, type, source, priority, status, assignee, assigneeName, rootCause, actionPlan, verificationMethod, verificationResult, dueDate, completedDate, verifiedDate, verifiedBy, effectivenessCheck, effectivenessDate, effectivenessResult, linkedIncident, linkedAudit, notes, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create CAPA', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create CAPA', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create CAPA' } }); }
 });
 
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateCapaSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.riskCapa.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.riskCapa.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     const { riskId, title, description, type, source, priority, status, assignee, assigneeName, rootCause, actionPlan, verificationMethod, verificationResult, dueDate, completedDate, verifiedDate, verifiedBy, effectivenessCheck, effectivenessDate, effectivenessResult, linkedIncident, linkedAudit, notes } = parsed.data;
     const data = await prisma.riskCapa.update({ where: { id: req.params.id }, data: { riskId, title, description, type, source, priority, status, assignee, assigneeName, rootCause, actionPlan, verificationMethod, verificationResult, dueDate, completedDate, verifiedDate, verifiedBy, effectivenessCheck, effectivenessDate, effectivenessResult, linkedIncident, linkedAudit, notes, updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update CAPA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update CAPA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update CAPA' } }); }
 });
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.riskCapa.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.riskCapa.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     await prisma.riskCapa.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'CAPA deleted successfully' } });
-  } catch (error: unknown) { logger.error('Failed to delete CAPA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to delete CAPA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete CAPA' } }); }
 });
 
 export default router;

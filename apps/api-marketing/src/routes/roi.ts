@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -98,8 +99,8 @@ router.post('/calculate', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/roi/history (authenticated)
-router.get('/history', async (req: Request, res: Response) => {
+// GET /api/roi/history (authenticated — protects lead data)
+router.get('/history', authenticate, async (req: Request, res: Response) => {
   try {
     const leads = await prisma.mktLead.findMany({
       where: { source: 'ROI_CALCULATOR' },

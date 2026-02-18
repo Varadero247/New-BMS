@@ -55,6 +55,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
         status: 'OVERDUE',
       } as any,
       orderBy: { scheduledDate: 'asc' },
+      take: 500,
     });
 
     res.json({ success: true, data });

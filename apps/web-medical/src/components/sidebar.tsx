@@ -105,10 +105,12 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
+
 const externalLinks: NavItem[] = [
-  { name: 'IMS Dashboard', href: 'http://localhost:3000', icon: Home, external: true },
-  { name: 'Quality (ISO 9001)', href: 'http://localhost:3003', icon: Award, external: true },
-  { name: 'Settings', href: 'http://localhost:3004', icon: Settings, external: true },
+  { name: 'IMS Dashboard', href: `${APP_BASE}:3000`, icon: Home, external: true },
+  { name: 'Quality (ISO 9001)', href: `${APP_BASE}:3003`, icon: Award, external: true },
+  { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings, external: true },
 ];
 
 function CollapsibleSection({

@@ -29,7 +29,7 @@ router.get('/analytics/dashboard', authenticate, async (req: Request, res: Respo
       prisma.riskKri.count({ where: { isActive: true, currentStatus: 'AMBER' } }),
       prisma.riskRegister.findMany({ where: { ...baseWhere, status: { not: 'CLOSED' } }, orderBy: { residualScore: 'desc' }, take: 5, select: { id: true, referenceNumber: true, title: true, residualScore: true, residualRiskLevel: true, category: true, ownerName: true } }),
       prisma.riskRegister.findMany({ where: baseWhere, orderBy: { updatedAt: 'desc' }, take: 10, select: { id: true, referenceNumber: true, title: true, status: true, residualRiskLevel: true, updatedAt: true } }),
-      prisma.riskRegister.findMany({ where: { ...baseWhere, status: { not: 'CLOSED' } }, select: { residualLikelihoodNum: true, residualConsequenceNum: true, id: true, title: true, referenceNumber: true, residualRiskLevel: true } }),
+      prisma.riskRegister.findMany({ where: { ...baseWhere, status: { not: 'CLOSED' } }, select: { residualLikelihoodNum: true, residualConsequenceNum: true, id: true, title: true, referenceNumber: true, residualRiskLevel: true }, take: 1000 }),
       prisma.riskRegister.count({ where: { ...baseWhere, raisedDate: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) } } }),
     ]);
 

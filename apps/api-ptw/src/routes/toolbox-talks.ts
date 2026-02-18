@@ -34,7 +34,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
-    if (search) where.title = { contains: search, mode: 'insensitive' };
+    if (search) where.topic = { contains: search, mode: 'insensitive' };
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
       prisma.ptwToolboxTalk.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' } }),
@@ -49,7 +49,8 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await prisma.ptwToolboxTalk.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const item = await prisma.ptwToolboxTalk.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'toolbox talk not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -77,13 +78,14 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create resource' } });
   }
 });
 
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.ptwToolboxTalk.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.ptwToolboxTalk.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'toolbox talk not found' } });
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -104,18 +106,19 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     const data = await prisma.ptwToolboxTalk.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.ptwToolboxTalk.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.ptwToolboxTalk.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'toolbox talk not found' } });
     await prisma.ptwToolboxTalk.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
     res.json({ success: true, data: { message: 'toolbox talk deleted successfully' } });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
   }
 });
 

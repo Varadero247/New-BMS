@@ -101,7 +101,7 @@ model CompAction {
   updatedAt    DateTime @updatedAt
   createdBy    String?
   deletedAt    DateTime?
-  complaint    CompComplaint @relation(fields: [complaintId], references: [id])
+  complaint    CompComplaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
   @@map("comp_actions")
   @@index([complaintId])
   @@index([deletedAt])
@@ -119,7 +119,7 @@ model CompCommunication {
   sentBy       String?
   createdAt    DateTime @default(now())
   deletedAt    DateTime?
-  complaint    CompComplaint @relation(fields: [complaintId], references: [id])
+  complaint    CompComplaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
   @@map("comp_communications")
   @@index([complaintId])
   @@index([deletedAt])

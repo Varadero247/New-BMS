@@ -6,6 +6,7 @@ jest.mock('../src/prisma', () => ({
     femFireWarden: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
@@ -204,7 +205,7 @@ describe('POST /api/wardens/premises/:id', () => {
 describe('PUT /api/wardens/:id', () => {
   it('updates an existing warden', async () => {
     const updated = { ...fakeWarden, areaResponsible: 'Floor 2 South', trainingCurrent: true };
-    mockWarden.findUnique.mockResolvedValue(fakeWarden);
+    mockWarden.findFirst.mockResolvedValue(fakeWarden);
     mockWarden.update.mockResolvedValue(updated);
 
     const res = await request(app).put(`/api/wardens/${WARDEN_ID}`).send({
@@ -218,7 +219,7 @@ describe('PUT /api/wardens/:id', () => {
   });
 
   it('returns 404 when warden does not exist on update', async () => {
-    mockWarden.findUnique.mockResolvedValue(null);
+    mockWarden.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/wardens/00000000-0000-0000-0000-000000000999').send({
       areaResponsible: 'Floor 3',
@@ -230,7 +231,7 @@ describe('PUT /api/wardens/:id', () => {
 
   it('updates training expiry date correctly', async () => {
     const updatedWithExpiry = { ...fakeWarden, trainingExpiryDate: '2028-01-01T00:00:00.000Z' };
-    mockWarden.findUnique.mockResolvedValue(fakeWarden);
+    mockWarden.findFirst.mockResolvedValue(fakeWarden);
     mockWarden.update.mockResolvedValue(updatedWithExpiry);
 
     const res = await request(app).put(`/api/wardens/${WARDEN_ID}`).send({
@@ -242,7 +243,7 @@ describe('PUT /api/wardens/:id', () => {
   });
 
   it('returns 500 on database error during update', async () => {
-    mockWarden.findUnique.mockResolvedValue(fakeWarden);
+    mockWarden.findFirst.mockResolvedValue(fakeWarden);
     mockWarden.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/wardens/${WARDEN_ID}`).send({

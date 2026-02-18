@@ -63,7 +63,7 @@ describe('POST /api/public/submit', () => {
     (prisma as any).compComplaint.create.mockResolvedValue({ id: '2', referenceNumber: 'CMP-2026-0001' });
     const res = await request(app).post('/api/public/submit').send({
       title: 'Org-specific complaint',
-      orgId: 'my-org',
+      orgId: '00000000-0000-4000-a000-000000000099',
     });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);

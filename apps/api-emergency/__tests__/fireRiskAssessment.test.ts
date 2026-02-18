@@ -7,6 +7,7 @@ jest.mock('../src/prisma', () => ({
       findMany: jest.fn(),
       findFirst: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),

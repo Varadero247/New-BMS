@@ -88,7 +88,7 @@ export default function BudgetDashboardClient() {
       </div>
 
       {/* Top gauges */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 flex flex-col items-center">
           <Gauge value={budgetUtilization} max={100} size="lg" label="Budget Utilization" sublabel="YTD" color={budgetUtilization > 100 ? 'red' : budgetUtilization > 95 ? 'yellow' : 'green'} />
         </div>
@@ -148,7 +148,7 @@ export default function BudgetDashboardClient() {
       {/* Department summary */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Department Summary</h3>
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {deptSummary.map(d => (
             <button
               key={d.dept}

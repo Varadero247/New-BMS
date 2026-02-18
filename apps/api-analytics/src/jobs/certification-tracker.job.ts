@@ -10,7 +10,7 @@ export async function runCertificationTrackerJob(): Promise<void> {
     const now = new Date();
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-    const deadlines = await prisma.complianceDeadline.findMany();
+    const deadlines = await prisma.complianceDeadline.findMany({ take: 10000 });
 
     let overdueCount = 0;
     let dueSoonCount = 0;

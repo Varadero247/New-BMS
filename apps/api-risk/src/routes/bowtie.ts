@@ -36,7 +36,8 @@ router.get('/:id/bowtie', authenticate, async (req: Request, res: Response) => {
 // POST /api/risks/:id/bowtie
 router.post('/:id/bowtie', authenticate, async (req: Request, res: Response) => {
   try {
-    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!risk) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     // Bow-tie is for HIGH+ risks only
     const level = risk.residualRiskLevel || risk.inherentRiskLevel || '';
@@ -58,7 +59,7 @@ router.post('/:id/bowtie', authenticate, async (req: Request, res: Response) => 
       });
     }
     res.status(existing ? 200 : 201).json({ success: true, data: bowtie });
-  } catch (error: unknown) { logger.error('Failed to save bowtie', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to save bowtie', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to save bowtie analysis' } }); }
 });
 
 // GET /api/risks/bowtie/all

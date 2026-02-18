@@ -101,7 +101,7 @@ model AudFinding {
   createdBy       String?
   updatedBy       String?
   deletedAt       DateTime?
-  audit           AudAudit             @relation(fields: [auditId], references: [id])
+  audit           AudAudit             @relation(fields: [auditId], references: [id], onDelete: Cascade)
   @@map("aud_findings")
   @@index([orgId])
   @@index([auditId])
@@ -123,7 +123,7 @@ model AudChecklist {
   updatedAt    DateTime @updatedAt
   createdBy    String?
   deletedAt    DateTime?
-  audit        AudAudit @relation(fields: [auditId], references: [id])
+  audit        AudAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
   @@map("aud_checklists")
   @@index([auditId])
   @@index([deletedAt])

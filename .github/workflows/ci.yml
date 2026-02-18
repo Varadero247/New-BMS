@@ -162,8 +162,13 @@ jobs:
         run: pnpm --filter @ims/database generate:all
 
       - name: Push database schemas
+        id: db-push
         run: pnpm --filter @ims/database push:all
         continue-on-error: true
+
+      - name: Warn on schema push failure
+        if: steps.db-push.outcome == 'failure'
+        run: echo "::warning::Database schema push failed — unit tests will still run (mocked), but integration tests may fail"
 
       - name: Build packages
         run: pnpm build --filter='./packages/*'

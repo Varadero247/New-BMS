@@ -14,9 +14,11 @@ const navigation = [
   { name: 'Self-Service', href: '/self-service', icon: LayoutDashboard },
 ];
 
+const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
+
 const externalLinks = [
-  { name: 'IMS Dashboard', href: 'http://localhost:3000', icon: Home },
-  { name: 'Settings', href: 'http://localhost:3004', icon: Settings },
+  { name: 'IMS Dashboard', href: `${APP_BASE}:3000`, icon: Home },
+  { name: 'Settings', href: `${APP_BASE}:3004`, icon: Settings },
 ];
 
 export function Sidebar() {

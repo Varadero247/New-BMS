@@ -103,6 +103,44 @@ describe('DELETE /api/risks/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('should return 404 when risk not found', async () => {
+    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/risks/nope');
+    expect(res.status).toBe(404);
+  });
+
+  it('should return 500 on database error', async () => {
+    (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: '1' });
+    (prisma as any).riskRegister.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/risks/1');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('GET /api/risks - error paths', () => {
+  it('should return 500 on database error', async () => {
+    (prisma as any).riskRegister.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/risks');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('PUT /api/risks/:id - error paths', () => {
+  it('should return 404 when risk not found', async () => {
+    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    const res = await request(app).put('/api/risks/nope').send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+  });
+
+  it('should return 500 on database update error', async () => {
+    (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: '1', category: 'OPERATIONAL', residualScore: 8 });
+    (prisma as any).riskRegister.update.mockRejectedValue(new Error('DB error'));
+    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    const res = await request(app).put('/api/risks/1').send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+  });
 });
 
 describe('GET /api/risks/register', () => {

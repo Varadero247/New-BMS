@@ -244,7 +244,7 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
       data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk from COSHH', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk from COSHH', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/from-fra/:fraId
@@ -261,7 +261,7 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
       data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk from FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk from FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/from-incident/:id
@@ -278,7 +278,7 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
       data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk from incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk from incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // POST /api/risks/from-audit/:id
@@ -302,7 +302,7 @@ router.post('/from-audit/:id', authenticate, async (req: Request, res: Response)
       } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk from audit', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk from audit', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // GET /api/risks — list all with filters
@@ -335,8 +335,9 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/risks/:id — get risk with all relations
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const item = await prisma.riskRegister.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null } as any,
       include: {
         riskControls: { where: { isActive: true } },
         keyRiskIndicators: { where: { isActive: true }, include: { readings: { orderBy: { recordedAt: 'desc' }, take: 10 } } },
@@ -373,7 +374,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       data: { ...calculated, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create risk', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create risk', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // PUT /api/risks/:id — update risk
@@ -381,11 +382,10 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateRiskSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.riskRegister.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     const calculated = autoCalculateFields(parsed.data);
-    // Re-check appetite status
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const resScore = (calculated.residualScore ?? existing.residualScore) as any;
     const cat = (calculated.category ?? existing.category) as any;
     if (resScore && cat) {
@@ -406,17 +406,18 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       data: { ...calculated, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Operation failed' } }); }
 });
 
 // DELETE /api/risks/:id — soft delete
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const existing = await prisma.riskRegister.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     await prisma.riskRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'risk deleted successfully' } });
-  } catch (error: unknown) { logger.error('Failed to delete risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to delete risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Operation failed' } }); }
 });
 
 export default router;

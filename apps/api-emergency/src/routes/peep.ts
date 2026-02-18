@@ -64,7 +64,7 @@ router.post('/premises/:id', authenticate, async (req: Request, res: Response) =
       data: { ...rest, premisesId: req.params.id, reviewDate: new Date(reviewDate), createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to create PEEP', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to create PEEP', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create PEEP' } }); }
 });
 
 // PUT /api/peep/:id — update PEEP
@@ -72,13 +72,13 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updatePeepSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femPeep.findUnique({ where: { id: req.params.id } });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default'; const existing = await prisma.femPeep.findFirst({ where: { id: req.params.id, premises: { organisationId: orgId } } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'PEEP not found' } });
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.reviewDate) updateData.reviewDate = new Date(parsed.data.reviewDate);
     const data = await prisma.femPeep.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
-  } catch (error: unknown) { logger.error('Failed to update PEEP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
+  } catch (error: unknown) { logger.error('Failed to update PEEP', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update PEEP' } }); }
 });
 
 export default router;

@@ -97,7 +97,7 @@ model SuppScorecard {
   createdBy       String?
   updatedBy       String?
   deletedAt       DateTime?
-  supplier        SuppSupplier    @relation(fields: [supplierId], references: [id])
+  supplier        SuppSupplier    @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   @@map("supp_scorecards")
   @@index([orgId])
   @@index([supplierId])

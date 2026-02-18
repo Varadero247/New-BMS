@@ -130,16 +130,41 @@ router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /plans/:id — Update plan
+const planUpdateSchema = z.object({
+  title: z.string().optional(),
+  scenario: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  department: z.string().optional(),
+  responsiblePerson: z.string().optional(),
+  status: z.string().optional(),
+  priority: z.string().optional(),
+  lastReviewDate: z.string().optional(),
+  nextReviewDate: z.string().optional(),
+  responseTeam: z.array(z.string()).optional(),
+  procedures: z.string().optional(),
+  communicationPlan: z.string().optional(),
+  evacuationRoutes: z.string().optional(),
+  assemblyPoints: z.string().optional(),
+  equipmentRequired: z.string().optional(),
+  externalAgencies: z.string().optional(),
+  notes: z.string().optional(),
+});
+
 router.put('/plans/:id', checkOwnership(prisma.envEmergencyPlan as any), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.envEmergencyPlan.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emergency plan not found' } });
 
-    const data = req.body;
+    const parsed = planUpdateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields: parsed.error.errors.map(e => e.path.join('.')) } });
+    }
+    const data: Record<string, unknown> = { ...parsed.data };
 
     // Convert date strings to Date objects
-    if (data.lastReviewDate && typeof data.lastReviewDate === 'string') data.lastReviewDate = new Date(data.lastReviewDate);
-    if (data.nextReviewDate && typeof data.nextReviewDate === 'string') data.nextReviewDate = new Date(data.nextReviewDate);
+    if (data.lastReviewDate && typeof data.lastReviewDate === 'string') data.lastReviewDate = new Date(data.lastReviewDate as string);
+    if (data.nextReviewDate && typeof data.nextReviewDate === 'string') data.nextReviewDate = new Date(data.nextReviewDate as string);
 
     const plan = await prisma.envEmergencyPlan.update({
       where: { id: req.params.id },

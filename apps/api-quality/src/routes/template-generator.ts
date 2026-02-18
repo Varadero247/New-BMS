@@ -282,7 +282,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
 
     res.json({ success: true, data: templates, pagination: { page: Number(page), limit: Number(limit), total } });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch resource' } });
   }
 });
 
@@ -362,7 +362,7 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'GENERATION_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'GENERATION_ERROR', message: 'Internal server error' } });
   }
 });
 
@@ -396,7 +396,7 @@ router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
 
     res.json({ success: true, data: { ...template, configJson: JSON.parse(template.configJson) } });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch resource' } });
   }
 });
 
@@ -406,7 +406,7 @@ router.delete('/:id', authenticate as any, requirePermission('quality', (Permiss
     await prisma.qualGeneratedTemplate.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } as any });
     res.json({ success: true, data: { message: 'Template deleted' } });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
   }
 });
 

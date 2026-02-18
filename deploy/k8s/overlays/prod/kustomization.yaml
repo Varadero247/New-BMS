@@ -39,7 +39,9 @@ configMapGenerator:
     literals:
       - NODE_ENV=production
       - LOG_LEVEL=warn
-      - CORS_ORIGIN=https://ims.example.com
+      # NOTE: Do NOT set CORS_ORIGIN — see CLAUDE.md Known Issue #3.
+      # The gateway uses a built-in allowed-origins array. Setting CORS_ORIGIN
+      # overrides it and breaks cross-origin requests.
 
 commonLabels:
   environment: production

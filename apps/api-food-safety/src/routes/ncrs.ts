@@ -67,6 +67,7 @@ router.get('/open', async (req: Request, res: Response) => {
         status: { in: ['OPEN', 'INVESTIGATING', 'CORRECTIVE_ACTION'] } as any,
       },
       orderBy: { createdAt: 'desc' },
+      take: 500,
     });
 
     res.json({ success: true, data });

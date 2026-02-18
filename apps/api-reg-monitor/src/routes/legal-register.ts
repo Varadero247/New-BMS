@@ -43,7 +43,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) } });
   } catch (error: unknown) {
     logger.error('Fetch failed', { error: (error as Error).message });
-    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch legal register entrys' } });
+    res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch legal register entries' } });
   }
 });
 
@@ -77,7 +77,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
-    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } });
+    res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: 'Failed to create resource' } });
   }
 });
 
@@ -104,7 +104,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     const data = await prisma.regLegalRegister.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: 'Failed to update resource' } });
   }
 });
 
@@ -115,7 +115,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
     await prisma.regLegalRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'legal register entry deleted successfully' } });
   } catch (error: unknown) {
-    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });
+    res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: 'Failed to delete resource' } });
   }
 });
 

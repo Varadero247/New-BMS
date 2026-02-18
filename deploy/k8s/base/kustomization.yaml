@@ -12,6 +12,21 @@ resources:
   - microservices.yaml
   - ingress.yaml
   - network-policy.yaml
+  - web-apps.yaml
+
+# Apply securityContext to all backend microservices
+patches:
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/0/securityContext
+        value:
+          runAsNonRoot: true
+          runAsUser: 1001
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+    target:
+      kind: Deployment
+      labelSelector: "tier=backend"
 
 commonLabels:
   app.kubernetes.io/name: ims

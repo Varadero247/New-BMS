@@ -203,8 +203,8 @@ export default function SuppliersPage() {
                         <td className="py-3 px-4"><Badge className={supplier.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}>{supplier.isActive ? 'Active' : 'Inactive'}</Badge></td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => openEditModal(supplier)} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600"><Edit className="h-4 w-4" /></button>
-                            <button onClick={() => handleDelete(supplier.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></button>
+                            <button onClick={() => openEditModal(supplier)} className="text-gray-400 dark:text-gray-500 hover:text-indigo-600" aria-label="Edit supplier"><Edit className="h-4 w-4" /></button>
+                            <button onClick={() => handleDelete(supplier.id)} className="text-gray-400 dark:text-gray-500 hover:text-red-600" aria-label="Delete supplier"><Trash2 className="h-4 w-4" /></button>
                           </div>
                         </td>
                       </tr>
