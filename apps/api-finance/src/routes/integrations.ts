@@ -195,8 +195,8 @@ router.post('/:id/sync', async (req: Request, res: Response) => {
 router.get('/:id/logs', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20' } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string) || 20), 100);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const [logs, total] = await Promise.all([

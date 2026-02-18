@@ -75,7 +75,7 @@ router.get('/', authenticate, async (req, res, next) => {
       sortOrder = 'desc',
     } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -140,8 +140,8 @@ router.get('/stats', authenticate, async (req, res, next) => {
 
     // Filter by date if provided
     if (year) {
-      const startDate = new Date(parseInt(year as string), month ? parseInt(month as string) - 1 : 0, 1);
-      const endDate = new Date(parseInt(year as string), month ? parseInt(month as string) : 12, 0);
+      const startDate = new Date(parseInt(year as string, 10), month ? parseInt(month as string, 10) - 1 : 0, 1);
+      const endDate = new Date(parseInt(year as string, 10), month ? parseInt(month as string, 10) : 12, 0);
       where.dateOccurred = { gte: startDate, lte: endDate };
     }
 

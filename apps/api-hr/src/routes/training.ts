@@ -307,7 +307,7 @@ router.get('/certifications', async (req: Request, res: Response) => {
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status as any;
     if (expiringWithin) {
-      const daysAhead = parseInt(expiringWithin as string);
+      const daysAhead = parseInt(expiringWithin as string, 10);
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + daysAhead);
       where.expiryDate = { lte: futureDate, gte: new Date() };

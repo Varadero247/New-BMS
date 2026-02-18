@@ -172,7 +172,7 @@ router.post('/brackets', async (req: Request, res: Response) => {
 // GET /api/tax/summary - Get tax summary
 router.get('/summary', async (req: Request, res: Response) => {
   try {
-    const year = parseInt((req.query.year as string) || String(new Date().getFullYear()));
+    const year = parseInt((req.query.year as string) || String(new Date().getFullYear()), 10);
 
     const [filings, totals] = await Promise.all([
       prisma.taxFiling.groupBy({

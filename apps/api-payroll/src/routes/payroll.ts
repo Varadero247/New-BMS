@@ -81,15 +81,15 @@ router.get('/runs', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { status, year, page = '1', limit = '20' } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string) || 20), 100);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (year) {
-      const startOfYear = new Date(parseInt(year as string), 0, 1);
-      const endOfYear = new Date(parseInt(year as string), 11, 31);
+      const startOfYear = new Date(parseInt(year as string, 10), 0, 1);
+      const endOfYear = new Date(parseInt(year as string, 10), 11, 31);
       where.periodStart = { gte: startOfYear, lte: endOfYear };
     }
 
@@ -356,8 +356,8 @@ router.get('/payslips', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, payrollRunId, page = '1', limit = '20' } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string) || 20), 100);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };

@@ -77,7 +77,7 @@ router.get('/', authenticate, async (req, res, next) => {
       sortOrder = 'asc',
     } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 

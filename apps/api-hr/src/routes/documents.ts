@@ -17,8 +17,8 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, documentType, status, expiringWithin, page = '1', limit = '20' } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string) || 20), 100);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
@@ -26,7 +26,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     if (documentType) where.documentType = documentType;
     if (status) where.status = status;
     if (expiringWithin) {
-      const daysAhead = parseInt(expiringWithin as string);
+      const daysAhead = parseInt(expiringWithin as string, 10);
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + daysAhead);
       where.expiryDate = { lte: futureDate, gte: new Date() };

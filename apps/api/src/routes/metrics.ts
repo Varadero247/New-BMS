@@ -54,12 +54,12 @@ router.get('/safety', authenticate, async (req, res, next) => {
   try {
     const { year, page = '1', limit = '12' } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = {};
-    if (year) where.year = parseInt(year as string);
+    if (year) where.year = parseInt(year as string, 10);
 
     const [metrics, total] = await Promise.all([
       prisma.safetyMetric.findMany({
@@ -85,7 +85,7 @@ router.get('/safety', authenticate, async (req, res, next) => {
 router.get('/safety/summary', authenticate, async (req, res, next) => {
   try {
     const { year } = req.query;
-    const targetYear = year ? parseInt(year as string) : new Date().getFullYear();
+    const targetYear = year ? parseInt(year as string, 10) : new Date().getFullYear();
 
     const metrics = await prisma.safetyMetric.findMany({
       where: { year: targetYear },
@@ -263,12 +263,12 @@ router.get('/quality', authenticate, async (req, res, next) => {
   try {
     const { year, page = '1', limit = '12' } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = {};
-    if (year) where.year = parseInt(year as string);
+    if (year) where.year = parseInt(year as string, 10);
 
     const [metrics, total] = await Promise.all([
       prisma.qualityMetric.findMany({
@@ -294,7 +294,7 @@ router.get('/quality', authenticate, async (req, res, next) => {
 router.get('/quality/summary', authenticate, async (req, res, next) => {
   try {
     const { year } = req.query;
-    const targetYear = year ? parseInt(year as string) : new Date().getFullYear();
+    const targetYear = year ? parseInt(year as string, 10) : new Date().getFullYear();
 
     const metrics = await prisma.qualityMetric.findMany({
       where: { year: targetYear },

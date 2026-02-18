@@ -24,8 +24,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { status, definitionId, initiatedById, page = '1', limit = '20' } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string) || 20), 100);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };

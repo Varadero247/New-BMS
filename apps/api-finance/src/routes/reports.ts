@@ -127,8 +127,8 @@ router.get('/budgets', async (req: Request, res: Response) => {
   try {
     const { fiscalYear, accountId, page = '1', limit = '50' } = req.query;
 
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string) || 50), 200);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
+    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 200);
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
@@ -267,7 +267,7 @@ router.delete('/budgets/:id', async (req: Request, res: Response) => {
 router.get('/budget-vs-actual', async (req: Request, res: Response) => {
   try {
     const { fiscalYear = new Date().getFullYear().toString() } = req.query;
-    const year = parseInt(fiscalYear as string);
+    const year = parseInt(fiscalYear as string, 10);
 
     const budgets = await prisma.finBudget.findMany({
       where: { fiscalYear: year, deletedAt: null } as any,
@@ -405,7 +405,7 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
 router.get('/cash-forecast', async (req: Request, res: Response) => {
   try {
     const { months = '3' } = req.query;
-    const numMonths = Math.min(parseInt(months as string) || 3, 12);
+    const numMonths = Math.min(parseInt(months as string, 10) || 3, 12);
     const now = new Date();
 
     // Current cash position

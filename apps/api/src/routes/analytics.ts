@@ -25,7 +25,7 @@ const fiveWhySchema = z.object({
 router.get('/five-why', authenticate, async (req, res, next) => {
   try {
     const { incidentId, page = '1', limit = '20' } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -133,7 +133,7 @@ const fishboneSchema = z.object({
 router.get('/fishbone', authenticate, async (req, res, next) => {
   try {
     const { incidentId, page = '1', limit = '20' } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -247,7 +247,7 @@ const paretoSchema = z.object({
 router.get('/pareto', authenticate, async (req, res, next) => {
   try {
     const { incidentId, standard, page = '1', limit = '20' } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -413,7 +413,7 @@ const bowTieSchema = z.object({
 router.get('/bow-tie', authenticate, async (req, res, next) => {
   try {
     const { riskId, page = '1', limit = '20' } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -564,7 +564,7 @@ const leanWasteSchema = z.object({
 router.get('/lean-waste', authenticate, async (req, res, next) => {
   try {
     const { page = '1', limit = '20' } = req.query;
-    const pageNum = Math.max(1, parseInt(page as string) || 1);
+    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
@@ -699,7 +699,7 @@ router.get('/trends', authenticate, async (req, res, next) => {
     const where: Record<string, unknown> = {};
     if (standard) where.standard = standard;
     if (metric) where.metric = metric;
-    if (year) where.year = parseInt(year as string);
+    if (year) where.year = parseInt(year as string, 10);
 
     const trends = await prisma.monthlyTrend.findMany({
       where,
