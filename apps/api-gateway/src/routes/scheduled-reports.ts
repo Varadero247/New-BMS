@@ -29,7 +29,7 @@ const createSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   reportType: z.enum(reportTypeValues as [ReportType, ...ReportType[]]),
   schedule: z.string().min(1, 'Cron schedule is required'),
-  recipients: z.array(z.string().email()).min(1, 'At least one recipient is required'),
+  recipients: z.array(z.string().trim().email()).min(1, 'At least one recipient is required'),
   format: z.enum(['pdf', 'excel', 'csv'] as [ReportFormat, ...ReportFormat[]]),
   enabled: z.boolean().optional(),
 });
@@ -38,7 +38,7 @@ const updateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   reportType: z.enum(reportTypeValues as [ReportType, ...ReportType[]]).optional(),
   schedule: z.string().trim().min(1).max(200).optional(),
-  recipients: z.array(z.string().email()).min(1).optional(),
+  recipients: z.array(z.string().trim().email()).min(1).optional(),
   format: z.enum(['pdf', 'excel', 'csv'] as [ReportFormat, ...ReportFormat[]]).optional(),
   enabled: z.boolean().optional(),
 });

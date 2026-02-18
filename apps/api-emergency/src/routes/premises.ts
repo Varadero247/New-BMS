@@ -19,7 +19,7 @@ const createPremisesSchema = z.object({
   normalOccupancy: z.number().int().optional(),
   responsiblePersonName: z.string().optional(),
   responsiblePersonRole: z.string().optional(),
-  responsiblePersonEmail: z.string().email().optional().or(z.literal('')),
+  responsiblePersonEmail: z.string().trim().email().optional().or(z.literal('')),
   responsiblePersonPhone: z.string().optional(),
   fireAuthorityName: z.string().optional(),
   localFireStationName: z.string().optional(),

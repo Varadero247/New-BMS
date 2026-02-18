@@ -7,7 +7,7 @@ const logger = createLogger('api-marketing:leads');
 const router = Router();
 
 const captureSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   name: z.string().trim().min(1).max(200),
   company: z.string().optional(),
   jobTitle: z.string().optional(),

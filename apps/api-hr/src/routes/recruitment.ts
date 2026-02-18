@@ -241,7 +241,7 @@ router.post('/applicants', async (req: Request, res: Response) => {
       jobPostingId: z.string().uuid(),
       firstName: z.string().trim().min(1).max(200),
       lastName: z.string().trim().min(1).max(200),
-      email: z.string().email(),
+      email: z.string().trim().email(),
       phone: z.string().optional(),
       linkedinUrl: z.string().url().optional(),
       coverLetter: z.string().optional(),

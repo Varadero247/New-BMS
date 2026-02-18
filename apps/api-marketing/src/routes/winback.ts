@@ -9,7 +9,7 @@ const router = Router();
 const VALID_REASONS = ['price', 'features', 'time', 'competitor', 'business'];
 
 const startWinbackSchema = z.object({
-  email: z.string().email().optional(),
+  email: z.string().trim().email().optional(),
 });
 
 // POST /api/winback/start/:orgId

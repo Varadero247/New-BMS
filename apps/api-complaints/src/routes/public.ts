@@ -10,7 +10,7 @@ const submitSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   complainantName: z.string().optional(),
-  complainantEmail: z.string().email('Invalid email').optional(),
+  complainantEmail: z.string().trim().email('Invalid email').optional(),
   complainantPhone: z.string().optional(),
   category: z.enum(['PRODUCT', 'SERVICE', 'DELIVERY', 'BILLING', 'SAFETY', 'ENVIRONMENTAL', 'REGULATORY', 'OTHER']).optional(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),

@@ -14,7 +14,7 @@ router.use(authenticate);
 
 const technicianCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  email: z.string().email(),
+  email: z.string().trim().email(),
   phone: z.string().max(30).optional().nullable(),
   skills: z.array(z.string()).or(z.record(z.any())),
   certifications: z.array(z.string()).or(z.record(z.any())).optional().nullable(),
@@ -27,7 +27,7 @@ const technicianCreateSchema = z.object({
 
 const technicianUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
-  email: z.string().email().optional(),
+  email: z.string().trim().email().optional(),
   phone: z.string().max(30).optional().nullable(),
   skills: z.array(z.string()).or(z.record(z.any())).optional(),
   certifications: z.array(z.string()).or(z.record(z.any())).optional().nullable(),

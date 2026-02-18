@@ -24,7 +24,7 @@ function generateReference(prefix: string): string {
 const supplierCreateSchema = z.object({
   code: z.string().trim().min(1).max(20),
   name: z.string().trim().min(1).max(200),
-  email: z.string().email().optional().nullable(),
+  email: z.string().trim().email().optional().nullable(),
   phone: z.string().max(30).optional().nullable(),
   contactPerson: z.string().max(200).optional().nullable(),
   addressLine1: z.string().max(200).optional().nullable(),

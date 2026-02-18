@@ -80,7 +80,7 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
 
     const schema = z.object({
       respondentName: z.string().optional(),
-      respondentEmail: z.string().email().optional(),
+      respondentEmail: z.string().trim().email().optional(),
       respondentCompany: z.string().optional(),
       answers: z.array(z.object({
         questionId: z.string().trim().min(1).max(200),
@@ -286,7 +286,7 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       surveyId: z.string().trim().min(1).max(200),
       respondentName: z.string().optional(),
-      respondentEmail: z.string().email().optional(),
+      respondentEmail: z.string().trim().email().optional(),
       respondentCompany: z.string().optional(),
       answers: z.array(z.object({
         questionId: z.string().trim().min(1).max(200),

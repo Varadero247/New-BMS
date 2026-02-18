@@ -8,7 +8,7 @@ const logger = createLogger('finance-ir35');
 
 const createIr35Schema = z.object({
   contractorName: z.string().min(1, 'contractorName is required'),
-  contractorEmail: z.string().email().optional().nullable(),
+  contractorEmail: z.string().trim().email().optional().nullable(),
   engagementDesc: z.string().optional(),
   clientName: z.string().optional(),
   determination: z.enum(['PENDING', 'INSIDE', 'OUTSIDE', 'UNKNOWN']).optional(),

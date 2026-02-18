@@ -23,7 +23,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const userCreateSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   name: z.string().trim().min(1).max(200),
   company: z.string().trim().min(1).max(200),
   role: z.enum(['CUSTOMER_ADMIN', 'CUSTOMER_USER', 'SUPPLIER_ADMIN', 'SUPPLIER_USER']),
@@ -41,7 +41,7 @@ const userUpdateSchema = z.object({
 });
 
 const inviteSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   name: z.string().trim().min(1).max(200),
   company: z.string().trim().min(1).max(200),
   role: z.enum(['CUSTOMER_ADMIN', 'CUSTOMER_USER', 'SUPPLIER_ADMIN', 'SUPPLIER_USER']),

@@ -10,7 +10,7 @@ const router = Router();
 const roiCalculateSchema = z.object({
   companyName: z.string().trim().min(1).max(200),
   name: z.string().trim().min(1).max(200),
-  email: z.string().email(),
+  email: z.string().trim().email(),
   jobTitle: z.string().optional(),
   employeeCount: z.string().optional(),
   isoCount: z.number().int().min(1).max(20).optional(),

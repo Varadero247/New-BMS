@@ -173,7 +173,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      email: z.string().email(),
+      email: z.string().trim().email(),
       password: z.string().min(8),
       firstName: z.string().trim().min(1).max(200),
       lastName: z.string().trim().min(1).max(200),

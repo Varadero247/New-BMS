@@ -12,7 +12,7 @@ const actionSchema = z.object({
   description: z.string().trim().min(1).max(2000),
   actionType: z.enum(['PREVENTIVE', 'MITIGATIVE', 'TRANSFER', 'ACCEPT']),
   owner: z.string().optional(),
-  ownerEmail: z.string().email().optional(),
+  ownerEmail: z.string().trim().email().optional(),
   targetDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
   estimatedCost: z.number().nonnegative().optional(),

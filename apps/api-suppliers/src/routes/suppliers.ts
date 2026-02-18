@@ -15,7 +15,7 @@ const createSchema = z.object({
   tier: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   category: z.string().optional(),
   primaryContact: z.string().optional(),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.string().trim().email().optional().or(z.literal('')),
   phone: z.string().optional(),
   website: z.string().url('Invalid URL').optional(),
   addressLine1: z.string().optional(),

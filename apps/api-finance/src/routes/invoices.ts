@@ -35,7 +35,7 @@ function getAgingBucket(daysOverdue: number): string {
 const customerCreateSchema = z.object({
   code: z.string().trim().min(1).max(50),
   name: z.string().trim().min(1).max(200),
-  email: z.string().email().optional(),
+  email: z.string().trim().email().optional(),
   phone: z.string().max(50).optional(),
   contactPerson: z.string().max(200).optional(),
   addressLine1: z.string().max(255).optional(),

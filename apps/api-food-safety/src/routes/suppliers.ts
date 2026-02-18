@@ -16,7 +16,7 @@ router.use(authenticate);
 const supplierCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   contactName: z.string().max(200).optional().nullable(),
-  email: z.string().email().optional().nullable(),
+  email: z.string().trim().email().optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   category: z.enum(['RAW_MATERIAL', 'PACKAGING', 'INGREDIENT', 'SERVICE']),
@@ -30,7 +30,7 @@ const supplierCreateSchema = z.object({
 const supplierUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   contactName: z.string().max(200).optional().nullable(),
-  email: z.string().email().optional().nullable(),
+  email: z.string().trim().email().optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   category: z.enum(['RAW_MATERIAL', 'PACKAGING', 'INGREDIENT', 'SERVICE']).optional(),

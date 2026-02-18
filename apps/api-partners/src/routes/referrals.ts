@@ -10,7 +10,7 @@ const logger = createLogger('api-partners:referrals');
 const router = Router();
 
 const trackReferralSchema = z.object({
-  prospectEmail: z.string().email(),
+  prospectEmail: z.string().trim().email(),
   prospectName: z.string().optional(),
 });
 

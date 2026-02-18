@@ -13,7 +13,7 @@ router.use(authenticate);
 const createContactSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Valid email is required'),
+  email: z.string().trim().email('Valid email is required'),
   phone: z.string().optional(),
   mobile: z.string().optional(),
   jobTitle: z.string().optional(),

@@ -85,7 +85,7 @@ const DATA_MAP = [
 // ---------------------------------------------------------------------------
 const erasureRequestSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
-  userEmail: z.string().email('Valid email is required'),
+  userEmail: z.string().trim().email('Valid email is required'),
   reason: z.string().max(2000).optional(),
 });
 

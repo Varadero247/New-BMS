@@ -26,12 +26,12 @@ const lockoutManager = getAccountLockoutManager();
 
 // Validation schemas
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   password: z.string().min(1),
 });
 
 const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   password: z.string().min(12).max(72),
   firstName: z.string().trim().min(1).max(200),
   lastName: z.string().trim().min(1).max(200),
@@ -381,7 +381,7 @@ router.post('/refresh', async (req, res) => {
 // Rate limited: 3 attempts per 15 min per IP+email
 router.post('/forgot-password', passwordResetLimiter, async (req, res) => {
   try {
-    const { email } = z.object({ email: z.string().email() }).parse(req.body);
+    const { email } = z.object({ email: z.string().trim().email() }).parse(req.body);
 
     logger.info('Password reset requested', { ip: req.ip });
 

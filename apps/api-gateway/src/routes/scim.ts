@@ -125,7 +125,7 @@ const createUserSchema = z.object({
     familyName: z.string().optional().default(''),
   }).optional(),
   emails: z.array(z.object({
-    value: z.string().email(),
+    value: z.string().trim().email(),
     type: z.string().optional().default('work'),
     primary: z.boolean().optional().default(true),
   })).optional(),

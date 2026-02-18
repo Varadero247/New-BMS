@@ -37,7 +37,7 @@ setInterval(() => {
 }, 30 * 60 * 1000).unref();
 
 const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   password: z.string().min(12).max(72),
   name: z.string().trim().min(1).max(200),
   company: z.string().trim().min(1).max(200),
@@ -46,7 +46,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   password: z.string().min(1),
 });
 

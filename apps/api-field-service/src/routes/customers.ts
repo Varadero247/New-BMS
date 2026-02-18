@@ -24,7 +24,7 @@ function generateCustomerCode(): string {
 const customerCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   contactName: z.string().max(200).optional().nullable(),
-  email: z.string().email().optional().nullable(),
+  email: z.string().trim().email().optional().nullable(),
   phone: z.string().max(30).optional().nullable(),
   address: z.record(z.any()),
   billingAddress: z.record(z.any()).optional().nullable(),
@@ -34,7 +34,7 @@ const customerCreateSchema = z.object({
 const customerUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   contactName: z.string().max(200).optional().nullable(),
-  email: z.string().email().optional().nullable(),
+  email: z.string().trim().email().optional().nullable(),
   phone: z.string().max(30).optional().nullable(),
   address: z.record(z.any()).optional(),
   billingAddress: z.record(z.any()).optional().nullable(),

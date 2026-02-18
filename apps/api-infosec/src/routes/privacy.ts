@@ -90,7 +90,7 @@ const dpiaApproveSchema = z.object({
 
 const dsarCreateSchema = z.object({
   subjectName: z.string().trim().min(1).max(200),
-  subjectEmail: z.string().email().max(200),
+  subjectEmail: z.string().trim().email().max(200),
   requestType: z.enum(['ACCESS', 'RECTIFICATION', 'ERASURE', 'RESTRICTION', 'PORTABILITY', 'OBJECTION']),
   description: z.string().max(5000).optional(),
   identityVerified: z.boolean().optional().default(false),

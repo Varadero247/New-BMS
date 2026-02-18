@@ -16,7 +16,7 @@ const vendorCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   code: z.string().trim().min(1).max(50),
   contactName: z.string().max(200).optional().nullable(),
-  email: z.string().email().optional().nullable(),
+  email: z.string().trim().email().optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   specialization: z.string().max(200).optional().nullable(),
@@ -28,7 +28,7 @@ const vendorCreateSchema = z.object({
 const vendorUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   contactName: z.string().max(200).optional().nullable(),
-  email: z.string().email().optional().nullable(),
+  email: z.string().trim().email().optional().nullable(),
   phone: z.string().max(50).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   specialization: z.string().max(200).optional().nullable(),

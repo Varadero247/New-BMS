@@ -11,7 +11,7 @@ const icsRoleEnum = z.enum(['INCIDENT_COMMANDER', 'DEPUTY_INCIDENT_COMMANDER', '
 
 const createWardenSchema = z.object({
   name: z.string().min(1, 'name is required'),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.string().trim().email().optional().or(z.literal('')),
   phone: z.string().optional(),
   jobTitle: z.string().optional(),
   icsRole: icsRoleEnum,

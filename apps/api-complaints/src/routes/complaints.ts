@@ -14,7 +14,7 @@ const createSchema = z.object({
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['NEW', 'ACKNOWLEDGED', 'INVESTIGATING', 'RESOLVED', 'CLOSED', 'ESCALATED']).optional(),
   complainantName: z.string().optional(),
-  complainantEmail: z.string().email('Invalid email').optional(),
+  complainantEmail: z.string().trim().email('Invalid email').optional(),
   complainantPhone: z.string().optional(),
   assignee: z.string().optional(),
   assigneeName: z.string().optional(),

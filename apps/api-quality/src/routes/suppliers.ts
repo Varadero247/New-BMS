@@ -120,7 +120,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       ]),
       countryOfOrigin: z.string().optional(),
       primaryContact: z.string().optional(),
-      contactEmail: z.string().email('Invalid email').optional(),
+      contactEmail: z.string().trim().email('Invalid email').optional(),
       contactPhone: z.string().optional(),
       accountManager: z.string().optional(),
       approvedStatus: z.enum([
@@ -264,7 +264,7 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
       ]).optional(),
       countryOfOrigin: z.string().optional(),
       primaryContact: z.string().optional(),
-      contactEmail: z.string().email('Invalid email').optional(),
+      contactEmail: z.string().trim().email('Invalid email').optional(),
       contactPhone: z.string().optional(),
       accountManager: z.string().optional(),
       approvedStatus: z.enum([

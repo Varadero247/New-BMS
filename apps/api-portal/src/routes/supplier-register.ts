@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const registerSchema = z.object({
-  email: z.string().email(),
+  email: z.string().trim().email(),
   name: z.string().trim().min(1).max(200),
   company: z.string().trim().min(1).max(200),
   phone: z.string().max(50).optional().nullable(),

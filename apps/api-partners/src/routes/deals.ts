@@ -11,7 +11,7 @@ const router = Router();
 const createDealSchema = z.object({
   companyName: z.string().trim().min(1).max(200),
   contactName: z.string().trim().min(1).max(200),
-  contactEmail: z.string().email(),
+  contactEmail: z.string().trim().email(),
   estimatedUsers: z.number().int().min(1),
   isoStandards: z.array(z.string()).min(1),
   estimatedACV: z.number().min(0).optional(),

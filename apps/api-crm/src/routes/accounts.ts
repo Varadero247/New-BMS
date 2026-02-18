@@ -19,7 +19,7 @@ const createAccountSchema = z.object({
   industry: z.string().optional(),
   website: z.string().url().optional().or(z.literal('')),
   phone: z.string().optional(),
-  email: z.string().email().optional().or(z.literal('')),
+  email: z.string().trim().email().optional().or(z.literal('')),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
