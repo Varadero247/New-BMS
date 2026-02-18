@@ -183,7 +183,7 @@ router.patch('/:id/actions/:actionIndex', async (req: Request, res: Response) =>
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meeting not found' } });
     }
 
-    const actionIndex = parseInt(req.params.actionIndex);
+    const actionIndex = parseInt(req.params.actionIndex, 10);
     const actionItems = (meeting.actionItems as any[]) || [];
 
     if (actionIndex < 0 || actionIndex >= actionItems.length) {

@@ -126,8 +126,8 @@ router.get('/suppliers', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
     const { search, isActive, page = '1', limit = '20' } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
-    const take = Math.min(Number(limit), 100);
+    const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
+    const take = Math.min(parseInt(limit as string, 10), 100);
 
     const where: any = { deletedAt: null };
 
@@ -167,7 +167,7 @@ router.get('/suppliers', async (req: Request, res: Response) => {
       success: true,
       data: suppliers,
       pagination: {
-        page: Number(page),
+        page: parseInt(page as string, 10),
         limit: take,
         total,
         totalPages: Math.ceil(total / take),
@@ -313,8 +313,8 @@ router.delete('/suppliers/:id', async (req: Request, res: Response) => {
 router.get('/purchase-orders', async (req: Request, res: Response) => {
   try {
     const { status, supplierId, dateFrom, dateTo, search, page = '1', limit = '20' } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
-    const take = Math.min(Number(limit), 100);
+    const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
+    const take = Math.min(parseInt(limit as string, 10), 100);
 
     const where: any = { deletedAt: null };
 
@@ -355,7 +355,7 @@ router.get('/purchase-orders', async (req: Request, res: Response) => {
       success: true,
       data: orders,
       pagination: {
-        page: Number(page),
+        page: parseInt(page as string, 10),
         limit: take,
         total,
         totalPages: Math.ceil(total / take),
@@ -618,8 +618,8 @@ router.post('/purchase-orders/:id/cancel', async (req: Request, res: Response) =
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { status, supplierId, dateFrom, dateTo, search, page = '1', limit = '20' } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
-    const take = Math.min(Number(limit), 100);
+    const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
+    const take = Math.min(parseInt(limit as string, 10), 100);
 
     const where: any = { deletedAt: null };
 
@@ -659,7 +659,7 @@ router.get('/', async (req: Request, res: Response) => {
       success: true,
       data: bills,
       pagination: {
-        page: Number(page),
+        page: parseInt(page as string, 10),
         limit: take,
         total,
         totalPages: Math.ceil(total / take),
@@ -921,8 +921,8 @@ router.post('/payments', async (req: Request, res: Response) => {
 router.get('/payments', async (req: Request, res: Response) => {
   try {
     const { supplierId, dateFrom, dateTo, page = '1', limit = '20' } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
-    const take = Math.min(Number(limit), 100);
+    const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
+    const take = Math.min(parseInt(limit as string, 10), 100);
 
     const where: any = { deletedAt: null };
 
@@ -953,7 +953,7 @@ router.get('/payments', async (req: Request, res: Response) => {
       success: true,
       data: payments,
       pagination: {
-        page: Number(page),
+        page: parseInt(page as string, 10),
         limit: take,
         total,
         totalPages: Math.ceil(total / take),

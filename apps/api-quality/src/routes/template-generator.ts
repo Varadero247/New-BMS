@@ -266,7 +266,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
     const { category, isoStandard, page = '1', limit = '20' } = req.query;
-    const skip = (Number(page) - 1) * Number(limit);
+    const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
 
     const where: Record<string, unknown> = { organisationId: (user as any).organisationId || 'default' };
     if (category) where.category = category;
@@ -276,13 +276,13 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
       prisma.qualGeneratedTemplate.findMany({
         where,
         skip,
-        take: Number(limit),
+        take: parseInt(limit as string, 10),
         orderBy: { createdAt: 'desc' },
       }),
       prisma.qualGeneratedTemplate.count({ where }),
     ]);
 
-    res.json({ success: true, data: templates, pagination: { page: Number(page), limit: Number(limit), total } });
+    res.json({ success: true, data: templates, pagination: { page: parseInt(page as string, 10), limit: parseInt(limit as string, 10), total } });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch resource' } });
