@@ -37,9 +37,9 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: any = { deletedAt: null };
     if (accountId && typeof accountId === 'string') where.accountId = accountId;
-    if (fiscalYear) where.fiscalYear = parseInt(String(fiscalYear), 10);
-    if (month) where.month = parseInt(String(month), 10);
-    if (quarter) where.quarter = parseInt(String(quarter), 10);
+    if (fiscalYear) { const n = parseInt(String(fiscalYear), 10); if (!isNaN(n)) where.fiscalYear = n; }
+    if (month) { const n = parseInt(String(month), 10); if (!isNaN(n)) where.month = n; }
+    if (quarter) { const n = parseInt(String(quarter), 10); if (!isNaN(n)) where.quarter = n; }
 
     const [budgets, total] = await Promise.all([
       prisma.finBudget.findMany({
