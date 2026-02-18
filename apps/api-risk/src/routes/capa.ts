@@ -47,12 +47,12 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status as any;
     if (search) where.title = { contains: search, mode: 'insensitive' };
-    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+    const skip = ((parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.riskCapa.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { createdAt: 'desc' } }),
       prisma.riskCapa.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit, 10)) } });
+    res.json({ success: true, data, pagination: { page: parseInt(page, 10) || 1, limit: parseInt(limit, 10) || 20, total, pages: Math.ceil(total / (parseInt(limit, 10) || 20)) } });
   } catch (error: unknown) { logger.error('Failed to fetch CAPAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch CAPAs' } }); }
 });
 

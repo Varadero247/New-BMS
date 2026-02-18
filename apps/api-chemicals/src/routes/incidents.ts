@@ -44,7 +44,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         { location: { contains: search, mode: 'insensitive' } },
       ];
     }
-    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+    const skip = ((parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.chemIncident.findMany({
         where, skip, take: Math.min(parseInt(limit, 10) || 20, 100),
@@ -53,7 +53,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       }),
       prisma.chemIncident.count({ where }),
     ]);
-    res.json({ success: true, data, pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit, 10)) } });
+    res.json({ success: true, data, pagination: { page: parseInt(page, 10) || 1, limit: parseInt(limit, 10) || 20, total, pages: Math.ceil(total / (parseInt(limit, 10) || 20)) } });
   } catch (error: unknown) {
     logger.error('Failed to fetch incidents', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch incidents' } });

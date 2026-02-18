@@ -43,7 +43,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
     if (search) where.title = { contains: search, mode: 'insensitive' };
-    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+    const skip = ((parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.audAudit.findMany({ where, skip, take: Math.min(parseInt(limit, 10) || 20, 100), orderBy: { createdAt: 'desc' } }),
       prisma.audAudit.count({ where }),
@@ -51,7 +51,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     res.json({
       success: true,
       data,
-      pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit, 10)) },
+      pagination: { page: parseInt(page, 10) || 1, limit: parseInt(limit, 10) || 20, total, pages: Math.ceil(total / (parseInt(limit, 10) || 20)) },
     });
   } catch (error: unknown) {
     logger.error('Fetch failed', { error: (error as Error).message });
