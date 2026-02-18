@@ -54,9 +54,16 @@ interface ScimBearerToken {
 
 // ─── In-Memory Stores ───────────────────────────────────────────────────────
 
+const MAX_SCIM_USERS = 10000;
+const MAX_SCIM_GROUPS = 1000;
+
 const scimUserStore = new Map<string, ScimUser>();
 const scimGroupStore = new Map<string, ScimGroup>();
 const scimTokenStore = new Map<string, ScimBearerToken>();
+// Reverse index: token string -> token ID for O(1) auth lookups
+const scimTokenByValue = new Map<string, string>();
+// Reverse index: userName -> user ID for O(1) duplicate checks
+const scimUserByUserName = new Map<string, string>();
 
 // Seed default groups from Nexara roles
 const defaultGroups: Array<{ id: string; name: string }> = [
@@ -86,6 +93,26 @@ export function getScimTokenStore(): Map<string, ScimBearerToken> {
   return scimTokenStore;
 }
 
+/**
+ * Register a SCIM token in both the main store and the reverse index.
+ * Call this instead of directly setting on scimTokenStore when adding tokens externally.
+ */
+export function registerScimToken(token: ScimBearerToken): void {
+  scimTokenStore.set(token.id, token);
+  scimTokenByValue.set(token.token, token.id);
+}
+
+/**
+ * Remove a SCIM token from both stores.
+ */
+export function removeScimToken(tokenId: string): void {
+  const existing = scimTokenStore.get(tokenId);
+  if (existing) {
+    scimTokenByValue.delete(existing.token);
+    scimTokenStore.delete(tokenId);
+  }
+}
+
 // ─── Validation ─────────────────────────────────────────────────────────────
 
 const createUserSchema = z.object({
@@ -111,9 +138,18 @@ const patchUserSchema = z.object({
   schemas: z.array(z.string()).optional(),
   Operations: z.array(z.object({
     op: z.enum(['add', 'replace', 'remove']),
-    path: z.string().optional(),
+    path: z.string().max(200).optional(),
     value: z.any().optional(),
-  })),
+  })).max(50),
+});
+
+const patchGroupSchema = z.object({
+  schemas: z.array(z.string()).optional(),
+  Operations: z.array(z.object({
+    op: z.enum(['add', 'replace', 'remove']),
+    path: z.string().max(200).optional(),
+    value: z.any().optional(),
+  })).max(100),
 });
 
 // ─── SCIM Bearer Token Auth Middleware ───────────────────────────────────────
@@ -131,11 +167,11 @@ function scimAuth(req: Request, res: Response, next: NextFunction): void {
   }
 
   const token = authHeader.substring(7);
-  const validToken = Array.from(scimTokenStore.values()).find(
-    (t) => t.token === token && t.active
-  );
+  // O(1) lookup via reverse index instead of O(n) linear scan
+  const tokenId = scimTokenByValue.get(token);
+  const validToken = tokenId ? scimTokenStore.get(tokenId) : undefined;
 
-  if (!validToken) {
+  if (!validToken || !validToken.active) {
     res.status(401).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
       detail: 'Invalid or expired SCIM bearer token',
@@ -265,13 +301,23 @@ router.get('/Users', (req: Request, res: Response) => {
 
     // Apply SCIM filter if provided
     if (filterParam) {
+      // Limit filter length to prevent abuse
+      if (filterParam.length > 500) {
+        return res.status(400).json({
+          schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+          detail: 'Filter expression too long',
+          scimType: 'invalidFilter',
+          status: '400',
+        });
+      }
+
       const filterFn = parseScimFilter(filterParam);
       if (filterFn) {
         allUsers = allUsers.filter(filterFn);
       } else {
         return res.status(400).json({
           schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-          detail: `Unsupported filter expression: ${filterParam}. Supported: attributePath (eq|ne|co|sw|ew) "value"`,
+          detail: 'Unsupported filter expression. Supported: attributePath (eq|ne|co|sw|ew) "value"',
           scimType: 'invalidFilter',
           status: '400',
         });
@@ -331,14 +377,22 @@ router.post('/Users', (req: Request, res: Response) => {
     const data = parsed.data;
     const baseUrl = getBaseUrl(req);
 
-    // Check for duplicate userName
-    const existing = Array.from(scimUserStore.values()).find((u) => u.userName === data.userName);
-    if (existing) {
+    // Check for duplicate userName via O(1) reverse index
+    if (scimUserByUserName.has(data.userName)) {
       return res.status(409).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
         detail: `User with userName "${data.userName}" already exists`,
         scimType: 'uniqueness',
         status: '409',
+      });
+    }
+
+    // Enforce size cap to prevent unbounded memory growth
+    if (scimUserStore.size >= MAX_SCIM_USERS) {
+      return res.status(507).json({
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: `Maximum user limit (${MAX_SCIM_USERS}) reached`,
+        status: '507',
       });
     }
 
@@ -368,6 +422,7 @@ router.post('/Users', (req: Request, res: Response) => {
     };
 
     scimUserStore.set(id, user);
+    scimUserByUserName.set(user.userName, id);
     logger.info('SCIM user created', { id, userName: user.userName });
 
     res.status(201).json({
@@ -408,6 +463,11 @@ router.put('/Users/:id', (req: Request, res: Response) => {
     const data = parsed.data;
     const now = new Date().toISOString();
 
+    // Update reverse index if userName changed
+    if (existing.userName !== data.userName) {
+      scimUserByUserName.delete(existing.userName);
+      scimUserByUserName.set(data.userName, req.params.id);
+    }
     existing.userName = data.userName;
     existing.externalId = data.externalId;
     existing.name = {
@@ -507,6 +567,7 @@ router.delete('/Users/:id', (req: Request, res: Response) => {
     }
 
     scimUserStore.delete(req.params.id);
+    scimUserByUserName.delete(existing.userName);
     logger.info('SCIM user deprovisioned', { id: req.params.id, userName: existing.userName });
 
     res.status(204).send();
@@ -595,24 +656,31 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
       });
     }
 
-    const { Operations } = req.body;
-    if (!Array.isArray(Operations)) {
+    // Validate PATCH body with Zod schema
+    const parsed = patchGroupSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-        detail: 'Operations array is required',
+        detail: 'Invalid PATCH request',
         status: '400',
       });
     }
+
+    const { Operations } = parsed.data;
 
     for (const op of Operations) {
       if (op.op === 'add' && op.path === 'members') {
         const newMembers = Array.isArray(op.value) ? op.value : [op.value];
         for (const member of newMembers) {
-          if (member.value && !group.members.find(m => m.value === member.value)) {
+          // Validate member value is a non-empty string with length limit
+          if (!member || typeof member !== 'object' || typeof member.value !== 'string' || member.value.length === 0 || member.value.length > 200) {
+            continue;
+          }
+          if (!group.members.find(m => m.value === member.value)) {
             const user = scimUserStore.get(member.value);
             group.members.push({
-              value: member.value,
-              display: member.display || user?.displayName || member.value,
+              value: String(member.value),
+              display: String(member.display || user?.displayName || member.value).slice(0, 200),
             });
             // Also add group reference to user
             if (user && !user.groups.find(g => g.value === group.id)) {
@@ -625,6 +693,7 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
         const memberMatch = op.path.match(/members\[value\s+eq\s+"([^"]+)"\]/);
         if (memberMatch) {
           const memberId = memberMatch[1];
+          if (memberId.length > 200) continue;
           group.members = group.members.filter(m => m.value !== memberId);
           const user = scimUserStore.get(memberId);
           if (user) {
@@ -632,7 +701,7 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
           }
         }
       } else if (op.op === 'replace' && op.path === 'displayName') {
-        group.displayName = String(op.value);
+        group.displayName = String(op.value).slice(0, 200);
       }
     }
 

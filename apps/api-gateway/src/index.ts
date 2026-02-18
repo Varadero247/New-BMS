@@ -332,35 +332,33 @@ app.use('/api/marketplace', marketplaceRouter);
 app.use('/api/v1/marketplace', addVersionHeader('v1'), marketplaceRouter);
 
 // ─── Cookie Consent Persistence ──────────────────────────────────────────
-app.post('/api/cookie-consent', (req, res) => {
-  const { essential, analytics, functional } = req.body || {};
-  // In production, store in DB keyed by user/session ID
+// Shared handler with input validation — only accepts boolean fields
+function handleCookieConsent(req: express.Request, res: express.Response): void {
+  const body = req.body;
+  // Reject oversized or non-object payloads
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Request body must be a JSON object' } });
+    return;
+  }
+  // Only allow known boolean fields — strip everything else
+  const essential = typeof body.essential === 'boolean' ? body.essential : true;
+  const analytics = typeof body.analytics === 'boolean' ? body.analytics : false;
+  const functional = typeof body.functional === 'boolean' ? body.functional : false;
+
   logger.info('Cookie consent recorded', { essential, analytics, functional, ip: req.ip });
   res.json({
     success: true,
     data: {
       message: 'Cookie preferences saved',
-      essential: essential ?? true,
-      analytics: !!analytics,
-      functional: !!functional,
+      essential,
+      analytics,
+      functional,
       savedAt: new Date().toISOString(),
     },
   });
-});
-app.post('/api/v1/cookie-consent', addVersionHeader('v1'), (req, res) => {
-  const { essential, analytics, functional } = req.body || {};
-  logger.info('Cookie consent recorded (v1)', { essential, analytics, functional, ip: req.ip });
-  res.json({
-    success: true,
-    data: {
-      message: 'Cookie preferences saved',
-      essential: essential ?? true,
-      analytics: !!analytics,
-      functional: !!functional,
-      savedAt: new Date().toISOString(),
-    },
-  });
-});
+}
+app.post('/api/cookie-consent', handleCookieConsent);
+app.post('/api/v1/cookie-consent', addVersionHeader('v1'), handleCookieConsent);
 
 // ============================================
 // API v1 Proxy Routes (current version)

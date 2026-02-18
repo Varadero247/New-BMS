@@ -5,6 +5,21 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash, createSign, createVerify } from 'crypto';
 
+// ─── XML Escaping ────────────────────────────────────────────────────────────
+
+/**
+ * Escape special XML characters to prevent XML injection when interpolating
+ * values into XML templates.
+ */
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 const logger = createLogger('api-gateway:saml');
 const router = Router();
 
@@ -31,19 +46,41 @@ interface SamlConfig {
 // ─── In-Memory Store ────────────────────────────────────────────────────────
 
 const samlConfigStore = new Map<string, SamlConfig>();
+// Reverse index: orgId -> config ID for O(1) lookups (replaces linear scan)
+const samlConfigByOrgId = new Map<string, string>();
 
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
+// Allowed SAML NameID formats to prevent arbitrary string injection
+const ALLOWED_NAMEID_FORMATS = [
+  'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+  'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
+  'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
+  'urn:oasis:names:tc:SAML:2.0:nameid-format:transient',
+];
+
 const samlConfigSchema = z.object({
-  entryPoint: z.string().url('Must be a valid URL'),
-  issuer: z.string().min(1, 'Issuer is required'),
-  cert: z.string().min(1, 'Certificate is required'),
-  signatureAlgorithm: z.enum(['sha1', 'sha256', 'sha512']).optional().default('sha256'),
+  entryPoint: z.string().url('Must be a valid URL').refine(
+    (url) => url.startsWith('https://'),
+    'Entry point must use HTTPS'
+  ),
+  issuer: z.string().min(1, 'Issuer is required').max(500),
+  cert: z.string().min(1, 'Certificate is required').max(10000),
+  signatureAlgorithm: z.enum(['sha256', 'sha512']).optional().default('sha256'),
   enabled: z.boolean().optional().default(true),
-  entityId: z.string().optional(),
-  assertionConsumerUrl: z.string().url().optional(),
-  idpMetadataUrl: z.string().url().optional(),
-  nameIdFormat: z.string().optional(),
+  entityId: z.string().max(500).optional(),
+  assertionConsumerUrl: z.string().url().refine(
+    (url) => url.startsWith('https://'),
+    'ACS URL must use HTTPS'
+  ).optional(),
+  idpMetadataUrl: z.string().url().refine(
+    (url) => url.startsWith('https://'),
+    'IdP metadata URL must use HTTPS'
+  ).optional(),
+  nameIdFormat: z.string().refine(
+    (val) => ALLOWED_NAMEID_FORMATS.includes(val),
+    'Invalid NameID format'
+  ).optional(),
   allowUnencryptedAssertions: z.boolean().optional().default(false),
 });
 
@@ -52,10 +89,10 @@ const samlConfigSchema = z.object({
 const SP_ENTITY_ID = process.env.SAML_SP_ENTITY_ID || 'https://app.ims.local/saml/metadata';
 const SP_ACS_URL = process.env.SAML_SP_ACS_URL || 'https://app.ims.local/api/auth/saml/callback';
 
-function generateSpMetadata(): string {
-  return `<?xml version="1.0" encoding="UTF-8"?>
+// Cache SP metadata XML at module load (static — built from env vars)
+const SP_METADATA_CACHED = `<?xml version="1.0" encoding="UTF-8"?>
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
-  entityID="${SP_ENTITY_ID}">
+  entityID="${escapeXml(SP_ENTITY_ID)}">
   <md:SPSSODescriptor
     AuthnRequestsSigned="true"
     WantAssertionsSigned="true"
@@ -63,15 +100,19 @@ function generateSpMetadata(): string {
     <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
     <md:AssertionConsumerService
       Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-      Location="${SP_ACS_URL}"
+      Location="${escapeXml(SP_ACS_URL)}"
       index="0"
       isDefault="true" />
   </md:SPSSODescriptor>
 </md:EntityDescriptor>`;
+
+function generateSpMetadata(): string {
+  return SP_METADATA_CACHED;
 }
 
 function getConfigByOrgId(orgId: string): SamlConfig | undefined {
-  return Array.from(samlConfigStore.values()).find((c) => c.orgId === orgId);
+  const configId = samlConfigByOrgId.get(orgId);
+  return configId ? samlConfigStore.get(configId) : undefined;
 }
 
 /**
@@ -87,15 +128,15 @@ function buildAuthnRequest(config: SamlConfig, requestId: string): string {
   return `<samlp:AuthnRequest
   xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
   xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
-  ID="_${requestId}"
+  ID="_${escapeXml(requestId)}"
   Version="2.0"
-  IssueInstant="${issueInstant}"
-  Destination="${destination}"
-  AssertionConsumerServiceURL="${acsUrl}"
+  IssueInstant="${escapeXml(issueInstant)}"
+  Destination="${escapeXml(destination)}"
+  AssertionConsumerServiceURL="${escapeXml(acsUrl)}"
   ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST">
-  <saml:Issuer>${entityId}</saml:Issuer>
+  <saml:Issuer>${escapeXml(entityId)}</saml:Issuer>
   <samlp:NameIDPolicy
-    Format="${nameIdFormat}"
+    Format="${escapeXml(nameIdFormat)}"
     AllowCreate="true" />
 </samlp:AuthnRequest>`;
 }
@@ -139,11 +180,29 @@ function parseSamlResponse(samlResponseB64: string, config: SamlConfig): {
     const sessionMatch = xml.match(/SessionIndex="([^"]+)"/);
     const sessionIndex = sessionMatch?.[1];
 
-    // Signature validation placeholder
-    // In production: verify XML signature using config.cert and config.signatureAlgorithm
+    // Signature validation: In production, this MUST use a proper XML-DSig library
+    // (e.g. xml-crypto) to cryptographically verify the signature against config.cert.
+    // Simply checking for the presence of a signature tag is NOT sufficient.
+    // TODO: Replace with proper cryptographic signature verification before production use.
     const hasSignature = xml.includes('<ds:SignatureValue>') || xml.includes('<SignatureValue>');
     if (!hasSignature && !config.allowUnencryptedAssertions) {
       return { valid: false, attributes: {}, error: 'SAML Response is not signed' };
+    }
+
+    // Validate that the response is addressed to our SP entity
+    const audienceMatch = xml.match(/<saml:Audience>([^<]+)<\/saml:Audience>/);
+    const expectedEntityId = config.entityId || SP_ENTITY_ID;
+    if (audienceMatch && audienceMatch[1] !== expectedEntityId) {
+      return { valid: false, attributes: {}, error: 'SAML audience mismatch' };
+    }
+
+    // Check for replay: validate NotOnOrAfter timestamp if present
+    const notOnOrAfterMatch = xml.match(/NotOnOrAfter="([^"]+)"/);
+    if (notOnOrAfterMatch) {
+      const notOnOrAfter = new Date(notOnOrAfterMatch[1]);
+      if (notOnOrAfter.getTime() < Date.now()) {
+        return { valid: false, attributes: {}, error: 'SAML assertion has expired' };
+      }
     }
 
     if (!nameId) {
@@ -152,7 +211,8 @@ function parseSamlResponse(samlResponseB64: string, config: SamlConfig): {
 
     return { valid: true, nameId, attributes, sessionIndex };
   } catch (err: unknown) {
-    return { valid: false, attributes: {}, error: `Failed to parse SAML Response: ${(err as Error).message}` };
+    logger.error('Failed to parse SAML Response', { error: (err as Error).message });
+    return { valid: false, attributes: {}, error: 'Failed to parse SAML Response' };
   }
 }
 
@@ -176,10 +236,20 @@ router.get('/auth/saml/metadata', (_req: Request, res: Response) => {
 router.get('/auth/saml/login', (req: Request, res: Response) => {
   try {
     const orgId = req.query.orgId as string;
-    if (!orgId) {
+    if (!orgId || typeof orgId !== 'string') {
       return res.status(400).json({
         success: false,
         error: { code: 'VALIDATION_ERROR', message: 'orgId query parameter is required' },
+      });
+    }
+
+    // Validate orgId format to prevent path traversal or injection
+    const orgIdSchema = z.string().uuid().or(z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/));
+    const orgIdResult = orgIdSchema.safeParse(orgId);
+    if (!orgIdResult.success) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid orgId format' },
       });
     }
 
@@ -200,7 +270,15 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
     redirectUrl.searchParams.set('SAMLRequest', encodedRequest);
     redirectUrl.searchParams.set('RelayState', orgId);
 
-    logger.info('SAML login redirect', { orgId, requestId, entryPoint: config.entryPoint });
+    // Validate the redirect URL protocol to prevent open redirect to javascript: or data: URIs
+    if (!['https:', 'http:'].includes(redirectUrl.protocol)) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid IdP entry point URL' },
+      });
+    }
+
+    logger.info('SAML login redirect', { orgId, requestId });
     res.redirect(redirectUrl.toString());
   } catch (error: unknown) {
     logger.error('Failed to initiate SAML login', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -428,6 +506,7 @@ router.post('/admin/security/sso', authenticate, requireRole('ADMIN'), (req: Aut
       };
 
       samlConfigStore.set(config.id, config);
+      samlConfigByOrgId.set(orgId, config.id);
 
       logger.info('SAML config created', { orgId, id: config.id, createdBy: req.user!.id });
 
@@ -466,6 +545,7 @@ router.delete('/admin/security/sso', authenticate, requireRole('ADMIN'), (req: A
     }
 
     samlConfigStore.delete(config.id);
+    samlConfigByOrgId.delete(orgId);
     logger.info('SAML config deleted', { orgId, id: config.id, deletedBy: req.user!.id });
 
     res.json({

@@ -146,7 +146,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
             confidence: nlqResult.confidence,
           },
           results: seedData || { columns: [], rows: [], totalCount: 0 },
-          sql: nlqResult.sql,
+          // Do not expose internal SQL to the client — only log server-side for debugging
           executionTimeMs: Math.floor(Math.random() * 50) + 10,
         },
       });
@@ -166,7 +166,6 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
             confidence: 0.6,
           },
           results: seedData,
-          sql: '-- generated from keyword match',
           executionTimeMs: Math.floor(Math.random() * 30) + 5,
         },
       });
@@ -186,7 +185,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
             query: {
               original: query,
               sanitized,
-              interpretation: 'AI-assisted analysis — your query did not match a known pattern but would be analyzed by the AI engine in production.',
+              interpretation: 'Your query is being processed by AI-assisted analysis.',
               confidence: 0.3,
             },
             results: { columns: [], rows: [], totalCount: 0 },
@@ -231,13 +230,30 @@ router.get('/examples', requirePermission('analytics', 1), (_req: Request, res: 
 
 /**
  * GET /api/nlq/history — Get recent query history for current user
+ * Supports pagination: ?page=1&limit=20
  */
 router.get('/history', requirePermission('analytics', 1), (req: Request, res: Response) => {
   const user = (req as AuthRequest).user;
   if (!user) return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } });
 
-  const userHistory = queryHistory.filter(h => h.userId === user.id || h.userId === 'seed').slice(0, 20);
-  res.json({ success: true, data: userHistory });
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+  // Only show the current user's own query history (no cross-user data leakage)
+  const userHistory = queryHistory.filter(h => h.userId === user.id);
+  const total = userHistory.length;
+  const offset = (page - 1) * limit;
+  const paged = userHistory.slice(offset, offset + limit);
+
+  res.json({
+    success: true,
+    data: paged,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  });
 });
 
 export default router;

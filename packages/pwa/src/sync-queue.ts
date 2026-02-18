@@ -136,9 +136,19 @@ export class SyncQueue {
 
     for (const entry of entries) {
       try {
+        // Re-attach auth token from localStorage at replay time (tokens are
+        // intentionally stripped before persisting to IndexedDB for security).
+        const replayHeaders: Record<string, string> = { ...entry.headers };
+        if (typeof globalThis !== 'undefined' && typeof localStorage !== 'undefined') {
+          const token = localStorage.getItem('token');
+          if (token) {
+            replayHeaders['Authorization'] = `Bearer ${token}`;
+          }
+        }
+
         const response = await fetch(entry.url, {
           method: entry.method,
-          headers: entry.headers,
+          headers: replayHeaders,
           body: entry.body,
         });
 

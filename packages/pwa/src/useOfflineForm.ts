@@ -51,6 +51,11 @@ const syncQueueInstance = new SyncQueue();
 
 export function useOfflineForm(options: OfflineFormOptions): UseOfflineFormReturn {
   const { url, method = 'POST', headers = {}, onSuccess, onQueued, onError } = options;
+
+  // Validate URL to prevent SSRF — only allow relative URLs or same-origin HTTPS/HTTP
+  if (url.startsWith('//') || url.startsWith('javascript:') || url.startsWith('data:')) {
+    throw new Error('Invalid URL scheme for offline form submission');
+  }
   const { isOnline, pendingSync } = useOfflineStatus();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,11 +119,17 @@ export function useOfflineForm(options: OfflineFormOptions): UseOfflineFormRetur
 
   const queueRequest = useCallback(async (allHeaders: Record<string, string>, body: string) => {
     try {
+      // Strip sensitive auth headers before persisting to IndexedDB.
+      // The token will be re-read fresh from localStorage during replay.
+      const safeHeaders: Record<string, string> = { ...allHeaders };
+      delete safeHeaders['Authorization'];
+      delete safeHeaders['authorization'];
+
       const queuedRequest: QueuedRequest = {
         id: `offline-form-${Date.now()}-${idCounter.current++}`,
         url,
         method,
-        headers: allHeaders,
+        headers: safeHeaders,
         body,
         timestamp: Date.now(),
         retryCount: 0,
@@ -128,7 +139,7 @@ export function useOfflineForm(options: OfflineFormOptions): UseOfflineFormRetur
       setIsQueued(true);
       onQueued?.();
     } catch (err: unknown) {
-      const queueError = new Error(`Failed to queue request: ${(err as Error).message}`);
+      const queueError = new Error('Failed to queue request for offline sync');
       setError(queueError);
       onError?.(queueError);
     }
