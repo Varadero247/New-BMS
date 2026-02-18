@@ -10,7 +10,7 @@ jest.mock('../src/prisma', () => ({
       update: jest.fn(),
       count: jest.fn(),
     },
-    $queryRawUnsafe: jest.fn(),
+    $transaction: jest.fn(),
   },
   Prisma: {
     Decimal: jest.fn((v: any) => v),
@@ -189,12 +189,19 @@ describe('DELETE /api/queries/:id', () => {
 // ===================================================================
 describe('POST /api/queries/:id/execute', () => {
   it('should execute a query and return results', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1', sql: 'SELECT 1' });
-    (prisma as any).analyticsQuery.update.mockResolvedValue({ id: 'q-1', lastRun: new Date() });
-    (prisma as any).$queryRawUnsafe.mockResolvedValue([
+    const mockRows = [
       { id: 1, name: 'Sample 1', value: 100 },
       { id: 2, name: 'Sample 2', value: 200 },
-    ]);
+    ];
+    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1', sql: 'SELECT 1' });
+    (prisma as any).analyticsQuery.update.mockResolvedValue({ id: 'q-1', lastRun: new Date() });
+    (prisma as any).$transaction.mockImplementation(async (fn: any) => {
+      const tx = {
+        $executeRawUnsafe: jest.fn().mockResolvedValue(0),
+        $queryRawUnsafe: jest.fn().mockResolvedValue(mockRows),
+      };
+      return fn(tx);
+    });
 
     const res = await request(app).post('/api/queries/q-1/execute');
 
@@ -212,6 +219,19 @@ describe('POST /api/queries/:id/execute', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('INVALID_QUERY');
+  });
+
+  it('should reject stacked queries containing semicolons', async () => {
+    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({
+      id: 'q-1',
+      sql: 'SELECT 1; DROP TABLE users',
+    });
+
+    const res = await request(app).post('/api/queries/q-1/execute');
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_QUERY');
+    expect(res.body.error.message).toMatch(/stacked/i);
   });
 
   it('should return 404 for non-existent query', async () => {

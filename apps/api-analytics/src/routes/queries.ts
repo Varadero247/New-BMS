@@ -141,8 +141,22 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
       });
     }
 
+    // Block stacked queries (semicolons remaining after trailing-semicolon strip)
+    if (trimmedSql.includes(';')) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_QUERY', message: 'Stacked queries are not permitted' },
+      });
+    }
+
+    // Wrap in subquery to enforce a hard row cap and run with a statement timeout
+    const cappedSql = `SELECT * FROM (${trimmedSql}) _q LIMIT 1000`;
+
     const startTime = Date.now();
-    const rows = await (prisma as any).$queryRawUnsafe(trimmedSql) as Record<string, unknown>[];
+    const rows = await (prisma as any).$transaction(async (tx: any) => {
+      await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '10s'`);
+      return tx.$queryRawUnsafe(cappedSql);
+    }) as Record<string, unknown>[];
     const executionMs = Date.now() - startTime;
 
     const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
