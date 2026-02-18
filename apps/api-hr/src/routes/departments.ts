@@ -13,8 +13,8 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 const createDepartmentSchema = z.object({
-  code: z.string().trim().min(1),
-  name: z.string().trim().min(1),
+  code: z.string().trim().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
   description: z.string().optional(),
   parentId: z.string().uuid().optional(),
   headId: z.string().uuid().optional(),
@@ -199,8 +199,8 @@ router.get('/positions/all', async (req: Request, res: Response) => {
 router.post('/positions', async (req: Request, res: Response) => {
   try {
     const positionSchema = z.object({
-      code: z.string().trim().min(1),
-      title: z.string().trim().min(1),
+      code: z.string().trim().min(1).max(200),
+      title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       departmentId: z.string().uuid(),
       jobGrade: z.string().optional(),

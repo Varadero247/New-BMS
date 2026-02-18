@@ -55,10 +55,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().trim().min(1),
-      issueCode: z.string().trim().min(1),
-      issueTitle: z.string().trim().min(1),
-      issueDescription: z.string().trim().min(1),
+      projectId: z.string().trim().min(1).max(200),
+      issueCode: z.string().trim().min(1).max(200),
+      issueTitle: z.string().trim().min(1).max(200),
+      issueDescription: z.string().trim().min(1).max(2000),
       issueType: z.enum(['DEFECT', 'BLOCKER', 'DEPENDENCY', 'RESOURCE', 'SCOPE_CREEP', 'CHANGE']),
       category: z.string().optional(),
       severity: z.string().optional(),

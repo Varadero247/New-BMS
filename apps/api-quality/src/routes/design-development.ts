@@ -63,9 +63,9 @@ async function generateRefNumber(): Promise<string> {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
-      productName: z.string().trim().min(1),
+      productName: z.string().trim().min(1).max(200),
       projectManager: z.string().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       plannedStartDate: z.string().optional(),
@@ -209,9 +209,9 @@ router.put('/:id', checkOwnership((prisma as any).designDevelopment), async (req
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       description: z.string().optional(),
-      productName: z.string().trim().min(1).optional(),
+      productName: z.string().trim().min(1).max(200).optional(),
       projectManager: z.string().optional(),
       priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       status: z.enum(['DRAFT', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED']).optional(),

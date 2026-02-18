@@ -117,7 +117,7 @@ router.get('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Re
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const actionSchema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES),
       owner: z.string().optional(),
@@ -125,7 +125,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     });
 
     const schema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       capaType: z.enum(CAPA_TYPES),
       source: z.enum(CAPA_SOURCES),
       sourceReference: z.string().optional(),
@@ -212,7 +212,7 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       capaType: z.enum(CAPA_TYPES).optional(),
       source: z.enum(CAPA_SOURCES).optional(),
       sourceReference: z.string().optional(),
@@ -285,7 +285,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES),
       owner: z.string().optional(),
@@ -327,7 +327,7 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       description: z.string().optional(),
       type: z.enum(CAPA_ACTION_TYPES).optional(),
       owner: z.string().optional(),

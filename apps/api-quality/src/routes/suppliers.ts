@@ -112,7 +112,7 @@ router.get('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      supplierName: z.string().trim().min(1),
+      supplierName: z.string().trim().min(1).max(200),
       supplierCode: z.string().optional(),
       category: z.enum([
         'MATERIALS', 'SERVICES', 'EQUIPMENT', 'LABOUR',
@@ -256,7 +256,7 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
     }
 
     const schema = z.object({
-      supplierName: z.string().trim().min(1).optional(),
+      supplierName: z.string().trim().min(1).max(200).optional(),
       supplierCode: z.string().optional(),
       category: z.enum([
         'MATERIALS', 'SERVICES', 'EQUIPMENT', 'LABOUR',

@@ -88,8 +88,8 @@ router.get('/:id', checkOwnership(prisma.envManagementReview), async (req: AuthR
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      reviewDate: z.string().trim().min(1),
-      chair: z.string().trim().min(1),
+      reviewDate: z.string().trim().min(1).max(2000),
+      chair: z.string().trim().min(1).max(200),
       attendees: z.array(z.string()).min(1),
       // ISO 14001 Clause 9.3 inputs (all optional)
       prevActionStatus: z.string().optional(),
@@ -248,9 +248,9 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     if (!review) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Management review not found' } });
 
     const schema = z.object({
-      action: z.string().trim().min(1),
-      owner: z.string().trim().min(1),
-      dueDate: z.string().trim().min(1),
+      action: z.string().trim().min(1).max(2000),
+      owner: z.string().trim().min(1).max(200),
+      dueDate: z.string().trim().min(1).max(200),
       notes: z.string().optional(),
     });
 

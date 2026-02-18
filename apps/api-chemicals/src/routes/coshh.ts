@@ -12,7 +12,7 @@ const exposureRouteEnum = z.enum(['INHALATION', 'SKIN_ABSORPTION', 'INGESTION', 
 const rpeClassEnum = z.enum(['FFP1', 'FFP2', 'FFP3', 'HALF_MASK', 'FULL_FACE', 'SUPPLIED_AIR', 'NONE_REQUIRED']);
 
 const createCoshhSchema = z.object({
-  chemicalId: z.string().trim().min(1),
+  chemicalId: z.string().trim().min(1).max(200),
   activityDescription: z.string().min(1, 'activityDescription is required'),
   locationBuilding: z.string().optional(),
   locationRoom: z.string().optional(),

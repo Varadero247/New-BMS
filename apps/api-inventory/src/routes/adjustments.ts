@@ -17,8 +17,8 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 const ADJUSTMENT_TYPES = ['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'DAMAGE', 'EXPIRED', 'WRITE_OFF', 'FOUND', 'RECOUNT'] as const;
 
 const createSchema = z.object({
-  productId: z.string().trim().min(1),
-  warehouseId: z.string().trim().min(1),
+  productId: z.string().trim().min(1).max(200),
+  warehouseId: z.string().trim().min(1).max(200),
   adjustmentType: z.enum(ADJUSTMENT_TYPES),
   quantity: z.number().int().positive(),
   reason: z.string().trim().min(1).max(500),

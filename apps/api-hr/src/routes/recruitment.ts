@@ -85,7 +85,7 @@ router.get('/jobs/:id', checkOwnership(prisma.jobPosting), async (req: Request, 
 router.post('/jobs', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       departmentId: z.string().uuid(),
       positionId: z.string().uuid().optional(),
       description: z.string(),
@@ -239,8 +239,8 @@ router.post('/applicants', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       jobPostingId: z.string().uuid(),
-      firstName: z.string().trim().min(1),
-      lastName: z.string().trim().min(1),
+      firstName: z.string().trim().min(1).max(200),
+      lastName: z.string().trim().min(1).max(200),
       email: z.string().email(),
       phone: z.string().optional(),
       linkedinUrl: z.string().url().optional(),

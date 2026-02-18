@@ -121,7 +121,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       process: z.enum(['STRATEGIC', 'FINANCE', 'HR', 'OPERATIONS', 'MARKETING_SALES', 'IT', 'COMPLIANCE_LEGAL', 'ALL_PROCESSES']),
       interestedParties: z.string().optional(),
-      opportunityDescription: z.string().trim().min(1),
+      opportunityDescription: z.string().trim().min(1).max(2000),
       reportedBy: z.string().optional(),
       likelihood: z.number().int().min(1).max(6).default(1),
       previousOccurrences: z.string().optional(),
@@ -188,7 +188,7 @@ router.put('/:id', checkOwnership(prisma.qualOpportunity), async (req: AuthReque
     const schema = z.object({
       process: z.enum(['STRATEGIC', 'FINANCE', 'HR', 'OPERATIONS', 'MARKETING_SALES', 'IT', 'COMPLIANCE_LEGAL', 'ALL_PROCESSES']).optional(),
       interestedParties: z.string().nullable().optional(),
-      opportunityDescription: z.string().trim().min(1).optional(),
+      opportunityDescription: z.string().trim().min(1).max(2000).optional(),
       reportedBy: z.string().nullable().optional(),
       likelihood: z.number().int().min(1).max(6).optional(),
       previousOccurrences: z.string().nullable().optional(),

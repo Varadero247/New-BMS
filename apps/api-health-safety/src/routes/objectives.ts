@@ -106,12 +106,12 @@ router.get('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest,
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const milestoneSchema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       dueDate: z.string(),
     });
 
     const schema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       objectiveStatement: z.string().optional(),
       category: z.enum(OBJECTIVE_CATEGORIES),
       ohsPolicyLink: z.string().optional(),
@@ -194,7 +194,7 @@ router.patch('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthReques
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       objectiveStatement: z.string().optional(),
       category: z.enum(OBJECTIVE_CATEGORIES).optional(),
       ohsPolicyLink: z.string().optional(),
@@ -274,7 +274,7 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       dueDate: z.string(),
     });
 
@@ -310,7 +310,7 @@ router.patch('/:id/milestones/:mid', async (req: AuthRequest, res: Response) => 
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       dueDate: z.string().optional(),
       completed: z.boolean().optional(),
     });

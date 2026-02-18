@@ -153,7 +153,7 @@ router.put('/baselines/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       description: z.string().optional(),
       program: z.string().optional(),
       status: z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'SUPERSEDED', 'ARCHIVED']).optional(),
@@ -275,9 +275,9 @@ router.put('/items/:id', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      partNumber: z.string().trim().min(1).optional(),
-      nomenclature: z.string().trim().min(1).optional(),
-      revision: z.string().trim().min(1).optional(),
+      partNumber: z.string().trim().min(1).max(200).optional(),
+      nomenclature: z.string().trim().min(1).max(200).optional(),
+      revision: z.string().trim().min(1).max(200).optional(),
       category: z.enum(['HARDWARE', 'SOFTWARE', 'FIRMWARE', 'DOCUMENT', 'TOOL', 'TEST_EQUIPMENT', 'MATERIAL']).optional(),
       serialNumber: z.string().optional(),
       lotNumber: z.string().optional(),

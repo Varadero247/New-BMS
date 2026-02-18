@@ -57,11 +57,11 @@ async function generateRecallRef(): Promise<string> {
 router.post('/characteristics', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      partNumber: z.string().trim().min(1),
-      partName: z.string().trim().min(1),
+      partNumber: z.string().trim().min(1).max(200),
+      partName: z.string().trim().min(1).max(200),
       characteristicType: z.enum(['SC', 'CC', 'KPC']),
-      description: z.string().trim().min(1),
-      controlMethod: z.string().trim().min(1),
+      description: z.string().trim().min(1).max(2000),
+      controlMethod: z.string().trim().min(1).max(200),
       measurementMethod: z.string().optional(),
       tolerance: z.string().optional(),
       linkedFmeaId: z.string().optional(),
@@ -170,11 +170,11 @@ router.put('/characteristics/:id', checkOwnership(prisma.safetyCharacteristic), 
     }
 
     const schema = z.object({
-      partNumber: z.string().trim().min(1).optional(),
-      partName: z.string().trim().min(1).optional(),
+      partNumber: z.string().trim().min(1).max(200).optional(),
+      partName: z.string().trim().min(1).max(200).optional(),
       characteristicType: z.enum(['SC', 'CC', 'KPC']).optional(),
-      description: z.string().trim().min(1).optional(),
-      controlMethod: z.string().trim().min(1).optional(),
+      description: z.string().trim().min(1).max(2000).optional(),
+      controlMethod: z.string().trim().min(1).max(200).optional(),
       measurementMethod: z.string().optional(),
       tolerance: z.string().optional(),
       linkedFmeaId: z.string().optional(),
@@ -211,9 +211,9 @@ router.put('/characteristics/:id', checkOwnership(prisma.safetyCharacteristic), 
 router.post('/incidents', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().trim().min(1),
-      description: z.string().trim().min(1),
-      product: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
+      description: z.string().trim().min(1).max(2000),
+      product: z.string().trim().min(1).max(200),
       partNumber: z.string().optional(),
       severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
       source: z.enum(['CUSTOMER', 'INTERNAL', 'REGULATORY', 'SUPPLIER', 'FIELD']).optional(),
@@ -304,8 +304,8 @@ router.put('/incidents/:id', checkOwnership((prisma as any).safetyIncident), asy
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
-      description: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
+      description: z.string().trim().min(1).max(2000).optional(),
       severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       status: z.enum(['OPEN', 'INVESTIGATING', 'CONTAINED', 'CORRECTED', 'CLOSED']).optional(),
       rootCause: z.string().optional(),
@@ -342,9 +342,9 @@ router.put('/incidents/:id', checkOwnership((prisma as any).safetyIncident), asy
 router.post('/recalls', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      product: z.string().trim().min(1),
-      reason: z.string().trim().min(1),
-      scope: z.string().trim().min(1),
+      product: z.string().trim().min(1).max(200),
+      reason: z.string().trim().min(1).max(2000),
+      scope: z.string().trim().min(1).max(2000),
       affectedQuantity: z.number().int().nonnegative(),
       linkedIncidentId: z.string().optional(),
       regulatoryBody: z.string().optional(),
@@ -434,7 +434,7 @@ router.put('/recalls/:id', checkOwnership((prisma as any).recallAction), async (
     }
 
     const schema = z.object({
-      reason: z.string().trim().min(1).optional(),
+      reason: z.string().trim().min(1).max(2000).optional(),
       scope: z.string().optional(),
       affectedQuantity: z.number().int().nonnegative().optional(),
       status: z.enum(['INITIATED', 'INVESTIGATING', 'CONTAINED', 'CORRECTED', 'CLOSED']).optional(),
@@ -522,8 +522,8 @@ router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) =
 router.post('/compliance', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      partNumber: z.string().trim().min(1),
-      partName: z.string().trim().min(1),
+      partNumber: z.string().trim().min(1).max(200),
+      partName: z.string().trim().min(1).max(200),
       regulation: z.enum(['REACH', 'RoHS', 'IMDS', 'TSCA', 'PROP65', 'OTHER']),
       status: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PENDING', 'EXEMPT']),
       certificateRef: z.string().optional(),

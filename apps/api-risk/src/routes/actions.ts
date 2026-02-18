@@ -8,8 +8,8 @@ const router = Router();
 const logger = createLogger('risk-actions');
 
 const actionSchema = z.object({
-  actionTitle: z.string().trim().min(1),
-  description: z.string().trim().min(1),
+  actionTitle: z.string().trim().min(1).max(2000),
+  description: z.string().trim().min(1).max(2000),
   actionType: z.enum(['PREVENTIVE', 'MITIGATIVE', 'TRANSFER', 'ACCEPT']),
   owner: z.string().optional(),
   ownerEmail: z.string().email().optional(),

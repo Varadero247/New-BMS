@@ -16,8 +16,8 @@ router.param('id', validateIdParam());
 
 const createSchema = z.object({
   employeeId: z.string().uuid(),
-  name: z.string().trim().min(1),
-  issuingOrganization: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(200),
+  issuingOrganization: z.string().trim().min(1).max(200),
   credentialId: z.string().optional(),
   credentialUrl: z.string().url().optional(),
   issueDate: z.string(),

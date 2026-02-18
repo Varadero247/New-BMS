@@ -50,11 +50,11 @@ async function generateCapaRef(): Promise<string> {
 router.post('/schedules', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      processArea: z.string().trim().min(1),
+      processArea: z.string().trim().min(1).max(200),
       layer: z.number().int().min(1).max(4),
       frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY']),
       questions: z.array(z.object({
-        questionText: z.string().trim().min(1),
+        questionText: z.string().trim().min(1).max(200),
         category: z.string().optional(),
       })).min(1),
     });
@@ -144,8 +144,8 @@ router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) =>
 router.post('/audits', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      scheduleId: z.string().trim().min(1),
-      auditor: z.string().trim().min(1),
+      scheduleId: z.string().trim().min(1).max(200),
+      auditor: z.string().trim().min(1).max(200),
     });
 
     const data = schema.parse(req.body);
@@ -251,7 +251,7 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
 
     const schema = z.object({
       responses: z.array(z.object({
-        questionId: z.string().trim().min(1),
+        questionId: z.string().trim().min(1).max(200),
         result: z.enum(['PASS', 'FAIL', 'NOT_APPLICABLE']),
         notes: z.string().optional(),
       })).min(1),

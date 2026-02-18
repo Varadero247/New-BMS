@@ -53,7 +53,7 @@ async function generateDHRRefNumber(): Promise<string> {
 router.post('/dmr', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      deviceName: z.string().trim().min(1),
+      deviceName: z.string().trim().min(1).max(200),
       deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']),
       description: z.string().optional(),
       specifications: z.string().optional(),
@@ -178,7 +178,7 @@ router.put('/dmr/:id', checkOwnership(prisma.deviceMasterRecord), async (req: Au
     }
 
     const schema = z.object({
-      deviceName: z.string().trim().min(1).optional(),
+      deviceName: z.string().trim().min(1).max(200).optional(),
       deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']).optional(),
       description: z.string().optional(),
       specifications: z.string().optional(),
@@ -253,9 +253,9 @@ router.post('/dmr/:id/approve', async (req: AuthRequest, res: Response) => {
 router.post('/dhr', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      dmrId: z.string().trim().min(1),
-      batchNumber: z.string().trim().min(1),
-      manufacturingDate: z.string().trim().min(1),
+      dmrId: z.string().trim().min(1).max(200),
+      batchNumber: z.string().trim().min(1).max(200),
+      manufacturingDate: z.string().trim().min(1).max(200),
       quantityManufactured: z.number().int().positive(),
       labelsUsed: z.string().optional(),
       primaryId: z.string().optional(),
@@ -385,7 +385,7 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
         'ENVIRONMENTAL_MONITORING', 'EQUIPMENT_CALIBRATION', 'STERILIZATION',
         'PACKAGING', 'LABELLING', 'ACCEPTANCE_TEST', 'OTHER',
       ]),
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       result: z.string().optional(),
       pass: z.boolean().optional(),

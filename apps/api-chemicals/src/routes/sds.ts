@@ -10,7 +10,7 @@ const logger = createLogger('chem-sds');
 const sdsStatusEnum = z.enum(['CURRENT', 'UNDER_REVIEW', 'SUPERSEDED', 'MISSING']);
 
 const createSdsSchema = z.object({
-  version: z.string().trim().min(1),
+  version: z.string().trim().min(1).max(200),
   issueDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
   revisionDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),
   nextReviewDate: z.string().datetime({ offset: true }).or(z.string().datetime()),

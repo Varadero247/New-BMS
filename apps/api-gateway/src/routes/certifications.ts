@@ -33,10 +33,10 @@ const createCertSchema = z.object({
 });
 
 const updateCertSchema = z.object({
-  standard: z.string().trim().min(1).optional(),
-  scope: z.string().trim().min(1).optional(),
+  standard: z.string().trim().min(1).max(200).optional(),
+  scope: z.string().trim().min(1).max(2000).optional(),
   certificationBody: z.string().min(1).optional(),
-  certificateNumber: z.string().trim().min(1).optional(),
+  certificateNumber: z.string().trim().min(1).max(200).optional(),
   issueDate: z.string().optional(),
   expiryDate: z.string().optional(),
   lastSurveillanceDate: z.string().optional(),

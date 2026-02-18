@@ -26,7 +26,7 @@ const createSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
   description: z.string().min(1, 'Description is required').max(2000),
   category: z.enum(['new_feature', 'improvement', 'bug_fix', 'security']),
-  modules: z.array(z.string().trim().min(1)).min(1, 'At least one module is required'),
+  modules: z.array(z.string().trim().min(1).max(200)).min(1, 'At least one module is required'),
   isPublished: z.boolean().optional().default(true),
 });
 

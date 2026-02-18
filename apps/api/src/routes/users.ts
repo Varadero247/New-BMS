@@ -12,16 +12,16 @@ const router: IRouter = Router();
 const createUserSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
-  firstName: z.string().trim().min(1),
-  lastName: z.string().trim().min(1),
+  firstName: z.string().trim().min(1).max(200),
+  lastName: z.string().trim().min(1).max(200),
   phone: z.string().optional(),
   role: z.enum(['ADMIN', 'MANAGER', 'TECHNICIAN', 'USER']).optional(),
 });
 
 const updateUserSchema = z.object({
   email: z.string().email().optional(),
-  firstName: z.string().trim().min(1).optional(),
-  lastName: z.string().trim().min(1).optional(),
+  firstName: z.string().trim().min(1).max(200).optional(),
+  lastName: z.string().trim().min(1).max(200).optional(),
   phone: z.string().optional(),
   role: z.enum(['ADMIN', 'MANAGER', 'TECHNICIAN', 'USER']).optional(),
   isActive: z.boolean().optional(),

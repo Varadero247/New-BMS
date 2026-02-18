@@ -9,8 +9,8 @@ const logger = createLogger('api-partners:profile');
 const router = Router();
 
 const updateSchema = z.object({
-  name: z.string().trim().min(1).optional(),
-  company: z.string().trim().min(1).optional(),
+  name: z.string().trim().min(1).max(200).optional(),
+  company: z.string().trim().min(1).max(200).optional(),
   phone: z.string().optional(),
   isoSpecialisms: z.array(z.string()).optional(),
 });

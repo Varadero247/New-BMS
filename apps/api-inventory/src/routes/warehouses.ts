@@ -180,8 +180,8 @@ router.get('/:id/inventory', checkOwnership(prisma.warehouse), async (req: AuthR
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      code: z.string().trim().min(1),
-      name: z.string().trim().min(1),
+      code: z.string().trim().min(1).max(200),
+      name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       address: z.record(z.unknown()).optional(),
       totalCapacity: z.number().optional(),
@@ -238,8 +238,8 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
     }
 
     const schema = z.object({
-      code: z.string().trim().min(1).optional(),
-      name: z.string().trim().min(1).optional(),
+      code: z.string().trim().min(1).max(200).optional(),
+      name: z.string().trim().min(1).max(200).optional(),
       description: z.string().optional().nullable(),
       address: z.record(z.unknown()).optional(),
       totalCapacity: z.number().optional().nullable(),

@@ -37,7 +37,7 @@ const createSchema = z.object({
 const updateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   reportType: z.enum(reportTypeValues as [ReportType, ...ReportType[]]).optional(),
-  schedule: z.string().trim().min(1).optional(),
+  schedule: z.string().trim().min(1).max(200).optional(),
   recipients: z.array(z.string().email()).min(1).optional(),
   format: z.enum(['pdf', 'excel', 'csv'] as [ReportFormat, ...ReportFormat[]]).optional(),
   enabled: z.boolean().optional(),

@@ -193,8 +193,8 @@ router.post('/', async (req: Request, res: Response) => {
 
 // PUT /api/instances/:id/advance - Advance to next node
 const advanceInstanceSchema = z.object({
-  nextStepId: z.string().trim().min(1),
-  actionBy: z.string().trim().min(1).optional(),
+  nextStepId: z.string().trim().min(1).max(200),
+  actionBy: z.string().trim().min(1).max(2000).optional(),
   comments: z.string().max(2000).optional(),
 });
 

@@ -10,7 +10,7 @@ router.use(authenticate);
 
 // Validation schemas
 const createBudgetSchema = z.object({
-  name: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(200),
   accountId: z.string().uuid(),
   fiscalYear: z.number().int().min(2020).max(2099),
   month: z.number().int().min(1).max(12).optional(),

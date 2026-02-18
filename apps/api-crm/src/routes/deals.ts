@@ -25,7 +25,7 @@ const createPipelineSchema = z.object({
   name: z.string().min(1, 'Pipeline name is required'),
   description: z.string().optional(),
   stages: z.array(z.object({
-    name: z.string().trim().min(1),
+    name: z.string().trim().min(1).max(200),
     order: z.number().int().min(0),
     probability: z.number().min(0).max(100).optional(),
   })).min(1, 'At least one stage is required'),
@@ -34,7 +34,7 @@ const createPipelineSchema = z.object({
 const updateStagesSchema = z.object({
   stages: z.array(z.object({
     id: z.string().uuid().optional(),
-    name: z.string().trim().min(1),
+    name: z.string().trim().min(1).max(200),
     order: z.number().int().min(0),
     probability: z.number().min(0).max(100).optional(),
   })).min(1, 'At least one stage is required'),

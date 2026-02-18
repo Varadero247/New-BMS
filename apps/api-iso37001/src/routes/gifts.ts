@@ -50,7 +50,7 @@ const giftCreateSchema = z.object({
   value: z.number().min(0),
   currency: z.string().length(3).default('USD'),
   recipientOrGiver: z.string().trim().min(1).max(300),
-  date: z.string().trim().min(1),
+  date: z.string().trim().min(1).max(200),
   organization: z.string().max(300).optional(),
   position: z.string().max(200).optional(),
   governmentOfficial: z.boolean().default(false),

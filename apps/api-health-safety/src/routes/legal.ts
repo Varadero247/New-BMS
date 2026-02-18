@@ -95,8 +95,8 @@ router.get('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRequ
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().trim().min(1),
-      description: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
+      description: z.string().trim().min(1).max(2000),
       category: z.enum(LEGAL_CATEGORIES),
       jurisdiction: z.string().optional(),
       legislationRef: z.string().optional(),
@@ -165,7 +165,7 @@ router.patch('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRe
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       description: z.string().optional(),
       category: z.enum(LEGAL_CATEGORIES).optional(),
       jurisdiction: z.string().optional(),

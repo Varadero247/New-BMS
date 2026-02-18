@@ -12,7 +12,7 @@ const severityEnum = z.enum(['MINOR', 'SIGNIFICANT', 'MAJOR', 'CATASTROPHIC']);
 const exposureRouteEnum = z.enum(['INHALATION', 'SKIN_ABSORPTION', 'INGESTION', 'INJECTION', 'EYE_CONTACT']);
 
 const createIncidentSchema = z.object({
-  chemicalId: z.string().trim().min(1),
+  chemicalId: z.string().trim().min(1).max(200),
   incidentType: incidentTypeEnum,
   severity: severityEnum,
   dateTime: z.string().datetime({ offset: true }).or(z.string().datetime()),

@@ -53,11 +53,11 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().trim().min(1),
-      changeCode: z.string().trim().min(1),
-      changeTitle: z.string().trim().min(1),
-      changeDescription: z.string().trim().min(1),
-      changeReason: z.string().trim().min(1),
+      projectId: z.string().trim().min(1).max(200),
+      changeCode: z.string().trim().min(1).max(200),
+      changeTitle: z.string().trim().min(1).max(200),
+      changeDescription: z.string().trim().min(1).max(2000),
+      changeReason: z.string().trim().min(1).max(2000),
       changeType: z.enum(['SCOPE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'RESOURCE', 'PROCESS']),
       impactOnScope: z.string().optional(),
       impactOnSchedule: z.number().optional(),

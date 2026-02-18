@@ -54,8 +54,8 @@ function calculateRiskLevel(severity: number, probability: number): string {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().trim().min(1),
-      deviceName: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
+      deviceName: z.string().trim().min(1).max(200),
       deviceClass: z.enum(['CLASS_I', 'CLASS_II', 'CLASS_III', 'CLASS_IIA', 'CLASS_IIB']),
       intendedUse: z.string().optional(),
       riskPolicy: z.string().optional(),
@@ -169,9 +169,9 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
         'USE_ERROR', 'FUNCTIONALITY', 'CHEMICAL', 'ELECTROMAGNETIC',
         'RADIATION', 'MECHANICAL', 'THERMAL', 'OTHER',
       ]),
-      hazardDescription: z.string().trim().min(1),
-      hazardousSituation: z.string().trim().min(1),
-      harm: z.string().trim().min(1),
+      hazardDescription: z.string().trim().min(1).max(2000),
+      hazardousSituation: z.string().trim().min(1).max(200),
+      harm: z.string().trim().min(1).max(200),
       severityBefore: z.number().int().min(1).max(5),
       probabilityBefore: z.number().int().min(1).max(5),
     });
@@ -228,13 +228,13 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
 
     const controlSchema = z.object({
       controlType: z.enum(['INHERENT_SAFETY', 'PROTECTIVE_MEASURE', 'INFORMATION_FOR_SAFETY']),
-      description: z.string().trim().min(1),
+      description: z.string().trim().min(1).max(2000),
       implementationStatus: z.enum(['PLANNED', 'IN_PROGRESS', 'IMPLEMENTED', 'VERIFIED']).optional() as any,
       verificationMethod: z.string().optional(),
     });
 
     const schema = z.object({
-      hazardDescription: z.string().trim().min(1).optional(),
+      hazardDescription: z.string().trim().min(1).max(2000).optional(),
       hazardousSituation: z.string().optional(),
       harm: z.string().optional(),
       severityAfter: z.number().int().min(1).max(5).optional(),
@@ -311,8 +311,8 @@ router.post('/:id/benefit-risk', async (req: AuthRequest, res: Response) => {
     const schema = z.object({
       overallRiskAcceptable: z.boolean(),
       benefitRiskAcceptable: z.boolean(),
-      benefitRiskAnalysis: z.string().trim().min(1),
-      reportSummary: z.string().trim().min(1),
+      benefitRiskAnalysis: z.string().trim().min(1).max(2000),
+      reportSummary: z.string().trim().min(1).max(2000),
     });
 
     const data = schema.parse(req.body);

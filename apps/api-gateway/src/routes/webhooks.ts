@@ -24,14 +24,14 @@ router.use(authenticate);
 const createEndpointSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   url: z.string().url('Must be a valid URL'),
-  events: z.array(z.string().trim().min(1)).min(1, 'At least one event is required'),
+  events: z.array(z.string().trim().min(1).max(200)).min(1, 'At least one event is required'),
   headers: z.record(z.string()).optional(),
 });
 
 const updateEndpointSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
   url: z.string().url().optional(),
-  events: z.array(z.string().trim().min(1)).min(1).optional(),
+  events: z.array(z.string().trim().min(1).max(200)).min(1).optional(),
   enabled: z.boolean().optional(),
   headers: z.record(z.string()).optional(),
 });

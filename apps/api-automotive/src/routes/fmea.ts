@@ -30,20 +30,20 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const studyCreateSchema = z.object({
-  title: z.string().trim().min(1),
+  title: z.string().trim().min(1).max(200),
   fmeaType: z.enum(['DFMEA', 'PFMEA', 'MFMEA']).optional(),
   partNumber: z.string().optional(),
   partName: z.string().optional(),
   customer: z.string().optional(),
   revision: z.string().optional(),
-  preparedBy: z.string().trim().min(1),
+  preparedBy: z.string().trim().min(1).max(200),
   reviewedBy: z.string().optional(),
   scope: z.string().optional(),
   assumptions: z.string().optional(),
 });
 
 const studyUpdateSchema = z.object({
-  title: z.string().trim().min(1).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   fmeaType: z.enum(['DFMEA', 'PFMEA', 'MFMEA']).optional(),
   partNumber: z.string().optional(),
   partName: z.string().optional(),
@@ -60,12 +60,12 @@ const studyUpdateSchema = z.object({
 
 const itemCreateSchema = z.object({
   itemNumber: z.number().int().min(1),
-  processStep: z.string().trim().min(1),
-  function: z.string().trim().min(1),
-  failureMode: z.string().trim().min(1),
-  failureEffect: z.string().trim().min(1),
+  processStep: z.string().trim().min(1).max(200),
+  function: z.string().trim().min(1).max(200),
+  failureMode: z.string().trim().min(1).max(200),
+  failureEffect: z.string().trim().min(1).max(200),
   severity: z.number().int().min(1).max(10),
-  potentialCauses: z.string().trim().min(1),
+  potentialCauses: z.string().trim().min(1).max(200),
   occurrence: z.number().int().min(1).max(10),
   currentControls: z.string().optional(),
   detection: z.number().int().min(1).max(10),

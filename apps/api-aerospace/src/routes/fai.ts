@@ -99,7 +99,7 @@ const part3Schema = z.object({
 });
 
 const partialApprovalSchema = z.object({
-  openItems: z.array(z.string().trim().min(1)).min(1, 'At least one open item is required'),
+  openItems: z.array(z.string().trim().min(1).max(200)).min(1, 'At least one open item is required'),
 });
 
 // ============================================

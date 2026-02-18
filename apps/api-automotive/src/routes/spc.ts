@@ -44,10 +44,10 @@ async function generateRefNumber(): Promise<string> {
 // ============================================
 
 const createChartSchema = z.object({
-  title: z.string().trim().min(1),
-  partNumber: z.string().trim().min(1),
+  title: z.string().trim().min(1).max(200),
+  partNumber: z.string().trim().min(1).max(200),
   partName: z.string().optional(),
-  characteristic: z.string().trim().min(1),
+  characteristic: z.string().trim().min(1).max(200),
   chartType: z.enum(['XBAR_R', 'XBAR_S', 'IMR', 'P', 'NP', 'C', 'U']),
   subgroupSize: z.number().int().min(1).max(25).optional().default(5),
   usl: z.number().optional(),

@@ -12,8 +12,8 @@ const createMaintenanceSchema = z.object({
   deviceId: z.string(),
   type: z.enum(['PREVENTIVE', 'CORRECTIVE', 'INSPECTION', 'EMERGENCY']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
-  title: z.string().trim().min(1),
-  description: z.string().trim().min(1),
+  title: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(1).max(2000),
   scheduledAt: z.string().datetime().optional(),
 });
 

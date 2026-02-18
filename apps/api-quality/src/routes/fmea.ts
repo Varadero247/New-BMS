@@ -122,8 +122,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       fmeaType: z.enum(['DFMEA', 'PFMEA', 'SFMEA']),
-      title: z.string().trim().min(1),
-      productProcess: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
+      productProcess: z.string().trim().min(1).max(200),
       partNumberRev: z.string().optional(),
       customer: z.string().optional(),
       teamMembers: z.string().optional(),
@@ -197,7 +197,7 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
 
     const schema = z.object({
       fmeaType: z.enum(['DFMEA', 'PFMEA', 'SFMEA']).optional(),
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       productProcess: z.string().optional(),
       partNumberRev: z.string().optional(),
       customer: z.string().optional(),
@@ -274,10 +274,10 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
       sortOrder: z.number().optional(),
       itemProcessStep: z.string().optional(),
       functionRequirement: z.string().optional(),
-      failureMode: z.string().trim().min(1),
-      effectOfFailure: z.string().trim().min(1),
+      failureMode: z.string().trim().min(1).max(200),
+      effectOfFailure: z.string().trim().min(1).max(200),
       severity: z.number().min(1).max(10).default(1),
-      potentialCauses: z.string().trim().min(1),
+      potentialCauses: z.string().trim().min(1).max(200),
       currentPreventionControls: z.string().optional(),
       occurrence: z.number().min(1).max(10).default(1),
       currentDetectionControls: z.string().optional(),

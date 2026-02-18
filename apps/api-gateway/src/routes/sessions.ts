@@ -63,7 +63,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
     const currentSessionId = req.sessionId;
 
     // Validate session ID format
-    const { id } = z.object({ id: z.string().trim().min(1) }).parse({ id: sessionId });
+    const { id } = z.object({ id: z.string().trim().min(1).max(200) }).parse({ id: sessionId });
 
     // Check if trying to revoke current session
     if (id === currentSessionId) {

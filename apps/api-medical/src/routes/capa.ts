@@ -32,18 +32,18 @@ async function generateRefNumber(): Promise<string> {
 }
 
 const createSchema = z.object({
-  title: z.string().trim().min(1),
+  title: z.string().trim().min(1).max(200),
   capaType: z.enum(['CORRECTIVE', 'PREVENTIVE']).optional(),
   source: z.enum(CAPA_SOURCES),
   sourceRef: z.string().optional(),
-  description: z.string().trim().min(1),
+  description: z.string().trim().min(1).max(2000),
   deviceName: z.string().optional(),
   deviceId: z.string().optional(),
   severity: z.enum(CAPA_SEVERITIES).optional(),
 });
 
 const updateSchema = z.object({
-  title: z.string().trim().min(1).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   capaType: z.enum(['CORRECTIVE', 'PREVENTIVE']).optional(),
   source: z.enum(CAPA_SOURCES).optional(),
   sourceRef: z.string().optional(),

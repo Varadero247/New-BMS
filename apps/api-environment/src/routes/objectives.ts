@@ -74,11 +74,11 @@ router.get('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest,
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().trim().min(1),
-      objectiveStatement: z.string().trim().min(1),
-      category: z.string().trim().min(1),
-      targetDate: z.string().trim().min(1),
-      owner: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
+      objectiveStatement: z.string().trim().min(1).max(2000),
+      category: z.string().trim().min(1).max(200),
+      targetDate: z.string().trim().min(1).max(200),
+      owner: z.string().trim().min(1).max(200),
       status: z.string().optional(),
       policyCommitment: z.string().optional(),
       iso14001Clause: z.string().optional(),
@@ -110,8 +110,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       aiRisks: z.string().optional(),
       aiGenerated: z.boolean().optional(),
       milestones: z.array(z.object({
-        title: z.string().trim().min(1),
-        dueDate: z.string().trim().min(1),
+        title: z.string().trim().min(1).max(200),
+        dueDate: z.string().trim().min(1).max(200),
       })).optional(),
     });
 

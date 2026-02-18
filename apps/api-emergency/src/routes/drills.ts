@@ -11,9 +11,9 @@ const evacuationTypeEnum = z.enum(['FULL_EVACUATION', 'PARTIAL_EVACUATION', 'HOR
 
 const createDrillSchema = z.object({
   drillDate: z.string(),
-  drillType: z.string().trim().min(1),
+  drillType: z.string().trim().min(1).max(200),
   evacuationType: evacuationTypeEnum,
-  alarmedOrSilent: z.string().trim().min(1),
+  alarmedOrSilent: z.string().trim().min(1).max(200),
   totalPersonsEvacuated: z.number().int().optional(),
   evacuationTimeMinutes: z.number().optional(),
   targetTimeMinutes: z.number().optional(),

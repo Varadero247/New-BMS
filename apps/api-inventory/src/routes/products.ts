@@ -192,9 +192,9 @@ router.get('/:id', checkOwnership(prisma.product), async (req: AuthRequest, res:
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      sku: z.string().trim().min(1),
+      sku: z.string().trim().min(1).max(200),
       barcode: z.string().optional(),
-      name: z.string().trim().min(1),
+      name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       categoryId: z.string().optional(),
       supplierId: z.string().optional(),
@@ -267,9 +267,9 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
     }
 
     const schema = z.object({
-      sku: z.string().trim().min(1).optional(),
+      sku: z.string().trim().min(1).max(200).optional(),
       barcode: z.string().optional().nullable(),
-      name: z.string().trim().min(1).optional(),
+      name: z.string().trim().min(1).max(200).optional(),
       description: z.string().optional().nullable(),
       categoryId: z.string().optional().nullable(),
       supplierId: z.string().optional().nullable(),

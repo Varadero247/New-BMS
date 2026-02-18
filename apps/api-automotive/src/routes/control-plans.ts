@@ -32,9 +32,9 @@ async function generateRefNumber(): Promise<string> {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().trim().min(1),
-      partNumber: z.string().trim().min(1),
-      partName: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
+      partNumber: z.string().trim().min(1).max(200),
+      partName: z.string().trim().min(1).max(200),
       planType: z.enum(['PROTOTYPE', 'PRE_LAUNCH', 'PRODUCTION']).optional().default('PROTOTYPE'),
       revision: z.string().optional(),
     });
@@ -194,19 +194,19 @@ router.post('/:id/characteristics', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      processNumber: z.string().trim().min(1),
-      processName: z.string().trim().min(1),
+      processNumber: z.string().trim().min(1).max(200),
+      processName: z.string().trim().min(1).max(200),
       machineDevice: z.string().optional(),
-      characteristicName: z.string().trim().min(1),
+      characteristicName: z.string().trim().min(1).max(200),
       characteristicType: z.enum(['PRODUCT', 'PROCESS']),
       specialCharClass: z.string().optional(),
       specification: z.string().optional(),
       tolerance: z.string().optional(),
-      evalTechnique: z.string().trim().min(1),
-      sampleSize: z.string().trim().min(1),
-      sampleFrequency: z.string().trim().min(1),
-      controlMethod: z.string().trim().min(1),
-      reactionPlan: z.string().trim().min(1),
+      evalTechnique: z.string().trim().min(1).max(200),
+      sampleSize: z.string().trim().min(1).max(200),
+      sampleFrequency: z.string().trim().min(1).max(200),
+      controlMethod: z.string().trim().min(1).max(200),
+      reactionPlan: z.string().trim().min(1).max(2000),
       pfmeaRef: z.string().optional(),
       spcChartId: z.string().optional(),
       workInstructionRef: z.string().optional(),

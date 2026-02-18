@@ -10,7 +10,7 @@ const router = Router();
 
 const createTicketSchema = z.object({
   subject: z.string().trim().min(1).max(200),
-  description: z.string().trim().min(1),
+  description: z.string().trim().min(1).max(2000),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional().default('MEDIUM'),
 });
 

@@ -70,9 +70,9 @@ async function generatePswNumber(): Promise<string> {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      partNumber: z.string().trim().min(1),
-      partName: z.string().trim().min(1),
-      customer: z.string().trim().min(1),
+      partNumber: z.string().trim().min(1).max(200),
+      partName: z.string().trim().min(1).max(200),
+      customer: z.string().trim().min(1).max(200),
       submissionLevel: z.number().int().min(1).max(5).optional().default(3),
     });
 

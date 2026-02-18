@@ -45,7 +45,7 @@ const createBaselineSchema = z.object({
 });
 
 const updateBaselineSchema = z.object({
-  title: z.string().trim().min(1).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().optional(),
   program: z.string().optional(),
   version: z.string().optional(),

@@ -48,9 +48,9 @@ async function generateRefNumber(): Promise<string> {
 router.post('/devices', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      deviceName: z.string().trim().min(1),
-      modelNumber: z.string().trim().min(1),
-      manufacturer: z.string().trim().min(1),
+      deviceName: z.string().trim().min(1).max(200),
+      modelNumber: z.string().trim().min(1).max(200),
+      manufacturer: z.string().trim().min(1).max(200),
       deviceClass: z.enum(DEVICE_CLASSES),
       riskClass: z.string().optional(),
       gmdn: z.string().optional(),
@@ -171,8 +171,8 @@ router.post('/devices/:id/di', async (req: AuthRequest, res: Response) => {
     }
 
     const schema = z.object({
-      issuingAgency: z.string().trim().min(1),
-      diCode: z.string().trim().min(1),
+      issuingAgency: z.string().trim().min(1).max(200),
+      diCode: z.string().trim().min(1).max(200),
       version: z.string().optional(),
     });
 

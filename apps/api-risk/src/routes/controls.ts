@@ -10,7 +10,7 @@ const logger = createLogger('risk-controls');
 
 const controlSchema = z.object({
   controlType: z.enum(['PREVENTIVE', 'DETECTIVE', 'REACTIVE', 'DIRECTIVE']),
-  description: z.string().trim().min(1),
+  description: z.string().trim().min(1).max(2000),
   owner: z.string().optional(),
   effectiveness: z.enum(['STRONG', 'ADEQUATE', 'WEAK', 'NONE_EFFECTIVE']).optional(),
   lastTestedDate: z.string().datetime({ offset: true }).optional().or(z.string().datetime().optional()),

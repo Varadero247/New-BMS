@@ -64,15 +64,15 @@ function shouldFlagForMDR(complaint: {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      deviceName: z.string().trim().min(1),
+      deviceName: z.string().trim().min(1).max(200),
       deviceId: z.string().optional(),
       lotNumber: z.string().optional(),
       serialNumber: z.string().optional(),
-      complaintDate: z.string().trim().min(1),
+      complaintDate: z.string().trim().min(1).max(200),
       source: z.enum(COMPLAINT_SOURCES),
       reporterName: z.string().optional(),
       reporterContact: z.string().optional(),
-      description: z.string().trim().min(1),
+      description: z.string().trim().min(1).max(2000),
       patientInvolved: z.boolean().optional(),
       injuryOccurred: z.boolean().optional(),
       injuryDescription: z.string().optional(),

@@ -87,8 +87,8 @@ router.get('/:id', checkOwnership(prisma.workflowTemplate), async (req: AuthRequ
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      code: z.string().trim().min(1),
-      name: z.string().trim().min(1),
+      code: z.string().trim().min(1).max(200),
+      name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       category: workflowCategoryEnum,
       industryType: industryTypeEnum.optional(),
@@ -124,7 +124,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', checkOwnership(prisma.workflowTemplate), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().trim().min(1).optional(),
+      name: z.string().trim().min(1).max(200).optional(),
       description: z.string().optional(),
       category: workflowCategoryEnum.optional(),
       industryType: industryTypeEnum.optional(),

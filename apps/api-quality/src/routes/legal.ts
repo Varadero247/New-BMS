@@ -88,11 +88,11 @@ router.get('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       obligationType: z.enum(['PRODUCT_STANDARD', 'CUSTOMER_CONTRACT', 'REGULATORY', 'INDUSTRY_CODE', 'CERTIFICATION_REQUIREMENT', 'VOLUNTARY_COMMITMENT']),
       issuingBody: z.string().optional(),
       referenceDoc: z.string().optional(),
-      description: z.string().trim().min(1),
+      description: z.string().trim().min(1).max(2000),
       requirements: z.string().optional(),
       applicableScope: z.string().optional(),
       customerName: z.string().optional(),
@@ -146,7 +146,7 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
     }
 
     const schema = z.object({
-      title: z.string().trim().min(1).optional(),
+      title: z.string().trim().min(1).max(200).optional(),
       obligationType: z.enum(['PRODUCT_STANDARD', 'CUSTOMER_CONTRACT', 'REGULATORY', 'INDUSTRY_CODE', 'CERTIFICATION_REQUIREMENT', 'VOLUNTARY_COMMITMENT']).optional(),
       issuingBody: z.string().nullable().optional(),
       referenceDoc: z.string().nullable().optional(),

@@ -40,8 +40,8 @@ router.get('/plans', scopeToUser, async (req: Request, res: Response) => {
 router.post('/plans', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      code: z.string().trim().min(1),
-      name: z.string().trim().min(1),
+      code: z.string().trim().min(1).max(200),
+      name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       category: z.enum(['HEALTH_INSURANCE', 'LIFE_INSURANCE', 'DENTAL', 'VISION', 'RETIREMENT', 'PENSION', 'HSA', 'FSA', 'TRANSPORTATION', 'WELLNESS', 'OTHER']),
       provider: z.string().optional(),

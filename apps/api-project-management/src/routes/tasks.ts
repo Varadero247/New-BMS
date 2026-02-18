@@ -118,9 +118,9 @@ router.get('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, 
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().trim().min(1),
-      taskCode: z.string().trim().min(1),
-      taskName: z.string().trim().min(1),
+      projectId: z.string().trim().min(1).max(200),
+      taskCode: z.string().trim().min(1).max(200),
+      taskName: z.string().trim().min(1).max(200),
       taskDescription: z.string().optional(),
       parentTaskId: z.string().optional(),
       wbsLevel: z.number().optional(),

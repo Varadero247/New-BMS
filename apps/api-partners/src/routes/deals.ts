@@ -9,8 +9,8 @@ const logger = createLogger('api-partners:deals');
 const router = Router();
 
 const createDealSchema = z.object({
-  companyName: z.string().trim().min(1),
-  contactName: z.string().trim().min(1),
+  companyName: z.string().trim().min(1).max(200),
+  contactName: z.string().trim().min(1).max(200),
   contactEmail: z.string().email(),
   estimatedUsers: z.number().int().min(1),
   isoStandards: z.array(z.string()).min(1),

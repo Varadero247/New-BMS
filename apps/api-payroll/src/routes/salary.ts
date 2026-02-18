@@ -38,8 +38,8 @@ router.get('/component-types', scopeToUser, async (req: Request, res: Response) 
 router.post('/component-types', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      code: z.string().trim().min(1),
-      name: z.string().trim().min(1),
+      code: z.string().trim().min(1).max(200),
+      name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       category: z.enum(['EARNING', 'DEDUCTION', 'EMPLOYER_CONTRIBUTION', 'REIMBURSEMENT']),
       type: z.enum(['BASIC_SALARY', 'ALLOWANCE', 'BONUS', 'COMMISSION', 'OVERTIME', 'STATUTORY_DEDUCTION', 'VOLUNTARY_DEDUCTION', 'LOAN_REPAYMENT', 'BENEFIT_CONTRIBUTION', 'TAX', 'OTHER']),

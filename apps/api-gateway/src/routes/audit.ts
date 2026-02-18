@@ -83,11 +83,11 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       password: z.string().min(1),
-      meaning: z.string().trim().min(1),
-      reason: z.string().trim().min(1),
-      resourceType: z.string().trim().min(1),
-      resourceId: z.string().trim().min(1),
-      resourceRef: z.string().trim().min(1),
+      meaning: z.string().trim().min(1).max(200),
+      reason: z.string().trim().min(1).max(2000),
+      resourceType: z.string().trim().min(1).max(200),
+      resourceId: z.string().trim().min(1).max(200),
+      resourceRef: z.string().trim().min(1).max(200),
     });
 
     const data = schema.parse(req.body);

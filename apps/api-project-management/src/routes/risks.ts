@@ -64,10 +64,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().trim().min(1),
-      riskCode: z.string().trim().min(1),
-      riskTitle: z.string().trim().min(1),
-      riskDescription: z.string().trim().min(1),
+      projectId: z.string().trim().min(1).max(200),
+      riskCode: z.string().trim().min(1).max(200),
+      riskTitle: z.string().trim().min(1).max(200),
+      riskDescription: z.string().trim().min(1).max(2000),
       riskCategory: z.enum(['TECHNICAL', 'RESOURCE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'EXTERNAL']),
       riskTrigger: z.string().optional(),
       probability: z.number().min(1).max(5),

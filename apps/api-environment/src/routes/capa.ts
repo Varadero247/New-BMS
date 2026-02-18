@@ -75,21 +75,21 @@ router.get('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, res:
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const capaActionSchema = z.object({
-      description: z.string().trim().min(1),
-      assignedTo: z.string().trim().min(1),
-      dueDate: z.string().trim().min(1),
+      description: z.string().trim().min(1).max(2000),
+      assignedTo: z.string().trim().min(1).max(200),
+      dueDate: z.string().trim().min(1).max(200),
       priority: z.string().optional(),
     });
 
     const schema = z.object({
-      capaType: z.string().trim().min(1),
-      title: z.string().trim().min(1),
-      severity: z.string().trim().min(1),
-      triggerSource: z.string().trim().min(1),
-      description: z.string().trim().min(1),
-      initiatedBy: z.string().trim().min(1),
-      responsiblePerson: z.string().trim().min(1),
-      targetClosureDate: z.string().trim().min(1),
+      capaType: z.string().trim().min(1).max(200),
+      title: z.string().trim().min(1).max(200),
+      severity: z.string().trim().min(1).max(200),
+      triggerSource: z.string().trim().min(1).max(200),
+      description: z.string().trim().min(1).max(2000),
+      initiatedBy: z.string().trim().min(1).max(200),
+      responsiblePerson: z.string().trim().min(1).max(200),
+      targetClosureDate: z.string().trim().min(1).max(200),
       sourceReference: z.string().optional(),
       iso14001Clause: z.string().optional(),
       immediateActionRequired: z.boolean().optional(),
@@ -317,9 +317,9 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
     if (!capa) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
 
     const schema = z.object({
-      description: z.string().trim().min(1),
-      assignedTo: z.string().trim().min(1),
-      dueDate: z.string().trim().min(1),
+      description: z.string().trim().min(1).max(2000),
+      assignedTo: z.string().trim().min(1).max(200),
+      dueDate: z.string().trim().min(1).max(200),
       priority: z.string().optional(),
       notes: z.string().optional(),
     });

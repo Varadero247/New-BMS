@@ -58,9 +58,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().trim().min(1),
+      projectId: z.string().trim().min(1).max(200),
       taskId: z.string().optional(),
-      employeeId: z.string().trim().min(1),
+      employeeId: z.string().trim().min(1).max(200),
       workDate: z.string(),
       hoursWorked: z.number().min(0),
       overtime: z.number().optional(),

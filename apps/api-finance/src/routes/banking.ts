@@ -10,7 +10,7 @@ router.use(authenticate);
 
 // Validation schemas
 const createBankAccountSchema = z.object({
-  name: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(200),
   accountNumber: z.string().optional(),
   sortCode: z.string().optional(),
   iban: z.string().optional(),
@@ -25,7 +25,7 @@ const createBankAccountSchema = z.object({
 const createTransactionSchema = z.object({
   bankAccountId: z.string().uuid(),
   date: z.string(),
-  description: z.string().trim().min(1),
+  description: z.string().trim().min(1).max(2000),
   reference: z.string().optional(),
   amount: z.number(),
   sourceType: z.string().optional(),

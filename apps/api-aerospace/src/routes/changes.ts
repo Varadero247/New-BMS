@@ -49,7 +49,7 @@ const createChangeRequestSchema = z.object({
 });
 
 const updateChangeRequestSchema = z.object({
-  title: z.string().trim().min(1).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   description: z.string().optional(),
   changeType: z.enum(['DESIGN', 'PROCESS', 'MATERIAL', 'SUPPLIER', 'DOCUMENT', 'SOFTWARE', 'TOOLING', 'OTHER']).optional(),
   priority: z.enum(['EMERGENCY', 'HIGH', 'MEDIUM', 'LOW']).optional(),

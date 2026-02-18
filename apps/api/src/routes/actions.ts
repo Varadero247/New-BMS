@@ -11,7 +11,7 @@ const router: IRouter = Router();
 const createActionSchema = z.object({
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']),
   title: z.string().trim().min(1).max(200),
-  description: z.string().trim().min(1),
+  description: z.string().trim().min(1).max(2000),
   type: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT', 'IMMEDIATE', 'LONG_TERM']),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).default('MEDIUM'),
   ownerId: z.string(),

@@ -9,11 +9,11 @@ import { AppError } from '../middleware/error-handler';
 const router: IRouter = Router();
 
 const createBuildingSchema = z.object({
-  name: z.string().trim().min(1),
-  address: z.string().trim().min(1),
-  city: z.string().trim().min(1),
-  state: z.string().trim().min(1),
-  zipCode: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(200),
+  address: z.string().trim().min(1).max(200),
+  city: z.string().trim().min(1).max(200),
+  state: z.string().trim().min(1).max(200),
+  zipCode: z.string().trim().min(1).max(200),
   country: z.string().default('USA'),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
@@ -26,7 +26,7 @@ const createBuildingSchema = z.object({
 const updateBuildingSchema = createBuildingSchema.partial();
 
 const createZoneSchema = z.object({
-  name: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(200),
   floor: z.number().int().positive().default(1),
   type: z.enum([
     'OFFICE', 'CONFERENCE', 'LOBBY', 'HALLWAY', 'RESTROOM',

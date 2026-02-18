@@ -142,7 +142,7 @@ router.post('/', async (req: Request, res: Response) => {
       assignedToId: z.string().optional(),
       assignedToName: z.string().optional(),
       taskType: taskTypeEnum,
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       dueDate: z.string().optional(),
     });
@@ -177,7 +177,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 // PUT /api/tasks/:id/claim - Claim task
 const claimTaskSchema = z.object({
-  userId: z.string().trim().min(1),
+  userId: z.string().trim().min(1).max(200),
   userName: z.string().trim().min(1).max(200).optional(),
 });
 
@@ -248,10 +248,10 @@ router.put('/:id/complete', checkOwnership(prisma.workflowTask), async (req: Aut
 
 // PUT /api/tasks/:id/reassign - Reassign task
 const reassignTaskSchema = z.object({
-  newAssigneeId: z.string().trim().min(1),
+  newAssigneeId: z.string().trim().min(1).max(200),
   newAssigneeName: z.string().trim().min(1).max(200).optional(),
   reason: z.string().trim().min(1).max(1000).optional(),
-  reassignedBy: z.string().trim().min(1).optional(),
+  reassignedBy: z.string().trim().min(1).max(200).optional(),
 });
 
 router.put('/:id/reassign', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {

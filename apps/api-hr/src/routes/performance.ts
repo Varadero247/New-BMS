@@ -41,7 +41,7 @@ router.get('/cycles', scopeToUser, async (req: Request, res: Response) => {
 router.post('/cycles', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().trim().min(1),
+      name: z.string().trim().min(1).max(200),
       year: z.number(),
       cycleType: z.enum(['ANNUAL', 'SEMI_ANNUAL', 'QUARTERLY', 'CONTINUOUS']),
       startDate: z.string(),
@@ -272,7 +272,7 @@ router.post('/goals', async (req: Request, res: Response) => {
     const schema = z.object({
       cycleId: z.string().uuid(),
       employeeId: z.string().uuid(),
-      title: z.string().trim().min(1),
+      title: z.string().trim().min(1).max(200),
       description: z.string(),
       category: z.enum(['PERFORMANCE', 'DEVELOPMENT', 'BEHAVIORAL', 'STRATEGIC', 'OPERATIONAL']),
       weight: z.number().min(0).max(100).default(0),

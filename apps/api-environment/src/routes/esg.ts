@@ -225,13 +225,13 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       category: z.enum(ESG_CATEGORIES),
-      subcategory: z.string().trim().min(1),
-      description: z.string().trim().min(1),
+      subcategory: z.string().trim().min(1).max(200),
+      description: z.string().trim().min(1).max(2000),
       baselineValue: z.number(),
       baselineYear: z.number().int().min(2000).max(2100),
       targetValue: z.number(),
       targetYear: z.number().int().min(2000).max(2100),
-      unit: z.string().trim().min(1),
+      unit: z.string().trim().min(1).max(200),
       status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED', 'CANCELLED']).optional(),
       currentValue: z.number().optional(),
       notes: z.string().optional(),
@@ -284,13 +284,13 @@ router.put('/targets/:id', checkOwnership(prisma.esgTarget as any), async (req: 
 
     const schema = z.object({
       category: z.enum(ESG_CATEGORIES).optional(),
-      subcategory: z.string().trim().min(1).optional(),
-      description: z.string().trim().min(1).optional(),
+      subcategory: z.string().trim().min(1).max(200).optional(),
+      description: z.string().trim().min(1).max(2000).optional(),
       baselineValue: z.number().optional(),
       baselineYear: z.number().int().min(2000).max(2100).optional(),
       targetValue: z.number().optional(),
       targetYear: z.number().int().min(2000).max(2100).optional(),
-      unit: z.string().trim().min(1).optional(),
+      unit: z.string().trim().min(1).max(200).optional(),
       status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED', 'CANCELLED']).optional(),
       currentValue: z.number().optional(),
       notes: z.string().optional(),
@@ -449,10 +449,10 @@ router.post('/metrics', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       category: z.enum(ESG_CATEGORIES),
-      subcategory: z.string().trim().min(1),
+      subcategory: z.string().trim().min(1).max(200),
       period: z.string().regex(/^\d{4}-\d{2}$/, 'Period must be in YYYY-MM format'),
       value: z.number(),
-      unit: z.string().trim().min(1),
+      unit: z.string().trim().min(1).max(200),
       source: z.string().optional(),
       verified: z.boolean().optional(),
       notes: z.string().optional(),

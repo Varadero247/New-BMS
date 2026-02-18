@@ -11,7 +11,7 @@ router.use(authenticate);
 // Validation schemas
 const createIntegrationSchema = z.object({
   provider: z.enum(['XERO', 'QUICKBOOKS', 'SAGE', 'STRIPE', 'PAYPAL', 'BANK_FEED', 'CUSTOM']),
-  name: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(200),
   direction: z.enum(['INBOUND', 'OUTBOUND', 'BIDIRECTIONAL']).default('BIDIRECTIONAL'),
   config: z.record(z.any()).optional(),
 });

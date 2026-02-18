@@ -71,7 +71,7 @@ router.get('/chains/:id', checkOwnership(prisma.approvalChain), async (req: Auth
 router.post('/chains', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().trim().min(1),
+      name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']),
       levels: z.array(z.record(z.unknown())),
@@ -114,7 +114,7 @@ router.post('/chains', async (req: Request, res: Response) => {
 router.put('/chains/:id', checkOwnership(prisma.approvalChain), async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      name: z.string().trim().min(1).optional(),
+      name: z.string().trim().min(1).max(200).optional(),
       description: z.string().optional(),
       chainType: z.enum(['SEQUENTIAL', 'PARALLEL', 'HIERARCHICAL', 'DYNAMIC']).optional(),
       levels: z.array(z.record(z.unknown())).optional(),

@@ -46,13 +46,13 @@ async function generateQuarantineRefNumber(): Promise<string> {
 router.post('/reports', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      partNumber: z.string().trim().min(1),
+      partNumber: z.string().trim().min(1).max(200),
       partName: z.string().optional(),
-      manufacturer: z.string().trim().min(1),
+      manufacturer: z.string().trim().min(1).max(200),
       distributor: z.string().optional(),
       lotNumber: z.string().optional(),
       serialNumber: z.string().optional(),
-      suspicionReason: z.string().trim().min(1),
+      suspicionReason: z.string().trim().min(1).max(2000),
       evidence: z.string().optional(),
     });
 
@@ -207,7 +207,7 @@ router.post('/reports/:id/quarantine', checkOwnership(prisma.counterfeitReport),
 
     const schema = z.object({
       quantity: z.number().int().positive(),
-      location: z.string().trim().min(1),
+      location: z.string().trim().min(1).max(200),
       reason: z.string().optional(),
     });
 
@@ -291,7 +291,7 @@ router.post('/reports/:id/notify', checkOwnership(prisma.counterfeitReport), asy
 router.post('/approved-sources', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      companyName: z.string().trim().min(1),
+      companyName: z.string().trim().min(1).max(200),
       cageCode: z.string().optional(),
       partNumbers: z.array(z.string()),
       certifications: z.array(z.string()),

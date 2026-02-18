@@ -53,7 +53,7 @@ const createAuditSchema = z.object({
 });
 
 const updateAuditSchema = z.object({
-  title: z.string().trim().min(1).optional(),
+  title: z.string().trim().min(1).max(200).optional(),
   auditType: z.enum(['INTERNAL', 'EXTERNAL', 'CUSTOMER', 'REGULATORY', 'CERTIFICATION', 'SURVEILLANCE']).optional(),
   standard: z.string().optional(),
   scope: z.string().optional(),

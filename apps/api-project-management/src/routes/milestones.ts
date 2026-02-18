@@ -53,8 +53,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().trim().min(1),
-      milestoneName: z.string().trim().min(1),
+      projectId: z.string().trim().min(1).max(200),
+      milestoneName: z.string().trim().min(1).max(200),
       milestoneDescription: z.string().optional(),
       plannedDate: z.string(),
       baselineDate: z.string().optional(),

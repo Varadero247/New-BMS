@@ -39,8 +39,8 @@ setInterval(() => {
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(12).max(72),
-  name: z.string().trim().min(1),
-  company: z.string().trim().min(1),
+  name: z.string().trim().min(1).max(200),
+  company: z.string().trim().min(1).max(200),
   phone: z.string().optional(),
   isoSpecialisms: z.array(z.string()).optional(),
 });

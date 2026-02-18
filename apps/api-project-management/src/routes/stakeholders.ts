@@ -61,10 +61,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.post('/', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
-      projectId: z.string().trim().min(1),
-      stakeholderName: z.string().trim().min(1),
+      projectId: z.string().trim().min(1).max(200),
+      stakeholderName: z.string().trim().min(1).max(200),
       stakeholderOrg: z.string().optional(),
-      stakeholderRole: z.string().trim().min(1),
+      stakeholderRole: z.string().trim().min(1).max(200),
       stakeholderType: z.enum(['INTERNAL', 'EXTERNAL', 'SPONSOR', 'CUSTOMER', 'SUPPLIER', 'REGULATOR']),
       email: z.string().email('Invalid email').optional(),
       phone: z.string().optional(),

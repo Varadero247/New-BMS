@@ -52,7 +52,7 @@ const investigationCreateSchema = z.object({
     'OTHER',
   ]),
   reportedBy: z.string().trim().min(1).max(200),
-  reportedDate: z.string().trim().min(1),
+  reportedDate: z.string().trim().min(1).max(200),
   anonymous: z.boolean().default(false),
   department: z.string().max(200).optional(),
   location: z.string().max(300).optional(),

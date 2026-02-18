@@ -13,8 +13,8 @@ const createAlertSchema = z.object({
   deviceId: z.string().optional(),
   type: z.enum(['SYSTEM', 'DEVICE', 'SECURITY', 'ENVIRONMENTAL', 'MAINTENANCE', 'ENERGY']),
   severity: z.enum(['INFO', 'WARNING', 'CRITICAL', 'EMERGENCY']),
-  title: z.string().trim().min(1),
-  message: z.string().trim().min(1),
+  title: z.string().trim().min(1).max(200),
+  message: z.string().trim().min(1).max(2000),
   data: z.record(z.unknown()).optional(),
 });
 
