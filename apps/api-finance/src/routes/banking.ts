@@ -36,7 +36,7 @@ const importTransactionsSchema = z.object({
   bankAccountId: z.string().trim().uuid(),
   transactions: z.array(z.object({
     date: z.string().trim().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-    description: z.string(),
+    description: z.string().trim().min(1).max(2000),
     reference: z.string().optional(),
     amount: z.number(),
   })),

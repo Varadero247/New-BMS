@@ -75,7 +75,7 @@ router.post('/', async (req: Request, res: Response) => {
       employeeId: z.string().trim().uuid(),
       category: z.enum(['TRAVEL', 'MEALS', 'ACCOMMODATION', 'TRANSPORTATION', 'OFFICE_SUPPLIES', 'SOFTWARE', 'HARDWARE', 'TRAINING', 'COMMUNICATION', 'CLIENT_ENTERTAINMENT', 'MISCELLANEOUS']),
       subcategory: z.string().optional(),
-      description: z.string(),
+      description: z.string().trim().min(1).max(2000),
       merchant: z.string().optional(),
       amount: z.number().positive(),
       currency: z.string().length(3).default('USD'),
@@ -214,7 +214,7 @@ router.post('/reports', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       employeeId: z.string(),
-      title: z.string(),
+      title: z.string().trim().min(1).max(200),
       description: z.string().optional(),
       periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),

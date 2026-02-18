@@ -72,7 +72,7 @@ router.post('/courses', async (req: Request, res: Response) => {
       code: z.string().trim().min(1).max(200),
       name: z.string().trim().min(1).max(200),
       description: z.string().optional(),
-      category: z.string(),
+      category: z.string().trim().min(1).max(100),
       provider: z.string().optional(),
       instructorName: z.string().optional(),
       deliveryMethod: z.enum(['CLASSROOM', 'VIRTUAL', 'E_LEARNING', 'ON_THE_JOB', 'SELF_PACED', 'BLENDED', 'WORKSHOP', 'SEMINAR']),

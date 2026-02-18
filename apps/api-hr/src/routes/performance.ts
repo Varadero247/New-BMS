@@ -273,7 +273,7 @@ router.post('/goals', async (req: Request, res: Response) => {
       cycleId: z.string().trim().uuid(),
       employeeId: z.string().trim().uuid(),
       title: z.string().trim().min(1).max(200),
-      description: z.string(),
+      description: z.string().trim().min(1),
       category: z.enum(['PERFORMANCE', 'DEVELOPMENT', 'BEHAVIORAL', 'STRATEGIC', 'OPERATIONAL']),
       weight: z.number().min(0).max(100).default(0),
       measurementCriteria: z.string(),

@@ -124,15 +124,15 @@ router.post('/predictive-risk', async (req: AuthRequest, res: Response) => {
   try {
     const schema = z.object({
       historicalIncidents: z.array(z.object({
-        type: z.string(),
+        type: z.string().trim().min(1).max(100),
         severity: z.string(),
         date: z.string(),
         department: z.string().optional(),
         rootCause: z.string().optional(),
       })).min(1),
       currentRisks: z.array(z.object({
-        title: z.string(),
-        category: z.string(),
+        title: z.string().trim().min(1).max(300),
+        category: z.string().trim().min(1).max(100),
         currentScore: z.number().nonnegative(),
       })).optional(),
       timeframeMonths: z.number().min(1).max(24).default(6),

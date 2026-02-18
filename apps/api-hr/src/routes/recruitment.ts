@@ -88,7 +88,7 @@ router.post('/jobs', async (req: Request, res: Response) => {
       title: z.string().trim().min(1).max(200),
       departmentId: z.string().trim().uuid(),
       positionId: z.string().trim().uuid().optional(),
-      description: z.string(),
+      description: z.string().trim().min(1),
       responsibilities: z.string(),
       requirements: z.string(),
       preferredSkills: z.string().optional(),

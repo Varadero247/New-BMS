@@ -29,7 +29,7 @@ const createEmployeeSchema = z.object({
   managerId: z.string().trim().uuid().optional(),
   employmentType: z.enum(['FULL_TIME', 'PART_TIME', 'CONTRACT', 'TEMPORARY', 'INTERN', 'CONSULTANT', 'FREELANCE']).default('FULL_TIME'),
   hireDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  jobTitle: z.string(),
+  jobTitle: z.string().trim().min(1).max(200),
   jobGrade: z.string().optional(),
   workLocation: z.string().optional(),
   currency: z.string().length(3).default('USD'),
