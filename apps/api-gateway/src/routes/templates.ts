@@ -487,6 +487,9 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const versionNum = parseInt(req.params.version, 10);
+      if (isNaN(versionNum)) {
+        return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid version number' } });
+      }
       const templateVersion = await (prisma as any).templateVersion.findFirst({
         where: { templateId: req.params.id, version: versionNum },
       });

@@ -186,7 +186,7 @@ router.patch('/:id/actions/:actionIndex', async (req: Request, res: Response) =>
     const actionIndex = parseInt(req.params.actionIndex, 10);
     const actionItems = (meeting.actionItems as any[]) || [];
 
-    if (actionIndex < 0 || actionIndex >= actionItems.length) {
+    if (isNaN(actionIndex) || actionIndex < 0 || actionIndex >= actionItems.length) {
       return res.status(400).json({
         success: false,
         error: { code: 'VALIDATION_ERROR', message: 'Invalid action index' },
