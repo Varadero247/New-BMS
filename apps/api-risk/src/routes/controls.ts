@@ -52,7 +52,7 @@ router.put('/:riskId/controls/:id', authenticate, async (req: Request, res: Resp
   try {
     const parsed = controlSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
     const control = await prisma.riskControl.update({ where: { id: req.params.id }, data: parsed.data });
     const allControls = await prisma.riskControl.findMany({ where: { riskId: req.params.riskId, isActive: true } });
@@ -65,7 +65,7 @@ router.put('/:riskId/controls/:id', authenticate, async (req: Request, res: Resp
 // DELETE /api/risks/:riskId/controls/:id
 router.delete('/:riskId/controls/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
     await prisma.riskControl.update({ where: { id: req.params.id }, data: { isActive: false } });
     res.json({ success: true, data: { message: 'Control removed' } });
@@ -79,7 +79,7 @@ router.post('/:riskId/controls/:id/test', authenticate, async (req: Request, res
     const parsed = testSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { testingNotes, effectiveness } = parsed.data;
-    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskControl.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
     const data: Record<string, unknown> = { lastTestedDate: new Date(), testingNotes };
     if (effectiveness) data.effectiveness = effectiveness;

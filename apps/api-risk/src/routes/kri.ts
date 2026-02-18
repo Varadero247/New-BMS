@@ -62,7 +62,7 @@ router.put('/:riskId/kri/:id', authenticate, async (req: Request, res: Response)
   try {
     const parsed = kriSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.riskKri.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const existing = await prisma.riskKri.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KRI not found' } });
     const kri = await prisma.riskKri.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: kri });
@@ -76,7 +76,7 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
     const parsed = readingSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { value, notes } = parsed.data;
-    const kri = await prisma.riskKri.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
+    const kri = await prisma.riskKri.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null } as any });
     if (!kri) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KRI not found' } });
     const status = evaluateKriStatus(kri as any, value);
     const reading = await prisma.riskKriReading.create({
