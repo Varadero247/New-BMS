@@ -69,8 +69,8 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         refNumber,
         name: parsed.data.name,
-        type: parsed.data.type,
-        classification: parsed.data.classification,
+        type: parsed.data.type as any,
+        classification: parsed.data.classification as any,
         description: parsed.data.description || null,
         owner: parsed.data.owner || null,
         custodian: parsed.data.custodian || null,
@@ -79,7 +79,7 @@ router.post('/', async (req: Request, res: Response) => {
         riskLevel: parsed.data.riskLevel || null,
         status: 'ACTIVE',
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Information asset created', { assetId: asset.id, refNumber });
@@ -145,7 +145,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const asset = await prisma.isAsset.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!asset) {
@@ -170,7 +170,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Information asset not found' });
     }
@@ -182,7 +182,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...parsed.data,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
     });
 
     logger.info('Information asset updated', { assetId: id });
@@ -200,7 +200,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Information asset not found' });
     }
@@ -211,7 +211,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Information asset soft-deleted', { assetId: id });

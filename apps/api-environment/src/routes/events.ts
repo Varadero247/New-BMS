@@ -29,10 +29,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EnvEventWhereInput = { deletedAt: null };
-    if (status) where.status = status;
-    if (eventType) where.eventType = eventType;
-    if (severity) where.severity = severity;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
+    if (eventType) where.eventType = eventType as any;
+    if (severity) where.severity = severity as any;
     if (search) {
       where.OR = [
         { description: { contains: search as string, mode: 'insensitive' } },

@@ -53,7 +53,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
       where: {
         deletedAt: null,
         status: 'OVERDUE',
-      },
+      } as any,
       orderBy: { scheduledDate: 'asc' },
     });
 
@@ -130,7 +130,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const task = await prisma.fsSanitation.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!task) {
@@ -152,7 +152,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const RESERVED = new Set(['complete']);
     if (RESERVED.has(req.params.id)) return (undefined as any);
 
-    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Sanitation task not found' } });
     }
@@ -184,7 +184,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Sanitation task not found' } });
     }
@@ -207,7 +207,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSanitation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Sanitation task not found' } });
     }

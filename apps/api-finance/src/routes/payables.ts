@@ -128,7 +128,7 @@ router.get('/suppliers', async (req: Request, res: Response) => {
     const skip = (Number(page) - 1) * Number(limit);
     const take = Math.min(Number(limit), 100);
 
-    const where: Prisma.FinSupplierWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (search) {
       where.OR = [
@@ -182,7 +182,7 @@ router.get('/suppliers', async (req: Request, res: Response) => {
 router.get('/suppliers/:id', async (req: Request, res: Response) => {
   try {
     const supplier = await prisma.finSupplier.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
         _count: {
           select: {
@@ -242,7 +242,7 @@ router.put('/suppliers/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.finSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.finSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
@@ -270,7 +270,7 @@ router.put('/suppliers/:id', async (req: Request, res: Response) => {
 // DELETE /suppliers/:id — Soft delete
 router.delete('/suppliers/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.finSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.finSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
@@ -280,7 +280,7 @@ router.delete('/suppliers/:id', async (req: Request, res: Response) => {
       where: {
         supplierId: req.params.id,
         deletedAt: null,
-        status: { in: ['DRAFT', 'RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] },
+        status: { in: ['DRAFT', 'RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] } as any,
       },
     });
 
@@ -315,7 +315,7 @@ router.get('/purchase-orders', async (req: Request, res: Response) => {
     const skip = (Number(page) - 1) * Number(limit);
     const take = Math.min(Number(limit), 100);
 
-    const where: Prisma.FinPurchaseOrderWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (status) {
       where.status = String(status) as any;
@@ -370,7 +370,7 @@ router.get('/purchase-orders', async (req: Request, res: Response) => {
 router.get('/purchase-orders/:id', async (req: Request, res: Response) => {
   try {
     const po = await prisma.finPurchaseOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
         supplier: { select: { id: true, code: true, name: true, email: true, currency: true } },
         lines: { orderBy: { sortOrder: 'asc' } },
@@ -397,7 +397,7 @@ router.post('/purchase-orders', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } });
+    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } as any });
     if (!supplier) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
@@ -457,7 +457,7 @@ router.put('/purchase-orders/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
     }
@@ -524,7 +524,7 @@ router.put('/purchase-orders/:id', async (req: Request, res: Response) => {
 router.post('/purchase-orders/:id/approve', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
-    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
     }
@@ -555,7 +555,7 @@ router.post('/purchase-orders/:id/approve', async (req: Request, res: Response) 
 // POST /purchase-orders/:id/receive — Mark PO received
 router.post('/purchase-orders/:id/receive', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
     }
@@ -585,7 +585,7 @@ router.post('/purchase-orders/:id/receive', async (req: Request, res: Response) 
 // POST /purchase-orders/:id/cancel — Cancel PO
 router.post('/purchase-orders/:id/cancel', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.finPurchaseOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
     }
@@ -620,7 +620,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (Number(page) - 1) * Number(limit);
     const take = Math.min(Number(limit), 100);
 
-    const where: Prisma.FinBillWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (status) {
       where.status = String(status) as any;
@@ -676,11 +676,11 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   if (PAYABLES_RESERVED.has(req.params.id)) return next('route');
   try {
     const bill = await prisma.finBill.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
         supplier: { select: { id: true, code: true, name: true, email: true, currency: true } },
         lines: { orderBy: { sortOrder: 'asc' } },
-        payments: { where: { deletedAt: null }, orderBy: { date: 'desc' } },
+        payments: { where: { deletedAt: null } as any, orderBy: { date: 'desc' } },
       },
     });
 
@@ -704,13 +704,13 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } });
+    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } as any });
     if (!supplier) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     if (parsed.data.purchaseOrderId) {
-      const po = await prisma.finPurchaseOrder.findFirst({ where: { id: parsed.data.purchaseOrderId, deletedAt: null } });
+      const po = await prisma.finPurchaseOrder.findFirst({ where: { id: parsed.data.purchaseOrderId, deletedAt: null } as any });
       if (!po) {
         return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
       }
@@ -774,7 +774,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.finBill.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.finBill.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
@@ -852,14 +852,14 @@ router.post('/payments', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } });
+    const supplier = await prisma.finSupplier.findFirst({ where: { id: parsed.data.supplierId, deletedAt: null } as any });
     if (!supplier) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     let bill = null;
     if (parsed.data.billId) {
-      bill = await prisma.finBill.findFirst({ where: { id: parsed.data.billId, deletedAt: null } });
+      bill = await prisma.finBill.findFirst({ where: { id: parsed.data.billId, deletedAt: null } as any });
       if (!bill) {
         return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
       }
@@ -923,7 +923,7 @@ router.get('/payments', async (req: Request, res: Response) => {
     const skip = (Number(page) - 1) * Number(limit);
     const take = Math.min(Number(limit), 100);
 
-    const where: Prisma.FinPaymentMadeWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (supplierId) {
       where.supplierId = String(supplierId);
@@ -975,7 +975,7 @@ router.get('/aging', async (_req: Request, res: Response) => {
     const bills = await prisma.finBill.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] },
+        status: { in: ['RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] } as any,
         amountDue: { gt: 0 },
       },
       include: {
@@ -1041,7 +1041,7 @@ router.post('/payment-run', async (req: Request, res: Response) => {
     const dueBills = await prisma.finBill.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] },
+        status: { in: ['RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] } as any,
         dueDate: { lte: cutoffDate },
         amountDue: { gt: 0 },
       },

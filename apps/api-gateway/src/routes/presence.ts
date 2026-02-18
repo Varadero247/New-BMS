@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
 import {
@@ -71,16 +71,16 @@ router.post('/lock', authenticate, (req: Request, res: Response) => {
     const result = acquireLock(
       recordType,
       recordId,
-      user.id,
-      user.name || user.email || 'Unknown User',
-      user.avatar,
+      user!.id,
+      (user as any).name || user!.email || 'Unknown User',
+      user!.avatar ?? undefined,
       !!force
     );
 
     logger.info('Lock acquisition attempt', {
       recordType,
       recordId,
-      userId: user.id,
+      userId: user!.id,
       acquired: result.acquired,
       force: !!force,
     });
@@ -113,9 +113,9 @@ router.delete('/lock', authenticate, (req: Request, res: Response) => {
     }
 
     const { recordType, recordId } = parsed.data;
-    releaseLock(recordType, recordId, user.id);
+    releaseLock(recordType, recordId, user!.id);
 
-    logger.info('Lock released', { recordType, recordId, userId: user.id });
+    logger.info('Lock released', { recordType, recordId, userId: user!.id });
 
     res.json({
       success: true,
@@ -145,7 +145,7 @@ router.put('/refresh', authenticate, (req: Request, res: Response) => {
     }
 
     const { recordType, recordId } = parsed.data;
-    refreshLock(recordType, recordId, user.id);
+    refreshLock(recordType, recordId, user!.id);
 
     res.json({
       success: true,

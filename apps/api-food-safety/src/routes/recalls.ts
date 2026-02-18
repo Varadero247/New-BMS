@@ -67,7 +67,7 @@ router.get('/active', async (req: Request, res: Response) => {
     const data = await prisma.fsRecall.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['INITIATED', 'IN_PROGRESS'] },
+        status: { in: ['INITIATED', 'IN_PROGRESS'] } as any,
       },
       orderBy: { initiatedDate: 'desc' },
     });
@@ -147,7 +147,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const recall = await prisma.fsRecall.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!recall) {
@@ -169,7 +169,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const RESERVED = new Set(['complete']);
     if (RESERVED.has(req.params.id)) return (undefined as any);
 
-    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
     }
@@ -197,7 +197,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
     }
@@ -220,7 +220,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsRecall.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall not found' } });
     }

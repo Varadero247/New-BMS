@@ -213,7 +213,7 @@ router.post('/erasure-request', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const erasureRequest = await prisma.erasureRequest.create({
+    const erasureRequest = await (prisma as any).erasureRequest.create({
       data: {
         userId: data.userId,
         userEmail: data.userEmail,
@@ -265,13 +265,13 @@ router.get('/erasure-request', async (req: AuthRequest, res: Response) => {
     }
 
     const [requests, total] = await Promise.all([
-      prisma.erasureRequest.findMany({
+      (prisma as any).erasureRequest.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limitNum,
       }),
-      prisma.erasureRequest.count({ where }),
+      (prisma as any).erasureRequest.count({ where }),
     ]);
 
     res.json({
@@ -301,7 +301,7 @@ router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const data = processErasureSchema.parse(req.body);
 
-    const existing = await prisma.erasureRequest.findUnique({ where: { id } });
+    const existing = await (prisma as any).erasureRequest.findUnique({ where: { id } });
     if (!existing) {
       return res.status(404).json({
         success: false,
@@ -326,7 +326,7 @@ router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
       updateData.processedAt = new Date();
     }
 
-    const updated = await prisma.erasureRequest.update({
+    const updated = await (prisma as any).erasureRequest.update({
       where: { id },
       data: updateData,
     });
@@ -377,13 +377,13 @@ router.get('/retention-policies', async (req: AuthRequest, res: Response) => {
     }
 
     const [policies, total] = await Promise.all([
-      prisma.dataRetentionPolicy.findMany({
+      (prisma as any).dataRetentionPolicy.findMany({
         where,
         orderBy: [{ module: 'asc' }, { dataCategory: 'asc' }],
         skip,
         take: limitNum,
       }),
-      prisma.dataRetentionPolicy.count({ where }),
+      (prisma as any).dataRetentionPolicy.count({ where }),
     ]);
 
     res.json({
@@ -412,7 +412,7 @@ router.post('/retention-policies', async (req: AuthRequest, res: Response) => {
   try {
     const data = retentionPolicySchema.parse(req.body);
 
-    const policy = await prisma.dataRetentionPolicy.upsert({
+    const policy = await (prisma as any).dataRetentionPolicy.upsert({
       where: {
         dataCategory_module: {
           dataCategory: data.dataCategory,
@@ -468,7 +468,7 @@ router.post('/retention-policies', async (req: AuthRequest, res: Response) => {
 router.get('/data-map', async (_req: AuthRequest, res: Response) => {
   try {
     // Enrich with retention policies from database
-    const policies = await prisma.dataRetentionPolicy.findMany({
+    const policies = await (prisma as any).dataRetentionPolicy.findMany({
       where: { isActive: true },
     });
 

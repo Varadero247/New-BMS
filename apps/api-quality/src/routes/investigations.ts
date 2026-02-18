@@ -50,18 +50,18 @@ const updateSchema = createSchema.partial().extend({
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, open, inProgress, closed, bySeverity] = await Promise.all([
-      prisma.qualInvestigation.count({ where: { deletedAt: null } }),
-      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'OPEN' } }),
-      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
-      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'CLOSED' } }),
-      prisma.qualInvestigation.groupBy({ by: ['severity'], where: { deletedAt: null }, _count: { id: true } }),
+      prisma.qualInvestigation.count({ where: { deletedAt: null } as any }),
+      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'OPEN' } as any }),
+      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } as any }),
+      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'CLOSED' } as any }),
+      prisma.qualInvestigation.groupBy({ by: ['severity'], where: { deletedAt: null } as any, _count: { id: true } }),
     ]);
 
     res.json({
       success: true,
       data: {
         total, open, inProgress, closed,
-        bySeverity: bySeverity.map((s: Record<string, unknown>) => ({ severity: s.severity, count: s._count.id })),
+        bySeverity: bySeverity.map((s: Record<string, unknown>) => ({ severity: s.severity, count: (s as any)._count.id })),
       },
     });
   } catch (error: unknown) {
@@ -133,7 +133,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get investigation by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -150,7 +150,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -168,7 +168,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualInvestigation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
 
     await prisma.qualInvestigation.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

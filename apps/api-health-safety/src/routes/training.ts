@@ -16,7 +16,7 @@ router.use(authenticate);
 // GET /api/training/courses - List H&S training courses
 router.get('/courses', async (req: AuthRequest, res: Response) => {
   try {
-    const courses = await prisma.trainingCourse.findMany({
+    const courses = await (prisma as any).trainingCourse.findMany({
       where: {
         OR: [{ standard: STANDARD }, { standard: null }],
         isActive: true,
@@ -38,11 +38,11 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
     const { userId, courseId, status } = req.query;
 
     const where: Record<string, unknown> = {};
-    if (userId) where.userId = userId;
-    if (courseId) where.courseId = courseId;
-    if (status) where.status = status;
+    if (userId) where.userId = userId as any;
+    if (courseId) where.courseId = courseId as any;
+    if (status) where.status = status as any;
 
-    const records = await prisma.trainingRecord.findMany({
+    const records = await (prisma as any).trainingRecord.findMany({
       where,
       include: {
         user: { select: { id: true, firstName: true, lastName: true, department: true } },
@@ -54,7 +54,7 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
 
     // Filter for H&S courses
     const hsRecords = records.filter(
-      r => r.course.standard === STANDARD || r.course.standard === null
+      (r: any) => r.course.standard === STANDARD || r.course.standard === null
     );
 
     res.json({ success: true, data: hsRecords });
@@ -79,7 +79,7 @@ router.post('/courses', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const course = await prisma.trainingCourse.create({
+    const course = await (prisma as any).trainingCourse.create({
       data: {
         id: uuidv4(),
         standard: STANDARD,
@@ -116,7 +116,7 @@ router.post('/records', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const record = await prisma.trainingRecord.create({
+    const record = await (prisma as any).trainingRecord.create({
       data: {
         id: uuidv4(),
         ...data,

@@ -60,11 +60,11 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 
     const totals = metrics.reduce(
       (acc, m) => ({
-        hoursWorked: acc.hoursWorked + m.hoursWorked,
-        ltis: acc.ltis + m.lostTimeInjuries,
-        tris: acc.tris + m.totalRecordableInjuries,
-        daysLost: acc.daysLost + m.daysLost,
-        nearMisses: acc.nearMisses + m.nearMisses,
+        hoursWorked: acc.hoursWorked + Number(m.hoursWorked),
+        ltis: acc.ltis + Number(m.lostTimeInjuries),
+        tris: acc.tris + Number(m.totalRecordableInjuries),
+        daysLost: acc.daysLost + Number(m.daysLost),
+        nearMisses: acc.nearMisses + Number(m.nearMisses),
       }),
       { hoursWorked: 0, ltis: 0, tris: 0, daysLost: 0, nearMisses: 0 }
     );

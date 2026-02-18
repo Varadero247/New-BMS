@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
+import { type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
 
 const logger = createLogger('api-setup-wizard:wizard');
@@ -20,7 +21,7 @@ const stepDataSchema = z.object({
 // GET /api/wizard/status — check wizard status for current user's org
 router.get('/status', async (req: Request, res: Response) => {
   try {
-    const user = (req as AuthRequest).user;
+    const user = (req as AuthRequest).user as any;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -63,7 +64,7 @@ router.get('/status', async (req: Request, res: Response) => {
 // POST /api/wizard/init — initialize a new wizard
 router.post('/init', async (req: Request, res: Response) => {
   try {
-    const user = (req as AuthRequest).user;
+    const user = (req as AuthRequest).user as any;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -112,7 +113,7 @@ router.post('/init', async (req: Request, res: Response) => {
 // PATCH /api/wizard/step/:stepIndex — update a wizard step
 router.patch('/step/:stepIndex', async (req: Request, res: Response) => {
   try {
-    const user = (req as AuthRequest).user;
+    const user = (req as AuthRequest).user as any;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -161,7 +162,7 @@ router.patch('/step/:stepIndex', async (req: Request, res: Response) => {
       },
       data: {
         status: 'COMPLETED',
-        data: parsed.data.data || {},
+        data: (parsed.data.data || {}) as any,
         completedAt: new Date(),
       },
     });
@@ -186,7 +187,7 @@ router.patch('/step/:stepIndex', async (req: Request, res: Response) => {
 // POST /api/wizard/complete — mark the wizard as completed
 router.post('/complete', async (req: Request, res: Response) => {
   try {
-    const user = (req as AuthRequest).user;
+    const user = (req as AuthRequest).user as any;
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -237,7 +238,7 @@ router.post('/complete', async (req: Request, res: Response) => {
 // POST /api/wizard/skip — skip the wizard entirely
 router.post('/skip', async (req: Request, res: Response) => {
   try {
-    const user = (req as AuthRequest).user;
+    const user = (req as AuthRequest).user as any;
     if (!user) {
       return res.status(401).json({
         success: false,

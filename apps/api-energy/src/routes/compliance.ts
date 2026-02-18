@@ -50,7 +50,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 router.get('/dashboard', async (_req: Request, res: Response) => {
   try {
     const obligations = await prisma.energyComplianceObligation.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
     });
 
     const total = obligations.length;
@@ -192,7 +192,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const obligation = await prisma.energyComplianceObligation.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!obligation) {
@@ -218,14 +218,14 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Compliance obligation not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.dueDate) {
-      updateData.dueDate = new Date(updateData.dueDate);
+      updateData.dueDate = new Date(updateData.dueDate as string);
     }
 
     const obligation = await prisma.energyComplianceObligation.update({
@@ -249,7 +249,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Compliance obligation not found' });
     }
@@ -281,7 +281,7 @@ router.put('/:id/assess', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Valid status required: COMPLIANT, NON_COMPLIANT, or PARTIALLY_COMPLIANT' });
     }
 
-    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Compliance obligation not found' });
     }

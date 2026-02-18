@@ -151,11 +151,11 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const asset = await prisma.cmmsAsset.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
-        workOrders: { where: { deletedAt: null }, take: 10, orderBy: { createdAt: 'desc' } },
-        preventivePlans: { where: { deletedAt: null } },
-        inspections: { where: { deletedAt: null }, take: 10, orderBy: { createdAt: 'desc' } },
+        workOrders: { where: { deletedAt: null } as any, take: 10, orderBy: { createdAt: 'desc' } },
+        preventivePlans: { where: { deletedAt: null } as any },
+        inspections: { where: { deletedAt: null } as any, take: 10, orderBy: { createdAt: 'desc' } },
       },
     });
 
@@ -178,7 +178,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
     }
@@ -200,7 +200,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete asset
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
     }
@@ -216,26 +216,26 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // GET /:id/history — Asset maintenance & calibration history
 router.get('/:id/history', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsAsset.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Asset not found' } });
     }
 
     const [workOrders, inspections, meterReadings, downtimes] = await Promise.all([
       prisma.cmmsWorkOrder.findMany({
-        where: { assetId: req.params.id, deletedAt: null },
+        where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.cmmsInspection.findMany({
-        where: { assetId: req.params.id, deletedAt: null },
+        where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { createdAt: 'desc' },
       }),
       prisma.cmmsMeterReading.findMany({
-        where: { assetId: req.params.id, deletedAt: null },
+        where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { readingDate: 'desc' },
       }),
       prisma.cmmsDowntime.findMany({
-        where: { assetId: req.params.id, deletedAt: null },
+        where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { startTime: 'desc' },
       }),
     ]);
@@ -251,7 +251,7 @@ router.get('/:id/history', async (req: Request, res: Response) => {
 router.get('/:id/qr-code', async (req: Request, res: Response) => {
   try {
     const asset = await prisma.cmmsAsset.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       select: { id: true, code: true, name: true, assetType: true, location: true, serialNumber: true },
     });
 

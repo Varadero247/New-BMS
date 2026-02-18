@@ -103,7 +103,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: data.name,
         description: data.description || null,
         sql: data.sql,
-        parameters: data.parameters || null,
+        parameters: (data.parameters || null) as any,
         isPublic: data.isPublic,
         ownerId: authReq.user!.id,
         createdBy: authReq.user!.id,
@@ -126,7 +126,7 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const query = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } });
+    const query = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } as any });
     if (!query) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
     }
@@ -169,7 +169,7 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const query = await prisma.analyticsQuery.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!query) {
@@ -191,7 +191,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
     }
@@ -203,7 +203,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsQuery.update({
       where: { id },
-      data: parsed.data,
+      data: parsed.data as any,
     });
 
     res.json({ success: true, data: updated });
@@ -221,7 +221,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
     }

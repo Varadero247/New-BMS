@@ -15,7 +15,7 @@ router.use(authenticate);
 router.get('/', async (_req: Request, res: Response) => {
   try {
     const employees = await prisma.employee.findMany({
-      where: { employmentStatus: 'ACTIVE', deletedAt: null },
+      where: { employmentStatus: 'ACTIVE', deletedAt: null } as any,
       select: {
         id: true,
         employeeNumber: true,
@@ -61,7 +61,7 @@ router.get('/', async (_req: Request, res: Response) => {
 router.get('/flat', async (_req: Request, res: Response) => {
   try {
     const employees = await prisma.employee.findMany({
-      where: { employmentStatus: 'ACTIVE', deletedAt: null },
+      where: { employmentStatus: 'ACTIVE', deletedAt: null } as any,
       select: {
         id: true,
         employeeNumber: true,
@@ -99,7 +99,7 @@ router.get('/by-department', async (_req: Request, res: Response) => {
       where: { isActive: true },
       include: {
         employees: {
-          where: { employmentStatus: 'ACTIVE', deletedAt: null },
+          where: { employmentStatus: 'ACTIVE', deletedAt: null } as any,
           select: {
             id: true,
             employeeNumber: true,
@@ -112,17 +112,17 @@ router.get('/by-department', async (_req: Request, res: Response) => {
           orderBy: { lastName: 'asc' },
         },
         manager: { select: { id: true, firstName: true, lastName: true, jobTitle: true } },
-      },
+      } as any,
       orderBy: { name: 'asc' },
     });
 
-    const result = departments.map(d => ({
+    const result = departments.map((d: any) => ({
       id: d.id,
       name: d.name,
       code: d.code,
       headCount: d.employees.length,
       manager: d.manager,
-      employees: d.employees.map(e => ({
+      employees: d.employees.map((e: any) => ({
         ...e,
         fullName: `${e.firstName} ${e.lastName}`,
       })),
@@ -147,7 +147,7 @@ router.get('/reporting-chain/:employeeId', async (req: Request, res: Response) =
     while (currentId && !visited.has(currentId)) {
       visited.add(currentId);
 
-      const employee = await prisma.employee.findUnique({
+      const employee: any = await prisma.employee.findUnique({
         where: { id: currentId },
         select: {
           id: true,

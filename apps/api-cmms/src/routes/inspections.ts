@@ -57,7 +57,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
     const inspections = await prisma.cmmsInspection.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['SCHEDULED', 'OVERDUE'] },
+        status: { in: ['SCHEDULED', 'OVERDUE'] } as any,
         scheduledDate: { lt: now },
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
@@ -150,7 +150,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
   try {
     const inspection = await prisma.cmmsInspection.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { asset: { select: { id: true, name: true, code: true } } },
     });
 
@@ -173,7 +173,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsInspection.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsInspection.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Inspection not found' } });
     }
@@ -195,7 +195,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete inspection
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsInspection.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsInspection.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Inspection not found' } });
     }

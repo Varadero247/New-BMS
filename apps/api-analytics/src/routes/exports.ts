@@ -98,7 +98,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: data.name,
         type: data.type,
         format: data.format,
-        filters: data.filters || null,
+        filters: (data.filters || null) as any,
         status: 'QUEUED',
         requestedBy: authReq.user!.id,
         createdBy: authReq.user!.id,
@@ -122,7 +122,7 @@ router.get('/:id/download', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const exportRecord = await prisma.analyticsExport.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!exportRecord) {
@@ -151,7 +151,7 @@ router.get('/:id/download', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const exportRecord = await prisma.analyticsExport.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!exportRecord) {
@@ -173,7 +173,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsExport.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsExport.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Export not found' } });
     }

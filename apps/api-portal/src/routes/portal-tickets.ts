@@ -143,8 +143,8 @@ const RESERVED_PATHS = new Set(['messages']);
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const ticket = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { messages: { where: { deletedAt: null }, orderBy: { createdAt: 'asc' } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { messages: { where: { deletedAt: null } as any, orderBy: { createdAt: 'asc' } } },
     });
 
     if (!ticket) {
@@ -172,7 +172,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
@@ -204,7 +204,7 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
     }
 
     const ticket = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!ticket) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
@@ -244,14 +244,14 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
 router.get('/:id/messages', async (req: Request, res: Response) => {
   try {
     const ticket = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!ticket) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
     }
 
     const messages = await prisma.portalTicketMessage.findMany({
-      where: { ticketId: req.params.id, deletedAt: null },
+      where: { ticketId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'asc' },
     });
 
@@ -272,7 +272,7 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
     const resolution = req.body.resolution as string | undefined;
 
     const ticket = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!ticket) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Ticket not found' } });

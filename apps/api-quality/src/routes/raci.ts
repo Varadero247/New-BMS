@@ -108,7 +108,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         referenceNumber,
         ...parsed.data,
-        organisationId: authReq.user?.organisationId || 'default',
+        organisationId: (authReq.user as any)?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -123,7 +123,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -140,7 +140,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
 
     const item = await prisma.qualRaci.update({ where: { id: req.params.id }, data: parsed.data });
@@ -154,7 +154,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualRaci.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'RACI entry not found' } });
 
     await prisma.qualRaci.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

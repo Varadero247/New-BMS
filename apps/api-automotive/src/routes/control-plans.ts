@@ -74,7 +74,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ControlPlanWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (planType) where.planType = planType as any;
     if (partNumber) where.partNumber = { contains: partNumber as string, mode: 'insensitive' };
@@ -223,7 +223,7 @@ router.post('/:id/characteristics', async (req: AuthRequest, res: Response) => {
         characteristicName: data.characteristicName,
         characteristicType: data.characteristicType,
         specialCharClass: data.specialCharClass,
-        specification: data.specification,
+        specification: (data.specification || '') as string,
         tolerance: data.tolerance,
         evalTechnique: data.evalTechnique,
         sampleSize: data.sampleSize,

@@ -73,9 +73,10 @@ router.get('/summary', async (req: Request, res: Response) => {
       where.meterId = meterId;
     }
     if (dateFrom || dateTo) {
-      where.periodStart = {};
-      if (dateFrom) where.periodStart.gte = new Date(String(dateFrom));
-      if (dateTo) where.periodStart.lte = new Date(String(dateTo));
+      const periodFilter: Record<string, Date> = {};
+      if (dateFrom) periodFilter.gte = new Date(String(dateFrom));
+      if (dateTo) periodFilter.lte = new Date(String(dateTo));
+      where.periodStart = periodFilter;
     }
 
     const result = await prisma.energyBill.aggregate({
@@ -107,7 +108,7 @@ router.get('/summary', async (req: Request, res: Response) => {
         totalCost: Number(result._sum.cost || 0),
         totalConsumption: Number(result._sum.consumption || 0),
         averageCost: Number(result._avg.cost || 0),
-        billCount: result._count,
+        billCount: (result as any)._count,
         byProvider: Object.entries(byProvider).map(([provider, data]) => ({
           provider,
           ...data,
@@ -140,9 +141,10 @@ router.get('/', async (req: Request, res: Response) => {
       where.status = status;
     }
     if (dateFrom || dateTo) {
-      where.periodStart = {};
-      if (dateFrom) where.periodStart.gte = new Date(String(dateFrom));
-      if (dateTo) where.periodStart.lte = new Date(String(dateTo));
+      const periodFilter: Record<string, Date> = {};
+      if (dateFrom) periodFilter.gte = new Date(String(dateFrom));
+      if (dateTo) periodFilter.lte = new Date(String(dateTo));
+      where.periodStart = periodFilter;
     }
 
     const [bills, total] = await Promise.all([
@@ -185,7 +187,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Validate meter if provided
     if (data.meterId) {
-      const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } });
+      const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
       if (!meter) {
         return res.status(400).json({ success: false, error: 'Meter not found' });
       }
@@ -230,7 +232,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const bill = await prisma.energyBill.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         meter: { select: { id: true, name: true, code: true, type: true } },
       },
@@ -259,23 +261,23 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Bill not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.consumption !== undefined) {
-      updateData.consumption = new Prisma.Decimal(updateData.consumption);
+      updateData.consumption = new Prisma.Decimal(updateData.consumption as any);
     }
     if (updateData.cost !== undefined) {
-      updateData.cost = new Prisma.Decimal(updateData.cost);
+      updateData.cost = new Prisma.Decimal(updateData.cost as any);
     }
     if (updateData.periodStart) {
-      updateData.periodStart = new Date(updateData.periodStart);
+      updateData.periodStart = new Date(updateData.periodStart as string);
     }
     if (updateData.periodEnd) {
-      updateData.periodEnd = new Date(updateData.periodEnd);
+      updateData.periodEnd = new Date(updateData.periodEnd as string);
     }
 
     const bill = await prisma.energyBill.update({
@@ -299,7 +301,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Bill not found' });
     }
@@ -325,7 +327,7 @@ router.put('/:id/verify', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Bill not found' });
     }

@@ -70,7 +70,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
 
     // Cash position (sum of all bank account balances)
     const cashResult = await prisma.finBankAccount.aggregate({
-      where: { isActive: true, deletedAt: null },
+      where: { isActive: true, deletedAt: null } as any,
       _sum: { currentBalance: true },
     });
 
@@ -190,7 +190,7 @@ router.post('/budgets', async (req: Request, res: Response) => {
     const budget = await prisma.finBudget.create({
       data: {
         ...data,
-        createdBy: user.id,
+        createdBy: user!.id,
       },
       include: { account: { select: { id: true, code: true, name: true, type: true } } },
     });
@@ -200,7 +200,7 @@ router.post('/budgets', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Budget already exists for this account/year/month' } });
     }
     logger.error('Error creating budget', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -270,7 +270,7 @@ router.get('/budget-vs-actual', async (req: Request, res: Response) => {
     const year = parseInt(fiscalYear as string);
 
     const budgets = await prisma.finBudget.findMany({
-      where: { fiscalYear: year, deletedAt: null },
+      where: { fiscalYear: year, deletedAt: null } as any,
       include: { account: { select: { id: true, code: true, name: true, type: true } } },
       orderBy: [{ account: { code: 'asc' } }, { month: 'asc' }],
     });
@@ -326,8 +326,8 @@ router.get('/revenue-breakdown', async (req: Request, res: Response) => {
       status: { in: ['PAID', 'PARTIALLY_PAID'] },
       deletedAt: null,
     };
-    if (dateFrom) where.issueDate = { ...where.issueDate, gte: new Date(dateFrom as string) };
-    if (dateTo) where.issueDate = { ...where.issueDate, lte: new Date(dateTo as string) };
+    if (dateFrom) where.issueDate = { ...(where.issueDate as any ?? {}), gte: new Date(dateFrom as string) };
+    if (dateTo) where.issueDate = { ...(where.issueDate as any ?? {}), lte: new Date(dateTo as string) };
 
     const invoices = await prisma.finInvoice.findMany({
       where,
@@ -368,8 +368,8 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
       status: { in: ['PAID', 'PARTIALLY_PAID'] },
       deletedAt: null,
     };
-    if (dateFrom) where.billDate = { ...where.billDate, gte: new Date(dateFrom as string) };
-    if (dateTo) where.billDate = { ...where.billDate, lte: new Date(dateTo as string) };
+    if (dateFrom) where.billDate = { ...(where.billDate as any ?? {}), gte: new Date(dateFrom as string) };
+    if (dateTo) where.billDate = { ...(where.billDate as any ?? {}), lte: new Date(dateTo as string) };
 
     const bills = await prisma.finBill.findMany({
       where,
@@ -410,7 +410,7 @@ router.get('/cash-forecast', async (req: Request, res: Response) => {
 
     // Current cash position
     const cashResult = await prisma.finBankAccount.aggregate({
-      where: { isActive: true, deletedAt: null },
+      where: { isActive: true, deletedAt: null } as any,
       _sum: { currentBalance: true },
     });
     const currentCash = Number(cashResult._sum.currentBalance || 0);

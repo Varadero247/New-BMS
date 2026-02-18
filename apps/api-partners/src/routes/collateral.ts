@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { createLogger } from '@ims/monitoring';
 import { portalPrisma } from '../prisma-portal';
 import { prisma } from '../prisma';
+import { type AuthRequest } from '@ims/auth';
+
 
 const logger = createLogger('api-partners:collateral');
 const router = Router();
@@ -16,7 +18,7 @@ const TIER_HIERARCHY: Record<string, string[]> = {
 // GET /api/collateral — list accessible collateral
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -34,7 +36,7 @@ router.get('/', async (req: Request, res: Response) => {
     const { type } = req.query;
 
     const where: Record<string, unknown> = { accessTier: { in: allowedTiers } };
-    if (type) where.type = type;
+    if (type) where.type = type as any;
 
     const collateral = await portalPrisma.mktPartnerCollateral.findMany({
       where,
@@ -54,7 +56,7 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/collateral/:id/download — track & return download URL
 router.get('/:id/download', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

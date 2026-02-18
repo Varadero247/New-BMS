@@ -28,7 +28,7 @@ const router: Router = Router();
 // ---------------------------------------------------------------------------
 function generateChangeSummary(commits: unknown[]): string {
   if (!commits || commits.length === 0) return 'No commit messages available.';
-  return commits.map((c: Record<string, unknown>) => c.message || c.title || '').join('; ');
+  return commits.map((c: any) => c.message || c.title || '').join('; ');
 }
 
 // ---------------------------------------------------------------------------

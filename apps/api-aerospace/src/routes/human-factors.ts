@@ -126,7 +126,7 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.HumanFactorIncidentWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (category) where.category = category as any;
     if (severity) where.severity = severity as any;
     if (status) where.status = status as any;
@@ -217,7 +217,7 @@ router.get('/dirty-dozen', async (req: AuthRequest, res: Response) => {
     const incidents = await prisma.humanFactorIncident.findMany({
       where: {
         deletedAt: null,
-        incidentDate: { gte: twelveMonthsAgo },
+        incidentDate: { gte: twelveMonthsAgo } as any,
       },
       select: {
         category: true,
@@ -274,20 +274,20 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
 
     // Total incidents
     const totalIncidents = await prisma.humanFactorIncident.count({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
     });
 
     // Incidents by severity
     const bySeverity = await prisma.humanFactorIncident.groupBy({
       by: ['severity'],
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       _count: { id: true },
     });
 
     // Incidents by category (top 5)
     const byCategory = await prisma.humanFactorIncident.groupBy({
       by: ['category'],
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 5,
@@ -295,12 +295,12 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
 
     // Open incidents (not CLOSED)
     const openIncidents = await prisma.humanFactorIncident.count({
-      where: { deletedAt: null, status: { not: 'CLOSED' } },
+      where: { deletedAt: null, status: { not: 'CLOSED' } as any },
     });
 
     // Recent incidents (last 30 days)
     const recentIncidents = await prisma.humanFactorIncident.count({
-      where: { deletedAt: null, incidentDate: { gte: thirtyDaysAgo } },
+      where: { deletedAt: null, incidentDate: { gte: thirtyDaysAgo } as any },
     });
 
     // Fatigue stats (last 30 days)
@@ -334,8 +334,8 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         totalIncidents,
         openIncidents,
         recentIncidents,
-        bySeverity: bySeverity.map(s => ({ severity: s.severity, count: s._count.id })),
-        topCategories: byCategory.map(c => ({ category: c.category, count: c._count.id })),
+        bySeverity: bySeverity.map(s => ({ severity: s.severity, count: (s as any)._count.id })),
+        topCategories: byCategory.map(c => ({ category: c.category, count: (c as any)._count.id })),
         fatigueStats,
       },
     });

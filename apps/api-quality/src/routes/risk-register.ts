@@ -75,17 +75,17 @@ router.get('/heatmap', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, open, mitigated, byStatus] = await Promise.all([
-      prisma.qualRiskRegister.count({ where: { deletedAt: null } }),
-      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'OPEN' } }),
-      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'MITIGATED' } }),
-      prisma.qualRiskRegister.groupBy({ by: ['status'], where: { deletedAt: null }, _count: { id: true } }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null } as any }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'OPEN' } as any }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'MITIGATED' } as any }),
+      prisma.qualRiskRegister.groupBy({ by: ['status'], where: { deletedAt: null } as any, _count: { id: true } }),
     ]);
 
     res.json({
       success: true,
       data: {
         total, open, mitigated,
-        byStatus: byStatus.map((s: Record<string, unknown>) => ({ status: s.status, count: s._count.id })),
+        byStatus: byStatus.map((s: Record<string, unknown>) => ({ status: s.status, count: (s as any)._count.id })),
       },
     });
   } catch (error: unknown) {
@@ -166,7 +166,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get risk by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -183,7 +183,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -214,7 +214,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualRiskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
 
     await prisma.qualRiskRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

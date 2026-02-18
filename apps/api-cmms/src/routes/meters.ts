@@ -116,7 +116,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const reading = await prisma.cmmsMeterReading.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { asset: { select: { id: true, name: true, code: true } } },
     });
 
@@ -139,7 +139,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsMeterReading.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsMeterReading.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter reading not found' } });
     }
@@ -163,7 +163,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete meter reading
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsMeterReading.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsMeterReading.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter reading not found' } });
     }

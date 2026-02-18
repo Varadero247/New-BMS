@@ -49,7 +49,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (category) where.category = category as string;
     if (status) where.status = status as string;
 
@@ -105,7 +105,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/initiatives/:id
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const initiative = await prisma.esgInitiative.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const initiative = await prisma.esgInitiative.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!initiative) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Initiative not found' } });
     }
@@ -124,12 +124,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgInitiative.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgInitiative.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Initiative not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.budget !== undefined) updateData.budget = updateData.budget != null ? new Prisma.Decimal(updateData.budget) : null;
     if (updateData.actualCost !== undefined) updateData.actualCost = updateData.actualCost != null ? new Prisma.Decimal(updateData.actualCost) : null;
     if (updateData.startDate !== undefined) updateData.startDate = updateData.startDate ? new Date(updateData.startDate) : null;
@@ -146,7 +146,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/initiatives/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgInitiative.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgInitiative.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Initiative not found' } });
     }

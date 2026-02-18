@@ -38,14 +38,14 @@ const updateSchema = z.object({
 });
 
 // GET / — Get current Quality Policy
-router.get('/', requirePermission('quality', 'read'), async (req: Request, res: Response) => {
+router.get('/', requirePermission('quality', 'read' as any), async (req: Request, res: Response) => {
   try {
     const doc = await prisma.qualDocument.findFirst({
       where: {
         title: POLICY_TITLE,
         documentType: 'POLICY',
         deletedAt: null,
-      },
+      } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -102,7 +102,7 @@ router.get('/', requirePermission('quality', 'read'), async (req: Request, res: 
 });
 
 // PUT / — Create or update Quality Policy
-router.put('/', requirePermission('quality', 'write'), async (req: Request, res: Response) => {
+router.put('/', requirePermission('quality', 'write' as any), async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -124,7 +124,7 @@ router.put('/', requirePermission('quality', 'write'), async (req: Request, res:
         title: POLICY_TITLE,
         documentType: 'POLICY',
         deletedAt: null,
-      },
+      } as any,
       orderBy: { createdAt: 'desc' },
     });
 

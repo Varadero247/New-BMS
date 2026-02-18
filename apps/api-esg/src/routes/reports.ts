@@ -46,22 +46,22 @@ router.get('/dashboard', async (req: Request, res: Response) => {
 
     const [emissions, targets, initiatives, reports, socialMetrics, governanceMetrics] = await Promise.all([
       prisma.esgEmission.findMany({
-        where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear}-01-01`) } },
+        where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
       }),
-      prisma.esgTarget.findMany({ where: { deletedAt: null, year: currentYear } }),
-      prisma.esgInitiative.findMany({ where: { deletedAt: null } }),
-      prisma.esgReport.findMany({ where: { deletedAt: null, year: currentYear } }),
+      prisma.esgTarget.findMany({ where: { deletedAt: null, year: currentYear } as any }),
+      prisma.esgInitiative.findMany({ where: { deletedAt: null } as any }),
+      prisma.esgReport.findMany({ where: { deletedAt: null, year: currentYear } as any }),
       prisma.esgSocialMetric.findMany({
-        where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear}-01-01`) } },
+        where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
       }),
       prisma.esgGovernanceMetric.findMany({
-        where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear}-01-01`) } },
+        where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
       }),
     ]);
 
-    const totalEmissions = emissions.reduce((sum: number, e: Record<string, unknown>) => sum + Number(e.co2Equivalent), 0);
-    const targetsOnTrack = targets.filter((t: Record<string, unknown>) => t.status === 'ON_TRACK' || t.status === 'ACHIEVED').length;
-    const activeInitiatives = initiatives.filter((i: Record<string, unknown>) => i.status === 'IN_PROGRESS').length;
+    const totalEmissions = emissions.reduce((sum: number, e: Record<string, any>) => sum + Number(e.co2Equivalent), 0);
+    const targetsOnTrack = targets.filter((t: Record<string, any>) => t.status === 'ON_TRACK' || t.status === 'ACHIEVED').length;
+    const activeInitiatives = initiatives.filter((i: Record<string, any>) => i.status === 'IN_PROGRESS').length;
 
     res.json({
       success: true,
@@ -88,15 +88,15 @@ router.get('/csrd', async (req: Request, res: Response) => {
 
     const [emissions, socialMetrics, governanceMetrics, targets] = await Promise.all([
       prisma.esgEmission.findMany({
-        where: { deletedAt: null, periodStart: { gte: new Date(`${year}-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
+        where: { deletedAt: null, periodStart: { gte: new Date(`${year} as any-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
       }),
       prisma.esgSocialMetric.findMany({
-        where: { deletedAt: null, periodStart: { gte: new Date(`${year}-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
+        where: { deletedAt: null, periodStart: { gte: new Date(`${year} as any-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
       }),
       prisma.esgGovernanceMetric.findMany({
-        where: { deletedAt: null, periodStart: { gte: new Date(`${year}-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
+        where: { deletedAt: null, periodStart: { gte: new Date(`${year} as any-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
       }),
-      prisma.esgTarget.findMany({ where: { deletedAt: null, year } }),
+      prisma.esgTarget.findMany({ where: { deletedAt: null, year } as any }),
     ]);
 
     res.json({
@@ -105,11 +105,11 @@ router.get('/csrd', async (req: Request, res: Response) => {
         year,
         environmental: {
           emissions: emissions.length,
-          totalCo2: emissions.reduce((s: number, e: Record<string, unknown>) => s + Number(e.co2Equivalent), 0),
+          totalCo2: emissions.reduce((s: number, e: Record<string, any>) => s + Number(e.co2Equivalent), 0),
         },
         social: { metrics: socialMetrics.length },
         governance: { metrics: governanceMetrics.length },
-        targets: { total: targets.length, achieved: targets.filter((t: Record<string, unknown>) => t.status === 'ACHIEVED').length },
+        targets: { total: targets.length, achieved: targets.filter((t: Record<string, any>) => t.status === 'ACHIEVED').length },
       },
     });
   } catch (error: unknown) {
@@ -125,10 +125,10 @@ router.get('/tcfd', async (req: Request, res: Response) => {
 
     const [emissions, targets, initiatives] = await Promise.all([
       prisma.esgEmission.findMany({
-        where: { deletedAt: null, periodStart: { gte: new Date(`${year}-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
+        where: { deletedAt: null, periodStart: { gte: new Date(`${year} as any-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
       }),
-      prisma.esgTarget.findMany({ where: { deletedAt: null, year } }),
-      prisma.esgInitiative.findMany({ where: { deletedAt: null, category: 'ENVIRONMENTAL' } }),
+      prisma.esgTarget.findMany({ where: { deletedAt: null, year } as any }),
+      prisma.esgInitiative.findMany({ where: { deletedAt: null, category: 'ENVIRONMENTAL' } as any }),
     ]);
 
     const scopeTotals: Record<string, number> = { SCOPE_1: 0, SCOPE_2: 0, SCOPE_3: 0 };
@@ -146,7 +146,7 @@ router.get('/tcfd', async (req: Request, res: Response) => {
         metricsAndTargets: {
           emissions: scopeTotals,
           totalEmissions: scopeTotals.SCOPE_1 + scopeTotals.SCOPE_2 + scopeTotals.SCOPE_3,
-          targets: targets.map((t: Record<string, unknown>) => ({ id: t.id, year: t.year, target: Number(t.targetValue), actual: t.actualValue ? Number(t.actualValue) : null, status: t.status })),
+          targets: targets.map((t: Record<string, any>) => ({ id: t.id, year: t.year, target: Number(t.targetValue), actual: t.actualValue ? Number(t.actualValue) : null, status: t.status })),
         },
       },
     });
@@ -163,7 +163,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (reportType) where.reportType = reportType as string;
     if (year) where.year = parseInt(year as string, 10);
     if (status) where.status = status as string;
@@ -218,7 +218,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
-    const report = await prisma.esgReport.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const report = await prisma.esgReport.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!report) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
@@ -237,12 +237,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgReport.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgReport.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.publishedAt) updateData.publishedAt = new Date(updateData.publishedAt);
 
     const report = await prisma.esgReport.update({ where: { id: req.params.id }, data: updateData });
@@ -256,7 +256,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/reports/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgReport.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgReport.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }

@@ -21,7 +21,7 @@ const dataPointCreateSchema = z.object({
 // GET /api/metrics/:id/data-points
 router.get('/:id/data-points', async (req: Request, res: Response) => {
   try {
-    const metric = await prisma.esgMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const metric = await prisma.esgMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!metric) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
     }
@@ -30,7 +30,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { metricId: req.params.id, deletedAt: null };
+    const where: Record<string, any> = { metricId: req.params.id, deletedAt: null };
 
     const [data, total] = await Promise.all([
       prisma.esgDataPoint.findMany({ where, skip, take, orderBy: { periodStart: 'desc' } }),
@@ -52,7 +52,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
 router.post('/:id/data-points', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
-    const metric = await prisma.esgMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const metric = await prisma.esgMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!metric) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
     }

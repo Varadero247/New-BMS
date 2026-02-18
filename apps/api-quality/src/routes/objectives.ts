@@ -8,7 +8,7 @@ import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
@@ -36,9 +36,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualObjectiveWhereInput = { deletedAt: null };
-    if (category) where.category = category;
-    if (status) where.status = status;
+    const where: any = { deletedAt: null };
+    if (category) where.category = category as any;
+    if (status) where.status = status as any;
     if (search) where.title = { contains: search as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([
@@ -248,7 +248,7 @@ router.delete('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequ
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
     }
 
-    await prisma.qualObjective.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualObjective.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } as any });
 
     res.status(204).send();
   } catch (error) {
@@ -349,7 +349,7 @@ router.delete('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Resp
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Milestone not found' } });
     }
 
-    await prisma.qualMilestone.update({ where: { id: req.params.milestoneId }, data: { deletedAt: new Date() } });
+    await prisma.qualMilestone.update({ where: { id: req.params.milestoneId }, data: { deletedAt: new Date() } as any });
 
     res.status(204).send();
   } catch (error) {

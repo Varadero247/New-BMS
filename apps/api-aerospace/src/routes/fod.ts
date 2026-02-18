@@ -110,9 +110,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
-    if (severity) where.severity = severity;
-    if (fodType) where.fodType = fodType;
+    if (status) where.status = status as any;
+    if (severity) where.severity = severity as any;
+    if (fodType) where.fodType = fodType as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -188,7 +188,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: 'OPEN',
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: incident });
@@ -219,7 +219,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
       data: {
         ...data,
         closedDate: data.closedDate ? new Date(data.closedDate) : existing.closedDate,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: incident });
@@ -268,8 +268,8 @@ router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) 
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (result) where.result = result;
-    if (inspectionType) where.inspectionType = inspectionType;
+    if (result) where.result = result as any;
+    if (inspectionType) where.inspectionType = inspectionType as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -318,7 +318,7 @@ router.post('/inspections', async (req: AuthRequest, res: Response) => {
         status: 'SCHEDULED',
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: inspection });
@@ -355,7 +355,7 @@ router.put('/inspections/:id/complete', async (req: AuthRequest, res: Response) 
         completedDate: new Date(),
         status: 'COMPLETED',
         notes: data.notes ? `${existing.notes ? existing.notes + '\n' : ''}${data.notes}` : existing.notes,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: inspection });

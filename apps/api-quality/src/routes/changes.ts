@@ -8,7 +8,7 @@ import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
@@ -35,10 +35,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualChangeWhereInput = { deletedAt: null };
-    if (changeType) where.changeType = changeType;
-    if (status) where.status = status;
-    if (priority) where.priority = priority;
+    const where: any = { deletedAt: null };
+    if (changeType) where.changeType = changeType as any;
+    if (status) where.status = status as any;
+    if (priority) where.priority = priority as any;
     if (search) where.title = { contains: search as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([

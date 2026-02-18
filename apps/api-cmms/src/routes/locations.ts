@@ -103,7 +103,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: location });
   } catch (error: unknown) {
-    if (error?.code === 'P2002') {
+    if ((error as any)?.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Location code already exists' } });
     }
     logger.error('Failed to create location', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -115,7 +115,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const location = await prisma.cmmsLocation.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!location) {
@@ -137,7 +137,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsLocation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsLocation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Location not found' } });
     }
@@ -153,7 +153,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete location
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsLocation.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsLocation.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Location not found' } });
     }

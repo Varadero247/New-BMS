@@ -1,0 +1,2991 @@
+# Web Dashboard
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-dashboard
+  namespace: ims
+  labels:
+    app: web-dashboard
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-dashboard
+  template:
+    metadata:
+      labels:
+        app: web-dashboard
+        tier: frontend
+    spec:
+      containers:
+        - name: web-dashboard
+          image: nexara/web-dashboard:latest
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3000"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-dashboard
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: web-dashboard
+---
+# Web Health & Safety
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-health-safety
+  namespace: ims
+  labels:
+    app: web-health-safety
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-health-safety
+  template:
+    metadata:
+      labels:
+        app: web-health-safety
+        tier: frontend
+    spec:
+      containers:
+        - name: web-health-safety
+          image: nexara/web-health-safety:latest
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3001"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-health-safety
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3001
+      targetPort: 3001
+  selector:
+    app: web-health-safety
+---
+# Web Environment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-environment
+  namespace: ims
+  labels:
+    app: web-environment
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-environment
+  template:
+    metadata:
+      labels:
+        app: web-environment
+        tier: frontend
+    spec:
+      containers:
+        - name: web-environment
+          image: nexara/web-environment:latest
+          ports:
+            - containerPort: 3002
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3002"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3002
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-environment
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3002
+      targetPort: 3002
+  selector:
+    app: web-environment
+---
+# Web Quality
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-quality
+  namespace: ims
+  labels:
+    app: web-quality
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-quality
+  template:
+    metadata:
+      labels:
+        app: web-quality
+        tier: frontend
+    spec:
+      containers:
+        - name: web-quality
+          image: nexara/web-quality:latest
+          ports:
+            - containerPort: 3003
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3003"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3003
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3003
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-quality
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3003
+      targetPort: 3003
+  selector:
+    app: web-quality
+---
+# Web Settings
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-settings
+  namespace: ims
+  labels:
+    app: web-settings
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-settings
+  template:
+    metadata:
+      labels:
+        app: web-settings
+        tier: frontend
+    spec:
+      containers:
+        - name: web-settings
+          image: nexara/web-settings:latest
+          ports:
+            - containerPort: 3004
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3004"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3004
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3004
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-settings
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3004
+      targetPort: 3004
+  selector:
+    app: web-settings
+---
+# Web Inventory
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-inventory
+  namespace: ims
+  labels:
+    app: web-inventory
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-inventory
+  template:
+    metadata:
+      labels:
+        app: web-inventory
+        tier: frontend
+    spec:
+      containers:
+        - name: web-inventory
+          image: nexara/web-inventory:latest
+          ports:
+            - containerPort: 3005
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3005"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3005
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3005
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-inventory
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3005
+      targetPort: 3005
+  selector:
+    app: web-inventory
+---
+# Web HR
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-hr
+  namespace: ims
+  labels:
+    app: web-hr
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-hr
+  template:
+    metadata:
+      labels:
+        app: web-hr
+        tier: frontend
+    spec:
+      containers:
+        - name: web-hr
+          image: nexara/web-hr:latest
+          ports:
+            - containerPort: 3006
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3006"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3006
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3006
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-hr
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3006
+      targetPort: 3006
+  selector:
+    app: web-hr
+---
+# Web Payroll
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-payroll
+  namespace: ims
+  labels:
+    app: web-payroll
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-payroll
+  template:
+    metadata:
+      labels:
+        app: web-payroll
+        tier: frontend
+    spec:
+      containers:
+        - name: web-payroll
+          image: nexara/web-payroll:latest
+          ports:
+            - containerPort: 3007
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3007"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3007
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3007
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-payroll
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3007
+      targetPort: 3007
+  selector:
+    app: web-payroll
+---
+# Web Workflows
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-workflows
+  namespace: ims
+  labels:
+    app: web-workflows
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-workflows
+  template:
+    metadata:
+      labels:
+        app: web-workflows
+        tier: frontend
+    spec:
+      containers:
+        - name: web-workflows
+          image: nexara/web-workflows:latest
+          ports:
+            - containerPort: 3008
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3008"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3008
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3008
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-workflows
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3008
+      targetPort: 3008
+  selector:
+    app: web-workflows
+---
+# Web Project Management
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-project-management
+  namespace: ims
+  labels:
+    app: web-project-management
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-project-management
+  template:
+    metadata:
+      labels:
+        app: web-project-management
+        tier: frontend
+    spec:
+      containers:
+        - name: web-project-management
+          image: nexara/web-project-management:latest
+          ports:
+            - containerPort: 3009
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3009"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3009
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3009
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-project-management
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3009
+      targetPort: 3009
+  selector:
+    app: web-project-management
+---
+# Web Automotive
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-automotive
+  namespace: ims
+  labels:
+    app: web-automotive
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-automotive
+  template:
+    metadata:
+      labels:
+        app: web-automotive
+        tier: frontend
+    spec:
+      containers:
+        - name: web-automotive
+          image: nexara/web-automotive:latest
+          ports:
+            - containerPort: 3010
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3010"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3010
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3010
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-automotive
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3010
+      targetPort: 3010
+  selector:
+    app: web-automotive
+---
+# Web Medical
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-medical
+  namespace: ims
+  labels:
+    app: web-medical
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-medical
+  template:
+    metadata:
+      labels:
+        app: web-medical
+        tier: frontend
+    spec:
+      containers:
+        - name: web-medical
+          image: nexara/web-medical:latest
+          ports:
+            - containerPort: 3011
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3011"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3011
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3011
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-medical
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3011
+      targetPort: 3011
+  selector:
+    app: web-medical
+---
+# Web Aerospace
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-aerospace
+  namespace: ims
+  labels:
+    app: web-aerospace
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-aerospace
+  template:
+    metadata:
+      labels:
+        app: web-aerospace
+        tier: frontend
+    spec:
+      containers:
+        - name: web-aerospace
+          image: nexara/web-aerospace:latest
+          ports:
+            - containerPort: 3012
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3012"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3012
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3012
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-aerospace
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3012
+      targetPort: 3012
+  selector:
+    app: web-aerospace
+---
+# Web Finance
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-finance
+  namespace: ims
+  labels:
+    app: web-finance
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-finance
+  template:
+    metadata:
+      labels:
+        app: web-finance
+        tier: frontend
+    spec:
+      containers:
+        - name: web-finance
+          image: nexara/web-finance:latest
+          ports:
+            - containerPort: 3013
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3013"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3013
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3013
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-finance
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3013
+      targetPort: 3013
+  selector:
+    app: web-finance
+---
+# Web CRM
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-crm
+  namespace: ims
+  labels:
+    app: web-crm
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-crm
+  template:
+    metadata:
+      labels:
+        app: web-crm
+        tier: frontend
+    spec:
+      containers:
+        - name: web-crm
+          image: nexara/web-crm:latest
+          ports:
+            - containerPort: 3014
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3014"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3014
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3014
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-crm
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3014
+      targetPort: 3014
+  selector:
+    app: web-crm
+---
+# Web InfoSec
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-infosec
+  namespace: ims
+  labels:
+    app: web-infosec
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-infosec
+  template:
+    metadata:
+      labels:
+        app: web-infosec
+        tier: frontend
+    spec:
+      containers:
+        - name: web-infosec
+          image: nexara/web-infosec:latest
+          ports:
+            - containerPort: 3015
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3015"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3015
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3015
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-infosec
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3015
+      targetPort: 3015
+  selector:
+    app: web-infosec
+---
+# Web ESG
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-esg
+  namespace: ims
+  labels:
+    app: web-esg
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-esg
+  template:
+    metadata:
+      labels:
+        app: web-esg
+        tier: frontend
+    spec:
+      containers:
+        - name: web-esg
+          image: nexara/web-esg:latest
+          ports:
+            - containerPort: 3016
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3016"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3016
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3016
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-esg
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3016
+      targetPort: 3016
+  selector:
+    app: web-esg
+---
+# Web CMMS
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-cmms
+  namespace: ims
+  labels:
+    app: web-cmms
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-cmms
+  template:
+    metadata:
+      labels:
+        app: web-cmms
+        tier: frontend
+    spec:
+      containers:
+        - name: web-cmms
+          image: nexara/web-cmms:latest
+          ports:
+            - containerPort: 3017
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3017"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3017
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3017
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-cmms
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3017
+      targetPort: 3017
+  selector:
+    app: web-cmms
+---
+# Web Customer Portal
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-customer-portal
+  namespace: ims
+  labels:
+    app: web-customer-portal
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-customer-portal
+  template:
+    metadata:
+      labels:
+        app: web-customer-portal
+        tier: frontend
+    spec:
+      containers:
+        - name: web-customer-portal
+          image: nexara/web-customer-portal:latest
+          ports:
+            - containerPort: 3018
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3018"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3018
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3018
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-customer-portal
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3018
+      targetPort: 3018
+  selector:
+    app: web-customer-portal
+---
+# Web Supplier Portal
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-supplier-portal
+  namespace: ims
+  labels:
+    app: web-supplier-portal
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-supplier-portal
+  template:
+    metadata:
+      labels:
+        app: web-supplier-portal
+        tier: frontend
+    spec:
+      containers:
+        - name: web-supplier-portal
+          image: nexara/web-supplier-portal:latest
+          ports:
+            - containerPort: 3019
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3019"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3019
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3019
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-supplier-portal
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3019
+      targetPort: 3019
+  selector:
+    app: web-supplier-portal
+---
+# Web Food Safety
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-food-safety
+  namespace: ims
+  labels:
+    app: web-food-safety
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-food-safety
+  template:
+    metadata:
+      labels:
+        app: web-food-safety
+        tier: frontend
+    spec:
+      containers:
+        - name: web-food-safety
+          image: nexara/web-food-safety:latest
+          ports:
+            - containerPort: 3020
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3020"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3020
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3020
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-food-safety
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3020
+      targetPort: 3020
+  selector:
+    app: web-food-safety
+---
+# Web Energy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-energy
+  namespace: ims
+  labels:
+    app: web-energy
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-energy
+  template:
+    metadata:
+      labels:
+        app: web-energy
+        tier: frontend
+    spec:
+      containers:
+        - name: web-energy
+          image: nexara/web-energy:latest
+          ports:
+            - containerPort: 3021
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3021"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3021
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3021
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-energy
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3021
+      targetPort: 3021
+  selector:
+    app: web-energy
+---
+# Web Analytics
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-analytics
+  namespace: ims
+  labels:
+    app: web-analytics
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-analytics
+  template:
+    metadata:
+      labels:
+        app: web-analytics
+        tier: frontend
+    spec:
+      containers:
+        - name: web-analytics
+          image: nexara/web-analytics:latest
+          ports:
+            - containerPort: 3022
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3022"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3022
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3022
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-analytics
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3022
+      targetPort: 3022
+  selector:
+    app: web-analytics
+---
+# Web Field Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-field-service
+  namespace: ims
+  labels:
+    app: web-field-service
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-field-service
+  template:
+    metadata:
+      labels:
+        app: web-field-service
+        tier: frontend
+    spec:
+      containers:
+        - name: web-field-service
+          image: nexara/web-field-service:latest
+          ports:
+            - containerPort: 3023
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3023"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3023
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3023
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-field-service
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3023
+      targetPort: 3023
+  selector:
+    app: web-field-service
+---
+# Web ISO 42001
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-iso42001
+  namespace: ims
+  labels:
+    app: web-iso42001
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-iso42001
+  template:
+    metadata:
+      labels:
+        app: web-iso42001
+        tier: frontend
+    spec:
+      containers:
+        - name: web-iso42001
+          image: nexara/web-iso42001:latest
+          ports:
+            - containerPort: 3024
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3024"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3024
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3024
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-iso42001
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3024
+      targetPort: 3024
+  selector:
+    app: web-iso42001
+---
+# Web ISO 37001
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-iso37001
+  namespace: ims
+  labels:
+    app: web-iso37001
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-iso37001
+  template:
+    metadata:
+      labels:
+        app: web-iso37001
+        tier: frontend
+    spec:
+      containers:
+        - name: web-iso37001
+          image: nexara/web-iso37001:latest
+          ports:
+            - containerPort: 3025
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3025"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3025
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3025
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-iso37001
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3025
+      targetPort: 3025
+  selector:
+    app: web-iso37001
+---
+# Web Partners Portal
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-partners
+  namespace: ims
+  labels:
+    app: web-partners
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-partners
+  template:
+    metadata:
+      labels:
+        app: web-partners
+        tier: frontend
+    spec:
+      containers:
+        - name: web-partners
+          image: nexara/web-partners:latest
+          ports:
+            - containerPort: 3026
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3026"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3026
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3026
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-partners
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3026
+      targetPort: 3026
+  selector:
+    app: web-partners
+---
+# Web Admin Dashboard
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-admin
+  namespace: ims
+  labels:
+    app: web-admin
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-admin
+  template:
+    metadata:
+      labels:
+        app: web-admin
+        tier: frontend
+    spec:
+      containers:
+        - name: web-admin
+          image: nexara/web-admin:latest
+          ports:
+            - containerPort: 3027
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3027"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3027
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3027
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-admin
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3027
+      targetPort: 3027
+  selector:
+    app: web-admin
+---
+# Web Marketing
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-marketing
+  namespace: ims
+  labels:
+    app: web-marketing
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-marketing
+  template:
+    metadata:
+      labels:
+        app: web-marketing
+        tier: frontend
+    spec:
+      containers:
+        - name: web-marketing
+          image: nexara/web-marketing:latest
+          ports:
+            - containerPort: 3030
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3030"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3030
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3030
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-marketing
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3030
+      targetPort: 3030
+  selector:
+    app: web-marketing
+---
+# Web Risk
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-risk
+  namespace: ims
+  labels:
+    app: web-risk
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-risk
+  template:
+    metadata:
+      labels:
+        app: web-risk
+        tier: frontend
+    spec:
+      containers:
+        - name: web-risk
+          image: nexara/web-risk:latest
+          ports:
+            - containerPort: 3031
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3031"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3031
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3031
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-risk
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3031
+      targetPort: 3031
+  selector:
+    app: web-risk
+---
+# Web Training
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-training
+  namespace: ims
+  labels:
+    app: web-training
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-training
+  template:
+    metadata:
+      labels:
+        app: web-training
+        tier: frontend
+    spec:
+      containers:
+        - name: web-training
+          image: nexara/web-training:latest
+          ports:
+            - containerPort: 3032
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3032"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3032
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3032
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-training
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3032
+      targetPort: 3032
+  selector:
+    app: web-training
+---
+# Web Suppliers
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-suppliers
+  namespace: ims
+  labels:
+    app: web-suppliers
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-suppliers
+  template:
+    metadata:
+      labels:
+        app: web-suppliers
+        tier: frontend
+    spec:
+      containers:
+        - name: web-suppliers
+          image: nexara/web-suppliers:latest
+          ports:
+            - containerPort: 3033
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3033"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3033
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3033
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-suppliers
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3033
+      targetPort: 3033
+  selector:
+    app: web-suppliers
+---
+# Web Assets
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-assets
+  namespace: ims
+  labels:
+    app: web-assets
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-assets
+  template:
+    metadata:
+      labels:
+        app: web-assets
+        tier: frontend
+    spec:
+      containers:
+        - name: web-assets
+          image: nexara/web-assets:latest
+          ports:
+            - containerPort: 3034
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3034"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3034
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3034
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-assets
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3034
+      targetPort: 3034
+  selector:
+    app: web-assets
+---
+# Web Documents
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-documents
+  namespace: ims
+  labels:
+    app: web-documents
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-documents
+  template:
+    metadata:
+      labels:
+        app: web-documents
+        tier: frontend
+    spec:
+      containers:
+        - name: web-documents
+          image: nexara/web-documents:latest
+          ports:
+            - containerPort: 3035
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3035"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3035
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3035
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-documents
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3035
+      targetPort: 3035
+  selector:
+    app: web-documents
+---
+# Web Complaints
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-complaints
+  namespace: ims
+  labels:
+    app: web-complaints
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-complaints
+  template:
+    metadata:
+      labels:
+        app: web-complaints
+        tier: frontend
+    spec:
+      containers:
+        - name: web-complaints
+          image: nexara/web-complaints:latest
+          ports:
+            - containerPort: 3036
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3036"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3036
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3036
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-complaints
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3036
+      targetPort: 3036
+  selector:
+    app: web-complaints
+---
+# Web Contracts
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-contracts
+  namespace: ims
+  labels:
+    app: web-contracts
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-contracts
+  template:
+    metadata:
+      labels:
+        app: web-contracts
+        tier: frontend
+    spec:
+      containers:
+        - name: web-contracts
+          image: nexara/web-contracts:latest
+          ports:
+            - containerPort: 3037
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3037"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3037
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3037
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-contracts
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3037
+      targetPort: 3037
+  selector:
+    app: web-contracts
+---
+# Web Finance Compliance
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-finance-compliance
+  namespace: ims
+  labels:
+    app: web-finance-compliance
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-finance-compliance
+  template:
+    metadata:
+      labels:
+        app: web-finance-compliance
+        tier: frontend
+    spec:
+      containers:
+        - name: web-finance-compliance
+          image: nexara/web-finance-compliance:latest
+          ports:
+            - containerPort: 3038
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3038"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3038
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3038
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-finance-compliance
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3038
+      targetPort: 3038
+  selector:
+    app: web-finance-compliance
+---
+# Web Permit to Work
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-ptw
+  namespace: ims
+  labels:
+    app: web-ptw
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-ptw
+  template:
+    metadata:
+      labels:
+        app: web-ptw
+        tier: frontend
+    spec:
+      containers:
+        - name: web-ptw
+          image: nexara/web-ptw:latest
+          ports:
+            - containerPort: 3039
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3039"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3039
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3039
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-ptw
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3039
+      targetPort: 3039
+  selector:
+    app: web-ptw
+---
+# Web Regulatory Monitor
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-reg-monitor
+  namespace: ims
+  labels:
+    app: web-reg-monitor
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-reg-monitor
+  template:
+    metadata:
+      labels:
+        app: web-reg-monitor
+        tier: frontend
+    spec:
+      containers:
+        - name: web-reg-monitor
+          image: nexara/web-reg-monitor:latest
+          ports:
+            - containerPort: 3040
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3040"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3040
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3040
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-reg-monitor
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3040
+      targetPort: 3040
+  selector:
+    app: web-reg-monitor
+---
+# Web Incidents
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-incidents
+  namespace: ims
+  labels:
+    app: web-incidents
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-incidents
+  template:
+    metadata:
+      labels:
+        app: web-incidents
+        tier: frontend
+    spec:
+      containers:
+        - name: web-incidents
+          image: nexara/web-incidents:latest
+          ports:
+            - containerPort: 3041
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3041"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3041
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3041
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-incidents
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3041
+      targetPort: 3041
+  selector:
+    app: web-incidents
+---
+# Web Audits
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-audits
+  namespace: ims
+  labels:
+    app: web-audits
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-audits
+  template:
+    metadata:
+      labels:
+        app: web-audits
+        tier: frontend
+    spec:
+      containers:
+        - name: web-audits
+          image: nexara/web-audits:latest
+          ports:
+            - containerPort: 3042
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3042"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3042
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3042
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-audits
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3042
+      targetPort: 3042
+  selector:
+    app: web-audits
+---
+# Web Management Review
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-mgmt-review
+  namespace: ims
+  labels:
+    app: web-mgmt-review
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-mgmt-review
+  template:
+    metadata:
+      labels:
+        app: web-mgmt-review
+        tier: frontend
+    spec:
+      containers:
+        - name: web-mgmt-review
+          image: nexara/web-mgmt-review:latest
+          ports:
+            - containerPort: 3043
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3043"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3043
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3043
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-mgmt-review
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3043
+      targetPort: 3043
+  selector:
+    app: web-mgmt-review
+---
+# Web Chemicals
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-chemicals
+  namespace: ims
+  labels:
+    app: web-chemicals
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-chemicals
+  template:
+    metadata:
+      labels:
+        app: web-chemicals
+        tier: frontend
+    spec:
+      containers:
+        - name: web-chemicals
+          image: nexara/web-chemicals:latest
+          ports:
+            - containerPort: 3044
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3044"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3044
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3044
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-chemicals
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3044
+      targetPort: 3044
+  selector:
+    app: web-chemicals
+---
+# Web Emergency
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-emergency
+  namespace: ims
+  labels:
+    app: web-emergency
+    tier: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-emergency
+  template:
+    metadata:
+      labels:
+        app: web-emergency
+        tier: frontend
+    spec:
+      containers:
+        - name: web-emergency
+          image: nexara/web-emergency:latest
+          ports:
+            - containerPort: 3045
+          envFrom:
+            - configMapRef:
+                name: ims-config
+          env:
+            - name: PORT
+              value: "3045"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3045
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3045
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-emergency
+  namespace: ims
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3045
+      targetPort: 3045
+  selector:
+    app: web-emergency

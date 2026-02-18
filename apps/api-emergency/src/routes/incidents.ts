@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { notifyEmergencyDeclared, notifyIncidentStatusChange } from '../services/notificationTriggers';
@@ -68,11 +68,11 @@ async function generateIncidentNumber(orgId: string): Promise<string> {
 // GET /api/incidents — all incidents
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const { status, emergencyType, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId };
-    if (status) where.status = status;
-    if (emergencyType) where.emergencyType = emergencyType;
+    if (status) where.status = status as any;
+    if (emergencyType) where.emergencyType = emergencyType as any;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
       prisma.femEmergencyIncident.findMany({ where, skip, take: parseInt(limit), orderBy: { reportedAt: 'desc' }, include: { premises: { select: { name: true } }, _count: { select: { decisions: true, timeline: true } } } }),
@@ -85,7 +85,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/incidents/active — currently active incidents ONLY (before /:id)
 router.get('/active', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const data = await prisma.femEmergencyIncident.findMany({
       where: { organisationId: orgId, status: { in: ['ACTIVE', 'ELEVATED', 'CONTAINED'] } },
       include: { premises: { select: { name: true } }, _count: { select: { decisions: true, timeline: true } } },
@@ -100,7 +100,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = declareIncidentSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const incidentNumber = await generateIncidentNumber(orgId);
     const data = await prisma.femEmergencyIncident.create({
       data: {

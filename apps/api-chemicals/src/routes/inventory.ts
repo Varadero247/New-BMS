@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -25,12 +25,12 @@ const updateInventorySchema = createInventorySchema.partial();
 // GET /api/inventory/low-stock — items below min level
 router.get('/low-stock', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const items = await prisma.chemInventory.findMany({
       where: { isActive: true, minStockLevel: { not: null }, chemical: { orgId, isActive: true, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
     });
-    const lowStock = items.filter((i: Record<string, unknown>) => i.quantityOnhand <= (i.minStockLevel || 0));
+    const lowStock = items.filter((i: Record<string, unknown>) => Number(i.quantityOnhand) <= Number(i.minStockLevel || 0));
     res.json({ success: true, data: lowStock });
   } catch (error: unknown) {
     logger.error('Failed to fetch low stock', { error: (error as Error).message });
@@ -41,7 +41,7 @@ router.get('/low-stock', authenticate, async (req: Request, res: Response) => {
 // GET /api/inventory/expiring — expiring within N days
 router.get('/expiring', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const days = parseInt(req.query.days as string) || 60;
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
@@ -60,12 +60,12 @@ router.get('/expiring', authenticate, async (req: Request, res: Response) => {
 // GET /api/inventory — all inventory locations
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { location, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { isActive: true, chemical: { orgId, isActive: true, deletedAt: null } };
     if (location) where.location = { contains: location, mode: 'insensitive' };
     if (search) {
-      where.chemical = { ...where.chemical, OR: [
+      where.chemical = { ...(where.chemical as any || {}), OR: [
         { productName: { contains: search, mode: 'insensitive' } },
         { casNumber: { contains: search, mode: 'insensitive' } },
       ]};
@@ -107,7 +107,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const parsed = createInventorySchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: parsed.data.chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: parsed.data.chemicalId, deletedAt: null } as any });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     // Check incompatibility at same location

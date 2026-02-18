@@ -70,7 +70,7 @@ router.get('/low-stock', async (req: Request, res: Response) => {
       where: {
         deletedAt: null,
         OR: [
-          { reorderPoint: { not: null } },
+          { reorderPoint: { not: null } as any },
           { minStock: { gt: 0 } },
         ],
       },
@@ -78,8 +78,8 @@ router.get('/low-stock', async (req: Request, res: Response) => {
     });
 
     const lowStock = parts.filter((p: Record<string, unknown>) => {
-      const threshold = p.reorderPoint ?? p.minStock;
-      return p.quantity <= threshold;
+      const threshold = (p.reorderPoint ?? p.minStock) as number;
+      return (p.quantity as number) <= threshold;
     });
 
     res.json({ success: true, data: lowStock });
@@ -154,7 +154,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: part });
   } catch (error: unknown) {
-    if (error?.code === 'P2002') {
+    if ((error as any)?.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Part number already exists' } });
     }
     logger.error('Failed to create part', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -167,8 +167,8 @@ router.get('/:id', async (req: Request, res: Response) => {
   if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
   try {
     const part = await prisma.cmmsPart.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { partUsages: { where: { deletedAt: null }, take: 20, orderBy: { usedAt: 'desc' } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { partUsages: { where: { deletedAt: null } as any, take: 20, orderBy: { usedAt: 'desc' } } },
     });
 
     if (!part) {
@@ -190,7 +190,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
     }
@@ -210,7 +210,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete part
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
     }
@@ -234,7 +234,7 @@ router.post('/:id/usage', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const data = parsed.data;
 
-    const part = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const part = await prisma.cmmsPart.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!part) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Part not found' } });
     }

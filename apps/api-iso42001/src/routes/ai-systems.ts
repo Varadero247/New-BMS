@@ -158,11 +158,11 @@ router.post('/', async (req: Request, res: Response) => {
 
     const system = await prisma.aiSystem.create({
       data: {
-        reference,
+        reference: reference as any,
         name: parsed.data.name,
         description: parsed.data.description,
-        category: parsed.data.category,
-        riskTier: parsed.data.riskTier,
+        category: parsed.data.category as any,
+        riskTier: parsed.data.riskTier as any,
         status: 'ACTIVE',
         purpose: parsed.data.purpose ?? null,
         vendor: parsed.data.vendor ?? null,
@@ -174,7 +174,7 @@ router.post('/', async (req: Request, res: Response) => {
         userBase: parsed.data.userBase ?? null,
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('AI system created', { systemId: system.id, reference });
@@ -190,13 +190,13 @@ router.get('/:id/risks', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } });
+    const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
     if (!system) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const risks = await prisma.aiRiskAssessment.findMany({
-      where: { systemId: id, deletedAt: null },
+      where: { systemId: id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -212,13 +212,13 @@ router.get('/:id/incidents', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } });
+    const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
     if (!system) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
 
     const incidents = await prisma.aiIncident.findMany({
-      where: { systemId: id, deletedAt: null },
+      where: { systemId: id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -237,7 +237,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const system = await prisma.aiSystem.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!system) {
@@ -261,7 +261,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
@@ -276,7 +276,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
           : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
     });
 
     logger.info('AI system updated', { systemId: id });
@@ -293,7 +293,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
@@ -304,7 +304,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('AI system soft-deleted', { systemId: id });

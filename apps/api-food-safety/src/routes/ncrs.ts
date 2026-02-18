@@ -64,7 +64,7 @@ router.get('/open', async (req: Request, res: Response) => {
     const data = await prisma.fsNcr.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['OPEN', 'INVESTIGATING', 'CORRECTIVE_ACTION'] },
+        status: { in: ['OPEN', 'INVESTIGATING', 'CORRECTIVE_ACTION'] } as any,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -144,7 +144,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const ncr = await prisma.fsNcr.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!ncr) {
@@ -166,7 +166,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const RESERVED = new Set(['close']);
     if (RESERVED.has(req.params.id)) return (undefined as any);
 
-    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
     }
@@ -198,7 +198,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
     }
@@ -221,7 +221,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/close', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsNcr.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'NCR not found' } });
     }

@@ -97,7 +97,7 @@ router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EnvEmergencyPlanWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (search) {
       where.OR = [
@@ -210,7 +210,7 @@ router.get('/drills', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EnvEmergencyDrillWhereInput = {};
+    const where: any = {};
     if (planId) where.planId = planId as string;
     if (outcome) where.outcome = outcome as any;
     if (drillType) where.drillType = drillType as string;
@@ -317,15 +317,15 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       plansByStatus,
       drillsByOutcome,
     ] = await Promise.all([
-      prisma.envEmergencyPlan.count({ where: { deletedAt: null } }),
-      prisma.envEmergencyPlan.count({ where: { deletedAt: null, status: 'ACTIVE' } }),
+      prisma.envEmergencyPlan.count({ where: { deletedAt: null } as any }),
+      prisma.envEmergencyPlan.count({ where: { deletedAt: null, status: 'ACTIVE' } as any }),
       prisma.envEmergencyDrill.count({ where: { drillDate: { gte: twelveMonthsAgo } } }),
       prisma.envEmergencyIncident.count({ where: { status: { in: ['ACTIVE', 'CONTAINED'] } } }),
       prisma.envEmergencyIncident.count(),
       prisma.envEmergencyPlan.groupBy({
         by: ['status'],
         _count: { id: true },
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
       }),
       prisma.envEmergencyDrill.groupBy({
         by: ['outcome'],

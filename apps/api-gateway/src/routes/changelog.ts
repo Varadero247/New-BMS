@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import {
   listEntries,
@@ -104,7 +104,7 @@ router.get('/all', authenticate, async (req: Request, res: Response) => {
 router.get('/unread-count', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const count = getUnreadCount(user.id);
+    const count = getUnreadCount(user!.id);
 
     res.json({
       success: true,
@@ -125,7 +125,7 @@ router.get('/unread-count', authenticate, async (req: Request, res: Response) =>
 router.post('/mark-read', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    markAsRead(user.id);
+    markAsRead(user!.id);
 
     res.json({
       success: true,
@@ -148,7 +148,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const user = (req as AuthRequest).user;
 
     // Admin check
-    if (user.role !== 'admin' && user.role !== 'ADMIN') {
+    if (user!.role !== ('admin' as any) && user!.role !== 'ADMIN') {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Only administrators can create changelog entries' },
@@ -170,7 +170,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 
     const entry = createEntry(parsed.data);
 
-    logger.info('Changelog entry created', { entryId: entry.id, title: entry.title, userId: user.id });
+    logger.info('Changelog entry created', { entryId: entry.id, title: entry.title, userId: user!.id });
 
     res.status(201).json({
       success: true,

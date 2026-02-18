@@ -62,7 +62,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       success: true,
       data: {
         total, onTrack, atRisk, offTrack,
-        byCategory: byCategory.map((c: Record<string, unknown>) => ({ category: c.category, count: c._count.id })),
+        byCategory: byCategory.map((c: Record<string, unknown>) => ({ category: c.category, count: (c as any)._count.id })),
       },
     });
   } catch (error: unknown) {
@@ -134,7 +134,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get metric by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -151,7 +151,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -168,7 +168,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Metric not found' } });
 
     await prisma.qualMetric.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

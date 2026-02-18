@@ -59,7 +59,7 @@ const RESERVED_PATHS = new Set(['executive-dashboard', 'modules']);
 router.get('/executive-dashboard', async (req: Request, res: Response) => {
   try {
     const kpis = await prisma.analyticsKpi.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: [{ module: 'asc' }, { name: 'asc' }],
       take: Math.min(Number(req.query.limit) || 50, 200),
       skip: Number(req.query.offset) || 0,
@@ -87,7 +87,7 @@ router.get('/modules/:module', async (req: Request, res: Response) => {
     const { module } = req.params;
 
     const kpis = await prisma.analyticsKpi.findMany({
-      where: { module, deletedAt: null },
+      where: { module, deletedAt: null } as any,
       orderBy: { name: 'asc' },
       take: Math.min(Number(req.query.limit) || 50, 200),
       skip: Number(req.query.offset) || 0,
@@ -186,7 +186,7 @@ router.post('/:id/calculate', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const kpi = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
+    const kpi = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!kpi) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
@@ -225,10 +225,10 @@ router.post('/:id/calculate', async (req: Request, res: Response) => {
 
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    if (RESERVED_PATHS.has(req.params.id)) return (req as AuthRequest).next('route');
+    if (RESERVED_PATHS.has(req.params.id)) return;
 
     const kpi = await prisma.analyticsKpi.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!kpi) {
@@ -250,7 +250,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
@@ -280,7 +280,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }

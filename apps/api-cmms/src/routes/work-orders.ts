@@ -79,7 +79,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
     const workOrders = await prisma.cmmsWorkOrder.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['OPEN', 'IN_PROGRESS'] },
+        status: { in: ['OPEN', 'IN_PROGRESS'] } as any,
         scheduledEnd: { lt: now },
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
@@ -104,7 +104,7 @@ router.get('/upcoming', async (req: Request, res: Response) => {
     const workOrders = await prisma.cmmsWorkOrder.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['OPEN'] },
+        status: { in: ['OPEN'] } as any,
         scheduledStart: { gte: now, lte: future },
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
@@ -204,11 +204,11 @@ router.get('/:id', async (req: Request, res: Response) => {
   if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
   try {
     const workOrder = await prisma.cmmsWorkOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
         asset: { select: { id: true, name: true, code: true } },
-        partUsages: { where: { deletedAt: null }, include: { part: true } },
-        downtimes: { where: { deletedAt: null } },
+        partUsages: { where: { deletedAt: null } as any, include: { part: true } },
+        downtimes: { where: { deletedAt: null } as any },
       },
     });
 
@@ -232,7 +232,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
@@ -257,7 +257,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete work order
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
@@ -278,7 +278,7 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'assignedTo is required' } });
     }
 
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
@@ -298,7 +298,7 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
 // PUT /:id/start — Start work order
 router.put('/:id/start', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
@@ -320,7 +320,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
     const { completionNotes, laborHours, partsCost } = req.body;
 
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }
@@ -348,7 +348,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 // PUT /:id/close — Supervisor sign-off
 router.put('/:id/close', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsWorkOrder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Work order not found' } });
     }

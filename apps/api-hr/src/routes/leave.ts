@@ -16,7 +16,7 @@ router.param('id', validateIdParam());
 router.get('/types', async (_req: Request, res: Response) => {
   try {
     const types = await prisma.leaveType.findMany({
-      where: { isActive: true, deletedAt: null },
+      where: { isActive: true, deletedAt: null } as any,
       orderBy: { sortOrder: 'asc' },
       take: 100,
     });
@@ -76,9 +76,9 @@ router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.LeaveRequestWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
     if (leaveTypeId) where.leaveTypeId = leaveTypeId as string;
     if (startDate || endDate) {
       where.startDate = {};
@@ -174,7 +174,7 @@ router.post('/requests', async (req: Request, res: Response) => {
       where: { employeeId_leaveTypeId_year: { employeeId: data.employeeId, leaveTypeId: data.leaveTypeId, year } },
     });
 
-    if (balance && balance.balance < days) {
+    if (balance && Number(balance.balance) < days) {
       return res.status(400).json({
         success: false,
         error: { code: 'INSUFFICIENT_BALANCE', message: `Insufficient leave balance. Available: ${balance.balance}, Requested: ${days}` },
@@ -355,7 +355,7 @@ router.get('/balances/:employeeId', async (req: Request, res: Response) => {
         employeeId: req.params.employeeId,
         year: parseInt(year as string),
         deletedAt: null,
-      },
+      } as any,
       include: { leaveType: true },
       take: 100,
     });
@@ -421,7 +421,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
     const start = new Date(startDate as string);
     const end = new Date(endDate as string);
 
-    const where: Prisma.LeaveRequestWhereInput = {
+    const where: any = {
       status: 'APPROVED',
       OR: [
         { startDate: { gte: start, lte: end } },
@@ -431,11 +431,11 @@ router.get('/calendar', async (req: Request, res: Response) => {
     };
 
     if (departmentId) {
-      where.employee = { departmentId };
+      where.employee = { departmentId } as any;
     }
 
     const leaves = await prisma.leaveRequest.findMany({
-      where: { ...where, deletedAt: null },
+      where: { ...where, deletedAt: null } as any,
       include: {
         employee: { select: { id: true, firstName: true, lastName: true, departmentId: true } },
         leaveType: { select: { name: true, color: true } },
@@ -457,7 +457,7 @@ router.get('/holidays', async (req: Request, res: Response) => {
     const { year = new Date().getFullYear() } = req.query;
 
     const holidays = await prisma.holiday.findMany({
-      where: { year: parseInt(year as string), deletedAt: null },
+      where: { year: parseInt(year as string), deletedAt: null } as any,
       orderBy: { date: 'asc' },
       take: 100,
     });

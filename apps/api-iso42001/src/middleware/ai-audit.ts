@@ -100,7 +100,7 @@ export function createAiAuditMiddleware(systemId?: string) {
             userId: authReq.user?.id || 'system',
             userName: authReq.user?.email || 'system',
             ipAddress: req.ip || null,
-            organisationId: authReq.user?.organisationId || 'default',
+            organisationId: (authReq.user as any)?.organisationId || 'default',
             metadata: {
               method: req.method,
               path: req.originalUrl,

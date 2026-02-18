@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { calculateRiskScore, getRiskLevel } from '../services/riskCalculator';
@@ -73,7 +73,7 @@ async function generateCoshhRef(orgId: string): Promise<string> {
 // GET /api/coshh/due-review — assessments due for review
 router.get('/due-review', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const days = parseInt(req.query.days as string) || 30;
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
@@ -92,11 +92,11 @@ router.get('/due-review', authenticate, async (req: Request, res: Response) => {
 // GET /api/coshh — all COSHH assessments (org-wide)
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { status, riskLevel, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
-    if (status) where.status = status;
-    if (riskLevel) where.residualRiskLevel = riskLevel;
+    if (status) where.status = status as any;
+    if (riskLevel) where.residualRiskLevel = riskLevel as any;
     if (search) {
       where.OR = [
         { referenceNumber: { contains: search, mode: 'insensitive' } },
@@ -124,7 +124,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const item = await prisma.chemCoshh.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { chemical: true, exposureMonitoring: true },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
@@ -140,10 +140,10 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createCoshhSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const d = parsed.data;
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } as any });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     const referenceNumber = await generateCoshhRef(orgId);
@@ -168,7 +168,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         recordRetentionYears,
         orgId,
         createdBy: (req as AuthRequest).user?.id,
-      },
+      } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
@@ -182,7 +182,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateCoshhSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
 
     const d = parsed.data;
@@ -213,7 +213,7 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
     const parsed = signOffSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { role, name } = parsed.data;
-    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.chemCoshh.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'COSHH assessment not found' } });
 
     const updates: Record<string, unknown> = {};

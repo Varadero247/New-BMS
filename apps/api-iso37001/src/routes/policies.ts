@@ -157,7 +157,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'DRAFT',
         createdBy: userId,
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Policy created', { id: policy.id, referenceNumber });
@@ -174,7 +174,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
 
     const policy = await prisma.abPolicy.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!policy) {
@@ -199,7 +199,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abPolicy.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Policy not found' });
@@ -212,7 +212,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Policy updated', { id: policy.id });
@@ -227,7 +227,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.put('/:id/approve', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abPolicy.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Policy not found' });
@@ -242,7 +242,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
         approvedBy: userId,
         approvedAt: new Date(),
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Policy approved', { id: policy.id });
@@ -257,7 +257,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abPolicy.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Policy not found' });
@@ -270,7 +270,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: {
         deletedAt: new Date(),
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Policy deleted', { id: req.params.id });

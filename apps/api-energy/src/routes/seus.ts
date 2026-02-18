@@ -137,7 +137,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const seu = await prisma.energySeu.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!seu) {
@@ -163,17 +163,17 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'SEU not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.consumptionPercentage !== undefined) {
-      updateData.consumptionPercentage = new Prisma.Decimal(updateData.consumptionPercentage);
+      updateData.consumptionPercentage = new Prisma.Decimal(updateData.consumptionPercentage as any);
     }
     if (updateData.annualConsumption !== undefined) {
-      updateData.annualConsumption = new Prisma.Decimal(updateData.annualConsumption);
+      updateData.annualConsumption = new Prisma.Decimal(updateData.annualConsumption as any);
     }
 
     const seu = await prisma.energySeu.update({
@@ -197,7 +197,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'SEU not found' });
     }

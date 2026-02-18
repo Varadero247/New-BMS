@@ -116,7 +116,7 @@ const mockRMF2 = {
 
 const mockHazard1 = {
   id: 'haz-0001',
-  riskManagementFileId: '20000000-0000-4000-a000-000000000001',
+  fileId: '20000000-0000-4000-a000-000000000001',
   hazardId: 'H-001',
   hazardCategory: 'ENERGY',
   hazardDescription: 'Electrical energy exceeds safe limits',
@@ -136,7 +136,7 @@ const mockHazard1 = {
 
 const mockHazard2 = {
   id: 'haz-0002',
-  riskManagementFileId: '20000000-0000-4000-a000-000000000001',
+  fileId: '20000000-0000-4000-a000-000000000001',
   hazardId: 'H-002',
   hazardCategory: 'USE_ERROR',
   hazardDescription: 'Incorrect programming of device parameters',
@@ -156,7 +156,7 @@ const mockHazard2 = {
 
 const mockHazard3 = {
   id: 'haz-0003',
-  riskManagementFileId: '20000000-0000-4000-a000-000000000001',
+  fileId: '20000000-0000-4000-a000-000000000001',
   hazardId: 'H-003',
   hazardCategory: 'BIOLOGICAL',
   hazardDescription: 'Biocompatibility failure of lead material',
@@ -708,7 +708,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
 
       expect(mockPrisma.hazard.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          riskManagementFileId: mockRMF.id,
+          fileId: mockRMF.id,
           hazardId: 'H-001',
           hazardCategory: 'ENERGY',
           hazardDescription: 'Electrical energy exceeds safe limits',
@@ -1212,7 +1212,7 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
       (mockPrisma.riskManagementFile.findUnique as jest.Mock).mockResolvedValueOnce(mockRMF);
       (mockPrisma.hazard.findUnique as jest.Mock).mockResolvedValueOnce({
         ...mockHazard1,
-        riskManagementFileId: 'different-rmf-id',
+        fileId: 'different-rmf-id',
       });
 
       const response = await request(app)

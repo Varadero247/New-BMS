@@ -15,7 +15,7 @@ import {
 
 const logger = createLogger('api-gateway-audit');
 const router = Router();
-const auditService = createEnhancedAuditService(prisma);
+const auditService = createEnhancedAuditService(prisma as any) as any;
 
 router.use(authenticate);
 
@@ -137,22 +137,23 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
     }
 
     // Persist the e-signature to the database
+    const sig = result.signature as any;
     await prisma.eSignature.create({
       data: {
-        id: result.signature.id,
-        userId: result.signature.userId,
-        userEmail: result.signature.userEmail,
-        userFullName: result.signature.userFullName,
-        meaning: result.signature.meaning,
-        reason: result.signature.reason,
-        resourceType: result.signature.resourceType,
-        resourceId: result.signature.resourceId,
-        resourceRef: result.signature.resourceRef,
-        ipAddress: result.signature.ipAddress,
-        userAgent: result.signature.userAgent,
-        checksum: result.signature.checksum,
+        id: sig.id,
+        userId: sig.userId,
+        userEmail: sig.userEmail,
+        userFullName: sig.userFullName,
+        meaning: sig.meaning,
+        reason: sig.reason,
+        resourceType: sig.resourceType,
+        resourceId: sig.resourceId,
+        resourceRef: sig.resourceRef,
+        ipAddress: sig.ipAddress || '',
+        userAgent: sig.userAgent || '',
+        checksum: sig.checksum,
         valid: true,
-      },
+      } as any,
     });
 
     // Log the e-signature event to enhanced audit trail
@@ -197,21 +198,22 @@ router.get('/esignature/:id', async (req: AuthRequest, res: Response) => {
       });
     }
 
+    const sigData = signature as any;
     const verification = verifySignature({
-      id: signature.id,
-      userId: signature.userId,
-      userEmail: signature.userEmail,
-      userFullName: signature.userFullName,
-      meaning: signature.meaning as any,
-      reason: signature.reason,
-      timestamp: signature.createdAt,
-      ipAddress: signature.ipAddress,
-      userAgent: signature.userAgent,
-      resourceType: signature.resourceType,
-      resourceId: signature.resourceId,
-      resourceRef: signature.resourceRef,
-      checksum: signature.checksum,
-      valid: signature.valid,
+      id: sigData.id,
+      userId: sigData.userId,
+      userEmail: sigData.userEmail,
+      userFullName: sigData.userFullName,
+      meaning: sigData.meaning,
+      reason: sigData.reason,
+      timestamp: sigData.createdAt,
+      ipAddress: sigData.ipAddress || '',
+      userAgent: sigData.userAgent || '',
+      resourceType: sigData.resourceType,
+      resourceId: sigData.resourceId,
+      resourceRef: sigData.resourceRef,
+      checksum: sigData.checksum,
+      valid: sigData.valid,
     });
 
     res.json({ success: true, data: verification });

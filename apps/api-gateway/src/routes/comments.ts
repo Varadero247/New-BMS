@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import {
   createComment,
@@ -52,13 +52,13 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const { recordType, recordId, parentId, body } = parsed.data;
 
     const comment = await createComment({
-      orgId: user.organisationId || user.orgId || 'default',
+      orgId: (user as any).organisationId || (user as any).orgId || 'default',
       recordType,
       recordId,
       parentId: parentId || null,
-      authorId: user.id,
-      authorName: user.name || user.email || 'Unknown',
-      authorAvatar: user.avatar,
+      authorId: user!.id,
+      authorName: (user as any).name || user!.email || 'Unknown',
+      authorAvatar: user!.avatar ?? undefined,
       body,
     });
 
@@ -68,7 +68,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         commentId: comment.id,
         recordType,
         recordId,
-        authorId: user.id,
+        authorId: user!.id,
         mentions: comment.mentions,
       });
     }
@@ -77,7 +77,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       commentId: comment.id,
       recordType,
       recordId,
-      authorId: user.id,
+      authorId: user!.id,
     });
 
     res.status(201).json({
@@ -151,9 +151,9 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     }
 
-    const comment = await updateComment(commentId, user.id, parsed.data.body);
+    const comment = await updateComment(commentId, user!.id, parsed.data.body);
 
-    logger.info('Comment updated', { commentId, authorId: user.id });
+    logger.info('Comment updated', { commentId, authorId: user!.id });
 
     res.json({
       success: true,
@@ -190,12 +190,12 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
     const commentId = req.params.id;
-    const roles: string[] = user.roles || [];
+    const roles: string[] = (user as any).roles || [(user as any).role] || [];
     const isAdmin = roles.includes('SUPER_ADMIN') || roles.includes('ORG_ADMIN') || roles.includes('ADMIN');
 
-    await deleteComment(commentId, user.id, isAdmin);
+    await deleteComment(commentId, user!.id, isAdmin);
 
-    logger.info('Comment deleted', { commentId, userId: user.id, isAdmin });
+    logger.info('Comment deleted', { commentId, userId: user!.id, isAdmin });
 
     res.json({
       success: true,
@@ -241,7 +241,7 @@ router.post('/:id/reactions', authenticate, async (req: Request, res: Response) 
       });
     }
 
-    const reaction = await addReaction(commentId, user.id, parsed.data.emoji);
+    const reaction = await addReaction(commentId, user!.id, parsed.data.emoji);
 
     res.status(201).json({
       success: true,
@@ -274,7 +274,7 @@ router.delete('/:id/reactions/:emoji', authenticate, async (req: Request, res: R
     const commentId = req.params.id;
     const emoji = decodeURIComponent(req.params.emoji);
 
-    await removeReaction(commentId, user.id, emoji);
+    await removeReaction(commentId, user!.id, emoji);
 
     res.json({
       success: true,

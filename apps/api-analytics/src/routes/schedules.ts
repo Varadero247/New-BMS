@@ -128,7 +128,7 @@ router.put('/:id/toggle', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const schedule = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } });
+    const schedule = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } as any });
     if (!schedule) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
@@ -153,7 +153,7 @@ router.put('/:id/toggle', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const schedule = await prisma.analyticsSchedule.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!schedule) {
@@ -175,7 +175,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
@@ -205,7 +205,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsSchedule.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }

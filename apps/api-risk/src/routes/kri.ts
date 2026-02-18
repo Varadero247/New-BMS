@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -23,12 +23,12 @@ const kriSchema = z.object({
 function evaluateKriStatus(kri: Record<string, unknown>, value: number): string {
   const dir = kri.thresholdDirection || 'INCREASING_IS_WORSE';
   if (dir === 'INCREASING_IS_WORSE') {
-    if (kri.redThreshold != null && value > kri.redThreshold) return 'RED';
-    if (kri.amberThreshold != null && value > kri.amberThreshold) return 'AMBER';
+    if (kri.redThreshold != null && value > (kri.redThreshold as number)) return 'RED';
+    if (kri.amberThreshold != null && value > (kri.amberThreshold as number)) return 'AMBER';
     return 'GREEN';
   } else {
-    if (kri.redThreshold != null && value < kri.redThreshold) return 'RED';
-    if (kri.amberThreshold != null && value < kri.amberThreshold) return 'AMBER';
+    if (kri.redThreshold != null && value < (kri.redThreshold as number)) return 'RED';
+    if (kri.amberThreshold != null && value < (kri.amberThreshold as number)) return 'AMBER';
     return 'GREEN';
   }
 }
@@ -47,7 +47,7 @@ router.get('/:id/kri', authenticate, async (req: Request, res: Response) => {
 // POST /api/risks/:id/kri
 router.post('/:id/kri', authenticate, async (req: Request, res: Response) => {
   try {
-    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!risk) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     const parsed = kriSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
@@ -77,13 +77,13 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
     const { value, notes } = parsed.data;
     const kri = await prisma.riskKri.findFirst({ where: { id: req.params.id, riskId: req.params.riskId } });
     if (!kri) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KRI not found' } });
-    const status = evaluateKriStatus(kri, value);
+    const status = evaluateKriStatus(kri as any, value);
     const reading = await prisma.riskKriReading.create({
-      data: { kriId: req.params.id, value, status, recordedBy: (req as AuthRequest).user?.id, notes },
+      data: { kriId: req.params.id, value, status: status as any, recordedBy: (req as AuthRequest).user?.id, notes },
     });
     await prisma.riskKri.update({
       where: { id: req.params.id },
-      data: { currentValue: value, currentStatus: status, lastMeasuredAt: new Date(), measuredBy: (req as AuthRequest).user?.id },
+      data: { currentValue: value, currentStatus: status as any, lastMeasuredAt: new Date(), measuredBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data: reading });
   } catch (error: unknown) { logger.error('Failed to record KRI reading', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }

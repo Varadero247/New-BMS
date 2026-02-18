@@ -92,7 +92,7 @@ router.post('/', async (req: Request, res: Response) => {
         lastCalibrationDate: parsed.data.lastCalibrationDate ? new Date(parsed.data.lastCalibrationDate) : null,
         nextCalibrationDate: parsed.data.nextCalibrationDate ? new Date(parsed.data.nextCalibrationDate) : null,
         status: 'CURRENT',
-        organisationId: authReq.user?.organisationId || 'default',
+        organisationId: (authReq.user as any)?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -107,7 +107,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get calibration by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -124,7 +124,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -142,7 +142,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.qualCalibration.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Calibration not found' } });
 
     await prisma.qualCalibration.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

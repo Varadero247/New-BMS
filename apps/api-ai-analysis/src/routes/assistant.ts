@@ -1,9 +1,10 @@
 import { Router, Response } from 'express';
+import type { Router as IRouter } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 
-const router = Router();
+const router: IRouter = Router();
 router.use(authenticate);
 
 const assistantSchema = z.object({
@@ -100,7 +101,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Try AI provider
     let aiAnswer: string | null = null;
     try {
-      const settings = await prisma.aISettings.findFirst({ where: { isActive: true } });
+      const settings = await prisma.aISettings.findFirst({ where: { isActive: true } as any });
       if (settings?.apiKey) {
         const moduleList = Object.entries(MODULE_KB)
           .map(([name, info]) => `- ${name}${info.iso ? ` (${info.iso})` : ''}: ${info.description}`)
@@ -145,7 +146,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         });
 
         if (response.ok) {
-          const data = await response.json();
+          const data: any = await response.json();
           if (provider === 'ANTHROPIC') {
             aiAnswer = data.content?.[0]?.text || null;
           } else {

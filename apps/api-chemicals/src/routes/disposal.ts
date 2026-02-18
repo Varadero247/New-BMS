@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -27,10 +27,10 @@ const updateDisposalSchema = createDisposalSchema.partial();
 // GET /api/disposal — all disposal records
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { chemicalId, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
-    if (chemicalId) where.chemicalId = chemicalId;
+    if (chemicalId) where.chemicalId = chemicalId as any;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
       prisma.chemDisposal.findMany({
@@ -53,7 +53,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const parsed = createDisposalSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const d = parsed.data;
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } as any });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
     const data = await prisma.chemDisposal.create({
       data: { ...d, disposedBy: (req as AuthRequest).user?.id, createdBy: (req as AuthRequest).user?.id },

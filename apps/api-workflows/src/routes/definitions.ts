@@ -24,9 +24,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { status, category, createdById } = req.query;
 
-    const where: Prisma.WorkflowDefinitionWhereInput = { deletedAt: null };
-    if (status) where.status = status;
-    if (category) where.category = category;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
+    if (category) where.category = category as any;
     if (createdById) where.createdById = createdById as string;
 
     const definitions = await prisma.workflowDefinition.findMany({
@@ -99,11 +99,11 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         category: data.category,
         triggerType: data.triggerType,
-        triggerConfig: data.triggerConfig,
-        steps: data.steps as Prisma.InputJsonValue,
-        rules: data.rules,
+        triggerConfig: data.triggerConfig as any,
+        steps: data.steps as any,
+        rules: data.rules as any,
         defaultSlaHours: data.defaultSlaHours,
-        escalationConfig: data.escalationConfig,
+        escalationConfig: data.escalationConfig as any,
         createdById: data.createdById,
         version: 1,
         status: 'DRAFT',
@@ -147,7 +147,7 @@ router.put('/:id', checkOwnership(prisma.workflowDefinition), async (req: AuthRe
       data: {
         ...data,
         version: current.version + 1,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: definition });
@@ -216,11 +216,11 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
         description: source.description,
         category: source.category,
         triggerType: source.triggerType,
-        triggerConfig: source.triggerConfig ?? undefined,
-        steps: source.steps as object,
-        rules: source.rules ?? undefined,
+        triggerConfig: (source.triggerConfig ?? undefined) as any,
+        steps: source.steps as any,
+        rules: (source.rules ?? undefined) as any,
         defaultSlaHours: source.defaultSlaHours,
-        escalationConfig: source.escalationConfig ?? undefined,
+        escalationConfig: (source.escalationConfig ?? undefined) as any,
         version: 1,
         status: 'DRAFT',
       },

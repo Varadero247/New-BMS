@@ -154,7 +154,7 @@ router.get('/monitor', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.OasisMonitoredSupplierWhereInput = {};
+    const where: any = {};
     if (certStatus) where.certStatus = certStatus as any;
     if (search) {
       where.OR = [
@@ -193,7 +193,7 @@ router.get('/alerts', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.OasisAlertWhereInput = { acknowledged: false };
+    const where: any = { acknowledged: false };
 
     const [alerts, total] = await Promise.all([
       prisma.oasisAlert.findMany({

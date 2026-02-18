@@ -91,9 +91,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
-    if (changeType) where.changeType = changeType;
-    if (priority) where.priority = priority;
+    if (status) where.status = status as any;
+    if (changeType) where.changeType = changeType as any;
+    if (priority) where.priority = priority as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -168,7 +168,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: 'DRAFT',
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: changeRequest });
@@ -196,7 +196,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
-      data,
+      data: data as any,
     });
 
     res.json({ success: true, data: changeRequest });
@@ -284,7 +284,7 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
         reviewedBy: data.reviewedBy || req.user?.id,
         reviewedDate: new Date(),
         conditions: data.conditions,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: changeRequest });

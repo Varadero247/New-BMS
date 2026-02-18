@@ -28,9 +28,9 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.AttendanceWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
     if (startDate || endDate) {
       where.date = {};
       if (startDate) where.date.gte = new Date(startDate as string);
@@ -75,12 +75,12 @@ router.get('/summary', async (req: Request, res: Response) => {
       ? new Date(startDate as string)
       : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const where: Prisma.AttendanceWhereInput = {
+    const where: any = {
       date: { gte: start, lte: end },
     };
 
     if (departmentId) {
-      where.employee = { departmentId };
+      where.employee = { departmentId } as any;
     }
 
     // Get attendance records grouped by status
@@ -189,9 +189,9 @@ router.get('/summary', async (req: Request, res: Response) => {
         presentPercentage: totalRecords > 0 ? Math.round((present / totalRecords) * 1000) / 10 : 0,
         absentPercentage: totalRecords > 0 ? Math.round((absent / totalRecords) * 1000) / 10 : 0,
         latePercentage: totalRecords > 0 ? Math.round((late / totalRecords) * 1000) / 10 : 0,
-        totalWorkedHours: Math.round((totalHours._sum.workedHours || 0) * 10) / 10,
-        totalOvertimeHours: Math.round((totalHours._sum.overtimeHours || 0) * 10) / 10,
-        avgLateMinutes: Math.round(totalHours._avg.lateMinutes || 0),
+        totalWorkedHours: Math.round((Number(totalHours._sum.workedHours || 0) || 0) * 10) / 10,
+        totalOvertimeHours: Math.round((Number(totalHours._sum.overtimeHours || 0) || 0) * 10) / 10,
+        avgLateMinutes: Math.round(Number(totalHours._avg?.lateMinutes || 0) || 0),
         todayPresent,
         todayAbsent,
         todayTotal: totalEmployees,
@@ -315,7 +315,7 @@ router.post('/clock-out', async (req: Request, res: Response) => {
     const workedHours = workedMs / 3600000;
 
     // Calculate overtime (if worked > 8 hours)
-    const standardHours = existing.scheduledHours || 8;
+    const standardHours = Number(existing.scheduledHours) || 8;
     const overtimeHours = Math.max(0, workedHours - standardHours);
 
     const attendance = await prisma.attendance.update({
@@ -352,7 +352,7 @@ router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: 
 
     const data = schema.parse(req.body);
 
-    const updateData = { ...data } as Record<string, unknown>;
+    const updateData: any = { ...data } as Record<string, unknown>;
     if (data.clockIn) updateData.clockIn = new Date(data.clockIn);
     if (data.clockOut) updateData.clockOut = new Date(data.clockOut);
 
@@ -393,7 +393,7 @@ router.post('/', async (req: Request, res: Response) => {
     const attendanceDate = new Date(data.date);
     attendanceDate.setHours(0, 0, 0, 0);
 
-    const createData = {
+    const createData: any = {
       employeeId: data.employeeId,
       date: attendanceDate,
       status: data.status,
@@ -449,7 +449,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/shifts/all', async (_req: Request, res: Response) => {
   try {
     const shifts = await prisma.workShift.findMany({
-      where: { isActive: true, deletedAt: null },
+      where: { isActive: true, deletedAt: null } as any,
       include: { _count: { select: { employees: true } } },
     });
 

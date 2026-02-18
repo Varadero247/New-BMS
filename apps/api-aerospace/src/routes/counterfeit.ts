@@ -95,8 +95,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
-    if (disposition) where.disposition = disposition;
+    if (status) where.status = status as any;
+    if (disposition) where.disposition = disposition as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -172,7 +172,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         safetyImpact: data.safetyImpact,
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: report });
@@ -200,7 +200,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const report = await prisma.aeroCounterfeitReport.update({
       where: { id: req.params.id },
-      data,
+      data: data as any,
     });
 
     res.json({ success: true, data: report });
@@ -249,7 +249,7 @@ router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (riskLevel) where.riskLevel = riskLevel;
+    if (riskLevel) where.riskLevel = riskLevel as any;
     if (search) {
       where.OR = [
         { partNumber: { contains: search as string, mode: 'insensitive' } },
@@ -298,7 +298,7 @@ router.post('/suspect-parts', async (req: AuthRequest, res: Response) => {
         sources: data.sources,
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: part });

@@ -69,7 +69,7 @@ function isMspUser(user: Record<string, unknown>): boolean {
 
 router.post('/msp-link', async (req: AuthRequest, res: Response) => {
   try {
-    if (!isMspUser(req.user)) {
+    if (!isMspUser(req.user as any)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -134,7 +134,7 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
 
 router.get('/msp-clients', async (req: AuthRequest, res: Response) => {
   try {
-    if (!isMspUser(req.user)) {
+    if (!isMspUser(req.user as any)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -186,7 +186,7 @@ router.get('/msp-clients', async (req: AuthRequest, res: Response) => {
 
 router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
   try {
-    if (!isMspUser(req.user)) {
+    if (!isMspUser(req.user as any)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -270,7 +270,7 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
 
 router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
   try {
-    if (!isMspUser(req.user)) {
+    if (!isMspUser(req.user as any)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -324,7 +324,7 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
 
 router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
   try {
-    if (!isMspUser(req.user)) {
+    if (!isMspUser(req.user as any)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -365,7 +365,7 @@ router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
 
 router.get('/msp-link/:id/audit-log', async (req: AuthRequest, res: Response) => {
   try {
-    if (!isMspUser(req.user)) {
+    if (!isMspUser(req.user as any)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },

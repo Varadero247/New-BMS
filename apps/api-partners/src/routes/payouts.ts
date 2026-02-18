@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+import { type AuthRequest } from '@ims/auth';
+
 
 const logger = createLogger('api-partners:payouts');
 const router = Router();
@@ -16,7 +18,7 @@ const requestPayoutSchema = z.object({
 // GET /api/payouts
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -67,7 +69,7 @@ router.post('/request', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
     }
 
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

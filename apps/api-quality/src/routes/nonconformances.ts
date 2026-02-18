@@ -8,7 +8,7 @@ import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
@@ -32,10 +32,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualNonConformanceWhereInput = { deletedAt: null };
-    if (ncType) where.ncType = ncType;
-    if (status) where.status = status;
-    if (severity) where.severity = severity;
+    const where: any = { deletedAt: null };
+    if (ncType) where.ncType = ncType as any;
+    if (status) where.status = status as any;
+    if (severity) where.severity = severity as any;
     if (search) {
       where.title = { contains: search as string, mode: 'insensitive' };
     }
@@ -102,7 +102,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single non-conformance
-router.get('/:id', checkOwnership(prisma.qualNonconformance), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualNonConformance), async (req: AuthRequest, res: Response) => {
   try {
     const nc = await prisma.qualNonConformance.findUnique({
       where: { id: req.params.id },
@@ -187,7 +187,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update non-conformance
-router.put('/:id', checkOwnership(prisma.qualNonconformance), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualNonConformance), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -275,7 +275,7 @@ router.put('/:id', checkOwnership(prisma.qualNonconformance), async (req: AuthRe
 });
 
 // DELETE /:id - Delete non-conformance
-router.delete('/:id', checkOwnership(prisma.qualNonconformance), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualNonConformance), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
     if (!existing) {

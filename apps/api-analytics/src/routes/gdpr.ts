@@ -117,7 +117,7 @@ router.post('/categories', async (req: Request, res: Response) => {
         category: categoryName,
         legalBasis,
         retentionDays: retentionDays || 730,
-        systems: systems || null,
+        systems: (systems || null) as any,
         complianceStatus: complianceStatus || 'COMPLIANT',
       },
     });

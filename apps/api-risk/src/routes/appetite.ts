@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -45,7 +45,7 @@ const frameworkSchema = z.object({
 // GET /api/risks/appetite
 router.get('/appetite', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const statements = await prisma.riskAppetiteStatement.findMany({
       where: { isActive: true, OR: [{ organisationId: orgId }, { organisationId: null }] },
       orderBy: { category: 'asc' },
@@ -59,7 +59,7 @@ router.post('/appetite', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = appetiteSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = parsed.data.organisationId || (req as AuthRequest).user?.orgId || 'default';
+    const orgId = parsed.data.organisationId || ((req as AuthRequest).user as any)?.orgId || 'default';
     const existing = await prisma.riskAppetiteStatement.findFirst({
       where: { category: parsed.data.category, organisationId: orgId },
     });
@@ -81,7 +81,7 @@ router.post('/appetite', authenticate, async (req: Request, res: Response) => {
 // GET /api/risks/framework
 router.get('/framework', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const framework = await prisma.riskFramework.findUnique({ where: { organisationId: orgId } });
     res.json({ success: true, data: framework });
   } catch (error: unknown) { logger.error('Failed to fetch framework', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch framework' } }); }
@@ -92,7 +92,7 @@ router.put('/framework', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = frameworkSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const existing = await prisma.riskFramework.findUnique({ where: { organisationId: orgId } });
     let framework;
     if (existing) {

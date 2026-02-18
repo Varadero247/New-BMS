@@ -80,7 +80,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const skip = (page - 1) * limit;
 
-    const where: Prisma.WebhookWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (req.query.isActive !== undefined) {
       where.isActive = req.query.isActive === 'true';
@@ -117,7 +117,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
   try {
     const webhook = await prisma.webhook.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
         deliveries: {
           orderBy: { createdAt: 'desc' },
@@ -155,7 +155,7 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
     const data = schema.parse(req.body);
 
     const existing = await prisma.webhook.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -185,7 +185,7 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
 router.delete('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.webhook.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -212,7 +212,7 @@ router.delete('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, r
 router.post('/:id/test', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
   try {
     const webhook = await prisma.webhook.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!webhook) {
@@ -307,7 +307,7 @@ router.get('/:id/deliveries', checkOwnership(prisma.webhook), async (req: AuthRe
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
     const skip = (page - 1) * limit;
 
-    const where: Prisma.WebhookDeliveryWhereInput = { webhookId: req.params.id };
+    const where: any = { webhookId: req.params.id };
 
     if (req.query.event) {
       where.event = req.query.event as string;
@@ -355,7 +355,7 @@ router.post('/dispatch', async (req: AuthRequest, res: Response) => {
       where: {
         isActive: true,
         deletedAt: null,
-        events: { has: input.event },
+        events: { has: input.event } as any,
       },
     });
 
@@ -426,7 +426,7 @@ router.post('/dispatch', async (req: AuthRequest, res: Response) => {
         data: {
           webhookId: webhook.id,
           event: input.event,
-          payload,
+          payload: payload as any,
           statusCode,
           response: responseBody,
           success,

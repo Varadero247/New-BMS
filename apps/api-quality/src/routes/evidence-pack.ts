@@ -8,7 +8,7 @@ import { randomUUID } from 'crypto';
 
 const logger = createLogger('api-quality:evidence-pack');
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate);
 
@@ -391,18 +391,18 @@ async function buildEvidencePackSections(
 
   try {
     [documentCount, ncCount, capaCount, riskCount, objectiveCount, partyCount, legalCount, supplierCount, improvementCount, processCount, fmeaCount, changeCount] = await Promise.all([
-      prisma.qualDocument.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualNonConformance.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualCapa.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualRisk.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualObjective.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualInterestedParty.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualLegal.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualSupplier.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualImprovement.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualProcess.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualFmea.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
-      prisma.qualChange.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
+      prisma.qualDocument.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualNonConformance.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualCapa.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualRisk.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualObjective.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualInterestedParty.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualLegal.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualSupplier.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualImprovement.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualProcess.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualFmea.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualChange.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
     ]);
   } catch {
     // If any count fails, continue with zeros
@@ -611,7 +611,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const pack: EvidencePack = {
       id,
       referenceNumber,
-      organisationId: (req as AuthRequest).organisationId || 'default',
+      organisationId: (req as any).organisationId || 'default',
       standard: data.standard,
       status: 'GENERATING',
       format: data.format,

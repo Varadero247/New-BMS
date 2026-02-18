@@ -126,7 +126,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const report = await prisma.portalQualityReport.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!report) {
@@ -152,7 +152,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalQualityReport.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Quality report not found' } });

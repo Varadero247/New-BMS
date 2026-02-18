@@ -49,9 +49,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.OhsObjectiveWhereInput = { deletedAt: null };
-    if (status) where.status = status;
-    if (category) where.category = category;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
+    if (category) where.category = category as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -216,7 +216,7 @@ router.patch('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthReques
 
     const data = schema.parse(req.body);
 
-    const updateData = { ...data };
+    const updateData: any = { ...data };
     if (data.startDate) updateData.startDate = new Date(data.startDate);
     if (data.targetDate) updateData.targetDate = new Date(data.targetDate);
 
@@ -316,7 +316,7 @@ router.patch('/:id/milestones/:mid', async (req: AuthRequest, res: Response) => 
 
     const data = schema.parse(req.body);
 
-    const updateData = { ...data };
+    const updateData: any = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.completed === true) updateData.completedDate = new Date();
     if (data.completed === false) updateData.completedDate = null;

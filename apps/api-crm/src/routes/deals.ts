@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -94,7 +94,7 @@ router.post('/pipelines', async (req: Request, res: Response) => {
           create: stages.map((stage) => ({
             id: uuidv4(),
             ...stage,
-          })),
+          })) as any,
         },
       },
       include: { stages: { orderBy: { order: 'asc' } } },
@@ -139,7 +139,7 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
         name: stage.name,
         order: stage.order,
         probability: stage.probability,
-      })),
+      })) as any,
     });
 
     const updated = await prisma.crmPipeline.findUnique({
@@ -159,14 +159,15 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
 router.get('/forecast', async (_req: Request, res: Response) => {
   try {
     const deals = await prisma.crmDeal.findMany({
-      where: { status: 'OPEN', deletedAt: null },
+      where: { status: 'OPEN', deletedAt: null } as any,
       select: { value: true, probability: true, currency: true },
     });
 
     const forecast = deals.reduce(
       (acc, deal) => {
-        const weighted = (deal.value || 0) * ((deal.probability || 0) / 100);
-        acc.totalValue += deal.value || 0;
+        const dealVal = Number(deal.value) || 0;
+        const weighted = dealVal * ((deal.probability || 0) / 100);
+        acc.totalValue += dealVal;
         acc.weightedValue += weighted;
         acc.dealCount += 1;
         return acc;
@@ -235,7 +236,7 @@ router.post('/', async (req: Request, res: Response) => {
           : undefined,
         createdBy: (req as AuthRequest).user?.id || 'system',
         updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Deal created', { dealId: deal.id, refNumber: deal.refNumber });
@@ -259,10 +260,10 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: Record<string, unknown> = { deletedAt: null };
 
-    if (pipelineId) where.pipelineId = pipelineId;
-    if (stageId) where.stageId = stageId;
-    if (assignedTo) where.assignedTo = assignedTo;
-    if (status) where.status = status;
+    if (pipelineId) where.pipelineId = pipelineId as any;
+    if (stageId) where.stageId = stageId as any;
+    if (assignedTo) where.assignedTo = assignedTo as any;
+    if (status) where.status = status as any;
 
     const [deals, total] = await Promise.all([
       prisma.crmDeal.findMany({
@@ -295,7 +296,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
   try {
     const deal = await prisma.crmDeal.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!deal) {
@@ -309,9 +310,9 @@ router.get('/:id', async (req: Request, res: Response) => {
         orderBy: { createdAt: 'desc' },
         take: 20,
       }),
-      deal.contactId
+      (deal as any).contactId
         ? prisma.crmContact.findMany({
-            where: { id: deal.contactId, deletedAt: null },
+            where: { id: (deal as any).contactId, deletedAt: null } as any,
           })
         : Promise.resolve([]),
     ]);
@@ -338,7 +339,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.crmDeal.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -347,12 +348,12 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data: Record<string, unknown> = { ...validation.data, updatedBy: (req as AuthRequest).user?.id || 'system' };
     if (data.expectedCloseDate) {
-      data.expectedCloseDate = new Date(data.expectedCloseDate);
+      data.expectedCloseDate = new Date(data.expectedCloseDate as string);
     }
 
     const deal = await prisma.crmDeal.update({
       where: { id: req.params.id },
-      data,
+      data: data as any,
     });
 
     logger.info('Deal updated', { dealId: deal.id });
@@ -372,7 +373,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.crmDeal.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -384,7 +385,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
       data: {
         stageId,
         updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     // Log stage change activity
@@ -392,7 +393,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: deal.contactId || undefined,
+        contactId: (deal as any).contactId || undefined,
         type: 'NOTE',
         subject: `Deal moved to new stage`,
         description: `Stage changed to ${stageId}`,
@@ -412,7 +413,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
 router.put('/:id/won', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmDeal.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -426,14 +427,14 @@ router.put('/:id/won', async (req: Request, res: Response) => {
         actualCloseDate: new Date(),
         probability: 100,
         updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     await prisma.crmActivity.create({
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: deal.contactId || undefined,
+        contactId: (deal as any).contactId || undefined,
         type: 'NOTE',
         subject: 'Deal closed — Won',
         createdBy: (req as AuthRequest).user?.id || 'system',
@@ -457,7 +458,7 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.crmDeal.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -472,14 +473,14 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
         lostReason,
         probability: 0,
         updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     await prisma.crmActivity.create({
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: deal.contactId || undefined,
+        contactId: (deal as any).contactId || undefined,
         type: 'NOTE',
         subject: `Deal closed — Lost: ${lostReason}`,
         createdBy: (req as AuthRequest).user?.id || 'system',

@@ -103,7 +103,7 @@ router.post('/', async (req: Request, res: Response) => {
     const data = parsed.data;
 
     const existing = await prisma.portalUser.findFirst({
-      where: { email: data.email, deletedAt: null },
+      where: { email: data.email, deletedAt: null } as any,
     });
     if (existing) {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Email already registered' } });
@@ -181,7 +181,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
 
     const user = await prisma.portalUser.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!user) {
@@ -207,7 +207,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalUser.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
@@ -233,7 +233,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.portalUser.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });

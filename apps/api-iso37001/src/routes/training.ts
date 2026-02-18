@@ -115,13 +115,13 @@ router.get('/overdue', async (req: Request, res: Response) => {
     };
 
     const [records, total] = await Promise.all([
-      prisma.abTraining.findMany({
+      (prisma as any).abTraining.findMany({
         where,
         skip,
         take: limit,
         orderBy: { dueDate: 'asc' },
       }),
-      prisma.abTraining.count({ where }),
+      (prisma as any).abTraining.count({ where }),
     ]);
 
     res.json({
@@ -144,19 +144,19 @@ router.get('/overdue', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, completed, inProgress, overdue, byType] = await Promise.all([
-      prisma.abTraining.count({ where: { deletedAt: null } }),
-      prisma.abTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } }),
-      prisma.abTraining.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
-      prisma.abTraining.count({
+      (prisma as any).abTraining.count({ where: { deletedAt: null } as any }),
+      (prisma as any).abTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
+      (prisma as any).abTraining.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } as any }),
+      (prisma as any).abTraining.count({
         where: {
           deletedAt: null,
-          dueDate: { lt: new Date() },
+          dueDate: { lt: new Date() } as any,
           status: { not: 'COMPLETED' },
         },
       }),
-      prisma.abTraining.groupBy({
+      (prisma as any).abTraining.groupBy({
         by: ['courseType'],
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
         _count: { id: true },
       }),
     ]);
@@ -171,9 +171,9 @@ router.get('/stats', async (_req: Request, res: Response) => {
         inProgress,
         overdue,
         completionRate,
-        byType: byType.map((t) => ({
+        byType: byType.map((t: any) => ({
           courseType: t.courseType,
-          count: t._count.id,
+          count: (t as any)._count.id,
         })),
       },
     });
@@ -211,13 +211,13 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [records, total] = await Promise.all([
-      prisma.abTraining.findMany({
+      (prisma as any).abTraining.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.abTraining.count({ where }),
+      (prisma as any).abTraining.count({ where }),
     ]);
 
     res.json({
@@ -247,7 +247,7 @@ router.post('/', async (req: Request, res: Response) => {
     const userId = (req as AuthRequest).user?.id || 'system';
     const referenceNumber = generateReference('TRN');
 
-    const record = await prisma.abTraining.create({
+    const record = await (prisma as any).abTraining.create({
       data: {
         ...parsed.data,
         referenceNumber,
@@ -270,8 +270,8 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
 
-    const record = await prisma.abTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const record = await (prisma as any).abTraining.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!record) {
@@ -295,8 +295,8 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.abTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const existing = await (prisma as any).abTraining.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Training record not found' });
@@ -304,7 +304,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
-    const record = await prisma.abTraining.update({
+    const record = await (prisma as any).abTraining.update({
       where: { id: req.params.id },
       data: {
         ...parsed.data,
@@ -328,8 +328,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.abTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const existing = await (prisma as any).abTraining.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Training record not found' });
@@ -340,7 +340,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     // Check pass mark
     const passed = existing.passMark ? parsed.data.score >= existing.passMark : true;
 
-    const record = await prisma.abTraining.update({
+    const record = await (prisma as any).abTraining.update({
       where: { id: req.params.id },
       data: {
         status: passed ? 'COMPLETED' : 'FAILED',

@@ -137,7 +137,7 @@ export function ipAllowlistMiddleware(req: Request, res: Response, next: NextFun
 
   const clientIp = req.ip || req.socket.remoteAddress || '0.0.0.0';
 
-  if (!isIpAllowed(user.orgId, clientIp)) {
+  if (!isIpAllowed(user.orgId as string, clientIp)) {
     logger.warn('IP not allowed', { orgId: user.orgId, clientIp });
     res.status(403).json({
       success: false,

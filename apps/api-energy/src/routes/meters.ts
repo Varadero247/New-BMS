@@ -50,13 +50,13 @@ function buildMeterTree(meters: Record<string, unknown>[]): Record<string, unkno
   const roots: Record<string, unknown>[] = [];
 
   for (const m of meters) {
-    map.set(m.id, { ...m, children: [] });
+    map.set(m.id as string, { ...m, children: [] });
   }
 
   for (const m of meters) {
-    const node = map.get(m.id)!;
-    if (m.parentMeterId && map.has(m.parentMeterId)) {
-      map.get(m.parentMeterId)!.children.push(node);
+    const node = map.get(m.id as string)!;
+    if (m.parentMeterId && map.has(m.parentMeterId as string)) {
+      (map.get(m.parentMeterId as string)!.children as Record<string, unknown>[]).push(node);
     } else {
       roots.push(node);
     }
@@ -72,7 +72,7 @@ function buildMeterTree(meters: Record<string, unknown>[]): Record<string, unkno
 router.get('/hierarchy', async (_req: Request, res: Response) => {
   try {
     const meters = await prisma.energyMeter.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: { name: 'asc' },
     });
 
@@ -152,14 +152,14 @@ router.post('/', async (req: Request, res: Response) => {
     const data = parsed.data;
 
     // Check duplicate code
-    const existing = await prisma.energyMeter.findFirst({ where: { code: data.code, deletedAt: null } });
+    const existing = await prisma.energyMeter.findFirst({ where: { code: data.code, deletedAt: null } as any });
     if (existing) {
       return res.status(409).json({ success: false, error: `Meter with code '${data.code}' already exists` });
     }
 
     // Validate parent if provided
     if (data.parentMeterId) {
-      const parent = await prisma.energyMeter.findFirst({ where: { id: data.parentMeterId, deletedAt: null } });
+      const parent = await prisma.energyMeter.findFirst({ where: { id: data.parentMeterId, deletedAt: null } as any });
       if (!parent) {
         return res.status(400).json({ success: false, error: 'Parent meter not found' });
       }
@@ -185,7 +185,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: meter });
   } catch (error: unknown) {
     logger.error('Failed to create meter', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: 'Meter code must be unique' });
     }
     res.status(500).json({ success: false, error: 'Failed to create meter' });
@@ -203,10 +203,10 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const meter = await prisma.energyMeter.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         parent: { select: { id: true, name: true, code: true } },
-        children: { where: { deletedAt: null }, select: { id: true, name: true, code: true, type: true, status: true } },
+        children: { where: { deletedAt: null } as any, select: { id: true, name: true, code: true, type: true, status: true } },
       },
     });
 
@@ -233,14 +233,14 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Meter not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.multiplier !== undefined) {
-      updateData.multiplier = new Prisma.Decimal(updateData.multiplier);
+      updateData.multiplier = new Prisma.Decimal(updateData.multiplier as any);
     }
 
     const meter = await prisma.energyMeter.update({
@@ -264,7 +264,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Meter not found' });
     }
@@ -293,7 +293,7 @@ router.get('/:id/readings', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const meter = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } });
+    const meter = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!meter) {
       return res.status(404).json({ success: false, error: 'Meter not found' });
     }

@@ -53,7 +53,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: Prisma.FinJournalEntryWhereInput = {};
+    const where: any = {};
     if (status && typeof status === 'string') where.status = status as any;
     if (periodId && typeof periodId === 'string') where.periodId = periodId;
     if (dateFrom || dateTo) {
@@ -73,7 +73,7 @@ router.get('/', async (req: Request, res: Response) => {
             include: {
               account: { select: { id: true, code: true, name: true, type: true } },
             },
-            orderBy: { lineNumber: 'asc' },
+            orderBy: { lineNumber: 'asc' } as any,
           },
           period: { select: { id: true, name: true, status: true } },
         },
@@ -105,7 +105,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
           include: {
             account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
           },
-          orderBy: { lineNumber: 'asc' },
+          orderBy: { lineNumber: 'asc' } as any,
         },
         period: true,
       },
@@ -186,11 +186,11 @@ router.post('/', async (req: Request, res: Response) => {
             description: l.description ?? null,
           })),
         },
-      },
+      } as any,
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },
-          orderBy: { lineNumber: 'asc' },
+          orderBy: { lineNumber: 'asc' } as any,
         },
         period: { select: { id: true, name: true } },
       },
@@ -244,7 +244,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       if (missing.length > 0) return res.status(400).json({ success: false, error: `Invalid or inactive account(s): ${missing.join(', ')}` });
 
       const entry = await prisma.$transaction(async (tx) => {
-        await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } });
+        await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } as any });
         return tx.finJournalEntry.update({
           where: { id },
           data: {
@@ -264,9 +264,9 @@ router.put('/:id', async (req: Request, res: Response, next) => {
                 description: l.description ?? null,
               })),
             },
-          },
+          } as any,
           include: {
-            lines: { include: { account: { select: { id: true, code: true, name: true, type: true } } }, orderBy: { lineNumber: 'asc' } },
+            lines: { include: { account: { select: { id: true, code: true, name: true, type: true } } }, orderBy: { lineNumber: 'asc' } as any },
           },
         });
       });
@@ -283,9 +283,9 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         ...(memo !== undefined && { memo }),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
       include: {
-        lines: { include: { account: { select: { id: true, code: true, name: true, type: true } } }, orderBy: { lineNumber: 'asc' } },
+        lines: { include: { account: { select: { id: true, code: true, name: true, type: true } } }, orderBy: { lineNumber: 'asc' } as any },
       },
     });
 
@@ -310,7 +310,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } });
+      await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } as any });
       await tx.finJournalEntry.delete({ where: { id } });
     });
 
@@ -335,9 +335,9 @@ router.post('/:id/post', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const updated = await prisma.finJournalEntry.update({
       where: { id },
-      data: { status: 'POSTED', postedAt: new Date(), postedBy: authReq.user?.id || 'system' },
+      data: { status: 'POSTED', postedAt: new Date(), postedBy: authReq.user?.id || 'system' } as any,
       include: {
-        lines: { include: { account: { select: { id: true, code: true, name: true, type: true } } }, orderBy: { lineNumber: 'asc' } },
+        lines: { include: { account: { select: { id: true, code: true, name: true, type: true } } }, orderBy: { lineNumber: 'asc' } as any },
         period: { select: { id: true, name: true } },
       },
     });

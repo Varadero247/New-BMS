@@ -64,10 +64,10 @@ router.get('/overdue', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where = {
+    const where: any = {
       deletedAt: null,
       dueDate: { lt: new Date() },
-      status: { not: 'COMPLETED' },
+      status: { not: 'COMPLETED' } as any,
     };
 
     const [items, total] = await Promise.all([
@@ -86,13 +86,13 @@ router.get('/overdue', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, completed, overdue, byType] = await Promise.all([
-      prisma.envTraining.count({ where: { deletedAt: null } }),
-      prisma.envTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } }),
-      prisma.envTraining.count({ where: { deletedAt: null, dueDate: { lt: new Date() }, status: { not: 'COMPLETED' } } }),
-      prisma.envTraining.groupBy({ by: ['trainingType'], where: { deletedAt: null }, _count: { id: true } }),
+      prisma.envTraining.count({ where: { deletedAt: null } as any }),
+      prisma.envTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
+      prisma.envTraining.count({ where: { deletedAt: null, dueDate: { lt: new Date() } as any, status: { not: 'COMPLETED' } } }),
+      prisma.envTraining.groupBy({ by: ['trainingType'], where: { deletedAt: null } as any, _count: { id: true } }),
     ]);
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
-    res.json({ success: true, data: { total, completed, overdue, completionRate, byType: byType.map((t: Record<string, unknown>) => ({ trainingType: t.trainingType, count: t._count.id })) } });
+    res.json({ success: true, data: { total, completed, overdue, completionRate, byType: byType.map((t: any) => ({ trainingType: t.trainingType, count: t._count.id })) } });
   } catch (error: unknown) {
     logger.error('Failed to get training stats', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to get training stats' } });
@@ -169,7 +169,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.envTraining.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.envTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
 
     const passed = existing.passMark ? parsed.data.score >= existing.passMark : true;
@@ -196,7 +196,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 // GET /:id — Get training record by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const item = await prisma.envTraining.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.envTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -213,7 +213,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.envTraining.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.envTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -232,7 +232,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.envTraining.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.envTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
 
     await prisma.envTraining.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -41,7 +41,7 @@ async function generateRef(orgId: string): Promise<string> {
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
@@ -60,7 +60,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'permit not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -74,7 +74,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const referenceNumber = await generateRef(orgId);
     const { title, description, type, status, priority, location, area, requestedBy, requestedByName, approvedBy, approvedByName, startDate, endDate, hazards, precautions, ppe, emergencyProcedure, isolations, gasTestRequired, gasTestResult, notes } = parsed.data;
     const data = await prisma.ptwPermit.create({
@@ -94,7 +94,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'permit not found' } });
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -132,7 +132,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.ptwPermit.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'permit not found' } });
     await prisma.ptwPermit.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'permit deleted successfully' } });

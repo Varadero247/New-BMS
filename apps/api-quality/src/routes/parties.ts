@@ -8,7 +8,7 @@ import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
@@ -32,9 +32,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualInterestedPartyWhereInput = { deletedAt: null };
-    if (partyType) where.partyType = partyType;
-    if (status) where.status = status;
+    const where: any = { deletedAt: null };
+    if (partyType) where.partyType = partyType as any;
+    if (status) where.status = status as any;
     if (search) {
       where.partyName = { contains: search as string, mode: 'insensitive' };
     }

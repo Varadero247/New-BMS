@@ -22,7 +22,7 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
     const monthlyConsumption = await prisma.energyReading.aggregate({
       where: {
         deletedAt: null,
-        readingDate: { gte: startOfMonth, lte: endOfMonth },
+        readingDate: { gte: startOfMonth, lte: endOfMonth } as any,
       },
       _sum: { value: true, cost: true },
     });
@@ -31,19 +31,19 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
     const yearlyConsumption = await prisma.energyReading.aggregate({
       where: {
         deletedAt: null,
-        readingDate: { gte: startOfYear, lte: now },
+        readingDate: { gte: startOfYear, lte: now } as any,
       },
       _sum: { value: true, cost: true },
     });
 
     // Active meters count
     const activeMeters = await prisma.energyMeter.count({
-      where: { status: 'ACTIVE', deletedAt: null },
+      where: { status: 'ACTIVE', deletedAt: null } as any,
     });
 
     // Active targets
     const targets = await prisma.energyTarget.findMany({
-      where: { deletedAt: null, year: now.getFullYear() },
+      where: { deletedAt: null, year: now.getFullYear() } as any,
     });
     const onTrackTargets = targets.filter(t => t.status === 'ON_TRACK' || t.status === 'ACHIEVED').length;
 
@@ -54,17 +54,17 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
 
     // Unresolved alerts
     const unresolvedAlerts = await prisma.energyAlert.count({
-      where: { resolvedAt: null, deletedAt: null },
+      where: { resolvedAt: null, deletedAt: null } as any,
     });
 
     // SEU count
     const seuCount = await prisma.energySeu.count({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
     });
 
     // Bills pending verification
     const pendingBills = await prisma.energyBill.count({
-      where: { status: 'PENDING', deletedAt: null },
+      where: { status: 'PENDING', deletedAt: null } as any,
     });
 
     res.json({
@@ -101,17 +101,17 @@ router.get('/esos', async (_req: Request, res: Response) => {
   try {
     // Energy Savings Opportunity Scheme data
     const audits = await prisma.energyAudit.findMany({
-      where: { deletedAt: null, type: { in: ['EXTERNAL', 'REGULATORY', 'ISO_50001'] } },
+      where: { deletedAt: null, type: { in: ['EXTERNAL', 'REGULATORY', 'ISO_50001'] } as any },
       orderBy: { scheduledDate: 'desc' },
     });
 
     const seus = await prisma.energySeu.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: { consumptionPercentage: 'desc' },
     });
 
     const projects = await prisma.energyProject.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: { estimatedSavings: 'desc' },
     });
 
@@ -165,7 +165,7 @@ router.get('/secr', async (req: Request, res: Response) => {
     const readings = await prisma.energyReading.findMany({
       where: {
         deletedAt: null,
-        readingDate: { gte: startOfYear, lte: endOfYear },
+        readingDate: { gte: startOfYear, lte: endOfYear } as any,
       },
       include: {
         meter: { select: { type: true, unit: true } },
@@ -187,7 +187,7 @@ router.get('/secr', async (req: Request, res: Response) => {
     const bills = await prisma.energyBill.aggregate({
       where: {
         deletedAt: null,
-        periodStart: { gte: startOfYear },
+        periodStart: { gte: startOfYear } as any,
         periodEnd: { lte: endOfYear },
       },
       _sum: { cost: true, consumption: true },
@@ -195,7 +195,7 @@ router.get('/secr', async (req: Request, res: Response) => {
 
     // EnPI performance
     const enpis = await prisma.energyEnpi.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       select: { name: true, unit: true, baselineValue: true, currentValue: true, targetValue: true },
     });
 
@@ -237,9 +237,10 @@ router.get('/consumption', async (req: Request, res: Response) => {
 
     const where: Record<string, unknown> = { deletedAt: null };
     if (dateFrom || dateTo) {
-      where.readingDate = {};
-      if (dateFrom) where.readingDate.gte = new Date(String(dateFrom));
-      if (dateTo) where.readingDate.lte = new Date(String(dateTo));
+      const dateFilter: Record<string, Date> = {};
+      if (dateFrom) dateFilter.gte = new Date(String(dateFrom));
+      if (dateTo) dateFilter.lte = new Date(String(dateTo));
+      where.readingDate = dateFilter;
     }
 
     const readings = await prisma.energyReading.findMany({

@@ -79,7 +79,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.MedCapaWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (capaType) where.capaType = capaType as any;
     if (source) where.source = source as any;
@@ -113,14 +113,14 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [total, byStatus, byType, bySeverity, overdue] = await Promise.all([
-      prisma.medCapa.count({ where: { deletedAt: null } }),
-      prisma.medCapa.groupBy({ by: ['status'], _count: { id: true }, where: { deletedAt: null } }),
-      prisma.medCapa.groupBy({ by: ['capaType'], _count: { id: true }, where: { deletedAt: null } }),
-      prisma.medCapa.groupBy({ by: ['severity'], _count: { id: true }, where: { deletedAt: null } }),
+      prisma.medCapa.count({ where: { deletedAt: null } as any }),
+      prisma.medCapa.groupBy({ by: ['status'], _count: { id: true }, where: { deletedAt: null } as any }),
+      prisma.medCapa.groupBy({ by: ['capaType'], _count: { id: true }, where: { deletedAt: null } as any }),
+      prisma.medCapa.groupBy({ by: ['severity'], _count: { id: true }, where: { deletedAt: null } as any }),
       prisma.medCapa.count({
         where: {
           deletedAt: null,
-          status: { notIn: ['CLOSED', 'CANCELLED'] },
+          status: { notIn: ['CLOSED', 'CANCELLED'] } as any,
           plannedDate: { lt: new Date() },
         },
       }),
@@ -131,9 +131,9 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       data: {
         total,
         overdue,
-        byStatus: byStatus.map(s => ({ status: s.status, count: s._count.id })),
-        byType: byType.map(t => ({ type: t.capaType, count: t._count.id })),
-        bySeverity: bySeverity.map(s => ({ severity: s.severity, count: s._count.id })),
+        byStatus: byStatus.map(s => ({ status: s.status, count: (s as any)._count.id })),
+        byType: byType.map(t => ({ type: t.capaType, count: (t as any)._count.id })),
+        bySeverity: bySeverity.map(s => ({ severity: s.severity, count: (s as any)._count.id })),
       },
     });
   } catch (error) {

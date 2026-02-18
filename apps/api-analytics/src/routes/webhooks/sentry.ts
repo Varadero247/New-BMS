@@ -46,12 +46,12 @@ router.post('/', async (req: Request, res: Response) => {
     const { event, data } = parsed.data;
 
     const sentryEvent: Record<string, unknown> = data?.event || event || {};
-    const sentryEventId = sentryEvent.event_id || sentryEvent.id || null;
-    const title = sentryEvent.title || sentryEvent.message || 'Unknown error';
-    const level = sentryEvent.level || 'error';
-    const platform = sentryEvent.platform || 'unknown';
-    const environment = sentryEvent.environment || sentryEvent.tags?.environment || 'production';
-    const errorMessage = sentryEvent.message || sentryEvent.title || '';
+    const sentryEventId = (sentryEvent as any).event_id || (sentryEvent as any).id || null;
+    const title = (sentryEvent as any).title || (sentryEvent as any).message || 'Unknown error';
+    const level = (sentryEvent as any).level || 'error';
+    const platform = (sentryEvent as any).platform || 'unknown';
+    const environment = (sentryEvent as any).environment || (sentryEvent as any).tags?.environment || 'production';
+    const errorMessage = (sentryEvent as any).message || (sentryEvent as any).title || '';
 
     if (!sentryEventId) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Missing event_id' } });

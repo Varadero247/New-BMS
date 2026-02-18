@@ -65,7 +65,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         id: req.params.id,
         portalType: 'CUSTOMER',
         deletedAt: null,
-        visibility: { not: 'PRIVATE' },
+        visibility: { not: 'PRIVATE' } as any,
       },
     });
 

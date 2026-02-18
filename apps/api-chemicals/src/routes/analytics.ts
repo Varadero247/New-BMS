@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -9,7 +9,7 @@ const logger = createLogger('chem-analytics');
 // GET /api/analytics/dashboard — comprehensive dashboard data
 router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const baseWhere = { orgId, isActive: true, deletedAt: null };
 
     const [
@@ -27,15 +27,15 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
     ] = await Promise.all([
       prisma.chemRegister.count({ where: baseWhere }),
       prisma.chemRegister.count({ where: { ...baseWhere, isCmr: true } }),
-      prisma.chemCoshh.count({ where: { orgId, deletedAt: null, residualRiskLevel: { in: ['VERY_HIGH', 'UNACCEPTABLE'] } } }),
+      prisma.chemCoshh.count({ where: { orgId, deletedAt: null, residualRiskLevel: { in: ['VERY_HIGH', 'UNACCEPTABLE'] } as any } }),
       prisma.chemSds.count({ where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } } }),
       prisma.chemCoshh.count({
         where: {
           orgId, status: 'ACTIVE', deletedAt: null,
-          reviewDate: { lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
+          reviewDate: { lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) } as any,
         },
       }),
-      prisma.chemMonitoring.count({ where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } } }),
+      prisma.chemMonitoring.count({ where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } as any } }),
       prisma.chemInventory.count({
         where: {
           isActive: true,
@@ -44,11 +44,11 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
         },
       }),
       prisma.chemIncident.count({ where: { orgId } }),
-      prisma.chemIncompatAlert.count({ where: { isActive: true, chemical: { orgId, deletedAt: null } } }),
+      prisma.chemIncompatAlert.count({ where: { isActive: true, chemical: { orgId, deletedAt: null } as any } }),
       // Risk level breakdown from COSHH assessments
       prisma.chemCoshh.groupBy({
         by: ['residualRiskLevel'],
-        where: { orgId, status: 'ACTIVE', deletedAt: null },
+        where: { orgId, status: 'ACTIVE', deletedAt: null } as any,
         _count: true,
       }),
       prisma.chemIncident.findMany({
@@ -61,7 +61,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
 
     const riskLevelBreakdown: Record<string, number> = {};
     for (const r of riskLevels) {
-      riskLevelBreakdown[r.residualRiskLevel] = r._count;
+      riskLevelBreakdown[r.residualRiskLevel] = (r as any)._count;
     }
 
     res.json({

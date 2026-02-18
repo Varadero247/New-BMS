@@ -30,9 +30,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EnvObjectiveWhereInput = { deletedAt: null };
-    if (status) where.status = status;
-    if (category) where.category = category;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
+    if (category) where.category = category as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -230,7 +230,7 @@ router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respo
 
     const data = schema.parse(req.body);
 
-    const updateData = { ...data };
+    const updateData: any = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.completedDate) updateData.completedDate = new Date(data.completedDate);
     // Auto-set completedDate when marking as completed

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -33,11 +33,11 @@ const updateIncidentSchema = createIncidentSchema.partial();
 // GET /api/incidents — all chemical incidents
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { type, severity, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
-    if (type) where.incidentType = type;
-    if (severity) where.severity = severity;
+    if (type) where.incidentType = type as any;
+    if (severity) where.severity = severity as any;
     if (search) {
       where.OR = [
         { description: { contains: search, mode: 'insensitive' } },
@@ -80,10 +80,10 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createIncidentSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const d = parsed.data;
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } as any });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     const data = await prisma.chemIncident.create({

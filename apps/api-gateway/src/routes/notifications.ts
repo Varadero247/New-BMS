@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { NotificationBellState, WSNotification, WSNotificationType, WSNotificationSeverity } from '@ims/notifications';
 import { v4 as uuidv4 } from 'uuid';
@@ -20,7 +20,7 @@ router.get('/', authenticate, (req: Request, res: Response) => {
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
 
-    const result = bellState.getAll(user.id, page, limit);
+    const result = bellState.getAll(user!.id, page, limit);
 
     res.json({
       success: true,
@@ -41,7 +41,7 @@ router.get('/', authenticate, (req: Request, res: Response) => {
 router.get('/unread', authenticate, (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const count = bellState.getUnreadCount(user.id);
+    const count = bellState.getUnreadCount(user!.id);
 
     res.json({
       success: true,
@@ -62,7 +62,7 @@ router.get('/unread', authenticate, (req: Request, res: Response) => {
 router.put('/read-all', authenticate, (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const count = bellState.markAllRead(user.id);
+    const count = bellState.markAllRead(user!.id);
 
     res.json({
       success: true,
@@ -92,7 +92,7 @@ router.put('/:id/read', authenticate, (req: Request, res: Response) => {
       });
     }
 
-    const marked = bellState.markRead(user.id, notificationId);
+    const marked = bellState.markRead(user!.id, notificationId);
 
     if (!marked) {
       return res.status(404).json({
@@ -129,7 +129,7 @@ const testNotificationSchema = z.object({
 router.post('/test', authenticate, (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const roles: string[] = user.roles || [];
+    const roles: string[] = (user as any).roles || [(user as any).role] || [];
 
     // Admin only
     if (!roles.includes('SUPER_ADMIN') && !roles.includes('ORG_ADMIN') && !roles.includes('ADMIN')) {
@@ -149,7 +149,7 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
 
     const { title, message, type, severity, module, targetUserId } = parsed.data;
 
-    const recipientId = targetUserId || user.id;
+    const recipientId = targetUserId || user!.id;
 
     const notification: WSNotification = {
       id: uuidv4(),
@@ -159,10 +159,10 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
       module: module ?? 'system',
       severity,
       userId: recipientId,
-      orgId: user.organisationId,
+      orgId: (user as any).organisationId,
       createdAt: new Date(),
       read: false,
-      data: { testNotification: true, sentBy: user.id },
+      data: { testNotification: true, sentBy: user!.id },
     };
 
     bellState.addNotification(recipientId, notification);
@@ -170,7 +170,7 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
     logger.info('Test notification sent', {
       notificationId: notification.id,
       recipientId,
-      sentBy: user.id,
+      sentBy: user!.id,
     });
 
     res.status(201).json({

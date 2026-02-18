@@ -107,9 +107,9 @@ router.get('/soa', async (_req: Request, res: Response) => {
       total: controls.length,
       applicable: controls.filter((c) => c.applicability === 'APPLICABLE').length,
       notApplicable: controls.filter((c) => c.applicability === 'NOT_APPLICABLE').length,
-      fullyImplemented: controls.filter((c) => c.implementationStatus === 'FULLY_IMPLEMENTED').length,
-      partiallyImplemented: controls.filter((c) => c.implementationStatus === 'PARTIALLY_IMPLEMENTED').length,
-      notImplemented: controls.filter((c) => c.implementationStatus === 'NOT_IMPLEMENTED').length,
+      fullyImplemented: controls.filter((c) => (c.implementationStatus as any) === 'FULLY_IMPLEMENTED').length,
+      partiallyImplemented: controls.filter((c) => (c.implementationStatus as any) === 'PARTIALLY_IMPLEMENTED').length,
+      notImplemented: controls.filter((c) => (c.implementationStatus as any) === 'NOT_IMPLEMENTED').length,
     };
 
     res.json({ success: true, data: { controls, summary } });
@@ -201,7 +201,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
         justification: parsed.data.justification,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
     });
 
     logger.info('Control applicability updated', { controlId: id, applicability: parsed.data.applicability });
@@ -232,14 +232,14 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
     const control = await prisma.isControl.update({
       where: { id },
       data: {
-        implementationStatus: parsed.data.implementationStatus,
+        implementationStatus: parsed.data.implementationStatus as any,
         implementationNotes: parsed.data.implementationNotes || null,
         evidence: parsed.data.evidence || null,
         owner: parsed.data.owner || null,
         reviewDate: parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
     });
 
     logger.info('Control implementation updated', { controlId: id, status: parsed.data.implementationStatus });

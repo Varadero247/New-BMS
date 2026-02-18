@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { requirePermission, PermissionLevel } from '@ims/rbac';
 import { prisma } from '../prisma';
 
@@ -11,7 +11,7 @@ const generateTemplateSchema = z.object({
   title: z.string().optional(),
 });
 
-const router = Router();
+const router: Router = Router();
 
 // Template category definitions with ISO clause references
 const TEMPLATE_CATEGORIES: Record<string, { prefix: string; isoStandards: string[]; defaultSections: string[] }> = {
@@ -266,7 +266,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
     const { category, isoStandard, page = '1', limit = '20' } = req.query;
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where: Record<string, unknown> = { organisationId: user.organisationId || 'default' };
+    const where: Record<string, unknown> = { organisationId: (user as any).organisationId || 'default' };
     if (category) where.category = category;
     if (isoStandard) where.isoStandard = { contains: String(isoStandard) };
 
@@ -314,7 +314,7 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
 
     // Get next sequence number
     const existingCount = await prisma.qualGeneratedTemplate.count({
-      where: { category, organisationId: user.organisationId || 'default' },
+      where: { category, organisationId: (user as any).organisationId || 'default' },
     });
     const sequence = existingCount + 100; // Start AI-generated at 100 to avoid conflicts
     const docNumber = generateDocNumber(catDef.prefix, sequence);
@@ -344,8 +344,8 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
         description: `AI-generated ${category.toLowerCase()} template based on user prompt`,
         configJson: JSON.stringify(configJson),
         prompt: prompt.trim(),
-        generatedBy: user.id || 'system',
-        organisationId: user.organisationId || 'default',
+        generatedBy: user!.id || 'system',
+        organisationId: (user as any).organisationId || 'default',
       },
     });
 
@@ -401,9 +401,9 @@ router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
 });
 
 // DELETE /api/template-generator/:id — Delete a generated template
-router.delete('/:id', authenticate as any, requirePermission('quality', PermissionLevel.MANAGE) as any, async (req: Request, res: Response) => {
+router.delete('/:id', authenticate as any, requirePermission('quality', (PermissionLevel as any).MANAGE) as any, async (req: Request, res: Response) => {
   try {
-    await prisma.qualGeneratedTemplate.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualGeneratedTemplate.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } as any });
     res.json({ success: true, data: { message: 'Template deleted' } });
   } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'DELETE_ERROR', message: (error as Error).message } });

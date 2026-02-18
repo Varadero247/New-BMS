@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -70,7 +70,7 @@ campaignRouter.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
+    if (status) where.status = status as any;
 
     const [campaigns, total] = await Promise.all([
       prisma.crmCampaign.findMany({
@@ -97,7 +97,7 @@ campaignRouter.get('/', async (req: Request, res: Response) => {
 campaignRouter.get('/:id', async (req: Request, res: Response) => {
   try {
     const campaign = await prisma.crmCampaign.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!campaign) {
@@ -105,7 +105,7 @@ campaignRouter.get('/:id', async (req: Request, res: Response) => {
     }
 
     const memberCount = await prisma.crmCampaignMember.count({
-      where: { campaignId: req.params.id, deletedAt: null },
+      where: { campaignId: req.params.id, deletedAt: null } as any,
     });
 
     return res.json({
@@ -122,7 +122,7 @@ campaignRouter.get('/:id', async (req: Request, res: Response) => {
 campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
   try {
     const campaign = await prisma.crmCampaign.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!campaign) {
@@ -130,7 +130,7 @@ campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
     }
 
     const members = await prisma.crmCampaignMember.findMany({
-      where: { campaignId: req.params.id, deletedAt: null },
+      where: { campaignId: req.params.id, deletedAt: null } as any,
     });
 
     const totalMembers = members.length;
@@ -163,7 +163,7 @@ campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
 campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
   try {
     const campaign = await prisma.crmCampaign.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!campaign) {
@@ -193,7 +193,7 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
         results.push(member);
       } catch (err: unknown) {
         // Skip duplicates (unique constraint)
-        if (err != null && typeof err === 'object' && 'code' in err && (err as Error).code === 'P2002') {
+        if (err != null && typeof err === 'object' && 'code' in err && (err as any).code === 'P2002') {
           logger.warn('Contact already in campaign', { campaignId: req.params.id, contactId });
         } else {
           throw err;
@@ -292,7 +292,7 @@ emailSequenceRouter.get('/', async (req: Request, res: Response) => {
 emailSequenceRouter.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmEmailSequence.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -324,7 +324,7 @@ emailSequenceRouter.put('/:id', async (req: Request, res: Response) => {
 emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmEmailSequence.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -354,7 +354,7 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
         results.push(enrollment);
       } catch (err: unknown) {
         // Skip duplicates (unique constraint)
-        if (err != null && typeof err === 'object' && 'code' in err && (err as Error).code === 'P2002') {
+        if (err != null && typeof err === 'object' && 'code' in err && (err as any).code === 'P2002') {
           logger.warn('Contact already enrolled in sequence', { sequenceId: req.params.id, contactId });
         } else {
           throw err;

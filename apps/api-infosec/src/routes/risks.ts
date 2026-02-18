@@ -97,13 +97,13 @@ router.post('/', async (req: Request, res: Response) => {
         likelihood: parsed.data.likelihood,
         impact: parsed.data.impact,
         riskScore,
-        riskLevel,
+        riskLevel: riskLevel as any,
         assetId: parsed.data.assetId || null,
         category: parsed.data.category || null,
         owner: parsed.data.owner || null,
-        status: 'IDENTIFIED',
+        status: 'IDENTIFIED' as any,
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Information security risk created', { riskId: risk.id, refNumber, riskScore, riskLevel });
@@ -170,7 +170,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/heat-map', async (_req: Request, res: Response) => {
   try {
     const risks = await prisma.isRisk.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       select: { likelihood: true, impact: true },
     });
 
@@ -211,7 +211,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const risk = await prisma.isRisk.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!risk) {
@@ -237,7 +237,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Risk not found' });
     }
@@ -255,10 +255,10 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         likelihood,
         impact,
         riskScore,
-        riskLevel,
+        riskLevel: riskLevel as any,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
     });
 
     logger.info('Risk updated', { riskId: id, riskScore, riskLevel });
@@ -280,7 +280,7 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Risk not found' });
     }
@@ -300,7 +300,7 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
       updateData.residualLikelihood = parsed.data.residualLikelihood;
       updateData.residualImpact = parsed.data.residualImpact;
       updateData.residualRiskScore = parsed.data.residualLikelihood * parsed.data.residualImpact;
-      updateData.residualRiskLevel = calculateRiskLevel(updateData.residualRiskScore);
+      updateData.residualRiskLevel = calculateRiskLevel(updateData.residualRiskScore as number);
     }
 
     const risk = await prisma.isRisk.update({

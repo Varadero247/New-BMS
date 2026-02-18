@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
 
 const router = Router();
@@ -23,9 +23,9 @@ const createSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const { scope } = req.query as Record<string, string>;
-    const where: Record<string, unknown> = { orgId, deletedAt: null };
+    const where: Record<string, any> = { orgId, deletedAt: null };
     if (scope) where.scope = parseInt(scope);
     const data = await prisma.esgScopeEmission.findMany({ where, orderBy: { period: 'desc' } });
     res.json({ success: true, data });
@@ -40,7 +40,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const y = new Date().getFullYear();
     const c = await prisma.esgScopeEmission.count({ where: { orgId } });
     const { scope, category, source, activity, quantity, unit, emissionFactor, co2e, period, location, verifiedBy, verifiedDate, notes } = parsed.data;

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -33,7 +33,7 @@ router.get('/:id/actions', authenticate, async (req: Request, res: Response) => 
 // POST /api/risks/:id/actions
 router.post('/:id/actions', authenticate, async (req: Request, res: Response) => {
   try {
-    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const risk = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!risk) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     const parsed = actionSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });

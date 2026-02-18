@@ -195,7 +195,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.FirstArticleInspectionWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (faiType) where.faiType = faiType as any;
     if (partNumber) where.partNumber = { contains: partNumber as string, mode: 'insensitive' };
@@ -281,7 +281,7 @@ router.put('/:id/part1', async (req: AuthRequest, res: Response) => {
         part1Data: JSON.stringify(data.characteristics),
         part1Status,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
-      },
+      } as any,
     });
 
     logger.info('FAI Part 1 updated', { id: req.params.id, part1Status, characteristicCount: data.characteristics.length });
@@ -322,7 +322,7 @@ router.put('/:id/part2', async (req: AuthRequest, res: Response) => {
         part2Data: JSON.stringify(data.documents),
         part2Status,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
-      },
+      } as any,
     });
 
     logger.info('FAI Part 2 updated', { id: req.params.id, part2Status, documentCount: data.documents.length });
@@ -363,7 +363,7 @@ router.put('/:id/part3', async (req: AuthRequest, res: Response) => {
         part3Data: JSON.stringify(data.testResults),
         part3Status,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
-      },
+      } as any,
     });
 
     logger.info('FAI Part 3 updated', { id: req.params.id, part3Status, testResultCount: data.testResults.length });

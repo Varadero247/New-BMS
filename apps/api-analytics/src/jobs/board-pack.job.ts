@@ -57,12 +57,12 @@ export async function runBoardPackJob(): Promise<string> {
         title: 'Customer Health',
         avgCustomers,
         churnRate: latestSnapshot ? Number(latestSnapshot.revenueChurnPct || 0) : 0,
-        ndr: latestSnapshot ? Number(latestSnapshot.ndr || 0) : 0,
+        ndr: latestSnapshot ? Number((latestSnapshot as any).ndr || 0) : 0,
       },
       founderIncome: {
         title: 'Founder Income',
         summary: 'Founder income and draw details for the quarter.',
-        founderDraw: latestSnapshot ? Number(latestSnapshot.founderDraw || 0) : 0,
+        founderDraw: latestSnapshot ? Number((latestSnapshot as any).founderDraw || 0) : 0,
       },
     };
 
@@ -74,7 +74,7 @@ export async function runBoardPackJob(): Promise<string> {
         status: 'DRAFT',
         sections,
         generatedAt: now,
-      },
+      } as any,
     });
 
     logger.info('Board pack generated', { id: boardPack.id, title, quarter: `Q${quarter}`, year });

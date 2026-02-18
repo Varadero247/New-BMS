@@ -80,7 +80,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         priority: data.priority || 'MEDIUM',
         status: 'IDENTIFIED',
         createdBy: req.user!.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: benefit });
@@ -109,9 +109,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status as string;
-    if (type) where.type = type as string;
-    if (projectId) where.projectId = projectId as string;
+    if (status) where.status = status as any;
+    if (type) where.type = type as any;
+    if (projectId) where.projectId = projectId as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -158,14 +158,14 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       prisma.benefit.count({ where: { ...where, status: 'REALISED' } }),
       prisma.benefit.count({ where: { ...where, status: 'TRACKING' } }),
       prisma.benefit.count({ where: { ...where, status: 'IDENTIFIED' } }),
-      prisma.benefit.findMany({ where, select: { type: true, financialValue: true, status: true, currentValue: true, targetValue: true } }),
+      prisma.benefit.findMany({ where, select: { type: true, financialValue: true, status: true, currentValue: true, targetValue: true } as any }),
     ]);
 
     // Aggregate by type
     const byType: Record<string, number> = {};
     const financialSummary = { totalExpected: 0, totalRealised: 0 };
 
-    for (const b of benefits) {
+    for (const b of benefits as any[]) {
       byType[b.type] = (byType[b.type] || 0) + 1;
       if (b.financialValue) financialSummary.totalExpected += b.financialValue;
       if (b.status === 'REALISED' && b.financialValue) financialSummary.totalRealised += b.financialValue;
@@ -208,7 +208,7 @@ router.get('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
 
     const measurements = await prisma.benefitMeasurement.findMany({
       where: { benefitId: benefit.id },
-      orderBy: { measuredAt: 'desc' },
+      orderBy: { measuredAt: 'desc' } as any,
     });
 
     res.json({ success: true, data: { ...benefit, measurements } });
@@ -310,7 +310,7 @@ router.post('/:id/measurements', checkOwnership(prisma.benefit), async (req: Aut
         measuredAt: data.measuredAt ? new Date(data.measuredAt) : new Date(),
         source: data.source,
         measuredBy: req.user!.id,
-      },
+      } as any,
     });
 
     // Update current value on the benefit
@@ -348,7 +348,7 @@ router.delete('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, r
 
     await prisma.benefit.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), deletedBy: req.user!.id },
+      data: { deletedAt: new Date(), deletedBy: req.user!.id } as any,
     });
 
     res.json({ success: true, data: { message: 'Benefit deleted' } });

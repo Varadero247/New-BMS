@@ -110,7 +110,7 @@ router.get('/dmr', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.DeviceMasterRecordWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (deviceClass) where.deviceClass = deviceClass as any;
     if (deviceName) {
@@ -147,7 +147,7 @@ router.get('/dmr/:id', checkOwnership(prisma.deviceMasterRecord), async (req: Au
       where: { id: req.params.id },
       include: {
         dhrs: {
-          where: { deletedAt: null },
+          where: { deletedAt: null } as any,
           orderBy: { createdAt: 'desc' },
         },
         _count: {
@@ -306,9 +306,9 @@ router.get('/dhr', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.DeviceHistoryRecordWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
-    if (dmrId) where.dmrId = dmrId as string;
+    if (dmrId) where.dmrId = dmrId as any;
     if (batchNumber) {
       where.batchNumber = { contains: batchNumber as string, mode: 'insensitive' };
     }
@@ -399,7 +399,7 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
     const record = await prisma.dHRRecord.create({
       data: {
         dhrId: req.params.id,
-        recordType: data.recordType,
+        recordType: data.recordType as any,
         title: data.title,
         description: data.description,
         result: data.result,

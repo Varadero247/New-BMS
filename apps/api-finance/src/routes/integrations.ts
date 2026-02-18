@@ -70,7 +70,7 @@ router.post('/', async (req: Request, res: Response) => {
     const integration = await prisma.finIntegration.create({
       data: {
         ...data,
-        createdBy: user.id,
+        createdBy: user!.id,
       },
     });
 

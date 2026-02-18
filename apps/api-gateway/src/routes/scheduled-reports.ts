@@ -10,9 +10,10 @@ import {
   deleteSchedule,
   runScheduleNow,
   REPORT_TYPES,
-  type ReportType,
-  type ReportFormat,
 } from '@ims/scheduled-reports';
+
+type ReportType = string;
+type ReportFormat = string;
 
 const logger = createLogger('api-gateway:scheduled-reports');
 const router = Router();

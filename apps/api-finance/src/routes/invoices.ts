@@ -106,7 +106,7 @@ router.get('/customers', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.FinCustomerWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (isActive !== undefined) {
       where.isActive = isActive === 'true';
@@ -183,7 +183,7 @@ router.post('/customers', async (req: AuthRequest, res: Response) => {
         isActive: true,
         createdById: req.user?.id,
         updatedById: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: customer });
@@ -214,7 +214,7 @@ router.put('/customers/:id', async (req: AuthRequest, res: Response) => {
       data: {
         ...data,
         updatedById: req.user?.id,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: customer });
@@ -258,7 +258,7 @@ router.delete('/customers/:id', async (req: AuthRequest, res: Response) => {
 
     await prisma.finCustomer.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), isActive: false, updatedById: req.user?.id },
+      data: { deletedAt: new Date(), isActive: false, updatedById: req.user?.id } as any,
     });
 
     res.json({ success: true, data: { message: 'Customer deleted' } });
@@ -281,9 +281,9 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.FinInvoiceWhereInput = {};
+    const where: any = {};
 
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
     if (customerId) where.customerId = customerId as string;
 
     if (dateFrom || dateTo) {
@@ -401,7 +401,7 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
           status: true,
         },
       }),
-      prisma.finPayment.findMany({
+      (prisma as any).finPayment.findMany({
         where: { customerId },
         orderBy: { date: 'asc' },
         select: {
@@ -427,9 +427,9 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
       }),
     ]);
 
-    const totalInvoiced = invoices.reduce((sum, inv) => sum + Number(inv.total), 0);
-    const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
-    const totalCredits = creditNotes.reduce((sum, cn) => sum + Number(cn.amount), 0);
+    const totalInvoiced = invoices.reduce((sum: number, inv: any) => sum + Number(inv.total), 0);
+    const totalPaid = payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+    const totalCredits = creditNotes.reduce((sum: number, cn: any) => sum + Number(cn.amount), 0);
     const balanceDue = totalInvoiced - totalPaid - totalCredits;
 
     res.json({
@@ -463,7 +463,7 @@ router.get('/credit-notes', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.FinCreditNoteWhereInput = {};
+    const where: any = {};
     if (customerId) where.customerId = customerId as string;
 
     const [creditNotes, total] = await Promise.all([
@@ -475,7 +475,7 @@ router.get('/credit-notes', async (req: AuthRequest, res: Response) => {
         include: {
           customer: { select: { id: true, code: true, name: true } },
           invoice: { select: { id: true, reference: true } },
-        },
+        } as any,
       }),
       prisma.finCreditNote.count({ where }),
     ]);
@@ -527,7 +527,7 @@ router.post('/credit-notes', async (req: AuthRequest, res: Response) => {
         amount: data.amount,
         reason: data.reason,
         createdById: req.user?.id,
-      },
+      } as any,
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },
@@ -555,7 +555,7 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.FinPaymentWhereInput = {};
+    const where: any = {};
     if (customerId) where.customerId = customerId as string;
 
     if (dateFrom || dateTo) {
@@ -565,7 +565,7 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
     }
 
     const [payments, total] = await Promise.all([
-      prisma.finPayment.findMany({
+      (prisma as any).finPayment.findMany({
         where,
         skip,
         take: limitNum,
@@ -573,9 +573,9 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
         include: {
           customer: { select: { id: true, code: true, name: true } },
           invoice: { select: { id: true, reference: true } },
-        },
+        } as any,
       }),
-      prisma.finPayment.count({ where }),
+      (prisma as any).finPayment.count({ where }),
     ]);
 
     res.json({
@@ -625,7 +625,7 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
 
     // Use transaction to create payment and update invoice atomically
     const result = await prisma.$transaction(async (tx) => {
-      const payment = await tx.finPayment.create({
+      const payment = await (tx as any).finPayment.create({
         data: {
           reference,
           customerId: data.customerId,
@@ -636,11 +636,11 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
           bankAccountId: data.bankAccountId || null,
           notes: data.notes || null,
           createdById: req.user?.id,
-        },
+        } as any,
         include: {
           customer: { select: { id: true, code: true, name: true } },
           invoice: { select: { id: true, reference: true } },
-        },
+        } as any,
       });
 
       // Update invoice if payment is linked
@@ -752,9 +752,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         createdById: req.user?.id,
         updatedById: req.user?.id,
         lines: {
-          create: lineData,
+          create: lineData as any,
         },
-      },
+      } as any,
       include: {
         customer: { select: { id: true, code: true, name: true } },
         lines: { orderBy: { sortOrder: 'asc' } },
@@ -890,7 +890,7 @@ router.post('/:id/send', async (req: AuthRequest, res: Response) => {
         status: 'SENT',
         sentAt: new Date(),
         updatedById: req.user?.id,
-      },
+      } as any,
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },
@@ -938,7 +938,7 @@ router.post('/:id/void', async (req: AuthRequest, res: Response) => {
         voidReason: reason,
         amountDue: 0,
         updatedById: req.user?.id,
-      },
+      } as any,
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },

@@ -110,7 +110,7 @@ router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) =>
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.LpaScheduleWhereInput = {};
+    const where: any = {};
     if (layer) where.layer = parseInt(layer as string, 10);
     if (frequency) where.frequency = frequency as any;
     if (active !== undefined) where.active = active === 'true';
@@ -204,7 +204,7 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.LpaAuditWhereInput = {};
+    const where: any = {};
     if (status) where.status = status as any;
     if (layer) where.layer = parseInt(layer as string, 10);
     if (processArea) where.processArea = { contains: processArea as string, mode: 'insensitive' };

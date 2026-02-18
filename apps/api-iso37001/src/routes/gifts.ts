@@ -125,13 +125,13 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [gifts, total] = await Promise.all([
-      prisma.abGift.findMany({
+      (prisma as any).abGift.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.abGift.count({ where }),
+      (prisma as any).abGift.count({ where }),
     ]);
 
     res.json({
@@ -163,7 +163,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const { value, ...rest } = parsed.data;
 
-    const gift = await prisma.abGift.create({
+    const gift = await (prisma as any).abGift.create({
       data: {
         ...rest,
         value: new Prisma.Decimal(value),
@@ -187,8 +187,8 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
 
-    const gift = await prisma.abGift.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const gift = await (prisma as any).abGift.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!gift) {
@@ -212,8 +212,8 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.abGift.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const existing = await (prisma as any).abGift.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Gift record not found' });
@@ -231,7 +231,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       updateData.value = new Prisma.Decimal(value);
     }
 
-    const gift = await prisma.abGift.update({
+    const gift = await (prisma as any).abGift.update({
       where: { id: req.params.id },
       data: updateData,
     });
@@ -247,8 +247,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 // PUT /:id/approve — Approve gift
 router.put('/:id/approve', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.abGift.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const existing = await (prisma as any).abGift.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Gift record not found' });
@@ -256,7 +256,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
-    const gift = await prisma.abGift.update({
+    const gift = await (prisma as any).abGift.update({
       where: { id: req.params.id },
       data: {
         status: 'APPROVED',
@@ -277,8 +277,8 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 // PUT /:id/decline — Decline gift
 router.put('/:id/decline', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.abGift.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const existing = await (prisma as any).abGift.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Gift record not found' });
@@ -286,7 +286,7 @@ router.put('/:id/decline', async (req: Request, res: Response) => {
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
-    const gift = await prisma.abGift.update({
+    const gift = await (prisma as any).abGift.update({
       where: { id: req.params.id },
       data: {
         status: 'DECLINED',
@@ -307,8 +307,8 @@ router.put('/:id/decline', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.abGift.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const existing = await (prisma as any).abGift.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Gift record not found' });
@@ -316,7 +316,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
-    await prisma.abGift.update({
+    await (prisma as any).abGift.update({
       where: { id: req.params.id },
       data: {
         deletedAt: new Date(),

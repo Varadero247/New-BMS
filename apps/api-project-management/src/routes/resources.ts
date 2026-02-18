@@ -26,7 +26,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectResourceWhereInput = { projectId: projectId as string, deletedAt: null };
+    const where: any = { projectId: projectId as string, deletedAt: null };
 
     const [resources, total] = await Promise.all([
       prisma.projectResource.findMany({

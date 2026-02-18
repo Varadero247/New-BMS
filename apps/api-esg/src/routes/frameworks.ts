@@ -62,10 +62,10 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
 
     const [data, total] = await Promise.all([
-      prisma.esgFramework.findMany({ where, skip, take, orderBy: { createdAt: 'desc' }, include: { metrics: { where: { deletedAt: null } } } }),
+      prisma.esgFramework.findMany({ where, skip, take, orderBy: { createdAt: 'desc' }, include: { metrics: { where: { deletedAt: null } as any } } }),
       prisma.esgFramework.count({ where }),
     ]);
 
@@ -104,7 +104,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: framework });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Framework code already exists' } });
     }
     logger.error('Error creating framework', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -115,13 +115,13 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/frameworks/:id/metrics
 router.get('/:id/metrics', async (req: Request, res: Response) => {
   try {
-    const framework = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const framework = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!framework) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
 
     const metrics = await prisma.esgMetric.findMany({
-      where: { frameworkId: req.params.id, deletedAt: null },
+      where: { frameworkId: req.params.id, deletedAt: null } as any,
       orderBy: { code: 'asc' },
     });
 
@@ -136,7 +136,7 @@ router.get('/:id/metrics', async (req: Request, res: Response) => {
 router.post('/:id/metrics', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
-    const framework = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const framework = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!framework) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
@@ -165,7 +165,7 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: metric });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Metric code already exists' } });
     }
     logger.error('Error creating metric', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -177,8 +177,8 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const framework = await prisma.esgFramework.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { metrics: { where: { deletedAt: null } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { metrics: { where: { deletedAt: null } as any } },
     });
     if (!framework) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
@@ -198,7 +198,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }
@@ -214,7 +214,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/frameworks/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgFramework.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Framework not found' } });
     }

@@ -58,11 +58,11 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.CapaWhereInput = { deletedAt: null };
-    if (status) where.status = status;
-    if (capaType) where.capaType = capaType;
-    if (source) where.source = source;
-    if (priority) where.priority = priority;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
+    if (capaType) where.capaType = capaType as any;
+    if (source) where.source = source as any;
+    if (priority) where.priority = priority as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -233,11 +233,11 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
 
     const data = schema.parse(req.body);
 
-    const updateData = { ...data };
+    const updateData: any = { ...data };
     if (data.targetCompletionDate) updateData.targetCompletionDate = new Date(data.targetCompletionDate);
     if (data.status === 'CLOSED') {
-      updateData.closedDate = new Date();
-      updateData.closedBy = req.user?.id;
+      (updateData as any).closedDate = new Date();
+      (updateData as any).closedBy = req.user?.id;
     }
 
     const capa = await prisma.capa.update({
@@ -336,10 +336,10 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const updateData = { ...data };
+    const updateData: any = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.status === 'COMPLETED' || data.status === 'VERIFIED') {
-      updateData.completedAt = new Date();
+      (updateData as any).completedAt = new Date();
     }
 
     const updated = await prisma.capaAction.update({

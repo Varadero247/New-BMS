@@ -31,7 +31,7 @@ export async function runCohortAnalysis(monthNumber: number, month: string): Pro
           cohortAge: 0,
           retentionPct: 100,
           ndrPct: 100,
-        },
+        } as any,
       });
 
       logger.info('Initial cohort created', { month });
@@ -66,14 +66,14 @@ export async function runCohortAnalysis(monthNumber: number, month: string): Pro
           cohortAge,
           retentionPct: Math.round(retentionPct * 100) / 100,
           ndrPct: Math.round(ndrPct * 100) / 100,
-        },
+        } as any,
         create: {
           cohortMonth,
           measureMonth: month,
           cohortAge,
           retentionPct: Math.round(retentionPct * 100) / 100,
           ndrPct: Math.round(ndrPct * 100) / 100,
-        },
+        } as any,
       });
     }
 

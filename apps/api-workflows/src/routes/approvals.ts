@@ -22,7 +22,7 @@ router.get('/chains', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { chainType, isActive } = req.query;
 
-    const where: Prisma.ApprovalChainWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null } as any;
     if (chainType) where.chainType = chainType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
@@ -86,10 +86,10 @@ router.post('/chains', async (req: Request, res: Response) => {
         name: data.name,
         description: data.description,
         chainType: data.chainType,
-        levels: data.levels,
+        levels: data.levels as any,
         requireAllLevels: data.requireAllLevels,
         skipOnUnavailable: data.skipOnUnavailable,
-        conditions: data.conditions,
+        conditions: data.conditions as any,
       },
     });
 
@@ -127,7 +127,7 @@ router.put('/chains/:id', checkOwnership(prisma.approvalChain), async (req: Auth
 
     const chain = await prisma.approvalChain.update({
       where: { id: req.params.id },
-      data,
+      data: data as any,
     });
 
     res.json({ success: true, data: chain });
@@ -187,7 +187,7 @@ router.get('/requests', scopeToUser, async (req: AuthRequest, res: Response) => 
       offset = '0',
     } = req.query;
 
-    const where: Prisma.ApprovalRequestWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null } as any;
     if (status) where.status = status as string;
     if (requestType) where.requestType = requestType as string;
     if (requesterId) where.requesterId = requesterId as string;
@@ -247,9 +247,9 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
     });
 
     // Filter to requests where this user needs to respond at the current level
-    const userPending = pendingRequests.filter((request) => {
+    const userPending = pendingRequests.filter((request: any) => {
       const userResponded = request.responses.some(
-        (r) => r.approverId === req.params.userId && r.level === request.currentLevel
+        (r: any) => r.approverId === req.params.userId && r.level === request.currentLevel
       );
       return !userResponded;
     });
@@ -260,7 +260,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
         approverId: req.params.userId,
         status: 'PENDING',
         deletedAt: null,
-      },
+      } as any,
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
@@ -348,7 +348,7 @@ router.post('/requests', async (req: Request, res: Response) => {
         departmentId: data.departmentId,
         entityType: data.entityType,
         entityId: data.entityId,
-        entityData: data.entityData,
+        entityData: data.entityData as any,
         approvalChainId: data.approvalChainId,
         totalLevels: data.totalLevels,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
@@ -411,7 +411,7 @@ router.put('/requests/:id/respond', checkOwnership(prisma.approvalRequest), asyn
 
     // Check if user already responded at this level
     const existingResponse = request.responses.find(
-      (r) => r.approverId === data.approverId && r.level === request.currentLevel
+      (r: any) => r.approverId === data.approverId && r.level === request.currentLevel
     );
 
     if (existingResponse) {
@@ -431,8 +431,8 @@ router.put('/requests/:id/respond', checkOwnership(prisma.approvalRequest), asyn
         level: request.currentLevel,
         decision: data.decision,
         comments: data.comments,
-        conditions: data.conditions,
-        attachments: data.attachments,
+        conditions: data.conditions as any,
+        attachments: data.attachments as any,
       },
     });
 
@@ -469,8 +469,8 @@ router.put('/requests/:id/respond', checkOwnership(prisma.approvalRequest), asyn
     await prisma.approvalRequest.update({
       where: { id: request.id },
       data: {
-        status: newStatus as Prisma.InputJsonValue,
-        outcome: outcome as Prisma.InputJsonValue,
+        status: newStatus as any,
+        outcome: outcome as any,
         decidedAt,
         currentLevel,
       },
@@ -584,7 +584,7 @@ router.get('/step', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { stepId, approverId, status, limit = '50', offset = '0' } = req.query;
 
-    const where: Prisma.WorkflowStepApprovalWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null } as any;
     if (stepId) where.stepId = stepId as string;
     if (approverId) where.approverId = approverId as string;
     if (status) where.status = status as string;
@@ -682,7 +682,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         },
       }),
       prisma.approvalRequest.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
         take: 10,
         orderBy: { createdAt: 'desc' },
         select: {
@@ -699,11 +699,11 @@ router.get('/stats', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-        requestsByStatus: requestsByStatus.map((r) => ({
+        requestsByStatus: requestsByStatus.map((r: any) => ({
           status: r.status,
           count: r._count.status,
         })),
-        requestsByType: requestsByType.map((r) => ({
+        requestsByType: requestsByType.map((r: any) => ({
           type: r.requestType,
           count: r._count.requestType,
         })),

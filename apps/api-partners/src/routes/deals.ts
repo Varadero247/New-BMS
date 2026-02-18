@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+import { type AuthRequest } from '@ims/auth';
+
 
 const logger = createLogger('api-partners:deals');
 const router = Router();
@@ -32,7 +34,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 // POST /api/deals
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -79,7 +81,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/deals
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -89,7 +91,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const { status } = req.query;
     const where: Record<string, unknown> = { partnerId };
-    if (status) where.status = status;
+    if (status) where.status = status as any;
 
     const deals = await prisma.mktPartnerDeal.findMany({
       where,
@@ -126,7 +128,7 @@ router.get('/', async (req: Request, res: Response) => {
 // PATCH /api/deals/:id/status
 router.patch('/:id/status', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

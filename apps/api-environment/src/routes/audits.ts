@@ -33,9 +33,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EnvAuditWhereInput = { deletedAt: null };
-    if (type) where.type = type;
-    if (status) where.status = status;
+    const where: any = { deletedAt: null };
+    if (type) where.type = type as any;
+    if (status) where.status = status as any;
     if (dateFrom || dateTo) {
       where.auditDate = {};
       if (dateFrom) where.auditDate.gte = new Date(dateFrom as string);
@@ -100,13 +100,13 @@ router.post('/schedule', async (req: AuthRequest, res: Response) => {
       data: {
         title: data.title,
         type: data.type as any,
-        frequency: data.frequency,
+        frequency: data.frequency as any,
         nextDueDate: new Date(data.nextDueDate),
         iso14001Clauses: data.iso14001Clauses,
         description: data.description,
         assignedAuditor: data.assignedAuditor,
         active: data.active ?? true,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: schedule });
@@ -192,7 +192,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         aiRiskAssessment: data.aiRiskAssessment,
         aiRecommendations: data.aiRecommendations,
         aiGenerated: data.aiGenerated ?? false,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: audit });
@@ -312,7 +312,7 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
         assignedTo: data.assignedTo,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
         status: (data.status as any) || 'OPEN',
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: finding });
@@ -436,10 +436,10 @@ router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
       data: {
         status: 'COMPLETED' as any,
         summary: data.summary,
-        conclusions: data.conclusions ?? existing.conclusions,
-        recommendations: data.recommendations ?? existing.recommendations,
+        conclusions: data.conclusions ?? (existing as any).conclusions,
+        recommendations: data.recommendations ?? (existing as any).recommendations,
         completedDate: new Date(),
-      },
+      } as any,
       include: { findings: true },
     });
 

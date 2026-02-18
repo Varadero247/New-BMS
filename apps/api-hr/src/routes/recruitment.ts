@@ -21,8 +21,8 @@ router.get('/jobs', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.JobPostingWhereInput = { deletedAt: null };
-    if (status) where.status = status as string;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
     if (departmentId) where.departmentId = departmentId as string;
     if (isRemote === 'true') where.isRemote = true;
 
@@ -178,10 +178,10 @@ router.get('/applicants', async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ApplicantWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (jobPostingId) where.jobPostingId = jobPostingId as string;
-    if (status) where.status = status as string;
-    if (stage) where.stage = stage as string;
+    if (status) where.status = status as any;
+    if (stage) where.stage = stage as any;
 
     const [applicants, total] = await Promise.all([
       prisma.applicant.findMany({
@@ -504,7 +504,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
 
     // Calculate average time to hire (for completed hires)
     const hiredApplicants = await prisma.applicant.findMany({
-      where: { status: 'HIRED', deletedAt: null },
+      where: { status: 'HIRED', deletedAt: null } as any,
       select: { createdAt: true, updatedAt: true },
       take: 50,
       orderBy: { updatedAt: 'desc' },

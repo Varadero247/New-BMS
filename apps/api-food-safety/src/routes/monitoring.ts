@@ -87,9 +87,9 @@ router.get('/', async (req: Request, res: Response) => {
     if (ccpId) where.ccpId = String(ccpId);
     if (withinLimits !== undefined) where.withinLimits = withinLimits === 'true';
     if (dateFrom || dateTo) {
-      where.monitoredAt = {};
-      if (dateFrom) where.monitoredAt.gte = new Date(String(dateFrom));
-      if (dateTo) where.monitoredAt.lte = new Date(String(dateTo));
+      (where as any).monitoredAt = {};
+      if (dateFrom) (where as any).monitoredAt.gte = new Date(String(dateFrom));
+      if (dateTo) (where as any).monitoredAt.lte = new Date(String(dateTo));
     }
 
     const [data, total] = await Promise.all([
@@ -144,7 +144,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const record = await prisma.fsMonitoringRecord.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { ccp: true },
     });
 
@@ -164,7 +164,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsMonitoringRecord.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsMonitoringRecord.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
     }
@@ -197,7 +197,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsMonitoringRecord.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsMonitoringRecord.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
     }

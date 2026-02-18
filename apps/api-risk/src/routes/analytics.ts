@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -9,7 +9,7 @@ const logger = createLogger('risk-analytics');
 // GET /api/risks/analytics/dashboard
 router.get('/analytics/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const baseWhere = { orgId, deletedAt: null };
 
     const [
@@ -34,11 +34,11 @@ router.get('/analytics/dashboard', authenticate, async (req: Request, res: Respo
     ]);
 
     const byStatus: Record<string, number> = {};
-    for (const s of byStatusRaw) byStatus[s.status] = s._count;
+    for (const s of byStatusRaw) byStatus[s.status] = (s as any)._count;
 
-    const byCategory = byCategoryRaw.map((c: Record<string, unknown>) => ({ category: c.category, count: c._count }));
+    const byCategory = byCategoryRaw.map((c: Record<string, unknown>) => ({ category: c.category, count: (c as any)._count }));
     const byLevel: Record<string, number> = {};
-    for (const l of byLevelRaw) if (l.residualRiskLevel) byLevel[l.residualRiskLevel] = l._count;
+    for (const l of byLevelRaw) if (l.residualRiskLevel) byLevel[l.residualRiskLevel] = (l as any)._count;
 
     // Build 5x5 heatmap
     const heatmapData: Array<{ likelihood: number; consequence: number; count: number; risks: unknown[] }> = [];
@@ -60,7 +60,7 @@ router.get('/analytics/dashboard', authenticate, async (req: Request, res: Respo
 
     // Source module breakdown
     const moduleBreakdownRaw = await prisma.riskRegister.groupBy({ by: ['sourceModule'], where: baseWhere, _count: true });
-    const moduleBreakdown = moduleBreakdownRaw.map((m: Record<string, unknown>) => ({ module: m.sourceModule, count: m._count }));
+    const moduleBreakdown = moduleBreakdownRaw.map((m: Record<string, unknown>) => ({ module: m.sourceModule, count: (m as any)._count }));
 
     res.json({
       success: true,
@@ -90,13 +90,13 @@ router.get('/analytics/dashboard', authenticate, async (req: Request, res: Respo
 // GET /api/risks/analytics/by-module
 router.get('/analytics/by-module', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const raw = await prisma.riskRegister.groupBy({
       by: ['sourceModule'],
-      where: { orgId, deletedAt: null, status: { not: 'CLOSED' } },
+      where: { orgId, deletedAt: null, status: { not: 'CLOSED' } as any },
       _count: true,
     });
-    const result = raw.map((r: Record<string, unknown>) => ({ module: r.sourceModule, count: r._count }));
+    const result = raw.map((r: Record<string, unknown>) => ({ module: r.sourceModule, count: (r as any)._count }));
     res.json({ success: true, data: result });
   } catch (error: unknown) { logger.error('Failed to fetch by-module', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch module breakdown' } }); }
 });

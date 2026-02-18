@@ -46,8 +46,8 @@ router.get('/stats', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
     const orgFilter: Record<string, unknown> = {};
-    if (authReq.user?.organisationId) {
-      orgFilter.organisationId = authReq.user.organisationId;
+    if ((authReq.user as any)?.organisationId) {
+      orgFilter.organisationId = (authReq.user as any).organisationId;
     }
 
     const [totalEntries, actionCounts, recentEntries, topUsers] = await Promise.all([
@@ -89,7 +89,7 @@ router.get('/stats', async (req: Request, res: Response) => {
     const dailyCounts: Record<string, number> = {};
     for (const entry of dailyEntries) {
       const dateKey = entry.createdAt.toISOString().split('T')[0];
-      dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + entry._count.id;
+      dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + (entry as any)._count.id;
     }
 
     res.json({
@@ -97,14 +97,14 @@ router.get('/stats', async (req: Request, res: Response) => {
       data: {
         totalEntries,
         byAction: actionCounts.reduce((acc, g) => {
-          acc[g.action] = g._count.id;
+          acc[g.action] = (g as any)._count.id;
           return acc;
         }, {} as Record<string, number>),
         dailyCounts,
         topUsers: topUsers.map((u) => ({
           userId: u.userId,
           userName: u.userName,
-          count: u._count.id,
+          count: (u as any)._count.id,
         })),
         recent: recentEntries,
       },
@@ -188,12 +188,12 @@ router.post('/', async (req: Request, res: Response) => {
         description: parsed.data.description,
         inputSummary: parsed.data.inputSummary ?? null,
         outputSummary: parsed.data.outputSummary ?? null,
-        metadata: parsed.data.metadata ?? null,
+        metadata: (parsed.data.metadata ?? undefined) as any,
         riskScore: parsed.data.riskScore ?? null,
         userId: authReq.user?.id || 'system',
         userName: authReq.user?.email || 'system',
         ipAddress: req.ip || null,
-        organisationId: authReq.user?.organisationId || 'default',
+        organisationId: (authReq.user as any)?.organisationId || 'default',
       },
     });
 

@@ -98,8 +98,8 @@ router.get('/reports', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.CounterfeitReportWhereInput = { deletedAt: null };
-    if (status) where.status = status as string;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
     if (partNumber) where.partNumber = { contains: partNumber as string, mode: 'insensitive' };
     if (manufacturer) where.manufacturer = { contains: manufacturer as string, mode: 'insensitive' };
 
@@ -340,11 +340,11 @@ router.get('/approved-sources', scopeToUser, async (req: AuthRequest, res: Respo
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ApprovedSourceWhereInput = {};
-    if (status) where.status = status as string;
+    const where: any = {};
+    if (status) where.status = status as any;
     if (cageCode) where.cageCode = { contains: cageCode as string, mode: 'insensitive' };
     if (companyName) where.companyName = { contains: companyName as string, mode: 'insensitive' };
-    if (riskRating) where.riskRating = riskRating as string;
+    if (riskRating) where.riskRating = riskRating as any;
 
     const [items, total] = await Promise.all([
       prisma.approvedSource.findMany({

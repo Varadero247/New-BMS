@@ -175,7 +175,7 @@ router.get('/positions/all', async (req: Request, res: Response) => {
   try {
     const { departmentId } = req.query;
 
-    const where: Prisma.PositionWhereInput = { isActive: true, deletedAt: null };
+    const where: any = { isActive: true, deletedAt: null };
     if (departmentId) where.departmentId = departmentId as string;
 
     const positions = await prisma.position.findMany({

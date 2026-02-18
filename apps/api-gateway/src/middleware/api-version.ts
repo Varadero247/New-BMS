@@ -83,7 +83,7 @@ export function extractApiVersion(req: Request, res: Response, next: NextFunctio
 export function validateApiVersion(req: Request, res: Response, next: NextFunction): void {
   const version = (req as VersionedRequest).apiVersion;
 
-  if (!API_VERSION.SUPPORTED.includes(version)) {
+  if (!API_VERSION.SUPPORTED.includes(version as string)) {
     res.status(400).json({
       success: false,
       error: {
@@ -94,7 +94,7 @@ export function validateApiVersion(req: Request, res: Response, next: NextFuncti
     return;
   }
 
-  if (API_VERSION.DEPRECATED.includes(version)) {
+  if (API_VERSION.DEPRECATED.includes(version as string)) {
     res.setHeader('Deprecation', 'true');
     res.setHeader(
       'X-API-Deprecation-Notice',

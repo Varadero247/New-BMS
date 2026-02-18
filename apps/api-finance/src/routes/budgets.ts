@@ -35,7 +35,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const where: Prisma.FinBudgetWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (accountId && typeof accountId === 'string') where.accountId = accountId;
     if (fiscalYear) where.fiscalYear = parseInt(String(fiscalYear), 10);
     if (month) where.month = parseInt(String(month), 10);
@@ -75,7 +75,7 @@ router.get('/variance-report', async (req: Request, res: Response) => {
     }
 
     const budgets = await prisma.finBudget.findMany({
-      where: { deletedAt: null, fiscalYear: parseInt(String(fiscalYear), 10) },
+      where: { deletedAt: null, fiscalYear: parseInt(String(fiscalYear), 10) } as any,
       include: {
         account: { select: { id: true, code: true, name: true, type: true } },
       },
@@ -115,7 +115,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
     const budget = await prisma.finBudget.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         account: { select: { id: true, code: true, name: true, type: true } },
       },
@@ -143,7 +143,7 @@ router.post('/', async (req: Request, res: Response) => {
     const { accountId, fiscalYear, month, budgetAmount, name, notes, quarter } = parsed.data;
     const authReq = req as AuthRequest;
 
-    const account = await prisma.finAccount.findFirst({ where: { id: accountId, deletedAt: null } });
+    const account = await prisma.finAccount.findFirst({ where: { id: accountId, deletedAt: null } as any });
     if (!account) {
       return res.status(400).json({ success: false, error: 'Account not found' });
     }
@@ -170,7 +170,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: budget });
   } catch (error: unknown) {
     logger.error('Failed to create budget', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: 'Budget entry already exists for this account/year/month combination' });
     }
     res.status(500).json({ success: false, error: 'Failed to create budget' });
@@ -187,7 +187,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Budget not found' });
     }
@@ -226,7 +226,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Budget not found' });
     }

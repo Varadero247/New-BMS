@@ -41,7 +41,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (type) where.type = type as string;
     if (engagementLevel) where.engagementLevel = engagementLevel as string;
 
@@ -93,7 +93,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/stakeholders/:id
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const stakeholder = await prisma.esgStakeholder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const stakeholder = await prisma.esgStakeholder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!stakeholder) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
     }
@@ -112,12 +112,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgStakeholder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgStakeholder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.lastEngagement !== undefined) updateData.lastEngagement = updateData.lastEngagement ? new Date(updateData.lastEngagement) : null;
 
     const stakeholder = await prisma.esgStakeholder.update({ where: { id: req.params.id }, data: updateData });
@@ -131,7 +131,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/stakeholders/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgStakeholder.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgStakeholder.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Stakeholder not found' } });
     }

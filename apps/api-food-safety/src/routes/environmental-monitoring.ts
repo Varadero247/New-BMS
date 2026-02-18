@@ -140,7 +140,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const record = await prisma.fsEnvironmentalMonitoring.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!record) {
@@ -159,7 +159,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsEnvironmentalMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsEnvironmentalMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Environmental monitoring record not found' } });
     }
@@ -191,7 +191,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsEnvironmentalMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsEnvironmentalMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Environmental monitoring record not found' } });
     }

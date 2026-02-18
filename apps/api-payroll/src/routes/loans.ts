@@ -17,10 +17,10 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, status, loanType } = req.query;
 
-    const where: Prisma.EmployeeLoanWhereInput = { deletedAt: null };
-    if (employeeId) where.employeeId = employeeId;
-    if (status) where.status = status;
-    if (loanType) where.loanType = loanType;
+    const where: any = { deletedAt: null };
+    if (employeeId) where.employeeId = employeeId as any;
+    if (status) where.status = status as any;
+    if (loanType) where.loanType = loanType as any;
 
     const loans = await prisma.employeeLoan.findMany({
       where,
@@ -111,7 +111,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'PENDING',
         purpose: data.purpose,
         notes: data.notes,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: loan });
@@ -137,8 +137,8 @@ router.put('/:id/approve', checkOwnership(prisma.employeeLoan), async (req: Requ
     // Generate repayment schedule
     const repayments = [];
     const startDate = new Date(loanData.startDate);
-    const monthlyInterest = (loanData.principalAmount * (loanData.interestRate / 100)) / loanData.termMonths;
-    const monthlyPrincipal = loanData.principalAmount / loanData.termMonths;
+    const monthlyInterest = (Number(loanData.principalAmount) * (Number(loanData.interestRate) / 100)) / loanData.termMonths;
+    const monthlyPrincipal = Number(loanData.principalAmount) / loanData.termMonths;
 
     for (let i = 1; i <= loanData.termMonths; i++) {
       const dueDate = new Date(startDate);
@@ -217,7 +217,7 @@ router.post('/:id/repayments/:repaymentId/pay', checkOwnership(prisma.employeeLo
     // Update loan balance
     const loan = await prisma.employeeLoan.findUnique({ where: { id: req.params.id } });
     if (loan) {
-      const newBalance = loan.remainingBalance - paidAmount;
+      const newBalance = Number(loan.remainingBalance) - paidAmount;
       const newRepaid = loan.repaidAmount + paidAmount;
 
       await prisma.employeeLoan.update({

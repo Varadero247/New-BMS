@@ -24,7 +24,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.WarehouseWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const [warehouses, total] = await Promise.all([
@@ -101,7 +101,7 @@ router.get('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, re
       data: {
         ...warehouse,
         stats: {
-          totalProducts: inventoryStats._count.productId,
+          totalProducts: (inventoryStats as any)._count.productId,
           totalQuantity: inventoryStats._sum.quantityOnHand || 0,
           totalReserved: inventoryStats._sum.quantityReserved || 0,
           totalValue: inventoryStats._sum.inventoryValue || 0,
@@ -124,7 +124,7 @@ router.get('/:id/inventory', checkOwnership(prisma.warehouse), async (req: AuthR
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.InventoryWhereInput = { warehouseId: req.params.id, deletedAt: null };
+    const where: any = { warehouseId: req.params.id, deletedAt: null };
 
     // If search, filter by product
     if (search) {
@@ -216,7 +216,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         isActive: true,
         createdById: req.user?.id,
         updatedById: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: warehouse });
@@ -288,7 +288,7 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
         ...updateData,
         version: { increment: 1 },
         updatedById: req.user?.id,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: warehouse });

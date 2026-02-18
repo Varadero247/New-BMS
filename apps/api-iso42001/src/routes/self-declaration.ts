@@ -123,7 +123,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const declaration = await prisma.aiSelfDeclaration.create({
       data: {
-        reference,
+        reference: reference as any,
         title: parsed.data.title,
         scope: parsed.data.scope,
         conformanceStatement: parsed.data.conformanceStatement,
@@ -136,7 +136,7 @@ router.post('/', async (req: Request, res: Response) => {
         supportingEvidence: parsed.data.supportingEvidence ?? null,
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Self-declaration created', { declarationId: declaration.id, reference });
@@ -152,7 +152,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Self-declaration not found' } });
     }
@@ -170,7 +170,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
         publishedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
     });
 
     logger.info('Self-declaration published', { declarationId: id });
@@ -189,7 +189,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const declaration = await prisma.aiSelfDeclaration.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!declaration) {
@@ -213,7 +213,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Self-declaration not found' } });
     }
@@ -229,7 +229,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
           : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
     });
 
     logger.info('Self-declaration updated', { declarationId: id });
@@ -246,7 +246,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiSelfDeclaration.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Self-declaration not found' } });
     }
@@ -257,7 +257,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Self-declaration soft-deleted', { declarationId: id });

@@ -87,7 +87,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     const kpis = await prisma.fsSvcKpi.findMany({
       where: {
         deletedAt: null,
-        periodStart: { gte: thirtyDaysAgo },
+        periodStart: { gte: thirtyDaysAgo } as any,
       },
       include: { technician: true },
     });
@@ -118,9 +118,9 @@ router.get('/dashboard', async (req: Request, res: Response) => {
 
     // Job stats
     const [totalJobs, completedJobs, openJobs] = await Promise.all([
-      prisma.fsSvcJob.count({ where: { deletedAt: null, createdAt: { gte: thirtyDaysAgo } } }),
-      prisma.fsSvcJob.count({ where: { deletedAt: null, status: 'COMPLETED', createdAt: { gte: thirtyDaysAgo } } }),
-      prisma.fsSvcJob.count({ where: { deletedAt: null, status: { in: ['UNASSIGNED', 'ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } } }),
+      prisma.fsSvcJob.count({ where: { deletedAt: null, createdAt: { gte: thirtyDaysAgo } as any } }),
+      prisma.fsSvcJob.count({ where: { deletedAt: null, status: 'COMPLETED', createdAt: { gte: thirtyDaysAgo } as any } }),
+      prisma.fsSvcJob.count({ where: { deletedAt: null, status: { in: ['UNASSIGNED', 'ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any } }),
     ]);
 
     res.json({
@@ -173,7 +173,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const data = await prisma.fsSvcKpi.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { technician: true },
     });
 
@@ -192,7 +192,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcKpi.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcKpi.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
@@ -221,7 +221,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcKpi.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcKpi.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }

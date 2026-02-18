@@ -53,7 +53,7 @@ router.get('/baselines', scopeToUser, async (req: AuthRequest, res: Response) =>
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ConfigBaselineWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (search) {
       where.OR = [
@@ -363,7 +363,7 @@ router.get('/changes', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EngineeringChangeProposalWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (urgency) where.urgency = urgency as any;
     if (search) {
@@ -558,7 +558,7 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ConfigAuditWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (type) where.type = type as any;
     if (status) where.status = status as any;
     if (search) {
@@ -626,33 +626,33 @@ router.get('/status-accounting', async (req: AuthRequest, res: Response) => {
       passWithFindingsAudits,
       failAudits,
     ] = await Promise.all([
-      prisma.configBaseline.count({ where: { deletedAt: null } }),
-      prisma.configBaseline.count({ where: { deletedAt: null, status: 'ACTIVE' } }),
-      prisma.configBaseline.count({ where: { deletedAt: null, status: 'DRAFT' } }),
-      prisma.configBaseline.count({ where: { deletedAt: null, status: 'SUPERSEDED' } }),
-      prisma.configBaseline.count({ where: { deletedAt: null, status: 'ARCHIVED' } }),
+      prisma.configBaseline.count({ where: { deletedAt: null } as any }),
+      prisma.configBaseline.count({ where: { deletedAt: null, status: 'ACTIVE' } as any }),
+      prisma.configBaseline.count({ where: { deletedAt: null, status: 'DRAFT' } as any }),
+      prisma.configBaseline.count({ where: { deletedAt: null, status: 'SUPERSEDED' } as any }),
+      prisma.configBaseline.count({ where: { deletedAt: null, status: 'ARCHIVED' } as any }),
       prisma.configItem.count(),
       prisma.configItem.count({ where: { status: 'CURRENT' } }),
       prisma.configItem.count({ where: { status: 'PENDING_CHANGE' } }),
       prisma.configItem.count({ where: { status: 'SUPERSEDED' } }),
       prisma.configItem.count({ where: { status: 'OBSOLETE' } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'PROPOSED' } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'UNDER_REVIEW' } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CCB_APPROVED' } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CCB_REJECTED' } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'IMPLEMENTING' } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'IMPLEMENTED' } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'VERIFIED' } }),
-      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CLOSED' } }),
-      prisma.configAudit.count({ where: { deletedAt: null } }),
-      prisma.configAudit.count({ where: { deletedAt: null, status: 'PLANNED' } }),
-      prisma.configAudit.count({ where: { deletedAt: null, status: 'COMPLETED' } }),
-      prisma.configAudit.count({ where: { deletedAt: null, type: 'FCA' } }),
-      prisma.configAudit.count({ where: { deletedAt: null, type: 'PCA' } }),
-      prisma.configAudit.count({ where: { deletedAt: null, result: 'PASS' } }),
-      prisma.configAudit.count({ where: { deletedAt: null, result: 'PASS_WITH_FINDINGS' } }),
-      prisma.configAudit.count({ where: { deletedAt: null, result: 'FAIL' } }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null } as any }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'PROPOSED' } as any }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'UNDER_REVIEW' } as any }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CCB_APPROVED' } as any }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CCB_REJECTED' } as any }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'IMPLEMENTING' } as any }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'IMPLEMENTED' } as any }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'VERIFIED' } as any }),
+      prisma.engineeringChangeProposal.count({ where: { deletedAt: null, status: 'CLOSED' } as any }),
+      prisma.configAudit.count({ where: { deletedAt: null } as any }),
+      prisma.configAudit.count({ where: { deletedAt: null, status: 'PLANNED' } as any }),
+      prisma.configAudit.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
+      prisma.configAudit.count({ where: { deletedAt: null, type: 'FCA' } as any }),
+      prisma.configAudit.count({ where: { deletedAt: null, type: 'PCA' } as any }),
+      prisma.configAudit.count({ where: { deletedAt: null, result: 'PASS' } as any }),
+      prisma.configAudit.count({ where: { deletedAt: null, result: 'PASS_WITH_FINDINGS' } as any }),
+      prisma.configAudit.count({ where: { deletedAt: null, result: 'FAIL' } as any }),
     ]);
 
     const report = {

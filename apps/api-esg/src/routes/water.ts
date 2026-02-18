@@ -43,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (usageType) where.usageType = usageType as string;
 
     const [data, total] = await Promise.all([
@@ -95,7 +95,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/water/:id
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const water = await prisma.esgWater.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const water = await prisma.esgWater.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!water) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Water record not found' } });
     }
@@ -114,12 +114,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgWater.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgWater.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Water record not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.quantity !== undefined) updateData.quantity = new Prisma.Decimal(updateData.quantity);
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
     if (updateData.periodEnd) updateData.periodEnd = new Date(updateData.periodEnd);
@@ -135,7 +135,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/water/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgWater.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgWater.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Water record not found' } });
     }

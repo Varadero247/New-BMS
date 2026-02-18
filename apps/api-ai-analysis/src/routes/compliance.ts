@@ -15,7 +15,7 @@ interface AIProviderResponse {
 }
 
 async function getSettings() {
-  return prisma.aISettings.findFirst({ where: { deletedAt: null }, orderBy: { createdAt: 'desc' } });
+  return prisma.aISettings.findFirst({ where: { deletedAt: null } as any, orderBy: { createdAt: 'desc' } });
 }
 
 async function callProvider(apiKey: string, model: string, provider: string, prompt: string): Promise<AIProviderResponse> {

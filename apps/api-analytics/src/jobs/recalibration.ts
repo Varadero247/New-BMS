@@ -114,7 +114,7 @@ export async function runRecalibration(snapshotId: string): Promise<void> {
     return;
   }
 
-  const averages = calculateRollingAverages(history);
+  const averages = calculateRollingAverages(history as any);
   const currentMrr = Number(snapshot.mrr);
 
   // Project 3 months forward using rolling average growth

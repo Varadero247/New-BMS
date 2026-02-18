@@ -133,7 +133,7 @@ router.get('/', async (req: Request, res: Response) => {
         take: limit,
         orderBy: { incidentDate: 'desc' },
         include: {
-          system: { select: { id: true, name: true, reference: true, riskTier: true } },
+          system: { select: { id: true, name: true, riskTier: true } },
         },
       }),
       prisma.aiIncident.count({ where }),
@@ -164,7 +164,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     // Verify system exists
-    const system = await prisma.aiSystem.findFirst({ where: { id: parsed.data.systemId, deletedAt: null } });
+    const system = await prisma.aiSystem.findFirst({ where: { id: parsed.data.systemId, deletedAt: null } as any });
     if (!system) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'AI system not found' } });
     }
@@ -187,9 +187,9 @@ router.post('/', async (req: Request, res: Response) => {
         reportedBy: parsed.data.reportedBy ?? null,
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
       include: {
-        system: { select: { id: true, name: true, reference: true } },
+        system: { select: { id: true, name: true } },
       },
     });
 
@@ -210,7 +210,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
@@ -228,12 +228,12 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
         rootCause: parsed.data.rootCause ?? null,
         findings: parsed.data.findings ?? null,
         contributingFactors: parsed.data.contributingFactors ?? null,
-        investigationStartedAt: existing.investigationStartedAt || new Date(),
+        investigationStartedAt: (existing as any).investigationStartedAt || new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
       include: {
-        system: { select: { id: true, name: true, reference: true } },
+        system: { select: { id: true, name: true } },
       },
     });
 
@@ -254,7 +254,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
@@ -275,9 +275,9 @@ router.put('/:id/close', async (req: Request, res: Response) => {
         closedBy: parsed.data.closedBy || authReq.user?.id || 'system',
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
       include: {
-        system: { select: { id: true, name: true, reference: true } },
+        system: { select: { id: true, name: true } },
       },
     });
 
@@ -297,9 +297,9 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const incident = await prisma.aiIncident.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
-        system: { select: { id: true, name: true, reference: true, riskTier: true, category: true } },
+        system: { select: { id: true, name: true, riskTier: true } },
       },
     });
 
@@ -324,7 +324,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
@@ -336,9 +336,9 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         ...parsed.data,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
       include: {
-        system: { select: { id: true, name: true, reference: true } },
+        system: { select: { id: true, name: true } },
       },
     });
 
@@ -356,7 +356,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Incident not found' } });
     }
@@ -367,7 +367,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('AI incident soft-deleted', { incidentId: id });

@@ -74,7 +74,7 @@ router.post('/:id/confirm', async (req: Request, res: Response) => {
     }
 
     const order = await prisma.portalOrder.findFirst({
-      where: { id: req.params.id, portalUserId: auth.user!.id, type: 'PURCHASE', deletedAt: null },
+      where: { id: req.params.id, portalUserId: auth.user!.id, type: 'PURCHASE', deletedAt: null } as any,
     });
 
     if (!order) {

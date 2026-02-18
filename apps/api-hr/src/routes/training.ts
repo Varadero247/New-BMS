@@ -17,9 +17,9 @@ router.get('/courses', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { category, deliveryMethod, isMandatory } = req.query;
 
-    const where: Prisma.HRTrainingCourseWhereInput = { isActive: true, deletedAt: null };
-    if (category) where.category = category as string;
-    if (deliveryMethod) where.deliveryMethod = deliveryMethod as string;
+    const where: any = { isActive: true, deletedAt: null };
+    if (category) where.category = category as any;
+    if (deliveryMethod) where.deliveryMethod = deliveryMethod as any;
     if (isMandatory === 'true') where.isMandatory = true;
 
     const courses = await prisma.hRTrainingCourse.findMany({
@@ -107,9 +107,9 @@ router.get('/sessions', async (req: Request, res: Response) => {
   try {
     const { courseId, status, startDate, endDate } = req.query;
 
-    const where: Prisma.HRTrainingSessionWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (courseId) where.courseId = courseId as string;
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
     if (startDate || endDate) {
       where.startDate = {};
       if (startDate) where.startDate.gte = new Date(startDate as string);
@@ -181,11 +181,11 @@ router.get('/enrollments', async (req: Request, res: Response) => {
   try {
     const { employeeId, courseId, sessionId, status } = req.query;
 
-    const where: Prisma.HRTrainingEnrollmentWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (courseId) where.courseId = courseId as string;
     if (sessionId) where.sessionId = sessionId as string;
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
 
     const enrollments = await prisma.hRTrainingEnrollment.findMany({
       where,
@@ -303,9 +303,9 @@ router.get('/certifications', async (req: Request, res: Response) => {
   try {
     const { employeeId, status, expiringWithin } = req.query;
 
-    const where: Prisma.EmployeeCertificationWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
     if (expiringWithin) {
       const daysAhead = parseInt(expiringWithin as string);
       const futureDate = new Date();
@@ -489,7 +489,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         failedEnrollments,
         completedThisMonth,
         completionRate,
-        avgScore: Math.round((scoreStats._avg.assessmentScore || 0) * 10) / 10,
+        avgScore: Math.round(((scoreStats._avg?.assessmentScore || 0) as any || 0) * 10) / 10,
         expiringCertifications,
         upcomingCourses: upcomingCourses.map(c => ({
           id: c.id,

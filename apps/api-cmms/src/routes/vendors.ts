@@ -139,7 +139,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: vendor });
   } catch (error: unknown) {
-    if (error?.code === 'P2002') {
+    if ((error as any)?.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Vendor code already exists' } });
     }
     logger.error('Failed to create vendor', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -151,8 +151,8 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const vendor = await prisma.cmmsVendor.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { serviceContracts: { where: { deletedAt: null } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { serviceContracts: { where: { deletedAt: null } as any } },
     });
 
     if (!vendor) {
@@ -174,7 +174,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
@@ -195,7 +195,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /vendors/:id — Soft delete vendor
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
@@ -211,13 +211,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // GET /vendors/:id/contracts — List vendor contracts
 router.get('/:id/contracts', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
 
     const contracts = await prisma.cmmsServiceContract.findMany({
-      where: { vendorId: req.params.id, deletedAt: null },
+      where: { vendorId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -236,7 +236,7 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsVendor.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Vendor not found' } });
     }
@@ -264,7 +264,7 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: contract });
   } catch (error: unknown) {
-    if (error?.code === 'P2002') {
+    if ((error as any)?.code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Contract number already exists' } });
     }
     logger.error('Failed to create contract', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -280,7 +280,7 @@ router.put('/contracts/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsServiceContract.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsServiceContract.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }

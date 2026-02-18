@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -9,7 +9,7 @@ const logger = createLogger('emergency-analytics');
 // GET /api/analytics/dashboard
 router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
@@ -32,7 +32,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
       premisesWithNoDrill,
     ] = await Promise.all([
       prisma.femPremises.count({ where: { organisationId: orgId, isActive: true } }),
-      prisma.femFireRiskAssessment.count({ where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: now } } }),
+      prisma.femFireRiskAssessment.count({ where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: now } as any } }),
       prisma.femEmergencyIncident.count({ where: { organisationId: orgId, status: { in: ['ACTIVE', 'ELEVATED', 'CONTAINED'] } } }),
       prisma.femEmergencyIncident.count({ where: { organisationId: orgId, reportedAt: { gte: thirtyDaysAgo } } }),
       prisma.femFireWarden.count({ where: { isActive: true, trainingExpiryDate: { lt: thirtyDaysFromNow } } }),
@@ -41,7 +41,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
       prisma.femBusinessContinuityPlan.count({ where: { organisationId: orgId } }),
       prisma.femBusinessContinuityPlan.count({ where: { organisationId: orgId, OR: [{ lastTestedDate: null }, { lastTestedDate: { lt: twelveMonthsAgo } }] } }),
       prisma.femEmergencyIncident.findMany({ where: { organisationId: orgId }, orderBy: { reportedAt: 'desc' }, take: 5, include: { premises: { select: { name: true } } } }),
-      prisma.femFireRiskAssessment.groupBy({ by: ['overallRiskLevel'], _count: true, where: { organisationId: orgId, deletedAt: null } }),
+      prisma.femFireRiskAssessment.groupBy({ by: ['overallRiskLevel'], _count: true, where: { organisationId: orgId, deletedAt: null } as any }),
       prisma.femEmergencyIncident.groupBy({ by: ['emergencyType'], _count: true, where: { organisationId: orgId } }),
       prisma.femPremises.count({ where: { organisationId: orgId, isActive: true, drillRecords: { none: { drillDate: { gte: sixMonthsAgo } } } } }),
     ]);
@@ -67,8 +67,8 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
         drillsDueSoon: premisesWithNoDrill,
         bcpCount,
         bcpNotTestedCount,
-        riskLevelBreakdown: Object.fromEntries(riskLevelBreakdown.map((r: Record<string, unknown>) => [r.overallRiskLevel, r._count])),
-        incidentTypeBreakdown: Object.fromEntries(incidentTypeBreakdown.map((r: Record<string, unknown>) => [r.emergencyType, r._count])),
+        riskLevelBreakdown: Object.fromEntries(riskLevelBreakdown.map((r: Record<string, unknown>) => [r.overallRiskLevel, (r as any)._count])),
+        incidentTypeBreakdown: Object.fromEntries(incidentTypeBreakdown.map((r: Record<string, unknown>) => [r.emergencyType, (r as any)._count])),
         recentIncidents,
         criticalAlerts,
       },

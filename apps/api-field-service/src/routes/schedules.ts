@@ -79,16 +79,16 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
     const { technicianId } = req.params;
     const { startDate, endDate } = req.query;
 
-    const technician = await prisma.fsSvcTechnician.findFirst({ where: { id: technicianId, deletedAt: null } });
+    const technician = await prisma.fsSvcTechnician.findFirst({ where: { id: technicianId, deletedAt: null } as any });
     if (!technician) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }
 
     const where: Record<string, unknown> = { technicianId, deletedAt: null };
     if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(String(startDate));
-      if (endDate) where.date.lte = new Date(String(endDate));
+      (where as any).date = {};
+      if (startDate) (where as any).date.gte = new Date(String(startDate));
+      if (endDate) (where as any).date.lte = new Date(String(endDate));
     }
 
     const schedules = await prisma.fsSvcSchedule.findMany({
@@ -100,7 +100,7 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
       where: {
         technicianId,
         deletedAt: null,
-        status: { notIn: ['CANCELLED'] },
+        status: { notIn: ['CANCELLED'] } as any,
         ...(startDate || endDate ? {
           scheduledStart: {
             ...(startDate ? { gte: new Date(String(startDate)) } : {}),
@@ -153,7 +153,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const data = await prisma.fsSvcSchedule.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { technician: true },
     });
 
@@ -172,7 +172,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcSchedule.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcSchedule.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }
@@ -199,7 +199,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcSchedule.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcSchedule.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     }

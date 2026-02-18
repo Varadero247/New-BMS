@@ -101,8 +101,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
-    if (auditType) where.auditType = auditType;
+    if (status) where.status = status as any;
+    if (auditType) where.auditType = auditType as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -279,7 +279,7 @@ router.post('/findings', async (req: AuthRequest, res: Response) => {
         targetDate: data.targetDate ? new Date(data.targetDate) : null,
         status: 'OPEN',
         raisedBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: finding });

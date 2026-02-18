@@ -28,21 +28,21 @@ export async function collectStripeMetrics(): Promise<{
     const stripe = new StripeClient();
 
     const rawSubs: unknown = await stripe.getSubscriptions(100);
-    const subscriptions: unknown[] = rawSubs?.data || (Array.isArray(rawSubs) ? rawSubs : []);
-    const mrr = subscriptions.reduce((sum: number, s: Record<string, unknown>) => sum + (s.plan?.amount || 0) / 100, 0);
+    const subscriptions: any[] = (rawSubs as any)?.data || (Array.isArray(rawSubs) ? rawSubs : []);
+    const mrr = subscriptions.reduce((sum: number, s: any) => sum + (s.plan?.amount || 0) / 100, 0);
     const customers = subscriptions.length;
     const arpu = customers > 0 ? mrr / customers : 0;
 
     // Approximate churn — getSubscriptions only fetches active, so estimate from data
-    const canceled: unknown[] = [];
+    const canceled: any[] = [];
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
-    const recentCanceled = canceled.filter((s: Record<string, unknown>) => new Date(s.canceled_at || 0).getTime() > thirtyDaysAgo);
-    const churnedMrr = recentCanceled.reduce((sum: number, s: Record<string, unknown>) => sum + (s.plan?.amount || 0) / 100, 0);
+    const recentCanceled = canceled.filter((s: any) => new Date(s.canceled_at || 0).getTime() > thirtyDaysAgo);
+    const churnedMrr = recentCanceled.reduce((sum: number, s: any) => sum + (s.plan?.amount || 0) / 100, 0);
     const churnedCustomers = recentCanceled.length;
 
     // New subscriptions in last 30 days
-    const newSubs = subscriptions.filter((s: Record<string, unknown>) => new Date(s.created || 0).getTime() > thirtyDaysAgo);
-    const newMrr = newSubs.reduce((sum: number, s: Record<string, unknown>) => sum + (s.plan?.amount || 0) / 100, 0);
+    const newSubs = subscriptions.filter((s: any) => new Date(s.created || 0).getTime() > thirtyDaysAgo);
+    const newMrr = newSubs.reduce((sum: number, s: any) => sum + (s.plan?.amount || 0) / 100, 0);
     const newCustomers = newSubs.length;
 
     const netNewMrr = newMrr - churnedMrr;
@@ -77,21 +77,21 @@ export async function collectHubSpotMetrics(): Promise<{
     const hs = new HubSpotClient();
 
     const rawDeals: unknown = await hs.getDeals(200);
-    const deals: unknown[] = rawDeals?.results || (Array.isArray(rawDeals) ? rawDeals : []);
-    const openDeals = deals.filter((d: Record<string, unknown>) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage));
-    const pipelineValue = openDeals.reduce((sum: number, d: Record<string, unknown>) => sum + Number(d.properties?.amount || 0), 0);
+    const deals: any[] = (rawDeals as any)?.results || (Array.isArray(rawDeals) ? rawDeals : []);
+    const openDeals = deals.filter((d: any) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage));
+    const pipelineValue = openDeals.reduce((sum: number, d: any) => sum + Number(d.properties?.amount || 0), 0);
     const pipelineDeals = openDeals.length;
 
-    const wonDeals = deals.filter((d: Record<string, unknown>) => d.properties?.dealstage === 'closedwon').length;
-    const lostDeals = deals.filter((d: Record<string, unknown>) => d.properties?.dealstage === 'closedlost').length;
+    const wonDeals = deals.filter((d: any) => d.properties?.dealstage === 'closedwon').length;
+    const lostDeals = deals.filter((d: any) => d.properties?.dealstage === 'closedlost').length;
     const totalClosed = wonDeals + lostDeals;
     const winRate = totalClosed > 0 ? (wonDeals / totalClosed) * 100 : 0;
     const avgDealSize = wonDeals > 0
-      ? deals.filter((d: Record<string, unknown>) => d.properties?.dealstage === 'closedwon').reduce((sum: number, d: Record<string, unknown>) => sum + Number(d.properties?.amount || 0), 0) / wonDeals
+      ? deals.filter((d: any) => d.properties?.dealstage === 'closedwon').reduce((sum: number, d: any) => sum + Number(d.properties?.amount || 0), 0) / wonDeals
       : 0;
 
     // HubSpotClient doesn't have getContacts yet, so estimate leads from deals
-    const newLeads = deals.filter((d: Record<string, unknown>) => {
+    const newLeads = deals.filter((d: any) => {
       const created = d.createdAt || d.properties?.createdate;
       return created && (Date.now() - new Date(created).getTime()) < 30 * 24 * 60 * 60 * 1000;
     }).length;
@@ -321,7 +321,7 @@ export async function runMonthlySnapshot(): Promise<string> {
   // Run AI variance analysis
   if (planTarget) {
     try {
-      await runVarianceAnalysis(snapshot, planTarget);
+      await runVarianceAnalysis(snapshot as any, planTarget as any);
     } catch (err) {
       logger.error('AI variance analysis failed', { error: String(err) });
     }

@@ -32,11 +32,11 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProductWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
-    if (status) where.status = status;
-    if (categoryId) where.categoryId = categoryId;
-    if (supplierId) where.supplierId = supplierId;
+    if (status) where.status = status as any;
+    if (categoryId) where.categoryId = categoryId as any;
+    if (supplierId) where.supplierId = supplierId as any;
 
     // Search by SKU, barcode, or name
     if (search) {
@@ -97,7 +97,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/low-stock', async (req: AuthRequest, res: Response) => {
   try {
     const products = await prisma.product.findMany({
-      where: { status: 'ACTIVE', deletedAt: null },
+      where: { status: 'ACTIVE', deletedAt: null } as any,
       include: {
         category: { select: { id: true, name: true } },
         inventoryItems: {
@@ -139,7 +139,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
       where: {
         deletedAt: null,
         OR: [
-          { sku: q as string },
+          { sku: q as string } as any,
           { barcode: q as string },
         ],
       },
@@ -241,7 +241,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: 'ACTIVE',
         createdById: req.user?.id,
         updatedById: req.user?.id,
-      },
+      } as any,
       include: {
         category: true,
         supplier: true,
@@ -329,7 +329,7 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
         ...updateData,
         version: { increment: 1 },
         updatedById: req.user?.id,
-      },
+      } as any,
       include: {
         category: true,
         supplier: true,

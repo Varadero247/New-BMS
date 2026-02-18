@@ -51,7 +51,7 @@ const RESERVED_PATHS = new Set(['pareto']);
 router.get('/pareto', async (req: Request, res: Response) => {
   try {
     const downtimes = await prisma.cmmsDowntime.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       select: { reason: true, duration: true, impact: true },
     });
 
@@ -162,7 +162,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
   try {
     const downtime = await prisma.cmmsDowntime.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
         asset: { select: { id: true, name: true, code: true } },
         workOrder: { select: { id: true, number: true, title: true } },
@@ -188,7 +188,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsDowntime.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsDowntime.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Downtime record not found' } });
     }
@@ -213,7 +213,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete downtime record
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsDowntime.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsDowntime.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Downtime record not found' } });
     }

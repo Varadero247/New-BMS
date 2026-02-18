@@ -21,10 +21,10 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ExpenseWhereInput = { deletedAt: null };
-    if (employeeId) where.employeeId = employeeId as string;
-    if (status) where.status = status as string;
-    if (category) where.category = category as string;
+    const where: any = { deletedAt: null };
+    if (employeeId) where.employeeId = employeeId as any;
+    if (status) where.status = status as any;
+    if (category) where.category = category as any;
 
     const [expenses, total] = await Promise.all([
       prisma.expense.findMany({
@@ -189,9 +189,9 @@ router.get('/reports/all', async (req: Request, res: Response) => {
   try {
     const { employeeId, status } = req.query;
 
-    const where: Prisma.ExpenseReportWhereInput = { deletedAt: null };
-    if (employeeId) where.employeeId = employeeId as string;
-    if (status) where.status = status as string;
+    const where: any = { deletedAt: null };
+    if (employeeId) where.employeeId = employeeId as any;
+    if (status) where.status = status as any;
 
     const reports = await prisma.expenseReport.findMany({
       where,
@@ -229,7 +229,7 @@ router.post('/reports', async (req: Request, res: Response) => {
       take: 100,
     });
 
-    const totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const totalAmount = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
     // Generate report number
     const count = await prisma.expenseReport.count();

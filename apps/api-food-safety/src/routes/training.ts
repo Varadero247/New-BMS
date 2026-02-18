@@ -110,7 +110,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const training = await prisma.fsTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!training) {
@@ -132,7 +132,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const RESERVED = new Set(['complete']);
     if (RESERVED.has(req.params.id)) return (undefined as any);
 
-    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
     }
@@ -165,7 +165,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
     }
@@ -188,7 +188,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsTraining.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
     }

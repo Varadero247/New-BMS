@@ -26,9 +26,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectTimesheetWhereInput = { deletedAt: null };
-    if (projectId) where.projectId = projectId as string;
-    if (employeeId) where.employeeId = employeeId as string;
+    const where: any = { deletedAt: null };
+    if (projectId) where.projectId = projectId as any;
+    if (employeeId) where.employeeId = employeeId as any;
 
     const [timesheets, total] = await Promise.all([
       prisma.projectTimesheet.findMany({

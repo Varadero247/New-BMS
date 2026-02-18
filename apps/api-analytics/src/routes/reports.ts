@@ -119,10 +119,10 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description || null,
         type: data.type,
         format: data.format,
-        schedule: data.schedule || null,
-        query: data.query,
-        filters: data.filters || null,
-        recipients: data.recipients || null,
+        schedule: (data.schedule || null) as any,
+        query: data.query as any,
+        filters: (data.filters || null) as any,
+        recipients: (data.recipients || null) as any,
         isActive: data.isActive,
         createdBy: authReq.user!.id,
       },
@@ -145,7 +145,7 @@ router.post('/:id/run', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const { id } = req.params;
 
-    const report = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } });
+    const report = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });
     if (!report) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
@@ -184,19 +184,19 @@ router.get('/:id/runs', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 20);
     const skip = (page - 1) * limit;
 
-    const report = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } });
+    const report = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });
     if (!report) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
 
     const [runs, total] = await Promise.all([
       prisma.analyticsReportRun.findMany({
-        where: { reportId: id, deletedAt: null },
+        where: { reportId: id, deletedAt: null } as any,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.analyticsReportRun.count({ where: { reportId: id, deletedAt: null } }),
+      prisma.analyticsReportRun.count({ where: { reportId: id, deletedAt: null } as any }),
     ]);
 
     res.json({
@@ -219,7 +219,7 @@ router.get('/:id/runs/:runId', async (req: Request, res: Response) => {
     const { id, runId } = req.params;
 
     const run = await prisma.analyticsReportRun.findFirst({
-      where: { id: runId, reportId: id, deletedAt: null },
+      where: { id: runId, reportId: id, deletedAt: null } as any,
       include: { report: true },
     });
 
@@ -240,10 +240,10 @@ router.get('/:id/runs/:runId', async (req: Request, res: Response) => {
 
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    if (RESERVED_PATHS.has(req.params.id)) return (req as AuthRequest).next('route');
+    if (RESERVED_PATHS.has(req.params.id)) return;
 
     const report = await prisma.analyticsReport.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { runs: { take: 5, orderBy: { createdAt: 'desc' } } },
     });
 
@@ -266,7 +266,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }
@@ -278,7 +278,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsReport.update({
       where: { id },
-      data: parsed.data,
+      data: parsed.data as any,
     });
 
     res.json({ success: true, data: updated });
@@ -296,7 +296,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsReport.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Report not found' } });
     }

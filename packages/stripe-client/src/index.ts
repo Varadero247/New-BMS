@@ -29,12 +29,12 @@ export class StripeClient {
   }
 
   async createCoupon(params: { percent_off: number; duration: string; duration_in_months?: number; max_redemptions?: number }) {
-    const body = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]));
+    const body = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)] as [string, string]));
     return this.request('/coupons', { method: 'POST', body: body.toString() });
   }
 
   async createTransfer(params: { amount: number; currency: string; destination: string }) {
-    const body = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]));
+    const body = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)] as [string, string]));
     return this.request('/transfers', { method: 'POST', body: body.toString() });
   }
 

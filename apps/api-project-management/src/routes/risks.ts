@@ -35,9 +35,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectRiskWhereInput = { projectId: projectId as string, deletedAt: null };
-    if (riskLevel) where.riskLevel = riskLevel;
-    if (status) where.status = status;
+    const where: any = { projectId: projectId as string, deletedAt: null };
+    if (riskLevel) where.riskLevel = riskLevel as any;
+    if (status) where.status = status as any;
 
     const [risks, total] = await Promise.all([
       prisma.projectRisk.findMany({

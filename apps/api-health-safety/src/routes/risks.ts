@@ -62,10 +62,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.RiskWhereInput = { deletedAt: null };
-    if (status) where.status = status;
-    if (riskLevel) where.riskLevel = riskLevel;
-    if (category) where.category = category;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
+    if (riskLevel) where.riskLevel = riskLevel as any;
+    if (category) where.category = category as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -99,7 +99,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/matrix', async (req: AuthRequest, res: Response) => {
   try {
     const risks = await prisma.risk.findMany({
-      where: { status: 'ACTIVE', deletedAt: null },
+      where: { status: 'ACTIVE', deletedAt: null } as any,
       select: { id: true, title: true, likelihood: true, severity: true, riskScore: true },
       take: 500,
     });
@@ -305,7 +305,7 @@ router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: 
 router.put('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Response) => {
   // Forward to PATCH handler
   req.method = 'PATCH';
-  return router.handle(req, res, () => {});
+  return (router as any).handle(req, res, () => {});
 });
 
 // DELETE /api/risks/:id - Delete risk

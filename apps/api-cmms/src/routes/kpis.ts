@@ -52,7 +52,7 @@ const RESERVED_PATHS = new Set(['dashboard']);
 router.get('/dashboard', async (req: Request, res: Response) => {
   try {
     const kpis = await prisma.cmmsKpi.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: { periodEnd: 'desc' },
     });
 
@@ -65,16 +65,16 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     }
 
     // Summary stats
-    const totalAssets = await prisma.cmmsAsset.count({ where: { deletedAt: null, status: 'ACTIVE' } });
-    const openWorkOrders = await prisma.cmmsWorkOrder.count({ where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS'] } } });
+    const totalAssets = await prisma.cmmsAsset.count({ where: { deletedAt: null, status: 'ACTIVE' } as any });
+    const openWorkOrders = await prisma.cmmsWorkOrder.count({ where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS'] } as any } });
     const overdueWorkOrders = await prisma.cmmsWorkOrder.count({
       where: {
         deletedAt: null,
-        status: { in: ['OPEN', 'IN_PROGRESS'] },
+        status: { in: ['OPEN', 'IN_PROGRESS'] } as any,
         scheduledEnd: { lt: new Date() },
       },
     });
-    const lowStockParts = await prisma.cmmsPart.count({ where: { deletedAt: null } });
+    const lowStockParts = await prisma.cmmsPart.count({ where: { deletedAt: null } as any });
 
     res.json({
       success: true,
@@ -167,7 +167,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
   try {
     const kpi = await prisma.cmmsKpi.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { asset: { select: { id: true, name: true, code: true } } },
     });
 
@@ -190,7 +190,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', details: parsed.error.errors } });
     }
 
-    const existing = await prisma.cmmsKpi.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsKpi.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }
@@ -216,7 +216,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete KPI
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsKpi.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsKpi.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'KPI not found' } });
     }

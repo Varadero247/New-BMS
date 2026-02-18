@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import {
@@ -93,7 +93,7 @@ async function generateRef(orgId: string): Promise<string> {
 }
 
 function autoCalculateFields(data: unknown): Record<string, unknown> {
-  const result = { ...data };
+  const result = { ...(data as any) } as Record<string, any>;
   // Auto-calculate inherent score from numeric or enum values
   if (result.inherentLikelihood && result.inherentConsequence) {
     result.inherentScore = calculateScore(result.inherentLikelihood, result.inherentConsequence);
@@ -131,7 +131,7 @@ function autoCalculateFields(data: unknown): Record<string, unknown> {
 // GET /api/risks/register — full register export
 router.get('/register', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { page = '1', limit = '50' } = req.query as Record<string, string>;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const where = { orgId, deletedAt: null };
@@ -150,12 +150,12 @@ router.get('/register', authenticate, async (req: Request, res: Response) => {
 // GET /api/risks/heatmap
 router.get('/heatmap', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { category, owner, sourceModule: sm } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null, status: { not: 'CLOSED' } };
-    if (category) where.category = category;
-    if (owner) where.owner = owner;
-    if (sm) where.sourceModule = sm;
+    if (category) where.category = category as any;
+    if (owner) where.owner = owner as any;
+    if (sm) where.sourceModule = sm as any;
     const risks = await prisma.riskRegister.findMany({
       where,
       select: { id: true, title: true, referenceNumber: true, residualLikelihoodNum: true, residualConsequenceNum: true, residualRiskLevel: true, category: true, ownerName: true },
@@ -182,9 +182,9 @@ router.get('/heatmap', authenticate, async (req: Request, res: Response) => {
 // GET /api/risks/overdue-review
 router.get('/overdue-review', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const risks = await prisma.riskRegister.findMany({
-      where: { orgId, deletedAt: null, status: { not: 'CLOSED' }, nextReviewDate: { lt: new Date() } },
+      where: { orgId, deletedAt: null, status: { not: 'CLOSED' } as any, nextReviewDate: { lt: new Date() } },
       orderBy: { nextReviewDate: 'asc' },
       select: { id: true, referenceNumber: true, title: true, ownerName: true, nextReviewDate: true, residualRiskLevel: true, category: true },
     });
@@ -195,9 +195,9 @@ router.get('/overdue-review', authenticate, async (req: Request, res: Response) 
 // GET /api/risks/exceeds-appetite
 router.get('/exceeds-appetite', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const risks = await prisma.riskRegister.findMany({
-      where: { orgId, deletedAt: null, appetiteStatus: 'EXCEEDS', status: { not: 'CLOSED' } },
+      where: { orgId, deletedAt: null, appetiteStatus: 'EXCEEDS', status: { not: 'CLOSED' } as any },
       orderBy: { residualScore: 'desc' },
       select: { id: true, referenceNumber: true, title: true, category: true, residualRiskLevel: true, residualScore: true, ownerName: true },
     });
@@ -208,32 +208,32 @@ router.get('/exceeds-appetite', authenticate, async (req: Request, res: Response
 // GET /api/risks/by-category
 router.get('/by-category', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const raw = await prisma.riskRegister.groupBy({
-      by: ['category'], where: { orgId, deletedAt: null }, _count: true,
+      by: ['category'], where: { orgId, deletedAt: null } as any, _count: true,
     });
-    res.json({ success: true, data: raw.map((r: Record<string, unknown>) => ({ category: r.category, count: r._count })) });
+    res.json({ success: true, data: raw.map((r: Record<string, unknown>) => ({ category: r.category, count: (r as any)._count })) });
   } catch (error: unknown) { logger.error('Failed to fetch by-category', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch category breakdown' } }); }
 });
 
 // GET /api/risks/aggregate
 router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { groupBy = 'category' } = req.query as Record<string, string>;
     const validFields = ['category', 'department', 'sourceModule', 'aggregationGroup', 'status'];
     const field = validFields.includes(groupBy) ? groupBy : 'category';
     const raw = await prisma.riskRegister.groupBy({
-      by: [field], where: { orgId, deletedAt: null }, _count: true,
+      by: [field] as any, where: { orgId, deletedAt: null } as any, _count: true,
     });
-    res.json({ success: true, data: raw.map((r: Record<string, unknown>) => ({ group: r[field], count: r._count })) });
+    res.json({ success: true, data: raw.map((r: Record<string, unknown>) => ({ group: r[field], count: (r as any)._count })) });
   } catch (error: unknown) { logger.error('Failed to aggregate', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to aggregate risks' } }); }
 });
 
 // POST /api/risks/from-coshh/:coshhId
 router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const crossModuleSchema = z.object({ id: z.string().min(1, 'id is required'), title: z.string().optional() }).passthrough();
     const parsed = crossModuleSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
@@ -241,7 +241,7 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
     const mapped = mapCoshhToRisk(coshhData);
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
-      data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id },
+      data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to create risk from COSHH', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
@@ -250,7 +250,7 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
 // POST /api/risks/from-fra/:fraId
 router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const fraSchema = z.object({ id: z.string().min(1, 'id is required'), title: z.string().optional() }).passthrough();
     const parsedFra = fraSchema.safeParse(req.body);
     if (!parsedFra.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedFra.error.errors[0].message } });
@@ -258,7 +258,7 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
     const mapped = mapFraToRisk(fraData);
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
-      data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id },
+      data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to create risk from FRA', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
@@ -267,7 +267,7 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
 // POST /api/risks/from-incident/:id
 router.post('/from-incident/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const incidentSchema = z.object({ id: z.string().min(1, 'id is required'), title: z.string().optional() }).passthrough();
     const parsedInc = incidentSchema.safeParse(req.body);
     if (!parsedInc.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedInc.error.errors[0].message } });
@@ -275,7 +275,7 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
     const mapped = mapIncidentToRisk(incidentData);
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
-      data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id },
+      data: { ...mapped, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to create risk from incident', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
@@ -284,7 +284,7 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
 // POST /api/risks/from-audit/:id
 router.post('/from-audit/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const auditSchema = z.object({ id: z.string().optional(), title: z.string().optional() }).passthrough();
     const parsedAudit = auditSchema.safeParse(req.body);
     if (!parsedAudit.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsedAudit.error.errors[0].message } });
@@ -299,7 +299,7 @@ router.post('/from-audit/:id', authenticate, async (req: Request, res: Response)
         inherentLikelihood: 3, inherentConsequence: 3, inherentScore: 9,
         inherentRiskLevel: 'HIGH', likelihood: 'POSSIBLE', consequence: 'MODERATE',
         orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id,
-      },
+      } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to create risk from audit', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
@@ -308,14 +308,14 @@ router.post('/from-audit/:id', authenticate, async (req: Request, res: Response)
 // GET /api/risks — list all with filters
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { status, search, category, level, owner: ownerFilter, sourceModule: smFilter, page = '1', limit = '20', sort = 'createdAt', order = 'desc' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
-    if (status) where.status = status;
-    if (category) where.category = category;
-    if (level) where.residualRiskLevel = level;
-    if (ownerFilter) where.owner = ownerFilter;
-    if (smFilter) where.sourceModule = smFilter;
+    if (status) where.status = status as any;
+    if (category) where.category = category as any;
+    if (level) where.residualRiskLevel = level as any;
+    if (ownerFilter) where.owner = ownerFilter as any;
+    if (smFilter) where.sourceModule = smFilter as any;
     if (search) where.OR = [
       { title: { contains: search, mode: 'insensitive' } },
       { referenceNumber: { contains: search, mode: 'insensitive' } },
@@ -336,7 +336,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const item = await prisma.riskRegister.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
         riskControls: { where: { isActive: true } },
         keyRiskIndicators: { where: { isActive: true }, include: { readings: { orderBy: { recordedAt: 'desc' }, take: 10 } } },
@@ -355,7 +355,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createRiskSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const referenceNumber = await generateRef(orgId);
     const calculated = autoCalculateFields(parsed.data);
     // Auto-check appetite status if we have residual score and appetite statements
@@ -365,12 +365,12 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
           where: { category: calculated.category, isActive: true, OR: [{ organisationId: orgId }, { organisationId: null }] },
         });
         if (appetite) {
-          calculated.appetiteStatus = getAppetiteStatus(calculated.residualScore, appetite);
+          calculated.appetiteStatus = getAppetiteStatus(calculated.residualScore as number, appetite);
         }
       } catch { /* appetite check optional */ }
     }
     const data = await prisma.riskRegister.create({
-      data: { ...calculated, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id },
+      data: { ...calculated, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to create risk', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }
@@ -381,13 +381,13 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateRiskSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     const calculated = autoCalculateFields(parsed.data);
     // Re-check appetite status
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
-    const resScore = calculated.residualScore ?? existing.residualScore;
-    const cat = calculated.category ?? existing.category;
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const resScore = (calculated.residualScore ?? existing.residualScore) as any;
+    const cat = (calculated.category ?? existing.category) as any;
     if (resScore && cat) {
       try {
         const appetite = await prisma.riskAppetiteStatement.findFirst({
@@ -403,7 +403,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     }
     const data = await prisma.riskRegister.update({
       where: { id: req.params.id },
-      data: { ...calculated, updatedBy: (req as AuthRequest).user?.id },
+      data: { ...calculated, updatedBy: (req as AuthRequest).user?.id } as any,
     });
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to update risk', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'UPDATE_ERROR', message: (error as Error).message } }); }
@@ -412,7 +412,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // DELETE /api/risks/:id — soft delete
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.riskRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     await prisma.riskRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'risk deleted successfully' } });

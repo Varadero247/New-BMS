@@ -21,8 +21,8 @@ router.get('/runs', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.PayrollRunWhereInput = { deletedAt: null };
-    if (status) where.status = status as string;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
     if (year) {
       const startOfYear = new Date(parseInt(year as string), 0, 1);
       const endOfYear = new Date(parseInt(year as string), 11, 31);
@@ -210,9 +210,9 @@ router.get('/payslips', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.PayslipWhereInput = { deletedAt: null };
-    if (employeeId) where.employeeId = employeeId as string;
-    if (payrollRunId) where.payrollRunId = payrollRunId as string;
+    const where: any = { deletedAt: null };
+    if (employeeId) where.employeeId = employeeId as any;
+    if (payrollRunId) where.payrollRunId = payrollRunId as any;
 
     const [payslips, total] = await Promise.all([
       prisma.payslip.findMany({

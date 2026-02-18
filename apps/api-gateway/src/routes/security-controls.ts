@@ -7,7 +7,7 @@
  * - GET /status      — Live security control status (crypto, sessions, audit, GDPR)
  */
 import { Router } from 'express';
-import { authenticate, requireRole } from '@ims/auth';
+import { authenticate, requireRole , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 
 const router = Router();

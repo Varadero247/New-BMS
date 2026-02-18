@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { portalPrisma } from '../prisma-portal';
 import { prisma } from '../prisma';
+import { type AuthRequest } from '@ims/auth';
+
 
 const logger = createLogger('api-partners:referrals');
 const router = Router();
@@ -15,7 +17,7 @@ const trackReferralSchema = z.object({
 // GET /api/referrals — list partner's referrals
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -41,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/referrals/track — track a new referral
 router.post('/track', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -92,7 +94,7 @@ router.post('/track', async (req: Request, res: Response) => {
 // GET /api/referrals/stats — referral statistics
 router.get('/stats', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

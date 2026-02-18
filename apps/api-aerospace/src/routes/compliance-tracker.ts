@@ -119,8 +119,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.complianceStatus = status;
-    if (standard) where.standard = standard;
+    if (status) where.complianceStatus = status as any;
+    if (standard) where.standard = standard as any;
     if (search) {
       where.OR = [
         { clause: { contains: search as string, mode: 'insensitive' } },
@@ -192,7 +192,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         targetDate: data.targetDate ? new Date(data.targetDate) : null,
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: item });
@@ -225,7 +225,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
         targetDate: data.targetDate ? new Date(data.targetDate) : existing.targetDate,
         lastReviewDate: data.lastReviewDate ? new Date(data.lastReviewDate) : existing.lastReviewDate,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : existing.nextReviewDate,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: item });
@@ -265,12 +265,12 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 router.get('/dashboard/summary', async (_req: AuthRequest, res: Response) => {
   try {
     const [total, compliant, partiallyCompliant, nonCompliant, notApplicable, underReview] = await Promise.all([
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null } }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'COMPLIANT' } }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'PARTIALLY_COMPLIANT' } }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'NON_COMPLIANT' } }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'NOT_APPLICABLE' } }),
-      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'UNDER_REVIEW' } }),
+      prisma.aeroComplianceItem.count({ where: { deletedAt: null } as any }),
+      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'COMPLIANT' } as any }),
+      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'PARTIALLY_COMPLIANT' } as any }),
+      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'NON_COMPLIANT' } as any }),
+      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'NOT_APPLICABLE' } as any }),
+      prisma.aeroComplianceItem.count({ where: { deletedAt: null, complianceStatus: 'UNDER_REVIEW' } as any }),
     ]);
 
     const applicable = total - notApplicable;

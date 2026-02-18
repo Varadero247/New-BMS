@@ -48,7 +48,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: Prisma.FinCustomerWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (country && typeof country === 'string') where.country = country;
     if (search && typeof search === 'string') {
@@ -91,10 +91,10 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
     const customer = await prisma.finCustomer.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         invoices: {
-          where: { deletedAt: null },
+          where: { deletedAt: null } as any,
           orderBy: { issueDate: 'desc' },
           take: 10,
           select: { id: true, reference: true, issueDate: true, dueDate: true, status: true, total: true, amountDue: true },
@@ -139,7 +139,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: customer });
   } catch (error: unknown) {
     logger.error('Failed to create customer', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: 'Customer code must be unique' });
     }
     res.status(500).json({ success: false, error: 'Failed to create customer' });
@@ -156,7 +156,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Customer not found' });
     }
@@ -187,12 +187,12 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Customer not found' });
     }
 
-    const invoiceCount = await prisma.finInvoice.count({ where: { customerId: id, deletedAt: null } });
+    const invoiceCount = await prisma.finInvoice.count({ where: { customerId: id, deletedAt: null } as any });
     if (invoiceCount > 0) {
       return res.status(409).json({ success: false, error: `Cannot delete customer: ${invoiceCount} invoice(s) exist` });
     }

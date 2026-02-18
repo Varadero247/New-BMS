@@ -145,8 +145,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const baseline = await prisma.energyBaseline.findFirst({
-      where: { id, deletedAt: null },
-      include: { targets: { where: { deletedAt: null } } },
+      where: { id, deletedAt: null } as any,
+      include: { targets: { where: { deletedAt: null } as any } },
     });
 
     if (!baseline) {
@@ -172,14 +172,14 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Baseline not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.totalConsumption !== undefined) {
-      updateData.totalConsumption = new Prisma.Decimal(updateData.totalConsumption);
+      updateData.totalConsumption = new Prisma.Decimal(updateData.totalConsumption as any);
     }
 
     const baseline = await prisma.energyBaseline.update({
@@ -203,7 +203,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Baseline not found' });
     }
@@ -230,7 +230,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const { id } = req.params;
     const authReq = req as AuthRequest;
 
-    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Baseline not found' });
     }

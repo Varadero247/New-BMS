@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { logActivity, getActivity, getRecentActivity } from '@ims/activity';
 import { z } from 'zod';
@@ -94,7 +94,7 @@ router.get('/recent', authenticate, async (req: Request, res: Response) => {
     }
 
     const { limit } = parsed.data;
-    const orgId = user.organisationId || 'default';
+    const orgId = (user as any).organisationId || 'default';
 
     const entries = await getRecentActivity(orgId, limit);
 
@@ -133,12 +133,12 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const { recordType, recordId, action, field, oldValue, newValue, comment, metadata } = parsed.data;
 
     await logActivity({
-      orgId: user.organisationId || 'default',
+      orgId: (user as any).organisationId || 'default',
       recordType,
       recordId,
-      userId: user.id,
-      userName: user.name || user.email || 'Unknown User',
-      userAvatar: user.avatar,
+      userId: user!.id,
+      userName: (user as any).name || user!.email || 'Unknown User',
+      userAvatar: user!.avatar ?? undefined,
       action,
       field,
       oldValue,

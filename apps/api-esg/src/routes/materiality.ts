@@ -40,11 +40,11 @@ const RESERVED_PATHS = new Set(['matrix']);
 router.get('/matrix', async (req: Request, res: Response) => {
   try {
     const topics = await prisma.esgMateriality.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: { importanceToStakeholders: 'desc' },
     });
 
-    const matrix = topics.map((t: Record<string, unknown>) => ({
+    const matrix = topics.map((t: Record<string, any>) => ({
       id: t.id,
       topic: t.topic,
       category: t.category,
@@ -53,8 +53,8 @@ router.get('/matrix', async (req: Request, res: Response) => {
       isMaterial: t.isMaterial,
     }));
 
-    const materialTopics = matrix.filter((m: Record<string, unknown>) => m.isMaterial);
-    const nonMaterialTopics = matrix.filter((m: Record<string, unknown>) => !m.isMaterial);
+    const materialTopics = matrix.filter((m: Record<string, any>) => m.isMaterial);
+    const nonMaterialTopics = matrix.filter((m: Record<string, any>) => !m.isMaterial);
 
     res.json({
       success: true,
@@ -65,9 +65,9 @@ router.get('/matrix', async (req: Request, res: Response) => {
           material: materialTopics.length,
           nonMaterial: nonMaterialTopics.length,
           byCategory: {
-            ENVIRONMENTAL: matrix.filter((m: Record<string, unknown>) => m.category === 'ENVIRONMENTAL').length,
-            SOCIAL: matrix.filter((m: Record<string, unknown>) => m.category === 'SOCIAL').length,
-            GOVERNANCE: matrix.filter((m: Record<string, unknown>) => m.category === 'GOVERNANCE').length,
+            ENVIRONMENTAL: matrix.filter((m: Record<string, any>) => m.category === 'ENVIRONMENTAL').length,
+            SOCIAL: matrix.filter((m: Record<string, any>) => m.category === 'SOCIAL').length,
+            GOVERNANCE: matrix.filter((m: Record<string, any>) => m.category === 'GOVERNANCE').length,
           },
         },
       },
@@ -85,7 +85,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (category) where.category = category as string;
     if (isMaterial !== undefined) where.isMaterial = isMaterial === 'true';
 
@@ -138,7 +138,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
-    const materiality = await prisma.esgMateriality.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const materiality = await prisma.esgMateriality.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!materiality) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Materiality topic not found' } });
     }
@@ -157,12 +157,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgMateriality.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgMateriality.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Materiality topic not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.importanceToStakeholders !== undefined) updateData.importanceToStakeholders = new Prisma.Decimal(updateData.importanceToStakeholders);
     if (updateData.importanceToBusiness !== undefined) updateData.importanceToBusiness = new Prisma.Decimal(updateData.importanceToBusiness);
 
@@ -177,7 +177,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/materiality/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgMateriality.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgMateriality.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Materiality topic not found' } });
     }

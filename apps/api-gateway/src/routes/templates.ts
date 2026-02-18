@@ -74,7 +74,7 @@ const MODULE_PREFIX: Record<string, string> = {
 
 async function generateCode(module: string): Promise<string> {
   const prefix = MODULE_PREFIX[module] || module.substring(0, 3);
-  const lastTemplate = await prisma.template.findFirst({
+  const lastTemplate = await (prisma as any).template.findFirst({
     where: { code: { startsWith: `TPL-${prefix}-` } },
     orderBy: { code: 'desc' },
     select: { code: true },
@@ -117,7 +117,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const take = Math.min(100, Math.max(1, parseInt(limit)));
 
     const [templates, total] = await Promise.all([
-      prisma.template.findMany({
+      (prisma as any).template.findMany({
         where,
         orderBy: { [sortBy]: sortOrder === 'asc' ? 'asc' : 'desc' },
         skip,
@@ -138,7 +138,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
           updatedAt: true,
         },
       }),
-      prisma.template.count({ where }),
+      (prisma as any).template.count({ where }),
     ]);
 
     res.json({
@@ -158,26 +158,26 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [byModule, byCategory, topUsed, totals] = await Promise.all([
-      prisma.template.groupBy({
+      (prisma as any).template.groupBy({
         by: ['module'],
         _count: true,
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
       }),
-      prisma.template.groupBy({
+      (prisma as any).template.groupBy({
         by: ['category'],
         _count: true,
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
       }),
-      prisma.template.findMany({
-        where: { deletedAt: null, usageCount: { gt: 0 } },
+      (prisma as any).template.findMany({
+        where: { deletedAt: null, usageCount: { gt: 0 } as any },
         orderBy: { usageCount: 'desc' },
         take: 10,
         select: { id: true, code: true, name: true, module: true, usageCount: true },
       }),
-      prisma.template.aggregate({
+      (prisma as any).template.aggregate({
         _count: true,
         _sum: { usageCount: true },
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
       }),
     ]);
 
@@ -207,11 +207,11 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
       return res.json({ success: true, data: [] });
     }
 
-    const templates = await prisma.template.findMany({
+    const templates = await (prisma as any).template.findMany({
       where: {
         deletedAt: null,
         OR: [
-          { name: { contains: q, mode: 'insensitive' } },
+          { name: { contains: q, mode: 'insensitive' } as any },
           { description: { contains: q, mode: 'insensitive' } },
           { code: { contains: q, mode: 'insensitive' } },
           { tags: { has: q.toLowerCase() } },
@@ -237,8 +237,8 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
 
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const template = await prisma.template.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const template = await (prisma as any).template.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
       return res.status(404).json({ success: false, error: 'Template not found' });
@@ -262,7 +262,7 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
     const data = parsed.data;
     const code = await generateCode(data.module);
 
-    const template = await prisma.template.create({
+    const template = await (prisma as any).template.create({
       data: {
         code,
         name: data.name,
@@ -290,8 +290,8 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
 
 router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.template.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const existing = await (prisma as any).template.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Template not found' });
@@ -303,7 +303,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
     }
 
     // Snapshot current version before update
-    await prisma.templateVersion.create({
+    await (prisma as any).templateVersion.create({
       data: {
         templateId: existing.id,
         version: existing.version,
@@ -317,7 +317,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
     const updateData: Record<string, unknown> = { ...parsed.data, version: existing.version + 1 };
     delete updateData.changeNote;
 
-    const updated = await prisma.template.update({
+    const updated = await (prisma as any).template.update({
       where: { id: req.params.id },
       data: updateData,
     });
@@ -334,8 +334,8 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
 
 router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.template.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const existing = await (prisma as any).template.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Template not found' });
@@ -346,7 +346,7 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
       return res.status(403).json({ success: false, error: 'Only administrators can delete built-in templates' });
     }
 
-    await prisma.template.update({
+    await (prisma as any).template.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -363,8 +363,8 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
 
 router.post('/:id/clone', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
-    const original = await prisma.template.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const original = await (prisma as any).template.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!original) {
       return res.status(404).json({ success: false, error: 'Template not found' });
@@ -373,7 +373,7 @@ router.post('/:id/clone', requireRole('MANAGER', 'ADMIN'), async (req: AuthReque
     const code = await generateCode(original.module);
     const cloneName = req.body.name || `${original.name} (Copy)`;
 
-    const cloned = await prisma.template.create({
+    const cloned = await (prisma as any).template.create({
       data: {
         code,
         name: cloneName,
@@ -402,8 +402,8 @@ router.post('/:id/clone', requireRole('MANAGER', 'ADMIN'), async (req: AuthReque
 
 router.post('/:id/use', async (req: AuthRequest, res: Response) => {
   try {
-    const template = await prisma.template.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const template = await (prisma as any).template.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
       return res.status(404).json({ success: false, error: 'Template not found' });
@@ -415,7 +415,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
     }
 
     const [instance] = await Promise.all([
-      prisma.templateInstance.create({
+      (prisma as any).templateInstance.create({
         data: {
           templateId: template.id,
           templateCode: template.code,
@@ -426,7 +426,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
           referenceId: parsed.data.referenceId ?? null,
         },
       }),
-      prisma.template.update({
+      (prisma as any).template.update({
         where: { id: template.id },
         data: { usageCount: { increment: 1 } },
       }),
@@ -444,15 +444,15 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
 
 router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
   try {
-    const template = await prisma.template.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const template = await (prisma as any).template.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
       select: { id: true },
     });
     if (!template) {
       return res.status(404).json({ success: false, error: 'Template not found' });
     }
 
-    const versions = await prisma.templateVersion.findMany({
+    const versions = await (prisma as any).templateVersion.findMany({
       where: { templateId: req.params.id },
       orderBy: { version: 'desc' },
     });
@@ -473,22 +473,22 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const versionNum = parseInt(req.params.version, 10);
-      const templateVersion = await prisma.templateVersion.findFirst({
+      const templateVersion = await (prisma as any).templateVersion.findFirst({
         where: { templateId: req.params.id, version: versionNum },
       });
       if (!templateVersion) {
         return res.status(404).json({ success: false, error: 'Version not found' });
       }
 
-      const current = await prisma.template.findFirst({
-        where: { id: req.params.id, deletedAt: null },
+      const current = await (prisma as any).template.findFirst({
+        where: { id: req.params.id, deletedAt: null } as any,
       });
       if (!current) {
         return res.status(404).json({ success: false, error: 'Template not found' });
       }
 
       // Snapshot current state before restoring
-      await prisma.templateVersion.create({
+      await (prisma as any).templateVersion.create({
         data: {
           templateId: current.id,
           version: current.version,
@@ -499,7 +499,7 @@ router.post(
         },
       });
 
-      const restored = await prisma.template.update({
+      const restored = await (prisma as any).template.update({
         where: { id: req.params.id },
         data: {
           fields: templateVersion.fields,
@@ -521,8 +521,8 @@ router.post(
 
 router.get('/:id/export', async (req: AuthRequest, res: Response) => {
   try {
-    const template = await prisma.template.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+    const template = await (prisma as any).template.findFirst({
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
       return res.status(404).json({ success: false, error: 'Template not found' });

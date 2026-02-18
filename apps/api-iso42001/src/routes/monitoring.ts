@@ -66,7 +66,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
       success: true,
       data: {
         total, normal, warning, alert, critical,
-        byMetricType: byMetricType.map((m: Record<string, unknown>) => ({ metricType: m.metricType, count: m._count.id })),
+        byMetricType: byMetricType.map((m: Record<string, unknown>) => ({ metricType: m.metricType, count: (m as any)._count.id })),
         recentAlerts: recent,
       },
     });
@@ -156,10 +156,10 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         measurementDate: parsed.data.measurementDate ? new Date(parsed.data.measurementDate) : new Date(),
-        status,
+        status: status as any,
         organisationId: (authReq.user as any)?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('AI monitoring record created', { id: record.id, systemId: parsed.data.systemId, status });
@@ -173,7 +173,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get monitoring record by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const record = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const record = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!record) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
@@ -190,7 +190,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -208,7 +208,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.aiMonitoring.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Monitoring record not found' } });
 
     await prisma.aiMonitoring.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

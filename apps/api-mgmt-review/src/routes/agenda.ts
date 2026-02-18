@@ -17,7 +17,7 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
     }
 
-    const review = await prisma.mgmtReview.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const review = await prisma.mgmtReview.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!review) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Review not found' } });
 
     const agenda = {

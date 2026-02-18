@@ -6,7 +6,7 @@ import { scopeToUser } from '@ims/service-auth';
 import { randomUUID } from 'crypto';
 
 const logger = createLogger('api-quality:headstart');
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate);
 
@@ -528,7 +528,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const { standards, industry, organisationSize, certificationStatus, organisationName } = parsed.data;
     const userId = req.user!.id;
-    const orgId = req.user!.organisationId || 'default';
+    const orgId = (req.user as any)!.organisationId || 'default';
 
     // Build headstart pack for each selected standard
     const standardPacks = standards.map((standard) => {
@@ -610,10 +610,10 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
       certificationStatus,
       standardPacks,
       convergenceInfo,
-      totalDocuments: standardPacks.reduce((sum, p: Record<string, unknown>) => sum + p.documents.length, 0),
-      totalRisks: standardPacks.reduce((sum, p: Record<string, unknown>) => sum + p.risks.length, 0),
-      totalObjectives: standardPacks.reduce((sum, p: Record<string, unknown>) => sum + p.objectives.length, 0),
-      totalAudits: standardPacks.reduce((sum, p: Record<string, unknown>) => sum + p.auditSchedule.length, 0),
+      totalDocuments: standardPacks.reduce((sum: number, p: any) => sum + p.documents.length, 0),
+      totalRisks: standardPacks.reduce((sum: number, p: any) => sum + p.risks.length, 0),
+      totalObjectives: standardPacks.reduce((sum: number, p: any) => sum + p.objectives.length, 0),
+      totalAudits: standardPacks.reduce((sum: number, p: any) => sum + p.auditSchedule.length, 0),
       overallCompletenessScore: certificationStatus === 'ALREADY_CERTIFIED' ? 85 : 90,
       status: 'COMPLETE',
       generatedAt: new Date().toISOString(),
@@ -645,7 +645,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const items = Array.from(headstartStore.values())
-      .filter((a) => a.organisationId === (req.user!.organisationId || 'default'))
+      .filter((a) => a.organisationId === ((req.user as any)!.organisationId || 'default'))
       .sort((a, b) => new Date(b.generatedAt).getTime() - new Date(a.generatedAt).getTime());
 
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
@@ -701,7 +701,7 @@ router.get('/:id', scopeToUser, async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (assessment.organisationId !== (req.user!.organisationId || 'default')) {
+    if (assessment.organisationId !== ((req.user as any)!.organisationId || 'default')) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Access denied' },

@@ -80,9 +80,9 @@ router.get('/summary', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
     if (technicianId) where.technicianId = String(technicianId);
     if (startDate || endDate) {
-      where.startTime = {};
-      if (startDate) where.startTime.gte = new Date(String(startDate));
-      if (endDate) where.startTime.lte = new Date(String(endDate));
+      (where as any).startTime = {};
+      if (startDate) (where as any).startTime.gte = new Date(String(startDate));
+      if (endDate) (where as any).startTime.lte = new Date(String(endDate));
     }
 
     const entries = await prisma.fsSvcTimeEntry.findMany({
@@ -151,7 +151,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcTimeEntry.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { job: true, technician: true },
     });
 
@@ -170,7 +170,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcTimeEntry.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcTimeEntry.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
     }
@@ -198,7 +198,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcTimeEntry.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcTimeEntry.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Time entry not found' } });
     }

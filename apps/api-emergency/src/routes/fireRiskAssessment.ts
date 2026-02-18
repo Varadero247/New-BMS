@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { calculateFireRiskLevel, calculateRiskScore } from '../services/riskCalculator';
@@ -55,11 +55,11 @@ async function generateFraRef(orgId: string): Promise<string> {
 // GET /api/fra — all FRAs with filter
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const { status, premisesId, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId, deletedAt: null };
-    if (status) where.assessmentStatus = status;
-    if (premisesId) where.premisesId = premisesId;
+    if (status) where.assessmentStatus = status as any;
+    if (premisesId) where.premisesId = premisesId as any;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
       prisma.femFireRiskAssessment.findMany({ where, skip, take: parseInt(limit), orderBy: { assessmentDate: 'desc' }, include: { premises: { select: { name: true } } } }),
@@ -72,9 +72,9 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/fra/overdue — FRAs past review date (MUST be before /:id)
 router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const data = await prisma.femFireRiskAssessment.findMany({
-      where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: new Date() } },
+      where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: new Date() } as any },
       include: { premises: { select: { name: true } } },
       orderBy: { nextReviewDate: 'asc' },
     });
@@ -87,7 +87,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createFraSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const referenceNumber = await generateFraRef(orgId);
     const overallRiskScore = calculateRiskScore(parsed.data.likelihoodRating, parsed.data.consequenceRating);
     const overallRiskLevel = calculateFireRiskLevel(parsed.data.likelihoodRating, parsed.data.consequenceRating);
@@ -114,7 +114,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const item = await prisma.femFireRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { premises: true },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
@@ -127,7 +127,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateFraSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.femFireRiskAssessment.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.femFireRiskAssessment.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.assessmentDate) updateData.assessmentDate = new Date(parsed.data.assessmentDate);
@@ -145,7 +145,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // POST /api/fra/:id/approve — approve and sign off
 router.post('/:id/approve', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.femFireRiskAssessment.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.femFireRiskAssessment.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });
     const data = await prisma.femFireRiskAssessment.update({
       where: { id: req.params.id },
@@ -159,7 +159,7 @@ router.post('/:id/approve', authenticate, async (req: Request, res: Response) =>
 router.get('/:id/action-plan', authenticate, async (req: Request, res: Response) => {
   try {
     const item = await prisma.femFireRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       select: { id: true, referenceNumber: true, actionPlan: true, overallRiskLevel: true },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FRA not found' } });

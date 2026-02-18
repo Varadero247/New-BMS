@@ -93,7 +93,7 @@ router.post('/rates', async (req: Request, res: Response) => {
         ...data,
         effectiveFrom: data.effectiveFrom ? new Date(data.effectiveFrom) : undefined,
         effectiveTo: data.effectiveTo ? new Date(data.effectiveTo) : undefined,
-        createdBy: user.id,
+        createdBy: user!.id,
       },
     });
 
@@ -102,7 +102,7 @@ router.post('/rates', async (req: Request, res: Response) => {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: error.errors } });
     }
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'DUPLICATE', message: 'Tax rate code already exists' } });
     }
     logger.error('Error creating tax rate', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -239,7 +239,7 @@ router.post('/returns', async (req: Request, res: Response) => {
         periodStart: new Date(data.periodStart),
         periodEnd: new Date(data.periodEnd),
         notes: data.notes,
-        createdBy: user.id,
+        createdBy: user!.id,
       },
       include: { taxRate: true },
     });
@@ -307,7 +307,7 @@ router.post('/returns/:id/submit', async (req: Request, res: Response) => {
       data: {
         status: 'SUBMITTED',
         submittedAt: new Date(),
-        submittedBy: user.id,
+        submittedBy: user!.id,
       },
       include: { taxRate: true },
     });

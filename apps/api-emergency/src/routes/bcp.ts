@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -53,10 +53,10 @@ async function generateBcpRef(orgId: string): Promise<string> {
 // GET /api/bcp — all BCPs
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const { status, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId };
-    if (status) where.status = status;
+    if (status) where.status = status as any;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
       prisma.femBusinessContinuityPlan.findMany({ where, skip, take: parseInt(limit), orderBy: { createdAt: 'desc' }, include: { _count: { select: { exercises: true } } } }),
@@ -69,7 +69,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/bcp/due-review — BCPs approaching review date (before /:id)
 router.get('/due-review', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const data = await prisma.femBusinessContinuityPlan.findMany({
       where: { organisationId: orgId, reviewDate: { lt: thirtyDaysFromNow } },
@@ -84,7 +84,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createBcpSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const planReference = await generateBcpRef(orgId);
     const { reviewDate, biaCompletedDate, ...rest } = parsed.data;
     const data = await prisma.femBusinessContinuityPlan.create({

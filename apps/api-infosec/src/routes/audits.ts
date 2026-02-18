@@ -127,7 +127,7 @@ router.post('/', async (req: Request, res: Response) => {
         auditType: parsed.data.auditType || 'INTERNAL',
         status: 'PLANNED',
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('ISMS audit created', { auditId: audit.id, refNumber });
@@ -241,7 +241,7 @@ router.post('/vulnerability-scans', async (req: Request, res: Response) => {
         summary: parsed.data.summary || null,
         reportUrl: parsed.data.reportUrl || null,
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Vulnerability scan logged', { scanId: scan.id, refNumber });
@@ -307,9 +307,9 @@ router.post('/penetration-tests', async (req: Request, res: Response) => {
         highFindings: parsed.data.highFindings || 0,
         summary: parsed.data.summary || null,
         reportUrl: parsed.data.reportUrl || null,
-        status: parsed.data.status || 'PLANNED',
+        status: (parsed.data.status || 'PLANNED') as any,
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Penetration test logged', { testId: test.id, refNumber });
@@ -329,7 +329,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const audit = await prisma.isAudit.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         findings: {
           orderBy: { createdAt: 'asc' },
@@ -356,7 +356,7 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } });
+    const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!audit) {
       return res.status(404).json({ success: false, error: 'ISMS audit not found' });
     }
@@ -413,7 +413,7 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } });
+    const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!audit) {
       return res.status(404).json({ success: false, error: 'ISMS audit not found' });
     }
@@ -429,7 +429,7 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
         recommendation: parsed.data.recommendation || null,
         status: 'OPEN',
         createdBy: authReq.user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Audit finding added', { auditId: id, findingId: finding.id, type: parsed.data.type });
@@ -452,7 +452,7 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'ISMS audit not found' });
     }
@@ -467,7 +467,7 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
         completedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      },
+      } as any,
       include: {
         findings: true,
       },

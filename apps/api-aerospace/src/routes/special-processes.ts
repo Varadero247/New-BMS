@@ -132,9 +132,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (processType) where.processType = processType;
-    if (status) where.status = status;
-    if (approvalBody) where.approvalBody = approvalBody;
+    if (processType) where.processType = processType as any;
+    if (status) where.status = status as any;
+    if (approvalBody) where.approvalBody = approvalBody as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -212,7 +212,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: 'ACTIVE',
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: process });
@@ -240,7 +240,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const process = await prisma.aeroSpecialProcess.update({
       where: { id: req.params.id },
-      data,
+      data: data as any,
     });
 
     res.json({ success: true, data: process });
@@ -289,7 +289,7 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (approvalStatus) where.approvalStatus = approvalStatus;
+    if (approvalStatus) where.approvalStatus = approvalStatus as any;
     if (search) {
       where.OR = [
         { supplier: { contains: search as string, mode: 'insensitive' } },

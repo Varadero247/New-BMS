@@ -40,7 +40,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 }
 
 // GET / — List context factors
-router.get('/', requirePermission('quality', 'read'), async (req: Request, res: Response) => {
+router.get('/', requirePermission('quality', 'read' as any), async (req: Request, res: Response) => {
   try {
     const { factorType, status, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
@@ -87,7 +87,7 @@ router.get('/', requirePermission('quality', 'read'), async (req: Request, res: 
 });
 
 // POST / — Create context factor
-router.post('/', requirePermission('quality', 'write'), async (req: Request, res: Response) => {
+router.post('/', requirePermission('quality', 'write' as any), async (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -134,10 +134,10 @@ router.post('/', requirePermission('quality', 'write'), async (req: Request, res
 });
 
 // GET /:id — Get context factor by ID
-router.get('/:id', requirePermission('quality', 'read'), async (req: Request, res: Response) => {
+router.get('/:id', requirePermission('quality', 'read' as any), async (req: Request, res: Response) => {
   try {
     const item = await prisma.qualIssue.findFirst({
-      where: { id: req.params.id, deletedAt: null, referenceNumber: { startsWith: 'QMS-CTX' } },
+      where: { id: req.params.id, deletedAt: null, referenceNumber: { startsWith: 'QMS-CTX' } as any },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Context factor not found' } });
 
@@ -164,7 +164,7 @@ router.get('/:id', requirePermission('quality', 'read'), async (req: Request, re
 });
 
 // PUT /:id — Update context factor
-router.put('/:id', requirePermission('quality', 'write'), async (req: Request, res: Response) => {
+router.put('/:id', requirePermission('quality', 'write' as any), async (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -172,7 +172,7 @@ router.put('/:id', requirePermission('quality', 'write'), async (req: Request, r
     }
 
     const existing = await prisma.qualIssue.findFirst({
-      where: { id: req.params.id, deletedAt: null, referenceNumber: { startsWith: 'QMS-CTX' } },
+      where: { id: req.params.id, deletedAt: null, referenceNumber: { startsWith: 'QMS-CTX' } as any },
     });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Context factor not found' } });
 
@@ -210,10 +210,10 @@ router.put('/:id', requirePermission('quality', 'write'), async (req: Request, r
 });
 
 // DELETE /:id — Soft delete context factor
-router.delete('/:id', requirePermission('quality', 'delete'), async (req: Request, res: Response) => {
+router.delete('/:id', requirePermission('quality', 'delete' as any), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualIssue.findFirst({
-      where: { id: req.params.id, deletedAt: null, referenceNumber: { startsWith: 'QMS-CTX' } },
+      where: { id: req.params.id, deletedAt: null, referenceNumber: { startsWith: 'QMS-CTX' } as any },
     });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Context factor not found' } });
 

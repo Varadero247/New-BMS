@@ -95,7 +95,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     // Get AI settings
     const settings = await prisma.aISettings.findFirst({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -110,9 +110,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     let sourceData: Record<string, unknown> | null = null;
 
     if (data.sourceType === 'risk' || data.sourceType === 'aspect') {
-      sourceData = await prisma.risk.findUnique({ where: { id: data.sourceId } });
+      sourceData = await (prisma as any).risk.findUnique({ where: { id: data.sourceId } });
     } else {
-      sourceData = await prisma.incident.findUnique({ where: { id: data.sourceId } });
+      sourceData = await (prisma as any).incident.findUnique({ where: { id: data.sourceId } });
     }
 
     if (!sourceData) {
@@ -149,7 +149,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     }
 
     // Parse AI response and extract structured data
-    const parsedResponse = parseAIResponse(aiResponse);
+    const parsedResponse = parseAIResponse(aiResponse!);
 
     // Save analysis
     const analysis = await prisma.aIAnalysis.create({
@@ -175,7 +175,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     await prisma.aISettings.update({
       where: { id: settings.id },
       data: {
-        totalTokensUsed: settings.totalTokensUsed + (aiResponse.tokensUsed || 0),
+        totalTokensUsed: settings.totalTokensUsed + (aiResponse!.tokensUsed || 0),
         lastUsedAt: new Date(),
       },
     });
@@ -226,13 +226,13 @@ async function callOpenAIImpl(apiKey: string, model: string, prompt: string): Pr
     if (!response.ok) {
       let errorMessage = 'OpenAI API error';
       try {
-        const error = await response.json();
-        errorMessage = error.error?.message || errorMessage;
+        const errBody: any = await response.json();
+        errorMessage = errBody.error?.message || errorMessage;
       } catch { /* non-JSON error response */ }
       throw new Error(errorMessage);
     }
 
-    let data: Record<string, unknown>;
+    let data: any;
     try {
       data = await response.json();
     } catch {
@@ -273,13 +273,13 @@ async function callAnthropicImpl(apiKey: string, model: string, prompt: string):
     if (!response.ok) {
       let errorMessage = 'Anthropic API error';
       try {
-        const error = await response.json();
-        errorMessage = error.error?.message || errorMessage;
+        const errBody: any = await response.json();
+        errorMessage = errBody.error?.message || errorMessage;
       } catch { /* non-JSON error response */ }
       throw new Error(errorMessage);
     }
 
-    let data: Record<string, unknown>;
+    let data: any;
     try {
       data = await response.json();
     } catch {
@@ -324,13 +324,13 @@ async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderR
     if (!response.ok) {
       let errorMessage = 'Grok API error';
       try {
-        const error = await response.json();
-        errorMessage = error.error?.message || errorMessage;
+        const errBody: any = await response.json();
+        errorMessage = errBody.error?.message || errorMessage;
       } catch { /* non-JSON error response */ }
       throw new Error(errorMessage);
     }
 
-    let data: Record<string, unknown>;
+    let data: any;
     try {
       data = await response.json();
     } catch {

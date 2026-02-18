@@ -26,7 +26,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectSprintWhereInput = { projectId: projectId as string, deletedAt: null };
+    const where: any = { projectId: projectId as string, deletedAt: null };
 
     const [sprints, total] = await Promise.all([
       prisma.projectSprint.findMany({
@@ -63,7 +63,7 @@ router.get('/:id/stories', async (req: AuthRequest, res: Response) => {
     }
 
     const stories = await prisma.projectUserStory.findMany({
-      where: { sprintId: req.params.id, deletedAt: null },
+      where: { sprintId: req.params.id, deletedAt: null } as any,
       orderBy: [{ backlogPriority: 'asc' }, { createdAt: 'asc' }],
     });
 

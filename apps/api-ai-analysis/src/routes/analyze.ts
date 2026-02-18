@@ -46,7 +46,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     // Get AI settings
     const settings = await prisma.aISettings.findFirst({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -1106,7 +1106,7 @@ Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
     // Parse JSON from AI response
     let parsedResult: unknown;
     try {
-      const content = aiResponse.content || '';
+      const content = aiResponse!.content || '';
       // Extract JSON from response (handle cases where AI adds markdown code blocks)
       const jsonMatch = content.match(/\[[\s\S]*\]/) || content.match(/\{[\s\S]*\}/);
       parsedResult = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(content);
@@ -1121,7 +1121,7 @@ Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
     await prisma.aISettings.update({
       where: { id: settings.id },
       data: {
-        totalTokensUsed: settings.totalTokensUsed + (aiResponse.tokensUsed || 0),
+        totalTokensUsed: settings.totalTokensUsed + (aiResponse!.tokensUsed || 0),
         lastUsedAt: new Date(),
       },
     });

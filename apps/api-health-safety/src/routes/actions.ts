@@ -77,19 +77,19 @@ router.get('/overdue', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, open, inProgress, completed, overdue, byType] = await Promise.all([
-      prisma.hSAction.count({ where: { deletedAt: null } }),
-      prisma.hSAction.count({ where: { deletedAt: null, status: 'OPEN' } }),
-      prisma.hSAction.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
-      prisma.hSAction.count({ where: { deletedAt: null, status: { in: ['COMPLETED', 'VERIFIED'] } } }),
-      prisma.hSAction.count({ where: { deletedAt: null, dueDate: { lt: new Date() }, status: { notIn: ['COMPLETED', 'VERIFIED', 'CANCELLED'] } } }),
-      prisma.hSAction.groupBy({ by: ['type'], where: { deletedAt: null }, _count: { id: true } }),
+      prisma.hSAction.count({ where: { deletedAt: null } as any }),
+      prisma.hSAction.count({ where: { deletedAt: null, status: 'OPEN' } as any }),
+      prisma.hSAction.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } as any }),
+      prisma.hSAction.count({ where: { deletedAt: null, status: { in: ['COMPLETED', 'VERIFIED'] } as any } }),
+      prisma.hSAction.count({ where: { deletedAt: null, dueDate: { lt: new Date() } as any, status: { notIn: ['COMPLETED', 'VERIFIED', 'CANCELLED'] } } }),
+      prisma.hSAction.groupBy({ by: ['type'], where: { deletedAt: null } as any, _count: { id: true } }),
     ]);
 
     res.json({
       success: true,
       data: {
         total, open, inProgress, completed, overdue,
-        byType: byType.map((t: Record<string, unknown>) => ({ type: t.type, count: t._count.id })),
+        byType: byType.map((t: Record<string, unknown>) => ({ type: t.type, count: (t as any)._count.id })),
       },
     });
   } catch (error) {
@@ -107,9 +107,9 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
-    if (type) where.type = type;
-    if (priority) where.priority = priority;
+    if (status) where.status = status as any;
+    if (type) where.type = type as any;
+    if (priority) where.priority = priority as any;
     if (search && typeof search === 'string') {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
@@ -160,7 +160,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const action = await prisma.hSAction.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!action) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     res.json({ success: true, data: action });
@@ -178,7 +178,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.hSAction.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.hSAction.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -197,7 +197,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.hSAction.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.hSAction.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
 
     await prisma.hSAction.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

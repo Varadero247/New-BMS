@@ -17,9 +17,9 @@ router.get('/component-types', scopeToUser, async (req: Request, res: Response) 
   try {
     const { type, category } = req.query;
 
-    const where: Prisma.SalaryComponentTypeWhereInput = { isActive: true, deletedAt: null };
-    if (type) where.type = type;
-    if (category) where.category = category;
+    const where: any = { isActive: true, deletedAt: null };
+    if (type) where.type = type as any;
+    if (category) where.category = category as any;
 
     const componentTypes = await prisma.salaryComponentType.findMany({
       where,
@@ -70,7 +70,7 @@ router.post('/component-types', async (req: Request, res: Response) => {
 router.get('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const salaries = await prisma.employeeSalary.findMany({
-      where: { employeeId: req.params.employeeId, deletedAt: null },
+      where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       include: {
         components: {
           include: { componentType: true },
@@ -115,7 +115,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
 
     // Get previous salary for history
     const prevSalary = await prisma.employeeSalary.findFirst({
-      where: { employeeId: req.params.employeeId, deletedAt: null },
+      where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       orderBy: { effectiveFrom: 'desc' },
     });
 

@@ -132,7 +132,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const audit = await prisma.energyAudit.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!audit) {
@@ -158,17 +158,17 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Audit not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.scheduledDate) {
-      updateData.scheduledDate = new Date(updateData.scheduledDate);
+      updateData.scheduledDate = new Date(updateData.scheduledDate as string);
     }
     if (updateData.score !== undefined && updateData.score !== null) {
-      updateData.score = new Prisma.Decimal(updateData.score);
+      updateData.score = new Prisma.Decimal(updateData.score as any);
     }
 
     const audit = await prisma.energyAudit.update({
@@ -192,7 +192,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Audit not found' });
     }
@@ -219,7 +219,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     const { id } = req.params;
     const { score, findings, recommendations } = req.body;
 
-    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Audit not found' });
     }

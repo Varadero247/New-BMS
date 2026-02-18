@@ -55,7 +55,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.CustomerReqWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (customer) where.customer = { contains: customer as string, mode: 'insensitive' };
     if (category) where.category = category as any;
     if (complianceStatus) where.complianceStatus = complianceStatus as any;
@@ -93,7 +93,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/customers', async (_req: AuthRequest, res: Response) => {
   try {
     const customers = await prisma.customerReq.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       select: { customer: true },
       distinct: ['customer'],
       orderBy: { customer: 'asc' },
@@ -110,21 +110,21 @@ router.get('/customers', async (_req: AuthRequest, res: Response) => {
 router.get('/compliance-summary', async (_req: AuthRequest, res: Response) => {
   try {
     const [total, byStatus, byCustomer, overdue] = await Promise.all([
-      prisma.customerReq.count({ where: { deletedAt: null } }),
+      prisma.customerReq.count({ where: { deletedAt: null } as any }),
       prisma.customerReq.groupBy({
         by: ['complianceStatus'],
         _count: { id: true },
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
       }),
       prisma.customerReq.groupBy({
         by: ['customer'],
         _count: { id: true },
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
       }),
       prisma.customerReq.count({
         where: {
           deletedAt: null,
-          nextReviewDate: { lt: new Date() },
+          nextReviewDate: { lt: new Date() } as any,
           complianceStatus: { not: 'NOT_APPLICABLE' },
         },
       }),

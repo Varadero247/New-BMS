@@ -63,7 +63,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 router.get('/summary', async (req: Request, res: Response) => {
   try {
     const hazards = await prisma.fsHazard.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       select: { type: true, severity: true, isSignificant: true },
     });
 
@@ -154,7 +154,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const hazard = await prisma.fsHazard.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { ccps: true },
     });
 
@@ -174,7 +174,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsHazard.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsHazard.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found' } });
     }
@@ -207,7 +207,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsHazard.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsHazard.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found' } });
     }

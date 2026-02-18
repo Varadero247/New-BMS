@@ -21,7 +21,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EmployeeDocumentWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId;
     if (documentType) where.documentType = documentType;
     if (status) where.status = status;
@@ -197,7 +197,7 @@ router.delete('/:id', checkOwnership(prisma.employeeDocument), async (req: Reque
 router.get('/qualifications/:employeeId', async (req: Request, res: Response) => {
   try {
     const qualifications = await prisma.employeeQualification.findMany({
-      where: { employeeId: req.params.employeeId, deletedAt: null },
+      where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       orderBy: { endDate: 'desc' },
     });
 
@@ -250,7 +250,7 @@ router.post('/qualifications', async (req: Request, res: Response) => {
 router.get('/assets/:employeeId', async (req: Request, res: Response) => {
   try {
     const assets = await prisma.employeeAsset.findMany({
-      where: { employeeId: req.params.employeeId, deletedAt: null },
+      where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       orderBy: { assignedDate: 'desc' },
     });
 

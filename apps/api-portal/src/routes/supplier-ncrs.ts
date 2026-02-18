@@ -74,7 +74,7 @@ router.post('/:id/response', async (req: Request, res: Response) => {
     }
 
     const ncr = await prisma.portalQualityReport.findFirst({
-      where: { id: req.params.id, portalUserId: auth.user!.id, reportType: 'NCR', deletedAt: null },
+      where: { id: req.params.id, portalUserId: auth.user!.id, reportType: 'NCR', deletedAt: null } as any,
     });
 
     if (!ncr) {

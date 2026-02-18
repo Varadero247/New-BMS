@@ -67,7 +67,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     // Fetch any custom benchmarks from KPIs
     const kpis = await prisma.analyticsKpi.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
       orderBy: [{ module: 'asc' }, { name: 'asc' }],
       take: Math.min(Number(req.query.limit) || 50, 200),
       skip: Number(req.query.offset) || 0,
@@ -110,7 +110,7 @@ router.get('/:module', async (req: Request, res: Response) => {
     const industryData = INDUSTRY_BENCHMARKS[moduleKey] || [];
 
     const kpis = await prisma.analyticsKpi.findMany({
-      where: { module: moduleKey, deletedAt: null },
+      where: { module: moduleKey, deletedAt: null } as any,
       orderBy: { name: 'asc' },
       take: Math.min(Number(req.query.limit) || 50, 200),
       skip: Number(req.query.offset) || 0,

@@ -51,9 +51,10 @@ router.get('/summary', async (req: Request, res: Response) => {
       where.meterId = meterId;
     }
     if (dateFrom || dateTo) {
-      where.readingDate = {};
-      if (dateFrom) where.readingDate.gte = new Date(String(dateFrom));
-      if (dateTo) where.readingDate.lte = new Date(String(dateTo));
+      const dateFilter: Record<string, Date> = {};
+      if (dateFrom) dateFilter.gte = new Date(String(dateFrom));
+      if (dateTo) dateFilter.lte = new Date(String(dateTo));
+      where.readingDate = dateFilter;
     }
 
     const result = await prisma.energyReading.aggregate({
@@ -71,7 +72,7 @@ router.get('/summary', async (req: Request, res: Response) => {
         totalConsumption: Number(result._sum.value || 0),
         totalCost: Number(result._sum.cost || 0),
         averageConsumption: Number(result._avg.value || 0),
-        readingCount: result._count,
+        readingCount: (result as any)._count,
         periodStart: result._min.readingDate,
         periodEnd: result._max.readingDate,
       },
@@ -102,9 +103,10 @@ router.get('/', async (req: Request, res: Response) => {
       where.source = source;
     }
     if (dateFrom || dateTo) {
-      where.readingDate = {};
-      if (dateFrom) where.readingDate.gte = new Date(String(dateFrom));
-      if (dateTo) where.readingDate.lte = new Date(String(dateTo));
+      const dateFilter: Record<string, Date> = {};
+      if (dateFrom) dateFilter.gte = new Date(String(dateFrom));
+      if (dateTo) dateFilter.lte = new Date(String(dateTo));
+      where.readingDate = dateFilter;
     }
 
     const [readings, total] = await Promise.all([
@@ -146,7 +148,7 @@ router.post('/', async (req: Request, res: Response) => {
     const data = parsed.data;
 
     // Validate meter exists
-    const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } });
+    const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
     if (!meter) {
       return res.status(400).json({ success: false, error: 'Meter not found' });
     }
@@ -185,7 +187,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const reading = await prisma.energyReading.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         meter: { select: { id: true, name: true, code: true, type: true, unit: true } },
       },
@@ -214,20 +216,20 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyReading.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyReading.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Reading not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.value !== undefined) {
-      updateData.value = new Prisma.Decimal(updateData.value);
+      updateData.value = new Prisma.Decimal(updateData.value as any);
     }
     if (updateData.cost !== undefined && updateData.cost !== null) {
-      updateData.cost = new Prisma.Decimal(updateData.cost);
+      updateData.cost = new Prisma.Decimal(updateData.cost as any);
     }
     if (updateData.readingDate) {
-      updateData.readingDate = new Date(updateData.readingDate);
+      updateData.readingDate = new Date(updateData.readingDate as string);
     }
 
     const reading = await prisma.energyReading.update({
@@ -251,7 +253,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyReading.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyReading.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Reading not found' });
     }

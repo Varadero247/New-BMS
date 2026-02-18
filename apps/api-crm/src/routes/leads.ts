@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -89,8 +89,8 @@ router.get('/', async (req: Request, res: Response) => {
     const search = req.query.search as string;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
-    if (source) where.source = source;
+    if (status) where.status = status as any;
+    if (source) where.source = source as any;
     if (search) {
       where.OR = [
         { firstName: { contains: search, mode: 'insensitive' } },
@@ -125,7 +125,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const lead = await prisma.crmLead.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!lead) {
@@ -143,7 +143,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmLead.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -183,7 +183,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.put('/:id/qualify', async (req: Request, res: Response) => {
   try {
     const lead = await prisma.crmLead.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!lead) {
@@ -289,7 +289,7 @@ router.put('/:id/qualify', async (req: Request, res: Response) => {
 router.put('/:id/disqualify', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmLead.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {

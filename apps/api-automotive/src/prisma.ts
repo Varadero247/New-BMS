@@ -5,7 +5,7 @@ declare global {
   var automotivePrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 
-export const prisma =
+export const prisma: InstanceType<typeof PrismaClient> =
   global.automotivePrisma ||
   new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],

@@ -87,10 +87,10 @@ export function calculateResidualScores(
 }
 
 export function mapCoshhToRisk(coshh: Record<string, unknown>): Record<string, unknown> {
-  const inherentL = coshh.inherentLikelihood || 3;
-  const inherentC = coshh.inherentSeverity || 3;
-  const residualL = coshh.residualLikelihood || inherentL;
-  const residualC = coshh.residualSeverity || inherentC;
+  const inherentL = (coshh.inherentLikelihood || 3) as number;
+  const inherentC = (coshh.inherentSeverity || 3) as number;
+  const residualL = (coshh.residualLikelihood || inherentL) as number;
+  const residualC = (coshh.residualSeverity || inherentC) as number;
   const inherentScore = inherentL * inherentC;
   const residualScore = residualL * residualC;
   return {
@@ -106,18 +106,18 @@ export function mapCoshhToRisk(coshh: Record<string, unknown>): Record<string, u
     residualConsequenceNum: residualC,
     residualScore,
     residualRiskLevel: getRiskLevel(residualScore),
-    likelihood: numToLikelihood(inherentL),
-    consequence: numToConsequence(inherentC),
-    residualLikelihood: numToLikelihood(residualL),
-    residualConsequence: numToConsequence(residualC),
+    likelihood: numToLikelihood(inherentL as number),
+    consequence: numToConsequence(inherentC as number),
+    residualLikelihood: numToLikelihood(residualL as number),
+    residualConsequence: numToConsequence(residualC as number),
     regulatoryRef: 'ISO 45001:2018 cl.6.1 / COSHH 2002',
     ownerName: coshh.assessorName || coshh.assessor,
   };
 }
 
 export function mapFraToRisk(fra: Record<string, unknown>): Record<string, unknown> {
-  const inherentL = fra.likelihoodRating || 3;
-  const inherentC = fra.consequenceRating || 3;
+  const inherentL = (fra.likelihoodRating || 3) as number;
+  const inherentC = (fra.consequenceRating || 3) as number;
   const inherentScore = inherentL * inherentC;
   return {
     title: `${fra.premisesName || fra.premises || 'Premises'} — Fire risk`,
@@ -128,15 +128,15 @@ export function mapFraToRisk(fra: Record<string, unknown>): Record<string, unkno
     inherentConsequence: inherentC,
     inherentScore,
     inherentRiskLevel: getRiskLevel(inherentScore),
-    likelihood: numToLikelihood(inherentL),
-    consequence: numToConsequence(inherentC),
+    likelihood: numToLikelihood(inherentL as number),
+    consequence: numToConsequence(inherentC as number),
     regulatoryRef: 'FSO 2005 / ISO 45001 cl.8.2',
   };
 }
 
 export function mapIncidentToRisk(incident: Record<string, unknown>): Record<string, unknown> {
   const severityMap: Record<string, number> = { MINOR: 2, MODERATE: 3, MAJOR: 4, CRITICAL: 5, CATASTROPHIC: 5 };
-  const consequenceVal = severityMap[incident.severity] || 3;
+  const consequenceVal = severityMap[incident.severity as string] || 3;
   const inherentScore = 3 * consequenceVal;
   return {
     title: `${incident.title || 'Incident'} — recurrence risk`,

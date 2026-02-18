@@ -50,7 +50,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const { year } = req.query;
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (year) {
       const y = parseInt(year as string, 10);
       where.periodStart = { gte: new Date(`${y}-01-01`) };
@@ -87,7 +87,7 @@ router.get('/trend', async (req: Request, res: Response) => {
     const { year } = req.query;
     const y = year ? parseInt(year as string, 10) : new Date().getFullYear();
 
-    const where: Record<string, unknown> = {
+    const where: Record<string, any> = {
       deletedAt: null,
       periodStart: { gte: new Date(`${y}-01-01`) },
       periodEnd: { lte: new Date(`${y}-12-31`) },
@@ -124,7 +124,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (scope) where.scope = scope as string;
     if (category) where.category = { contains: category as string, mode: 'insensitive' };
     if (periodStart) where.periodStart = { gte: new Date(periodStart as string) };
@@ -183,7 +183,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
-    const emission = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const emission = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!emission) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
     }
@@ -202,12 +202,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.quantity !== undefined) updateData.quantity = new Prisma.Decimal(updateData.quantity);
     if (updateData.co2Equivalent !== undefined) updateData.co2Equivalent = new Prisma.Decimal(updateData.co2Equivalent);
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
@@ -224,7 +224,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/emissions/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgEmission.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Emission not found' } });
     }

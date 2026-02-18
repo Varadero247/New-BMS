@@ -66,7 +66,7 @@ router.get('/due-audit', async (req: Request, res: Response) => {
     const data = await prisma.fsSupplier.findMany({
       where: {
         deletedAt: null,
-        nextAuditDate: { lte: futureDate },
+        nextAuditDate: { lte: futureDate } as any,
         status: { not: 'REJECTED' },
       },
       orderBy: { nextAuditDate: 'asc' },
@@ -147,7 +147,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const supplier = await prisma.fsSupplier.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!supplier) {
@@ -166,7 +166,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
@@ -199,7 +199,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSupplier.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }

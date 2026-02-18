@@ -65,7 +65,7 @@ function parseIntParam(val: unknown, fallback: number): number {
 router.get('/roi-summary', async (_req: Request, res: Response) => {
   try {
     const projects = await prisma.energyProject.findMany({
-      where: { deletedAt: null, status: { in: ['COMPLETED', 'IN_PROGRESS'] } },
+      where: { deletedAt: null, status: { in: ['COMPLETED', 'IN_PROGRESS'] } as any },
     });
 
     const totalInvestment = projects.reduce((sum, p) => sum + Number(p.investmentCost || 0), 0);
@@ -185,7 +185,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const project = await prisma.energyProject.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!project) {
@@ -212,26 +212,26 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Project not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.estimatedSavings !== undefined && updateData.estimatedSavings !== null) {
-      updateData.estimatedSavings = new Prisma.Decimal(updateData.estimatedSavings);
+      updateData.estimatedSavings = new Prisma.Decimal(updateData.estimatedSavings as any);
     }
     if (updateData.actualSavings !== undefined && updateData.actualSavings !== null) {
-      updateData.actualSavings = new Prisma.Decimal(updateData.actualSavings);
+      updateData.actualSavings = new Prisma.Decimal(updateData.actualSavings as any);
     }
     if (updateData.investmentCost !== undefined && updateData.investmentCost !== null) {
-      updateData.investmentCost = new Prisma.Decimal(updateData.investmentCost);
+      updateData.investmentCost = new Prisma.Decimal(updateData.investmentCost as any);
     }
     if (updateData.roi !== undefined && updateData.roi !== null) {
-      updateData.roi = new Prisma.Decimal(updateData.roi);
+      updateData.roi = new Prisma.Decimal(updateData.roi as any);
     }
     if (updateData.startDate) {
-      updateData.startDate = new Date(updateData.startDate);
+      updateData.startDate = new Date(updateData.startDate as string);
     }
 
     const project = await prisma.energyProject.update({
@@ -255,7 +255,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Project not found' });
     }
@@ -282,7 +282,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     const { id } = req.params;
     const { actualSavings } = req.body;
 
-    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Project not found' });
     }

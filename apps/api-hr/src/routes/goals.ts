@@ -54,7 +54,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: Prisma.PerformanceGoalWhereInput = {};
+    const where: any = {};
     if (employeeId && typeof employeeId === 'string') where.employeeId = employeeId;
     if (cycleId && typeof cycleId === 'string') where.cycleId = cycleId;
     if (status && typeof status === 'string') where.status = status as any;
@@ -92,7 +92,7 @@ router.get('/overdue', async (_req: Request, res: Response) => {
     const goals = await prisma.performanceGoal.findMany({
       where: {
         dueDate: { lt: new Date() },
-        status: { in: ['NOT_STARTED', 'IN_PROGRESS', 'ON_HOLD'] },
+        status: { in: ['NOT_STARTED', 'IN_PROGRESS', 'ON_HOLD'] } as any,
       },
       orderBy: { dueDate: 'asc' },
       include: {
@@ -113,7 +113,7 @@ router.get('/overdue', async (_req: Request, res: Response) => {
 router.get('/stats', async (req: Request, res: Response) => {
   try {
     const { cycleId } = req.query;
-    const where: Prisma.PerformanceGoalWhereInput = {};
+    const where: any = {};
     if (cycleId && typeof cycleId === 'string') where.cycleId = cycleId;
 
     const [total, byStatus, byCategory, avgProgress] = await Promise.all([
@@ -181,7 +181,7 @@ router.post('/', async (req: Request, res: Response) => {
         employeeId: data.employeeId,
         title: data.title,
         description: data.description,
-        category: data.category,
+        category: data.category as any,
         weight: data.weight !== undefined ? data.weight : 0,
         measurementCriteria: data.measurementCriteria,
         targetValue: data.targetValue,
@@ -281,7 +281,7 @@ router.post('/:id/updates', async (req: Request, res: Response) => {
           progressAfter: data.progressAfter,
           updateNotes: data.updateNotes,
           updatedById: authReq.user?.id || 'system',
-          evidence: data.evidence,
+          evidence: data.evidence as any,
         },
       });
 

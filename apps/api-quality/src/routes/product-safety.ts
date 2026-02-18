@@ -32,7 +32,7 @@ async function generateIncidentRef(): Promise<string> {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const prefix = `PSI-${yy}${mm}`;
-  const count = await prisma.safetyIncident.count({
+  const count = await (prisma as any).safetyIncident.count({
     where: { refNumber: { startsWith: prefix } },
   });
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
@@ -43,7 +43,7 @@ async function generateRecallRef(): Promise<string> {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const prefix = `RCL-${yy}${mm}`;
-  const count = await prisma.recallAction.count({
+  const count = await (prisma as any).recallAction.count({
     where: { refNumber: { startsWith: prefix } },
   });
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
@@ -87,7 +87,7 @@ router.post('/characteristics', async (req: AuthRequest, res: Response) => {
         notes: data.notes,
         status: 'ACTIVE',
         createdBy: req.user!.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: characteristic });
@@ -112,10 +112,10 @@ router.get('/characteristics', scopeToUser, async (req: AuthRequest, res: Respon
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.SafetyCharacteristicWhereInput = { deletedAt: null };
-    if (characteristicType) where.characteristicType = characteristicType as string;
+    const where: any = { deletedAt: null };
+    if (characteristicType) where.characteristicType = characteristicType as any;
     if (partNumber) where.partNumber = { contains: partNumber as string, mode: 'insensitive' };
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
 
     const [items, total] = await Promise.all([
       prisma.safetyCharacteristic.findMany({
@@ -225,7 +225,7 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
     const data = schema.parse(req.body);
     const refNumber = await generateIncidentRef();
 
-    const incident = await prisma.safetyIncident.create({
+    const incident = await (prisma as any).safetyIncident.create({
       data: {
         refNumber,
         title: data.title,
@@ -264,19 +264,19 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.SafetyIncidentWhereInput = { deletedAt: null };
-    if (status) where.status = status as string;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
     if (severity) where.severity = severity as string;
     if (product) where.product = { contains: product as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([
-      prisma.safetyIncident.findMany({
+      (prisma as any).safetyIncident.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.safetyIncident.count({ where }),
+      (prisma as any).safetyIncident.count({ where }),
     ]);
 
     res.json({
@@ -296,9 +296,9 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
 });
 
 // PUT /incidents/:id - Update incident
-router.put('/incidents/:id', checkOwnership(prisma.safetyIncident), async (req: AuthRequest, res: Response) => {
+router.put('/incidents/:id', checkOwnership((prisma as any).safetyIncident), async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.safetyIncident.findUnique({ where: { id: req.params.id } });
+    const existing = await (prisma as any).safetyIncident.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Safety incident not found' } });
     }
@@ -316,7 +316,7 @@ router.put('/incidents/:id', checkOwnership(prisma.safetyIncident), async (req: 
 
     const data = schema.parse(req.body);
 
-    const incident = await prisma.safetyIncident.update({
+    const incident = await (prisma as any).safetyIncident.update({
       where: { id: req.params.id },
       data,
     });
@@ -356,7 +356,7 @@ router.post('/recalls', async (req: AuthRequest, res: Response) => {
     const data = schema.parse(req.body);
     const refNumber = await generateRecallRef();
 
-    const recall = await prisma.recallAction.create({
+    const recall = await (prisma as any).recallAction.create({
       data: {
         refNumber,
         product: data.product,
@@ -395,18 +395,18 @@ router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.RecallActionWhereInput = { deletedAt: null };
-    if (status) where.status = status as string;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
     if (product) where.product = { contains: product as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([
-      prisma.recallAction.findMany({
+      (prisma as any).recallAction.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.recallAction.count({ where }),
+      (prisma as any).recallAction.count({ where }),
     ]);
 
     res.json({
@@ -426,9 +426,9 @@ router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /recalls/:id - Update recall
-router.put('/recalls/:id', checkOwnership(prisma.recallAction), async (req: AuthRequest, res: Response) => {
+router.put('/recalls/:id', checkOwnership((prisma as any).recallAction), async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.recallAction.findUnique({ where: { id: req.params.id } });
+    const existing = await (prisma as any).recallAction.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Recall action not found' } });
     }
@@ -448,7 +448,7 @@ router.put('/recalls/:id', checkOwnership(prisma.recallAction), async (req: Auth
 
     const data = schema.parse(req.body);
 
-    const recall = await prisma.recallAction.update({
+    const recall = await (prisma as any).recallAction.update({
       where: { id: req.params.id },
       data,
     });
@@ -479,26 +479,26 @@ router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) =
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ComplianceRecordWhereInput = {};
+    const where: any = {};
     if (regulation) where.regulation = regulation as string;
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
 
     const [items, total] = await Promise.all([
-      prisma.complianceRecord.findMany({
+      (prisma as any).complianceRecord.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.complianceRecord.count({ where }),
+      (prisma as any).complianceRecord.count({ where }),
     ]);
 
     // Compute summary stats
     const summary = {
       totalRecords: total,
-      compliant: items.filter(i => i.status === 'COMPLIANT').length,
-      nonCompliant: items.filter(i => i.status === 'NON_COMPLIANT').length,
-      pending: items.filter(i => i.status === 'PENDING').length,
+      compliant: items.filter((i: any) => i.status === 'COMPLIANT').length,
+      nonCompliant: items.filter((i: any) => i.status === 'NON_COMPLIANT').length,
+      pending: items.filter((i: any) => i.status === 'PENDING').length,
     };
 
     res.json({
@@ -534,7 +534,7 @@ router.post('/compliance', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const record = await prisma.complianceRecord.create({
+    const record = await (prisma as any).complianceRecord.create({
       data: {
         partNumber: data.partNumber,
         partName: data.partName,

@@ -26,8 +26,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.ProjectTaskWhereInput = { projectId: projectId as string, deletedAt: null };
-    if (status) where.status = status;
+    const where: any = { projectId: projectId as string, deletedAt: null };
+    if (status) where.status = status as any;
 
     const [tasks, total] = await Promise.all([
       prisma.projectTask.findMany({
@@ -54,7 +54,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/gantt/:projectId', async (req: AuthRequest, res: Response) => {
   try {
     const tasks = await prisma.projectTask.findMany({
-      where: { projectId: req.params.projectId, deletedAt: null },
+      where: { projectId: req.params.projectId, deletedAt: null } as any,
       orderBy: [{ wbsLevel: 'asc' }, { sortOrder: 'asc' }],
       select: {
         id: true,

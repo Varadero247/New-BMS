@@ -23,12 +23,7 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: {
-      OR?: Array<Record<string, { contains: string; mode: string }>>;
-      role?: string;
-      department?: string;
-      deletedAt?: null;
-    } = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
 
     if (search) {
       where.OR = [

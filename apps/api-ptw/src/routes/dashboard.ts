@@ -1,11 +1,11 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 const router = Router();
 const logger = createLogger('ptw-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
-  try { const orgId = (req as AuthRequest).user?.orgId || 'default'; const where = { orgId, deletedAt: null };
+  try { const orgId = ((req as AuthRequest).user as any)?.orgId || 'default'; const where = { orgId, deletedAt: null };
     const [totalPermits, totalMethodStatements, totalToolboxTalks, ] = await Promise.all([
       prisma.ptwPermit.count({ where }),
       prisma.ptwMethodStatement.count({ where }),

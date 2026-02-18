@@ -50,7 +50,7 @@ async function generateRefNumber(): Promise<string> {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const prefix = `DD-${yy}${mm}`;
-  const count = await prisma.designDevelopment.count({
+  const count = await (prisma as any).designDevelopment.count({
     where: { refNumber: { startsWith: prefix } },
   });
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
@@ -77,7 +77,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const refNumber = await generateRefNumber();
 
     const project = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const created = await tx.designDevelopment.create({
+      const created = await (tx as any).designDevelopment.create({
         data: {
           refNumber,
           title: data.title,
@@ -96,7 +96,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
       // Create initial stage records for all 7 stages
       for (const stage of STAGES) {
-        await tx.designStage.create({
+        await (tx as any).designStage.create({
           data: {
             projectId: created.id,
             stage,
@@ -146,13 +146,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.designDevelopment.findMany({
+      (prisma as any).designDevelopment.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.designDevelopment.count({ where }),
+      (prisma as any).designDevelopment.count({ where }),
     ]);
 
     res.json({
@@ -175,9 +175,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /:id — Get project with all stage data
 // =============================================
 
-router.get('/:id', checkOwnership(prisma.designDevelopment), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership((prisma as any).designDevelopment), async (req: AuthRequest, res: Response) => {
   try {
-    const project = await prisma.designDevelopment.findUnique({
+    const project = await (prisma as any).designDevelopment.findUnique({
       where: { id: req.params.id },
     });
 
@@ -185,7 +185,7 @@ router.get('/:id', checkOwnership(prisma.designDevelopment), async (req: AuthReq
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
     }
 
-    const stages = await prisma.designStage.findMany({
+    const stages = await (prisma as any).designStage.findMany({
       where: { projectId: project.id },
       orderBy: { createdAt: 'asc' },
     });
@@ -201,9 +201,9 @@ router.get('/:id', checkOwnership(prisma.designDevelopment), async (req: AuthReq
 // PUT /:id — Update project
 // =============================================
 
-router.put('/:id', checkOwnership(prisma.designDevelopment), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership((prisma as any).designDevelopment), async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.designDevelopment.findUnique({ where: { id: req.params.id } });
+    const existing = await (prisma as any).designDevelopment.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
     }
@@ -233,7 +233,7 @@ router.put('/:id', checkOwnership(prisma.designDevelopment), async (req: AuthReq
     if (data.plannedEndDate !== undefined) updateData.plannedEndDate = new Date(data.plannedEndDate);
     if (data.requirements !== undefined) updateData.requirements = data.requirements;
 
-    const project = await prisma.designDevelopment.update({
+    const project = await (prisma as any).designDevelopment.update({
       where: { id: req.params.id },
       data: updateData,
     });
@@ -255,7 +255,7 @@ router.put('/:id', checkOwnership(prisma.designDevelopment), async (req: AuthReq
 // POST /:id/stages/:stage/submit — Submit stage for review
 // =============================================
 
-router.post('/:id/stages/:stage/submit', checkOwnership(prisma.designDevelopment), async (req: AuthRequest, res: Response) => {
+router.post('/:id/stages/:stage/submit', checkOwnership((prisma as any).designDevelopment), async (req: AuthRequest, res: Response) => {
   try {
     const { id, stage } = req.params;
 
@@ -263,7 +263,7 @@ router.post('/:id/stages/:stage/submit', checkOwnership(prisma.designDevelopment
       return res.status(400).json({ success: false, error: { code: 'INVALID_STAGE', message: `Invalid stage: ${stage}` } });
     }
 
-    const project = await prisma.designDevelopment.findUnique({ where: { id } });
+    const project = await (prisma as any).designDevelopment.findUnique({ where: { id } });
     if (!project || project.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
     }
@@ -276,7 +276,7 @@ router.post('/:id/stages/:stage/submit', checkOwnership(prisma.designDevelopment
 
     const data = schema.parse(req.body);
 
-    const stageRecord = await prisma.designStage.findFirst({
+    const stageRecord = await (prisma as any).designStage.findFirst({
       where: { projectId: id, stage: stage as string },
     });
 
@@ -288,7 +288,7 @@ router.post('/:id/stages/:stage/submit', checkOwnership(prisma.designDevelopment
       return res.status(400).json({ success: false, error: { code: 'ALREADY_APPROVED', message: 'Stage is already approved' } });
     }
 
-    const updated = await prisma.designStage.update({
+    const updated = await (prisma as any).designStage.update({
       where: { id: stageRecord.id },
       data: {
         status: 'SUBMITTED',
@@ -317,7 +317,7 @@ router.post('/:id/stages/:stage/submit', checkOwnership(prisma.designDevelopment
 // POST /:id/stages/:stage/approve — Approve stage gate
 // =============================================
 
-router.post('/:id/stages/:stage/approve', checkOwnership(prisma.designDevelopment), async (req: AuthRequest, res: Response) => {
+router.post('/:id/stages/:stage/approve', checkOwnership((prisma as any).designDevelopment), async (req: AuthRequest, res: Response) => {
   try {
     const { id, stage } = req.params;
 
@@ -325,7 +325,7 @@ router.post('/:id/stages/:stage/approve', checkOwnership(prisma.designDevelopmen
       return res.status(400).json({ success: false, error: { code: 'INVALID_STAGE', message: `Invalid stage: ${stage}` } });
     }
 
-    const project = await prisma.designDevelopment.findUnique({ where: { id } });
+    const project = await (prisma as any).designDevelopment.findUnique({ where: { id } });
     if (!project || project.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
     }
@@ -336,7 +336,7 @@ router.post('/:id/stages/:stage/approve', checkOwnership(prisma.designDevelopmen
 
     const data = schema.parse(req.body);
 
-    const stageRecord = await prisma.designStage.findFirst({
+    const stageRecord = await (prisma as any).designStage.findFirst({
       where: { projectId: id, stage: stage as string },
     });
 
@@ -353,7 +353,7 @@ router.post('/:id/stages/:stage/approve', checkOwnership(prisma.designDevelopmen
     const nextStage = stageIdx < STAGES.length - 1 ? STAGES[stageIdx + 1] : null;
 
     const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const approvedStage = await tx.designStage.update({
+      const approvedStage = await (tx as any).designStage.update({
         where: { id: stageRecord.id },
         data: {
           status: 'APPROVED',
@@ -369,8 +369,8 @@ router.post('/:id/stages/:stage/approve', checkOwnership(prisma.designDevelopmen
         projectUpdate.currentStage = nextStage;
 
         // Set next stage to IN_PROGRESS
-        await tx.designStage.update({
-          where: { id: (await tx.designStage.findFirst({ where: { projectId: id, stage: nextStage } })).id },
+        await (tx as any).designStage.update({
+          where: { id: (await (tx as any).designStage.findFirst({ where: { projectId: id, stage: nextStage } })).id },
           data: { status: 'IN_PROGRESS' },
         });
       } else {
@@ -379,7 +379,7 @@ router.post('/:id/stages/:stage/approve', checkOwnership(prisma.designDevelopmen
         projectUpdate.completedAt = new Date();
       }
 
-      await tx.designDevelopment.update({
+      await (tx as any).designDevelopment.update({
         where: { id },
         data: projectUpdate,
       });
@@ -404,14 +404,14 @@ router.post('/:id/stages/:stage/approve', checkOwnership(prisma.designDevelopmen
 // DELETE /:id — Soft delete
 // =============================================
 
-router.delete('/:id', checkOwnership(prisma.designDevelopment), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership((prisma as any).designDevelopment), async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await prisma.designDevelopment.findUnique({ where: { id: req.params.id } });
+    const existing = await (prisma as any).designDevelopment.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
     }
 
-    await prisma.designDevelopment.update({
+    await (prisma as any).designDevelopment.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date(), deletedBy: req.user!.id },
     });

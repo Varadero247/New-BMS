@@ -101,8 +101,8 @@ export function orgRateLimit() {
     // Extract organisation context from the authenticated user (if present).
     // The auth middleware attaches `user` to the request before this runs.
     const user = (req as Request & { user?: Record<string, unknown> }).user;
-    const orgId: string = user?.organisationId || user?.organizationId || 'anonymous';
-    const plan: string = user?.plan || 'PROFESSIONAL';
+    const orgId: string = (user?.organisationId || user?.organizationId || 'anonymous') as string;
+    const plan: string = (user?.plan || 'PROFESSIONAL') as string;
     const limit = PLAN_LIMITS[plan] || PLAN_LIMITS.PROFESSIONAL;
 
     // ------------------------------------------------------------------

@@ -14,7 +14,7 @@ router.get('/valuation', async (req: AuthRequest, res: Response) => {
     const { warehouseId } = req.query;
 
     const where: Record<string, unknown> = {};
-    if (warehouseId) where.warehouseId = warehouseId;
+    if (warehouseId) where.warehouseId = warehouseId as any;
 
     const [totals, byWarehouse, topValueItems] = await Promise.all([
       prisma.inventory.aggregate({
@@ -43,7 +43,7 @@ router.get('/valuation', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         summary: {
-          totalItems: totals._count.id,
+          totalItems: (totals as any)._count.id,
           totalQuantity: totals._sum.quantityOnHand ?? 0,
           totalValue: totals._sum.inventoryValue ?? 0,
         },
@@ -67,7 +67,7 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
     const where: Record<string, unknown> = {
       transactionDate: { gte: start, lte: end },
     };
-    if (warehouseId) where.warehouseId = warehouseId;
+    if (warehouseId) where.warehouseId = warehouseId as any;
 
     const [byType, dailyMovement, topMovingProducts] = await Promise.all([
       prisma.inventoryTransaction.groupBy({
@@ -101,7 +101,7 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         period: { start, end },
-        byType: byType.map((t: Record<string, unknown>) => ({
+        byType: byType.map((t: any) => ({
           transactionType: t.transactionType,
           count: t._count.id,
           quantityChange: t._sum?.quantityChange,
@@ -124,7 +124,7 @@ router.get('/ageing', async (req: AuthRequest, res: Response) => {
     const now = new Date();
 
     const where: Record<string, unknown> = {};
-    if (warehouseId) where.warehouseId = warehouseId;
+    if (warehouseId) where.warehouseId = warehouseId as any;
 
     const items = await prisma.inventory.findMany({
       where,
@@ -189,7 +189,7 @@ router.get('/turnover', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         period: { start, end },
-        products: outbound.map((o: Record<string, unknown>) => ({
+        products: outbound.map((o: any) => ({
           productId: o.productId,
           totalOutbound: Math.abs(o._sum?.quantityChange ?? 0),
           totalCost: Math.abs(Number(o._sum?.totalCost ?? 0)),

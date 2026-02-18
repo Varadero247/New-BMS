@@ -45,7 +45,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (energyType) where.energyType = energyType as string;
     if (renewable !== undefined) where.renewable = renewable === 'true';
 
@@ -99,7 +99,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/energy/:id
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const energy = await prisma.esgEnergy.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const energy = await prisma.esgEnergy.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!energy) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Energy record not found' } });
     }
@@ -118,12 +118,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgEnergy.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgEnergy.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Energy record not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.quantity !== undefined) updateData.quantity = new Prisma.Decimal(updateData.quantity);
     if (updateData.cost !== undefined) updateData.cost = updateData.cost != null ? new Prisma.Decimal(updateData.cost) : null;
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
@@ -140,7 +140,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/energy/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgEnergy.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgEnergy.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Energy record not found' } });
     }

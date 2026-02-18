@@ -118,7 +118,7 @@ router.get('/projects', scopeToUser, async (req: AuthRequest, res: Response) => 
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.SoftwareProjectWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (status) where.status = status as any;
     if (safetyClass) where.safetyClass = safetyClass as any;
@@ -348,7 +348,7 @@ router.get('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =>
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.SoftwareAnomalyWhereInput = { projectId: req.params.id };
+    const where: any = { projectId: req.params.id };
 
     if (severity) where.severity = severity as any;
     if (status) where.status = status as any;

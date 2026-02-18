@@ -30,7 +30,7 @@ router.get('/', async (req: Request, res: Response) => {
     const type = req.query.type as string | undefined;
 
     const where: Record<string, unknown> = {};
-    if (type) where.type = type;
+    if (type) where.type = type as any;
 
     const [meetings, total] = await Promise.all([
       prisma.meetingNote.findMany({
@@ -90,7 +90,7 @@ router.post('/', async (req: Request, res: Response) => {
     const meeting = await prisma.meetingNote.create({
       data: {
         title,
-        type,
+        type: type as any,
         date: new Date(date),
         attendees: attendees || [],
         summary: summary || '',
@@ -134,7 +134,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
         ...(attendees !== undefined && { attendees }),
         ...(summary !== undefined && { summary }),
         ...(actionItems !== undefined && { actionItems }),
-      },
+      } as any,
     });
 
     logger.info('Meeting updated', { id: meeting.id });

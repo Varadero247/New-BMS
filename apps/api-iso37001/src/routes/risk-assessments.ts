@@ -191,11 +191,11 @@ router.post('/', async (req: Request, res: Response) => {
         ...parsed.data,
         referenceNumber,
         riskScore,
-        riskLevel,
+        riskLevel: riskLevel as any,
         status: 'IDENTIFIED',
         createdBy: userId,
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Risk assessment created', { id: assessment.id, referenceNumber, riskScore, riskLevel });
@@ -212,7 +212,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
 
     const assessment = await prisma.abRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!assessment) {
@@ -237,7 +237,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Risk assessment not found' });
@@ -256,9 +256,9 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         riskScore,
-        riskLevel,
+        riskLevel: riskLevel as any,
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Risk assessment updated', { id: assessment.id, riskScore, riskLevel });
@@ -278,7 +278,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Risk assessment not found' });
@@ -292,7 +292,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
     const assessment = await prisma.abRiskAssessment.update({
       where: { id: req.params.id },
       data: {
-        mitigationPlan: parsed.data.mitigationPlan,
+        mitigationPlan: parsed.data.mitigationPlan as any,
         residualLikelihood: parsed.data.residualLikelihood,
         residualImpact: parsed.data.residualImpact,
         residualRiskScore,
@@ -302,7 +302,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
         targetDate: parsed.data.targetDate,
         status: 'MITIGATED',
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Risk assessment mitigated', {
@@ -321,7 +321,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Risk assessment not found' });
@@ -334,7 +334,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: {
         deletedAt: new Date(),
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Risk assessment deleted', { id: req.params.id });

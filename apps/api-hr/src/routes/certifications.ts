@@ -44,7 +44,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: Prisma.EmployeeCertificationWhereInput = {};
+    const where: any = {};
     if (employeeId && typeof employeeId === 'string') where.employeeId = employeeId;
     if (status && typeof status === 'string') where.status = status as any;
     if (expiringWithin) {

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
 
 const router = Router();
@@ -18,8 +18,8 @@ const createSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
-    const data = await prisma.esgDefraFactor.findMany({ where: { orgId, deletedAt: null } });
+    const orgId = (req as any).user?.orgId || 'default';
+    const data = await prisma.esgDefraFactor.findMany({ where: { orgId, deletedAt: null } as any });
     res.json({ success: true, data });
   } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed' } });
@@ -32,7 +32,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const { category, subcategory, activity, unit, factor, year, source, notes } = parsed.data;
     const data = await prisma.esgDefraFactor.create({
       data: { category, subcategory, activity, unit, factor, year, source, notes, orgId, createdBy: (req as AuthRequest).user?.id },

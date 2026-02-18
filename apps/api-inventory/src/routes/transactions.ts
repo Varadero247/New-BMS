@@ -32,13 +32,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.InventoryTransactionWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
-    if (productId) where.productId = productId;
-    if (warehouseId) where.warehouseId = warehouseId;
-    if (transactionType) where.transactionType = transactionType;
-    if (referenceType) where.referenceType = referenceType;
-    if (performedById) where.performedById = performedById;
+    if (productId) where.productId = productId as any;
+    if (warehouseId) where.warehouseId = warehouseId as any;
+    if (transactionType) where.transactionType = transactionType as any;
+    if (referenceType) where.referenceType = referenceType as any;
+    if (performedById) where.performedById = performedById as any;
 
     // Date range filter
     if (startDate || endDate) {
@@ -78,8 +78,8 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { startDate, endDate, warehouseId } = req.query;
 
-    const where: Prisma.InventoryTransactionWhereInput = { deletedAt: null };
-    if (warehouseId) where.warehouseId = warehouseId;
+    const where: any = { deletedAt: null };
+    if (warehouseId) where.warehouseId = warehouseId as any;
 
     // Default to last 30 days if no date range specified
     const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -132,7 +132,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
         totalTransactions: acc.totalTransactions + (t._count.id || 0),
         totalIn: acc.totalIn + (['RECEIPT', 'ADJUSTMENT_IN', 'TRANSFER_IN', 'RETURN', 'INITIAL'].includes(t.transactionType as string) ? Math.abs(t._sum.quantityChange || 0) : 0),
         totalOut: acc.totalOut + (['ISSUE', 'ADJUSTMENT_OUT', 'TRANSFER_OUT', 'DAMAGE', 'EXPIRED'].includes(t.transactionType as string) ? Math.abs(t._sum.quantityChange || 0) : 0),
-        totalValue: acc.totalValue + Math.abs(t._sum.totalCost || 0),
+        totalValue: acc.totalValue + Math.abs(Number(t._sum.totalCost) || 0),
       };
     }, { totalTransactions: 0, totalIn: 0, totalOut: 0, totalValue: 0 });
 
@@ -143,7 +143,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
         totals,
         byType: transactionsByType.map(t => ({
           type: t.transactionType,
-          count: t._count.id,
+          count: (t as any)._count.id,
           quantityChange: t._sum.quantityChange,
           totalValue: t._sum.totalCost,
         })),

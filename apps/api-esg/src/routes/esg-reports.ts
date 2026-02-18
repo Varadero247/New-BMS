@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
 
 const router = Router();
@@ -13,8 +13,8 @@ const generateSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
-    const data = await prisma.esgReport.findMany({ where: { orgId, deletedAt: null }, orderBy: { createdAt: 'desc' } });
+    const orgId = (req as any).user?.orgId || 'default';
+    const data = await prisma.esgReport.findMany({ where: { orgId, deletedAt: null } as any as any, orderBy: { createdAt: 'desc' } });
     res.json({ success: true, data });
   } catch (error: unknown) {
     res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed' } });
@@ -27,9 +27,9 @@ router.post('/generate', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const y = new Date().getFullYear();
-    const c = await prisma.esgReport.count({ where: { orgId } });
+    const c = await prisma.esgReport.count({ where: { orgId } as any });
     const { title, framework, period } = parsed.data;
     const data = await prisma.esgReport.create({
       data: {
@@ -41,7 +41,7 @@ router.post('/generate', authenticate, async (req: Request, res: Response) => {
         status: 'DRAFT',
         aiGenerated: true,
         createdBy: (req as AuthRequest).user?.id,
-      },
+      } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

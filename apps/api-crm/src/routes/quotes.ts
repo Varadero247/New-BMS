@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -126,9 +126,9 @@ router.get('/', async (req: Request, res: Response) => {
     const accountId = req.query.accountId as string;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
-    if (dealId) where.dealId = dealId;
-    if (accountId) where.accountId = accountId;
+    if (status) where.status = status as any;
+    if (dealId) where.dealId = dealId as any;
+    if (accountId) where.accountId = accountId as any;
 
     const [quotes, total] = await Promise.all([
       prisma.crmQuote.findMany({
@@ -155,8 +155,8 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const quote = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { lines: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { lines: { where: { deletedAt: null } as any, orderBy: { sortOrder: 'asc' } } },
     });
 
     if (!quote) {
@@ -174,7 +174,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -256,7 +256,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.post('/:id/send', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -287,7 +287,7 @@ router.post('/:id/send', async (req: Request, res: Response) => {
 router.post('/:id/accept', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -318,7 +318,7 @@ router.post('/:id/accept', async (req: Request, res: Response) => {
 router.get('/:id/pdf', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {

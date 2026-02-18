@@ -106,9 +106,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (category) where.category = category;
-    if (riskLevel) where.riskLevel = riskLevel;
-    if (complianceStatus) where.complianceStatus = complianceStatus;
+    if (category) where.category = category as any;
+    if (riskLevel) where.riskLevel = riskLevel as any;
+    if (complianceStatus) where.complianceStatus = complianceStatus as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -181,7 +181,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : null,
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: item });
@@ -213,7 +213,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
         ...data,
         lastReviewDate: data.lastReviewDate ? new Date(data.lastReviewDate) : existing.lastReviewDate,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : existing.nextReviewDate,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: item });
@@ -262,8 +262,8 @@ router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (reviewType) where.reviewType = reviewType;
-    if (result) where.result = result;
+    if (reviewType) where.reviewType = reviewType as any;
+    if (result) where.result = result as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -312,7 +312,7 @@ router.post('/reviews', async (req: AuthRequest, res: Response) => {
         status: 'PLANNED',
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: review });
@@ -349,7 +349,7 @@ router.put('/reviews/:id/complete', async (req: AuthRequest, res: Response) => {
         approvedBy: data.approvedBy,
         status: 'COMPLETED',
         notes: data.notes ? `${existing.notes ? existing.notes + '\n' : ''}${data.notes}` : existing.notes,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: review });

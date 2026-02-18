@@ -8,7 +8,7 @@ import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
@@ -33,11 +33,11 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualCapaWhereInput = { deletedAt: null };
-    if (capaType) where.capaType = capaType;
-    if (status) where.status = status;
-    if (severity) where.severity = severity;
-    if (triggerSource) where.triggerSource = triggerSource;
+    const where: any = { deletedAt: null };
+    if (capaType) where.capaType = capaType as any;
+    if (status) where.status = status as any;
+    if (severity) where.severity = severity as any;
+    if (triggerSource) where.triggerSource = triggerSource as any;
 
     const [items, total] = await Promise.all([
       prisma.qualCapa.findMany({
@@ -325,7 +325,7 @@ router.delete('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
     }
 
-    await prisma.qualCapa.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualCapa.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } as any });
 
     res.status(204).send();
   } catch (error) {
@@ -432,7 +432,7 @@ router.delete('/:id/actions/:actionId', async (req: AuthRequest, res: Response) 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
     }
 
-    await prisma.qualCapaAction.update({ where: { id: req.params.actionId }, data: { deletedAt: new Date() } });
+    await prisma.qualCapaAction.update({ where: { id: req.params.actionId }, data: { deletedAt: new Date() } as any });
 
     res.status(204).send();
   } catch (error) {

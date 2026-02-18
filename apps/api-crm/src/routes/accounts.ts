@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -50,7 +50,7 @@ router.post('/', async (req: Request, res: Response) => {
         ...validation.data,
         createdBy: (req as AuthRequest).user?.id || 'system',
         updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Account created', { accountId: account.id });
@@ -117,7 +117,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const account = await prisma.crmAccount.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!account) {
@@ -143,7 +143,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.crmAccount.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -155,7 +155,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: {
         ...validation.data,
         updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Account updated', { accountId: account.id });
@@ -170,7 +170,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmAccount.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -194,7 +194,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.get('/:id/contacts', async (req: Request, res: Response) => {
   try {
     const account = await prisma.crmAccount.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!account) {
@@ -202,7 +202,7 @@ router.get('/:id/contacts', async (req: Request, res: Response) => {
     }
 
     const contacts = await prisma.crmContact.findMany({
-      where: { accountId: req.params.id, deletedAt: null },
+      where: { accountId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -217,7 +217,7 @@ router.get('/:id/contacts', async (req: Request, res: Response) => {
 router.get('/:id/deals', async (req: Request, res: Response) => {
   try {
     const account = await prisma.crmAccount.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!account) {
@@ -225,7 +225,7 @@ router.get('/:id/deals', async (req: Request, res: Response) => {
     }
 
     const deals = await prisma.crmDeal.findMany({
-      where: { accountId: req.params.id, deletedAt: null },
+      where: { accountId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -240,7 +240,7 @@ router.get('/:id/deals', async (req: Request, res: Response) => {
 router.get('/:id/compliance', async (req: Request, res: Response) => {
   try {
     const account = await prisma.crmAccount.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       select: {
         id: true,
         name: true,
@@ -276,7 +276,7 @@ router.get('/:id/compliance', async (req: Request, res: Response) => {
 router.get('/:id/invoices', async (req: Request, res: Response) => {
   try {
     const account = await prisma.crmAccount.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!account) {

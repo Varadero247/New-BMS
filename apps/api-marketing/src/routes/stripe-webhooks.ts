@@ -73,7 +73,7 @@ router.post('/stripe', async (req: Request, res: Response) => {
         });
       }
 
-      const rawBody = (req as AuthRequest).rawBody;
+      const rawBody = (req as any).rawBody;
       if (!rawBody) {
         logger.warn('Raw body not available for Stripe signature verification — ensure raw body middleware is configured');
         return res.status(400).json({
@@ -119,7 +119,7 @@ router.post('/stripe', async (req: Request, res: Response) => {
             });
             logger.info('Win-back sequence created', { orgId });
           } catch (err: unknown) {
-            if (err?.code !== 'P2002') { // Ignore unique constraint (already exists)
+            if ((err as any)?.code !== 'P2002') { // Ignore unique constraint (already exists)
               logger.error('Failed to create win-back sequence', { error: String(err) });
             }
           }

@@ -117,7 +117,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...data,
         currentBalance: data.currentBalance ?? 0,
-        createdBy: user.id,
+        createdBy: user!.id,
       },
     });
 
@@ -202,8 +202,8 @@ router.get('/transactions/list', async (req: Request, res: Response) => {
     if (isReconciled !== undefined) where.isReconciled = isReconciled === 'true';
     if (dateFrom || dateTo) {
       where.date = {};
-      if (dateFrom) where.date.gte = new Date(dateFrom as string);
-      if (dateTo) where.date.lte = new Date(dateTo as string);
+      if (dateFrom) (where.date as any).gte = new Date(dateFrom as string);
+      if (dateTo) (where.date as any).lte = new Date(dateTo as string);
     }
 
     const [transactions, total] = await Promise.all([
@@ -243,7 +243,7 @@ router.post('/transactions', async (req: Request, res: Response) => {
       data: {
         ...data,
         date: new Date(data.date),
-        createdBy: user.id,
+        createdBy: user!.id,
       },
     });
 
@@ -284,7 +284,7 @@ router.post('/import', async (req: Request, res: Response) => {
         reference: t.reference,
         amount: t.amount,
         importedAt: new Date(),
-        createdBy: user.id,
+        createdBy: user!.id,
       })),
     });
 
@@ -340,7 +340,7 @@ router.post('/reconciliations', async (req: Request, res: Response) => {
         endDate: new Date(data.endDate),
         openingBalance: data.openingBalance,
         closingBalance: data.closingBalance,
-        createdBy: user.id,
+        createdBy: user!.id,
       },
     });
 
@@ -400,7 +400,7 @@ router.post('/reconciliations/:id/complete', async (req: Request, res: Response)
       data: {
         status: 'COMPLETED',
         completedAt: new Date(),
-        completedBy: user.id,
+        completedBy: user!.id,
       },
     });
 

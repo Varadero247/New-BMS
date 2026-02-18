@@ -43,8 +43,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.DesignVerificationWhereInput = {};
-    if (projectId) where.projectId = projectId as string;
+    const where: any = {};
+    if (projectId) where.projectId = projectId as any;
     if (pass !== undefined) where.pass = pass === 'true';
     if (search) {
       where.OR = [
@@ -61,7 +61,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
         take: limitNum,
         orderBy: { createdAt: 'desc' },
         include: {
-          project: { select: { id: true, projectCode: true, title: true, status: true } },
+          project: { select: { id: true, title: true, status: true } },
         },
       }),
       prisma.designVerification.count({ where }),
@@ -103,7 +103,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const verification = await prisma.designVerification.findUnique({
       where: { id: req.params.id },
-      include: { project: { select: { id: true, projectCode: true, title: true } } },
+      include: { project: { select: { id: true, title: true } } },
     });
 
     if (!verification) {
@@ -141,7 +141,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         traceToInput: data.traceToInput,
         traceToOutput: data.traceToOutput,
       },
-      include: { project: { select: { id: true, projectCode: true, title: true } } },
+      include: { project: { select: { id: true, title: true } } },
     });
 
     res.status(201).json({ success: true, data: verification });
@@ -169,7 +169,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     const verification = await prisma.designVerification.update({
       where: { id: req.params.id },
       data: updateData,
-      include: { project: { select: { id: true, projectCode: true, title: true } } },
+      include: { project: { select: { id: true, title: true } } },
     });
 
     res.json({ success: true, data: verification });

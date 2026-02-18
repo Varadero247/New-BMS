@@ -120,15 +120,15 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalAnnouncement.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Announcement not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
-    if (updateData.publishedAt) updateData.publishedAt = new Date(updateData.publishedAt);
-    if (updateData.expiresAt) updateData.expiresAt = new Date(updateData.expiresAt);
+    if (updateData.publishedAt) updateData.publishedAt = new Date(updateData.publishedAt as string);
+    if (updateData.expiresAt) updateData.expiresAt = new Date(updateData.expiresAt as string);
 
     const updated = await prisma.portalAnnouncement.update({
       where: { id: req.params.id },
@@ -150,7 +150,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.portalAnnouncement.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Announcement not found' } });

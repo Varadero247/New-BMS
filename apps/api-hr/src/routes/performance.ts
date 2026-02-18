@@ -17,9 +17,9 @@ router.get('/cycles', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { year, status } = req.query;
 
-    const where: Prisma.PerformanceCycleWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (year) where.year = parseInt(year as string);
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
 
     const cycles = await prisma.performanceCycle.findMany({
       where,
@@ -91,11 +91,11 @@ router.get('/reviews', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.PerformanceReviewWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (cycleId) where.cycleId = cycleId as string;
     if (employeeId) where.employeeId = employeeId as string;
     if (reviewerId) where.reviewerId = reviewerId as string;
-    if (status) where.status = status as string;
+    if (status) where.status = status as any;
 
     const [reviews, total] = await Promise.all([
       prisma.performanceReview.findMany({
@@ -147,7 +147,7 @@ router.get('/reviews/:id', checkOwnership(prisma.performanceReview), async (req:
 
     // Get employee's goals for this cycle
     const goals = await prisma.performanceGoal.findMany({
-      where: { cycleId: review.cycleId, employeeId: review.employeeId, deletedAt: null },
+      where: { cycleId: review.cycleId, employeeId: review.employeeId, deletedAt: null } as any,
       include: { updates: { orderBy: { createdAt: 'desc' }, take: 5 } },
       take: 100,
     });
@@ -242,11 +242,11 @@ router.get('/goals', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, cycleId, status, category } = req.query;
 
-    const where: Prisma.PerformanceGoalWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (cycleId) where.cycleId = cycleId as string;
-    if (status) where.status = status as string;
-    if (category) where.category = category as string;
+    if (status) where.status = status as any;
+    if (category) where.category = category as any;
 
     const goals = await prisma.performanceGoal.findMany({
       where,
@@ -363,7 +363,7 @@ router.post('/goals/:id/update', async (req: Request, res: Response) => {
           progressAfter: data.progressAfter,
           updateNotes: data.updateNotes,
           updatedById: data.updatedById,
-          evidence: data.evidence,
+          evidence: data.evidence as any,
         },
       }),
       prisma.performanceGoal.update({

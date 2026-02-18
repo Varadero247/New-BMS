@@ -75,7 +75,7 @@ router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     // Get targets for progress context
     const targets = await prisma.esgTarget.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
     });
 
     const activeTargets = targets.length;
@@ -175,7 +175,7 @@ router.get('/targets', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 50, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EsgTargetWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (category) where.category = category as any;
     if (search) {
@@ -338,7 +338,7 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     // Get targets
     const targets = await prisma.esgTarget.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null } as any,
     });
 
     // Aggregate current year by category
@@ -498,7 +498,7 @@ router.get('/metrics', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 50, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EsgMetricWhereInput = {};
+    const where: any = {};
     if (category) where.category = category as any;
     if (period) where.period = period as string;
     if (subcategory) where.subcategory = { contains: subcategory as string, mode: 'insensitive' };

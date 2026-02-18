@@ -66,8 +66,8 @@ router.get('/low-stock', async (req: AuthRequest, res: Response) => {
 router.get('/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { warehouseId } = req.query;
-    const where: Prisma.InventoryWhereInput = {};
-    if (warehouseId) where.warehouseId = warehouseId as string;
+    const where: any = {};
+    if (warehouseId) where.warehouseId = warehouseId as any;
 
     const [totalProducts, totalValue, stockCounts] = await Promise.all([
       prisma.inventory.count({ where }),
@@ -102,9 +102,9 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25);
     const skip = (page - 1) * limit;
 
-    const where: Prisma.InventoryWhereInput = {};
-    if (warehouseId) where.warehouseId = warehouseId as string;
-    if (productId) where.productId = productId as string;
+    const where: any = {};
+    if (warehouseId) where.warehouseId = warehouseId as any;
+    if (productId) where.productId = productId as any;
 
     const [items, total] = await Promise.all([
       prisma.inventory.findMany({

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { calculateWelPercentage, getWelStatus } from '../services/riskCalculator';
@@ -31,7 +31,7 @@ const updateMonitoringSchema = createMonitoringSchema.partial();
 // GET /api/monitoring/overdue — due monitoring not done
 router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const data = await prisma.chemMonitoring.findMany({
       where: { nextMonitoringDue: { lte: new Date() }, chemical: { orgId, isActive: true, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
@@ -47,12 +47,12 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
 // GET /api/monitoring/dashboard — WEL exceedance summary
 router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const [total, aboveWel, atWel, belowWel, overdue] = await Promise.all([
-      prisma.chemMonitoring.count({ where: { chemical: { orgId, deletedAt: null } } }),
-      prisma.chemMonitoring.count({ where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } } }),
-      prisma.chemMonitoring.count({ where: { resultVsWel: 'AT_WEL', chemical: { orgId, deletedAt: null } } }),
-      prisma.chemMonitoring.count({ where: { resultVsWel: 'BELOW_WEL', chemical: { orgId, deletedAt: null } } }),
+      prisma.chemMonitoring.count({ where: { chemical: { orgId, deletedAt: null } as any } }),
+      prisma.chemMonitoring.count({ where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } as any } }),
+      prisma.chemMonitoring.count({ where: { resultVsWel: 'AT_WEL', chemical: { orgId, deletedAt: null } as any } }),
+      prisma.chemMonitoring.count({ where: { resultVsWel: 'BELOW_WEL', chemical: { orgId, deletedAt: null } as any } }),
       prisma.chemMonitoring.count({ where: { nextMonitoringDue: { lte: new Date() }, chemical: { orgId, deletedAt: null } } }),
     ]);
     res.json({ success: true, data: { total, aboveWel, atWel, belowWel, overdue } });
@@ -65,11 +65,11 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
 // GET /api/monitoring — all monitoring records
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { chemicalId, welResult, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
-    if (chemicalId) where.chemicalId = chemicalId;
-    if (welResult) where.resultVsWel = welResult;
+    if (chemicalId) where.chemicalId = chemicalId as any;
+    if (welResult) where.resultVsWel = welResult as any;
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
       prisma.chemMonitoring.findMany({
@@ -93,7 +93,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const d = parsed.data;
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } as any });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     // Auto-calculate WEL percentage and status
@@ -113,7 +113,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         ...d,
         welTwaLimit: welLimit,
         percentageOfWel,
-        resultVsWel,
+        resultVsWel: resultVsWel as any,
         actionRequired,
       },
     });

@@ -11,7 +11,7 @@ export async function runContractExpiryJob(): Promise<void> {
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
     const activeContracts = await prisma.contract.findMany({
-      where: { status: 'ACTIVE', deletedAt: null },
+      where: { status: 'ACTIVE', deletedAt: null } as any,
     });
 
     let expiredCount = 0;

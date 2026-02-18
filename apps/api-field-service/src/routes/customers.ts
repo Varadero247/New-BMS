@@ -118,10 +118,10 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcCustomer.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: {
-        sites: { where: { deletedAt: null } },
-        contracts: { where: { deletedAt: null } },
+        sites: { where: { deletedAt: null } as any },
+        contracts: { where: { deletedAt: null } as any },
       },
     });
 
@@ -140,13 +140,13 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/:id/sites', async (req: Request, res: Response) => {
   try {
-    const customer = await prisma.fsSvcCustomer.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const customer = await prisma.fsSvcCustomer.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!customer) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     const data = await prisma.fsSvcSite.findMany({
-      where: { customerId: req.params.id, deletedAt: null },
+      where: { customerId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -162,7 +162,7 @@ router.get('/:id/sites', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/:id/jobs', async (req: Request, res: Response) => {
   try {
-    const customer = await prisma.fsSvcCustomer.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const customer = await prisma.fsSvcCustomer.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!customer) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
@@ -193,7 +193,7 @@ router.get('/:id/jobs', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcCustomer.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcCustomer.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
@@ -220,7 +220,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcCustomer.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcCustomer.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }

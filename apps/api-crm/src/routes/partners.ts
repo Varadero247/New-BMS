@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { z } from 'zod';
@@ -64,7 +64,7 @@ router.post('/', async (req: Request, res: Response) => {
     logger.info('Partner registered', { partnerId: partner.id, tier: partner.tier });
     return res.status(201).json({ success: true, data: partner });
   } catch (error: unknown) {
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Account is already registered as a partner' } });
     }
     logger.error('Failed to register partner', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -82,8 +82,8 @@ router.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (tier) where.tier = tier;
-    if (status) where.status = status;
+    if (tier) where.tier = tier as any;
+    if (status) where.status = status as any;
 
     const [partners, total] = await Promise.all([
       prisma.crmPartner.findMany({
@@ -111,7 +111,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/leaderboard', async (_req: Request, res: Response) => {
   try {
     const partners = await prisma.crmPartner.findMany({
-      where: { deletedAt: null, status: 'ACTIVE' },
+      where: { deletedAt: null, status: 'ACTIVE' } as any,
       orderBy: { totalReferrals: 'desc' },
       take: 50,
       include: { account: true },
@@ -132,7 +132,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     const partner = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { account: true },
     });
 
@@ -151,7 +151,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id/tier', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!existing) {
@@ -190,7 +190,7 @@ router.put('/:id/tier', async (req: Request, res: Response) => {
 router.post('/:id/referrals', async (req: Request, res: Response) => {
   try {
     const partner = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!partner) {
@@ -206,7 +206,7 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
     }
 
     const deal = await prisma.crmDeal.findFirst({
-      where: { id: validation.data.dealId, deletedAt: null },
+      where: { id: validation.data.dealId, deletedAt: null } as any,
     });
 
     if (!deal) {
@@ -257,7 +257,7 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
 router.get('/:id/commissions', async (req: Request, res: Response) => {
   try {
     const partner = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!partner) {
@@ -296,7 +296,7 @@ router.get('/:id/commissions', async (req: Request, res: Response) => {
 router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
   try {
     const partner = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!partner) {
@@ -316,7 +316,7 @@ router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
 
     for (const commissionId of validation.data.commissionIds) {
       const commission = await prisma.crmCommission.findFirst({
-        where: { id: commissionId, partnerId: req.params.id, status: 'PENDING', deletedAt: null },
+        where: { id: commissionId, partnerId: req.params.id, status: 'PENDING', deletedAt: null } as any,
       });
 
       if (commission) {

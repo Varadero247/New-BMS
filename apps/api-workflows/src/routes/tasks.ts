@@ -24,7 +24,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { assignedToId, status, instanceId } = req.query;
 
-    const where: Prisma.WorkflowTaskWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (assignedToId) where.assignedToId = assignedToId as string;
     if (status) where.status = status as string;
     if (instanceId) where.instanceId = instanceId as string;
@@ -87,7 +87,7 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
   try {
     const { status } = req.query;
 
-    const where: Prisma.WorkflowTaskWhereInput = {
+    const where: any = {
       assignedToId: req.params.userId,
       deletedAt: null,
     };

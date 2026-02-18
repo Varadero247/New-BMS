@@ -127,7 +127,7 @@ export async function runVarianceAnalysis(snapshot: SnapshotData, planTarget: Pl
     }
 
     const data = await response.json() as Record<string, unknown>;
-    const text: string = data.content?.[0]?.text || '';
+    const text: string = (data as any).content?.[0]?.text || '';
     const result = parseAIResponse(text);
 
     // Store results on snapshot

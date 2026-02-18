@@ -30,9 +30,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.InventoryWhereInput = { deletedAt: null };
-    if (warehouseId) where.warehouseId = warehouseId as string;
-    if (productId) where.productId = productId;
+    const where: any = { deletedAt: null };
+    if (warehouseId) where.warehouseId = warehouseId as any;
+    if (productId) where.productId = productId as any;
 
     // Low stock filter
     if (lowStock === 'true') {
@@ -128,7 +128,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 router.get('/availability/:productId', async (req: AuthRequest, res: Response) => {
   try {
     const inventory = await prisma.inventory.findMany({
-      where: { productId: req.params.productId, deletedAt: null },
+      where: { productId: req.params.productId, deletedAt: null } as any,
       include: {
         warehouse: { select: { id: true, code: true, name: true, isActive: true } },
       },
@@ -473,7 +473,7 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
     const quantityAfter = quantityBefore + data.quantity;
 
     // Calculate new average cost
-    const totalValueBefore = (inventory?.averageCost || 0) * quantityBefore;
+    const totalValueBefore = Number(inventory?.averageCost || 0) * quantityBefore;
     const newValue = data.unitCost * data.quantity;
     const newAverageCost = quantityAfter > 0 ? (totalValueBefore + newValue) / quantityAfter : data.unitCost;
 
@@ -597,7 +597,7 @@ router.post('/issue', async (req: AuthRequest, res: Response) => {
       where: { id: inventory.id },
       data: {
         quantityOnHand: quantityAfter,
-        inventoryValue: inventory.averageCost * quantityAfter,
+        inventoryValue: Number(inventory.averageCost) * quantityAfter,
         version: { increment: 1 },
         updatedById: req.user?.id,
       },
@@ -619,7 +619,7 @@ router.post('/issue', async (req: AuthRequest, res: Response) => {
         binLocation: data.binLocation,
         lotNumber: data.lotNumber,
         unitCost: inventory.averageCost,
-        totalCost: inventory.averageCost * data.quantity,
+        totalCost: Number(inventory.averageCost) * data.quantity,
         notes: data.notes,
         performedById: req.user?.id || '',
       },

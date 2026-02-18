@@ -69,7 +69,7 @@ router.get('/upcoming', async (req: Request, res: Response) => {
         skip,
         take: limit,
         orderBy: { nextDue: 'asc' },
-        include: { asset: { select: { id: true, assetNumber: true, name: true, location: true } } },
+        include: { asset: { select: { id: true, name: true, location: true } } },
       }),
       prisma.cmmsPreventivePlan.count({ where }),
     ]);
@@ -100,7 +100,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
         skip,
         take: limit,
         orderBy: { nextDue: 'asc' },
-        include: { asset: { select: { id: true, assetNumber: true, name: true, location: true } } },
+        include: { asset: { select: { id: true, name: true, location: true } } },
       }),
       prisma.cmmsPreventivePlan.count({ where }),
     ]);
@@ -125,20 +125,20 @@ router.get('/calendar', async (req: Request, res: Response) => {
       where: {
         deletedAt: null,
         isActive: true,
-        nextDue: { gte: start, lte: end },
+        nextDue: { gte: start, lte: end } as any,
       },
       orderBy: { nextDue: 'asc' },
-      include: { asset: { select: { id: true, assetNumber: true, name: true } } },
+      include: { asset: { select: { id: true, name: true } } },
     });
 
     // Also include work orders scheduled this month
     const workOrders = await prisma.cmmsWorkOrder.findMany({
       where: {
         deletedAt: null,
-        scheduledStart: { gte: start, lte: end },
+        scheduledStart: { gte: start, lte: end } as any,
       },
       orderBy: { scheduledStart: 'asc' },
-      include: { asset: { select: { id: true, assetNumber: true, name: true } } },
+      include: { asset: { select: { id: true, name: true } } },
     });
 
     res.json({ success: true, data: { year, month: month + 1, scheduled, workOrders } });
@@ -173,7 +173,7 @@ router.get('/', async (req: Request, res: Response) => {
         skip,
         take: limit,
         orderBy: { nextDue: 'asc' },
-        include: { asset: { select: { id: true, assetNumber: true, name: true, location: true } } },
+        include: { asset: { select: { id: true, name: true, location: true } } },
       }),
       prisma.cmmsPreventivePlan.count({ where }),
     ]);
@@ -204,7 +204,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: parsed.data.name,
         assetId: parsed.data.assetId,
         description: parsed.data.description ?? null,
-        frequency: parsed.data.frequency,
+        frequency: parsed.data.frequency as any,
         tasks: parsed.data.tasks,
         assignedTo: parsed.data.assignedTo ?? null,
         estimatedDuration: parsed.data.estimatedDuration ?? null,
@@ -228,7 +228,7 @@ router.post('/:id/complete', async (req: Request, res: Response) => {
   try {
     const completedDate = req.body.completedDate ? new Date(req.body.completedDate) : new Date();
 
-    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
 
     const nextDue = calcNextDue(completedDate, existing.frequency);
@@ -249,8 +249,8 @@ router.post('/:id/complete', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.cmmsPreventivePlan.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { asset: { select: { id: true, assetNumber: true, name: true, location: true } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { asset: { select: { id: true, name: true, location: true } } },
     });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
     res.json({ success: true, data: item });
@@ -268,7 +268,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
 
     const data: Record<string, unknown> = { ...parsed.data };
@@ -293,7 +293,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.cmmsPreventivePlan.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Schedule not found' } });
 
     await prisma.cmmsPreventivePlan.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

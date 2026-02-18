@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { portalPrisma } from '../prisma-portal';
+import { type AuthRequest } from '@ims/auth';
+
 
 const logger = createLogger('api-partners:support');
 const router = Router();
@@ -26,7 +28,7 @@ const SLA_HOURS: Record<string, number> = {
 // GET /api/support — list partner's tickets
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -36,7 +38,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const { status } = req.query;
     const where: Record<string, unknown> = { partnerId };
-    if (status) where.status = status;
+    if (status) where.status = status as any;
 
     const tickets = await portalPrisma.mktPartnerSupportTicket.findMany({
       where,
@@ -57,7 +59,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/support — create a new ticket
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -107,7 +109,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/support/:id — get ticket detail with messages
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -140,7 +142,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // POST /api/support/:id/messages — add a message to a ticket
 router.post('/:id/messages', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -204,7 +206,7 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
 // PATCH /api/support/:id/close — close a ticket
 router.patch('/:id/close', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as AuthRequest).partner?.id;
+    const partnerId = (req as any).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

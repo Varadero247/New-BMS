@@ -28,7 +28,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.WorkflowInstanceWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status;
     if (definitionId) where.definitionId = definitionId as string;
     if (initiatedById) where.initiatedById = initiatedById as string;
@@ -71,7 +71,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
         _count: true,
       }),
       prisma.workflowInstance.findMany({
-        where: { status: 'IN_PROGRESS', deletedAt: null },
+        where: { status: 'IN_PROGRESS', deletedAt: null } as any,
         take: 5,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -163,7 +163,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'IN_PROGRESS',
         entityType: data.entityType,
         entityId: data.entityId,
-        contextData: data.contextData,
+        contextData: data.contextData as any,
         slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : undefined,
       },
       include: {
@@ -209,7 +209,7 @@ router.put('/:id/advance', checkOwnership(prisma.workflowInstance), async (req: 
 
     const previousStepId = current.currentStepId;
 
-    const instance = await prisma.$transaction(async (tx) => {
+    const instance = await prisma.$transaction(async (tx: any) => {
       const updated = await tx.workflowInstance.update({
         where: { id: req.params.id },
         data: {
@@ -252,7 +252,7 @@ router.put('/:id/complete', checkOwnership(prisma.workflowInstance), async (req:
 
     const data = schema.parse(req.body);
 
-    const instance = await prisma.$transaction(async (tx) => {
+    const instance = await prisma.$transaction(async (tx: any) => {
       const updated = await tx.workflowInstance.update({
         where: { id: req.params.id },
         data: {
@@ -295,7 +295,7 @@ router.put('/:id/cancel', checkOwnership(prisma.workflowInstance), async (req: A
   try {
     const data = cancelInstanceSchema.parse(req.body);
 
-    const instance = await prisma.$transaction(async (tx) => {
+    const instance = await prisma.$transaction(async (tx: any) => {
       const updated = await tx.workflowInstance.update({
         where: { id: req.params.id },
         data: {

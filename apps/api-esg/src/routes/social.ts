@@ -41,7 +41,7 @@ const RESERVED_PATHS = new Set(['workforce', 'safety']);
 // GET /api/social/workforce
 router.get('/workforce', async (req: Request, res: Response) => {
   try {
-    const where: Record<string, unknown> = {
+    const where: Record<string, any> = {
       deletedAt: null,
       category: { in: ['DIVERSITY', 'LABOR'] },
     };
@@ -67,14 +67,14 @@ router.get('/workforce', async (req: Request, res: Response) => {
 // GET /api/social/safety
 router.get('/safety', async (req: Request, res: Response) => {
   try {
-    const where: Record<string, unknown> = {
+    const where: Record<string, any> = {
       deletedAt: null,
       category: 'HEALTH_SAFETY',
     };
 
     const metrics = await prisma.esgSocialMetric.findMany({ where, orderBy: { periodStart: 'desc' } });
 
-    const safetyData = metrics.map((m: Record<string, unknown>) => ({
+    const safetyData = metrics.map((m: Record<string, any>) => ({
       metric: m.metric,
       value: Number(m.value),
       unit: m.unit,
@@ -96,7 +96,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (category) where.category = category as string;
     if (periodStart) where.periodStart = { gte: new Date(periodStart as string) };
     if (periodEnd) where.periodEnd = { lte: new Date(periodEnd as string) };
@@ -151,7 +151,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
-    const metric = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const metric = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!metric) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
     }
@@ -170,12 +170,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.value !== undefined) updateData.value = new Prisma.Decimal(updateData.value);
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
     if (updateData.periodEnd) updateData.periodEnd = new Date(updateData.periodEnd);
@@ -191,7 +191,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/social/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgSocialMetric.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Social metric not found' } });
     }

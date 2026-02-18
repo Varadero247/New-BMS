@@ -8,7 +8,7 @@ import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
-const router = Router();
+const router: Router = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
@@ -42,10 +42,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.QualFmeaWhereInput = { deletedAt: null };
-    if (status) where.status = status;
-    if (fmeaType) where.fmeaType = fmeaType;
-    if (fmeaFormat) where.fmeaFormat = fmeaFormat;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
+    if (fmeaType) where.fmeaType = fmeaType as any;
+    if (fmeaFormat) where.fmeaFormat = fmeaFormat as any;
 
     const [items, total] = await Promise.all([
       prisma.qualFmea.findMany({
@@ -249,7 +249,7 @@ router.delete('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, 
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA not found' } });
     }
 
-    await prisma.qualFmea.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.qualFmea.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } as any });
 
     res.status(204).send();
   } catch (error) {
@@ -421,7 +421,7 @@ router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
     }
 
-    await prisma.qualFmeaRow.update({ where: { id: req.params.rowId }, data: { deletedAt: new Date() } });
+    await prisma.qualFmeaRow.update({ where: { id: req.params.rowId }, data: { deletedAt: new Date() } as any });
 
     res.status(204).send();
   } catch (error) {

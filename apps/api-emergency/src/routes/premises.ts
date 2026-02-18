@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -41,7 +41,7 @@ const updatePremisesSchema = createPremisesSchema.partial();
 // GET /api/premises — list all premises
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const { search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId };
     if (search) where.name = { contains: search, mode: 'insensitive' };
@@ -59,7 +59,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createPremisesSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = (req as any).user?.orgId || 'default';
     const data = await prisma.femPremises.create({ data: { ...parsed.data, organisationId: orgId } });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to create premises', { error: (error as Error).message }); res.status(400).json({ success: false, error: { code: 'CREATE_ERROR', message: (error as Error).message } }); }

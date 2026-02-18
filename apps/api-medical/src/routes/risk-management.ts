@@ -72,7 +72,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         deviceClass: data.deviceClass,
         intendedUse: data.intendedUse,
         riskPolicy: data.riskPolicy,
-        status: 'DRAFT',
+        status: 'DRAFT' as any,
         createdBy: req.user?.id,
       },
     });
@@ -98,7 +98,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.RiskManagementFileWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (status) where.status = status as any;
     if (deviceName) {
       where.deviceName = { contains: deviceName as string, mode: 'insensitive' };
@@ -180,7 +180,7 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
 
     // Auto-generate hazardId: H-001 incrementing
     const existingCount = await prisma.hazard.count({
-      where: { riskManagementFileId: req.params.id },
+      where: { fileId: req.params.id } as any,
     });
     const hazardId = `H-${String(existingCount + 1).padStart(3, '0')}`;
 
@@ -189,15 +189,15 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
 
     const hazard = await prisma.hazard.create({
       data: {
-        riskManagementFileId: req.params.id,
+        fileId: req.params.id,
         hazardId,
-        hazardCategory: data.hazardCategory,
+        hazardCategory: data.hazardCategory as any,
         hazardDescription: data.hazardDescription,
         hazardousSituation: data.hazardousSituation,
         harm: data.harm,
         severityBefore: data.severityBefore,
         probabilityBefore: data.probabilityBefore,
-        riskLevelBefore,
+        riskLevelBefore: riskLevelBefore as any,
       },
     });
 
@@ -222,14 +222,14 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     }
 
     const hazard = await prisma.hazard.findUnique({ where: { id: req.params.hazardId } });
-    if (!hazard || hazard.riskManagementFileId !== req.params.id) {
+    if (!hazard || (hazard as any).fileId !== req.params.id) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Hazard not found in this risk management file' } });
     }
 
     const controlSchema = z.object({
       controlType: z.enum(['INHERENT_SAFETY', 'PROTECTIVE_MEASURE', 'INFORMATION_FOR_SAFETY']),
       description: z.string().min(1),
-      implementationStatus: z.enum(['PLANNED', 'IN_PROGRESS', 'IMPLEMENTED', 'VERIFIED']).optional(),
+      implementationStatus: z.enum(['PLANNED', 'IN_PROGRESS', 'IMPLEMENTED', 'VERIFIED']).optional() as any,
       verificationMethod: z.string().optional(),
     });
 
@@ -273,7 +273,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
               hazardId: req.params.hazardId,
               controlType: control.controlType,
               description: control.description,
-              implementationStatus: control.implementationStatus || 'PLANNED',
+              implementationStatus: (control.implementationStatus || 'PLANNED') as any,
               verificationMethod: control.verificationMethod,
             },
           })

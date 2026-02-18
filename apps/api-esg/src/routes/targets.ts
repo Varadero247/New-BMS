@@ -43,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (parseInt(page as string, 10) - 1) * parseInt(limit as string, 10);
     const take = parseInt(limit as string, 10);
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, any> = { deletedAt: null };
     if (year) where.year = parseInt(year as string, 10);
     if (status) where.status = status as string;
     if (metricId) where.metricId = metricId as string;
@@ -98,8 +98,8 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id/trajectory', async (req: Request, res: Response) => {
   try {
     const target = await prisma.esgTarget.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { metric: { include: { dataPoints: { where: { deletedAt: null }, orderBy: { periodStart: 'asc' } } } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { metric: { include: { dataPoints: { where: { deletedAt: null } as any, orderBy: { periodStart: 'asc' } } } } },
     });
 
     if (!target) {
@@ -107,7 +107,7 @@ router.get('/:id/trajectory', async (req: Request, res: Response) => {
     }
 
     const dataPoints = target.metric?.dataPoints || [];
-    const trajectory = dataPoints.map((dp: Record<string, unknown>) => ({
+    const trajectory = dataPoints.map((dp: Record<string, any>) => ({
       period: dp.periodStart,
       actual: Number(dp.value),
       target: Number(target.targetValue),
@@ -136,7 +136,7 @@ router.get('/:id/trajectory', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const target = await prisma.esgTarget.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
       include: { metric: true },
     });
     if (!target) {
@@ -157,12 +157,12 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.issues } });
     }
 
-    const existing = await prisma.esgTarget.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgTarget.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
-    const updateData: Record<string, unknown> = { ...parsed.data };
+    const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.targetValue !== undefined) updateData.targetValue = new Prisma.Decimal(updateData.targetValue);
     if (updateData.actualValue !== undefined) updateData.actualValue = updateData.actualValue != null ? new Prisma.Decimal(updateData.actualValue) : null;
     if (updateData.baselineValue !== undefined) updateData.baselineValue = updateData.baselineValue != null ? new Prisma.Decimal(updateData.baselineValue) : null;
@@ -178,7 +178,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /api/targets/:id
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.esgTarget.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.esgTarget.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }

@@ -32,7 +32,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { category, industryType, isActive } = req.query;
 
-    const where: Prisma.WorkflowTemplateWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (category) where.category = category;
     if (industryType) where.industryType = industryType;
     if (isActive !== undefined) where.isActive = isActive === 'true';
@@ -105,8 +105,8 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         category: data.category,
         industryType: data.industryType,
-        definitionTemplate: data.definitionTemplate,
-        formTemplates: data.formTemplates,
+        definitionTemplate: data.definitionTemplate as any,
+        formTemplates: data.formTemplates as any,
       },
     });
 
@@ -137,7 +137,7 @@ router.put('/:id', checkOwnership(prisma.workflowTemplate), async (req: AuthRequ
 
     const template = await prisma.workflowTemplate.update({
       where: { id: req.params.id },
-      data,
+      data: data as any,
     });
 
     res.json({ success: true, data: template });

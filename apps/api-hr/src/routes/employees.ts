@@ -56,7 +56,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.EmployeeWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (department) where.departmentId = department;
     if (status) where.employmentStatus = status;
@@ -111,7 +111,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
 router.get('/org-chart', async (_req: Request, res: Response) => {
   try {
     const employees = await prisma.employee.findMany({
-      where: { employmentStatus: 'ACTIVE', deletedAt: null },
+      where: { employmentStatus: 'ACTIVE', deletedAt: null } as any,
       select: {
         id: true,
         firstName: true,
@@ -198,7 +198,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
 
     // Map department IDs to names
     const departmentMap = new Map(departments.map((d: { id: string; name: string }) => [d.id, d.name]));
-    const byDepartment = byDepartmentRaw.map((d: { departmentId: string; _count: { id: number } }) => ({
+    const byDepartment = byDepartmentRaw.map((d: any) => ({
       department: departmentMap.get(d.departmentId) || 'Unknown',
       departmentId: d.departmentId,
       count: d._count.id,
@@ -220,8 +220,8 @@ router.get('/stats', async (_req: Request, res: Response) => {
           count: e._count.id,
         })),
         recentHires,
-        avgSalary: Math.round(salaryData._avg.baseSalary || 0),
-        totalSalaryExpense: Math.round(salaryData._sum.baseSalary || 0),
+        avgSalary: Math.round((salaryData._avg?.baseSalary || 0) as any || 0),
+        totalSalaryExpense: Math.round((salaryData._sum?.baseSalary || 0) as any || 0),
       },
     });
   } catch (error) {
@@ -345,7 +345,7 @@ router.delete('/:id', checkOwnership(prisma.employee), async (req: Request, res:
 router.get('/:id/subordinates', async (req: Request, res: Response) => {
   try {
     const subordinates = await prisma.employee.findMany({
-      where: { managerId: req.params.id, employmentStatus: 'ACTIVE', deletedAt: null },
+      where: { managerId: req.params.id, employmentStatus: 'ACTIVE', deletedAt: null } as any,
       include: {
         department: true,
         position: true,

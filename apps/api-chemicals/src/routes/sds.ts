@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -85,12 +85,12 @@ const updateSdsSchema = createSdsSchema.partial();
 // GET /api/sds — all SDS records (org-wide)
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
-    if (status) where.status = status;
+    if (status) where.status = status as any;
     if (search) {
-      where.chemical = { ...where.chemical, OR: [
+      where.chemical = { ...(where.chemical as any || {}), OR: [
         { productName: { contains: search, mode: 'insensitive' } },
         { casNumber: { contains: search, mode: 'insensitive' } },
       ]};
@@ -114,7 +114,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/sds/overdue — SDS past review date
 router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const data = await prisma.chemSds.findMany({
       where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
@@ -150,14 +150,14 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const parsed = createSdsSchema.safeParse(rest);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: chemicalId, deletedAt: null } });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: chemicalId, deletedAt: null } as any });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     // Supersede existing current SDS
     await prisma.chemSds.updateMany({ where: { chemicalId, status: 'CURRENT' }, data: { status: 'SUPERSEDED' } });
 
     const data = await prisma.chemSds.create({
-      data: { ...parsed.data, chemicalId, createdBy: (req as AuthRequest).user?.id },
+      data: { ...(parsed.data as any), chemicalId, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

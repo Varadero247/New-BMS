@@ -106,7 +106,7 @@ router.get('/pending', async (req: Request, res: Response) => {
         deletedAt: null,
         status: 'PENDING',
         OR: [
-          { reviewerUserId: authReq.user?.id },
+          { reviewerUserId: authReq.user?.id } as any,
           { reviewerUserId: null },
         ],
       },
@@ -139,10 +139,10 @@ router.post('/', async (req: Request, res: Response) => {
         aiConfidence: parsed.data.aiConfidence ?? null,
         aiReasoning: parsed.data.aiReasoning ?? null,
         expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null,
-        metadata: parsed.data.metadata ?? null,
+        metadata: (parsed.data.metadata ?? undefined) as any,
         status: 'PENDING',
         createdBy: authReq.user?.id || 'system',
-        organisationId: authReq.user?.organisationId || 'default',
+        organisationId: (authReq.user as any)?.organisationId || 'default',
       },
     });
 
@@ -163,7 +163,7 @@ router.put('/:id/decide', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.aiHumanReview.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiHumanReview.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Human review not found' } });
     }
@@ -206,7 +206,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const review = await prisma.aiHumanReview.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
     });
 
     if (!review) {
@@ -224,7 +224,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const existing = await prisma.aiHumanReview.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.aiHumanReview.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Human review not found' } });
     }

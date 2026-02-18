@@ -17,8 +17,8 @@ router.get('/plans', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { category } = req.query;
 
-    const where: Prisma.BenefitPlanWhereInput = { isActive: true, deletedAt: null };
-    if (category) where.category = category;
+    const where: any = { isActive: true, deletedAt: null };
+    if (category) where.category = category as any;
 
     const plans = await prisma.benefitPlan.findMany({
       where,
@@ -58,7 +58,7 @@ router.post('/plans', async (req: Request, res: Response) => {
       data: {
         ...data,
         effectiveFrom: new Date(data.effectiveFrom),
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: plan });
@@ -75,7 +75,7 @@ router.post('/plans', async (req: Request, res: Response) => {
 router.get('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const benefits = await prisma.employeeBenefit.findMany({
-      where: { employeeId: req.params.employeeId, deletedAt: null },
+      where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       include: {
         benefitPlan: true,
       },
@@ -110,7 +110,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
         enrollmentDate: new Date(),
         status: 'ACTIVE',
         coverageLevel: data.coverageLevel,
-        dependents: data.dependents,
+        dependents: data.dependents as any,
         employeeContribution: data.employeeContribution,
         employerContribution: data.employerContribution,
         effectiveFrom: new Date(data.effectiveFrom),

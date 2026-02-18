@@ -8,7 +8,7 @@ import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
 
-const router = Router();
+const router: Router = Router();
 
 // Auth middleware applied to all routes EXCEPT public ones (added individually below)
 router.param('id', validateIdParam());
@@ -217,7 +217,7 @@ router.get('/surveys', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.CustomerSurveyWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
     if (type) where.type = type as any;
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (search) {
@@ -366,7 +366,7 @@ router.get('/responses', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.SurveyResponseWhereInput = {};
+    const where: any = {};
     if (surveyId) where.surveyId = surveyId as string;
     if (npsCategory) where.npsCategory = npsCategory as any;
     if (startDate || endDate) {
@@ -415,7 +415,7 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
     const sinceDate = new Date();
     sinceDate.setMonth(sinceDate.getMonth() - monthsNum);
 
-    const where: Prisma.SurveyResponseWhereInput = {
+    const where: any = {
       submittedAt: { gte: sinceDate },
     };
     if (surveyId) where.surveyId = surveyId as string;
@@ -508,7 +508,7 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
 router.get('/dashboard', async (req: AuthRequest, res: Response) => {
   try {
     // Total surveys
-    const totalSurveys = await prisma.customerSurvey.count({ where: { deletedAt: null } });
+    const totalSurveys = await prisma.customerSurvey.count({ where: { deletedAt: null } as any });
 
     // Total responses
     const totalResponses = await prisma.surveyResponse.count();

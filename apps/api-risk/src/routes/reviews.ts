@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 const router = Router();
@@ -35,10 +35,10 @@ async function generateRef(orgId: string): Promise<string> {
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
-    if (status) where.status = status;
+    if (status) where.status = status as any;
     if (search) where.title = { contains: search, mode: 'insensitive' };
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [data, total] = await Promise.all([
@@ -51,7 +51,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await prisma.riskReview.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const item = await prisma.riskReview.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'review not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) { logger.error('Failed to fetch review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'FETCH_ERROR', message: 'Failed to fetch review' } }); }
@@ -61,7 +61,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = createReviewSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const referenceNumber = await generateRef(orgId);
     const { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes } = parsed.data;
     const data = await prisma.riskReview.create({ data: { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes, orgId, referenceNumber, createdBy: (req as AuthRequest).user?.id, updatedBy: (req as AuthRequest).user?.id } });
@@ -73,7 +73,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const parsed = updateReviewSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.riskReview.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.riskReview.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'review not found' } });
     const { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes } = parsed.data;
     const data = await prisma.riskReview.update({ where: { id: req.params.id }, data: { riskId, reviewer, reviewerName, scheduledDate, completedDate, status, previousScore, newLikelihood, newConsequence, newScore, findings, recommendations, notes, updatedBy: (req as AuthRequest).user?.id } });
@@ -83,7 +83,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.riskReview.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.riskReview.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'review not found' } });
     await prisma.riskReview.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'review deleted successfully' } });

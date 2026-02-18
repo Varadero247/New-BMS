@@ -104,7 +104,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Validate baseline if provided
     if (data.baselineId) {
-      const baseline = await prisma.energyBaseline.findFirst({ where: { id: data.baselineId, deletedAt: null } });
+      const baseline = await prisma.energyBaseline.findFirst({ where: { id: data.baselineId, deletedAt: null } as any });
       if (!baseline) {
         return res.status(400).json({ success: false, error: 'Baseline not found' });
       }
@@ -143,7 +143,7 @@ router.get('/:id/progress', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const target = await prisma.energyTarget.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         baseline: { select: { id: true, name: true, totalConsumption: true } },
       },
@@ -189,7 +189,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const target = await prisma.energyTarget.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         baseline: { select: { id: true, name: true, year: true, totalConsumption: true } },
       },
@@ -218,17 +218,17 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Target not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.targetValue !== undefined) {
-      updateData.targetValue = new Prisma.Decimal(updateData.targetValue);
+      updateData.targetValue = new Prisma.Decimal(updateData.targetValue as any);
     }
     if (updateData.actualValue !== undefined && updateData.actualValue !== null) {
-      updateData.actualValue = new Prisma.Decimal(updateData.actualValue);
+      updateData.actualValue = new Prisma.Decimal(updateData.actualValue as any);
     }
 
     const target = await prisma.energyTarget.update({
@@ -252,7 +252,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Target not found' });
     }

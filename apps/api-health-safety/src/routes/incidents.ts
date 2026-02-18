@@ -52,10 +52,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.IncidentWhereInput = { deletedAt: null };
-    if (status) where.status = status;
-    if (type) where.type = type;
-    if (severity) where.severity = severity;
+    const where: any = { deletedAt: null };
+    if (status) where.status = status as any;
+    if (type) where.type = type as any;
+    if (severity) where.severity = severity as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -252,7 +252,7 @@ router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, r
 
     const data = schema.parse(req.body);
 
-    const updateData = { ...data };
+    const updateData: any = { ...data };
     if (data.reportedToAuthorityDate) updateData.reportedToAuthorityDate = new Date(data.reportedToAuthorityDate);
     if (data.investigationDueDate) updateData.investigationDueDate = new Date(data.investigationDueDate);
     if (data.status === 'CLOSED') updateData.closedAt = new Date();

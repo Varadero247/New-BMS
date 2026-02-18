@@ -73,8 +73,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status;
-    if (baselineType) where.baselineType = baselineType;
+    if (status) where.status = status as any;
+    if (baselineType) where.baselineType = baselineType as any;
     if (program) where.program = { contains: program as string, mode: 'insensitive' };
     if (search) {
       where.OR = [
@@ -146,7 +146,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         approvedBy: data.approvedBy,
         notes: data.notes,
         createdBy: req.user?.id,
-      },
+      } as any,
     });
 
     res.status(201).json({ success: true, data: baseline });
@@ -178,7 +178,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
         ...data,
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : existing.effectiveDate,
         approvedDate: data.approvedDate ? new Date(data.approvedDate) : existing.approvedDate,
-      },
+      } as any,
     });
 
     res.json({ success: true, data: baseline });

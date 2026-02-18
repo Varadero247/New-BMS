@@ -47,11 +47,11 @@ router.get('/rules', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { triggerType, actionType, isActive, entityType } = req.query;
 
-    const where: Prisma.AutomationRuleWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null } as any;
     if (triggerType) where.triggerType = triggerType as string;
     if (actionType) where.actionType = actionType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
-    if (entityType) where.entityType = entityType;
+    if (entityType) where.entityType = entityType as any;
 
     const rules = await prisma.automationRule.findMany({
       where,
@@ -132,9 +132,9 @@ router.post('/rules', async (req: Request, res: Response) => {
         triggerType: data.triggerType,
         triggerEvent: data.triggerEvent,
         triggerSchedule: data.triggerSchedule,
-        triggerCondition: data.triggerCondition,
+        triggerCondition: data.triggerCondition as any,
         actionType: data.actionType,
-        actionConfig: data.actionConfig,
+        actionConfig: data.actionConfig as any,
         entityType: data.entityType,
         workflowCategory: data.workflowCategory,
         priority: data.priority,
@@ -168,7 +168,7 @@ router.put('/rules/:id', checkOwnership(prisma.automationRule), async (req: Auth
 
     const rule = await prisma.automationRule.update({
       where: { id: req.params.id },
-      data,
+      data: data as any,
     });
 
     res.json({ success: true, data: rule });
@@ -240,7 +240,7 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
         ruleId: rule.id,
         triggeredBy: (req as AuthRequest).user?.id || 'MANUAL',
         triggerType: 'API',
-        triggerData: triggerData || {},
+        triggerData: (triggerData || {}) as any,
         entityType: entityType || rule.entityType,
         entityId,
         status: 'PENDING',
@@ -262,7 +262,7 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
           startedAt: new Date(startTime),
           completedAt: new Date(),
           durationMs: Date.now() - startTime,
-          result,
+          result: result as any,
           output: JSON.stringify(result),
         },
       });
@@ -326,7 +326,7 @@ router.get('/executions', async (req: Request, res: Response) => {
   try {
     const { ruleId, status, entityType, limit = '50', offset = '0' } = req.query;
 
-    const where: Prisma.AutomationExecutionWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null } as any;
     if (ruleId) where.ruleId = ruleId as string;
     if (status) where.status = status as string;
     if (entityType) where.entityType = entityType as string;
@@ -464,7 +464,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         _count: { status: true },
       }),
       prisma.automationExecution.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
         take: 10,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -472,7 +472,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         },
       }),
       prisma.automationRule.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null } as any,
         take: 5,
         orderBy: { executionCount: 'desc' },
         select: {
@@ -492,7 +492,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         totalRules,
         activeRules,
         inactiveRules: totalRules - activeRules,
-        executionsByStatus: executionsByStatus.map((e) => ({
+        executionsByStatus: executionsByStatus.map((e: any) => ({
           status: e.status,
           count: e._count.status,
         })),

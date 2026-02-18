@@ -132,8 +132,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED.has(req.params.id)) return (undefined as any);
 
     const ccp = await prisma.fsCcp.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { hazard: true, monitoringRecords: { where: { deletedAt: null }, orderBy: { monitoredAt: 'desc' }, take: 20 } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { hazard: true, monitoringRecords: { where: { deletedAt: null } as any, orderBy: { monitoredAt: 'desc' }, take: 20 } },
     });
 
     if (!ccp) {
@@ -152,7 +152,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
@@ -180,7 +180,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
@@ -207,7 +207,7 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50);
     const skip = (page - 1) * limit;
 
-    const ccp = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const ccp = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!ccp) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }
@@ -235,7 +235,7 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/:id/monitoring-records', async (req: Request, res: Response) => {
   try {
-    const ccp = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const ccp = await prisma.fsCcp.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!ccp) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CCP not found' } });
     }

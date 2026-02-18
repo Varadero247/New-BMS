@@ -141,7 +141,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(query.limit, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.SpcChartWhereInput = { deletedAt: null };
+    const where: any = { deletedAt: null };
 
     if (query.status) where.status = query.status as any;
     if (query.partNumber) where.partNumber = { contains: query.partNumber, mode: 'insensitive' };
@@ -191,7 +191,7 @@ router.get('/alerts', async (req: AuthRequest, res: Response) => {
         dataPoints: {
           some: {
             outOfControl: true,
-          },
+          } as any,
         },
       },
       include: {

@@ -84,7 +84,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/available', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcTechnician.findMany({
-      where: { deletedAt: null, status: 'AVAILABLE' },
+      where: { deletedAt: null, status: 'AVAILABLE' } as any,
       orderBy: { name: 'asc' },
     });
     res.json({ success: true, data });
@@ -112,7 +112,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to create technician', { error: error instanceof Error ? error.message : 'Unknown error' });
-    if (error != null && typeof error === 'object' && 'code' in error && (error as Error).code === 'P2002') {
+    if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
       return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Email already exists' } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create technician' } });
@@ -125,8 +125,8 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcTechnician.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { jobs: { where: { deletedAt: null, status: { in: ['ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { jobs: { where: { deletedAt: null, status: { in: ['ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any } } },
     });
 
     if (!data) {
@@ -145,7 +145,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.get('/:id/schedule', async (req: Request, res: Response) => {
   try {
     const technician = await prisma.fsSvcTechnician.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!technician) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
@@ -160,7 +160,7 @@ router.get('/:id/schedule', async (req: Request, res: Response) => {
       where: {
         technicianId: req.params.id,
         deletedAt: null,
-        status: { notIn: ['CANCELLED', 'COMPLETED'] },
+        status: { notIn: ['CANCELLED', 'COMPLETED'] } as any,
         ...(Object.keys(dateFilter).length > 0 ? { scheduledStart: dateFilter } : {}),
       },
       orderBy: { scheduledStart: 'asc' },
@@ -178,7 +178,7 @@ router.get('/:id/schedule', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcTechnician.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcTechnician.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }
@@ -205,7 +205,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcTechnician.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcTechnician.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Technician not found' } });
     }

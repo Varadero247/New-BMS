@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
 
 const router = Router();
@@ -12,9 +12,9 @@ const assessSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as AuthRequest).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const data = await prisma.incIncident.findMany({
-      where: { orgId, deletedAt: null, riddorReportable: 'YES' },
+      where: { orgId, deletedAt: null, riddorReportable: 'YES' } as any,
       orderBy: { dateOccurred: 'desc' },
       take: 500,
     });

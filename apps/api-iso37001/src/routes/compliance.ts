@@ -52,11 +52,11 @@ const updateSchema = createSchema.partial().extend({
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, compliant, nonCompliant, partial, byCategory] = await Promise.all([
-      prisma.abCompliance.count({ where: { deletedAt: null } }),
-      prisma.abCompliance.count({ where: { deletedAt: null, status: 'COMPLIANT' } }),
-      prisma.abCompliance.count({ where: { deletedAt: null, status: 'NON_COMPLIANT' } }),
-      prisma.abCompliance.count({ where: { deletedAt: null, status: 'PARTIALLY_COMPLIANT' } }),
-      prisma.abCompliance.groupBy({ by: ['category'], where: { deletedAt: null }, _count: { id: true } }),
+      prisma.abCompliance.count({ where: { deletedAt: null } as any }),
+      prisma.abCompliance.count({ where: { deletedAt: null, status: 'COMPLIANT' } as any }),
+      prisma.abCompliance.count({ where: { deletedAt: null, status: 'NON_COMPLIANT' } as any }),
+      prisma.abCompliance.count({ where: { deletedAt: null, status: 'PARTIALLY_COMPLIANT' } as any }),
+      prisma.abCompliance.groupBy({ by: ['category'], where: { deletedAt: null } as any, _count: { id: true } }),
     ]);
 
     const complianceRate = total > 0 ? Math.round((compliant / total) * 100) : 0;
@@ -65,7 +65,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       success: true,
       data: {
         total, compliant, nonCompliant, partial, complianceRate,
-        byCategory: byCategory.map((c: Record<string, unknown>) => ({ category: c.category, count: c._count.id })),
+        byCategory: byCategory.map((c: Record<string, unknown>) => ({ category: c.category, count: (c as any)._count.id })),
       },
     });
   } catch (error: unknown) {
@@ -146,7 +146,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /:id — Get by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const record = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const record = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!record) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance record not found' } });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
@@ -163,7 +163,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed', details: parsed.error.flatten() } });
     }
 
-    const existing = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance record not found' } });
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -185,7 +185,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance record not found' } });
 
     await prisma.abCompliance.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });

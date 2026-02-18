@@ -43,10 +43,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(parseInt(limit as string, 10) || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: Prisma.LegalRequirementWhereInput = { deletedAt: null };
-    if (complianceStatus) where.complianceStatus = complianceStatus;
-    if (category) where.category = category;
-    if (status) where.status = status;
+    const where: any = { deletedAt: null };
+    if (complianceStatus) where.complianceStatus = complianceStatus as any;
+    if (category) where.category = category as any;
+    if (status) where.status = status as any;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -187,7 +187,7 @@ router.patch('/:id', checkOwnership(prisma.legalRequirement), async (req: AuthRe
 
     const data = schema.parse(req.body);
 
-    const updateData = { ...data };
+    const updateData: any = { ...data };
     if (data.effectiveDate) updateData.effectiveDate = new Date(data.effectiveDate);
     if (data.reviewDate) updateData.reviewDate = new Date(data.reviewDate);
     if (data.complianceStatus && data.complianceStatus !== existing.complianceStatus) {

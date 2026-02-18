@@ -195,7 +195,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'REPORTED',
         createdBy: userId,
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Investigation created', { id: investigation.id, referenceNumber });
@@ -212,7 +212,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
 
     const investigation = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
 
     if (!investigation) {
@@ -237,7 +237,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Investigation not found' });
@@ -250,7 +250,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Investigation updated', { id: investigation.id });
@@ -270,7 +270,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Investigation not found' });
@@ -282,12 +282,12 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'UNDER_INVESTIGATION',
-        investigatorId: parsed.data.investigatorId,
+        investigator: parsed.data.investigatorId,
         investigatorName: parsed.data.investigatorName,
         investigationNotes: parsed.data.investigationNotes,
         investigationStartDate: new Date(),
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Investigation started', { id: investigation.id });
@@ -307,7 +307,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Investigation not found' });
@@ -319,7 +319,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'CLOSED',
-        outcome: parsed.data.outcome,
+        outcome: parsed.data.outcome as any,
         findings: parsed.data.findings,
         actions: parsed.data.actions,
         lessonsLearned: parsed.data.lessonsLearned,
@@ -329,7 +329,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
         closedAt: new Date(),
         closedBy: userId,
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Investigation closed', { id: investigation.id, outcome: parsed.data.outcome });
@@ -344,7 +344,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null },
+      where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'Investigation not found' });
@@ -357,7 +357,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: {
         deletedAt: new Date(),
         updatedBy: userId,
-      },
+      } as any,
     });
 
     logger.info('Investigation deleted', { id: req.params.id });

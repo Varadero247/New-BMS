@@ -102,7 +102,7 @@ router.get('/expiring', async (req: Request, res: Response) => {
       where: {
         deletedAt: null,
         status: 'ACTIVE',
-        endDate: { gte: now, lte: futureDate },
+        endDate: { gte: now, lte: futureDate } as any,
       },
       include: { customer: true },
       orderBy: { endDate: 'asc' },
@@ -150,8 +150,8 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcContract.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { customer: true, jobs: { where: { deletedAt: null } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { customer: true, jobs: { where: { deletedAt: null } as any } },
     });
 
     if (!data) {
@@ -169,7 +169,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.put('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcContract.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcContract.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }
@@ -197,7 +197,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.fsSvcContract.findFirst({ where: { id: req.params.id, deletedAt: null } });
+    const existing = await prisma.fsSvcContract.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Contract not found' } });
     }

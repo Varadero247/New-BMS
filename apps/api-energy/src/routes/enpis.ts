@@ -134,7 +134,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const enpi = await prisma.energyEnpi.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, deletedAt: null } as any,
       include: {
         _count: { select: { dataPoints: true } },
       },
@@ -163,20 +163,20 @@ router.put('/:id', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'EnPI not found' });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.baselineValue !== undefined && updateData.baselineValue !== null) {
-      updateData.baselineValue = new Prisma.Decimal(updateData.baselineValue);
+      updateData.baselineValue = new Prisma.Decimal(updateData.baselineValue as any);
     }
     if (updateData.currentValue !== undefined && updateData.currentValue !== null) {
-      updateData.currentValue = new Prisma.Decimal(updateData.currentValue);
+      updateData.currentValue = new Prisma.Decimal(updateData.currentValue as any);
     }
     if (updateData.targetValue !== undefined && updateData.targetValue !== null) {
-      updateData.targetValue = new Prisma.Decimal(updateData.targetValue);
+      updateData.targetValue = new Prisma.Decimal(updateData.targetValue as any);
     }
 
     const enpi = await prisma.energyEnpi.update({
@@ -200,7 +200,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: 'EnPI not found' });
     }
@@ -230,7 +230,7 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
+    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
       return res.status(404).json({ success: false, error: 'EnPI not found' });
     }
@@ -277,7 +277,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 100);
     const skip = (page - 1) * limit;
 
-    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
+    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
       return res.status(404).json({ success: false, error: 'EnPI not found' });
     }
@@ -315,13 +315,13 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
     const { periods } = req.query;
     const numPeriods = parseIntParam(periods, 12);
 
-    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
+    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
       return res.status(404).json({ success: false, error: 'EnPI not found' });
     }
 
     const dataPoints = await prisma.energyEnpiData.findMany({
-      where: { enpiId: id, deletedAt: null },
+      where: { enpiId: id, deletedAt: null } as any,
       orderBy: { periodStart: 'desc' },
       take: numPeriods,
     });

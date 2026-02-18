@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { authenticate } from '@ims/auth';
+import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import {
   createTask,
@@ -47,9 +47,9 @@ const updateTaskSchema = z.object({
 router.get('/my-tasks', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const orgId = user.organisationId || user.orgId || 'default';
+    const orgId = (user as any).organisationId || (user as any).orgId || 'default';
 
-    const grouped = await getMyTasks(orgId, user.id);
+    const grouped = await getMyTasks(orgId, user!.id);
 
     res.json({
       success: true,
@@ -79,7 +79,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       });
     }
 
-    const orgId = user.organisationId || user.orgId || 'default';
+    const orgId = (user as any).organisationId || (user as any).orgId || 'default';
 
     const task = await createTask({
       orgId,
@@ -89,7 +89,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       recordId: parsed.data.recordId,
       assigneeId: parsed.data.assigneeId,
       assigneeName: parsed.data.assigneeName,
-      createdById: user.id,
+      createdById: user!.id,
       priority: parsed.data.priority,
       dueDate: parsed.data.dueDate,
     });
@@ -98,7 +98,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       taskId: task.id,
       refNumber: task.refNumber,
       assigneeId: task.assigneeId,
-      createdById: user.id,
+      createdById: user!.id,
     });
 
     res.status(201).json({
@@ -120,7 +120,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const orgId = user.organisationId || user.orgId || 'default';
+    const orgId = (user as any).organisationId || (user as any).orgId || 'default';
 
     const page = Math.max(1, parseInt(req.query.page as string) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
@@ -196,7 +196,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 
     const updates: Record<string, unknown> = { ...parsed.data };
     if (updates.dueDate) {
-      updates.dueDate = new Date(updates.dueDate);
+      updates.dueDate = new Date(updates.dueDate as string);
     }
 
     const task = await updateTask(taskId, updates);

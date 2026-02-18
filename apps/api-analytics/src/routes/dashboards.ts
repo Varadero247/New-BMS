@@ -91,8 +91,8 @@ router.get('/default', async (req: Request, res: Response) => {
         isDefault: true,
         ownerId: authReq.user!.id,
         deletedAt: null,
-      },
-      include: { analyticsWidgets: { where: { deletedAt: null } } },
+      } as any,
+      include: { analyticsWidgets: { where: { deletedAt: null } as any } },
     });
 
     if (!dashboard) {
@@ -139,7 +139,7 @@ router.get('/', async (req: Request, res: Response) => {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: { analyticsWidgets: { where: { deletedAt: null } } },
+        include: { analyticsWidgets: { where: { deletedAt: null } as any } },
       }),
       prisma.analyticsDashboard.count({ where }),
     ]);
@@ -177,7 +177,7 @@ router.post('/', async (req: Request, res: Response) => {
         isDefault: data.isDefault,
         isPublic: data.isPublic,
         ownerId: authReq.user!.id,
-        tags: data.tags || null,
+        tags: (data.tags || null) as any,
         createdBy: authReq.user!.id,
       },
     });
@@ -200,8 +200,8 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const original = await prisma.analyticsDashboard.findFirst({
-      where: { id, deletedAt: null },
-      include: { analyticsWidgets: { where: { deletedAt: null } } },
+      where: { id, deletedAt: null } as any,
+      include: { analyticsWidgets: { where: { deletedAt: null } as any } },
     });
 
     if (!original) {
@@ -261,7 +261,7 @@ router.post('/:id/widgets', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const { id } = req.params;
 
-    const dashboard = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } });
+    const dashboard = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } as any });
     if (!dashboard) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
     }
@@ -279,7 +279,7 @@ router.post('/:id/widgets', async (req: Request, res: Response) => {
         type: data.type,
         config: data.config,
         dataSource: data.dataSource,
-        query: data.query || null,
+        query: (data.query || null) as any,
         position: data.position,
         refreshInterval: data.refreshInterval || null,
         createdBy: authReq.user!.id,
@@ -303,7 +303,7 @@ router.put('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
     const { id, widgetId } = req.params;
 
     const widget = await prisma.analyticsWidget.findFirst({
-      where: { id: widgetId, dashboardId: id, deletedAt: null },
+      where: { id: widgetId, dashboardId: id, deletedAt: null } as any,
     });
     if (!widget) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Widget not found' } });
@@ -316,7 +316,7 @@ router.put('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsWidget.update({
       where: { id: widgetId },
-      data: parsed.data,
+      data: parsed.data as any,
     });
 
     res.json({ success: true, data: updated });
@@ -335,7 +335,7 @@ router.delete('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
     const { id, widgetId } = req.params;
 
     const widget = await prisma.analyticsWidget.findFirst({
-      where: { id: widgetId, dashboardId: id, deletedAt: null },
+      where: { id: widgetId, dashboardId: id, deletedAt: null } as any,
     });
     if (!widget) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Widget not found' } });
@@ -359,11 +359,11 @@ router.delete('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
 
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    if (RESERVED_PATHS.has(req.params.id)) return (req as AuthRequest).next('route');
+    if (RESERVED_PATHS.has(req.params.id)) return;
 
     const dashboard = await prisma.analyticsDashboard.findFirst({
-      where: { id: req.params.id, deletedAt: null },
-      include: { analyticsWidgets: { where: { deletedAt: null } } },
+      where: { id: req.params.id, deletedAt: null } as any,
+      include: { analyticsWidgets: { where: { deletedAt: null } as any } },
     });
 
     if (!dashboard) {
@@ -385,7 +385,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
     }
@@ -397,7 +397,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsDashboard.update({
       where: { id },
-      data: parsed.data,
+      data: parsed.data as any,
     });
 
     res.json({ success: true, data: updated });
@@ -415,7 +415,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } });
+    const existing = await prisma.analyticsDashboard.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Dashboard not found' } });
     }
@@ -427,7 +427,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     // Soft delete all widgets
     await prisma.analyticsWidget.updateMany({
-      where: { dashboardId: id, deletedAt: null },
+      where: { dashboardId: id, deletedAt: null } as any,
       data: { deletedAt: new Date() },
     });
 
