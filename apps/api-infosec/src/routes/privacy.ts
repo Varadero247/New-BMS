@@ -573,11 +573,12 @@ router.get('/retention', async (req: Request, res: Response) => {
 
     const [schedules, total] = await Promise.all([
       prisma.isRetentionSchedule.findMany({
+        where: { deletedAt: null } as any,
         skip,
         take: limit,
         orderBy: { dataCategory: 'asc' },
       }),
-      prisma.isRetentionSchedule.count(),
+      prisma.isRetentionSchedule.count({ where: { deletedAt: null } as any }),
     ]);
 
     res.json({

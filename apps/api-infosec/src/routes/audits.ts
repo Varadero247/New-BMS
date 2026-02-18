@@ -196,11 +196,12 @@ router.get('/vulnerability-scans', async (req: Request, res: Response) => {
 
     const [scans, total] = await Promise.all([
       prisma.isVulnerabilityScan.findMany({
+        where: { deletedAt: null } as any,
         skip,
         take: limit,
         orderBy: { scanDate: 'desc' },
       }),
-      prisma.isVulnerabilityScan.count(),
+      prisma.isVulnerabilityScan.count({ where: { deletedAt: null } as any }),
     ]);
 
     res.json({
@@ -264,11 +265,12 @@ router.get('/penetration-tests', async (req: Request, res: Response) => {
 
     const [tests, total] = await Promise.all([
       prisma.isPenetrationTest.findMany({
+        where: { deletedAt: null } as any,
         skip,
         take: limit,
         orderBy: { testDate: 'desc' },
       }),
-      prisma.isPenetrationTest.count(),
+      prisma.isPenetrationTest.count({ where: { deletedAt: null } as any }),
     ]);
 
     res.json({
