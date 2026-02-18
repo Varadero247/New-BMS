@@ -47,3 +47,7 @@ export type { ManifestConfig, ManifestIcon } from './manifest-generator';
 // Install Banner
 export { InstallBanner, useInstallPrompt } from './install-banner';
 export type { InstallBannerProps } from './install-banner';
+
+// Offline Forms
+export { useOfflineForm } from './useOfflineForm';
+export type { OfflineFormOptions, OfflineFormState, UseOfflineFormReturn } from './useOfflineForm';
