@@ -122,20 +122,19 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         include: { chemical: { select: { productName: true, casNumber: true } } },
       });
       if (conflicting.length > 0) {
-        // Create incompatibility alert
-        for (const c of conflicting) {
-          await prisma.chemIncompatAlert.create({
-            data: {
-              chemicalId: chemical.id,
-              incompatibleWithCas: c.chemical.casNumber || '',
-              incompatibleWithName: c.chemical.productName,
-              hazardDescription: `${chemical.productName} is incompatible with ${c.chemical.productName} — cannot be stored together`,
-              severityLevel: 'CRITICAL',
-              storageLocationA: parsed.data.location,
-              storageLocationB: c.location,
-            },
-          });
-        }
+        // Batch create incompatibility alerts
+        await prisma.chemIncompatAlert.createMany({
+          data: conflicting.map(c => ({
+            chemicalId: chemical.id,
+            incompatibleWithCas: c.chemical.casNumber || '',
+            incompatibleWithName: c.chemical.productName,
+            hazardDescription: `${chemical.productName} is incompatible with ${c.chemical.productName} — cannot be stored together`,
+            severityLevel: 'CRITICAL' as const,
+            storageLocationA: parsed.data.location,
+            storageLocationB: c.location,
+          })),
+          skipDuplicates: true,
+        });
       }
     }
 

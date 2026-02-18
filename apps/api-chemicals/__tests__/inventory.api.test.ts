@@ -5,7 +5,7 @@ jest.mock('../src/prisma', () => ({
   prisma: {
     chemInventory: { findMany: jest.fn(), findFirst: jest.fn(), create: jest.fn(), update: jest.fn(), count: jest.fn() },
     chemRegister: { findFirst: jest.fn() },
-    chemIncompatAlert: { create: jest.fn() },
+    chemIncompatAlert: { create: jest.fn(), createMany: jest.fn() },
   },
   Prisma: {},
 }));
@@ -213,17 +213,20 @@ describe('POST /api/inventory', () => {
     const conflictingItem = { id: 'inv-2', location: 'Lab A - Cabinet 3', chemical: { productName: 'Sodium Fluoride', casNumber: '7681-49-4' } };
     (prisma as any).chemRegister.findFirst.mockResolvedValue(chemWithIncompat);
     (prisma as any).chemInventory.findMany.mockResolvedValue([conflictingItem]);
-    (prisma as any).chemIncompatAlert.create.mockResolvedValue({});
+    (prisma as any).chemIncompatAlert.createMany.mockResolvedValue({ count: 1 });
     (prisma as any).chemInventory.create.mockResolvedValue(mockInventory);
 
     const res = await request(app).post('/api/inventory').send(validInventoryBody);
     expect(res.status).toBe(201);
-    expect((prisma as any).chemIncompatAlert.create).toHaveBeenCalledWith(
+    expect((prisma as any).chemIncompatAlert.createMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({
-          severityLevel: 'CRITICAL',
-          chemicalId: mockChemical.id,
-        }),
+        data: expect.arrayContaining([
+          expect.objectContaining({
+            severityLevel: 'CRITICAL',
+            chemicalId: mockChemical.id,
+          }),
+        ]),
+        skipDuplicates: true,
       })
     );
   });
