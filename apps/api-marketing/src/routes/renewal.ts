@@ -16,7 +16,7 @@ const router = Router();
 // GET /api/renewal/upcoming
 router.get('/upcoming', authenticate, async (req: Request, res: Response) => {
   try {
-    const daysAhead = parseInt(req.query.days as string, 10) || 90;
+    const daysAhead = Math.min(365, Math.max(1, parseInt(req.query.days as string, 10) || 90));
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + daysAhead);
 

@@ -88,7 +88,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
 // GET /api/reports/csrd
 router.get('/csrd', async (req: Request, res: Response) => {
   try {
-    const year = req.query.year ? parseInt(req.query.year as string, 10) : new Date().getFullYear();
+    const year = Math.max(2000, Math.min(2099, req.query.year ? parseInt(req.query.year as string, 10) : new Date().getFullYear()));
 
     const [emissions, socialMetrics, governanceMetrics, targets] = await Promise.all([
       prisma.esgEmission.findMany({
@@ -126,7 +126,7 @@ router.get('/csrd', async (req: Request, res: Response) => {
 // GET /api/reports/tcfd
 router.get('/tcfd', async (req: Request, res: Response) => {
   try {
-    const year = req.query.year ? parseInt(req.query.year as string, 10) : new Date().getFullYear();
+    const year = Math.max(2000, Math.min(2099, req.query.year ? parseInt(req.query.year as string, 10) : new Date().getFullYear()));
 
     const [emissions, targets, initiatives] = await Promise.all([
       prisma.esgEmission.findMany({

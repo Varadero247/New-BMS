@@ -70,7 +70,7 @@ const updateChemicalSchema = createChemicalSchema.partial();
 router.get('/alerts/expiry', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const days = parseInt(req.query.days as string, 10) || 60;
+    const days = Math.min(365, Math.max(1, parseInt(req.query.days as string, 10) || 60));
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
 
