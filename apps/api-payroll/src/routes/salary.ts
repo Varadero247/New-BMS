@@ -44,8 +44,8 @@ router.post('/component-types', async (req: Request, res: Response) => {
       category: z.enum(['EARNING', 'DEDUCTION', 'EMPLOYER_CONTRIBUTION', 'REIMBURSEMENT']),
       type: z.enum(['BASIC_SALARY', 'ALLOWANCE', 'BONUS', 'COMMISSION', 'OVERTIME', 'STATUTORY_DEDUCTION', 'VOLUNTARY_DEDUCTION', 'LOAN_REPAYMENT', 'BENEFIT_CONTRIBUTION', 'TAX', 'OTHER']),
       calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
-      defaultAmount: z.number().optional(),
-      defaultPercentage: z.number().optional(),
+      defaultAmount: z.number().nonnegative().optional(),
+      defaultPercentage: z.number().nonnegative().optional(),
       isTaxable: z.boolean().default(true),
       taxCode: z.string().optional(),
       showInPayslip: z.boolean().default(true),
@@ -99,8 +99,8 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
       changeType: z.enum(['PROMOTION', 'ANNUAL_INCREMENT', 'ADJUSTMENT', 'DEMOTION', 'TRANSFER', 'CORRECTION', 'INITIAL']).optional(),
       components: z.array(z.object({
         componentTypeId: z.string().uuid(),
-        amount: z.number(),
-        percentage: z.number().optional(),
+        amount: z.number().nonnegative(),
+        percentage: z.number().nonnegative().optional(),
         calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
       })).default([]),
     });
@@ -162,8 +162,8 @@ router.put('/:id/components', checkOwnership(prisma.employeeSalary), async (req:
       components: z.array(z.object({
         id: z.string().uuid().optional(),
         componentTypeId: z.string().uuid(),
-        amount: z.number(),
-        percentage: z.number().optional(),
+        amount: z.number().nonnegative(),
+        percentage: z.number().nonnegative().optional(),
         calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
         isActive: z.boolean().default(true),
       })),

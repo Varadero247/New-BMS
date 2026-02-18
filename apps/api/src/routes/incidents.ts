@@ -27,12 +27,12 @@ const createIncidentSchema = z.object({
   daysLost: z.number().optional(),
   treatmentType: z.string().optional(),
   environmentalMedia: z.string().optional(),
-  quantity: z.number().optional(),
+  quantity: z.number().nonnegative().optional(),
   unit: z.string().optional(),
   regulatoryReport: z.boolean().default(false),
   productAffected: z.string().optional(),
   customerImpact: z.string().optional(),
-  costOfNonConformance: z.number().optional(),
+  costOfNonConformance: z.number().nonnegative().optional(),
   riskId: z.string().optional(),
 });
 

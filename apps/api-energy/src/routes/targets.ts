@@ -17,7 +17,7 @@ const targetCreateSchema = z.object({
   metricType: z.enum(['CONSUMPTION', 'INTENSITY', 'COST', 'EMISSIONS', 'RENEWABLE_PERCENTAGE']),
   baselineId: z.string().uuid().optional().nullable(),
   year: z.number().int().min(2000).max(2100),
-  targetValue: z.number(),
+  targetValue: z.number().nonnegative(),
   unit: z.string().trim().min(1).max(50),
 });
 
@@ -26,7 +26,7 @@ const targetUpdateSchema = z.object({
   metricType: z.enum(['CONSUMPTION', 'INTENSITY', 'COST', 'EMISSIONS', 'RENEWABLE_PERCENTAGE']).optional(),
   baselineId: z.string().uuid().optional().nullable(),
   year: z.number().int().min(2000).max(2100).optional(),
-  targetValue: z.number().optional(),
+  targetValue: z.number().nonnegative().optional(),
   actualValue: z.number().optional().nullable(),
   unit: z.string().trim().min(1).max(50).optional(),
   status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED']).optional(),

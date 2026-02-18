@@ -204,7 +204,7 @@ router.put('/reviews/:id', checkOwnership(prisma.performanceReview), async (req:
       selfAssessment: z.string().optional(),
       selfRating: z.number().optional(),
       managerAssessment: z.string().optional(),
-      managerRating: z.number().optional(),
+      managerRating: z.number().nonnegative().optional(),
       competencyRatings: z.record(z.number()).optional(),
       overallRating: z.number().optional(),
       overallComments: z.string().optional(),
@@ -316,7 +316,7 @@ router.put('/goals/:id', checkOwnership(prisma.performanceGoal), async (req: Req
       actualValue: z.string().optional(),
       status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'AT_RISK', 'COMPLETED', 'EXCEEDED', 'CANCELLED']).optional(),
       selfRating: z.number().optional(),
-      managerRating: z.number().optional(),
+      managerRating: z.number().nonnegative().optional(),
       finalRating: z.number().optional(),
       ratingComments: z.string().optional(),
     });

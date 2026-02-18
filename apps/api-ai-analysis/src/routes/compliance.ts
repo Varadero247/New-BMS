@@ -133,7 +133,7 @@ router.post('/predictive-risk', async (req: AuthRequest, res: Response) => {
       currentRisks: z.array(z.object({
         title: z.string(),
         category: z.string(),
-        currentScore: z.number(),
+        currentScore: z.number().nonnegative(),
       })).optional(),
       timeframeMonths: z.number().min(1).max(24).default(6),
     });

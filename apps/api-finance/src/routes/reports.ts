@@ -15,7 +15,7 @@ const createBudgetSchema = z.object({
   fiscalYear: z.number().int().min(2020).max(2099),
   month: z.number().int().min(1).max(12).optional(),
   quarter: z.number().int().min(1).max(4).optional(),
-  budgetAmount: z.number(),
+  budgetAmount: z.number().nonnegative(),
   notes: z.string().optional(),
 });
 

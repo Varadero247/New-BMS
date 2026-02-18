@@ -17,7 +17,7 @@ const createSchema = z.object({
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'CANCELLED']).optional(),
   assignee: z.string().optional(),
   assigneeName: z.string().optional(),
-  budget: z.number().optional(),
+  budget: z.number().nonnegative().optional(),
   approvedBy: z.string().optional(),
   notes: z.string().optional(),
 });

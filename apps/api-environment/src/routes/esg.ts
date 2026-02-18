@@ -229,11 +229,11 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
       description: z.string().trim().min(1).max(2000),
       baselineValue: z.number(),
       baselineYear: z.number().int().min(2000).max(2100),
-      targetValue: z.number(),
+      targetValue: z.number().nonnegative(),
       targetYear: z.number().int().min(2000).max(2100),
       unit: z.string().trim().min(1).max(200),
       status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED', 'CANCELLED']).optional(),
-      currentValue: z.number().optional(),
+      currentValue: z.number().nonnegative().optional(),
       notes: z.string().optional(),
     });
 
@@ -288,11 +288,11 @@ router.put('/targets/:id', checkOwnership(prisma.esgTarget as any), async (req: 
       description: z.string().trim().min(1).max(2000).optional(),
       baselineValue: z.number().optional(),
       baselineYear: z.number().int().min(2000).max(2100).optional(),
-      targetValue: z.number().optional(),
+      targetValue: z.number().nonnegative().optional(),
       targetYear: z.number().int().min(2000).max(2100).optional(),
       unit: z.string().trim().min(1).max(200).optional(),
       status: z.enum(['ON_TRACK', 'AT_RISK', 'OFF_TRACK', 'ACHIEVED', 'CANCELLED']).optional(),
-      currentValue: z.number().optional(),
+      currentValue: z.number().nonnegative().optional(),
       notes: z.string().optional(),
     });
 

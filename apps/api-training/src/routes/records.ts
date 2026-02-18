@@ -14,7 +14,7 @@ const createSchema = z.object({
   scheduledDate: z.string().datetime().optional().or(z.null()),
   completedDate: z.string().datetime().optional().or(z.null()),
   expiryDate: z.string().datetime().optional().or(z.null()),
-  score: z.number().optional(),
+  score: z.number().nonnegative().optional(),
   passed: z.boolean().optional(),
   trainer: z.string().optional(),
   trainerName: z.string().optional(),

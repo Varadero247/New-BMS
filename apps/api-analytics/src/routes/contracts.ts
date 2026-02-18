@@ -10,7 +10,7 @@ const createContractSchema = z.object({
   category: z.string().min(1, 'category is required'),
   startDate: z.string().min(1, 'startDate is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   endDate: z.string().min(1, 'endDate is required').refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  annualCost: z.number().optional(),
+  annualCost: z.number().nonnegative().optional(),
   status: z.string().optional(),
   notes: z.string().nullable().optional(),
 });

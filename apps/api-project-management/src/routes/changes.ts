@@ -61,7 +61,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       changeType: z.enum(['SCOPE', 'SCHEDULE', 'BUDGET', 'QUALITY', 'RESOURCE', 'PROCESS']),
       impactOnScope: z.string().optional(),
       impactOnSchedule: z.number().optional(),
-      impactOnBudget: z.number().optional(),
+      impactOnBudget: z.number().nonnegative().optional(),
       impactOnQuality: z.string().optional(),
       impactOnRisk: z.string().optional(),
       impactOnResources: z.string().optional(),

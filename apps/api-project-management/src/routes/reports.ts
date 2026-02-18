@@ -90,10 +90,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       keyRisks: z.string().optional(),
       accomplishments: z.string().optional(),
       nextPeriodPlans: z.string().optional(),
-      progressPercentage: z.number().optional(),
-      budgetConsumed: z.number().optional(),
+      progressPercentage: z.number().nonnegative().optional(),
+      budgetConsumed: z.number().nonnegative().optional(),
       scheduleVariance: z.number().optional(),
-      costVariance: z.number().optional(),
+      costVariance: z.number().nonnegative().optional(),
     });
 
     const data = schema.parse(req.body);

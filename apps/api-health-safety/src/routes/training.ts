@@ -106,7 +106,7 @@ router.post('/records', async (req: AuthRequest, res: Response) => {
       courseId: z.string(),
       completedAt: z.string().optional(),
       expiresAt: z.string().optional(),
-      score: z.number().optional(),
+      score: z.number().nonnegative().optional(),
       competenceLevel: z.enum(['AWARENESS', 'BASIC', 'PROFICIENT', 'EXPERT']).optional(),
       assessedBy: z.string().optional(),
       certificateUrl: z.string().url('Invalid URL').optional(),

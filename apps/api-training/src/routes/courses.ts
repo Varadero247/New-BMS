@@ -14,7 +14,7 @@ const createSchema = z.object({
   duration: z.number().int().optional(),
   validityMonths: z.number().int().optional(),
   provider: z.string().optional(),
-  cost: z.number().optional(),
+  cost: z.number().nonnegative().optional(),
   maxParticipants: z.number().int().optional(),
   prerequisites: z.string().optional(),
   objectives: z.string().optional(),

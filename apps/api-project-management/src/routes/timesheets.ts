@@ -67,8 +67,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       activityType: z.enum(['DEVELOPMENT', 'TESTING', 'DESIGN', 'MEETING', 'DOCUMENTATION', 'ADMIN']),
       description: z.string().optional(),
       isBillable: z.boolean().optional(),
-      billableHours: z.number().optional(),
-      hourlyRate: z.number().optional(),
+      billableHours: z.number().nonnegative().optional(),
+      hourlyRate: z.number().nonnegative().optional(),
     });
 
     const data = schema.parse(req.body);

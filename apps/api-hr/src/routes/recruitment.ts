@@ -100,8 +100,8 @@ router.post('/jobs', async (req: Request, res: Response) => {
       location: z.string(),
       isRemote: z.boolean().default(false),
       remoteType: z.enum(['FULLY_REMOTE', 'HYBRID', 'OCCASIONAL']).optional(),
-      salaryMin: z.number().optional(),
-      salaryMax: z.number().optional(),
+      salaryMin: z.number().nonnegative().optional(),
+      salaryMax: z.number().nonnegative().optional(),
       showSalary: z.boolean().default(false),
       openings: z.number().default(1),
       closeDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
@@ -253,7 +253,7 @@ router.post('/applicants', async (req: Request, res: Response) => {
       currentTitle: z.string().optional(),
       yearsExperience: z.number().optional(),
       noticePeriod: z.number().optional(),
-      expectedSalary: z.number().optional(),
+      expectedSalary: z.number().nonnegative().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -394,7 +394,7 @@ router.post('/interviews/:id/evaluate', async (req: Request, res: Response) => {
       concerns: z.string().optional(),
       additionalNotes: z.string().optional(),
       recommendation: z.enum(['STRONG_HIRE', 'HIRE', 'MAYBE', 'NO_HIRE', 'STRONG_NO_HIRE']),
-      recommendedSalary: z.number().optional(),
+      recommendedSalary: z.number().nonnegative().optional(),
     });
 
     const data = schema.parse(req.body);

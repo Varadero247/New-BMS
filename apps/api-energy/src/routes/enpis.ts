@@ -18,7 +18,7 @@ const enpiCreateSchema = z.object({
   formula: z.string().trim().min(1).max(500),
   unit: z.string().trim().min(1).max(50),
   baselineValue: z.number().optional().nullable(),
-  targetValue: z.number().optional().nullable(),
+  targetValue: z.number().nonnegative().optional().nullable(),
   frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).optional().default('MONTHLY'),
 });
 
@@ -28,8 +28,8 @@ const enpiUpdateSchema = z.object({
   formula: z.string().trim().min(1).max(500).optional(),
   unit: z.string().trim().min(1).max(50).optional(),
   baselineValue: z.number().optional().nullable(),
-  currentValue: z.number().optional().nullable(),
-  targetValue: z.number().optional().nullable(),
+  currentValue: z.number().nonnegative().optional().nullable(),
+  targetValue: z.number().nonnegative().optional().nullable(),
   frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'QUARTERLY', 'ANNUALLY']).optional(),
 });
 

@@ -36,7 +36,7 @@ const createSchema = z.object({
   incidentId: z.string().optional().nullable(),
   riskId: z.string().optional().nullable(),
   dueDate: z.string().trim().min(1).max(200).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-  estimatedCost: z.number().optional().nullable(),
+  estimatedCost: z.number().nonnegative().optional().nullable(),
   verificationMethod: z.string().max(500).optional().nullable(),
 });
 
@@ -46,7 +46,7 @@ const updateSchema = createSchema.partial().extend({
   verifiedAt: z.string().optional().nullable(),
   verificationNotes: z.string().max(2000).optional().nullable(),
   effectivenessRating: z.number().int().min(1).max(5).optional().nullable(),
-  actualCost: z.number().optional().nullable(),
+  actualCost: z.number().nonnegative().optional().nullable(),
 });
 
 // GET /overdue — Overdue actions (must be before /:id)

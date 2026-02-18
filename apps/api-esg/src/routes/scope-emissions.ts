@@ -12,7 +12,7 @@ const createSchema = z.object({
   category: z.string().optional(),
   source: z.string().optional(),
   activity: z.string().optional(),
-  quantity: z.number().optional(),
+  quantity: z.number().nonnegative().optional(),
   unit: z.string().optional(),
   emissionFactor: z.number().optional(),
   co2e: z.number().optional(),

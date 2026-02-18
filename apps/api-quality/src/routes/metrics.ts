@@ -27,7 +27,7 @@ const createSchema = z.object({
   description: z.string().max(2000).optional().nullable(),
   category: z.enum(['CUSTOMER_SATISFACTION', 'PRODUCT_QUALITY', 'PROCESS_PERFORMANCE', 'SUPPLIER_PERFORMANCE', 'AUDIT_RESULTS', 'NONCONFORMANCE', 'DELIVERY', 'SAFETY', 'FINANCIAL', 'OTHER']).default('OTHER'),
   unit: z.string().max(100).optional().nullable(),
-  targetValue: z.number().optional().nullable(),
+  targetValue: z.number().nonnegative().optional().nullable(),
   actualValue: z.number().optional().nullable(),
   lowerLimit: z.number().optional().nullable(),
   upperLimit: z.number().optional().nullable(),

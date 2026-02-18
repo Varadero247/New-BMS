@@ -12,7 +12,7 @@ const stripeEventSchema = z.object({
       customer: z.string().optional(),
       customer_email: z.string().optional(),
       customer_name: z.string().optional(),
-      amount_due: z.number().optional(),
+      amount_due: z.number().nonnegative().optional(),
       currency: z.string().optional(),
       number: z.string().optional(),
     }).optional(),

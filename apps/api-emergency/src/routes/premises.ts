@@ -14,7 +14,7 @@ const createPremisesSchema = z.object({
   buildingType: z.string().optional(),
   constructionType: z.string().optional(),
   numberOfFloors: z.number().int().optional(),
-  totalFloorAreaM2: z.number().optional(),
+  totalFloorAreaM2: z.number().nonnegative().optional(),
   maxOccupancy: z.number().int().optional(),
   normalOccupancy: z.number().int().optional(),
   responsiblePersonName: z.string().optional(),

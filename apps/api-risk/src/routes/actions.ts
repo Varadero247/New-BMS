@@ -15,7 +15,7 @@ const actionSchema = z.object({
   ownerEmail: z.string().email().optional(),
   targetDate: z.string().datetime({ offset: true }).or(z.string().datetime()),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
-  estimatedCost: z.number().optional(),
+  estimatedCost: z.number().nonnegative().optional(),
   linkedCapaId: z.string().optional(),
 });
 

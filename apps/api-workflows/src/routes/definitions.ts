@@ -85,7 +85,7 @@ router.post('/', async (req: Request, res: Response) => {
       triggerConfig: z.record(z.unknown()).optional(),
       steps: z.unknown(), // JSON array of step definitions
       rules: z.record(z.unknown()).optional(),
-      defaultSlaHours: z.number().optional(),
+      defaultSlaHours: z.number().nonnegative().optional(),
       escalationConfig: z.record(z.unknown()).optional(),
       createdById: z.string().optional(),
     });
@@ -130,7 +130,7 @@ router.put('/:id', checkOwnership(prisma.workflowDefinition), async (req: AuthRe
       triggerConfig: z.record(z.unknown()).optional(),
       steps: z.unknown().optional(),
       rules: z.record(z.unknown()).optional(),
-      defaultSlaHours: z.number().optional(),
+      defaultSlaHours: z.number().nonnegative().optional(),
       escalationConfig: z.record(z.unknown()).optional(),
     });
 

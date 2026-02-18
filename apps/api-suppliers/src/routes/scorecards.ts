@@ -14,7 +14,7 @@ const createSchema = z.object({
   cost: z.number().int().min(0).max(100).optional(),
   responsiveness: z.number().int().min(0).max(100).optional(),
   compliance: z.number().int().min(0).max(100).optional(),
-  overallScore: z.number().optional(),
+  overallScore: z.number().nonnegative().optional(),
   status: z.enum(['DRAFT', 'IN_REVIEW', 'COMPLETED']).optional(),
   assessor: z.string().optional(),
   comments: z.string().optional(),

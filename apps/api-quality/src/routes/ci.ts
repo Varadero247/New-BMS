@@ -34,7 +34,7 @@ const createSchema = z.object({
   targetDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   isoClause: z.string().max(200).optional().nullable(),
   expectedBenefit: z.string().max(2000).optional().nullable(),
-  estimatedCost: z.number().optional().nullable(),
+  estimatedCost: z.number().nonnegative().optional().nullable(),
   estimatedSaving: z.number().optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });

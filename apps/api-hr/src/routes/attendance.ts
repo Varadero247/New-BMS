@@ -470,7 +470,7 @@ router.post('/shifts', async (req: Request, res: Response) => {
       startTime: z.string().regex(/^\d{2}:\d{2}$/),
       endTime: z.string().regex(/^\d{2}:\d{2}$/),
       breakDuration: z.number().default(60),
-      workingHours: z.number(),
+      workingHours: z.number().nonnegative(),
       monday: z.boolean().default(true),
       tuesday: z.boolean().default(true),
       wednesday: z.boolean().default(true),

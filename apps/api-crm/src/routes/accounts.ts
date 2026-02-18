@@ -25,7 +25,7 @@ const createAccountSchema = z.object({
   state: z.string().optional(),
   country: z.string().optional(),
   postalCode: z.string().optional(),
-  annualRevenue: z.number().optional(),
+  annualRevenue: z.number().nonnegative().optional(),
   employeeCount: z.number().int().optional(),
   tags: z.array(z.string()).optional(),
   notes: z.string().optional(),

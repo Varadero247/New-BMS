@@ -76,14 +76,14 @@ router.post('/courses', async (req: Request, res: Response) => {
       provider: z.string().optional(),
       instructorName: z.string().optional(),
       deliveryMethod: z.enum(['CLASSROOM', 'VIRTUAL', 'E_LEARNING', 'ON_THE_JOB', 'SELF_PACED', 'BLENDED', 'WORKSHOP', 'SEMINAR']),
-      duration: z.number(),
+      duration: z.number().nonnegative(),
       maxParticipants: z.number().optional(),
       prerequisites: z.array(z.string()).default([]),
       objectives: z.string().optional(),
       syllabus: z.string().optional(),
       certificationAwarded: z.boolean().default(false),
       certificationValidity: z.number().optional(),
-      costPerPerson: z.number().optional(),
+      costPerPerson: z.number().nonnegative().optional(),
       isMandatory: z.boolean().default(false),
     });
 
@@ -265,7 +265,7 @@ router.put('/enrollments/:id', checkOwnership(prisma.hRTrainingEnrollment), asyn
     const schema = z.object({
       status: z.enum(['ENROLLED', 'WAITLISTED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED', 'NO_SHOW']).optional(),
       attendancePercent: z.number().optional(),
-      assessmentScore: z.number().optional(),
+      assessmentScore: z.number().nonnegative().optional(),
       passed: z.boolean().optional(),
       certificateUrl: z.string().url('Invalid URL').optional(),
       feedbackRating: z.number().min(1).max(5).optional(),

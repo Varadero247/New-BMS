@@ -169,7 +169,7 @@ router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Respo
   try {
     const schema = z.object({
       actualDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-      durationHours: z.number().optional(),
+      durationHours: z.number().nonnegative().optional(),
       outcome: exerciseOutcomeEnum.optional(),
       objectivesMet: z.boolean().optional(),
       findings: z.string().optional(),

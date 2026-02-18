@@ -17,7 +17,7 @@ const routeCreateSchema = z.object({
   date: z.string(),
   stops: z.array(z.any()),
   optimizedOrder: z.array(z.any()).optional().nullable(),
-  totalDistance: z.number().optional().nullable(),
+  totalDistance: z.number().nonnegative().optional().nullable(),
   totalDuration: z.number().int().optional().nullable(),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED']).optional(),
 });
@@ -25,7 +25,7 @@ const routeCreateSchema = z.object({
 const routeUpdateSchema = z.object({
   stops: z.array(z.any()).optional(),
   optimizedOrder: z.array(z.any()).optional().nullable(),
-  totalDistance: z.number().optional().nullable(),
+  totalDistance: z.number().nonnegative().optional().nullable(),
   totalDuration: z.number().int().optional().nullable(),
   status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED']).optional(),
 });

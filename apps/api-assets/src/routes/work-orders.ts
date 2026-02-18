@@ -17,9 +17,9 @@ const createSchema = z.object({
   assigneeName: z.string().optional(),
   scheduledDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   completedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
-  estimatedHours: z.number().optional(),
-  actualHours: z.number().optional(),
-  cost: z.number().optional(),
+  estimatedHours: z.number().nonnegative().optional(),
+  actualHours: z.number().nonnegative().optional(),
+  cost: z.number().nonnegative().optional(),
   notes: z.string().optional(),
 });
 const updateSchema = createSchema.partial();

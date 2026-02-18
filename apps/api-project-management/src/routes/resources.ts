@@ -62,9 +62,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       allocationPercentage: z.number().min(0).max(100).optional(),
       allocatedFrom: z.string(),
       allocatedTo: z.string(),
-      costPerHour: z.number().optional(),
-      totalAllocatedCost: z.number().optional(),
-      plannedHours: z.number().optional(),
+      costPerHour: z.number().nonnegative().optional(),
+      totalAllocatedCost: z.number().nonnegative().optional(),
+      plannedHours: z.number().nonnegative().optional(),
       status: z.string().optional(),
     });
 

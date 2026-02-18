@@ -35,9 +35,9 @@ const workOrderCreateSchema = z.object({
   requestedBy: z.string().max(200).optional().nullable(),
   scheduledStart: z.string().optional().nullable(),
   scheduledEnd: z.string().optional().nullable(),
-  laborHours: z.number().optional().nullable(),
-  laborCost: z.number().optional().nullable(),
-  partsCost: z.number().optional().nullable(),
+  laborHours: z.number().nonnegative().optional().nullable(),
+  laborCost: z.number().nonnegative().optional().nullable(),
+  partsCost: z.number().nonnegative().optional().nullable(),
   failureCode: z.string().max(50).optional().nullable(),
 });
 
@@ -50,10 +50,10 @@ const workOrderUpdateSchema = z.object({
   assignedTo: z.string().max(200).optional().nullable(),
   scheduledStart: z.string().optional().nullable(),
   scheduledEnd: z.string().optional().nullable(),
-  laborHours: z.number().optional().nullable(),
-  laborCost: z.number().optional().nullable(),
-  partsCost: z.number().optional().nullable(),
-  totalCost: z.number().optional().nullable(),
+  laborHours: z.number().nonnegative().optional().nullable(),
+  laborCost: z.number().nonnegative().optional().nullable(),
+  partsCost: z.number().nonnegative().optional().nullable(),
+  totalCost: z.number().nonnegative().optional().nullable(),
   completionNotes: z.string().max(2000).optional().nullable(),
   failureCode: z.string().max(50).optional().nullable(),
 });

@@ -111,8 +111,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       // KPI
       kpiDescription: z.string().trim().min(1).max(2000),
       baselineValue: z.number(),
-      targetValue: z.number(),
-      currentValue: z.number().optional(),
+      targetValue: z.number().nonnegative(),
+      currentValue: z.number().nonnegative().optional(),
       unit: z.string().trim().min(1).max(200),
       // Ownership
       owner: z.string().trim().min(1).max(200),
@@ -203,8 +203,8 @@ router.put('/:id', checkOwnership(prisma.qualObjective), async (req: AuthRequest
       linkedOpportunities: z.string().optional(),
       kpiDescription: z.string().optional(),
       baselineValue: z.number().optional(),
-      targetValue: z.number().optional(),
-      currentValue: z.number().optional(),
+      targetValue: z.number().nonnegative().optional(),
+      currentValue: z.number().nonnegative().optional(),
       unit: z.string().optional(),
       owner: z.string().optional(),
       department: z.string().optional(),

@@ -86,7 +86,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       duration: z.number().min(1),
       plannedVelocity: z.number().optional(),
-      teamCapacity: z.number().optional(),
+      teamCapacity: z.number().nonnegative().optional(),
       status: z.string().optional(),
     });
 

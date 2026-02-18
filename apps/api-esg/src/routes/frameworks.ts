@@ -40,7 +40,7 @@ const metricCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   code: z.string().trim().min(1).max(50),
   unit: z.string().trim().min(1).max(50),
-  targetValue: z.number().optional().nullable(),
+  targetValue: z.number().nonnegative().optional().nullable(),
   description: z.string().max(2000).optional().nullable(),
   frequency: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUALLY']),
   isRequired: z.boolean().optional(),

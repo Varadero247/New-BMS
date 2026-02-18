@@ -17,7 +17,7 @@ const createActionSchema = z.object({
   ownerId: z.string(),
   dueDate: z.string().datetime(),
   verificationMethod: z.string().optional(),
-  estimatedCost: z.number().optional(),
+  estimatedCost: z.number().nonnegative().optional(),
   riskId: z.string().optional(),
   incidentId: z.string().optional(),
   legalRequirementId: z.string().optional(),
@@ -28,7 +28,7 @@ const updateActionSchema = createActionSchema.partial().extend({
   status: z.enum(['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'OVERDUE', 'CANCELLED']).optional(),
   verificationNotes: z.string().optional(),
   effectivenessRating: z.number().min(1).max(5).optional(),
-  actualCost: z.number().optional(),
+  actualCost: z.number().nonnegative().optional(),
 });
 
 // Generate reference number

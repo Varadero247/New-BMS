@@ -19,7 +19,7 @@ const createDepartmentSchema = z.object({
   parentId: z.string().uuid().optional(),
   headId: z.string().uuid().optional(),
   costCenter: z.string().optional(),
-  budget: z.number().optional(),
+  budget: z.number().nonnegative().optional(),
   budgetCurrency: z.string().default('USD'),
 });
 
@@ -204,8 +204,8 @@ router.post('/positions', async (req: Request, res: Response) => {
       description: z.string().optional(),
       departmentId: z.string().uuid(),
       jobGrade: z.string().optional(),
-      minSalary: z.number().optional(),
-      maxSalary: z.number().optional(),
+      minSalary: z.number().nonnegative().optional(),
+      maxSalary: z.number().nonnegative().optional(),
       headcount: z.number().default(1),
       requirements: z.string().optional(),
       responsibilities: z.string().optional(),

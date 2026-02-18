@@ -18,7 +18,7 @@ const timeEntryCreateSchema = z.object({
   type: z.enum(['TRAVEL', 'WORK', 'BREAK', 'ADMIN']),
   startTime: z.string(),
   endTime: z.string().optional().nullable(),
-  duration: z.number().optional().nullable(),
+  duration: z.number().nonnegative().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   billable: z.boolean().optional(),
 });
@@ -27,7 +27,7 @@ const timeEntryUpdateSchema = z.object({
   type: z.enum(['TRAVEL', 'WORK', 'BREAK', 'ADMIN']).optional(),
   startTime: z.string().optional(),
   endTime: z.string().optional().nullable(),
-  duration: z.number().optional().nullable(),
+  duration: z.number().nonnegative().optional().nullable(),
   notes: z.string().max(2000).optional().nullable(),
   billable: z.boolean().optional(),
 });

@@ -42,7 +42,7 @@ const createChangeRequestSchema = z.object({
   customerImpact: z.boolean().optional().default(false),
   regulatoryImpact: z.boolean().optional().default(false),
   safetyImpact: z.boolean().optional().default(false),
-  costEstimate: z.number().optional(),
+  costEstimate: z.number().nonnegative().optional(),
   proposedBy: z.string().optional(),
   requestedDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   notes: z.string().optional(),
@@ -60,7 +60,7 @@ const updateChangeRequestSchema = z.object({
   customerImpact: z.boolean().optional(),
   regulatoryImpact: z.boolean().optional(),
   safetyImpact: z.boolean().optional(),
-  costEstimate: z.number().optional(),
+  costEstimate: z.number().nonnegative().optional(),
   status: z.enum(['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'REJECTED', 'IMPLEMENTING', 'IMPLEMENTED', 'VERIFIED', 'CLOSED', 'CANCELLED']).optional(),
   notes: z.string().optional(),
 });

@@ -42,7 +42,7 @@ const scheduleSchema = z.object({
   tasks: z.array(z.string()).default([]),
   assignedTo: z.string().max(200).optional().nullable(),
   estimatedDuration: z.number().int().min(0).optional().nullable(),
-  estimatedCost: z.number().optional().nullable(),
+  estimatedCost: z.number().nonnegative().optional().nullable(),
   lastPerformed: z.string().optional().nullable(),
   nextDue: z.string().optional().nullable(),
   isActive: z.boolean().default(true),

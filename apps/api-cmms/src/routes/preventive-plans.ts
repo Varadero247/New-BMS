@@ -23,7 +23,7 @@ const planCreateSchema = z.object({
   assignedTo: z.string().max(200).optional().nullable(),
   isActive: z.boolean().optional(),
   estimatedDuration: z.number().int().optional().nullable(),
-  estimatedCost: z.number().optional().nullable(),
+  estimatedCost: z.number().nonnegative().optional().nullable(),
 });
 
 const planUpdateSchema = z.object({
@@ -36,7 +36,7 @@ const planUpdateSchema = z.object({
   assignedTo: z.string().max(200).optional().nullable(),
   isActive: z.boolean().optional(),
   estimatedDuration: z.number().int().optional().nullable(),
-  estimatedCost: z.number().optional().nullable(),
+  estimatedCost: z.number().nonnegative().optional().nullable(),
 });
 
 // ---------------------------------------------------------------------------

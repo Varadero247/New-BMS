@@ -26,7 +26,7 @@ const createSchema = z.object({
   binLocation: z.string().max(100).optional().nullable(),
   lotNumber: z.string().max(100).optional().nullable(),
   serialNumber: z.string().max(100).optional().nullable(),
-  unitCost: z.number().optional().nullable(),
+  unitCost: z.number().nonnegative().optional().nullable(),
   adjustmentDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
 });
 

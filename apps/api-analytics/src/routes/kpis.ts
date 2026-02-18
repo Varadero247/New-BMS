@@ -21,9 +21,9 @@ const kpiCreateSchema = z.object({
   module: z.string().trim().min(1).max(100),
   formula: z.string().max(500).optional().nullable(),
   unit: z.string().max(50).optional().nullable(),
-  currentValue: z.number().optional().nullable(),
+  currentValue: z.number().nonnegative().optional().nullable(),
   previousValue: z.number().optional().nullable(),
-  targetValue: z.number().optional().nullable(),
+  targetValue: z.number().nonnegative().optional().nullable(),
   trend: trendEnum,
   frequency: frequencyEnum,
 });
@@ -34,9 +34,9 @@ const kpiUpdateSchema = z.object({
   module: z.string().trim().min(1).max(100).optional(),
   formula: z.string().max(500).optional().nullable(),
   unit: z.string().max(50).optional().nullable(),
-  currentValue: z.number().optional().nullable(),
+  currentValue: z.number().nonnegative().optional().nullable(),
   previousValue: z.number().optional().nullable(),
-  targetValue: z.number().optional().nullable(),
+  targetValue: z.number().nonnegative().optional().nullable(),
   trend: trendEnum.optional(),
   frequency: frequencyEnum.optional(),
 });

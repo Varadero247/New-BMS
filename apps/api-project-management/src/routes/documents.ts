@@ -60,7 +60,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       documentCategory: z.string().optional(),
       version: z.string().optional(),
       fileUrl: z.string().url('Invalid URL').optional(),
-      fileSize: z.number().optional(),
+      fileSize: z.number().nonnegative().optional(),
       fileType: z.string().optional(),
       description: z.string().optional(),
       keywords: z.string().optional(),

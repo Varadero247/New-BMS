@@ -45,10 +45,10 @@ router.post('/filings', async (req: Request, res: Response) => {
       payrollRunId: z.string().uuid().optional(),
       filingType: z.enum(['WITHHOLDING', 'QUARTERLY', 'ANNUAL', 'AMENDMENT', 'SOCIAL_SECURITY', 'MEDICARE', 'STATE', 'LOCAL']),
       taxPeriod: z.string(),
-      taxYear: z.number(),
-      grossWages: z.number(),
-      taxableWages: z.number(),
-      taxWithheld: z.number(),
+      taxYear: z.number().nonnegative(),
+      grossWages: z.number().nonnegative(),
+      taxableWages: z.number().nonnegative(),
+      taxWithheld: z.number().nonnegative(),
       employerTax: z.number().default(0),
       filingDeadline: z.string(),
     });
@@ -145,13 +145,13 @@ router.get('/brackets', async (req: Request, res: Response) => {
 router.post('/brackets', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      taxYear: z.number(),
+      taxYear: z.number().nonnegative(),
       country: z.string(),
       region: z.string().optional(),
       filingStatus: z.string().optional(),
       minIncome: z.number(),
       maxIncome: z.number().optional(),
-      rate: z.number(),
+      rate: z.number().nonnegative(),
       fixedAmount: z.number().default(0),
     });
 

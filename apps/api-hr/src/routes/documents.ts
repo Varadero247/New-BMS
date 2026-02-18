@@ -91,7 +91,7 @@ router.post('/', async (req: Request, res: Response) => {
       description: z.string().optional(),
       fileName: z.string(),
       fileUrl: z.string().url(),
-      fileSize: z.number().optional(),
+      fileSize: z.number().nonnegative().optional(),
       mimeType: z.string().optional(),
       issueDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
       expiryDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),

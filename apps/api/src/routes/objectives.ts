@@ -12,7 +12,7 @@ const createObjectiveSchema = z.object({
   standard: z.enum(['ISO_45001', 'ISO_14001', 'ISO_9001']),
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(2000),
-  targetValue: z.number().optional(),
+  targetValue: z.number().nonnegative().optional(),
   unit: z.string().optional(),
   baselineValue: z.number().optional(),
   startDate: z.string().datetime().optional(),
@@ -23,7 +23,7 @@ const createObjectiveSchema = z.object({
 
 const updateObjectiveSchema = createObjectiveSchema.partial().extend({
   status: z.enum(['NOT_STARTED', 'ON_TRACK', 'AT_RISK', 'BEHIND', 'ACHIEVED', 'CANCELLED']).optional(),
-  currentValue: z.number().optional(),
+  currentValue: z.number().nonnegative().optional(),
   progressPercent: z.number().min(0).max(100).optional(),
 });
 

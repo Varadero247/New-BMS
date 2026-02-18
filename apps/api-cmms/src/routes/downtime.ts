@@ -17,7 +17,7 @@ const downtimeCreateSchema = z.object({
   workOrderId: z.string().uuid().optional().nullable(),
   startTime: z.string(),
   endTime: z.string().optional().nullable(),
-  duration: z.number().optional().nullable(),
+  duration: z.number().nonnegative().optional().nullable(),
   reason: z.string().trim().min(1).max(500),
   impact: z.enum(['PRODUCTION_STOP', 'REDUCED_OUTPUT', 'QUALITY_IMPACT', 'SAFETY_RISK', 'NONE']).optional(),
   estimatedLoss: z.number().optional().nullable(),
@@ -26,7 +26,7 @@ const downtimeCreateSchema = z.object({
 const downtimeUpdateSchema = z.object({
   startTime: z.string().optional(),
   endTime: z.string().optional().nullable(),
-  duration: z.number().optional().nullable(),
+  duration: z.number().nonnegative().optional().nullable(),
   reason: z.string().trim().min(1).max(500).optional(),
   impact: z.enum(['PRODUCTION_STOP', 'REDUCED_OUTPUT', 'QUALITY_IMPACT', 'SAFETY_RISK', 'NONE']).optional(),
   estimatedLoss: z.number().optional().nullable(),

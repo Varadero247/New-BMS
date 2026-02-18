@@ -73,7 +73,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       probability: z.number().min(1).max(5),
       impact: z.number().min(1).max(5),
       expectedMonetaryValue: z.number().optional(),
-      contingencyAmount: z.number().optional(),
+      contingencyAmount: z.number().nonnegative().optional(),
       responseStrategy: z.string().optional(),
       responsePlan: z.string().optional(),
       responseOwner: z.string().optional(),

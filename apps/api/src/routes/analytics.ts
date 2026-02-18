@@ -227,8 +227,8 @@ router.delete('/fishbone/:id', authenticate, async (req, res, next) => {
 
 const paretoDataItemSchema = z.object({
   category: z.string(),
-  count: z.number(),
-  percentage: z.number(),
+  count: z.number().nonnegative(),
+  percentage: z.number().nonnegative(),
   cumulative: z.number(),
 });
 
@@ -543,7 +543,7 @@ router.delete('/bow-tie/:id', authenticate, async (req, res, next) => {
 const wasteItemSchema = z.object({
   identified: z.boolean(),
   description: z.string().optional(),
-  estimatedCost: z.number().optional(),
+  estimatedCost: z.number().nonnegative().optional(),
 });
 
 const leanWasteSchema = z.object({

@@ -13,7 +13,7 @@ const checklistCreateSchema = z.object({
   standard: z.string().optional(),
   items: z.string().optional(),
   completedItems: z.number().optional(),
-  totalItems: z.number().optional(),
+  totalItems: z.number().nonnegative().optional(),
   notes: z.string().optional(),
 });
 
