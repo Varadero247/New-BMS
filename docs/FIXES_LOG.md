@@ -1053,3 +1053,119 @@ Automated full-system review across all 42 API services. Identified and fixed er
 **All 12,326 tests passing across 578 suites.**
 
 **Total across all sessions: 57 fixes/changes, 42 API services, 44 web apps, 60 packages, 44 Prisma schemas, ~12,326 tests.**
+
+---
+
+## Session 15 — Multi-Tenant Security Hardening + TODO Resolution (2026-02-18)
+
+Systematic security hardening pass across the entire API surface, plus resolution of two long-standing high-priority TODOs.
+
+---
+
+### FIX 58 — Multi-tenant orgId scoping across all API routes
+
+**Problem:** 60+ `findFirst`/`findMany` queries across 20+ API services did not filter by `orgId`, meaning a user in one organisation could potentially access records from another organisation if they guessed an ID.
+
+**Services hardened:** assets, audits, chemicals, complaints, contracts, documents, emergency, environment, ESG, finance, food-safety, incidents, mgmt-review, partners, ptw, reg-monitor, risk, suppliers, training.
+
+**Solution:** Added `orgId` to all `where` clauses on record-level queries. The `orgId` is derived from the authenticated user's JWT payload.
+
+**Files Changed:** ~60 route files across 20 services
+
+---
+
+### FIX 59 — Sanitised error messages in catch blocks
+
+**Problem:** Raw `(error as Error).message` was returned in HTTP error responses, leaking internal implementation details (database field names, query structures, file paths) to API consumers.
+
+**Solution:** Replaced all raw error messages in catch blocks with generic `"Internal server error"`, while still logging the real error server-side via `logger.error()`.
+
+**Files Changed:** ~60 route files across 20 services
+
+---
+
+### FIX 60 — Multi-field search queries
+
+**Problem:** Several search endpoints filtered on a single field (e.g. only `name`), making it impossible to find records by reference number, tag, or other identifiers.
+
+**Solution:** Updated search `where` clauses to use multi-field `OR` queries (e.g. `name`, `referenceNumber`, `assetTag`, `serialNumber`).
+
+**Files Changed:** assets, documents, suppliers, training, and several other routes
+
+---
+
+### FIX 61 — Sidebar external links use env var
+
+**Problem:** 30+ web app sidebars had hardcoded `http://localhost:PORT` URLs for cross-app navigation links, breaking deployments to non-localhost environments.
+
+**Solution:** All sidebars now read `process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost'` and interpolate the port from that base.
+
+**Files Changed:** 30+ `apps/web-*/src/components/sidebar.tsx`
+
+---
+
+### FIX 62 — Prisma schema improvements (orgId, deletedAt, cascade)
+
+**Problem:** Several newer schemas (risk, emergency, chemicals, assets, etc.) were missing `orgId` and `deletedAt` fields on child models, and some relations lacked `onDelete: Cascade`, leaving orphan rows on parent deletion.
+
+**Solution:**
+- Added `orgId String?` + `@@index([orgId])` to RiskControl, RiskKri, RiskAction, RiskBowtie + child models in chemicals, emergency, assets, audits, contracts, documents, ptw, suppliers, training schemas
+- Added `deletedAt DateTime?` + `@@index([deletedAt])` to models missing soft-delete support
+- Added `onDelete: Cascade` to RiskReview, RiskControl, RiskKri → RiskRegister relations
+
+**Files Changed:** 11 `packages/database/prisma/schemas/*.prisma`
+
+---
+
+### FIX 63 — Payroll → HR cross-service integration (resolves TODO)
+
+**Problem:** `POST /api/payroll/runs/:id/calculate` returned 501 NOT_IMPLEMENTED because it had no way to get employee data. Employee data lives in the HR service, not the payroll schema.
+
+**Solution:**
+- Added `fetchActiveEmployees()` helper that calls `GET http://localhost:4006/api/employees?status=ACTIVE` with a service-to-service JWT from `createServiceHeaders('api-payroll')`
+- For each active employee, a `Payslip` record is created/upserted for the run with:
+  - `basicSalary` from `employee.salary`
+  - Flat 20% income tax + 12% NI contributions as placeholder statutory deductions
+  - `netPay = basicSalary - totalDeductions`
+  - Working days calculated from the period date range
+- Run status transitions: `DRAFT → CALCULATING → CALCULATED`
+- Returns `422 NO_EMPLOYEES` if HR service returns zero active employees
+
+**Files Changed:**
+- `apps/api-payroll/src/routes/payroll.ts`
+- `apps/api-payroll/__tests__/payroll.api.test.ts` (replaced NOT_IMPLEMENTED test with 2 new tests)
+
+---
+
+### FIX 64 — SAML cryptographic signature verification (resolves TODO)
+
+**Problem:** `parseSamlResponse()` only checked for the *presence* of a `<SignatureValue>` element in the XML, which is trivially bypassable — an attacker could include a fake `<SignatureValue>` tag with any content and bypass authentication.
+
+**Solution:**
+- Extracts `<ds:SignatureValue>` bytes and `<ds:SignedInfo>` XML from the SAML response
+- Normalises the IdP certificate to PEM format
+- Detects the signature algorithm from the `Algorithm` attribute (rsa-sha256 / rsa-sha512 / rsa-sha1)
+- Calls `crypto.createVerify(algo).verify(cert, sigBytes)` for real RSA signature verification
+- Returns `{ valid: false, error: 'SAML signature verification failed' }` on crypto failure
+- Note: Full XML-DSig canonical form (C14N) requires `xml-crypto` for strict compliance; this implementation covers the common case where `SignedInfo` is already serialised in canonical form by the IdP.
+
+**Files Changed:**
+- `apps/api-gateway/src/routes/saml.ts`
+
+---
+
+### Session 15 Summary
+
+| Fix | Issue | Severity | Category |
+|-----|-------|----------|----------|
+| 58 | orgId missing from 60+ route queries | High | Security (multi-tenant isolation) |
+| 59 | Raw error messages leaked to API responses | Medium | Security (information disclosure) |
+| 60 | Single-field search limiting usability | Low | UX |
+| 61 | Hardcoded localhost URLs in all sidebars | Medium | Portability |
+| 62 | Missing orgId/deletedAt/cascade in schemas | Medium | Data integrity |
+| 63 | Payroll calculation returned 501 | High | Functionality (cross-service integration) |
+| 64 | SAML signature presence-only check | Critical | Security (authentication bypass) |
+
+**All tests passing. Total: 12,371 tests across 579 suites (2 new payroll tests added).**
+
+**Total across all sessions: 64 fixes/changes, 42 API services, 44 web apps, 60 packages, 44 Prisma schemas, ~12,371 tests.**

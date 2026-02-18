@@ -4,7 +4,37 @@ import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { checkOwnership, scopeToUser } from '@ims/service-auth';
+import { checkOwnership, scopeToUser, createServiceHeaders } from '@ims/service-auth';
+
+// HR service base URL for cross-service calls
+const HR_SERVICE_URL = process.env.HR_SERVICE_URL || 'http://localhost:4006';
+
+interface HREmployee {
+  id: string;
+  firstName: string;
+  lastName: string;
+  employeeNumber: string;
+  department?: { name: string } | null;
+  position?: { title: string } | null;
+  salary?: string | number | null;
+  currency?: string;
+  accountNumber?: string | null;
+  bankName?: string | null;
+}
+
+/**
+ * Fetch active employees from the HR service using service-to-service auth.
+ */
+async function fetchActiveEmployees(): Promise<HREmployee[]> {
+  const headers = { ...createServiceHeaders('api-payroll'), 'Content-Type': 'application/json' };
+  const url = `${HR_SERVICE_URL}/api/employees?status=ACTIVE&limit=500`;
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    throw new Error(`HR service returned ${res.status}: ${await res.text()}`);
+  }
+  const body = await res.json() as { success: boolean; data: HREmployee[] };
+  return body.data ?? [];
+}
 
 const logger = createLogger('api-payroll');
 
@@ -139,18 +169,82 @@ router.post('/runs/:id/calculate', checkOwnership(prisma.payrollRun), async (req
     });
     statusNeedsReset = true;
 
-    // TODO: Payroll calculation requires cross-service employee data integration.
-    // The payroll schema does not have an Employee model - employee data lives in the HR service.
-    // This endpoint needs to fetch employee data from the HR API before it can calculate payslips.
+    // Fetch active employees from the HR service
+    const employees = await fetchActiveEmployees();
+    if (employees.length === 0) {
+      await prisma.payrollRun.update({ where: { id: req.params.id }, data: { status: 'DRAFT' } });
+      statusNeedsReset = false;
+      return res.status(422).json({ success: false, error: { code: 'NO_EMPLOYEES', message: 'No active employees found in HR service' } });
+    }
 
-    // Revert status since we cannot proceed
-    await prisma.payrollRun.update({
+    // Calculate working days in the period
+    const periodStart = new Date(run.periodStart);
+    const periodEnd = new Date(run.periodEnd);
+    const msPerDay = 86400000;
+    const calendarDays = Math.round((periodEnd.getTime() - periodStart.getTime()) / msPerDay) + 1;
+    const workingDays = Math.round(calendarDays * (5 / 7));
+
+    // Create payslips for each employee in a single transaction
+    const payslipCount = await prisma.$transaction(async (tx) => {
+      let created = 0;
+      for (const emp of employees) {
+        const baseSalary = parseFloat(String(emp.salary ?? '0')) || 0;
+        const proratedSalary = baseSalary;           // full period — adjust for partial months if needed
+        const incomeTax = proratedSalary * 0.20;     // flat 20% income tax placeholder
+        const niContribution = proratedSalary * 0.12; // NI / social security placeholder
+        const totalDeductions = incomeTax + niContribution;
+        const netPay = proratedSalary - totalDeductions;
+        const currency = emp.currency ?? 'GBP';
+
+        const psCount = await tx.payslip.count({ where: { payrollRunId: run.id } });
+        const payslipNumber = `${run.runNumber}-${String(psCount + 1).padStart(4, '0')}`;
+
+        // Upsert: skip if already generated for this run/employee combination
+        await tx.payslip.upsert({
+          where: { payrollRunId_employeeId: { payrollRunId: run.id, employeeId: emp.id } },
+          update: {},
+          create: {
+            payslipNumber,
+            payrollRunId: run.id,
+            employeeId: emp.id,
+            periodStart: run.periodStart,
+            periodEnd: run.periodEnd,
+            payDate: run.payDate,
+            employeeName: `${emp.firstName} ${emp.lastName}`,
+            employeeNumber: emp.employeeNumber,
+            department: emp.department?.name ?? null,
+            position: emp.position?.title ?? null,
+            bankAccount: emp.accountNumber ?? null,
+            workingDays: workingDays,
+            paidDays: workingDays,
+            leaveDays: 0,
+            unpaidLeaveDays: 0,
+            overtimeHours: 0,
+            basicSalary: proratedSalary,
+            grossEarnings: proratedSalary,
+            incomeTax,
+            statutoryDeductions: niContribution,
+            totalDeductions,
+            netPay,
+            currency,
+            taxableIncome: proratedSalary,
+            status: 'CALCULATED',
+          },
+        });
+        created++;
+      }
+      return created;
+    });
+
+    // Mark run as CALCULATED
+    const updated = await prisma.payrollRun.update({
       where: { id: req.params.id },
-      data: { status: 'DRAFT' },
+      data: { status: 'CALCULATED' },
     });
     statusNeedsReset = false;
 
-    res.status(501).json({ success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Payroll calculation requires cross-service employee data integration' } });
+    logger.info('Payroll run calculated', { runId: run.id, payslipsCreated: payslipCount });
+    res.json({ success: true, data: { ...updated, payslipsCreated: payslipCount } });
   } catch (error) {
     logger.error('Error calculating payroll', { error: (error as Error).message });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to calculate payroll' } });

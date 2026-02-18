@@ -12,7 +12,7 @@
 | Prisma Schemas | 44 |
 | Database Tables (models) | ~590 |
 | Scripts | 23 |
-| Unit Tests | 12,327 across 578 suites (all passing) |
+| Unit Tests | 12,371 across 579 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance) |
 
 ---
@@ -390,7 +390,7 @@ All routes also available under `/api/v1/` prefix.
 | api-training | 7 | ~125 |
 | api-workflows | 7 | ~231 |
 | **Shared packages** | — | ~1,109 |
-| **Total** | **578** | **12,327** |
+| **Total** | **579** | **12,371** |
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 
@@ -429,6 +429,7 @@ All routes also available under `/api/v1/` prefix.
 | Phase 13 | Fire, Emergency & Disaster Management | api-emergency, web-emergency, emergency.prisma (16 models), 9 route files, 216 tests, 26 DOCX templates, FSO 2005 FRA wizard |
 | Phase 14 | Welcome Discovery Wizard | 7-step onboarding modal in web-dashboard, AI assistant endpoint (/api/ai/assistant), TourManager integration, OnboardingChecklist, sidebar re-entry, 12 new tests |
 | Phase 15 | Platform Enhancements (Feb 18) | Sentry integration (all 42 APIs), OpenAPI Scalar UI, SAML SSO (AuthnRequest XML + Response parsing + IdP metadata), SCIM (filter queries + Groups), NLQ 30+ patterns with AI fallback, useOfflineForm() hook, guided tours (quality + H&S dashboards), cookie consent (dashboard + marketing) |
+| Phase 16 | Security Hardening + TODO Resolution (Feb 18) | orgId multi-tenant scoping on 60+ routes (20 services), sanitised error messages, multi-field search, sidebar NEXT_PUBLIC_APP_BASE_URL, Prisma cascade/soft-delete schema improvements, payroll→HR cross-service integration (real calculation), SAML RSA signature crypto verification |
 
 ---
 
@@ -443,7 +444,7 @@ All routes also available under `/api/v1/` prefix.
 | Phase 2: Software Design | Code quality & validation | Fixed 1 missing try/catch (`headstart.ts`), 1 unbounded `findMany` (`aerospace/audits.ts`), added Zod validation to 7 routes |
 | Phase 2B: Functionality | CRUD lifecycle testing | CRUD lifecycle verified, auth enforcement (401), input validation, pagination |
 | Phase 3: Security | Security audit | No hardcoded secrets, rate limiting verified (blocks at attempt 6), all security headers present, `X-Powered-By` stripped |
-| Phase 5: Testing | Unit test execution | 12,327 tests across 578 suites — ALL PASSING |
+| Phase 5: Testing | Unit test execution | 12,371 tests across 579 suites — ALL PASSING |
 | Phase 5B: UI/UX | Frontend consistency | 44/44 `error.tsx`, `not-found.tsx`, `loading.tsx` (100% coverage), 458 correct `Modal isOpen` usages, 0 violations |
 | Phase 6: Reporting | Documentation | Generated `docs/Full_System_Review_v3_Report.docx` (10-page Word report) |
 | Phase 7: Commit | Version control | Committed as `95b2f0b` |

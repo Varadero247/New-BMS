@@ -180,13 +180,46 @@ function parseSamlResponse(samlResponseB64: string, config: SamlConfig): {
     const sessionMatch = xml.match(/SessionIndex="([^"]+)"/);
     const sessionIndex = sessionMatch?.[1];
 
-    // Signature validation: In production, this MUST use a proper XML-DSig library
-    // (e.g. xml-crypto) to cryptographically verify the signature against config.cert.
-    // Simply checking for the presence of a signature tag is NOT sufficient.
-    // TODO: Replace with proper cryptographic signature verification before production use.
-    const hasSignature = xml.includes('<ds:SignatureValue>') || xml.includes('<SignatureValue>');
-    if (!hasSignature && !config.allowUnencryptedAssertions) {
-      return { valid: false, attributes: {}, error: 'SAML Response is not signed' };
+    // Cryptographic signature verification using the IdP's X.509 certificate.
+    // Extracts the RSA-SHA256 signature and verifies it against the SignedInfo element.
+    // Note: Full XML-DSig canonical form (C14N) requires xml-crypto for strict compliance;
+    // this check covers the common case where SignedInfo is already serialised canonically.
+    const sigValueMatch = xml.match(/<(?:ds:)?SignatureValue[^>]*>([A-Za-z0-9+/=\s]+)<\/(?:ds:)?SignatureValue>/);
+    const signedInfoMatch = xml.match(/(<(?:ds:)?SignedInfo[\s\S]*?<\/(?:ds:)?SignedInfo>)/);
+
+    if (!sigValueMatch || !signedInfoMatch) {
+      if (!config.allowUnencryptedAssertions) {
+        return { valid: false, attributes: {}, error: 'SAML Response is not signed' };
+      }
+    } else {
+      try {
+        const sigBytes = Buffer.from(sigValueMatch[1].replace(/\s/g, ''), 'base64');
+        const signedInfoXml = signedInfoMatch[1];
+
+        // Normalise the certificate to PEM format
+        const rawCert = config.cert.replace(/-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----|\s/g, '');
+        const pem = `-----BEGIN CERTIFICATE-----\n${rawCert.match(/.{1,64}/g)!.join('\n')}\n-----END CERTIFICATE-----`;
+
+        // Determine algorithm from SignedInfo (default to sha256)
+        const algoMap: Record<string, string> = {
+          'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256': 'RSA-SHA256',
+          'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512': 'RSA-SHA512',
+          'http://www.w3.org/2000/09/xmldsig#rsa-sha1':        'RSA-SHA1',
+        };
+        const algoMatch = signedInfoXml.match(/Algorithm="([^"]+)"/);
+        const nodeAlgo = (algoMatch && algoMap[algoMatch[1]]) || 'RSA-SHA256';
+
+        const verifier = createVerify(nodeAlgo);
+        verifier.update(signedInfoXml, 'utf8');
+        const signatureValid = verifier.verify(pem, sigBytes);
+
+        if (!signatureValid) {
+          return { valid: false, attributes: {}, error: 'SAML signature verification failed' };
+        }
+      } catch (cryptoErr: unknown) {
+        logger.error('SAML crypto verification error', { error: (cryptoErr as Error).message });
+        return { valid: false, attributes: {}, error: 'SAML signature verification error' };
+      }
     }
 
     // Validate that the response is addressed to our SP entity

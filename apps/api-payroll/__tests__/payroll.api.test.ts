@@ -16,6 +16,7 @@ jest.mock('../src/prisma', () => {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
+      upsert: jest.fn(),
       updateMany: jest.fn(),
       count: jest.fn(),
     },
@@ -36,6 +37,7 @@ jest.mock('@ims/auth', () => ({
 jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
   scopeToUser: (_req: any, _res: any, next: any) => next(),
+  createServiceHeaders: jest.fn(() => ({ 'X-Service-Token': 'mock-token' })),
 }));
 
 jest.mock('@ims/monitoring', () => ({
@@ -310,21 +312,62 @@ describe('Payroll API Routes', () => {
       expect(response.body.error.code).toBe('NOT_FOUND');
     });
 
-    it('should return 501 for calculate (requires cross-service integration)', async () => {
-      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce({
+    it('should calculate payroll run using HR employee data', async () => {
+      const fakeRun = {
         id: '35000000-0000-4000-a000-000000000001',
         runNumber: 'PAY-2024-0001',
         periodStart: new Date('2024-01-01'),
         periodEnd: new Date('2024-01-31'),
         payDate: new Date('2024-02-01'),
-      } as any);
-      mockPrisma.payrollRun.update.mockResolvedValue({} as any);
+      };
+      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(fakeRun as any);
+      mockPrisma.payrollRun.update.mockResolvedValue({ ...fakeRun, status: 'CALCULATED' } as any);
+      mockPrisma.$transaction.mockImplementation(async (fn: any) => fn(mockPrisma));
+      mockPrisma.payslip.count.mockResolvedValue(0);
+      mockPrisma.payslip.upsert.mockResolvedValue({} as any);
+
+      const mockEmployees = [
+        { id: 'emp-1', firstName: 'Alice', lastName: 'Smith', employeeNumber: 'EMP-001',
+          department: { name: 'Engineering' }, position: { title: 'Developer' },
+          salary: '60000', currency: 'GBP', accountNumber: '12345678' },
+      ];
+      const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, data: mockEmployees }),
+      } as Response);
 
       const response = await request(app)
         .post('/api/payroll/runs/35000000-0000-4000-a000-000000000001/calculate');
 
-      expect(response.status).toBe(501);
-      expect(response.body.error.code).toBe('NOT_IMPLEMENTED');
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.status).toBe('CALCULATED');
+      expect(response.body.data.payslipsCreated).toBe(1);
+      fetchMock.mockRestore();
+    });
+
+    it('should return 422 when HR service returns no active employees', async () => {
+      const fakeRun = {
+        id: '35000000-0000-4000-a000-000000000001',
+        runNumber: 'PAY-2024-0001',
+        periodStart: new Date('2024-01-01'),
+        periodEnd: new Date('2024-01-31'),
+        payDate: new Date('2024-02-01'),
+      };
+      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(fakeRun as any);
+      mockPrisma.payrollRun.update.mockResolvedValue({} as any);
+
+      const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, data: [] }),
+      } as Response);
+
+      const response = await request(app)
+        .post('/api/payroll/runs/35000000-0000-4000-a000-000000000001/calculate');
+
+      expect(response.status).toBe(422);
+      expect(response.body.error.code).toBe('NO_EMPLOYEES');
+      fetchMock.mockRestore();
     });
 
     it('should handle database errors and set status to ERROR', async () => {
