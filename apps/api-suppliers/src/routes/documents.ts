@@ -11,7 +11,7 @@ const createSchema = z.object({
   type: z.enum(['CERTIFICATE', 'LICENSE', 'INSURANCE', 'AUDIT_REPORT', 'QUALITY_MANUAL', 'OTHER']).optional(),
   title: z.string().min(1, 'Title is required'),
   fileUrl: z.string().trim().url('Invalid URL').optional(),
-  expiryDate: z.string().trim().datetime().optional().or(z.null()),
+  expiryDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   isVerified: z.boolean().optional(),
   verifiedBy: z.string().optional(),
   notes: z.string().optional(),

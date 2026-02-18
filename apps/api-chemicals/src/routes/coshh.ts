@@ -57,8 +57,8 @@ const createCoshhSchema = z.object({
   substitutionOutcome: z.string().optional(),
   assessorName: z.string().optional(),
   assessorJobTitle: z.string().optional(),
-  assessmentDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime()),
-  reviewDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime()),
+  assessmentDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
+  reviewDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
   reviewTriggers: z.array(z.string()).optional(),
 });
 

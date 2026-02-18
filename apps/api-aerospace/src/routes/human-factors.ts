@@ -59,13 +59,13 @@ const createIncidentSchema = z.object({
   rootCause: z.string().optional(),
   correctiveAction: z.string().optional(),
   capaRef: z.string().optional(),
-  incidentDate: z.string().trim().datetime({ message: 'Valid ISO date required for incidentDate' }),
+  incidentDate: z.string().trim().datetime({ offset: true, message: 'Valid ISO date required for incidentDate' }),
 });
 
 const createFatigueSchema = z.object({
   personnelId: z.string().min(1, 'Personnel ID is required'),
   personnelName: z.string().min(1, 'Personnel name is required'),
-  assessmentDate: z.string().trim().datetime({ message: 'Valid ISO date required for assessmentDate' }),
+  assessmentDate: z.string().trim().datetime({ offset: true, message: 'Valid ISO date required for assessmentDate' }),
   hoursWorked: z.number().min(0, 'Hours worked must be non-negative'),
   restHours: z.number().min(0, 'Rest hours must be non-negative'),
   fatigueScore: z.number().int().min(1, 'Fatigue score must be at least 1').max(10, 'Fatigue score must be at most 10'),

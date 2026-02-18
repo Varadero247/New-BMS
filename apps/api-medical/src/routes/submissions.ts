@@ -66,9 +66,9 @@ const createSubmissionSchema = z.object({
 
 const updateSubmissionSchema = z.object({
   status: z.enum(SUBMISSION_STATUSES).optional(),
-  submittedDate: z.string().trim().datetime().optional(),
-  approvalDate: z.string().trim().datetime().optional(),
-  expiryDate: z.string().trim().datetime().optional(),
+  submittedDate: z.string().trim().datetime({ offset: true }).optional(),
+  approvalDate: z.string().trim().datetime({ offset: true }).optional(),
+  expiryDate: z.string().trim().datetime({ offset: true }).optional(),
   referenceNumber: z.string().optional(),
   conditions: z.string().optional(),
 });
@@ -76,7 +76,7 @@ const updateSubmissionSchema = z.object({
 const createChangeSchema = z.object({
   changeType: z.string().min(1, 'Change type is required'),
   description: z.string().min(1, 'Description is required'),
-  notificationDate: z.string().trim().datetime().optional(),
+  notificationDate: z.string().trim().datetime({ offset: true }).optional(),
 });
 
 // ============================================

@@ -15,7 +15,7 @@ const createIncidentSchema = z.object({
   chemicalId: z.string().trim().min(1).max(200),
   incidentType: incidentTypeEnum,
   severity: severityEnum,
-  dateTime: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime()),
+  dateTime: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
   location: z.string().min(1, 'location is required'),
   description: z.string().min(1, 'description is required'),
   personsInvolved: z.array(z.string()).optional(),

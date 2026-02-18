@@ -12,9 +12,9 @@ const createSchema = z.object({
   employeeName: z.string().optional(),
   currentLevel: z.enum(['NOT_STARTED', 'DEVELOPING', 'COMPETENT', 'EXPERT', 'EXPIRED']).optional(),
   targetLevel: z.enum(['NOT_STARTED', 'DEVELOPING', 'COMPETENT', 'EXPERT', 'EXPIRED']).optional(),
-  assessedDate: z.string().trim().datetime().optional().or(z.null()),
+  assessedDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   assessedBy: z.string().optional(),
-  nextReviewDate: z.string().trim().datetime().optional().or(z.null()),
+  nextReviewDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   gap: z.boolean().optional(),
   notes: z.string().optional(),
 });

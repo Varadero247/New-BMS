@@ -108,6 +108,7 @@ router.get('/active', async (_req: Request, res: Response) => {
         cancelledAt: null,
       },
       orderBy: { createdAt: 'desc' },
+      take: 1000,
     });
 
     res.json({ success: true, data: { sequences, total: sequences.length } });

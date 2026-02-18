@@ -18,8 +18,8 @@ const createSchema = z.object({
   mimeType: z.string().optional(),
   owner: z.string().optional(),
   ownerName: z.string().optional(),
-  reviewDate: z.string().trim().datetime().optional().or(z.null()),
-  retentionDate: z.string().trim().datetime().optional().or(z.null()),
+  reviewDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
+  retentionDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   tags: z.array(z.string()).optional(),
   notes: z.string().optional(),
 });

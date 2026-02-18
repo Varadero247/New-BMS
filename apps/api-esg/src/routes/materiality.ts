@@ -43,6 +43,7 @@ router.get('/matrix', async (req: Request, res: Response) => {
     const topics = await prisma.esgMateriality.findMany({
       where: { deletedAt: null } as any,
       orderBy: { importanceToStakeholders: 'desc' },
+      take: 500,
     });
 
     const matrix = topics.map((t: Record<string, any>) => ({

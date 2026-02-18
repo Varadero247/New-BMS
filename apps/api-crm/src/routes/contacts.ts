@@ -35,7 +35,7 @@ const activitySchema = z.object({
   type: z.enum(['CALL', 'EMAIL', 'MEETING', 'NOTE', 'TASK']),
   subject: z.string().min(1, 'Subject is required'),
   description: z.string().optional(),
-  dueDate: z.string().trim().datetime().optional(),
+  dueDate: z.string().trim().datetime({ offset: true }).optional(),
   duration: z.number().int().positive().optional(),
   outcome: z.string().optional(),
 });

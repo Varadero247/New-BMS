@@ -332,7 +332,7 @@ router.post('/requests', async (req: Request, res: Response) => {
       entityData: z.record(z.unknown()).optional(),
       approvalChainId: z.string().optional(),
       totalLevels: z.number().int().min(1).default(1),
-      dueDate: z.string().trim().datetime().optional(),
+      dueDate: z.string().trim().datetime({ offset: true }).optional(),
     });
 
     const data = schema.parse(req.body);

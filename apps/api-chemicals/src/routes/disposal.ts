@@ -11,7 +11,7 @@ const createDisposalSchema = z.object({
   chemicalId: z.string().trim().min(1).max(200),
   quantityDisposed: z.number().min(0),
   unit: z.string().trim().min(1).max(200),
-  disposalDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime()),
+  disposalDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
   disposalMethod: z.string().min(1, 'disposalMethod is required'),
   wasteContractorName: z.string().optional(),
   consignmentNoteRef: z.string().optional(),

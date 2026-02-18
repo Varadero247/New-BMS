@@ -11,9 +11,9 @@ const sdsStatusEnum = z.enum(['CURRENT', 'UNDER_REVIEW', 'SUPERSEDED', 'MISSING'
 
 const createSdsSchema = z.object({
   version: z.string().trim().min(1).max(200),
-  issueDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime()),
-  revisionDate: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime().optional()),
-  nextReviewDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime()),
+  issueDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
+  revisionDate: z.string().trim().datetime({ offset: true }).optional().or(z.string().trim().datetime({ offset: true }).optional()),
+  nextReviewDate: z.string().trim().datetime({ offset: true }).or(z.string().trim().datetime({ offset: true })),
   status: sdsStatusEnum.optional(),
   documentRef: z.string().optional(),
   productUseDescription: z.string().optional(),

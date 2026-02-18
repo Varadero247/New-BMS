@@ -13,7 +13,7 @@ const createSchema = z.object({
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   identifiedGap: z.string().optional(),
   recommendedTraining: z.string().optional(),
-  targetDate: z.string().trim().datetime().optional().or(z.null()),
+  targetDate: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
   status: z.enum(['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'CANCELLED']).optional(),
   assignee: z.string().optional(),
   assigneeName: z.string().optional(),

@@ -11,8 +11,8 @@ const createSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   userName: z.string().optional(),
   status: z.enum(['UNREAD', 'READ', 'ACKNOWLEDGED']).optional(),
-  readAt: z.string().trim().datetime().optional().or(z.null()),
-  acknowledgedAt: z.string().trim().datetime().optional().or(z.null()),
+  readAt: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
+  acknowledgedAt: z.string().trim().datetime({ offset: true }).optional().or(z.null()),
 });
 const updateSchema = createSchema.partial();
 
