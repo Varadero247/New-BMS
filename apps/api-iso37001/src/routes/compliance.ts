@@ -293,7 +293,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.abCompliance.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
+      data: { deletedAt: new Date() },
     });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {

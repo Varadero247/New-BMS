@@ -39,7 +39,7 @@ async function generateRefNumber(): Promise<string> {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const prefix = `HS-COMM-${yy}${mm}`;
-  const count = await prisma.hsCommunication.count({
+  const count = await prisma.hSCommunication.count({
     where: { refNumber: { startsWith: prefix } },
   });
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
@@ -71,7 +71,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const data = schema.parse(req.body);
     const refNumber = await generateRefNumber();
 
-    const communication = await prisma.hsCommunication.create({
+    const communication = await prisma.hSCommunication.create({
       data: {
         refNumber,
         subject: data.subject,
@@ -149,13 +149,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      prisma.hsCommunication.findMany({
+      prisma.hSCommunication.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.hsCommunication.count({ where }),
+      prisma.hSCommunication.count({ where }),
     ]);
 
     res.json({
@@ -186,8 +186,8 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
     const where: Record<string, unknown> = { deletedAt: null };
 
     const [total, communications] = await Promise.all([
-      prisma.hsCommunication.count({ where }),
-      prisma.hsCommunication.findMany({
+      prisma.hSCommunication.count({ where }),
+      prisma.hSCommunication.findMany({
         where,
         select: { type: true, direction: true, status: true, createdAt: true } as any,
         take: 1000,
@@ -241,10 +241,10 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
 
 router.get(
   '/:id',
-  checkOwnership(prisma.hsCommunication),
+  checkOwnership(prisma.hSCommunication),
   async (req: AuthRequest, res: Response) => {
     try {
-      const communication = await prisma.hsCommunication.findUnique({
+      const communication = await prisma.hSCommunication.findUnique({
         where: { id: req.params.id },
       });
 
@@ -272,10 +272,10 @@ router.get(
 
 router.put(
   '/:id',
-  checkOwnership(prisma.hsCommunication),
+  checkOwnership(prisma.hSCommunication),
   async (req: AuthRequest, res: Response) => {
     try {
-      const existing = await prisma.hsCommunication.findUnique({ where: { id: req.params.id } });
+      const existing = await prisma.hSCommunication.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
         return res.status(404).json({
           success: false,
@@ -317,7 +317,7 @@ router.put(
       if (data.scheduledDate !== undefined) updateData.scheduledDate = new Date(data.scheduledDate);
       if (data.outcome !== undefined) updateData.outcome = data.outcome;
 
-      const communication = await prisma.hsCommunication.update({
+      const communication = await prisma.hSCommunication.update({
         where: { id: req.params.id },
         data: updateData,
       });
@@ -349,10 +349,10 @@ router.put(
 
 router.delete(
   '/:id',
-  checkOwnership(prisma.hsCommunication),
+  checkOwnership(prisma.hSCommunication),
   async (req: AuthRequest, res: Response) => {
     try {
-      const existing = await prisma.hsCommunication.findUnique({ where: { id: req.params.id } });
+      const existing = await prisma.hSCommunication.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
         return res.status(404).json({
           success: false,
@@ -360,7 +360,7 @@ router.delete(
         });
       }
 
-      await prisma.hsCommunication.update({
+      await prisma.hSCommunication.update({
         where: { id: req.params.id },
         data: { deletedAt: new Date(), deletedBy: req.user!.id } as any,
       });

@@ -289,7 +289,7 @@ router.post(
       const loan = await prisma.employeeLoan.findUnique({ where: { id: req.params.id } });
       if (loan) {
         const newBalance = Number(loan.remainingBalance) - paidAmount;
-        const newRepaid = loan.repaidAmount + paidAmount;
+        const newRepaid = Number(loan.repaidAmount) + paidAmount;
 
         await prisma.employeeLoan.update({
           where: { id: req.params.id },

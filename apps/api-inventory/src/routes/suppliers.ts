@@ -249,7 +249,7 @@ router.delete('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, 
 
     await prisma.supplier.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
+      data: { deletedAt: new Date(), updatedById: (req as AuthRequest).user?.id },
     });
 
     res.status(204).send();

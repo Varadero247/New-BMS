@@ -249,7 +249,7 @@ describe('Environment Audits API Routes', () => {
       expect(response.body.data).toHaveLength(2);
       expect(mockPrisma.envAuditSchedule.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { active: true },
+          where: { isActive: true },
           orderBy: { nextDueDate: 'asc' },
         })
       );

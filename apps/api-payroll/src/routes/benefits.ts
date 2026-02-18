@@ -180,8 +180,8 @@ router.put(
         where: { id: req.params.id },
         data: {
           status: 'TERMINATED',
-          terminationDate: new Date(terminationDate),
-          effectiveTo: new Date(terminationDate),
+          terminationDate: terminationDate ? new Date(terminationDate) : new Date(),
+          effectiveTo: terminationDate ? new Date(terminationDate) : new Date(),
         },
       });
 

@@ -79,20 +79,18 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
 
       // Action counts
       Promise.all([
-        prisma.action.count({ where: { deletedAt: null } }),
+        prisma.action.count(),
         prisma.action.count({
-          where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS'] } },
+          where: { status: { in: ['OPEN', 'IN_PROGRESS'] } },
         }),
         prisma.action.count({
           where: {
-            deletedAt: null,
             status: { in: ['OPEN', 'IN_PROGRESS'] },
             dueDate: { lt: now },
           },
         }),
         prisma.action.count({
           where: {
-            deletedAt: null,
             status: { in: ['OPEN', 'IN_PROGRESS'] },
             dueDate: { gte: now, lte: weekFromNow },
           },

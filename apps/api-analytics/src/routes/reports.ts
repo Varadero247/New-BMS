@@ -191,7 +191,7 @@ router.post('/:id/run', async (req: Request, res: Response) => {
       data: {
         reportId: id,
         status: 'QUEUED',
-        parameters: runParsed.data.parameters ?? null,
+        parameters: (runParsed.data.parameters ?? null) as any,
         createdBy: authReq.user!.id,
       },
     });

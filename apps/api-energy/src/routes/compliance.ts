@@ -354,7 +354,7 @@ router.put('/:id/assess', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const _schema = z.object({
-      status: z.string().trim().min(1),
+      status: z.enum(['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT']),
       notes: z.string().trim().optional(),
     });
     const _parsed = _schema.safeParse(req.body);

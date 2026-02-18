@@ -227,7 +227,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.crmContact.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
+      data: { deletedAt: new Date() },
     });
 
     logger.info('Contact soft deleted', { contactId: req.params.id });
