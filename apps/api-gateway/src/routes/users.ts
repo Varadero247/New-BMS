@@ -267,6 +267,11 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
       delete data.isActive;
     }
 
+    const existing = await prisma.user.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'User not found' } });
+    }
+
     const user = await prisma.user.update({
       where: { id },
       data,

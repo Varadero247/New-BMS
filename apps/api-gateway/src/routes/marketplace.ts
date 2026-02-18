@@ -179,6 +179,10 @@ router.post('/plugins', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: AuthReq
 // ---------------------------------------------------------------------------
 router.patch('/plugins/:id', requireRole('ADMIN', 'SUPER_ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
+    const existing = await (prisma as any).mktPlugin.findUnique({ where: { id: req.params.id } });
+    if (!existing || existing.deletedAt) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Plugin not found' } });
+    }
     const data = updatePluginSchema.parse(req.body);
     const plugin = await (prisma as any).mktPlugin.update({
       where: { id: req.params.id },

@@ -203,6 +203,9 @@ router.put('/:id/disburse', checkOwnership(prisma.employeeLoan), async (req: Req
 router.post('/:id/repayments/:repaymentId/pay', checkOwnership(prisma.employeeLoan), async (req: Request, res: Response) => {
   try {
     const { paidAmount, paymentMethod } = req.body;
+    if (typeof paidAmount !== 'number' || paidAmount <= 0) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'paidAmount must be a positive number' } });
+    }
 
     const repayment = await prisma.loanRepayment.update({
       where: { id: req.params.repaymentId },

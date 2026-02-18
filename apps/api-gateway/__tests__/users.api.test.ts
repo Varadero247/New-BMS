@@ -290,6 +290,7 @@ describe('Users API Routes', () => {
 
   describe('PATCH /api/users/:id', () => {
     it('should update own profile', async () => {
+      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: '20000000-0000-4000-a000-000000000123' } as any);
       mockPrisma.user.update.mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         firstName: 'Updated',
@@ -306,6 +307,7 @@ describe('Users API Routes', () => {
 
     it('should allow admin to update any user', async () => {
       mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: '55000000-0000-4000-a000-000000000001' } as any);
       mockPrisma.user.update.mockResolvedValueOnce({
         id: '55000000-0000-4000-a000-000000000001',
         firstName: 'Updated',
@@ -331,6 +333,7 @@ describe('Users API Routes', () => {
     });
 
     it('should not allow non-admin to change role', async () => {
+      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: '20000000-0000-4000-a000-000000000123' } as any);
       mockPrisma.user.update.mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         role: 'USER',
@@ -350,6 +353,7 @@ describe('Users API Routes', () => {
 
     it('should allow admin to change role', async () => {
       mockUser = { id: '51000000-0000-4000-a000-000000000123', email: 'admin@test.com', role: 'ADMIN' };
+      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: '20000000-0000-4000-a000-000000000123' } as any);
       mockPrisma.user.update.mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         role: 'MANAGER',
