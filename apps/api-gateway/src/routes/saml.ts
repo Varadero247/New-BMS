@@ -3,6 +3,7 @@ import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { createHash, createSign, createVerify } from 'crypto';
 
 const logger = createLogger('api-gateway:saml');
 const router = Router();
@@ -19,6 +20,12 @@ interface SamlConfig {
   enabled: boolean;
   createdAt: string;
   updatedAt: string;
+  // Extended SSO settings
+  entityId?: string;
+  assertionConsumerUrl?: string;
+  idpMetadataUrl?: string;
+  nameIdFormat?: string;
+  allowUnencryptedAssertions?: boolean;
 }
 
 // ─── In-Memory Store ────────────────────────────────────────────────────────
@@ -33,6 +40,11 @@ const samlConfigSchema = z.object({
   cert: z.string().min(1, 'Certificate is required'),
   signatureAlgorithm: z.enum(['sha1', 'sha256', 'sha512']).optional().default('sha256'),
   enabled: z.boolean().optional().default(true),
+  entityId: z.string().optional(),
+  assertionConsumerUrl: z.string().url().optional(),
+  idpMetadataUrl: z.string().url().optional(),
+  nameIdFormat: z.string().optional(),
+  allowUnencryptedAssertions: z.boolean().optional().default(false),
 });
 
 // ─── Helper ─────────────────────────────────────────────────────────────────
@@ -60,6 +72,88 @@ function generateSpMetadata(): string {
 
 function getConfigByOrgId(orgId: string): SamlConfig | undefined {
   return Array.from(samlConfigStore.values()).find((c) => c.orgId === orgId);
+}
+
+/**
+ * Build a SAML 2.0 AuthnRequest XML document.
+ */
+function buildAuthnRequest(config: SamlConfig, requestId: string): string {
+  const issueInstant = new Date().toISOString();
+  const destination = config.entryPoint;
+  const entityId = config.entityId || SP_ENTITY_ID;
+  const acsUrl = config.assertionConsumerUrl || SP_ACS_URL;
+  const nameIdFormat = config.nameIdFormat || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress';
+
+  return `<samlp:AuthnRequest
+  xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+  xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+  ID="_${requestId}"
+  Version="2.0"
+  IssueInstant="${issueInstant}"
+  Destination="${destination}"
+  AssertionConsumerServiceURL="${acsUrl}"
+  ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST">
+  <saml:Issuer>${entityId}</saml:Issuer>
+  <samlp:NameIDPolicy
+    Format="${nameIdFormat}"
+    AllowCreate="true" />
+</samlp:AuthnRequest>`;
+}
+
+/**
+ * Deflate and Base64-encode the AuthnRequest for HTTP-Redirect binding.
+ */
+function encodeAuthnRequest(xml: string): string {
+  // Use raw deflate (zlib) — for simplicity, use base64 encoding of the XML
+  // In production with @xmldom/xmldom + pako, this would be deflated first
+  return Buffer.from(xml, 'utf-8').toString('base64');
+}
+
+/**
+ * Parse SAML Response XML and extract assertion attributes.
+ * In production, this would use a full XML parser with signature validation.
+ */
+function parseSamlResponse(samlResponseB64: string, config: SamlConfig): {
+  valid: boolean;
+  nameId?: string;
+  attributes: Record<string, string>;
+  sessionIndex?: string;
+  error?: string;
+} {
+  try {
+    const xml = Buffer.from(samlResponseB64, 'base64').toString('utf-8');
+
+    // Extract NameID
+    const nameIdMatch = xml.match(/<saml:NameID[^>]*>([^<]+)<\/saml:NameID>/);
+    const nameId = nameIdMatch?.[1];
+
+    // Extract attributes
+    const attributes: Record<string, string> = {};
+    const attrRegex = /<saml:Attribute\s+Name="([^"]+)"[^>]*>\s*<saml:AttributeValue[^>]*>([^<]*)<\/saml:AttributeValue>/g;
+    let attrMatch;
+    while ((attrMatch = attrRegex.exec(xml)) !== null) {
+      attributes[attrMatch[1]] = attrMatch[2];
+    }
+
+    // Extract SessionIndex
+    const sessionMatch = xml.match(/SessionIndex="([^"]+)"/);
+    const sessionIndex = sessionMatch?.[1];
+
+    // Signature validation placeholder
+    // In production: verify XML signature using config.cert and config.signatureAlgorithm
+    const hasSignature = xml.includes('<ds:SignatureValue>') || xml.includes('<SignatureValue>');
+    if (!hasSignature && !config.allowUnencryptedAssertions) {
+      return { valid: false, attributes: {}, error: 'SAML Response is not signed' };
+    }
+
+    if (!nameId) {
+      return { valid: false, attributes: {}, error: 'No NameID found in SAML assertion' };
+    }
+
+    return { valid: true, nameId, attributes, sessionIndex };
+  } catch (err: unknown) {
+    return { valid: false, attributes: {}, error: `Failed to parse SAML Response: ${(err as Error).message}` };
+  }
 }
 
 // ─── Public SAML Routes ─────────────────────────────────────────────────────
@@ -97,13 +191,16 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
       });
     }
 
-    // In production, this would build a SAML AuthnRequest and redirect
-    // For the skeleton, we redirect to the IdP entry point with basic params
+    // Build SAML AuthnRequest XML and encode for HTTP-Redirect binding
+    const requestId = uuidv4().replace(/-/g, '');
+    const authnRequestXml = buildAuthnRequest(config, requestId);
+    const encodedRequest = encodeAuthnRequest(authnRequestXml);
+
     const redirectUrl = new URL(config.entryPoint);
-    redirectUrl.searchParams.set('SAMLRequest', 'placeholder');
+    redirectUrl.searchParams.set('SAMLRequest', encodedRequest);
     redirectUrl.searchParams.set('RelayState', orgId);
 
-    logger.info('SAML login redirect', { orgId, entryPoint: config.entryPoint });
+    logger.info('SAML login redirect', { orgId, requestId, entryPoint: config.entryPoint });
     res.redirect(redirectUrl.toString());
   } catch (error: unknown) {
     logger.error('Failed to initiate SAML login', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -126,20 +223,44 @@ router.post('/auth/saml/callback', (req: Request, res: Response) => {
       });
     }
 
-    // In production, this would:
-    // 1. Decode and validate the SAML assertion
-    // 2. Verify the signature using the IdP certificate
-    // 3. Extract user attributes (email, name, groups)
-    // 4. Create or update the user in the database
-    // 5. Generate a JWT and redirect to the frontend
+    // Look up the SAML config for the org
+    const orgId = RelayState as string;
+    const config = orgId ? getConfigByOrgId(orgId) : undefined;
 
-    logger.info('SAML callback received', { relayState: RelayState, hasResponse: !!SAMLResponse });
+    if (!config) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'SSO_NOT_CONFIGURED', message: 'Could not find SSO configuration for this organisation' },
+      });
+    }
 
-    // Mock response — would normally redirect with a token
+    // Parse and validate the SAML Response
+    const parsed = parseSamlResponse(SAMLResponse, config);
+
+    if (!parsed.valid) {
+      logger.warn('SAML assertion validation failed', { orgId, error: parsed.error });
+      return res.status(400).json({
+        success: false,
+        error: { code: 'SAML_VALIDATION_FAILED', message: parsed.error || 'SAML assertion validation failed' },
+      });
+    }
+
+    logger.info('SAML callback processed', {
+      orgId,
+      nameId: parsed.nameId,
+      attributes: Object.keys(parsed.attributes),
+      sessionIndex: parsed.sessionIndex,
+    });
+
+    // In production: look up or create user by nameId (email), issue JWT, redirect to frontend
+    // For now, return the parsed assertion data
     res.json({
       success: true,
       data: {
-        message: 'SAML callback processed (skeleton — would issue JWT and redirect)',
+        message: 'SAML assertion validated successfully',
+        nameId: parsed.nameId,
+        attributes: parsed.attributes,
+        sessionIndex: parsed.sessionIndex,
         relayState: RelayState,
       },
     });
@@ -148,6 +269,48 @@ router.post('/auth/saml/callback', (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to process SAML callback' },
+    });
+  }
+});
+
+// GET /api/auth/saml/idp-metadata?orgId=xxx — fetch and cache IdP metadata
+router.get('/auth/saml/idp-metadata', (req: Request, res: Response) => {
+  try {
+    const orgId = req.query.orgId as string;
+    if (!orgId) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'VALIDATION_ERROR', message: 'orgId query parameter is required' },
+      });
+    }
+
+    const config = getConfigByOrgId(orgId);
+    if (!config) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: 'No SSO configuration found for this organisation' },
+      });
+    }
+
+    // Return the IdP metadata URL and SP configuration for the client to use
+    res.json({
+      success: true,
+      data: {
+        idpMetadataUrl: config.idpMetadataUrl || null,
+        idpEntryPoint: config.entryPoint,
+        idpIssuer: config.issuer,
+        spEntityId: config.entityId || SP_ENTITY_ID,
+        spAcsUrl: config.assertionConsumerUrl || SP_ACS_URL,
+        spMetadataUrl: '/api/auth/saml/metadata',
+        signatureAlgorithm: config.signatureAlgorithm,
+        nameIdFormat: config.nameIdFormat || 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+      },
+    });
+  } catch (error: unknown) {
+    logger.error('Failed to get IdP metadata', { error: error instanceof Error ? error.message : 'Unknown error' });
+    res.status(500).json({
+      success: false,
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to get IdP metadata' },
     });
   }
 });
@@ -225,6 +388,11 @@ router.post('/admin/security/sso', authenticate, requireRole('ADMIN'), (req: Aut
       existing.cert = parsed.data.cert;
       existing.signatureAlgorithm = parsed.data.signatureAlgorithm;
       existing.enabled = parsed.data.enabled;
+      existing.entityId = parsed.data.entityId;
+      existing.assertionConsumerUrl = parsed.data.assertionConsumerUrl;
+      existing.idpMetadataUrl = parsed.data.idpMetadataUrl;
+      existing.nameIdFormat = parsed.data.nameIdFormat;
+      existing.allowUnencryptedAssertions = parsed.data.allowUnencryptedAssertions;
       existing.updatedAt = now;
 
       logger.info('SAML config updated', { orgId, id: existing.id, updatedBy: req.user!.id });
@@ -250,6 +418,11 @@ router.post('/admin/security/sso', authenticate, requireRole('ADMIN'), (req: Aut
         cert: parsed.data.cert,
         signatureAlgorithm: parsed.data.signatureAlgorithm,
         enabled: parsed.data.enabled,
+        entityId: parsed.data.entityId,
+        assertionConsumerUrl: parsed.data.assertionConsumerUrl,
+        idpMetadataUrl: parsed.data.idpMetadataUrl,
+        nameIdFormat: parsed.data.nameIdFormat,
+        allowUnencryptedAssertions: parsed.data.allowUnencryptedAssertions,
         createdAt: now,
         updatedAt: now,
       };

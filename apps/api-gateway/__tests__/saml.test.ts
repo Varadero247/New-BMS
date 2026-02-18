@@ -83,13 +83,41 @@ describe('SAML Routes', () => {
       expect(res.body.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('processes SAML callback with SAMLResponse', async () => {
+    it('returns 400 when org has no SSO config', async () => {
+      const samlB64 = Buffer.from('<saml>test</saml>').toString('base64');
       const res = await request(app)
         .post('/auth/saml/callback')
-        .send({ SAMLResponse: 'base64-encoded-assertion', RelayState: 'org-1' });
+        .send({ SAMLResponse: samlB64, RelayState: 'unknown-org' });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('SSO_NOT_CONFIGURED');
+    });
+
+    it('processes SAML callback with valid SAMLResponse', async () => {
+      // First create a SAML config for callback-test-org
+      mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+        req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'callback-test-org' };
+        next();
+      });
+      await request(app)
+        .post('/admin/security/sso')
+        .send({
+          entryPoint: 'https://idp.example.com/sso',
+          issuer: 'https://idp.example.com',
+          cert: 'MIIC...',
+          allowUnencryptedAssertions: true,
+        });
+
+      // Build a minimal SAML response with NameID
+      const samlXml = '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"><saml:Assertion><saml:Subject><saml:NameID>admin@ims.local</saml:NameID></saml:Subject></saml:Assertion></samlp:Response>';
+      const samlB64 = Buffer.from(samlXml).toString('base64');
+
+      const res = await request(app)
+        .post('/auth/saml/callback')
+        .send({ SAMLResponse: samlB64, RelayState: 'callback-test-org' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data).toHaveProperty('relayState', 'org-1');
+      expect(res.body.data).toHaveProperty('relayState', 'callback-test-org');
+      expect(res.body.data).toHaveProperty('nameId', 'admin@ims.local');
     });
   });
 
