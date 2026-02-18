@@ -335,10 +335,9 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
       take: 200,
     });
 
-    // Create data points
-    const createdPoints = [];
-    for (const pt of pointsInput) {
-      const created = await prisma.spcDataPoint.create({
+    // Create data points in parallel
+    const createdPoints = await Promise.all(
+      pointsInput.map(pt => prisma.spcDataPoint.create({
         data: {
           chartId,
           value: pt.value,
@@ -349,9 +348,8 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
           outOfControl: false, // Will be updated below
           violationRules: [],
         },
-      });
-      createdPoints.push(created);
-    }
+      }))
+    );
 
     // Re-fetch all points including newly added ones for chart computation
     const allPoints = await prisma.spcDataPoint.findMany({

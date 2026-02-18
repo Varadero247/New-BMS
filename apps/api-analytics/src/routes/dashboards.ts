@@ -224,9 +224,9 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
     });
 
     // Clone widgets
-    for (const widget of original.analyticsWidgets) {
-      await prisma.analyticsWidget.create({
-        data: {
+    if (original.analyticsWidgets.length > 0) {
+      await prisma.analyticsWidget.createMany({
+        data: original.analyticsWidgets.map(widget => ({
           dashboardId: clone.id,
           title: widget.title,
           type: widget.type,
@@ -236,7 +236,7 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
           position: widget.position as any,
           refreshInterval: widget.refreshInterval,
           createdBy: authReq.user!.id,
-        },
+        })),
       });
     }
 

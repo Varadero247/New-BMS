@@ -543,7 +543,7 @@ describe('POST /api/partners/:id/commissions/pay', () => {
 
   it('should return 500 on database error', async () => {
     (prisma as any).crmPartner.findFirst.mockResolvedValue(mockPartner);
-    (prisma as any).crmCommission.findFirst.mockRejectedValue(new Error('DB error'));
+    (prisma as any).crmCommission.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/partners/partner-1/commissions/pay').send({
       commissionIds: ['comm-1'],

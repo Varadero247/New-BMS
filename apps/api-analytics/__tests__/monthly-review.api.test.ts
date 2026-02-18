@@ -16,6 +16,7 @@ jest.mock('../src/prisma', () => ({
       findFirst: jest.fn(),
       findMany: jest.fn(),
       create: jest.fn(),
+      createMany: jest.fn(),
       update: jest.fn(),
     },
   },
@@ -191,8 +192,8 @@ describe('POST /api/monthly-review/trigger', () => {
 
 describe('POST /api/monthly-review/seed-targets', () => {
   it('seeds plan targets', async () => {
-    (prisma.planTarget.findUnique as jest.Mock).mockResolvedValue(null);
-    (prisma.planTarget.create as jest.Mock).mockResolvedValue({});
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.planTarget.createMany as jest.Mock).mockResolvedValue({ count: 36 });
 
     const res = await request(app).post('/api/monthly-review/seed-targets').send({});
     expect(res.status).toBe(200);
@@ -201,7 +202,12 @@ describe('POST /api/monthly-review/seed-targets', () => {
   });
 
   it('skips existing targets', async () => {
-    (prisma.planTarget.findUnique as jest.Mock).mockResolvedValue({ id: 'existing' });
+    // Return all 36 months (2026-03 to 2029-02) as already existing
+    const allMonths = Array.from({ length: 36 }, (_, i) => {
+      const d = new Date(2026, 2 + i, 1);
+      return { month: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}` };
+    });
+    (prisma.planTarget.findMany as jest.Mock).mockResolvedValue(allMonths);
 
     const res = await request(app).post('/api/monthly-review/seed-targets').send({});
     expect(res.status).toBe(200);

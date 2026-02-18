@@ -112,14 +112,15 @@ router.get('/dispatch-board', async (req: Request, res: Response) => {
     const statuses = ['UNASSIGNED', 'ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'];
     const board: Record<string, any[]> = {};
 
-    for (const s of statuses) {
-      board[s] = await prisma.fsSvcJob.findMany({
+    const results = await Promise.all(
+      statuses.map(s => prisma.fsSvcJob.findMany({
         where: { deletedAt: null, status: s as any },
         include: { customer: true, site: true, technician: true },
         orderBy: { priority: 'asc' },
         take: 50,
-      });
-    }
+      }))
+    );
+    statuses.forEach((s, i) => { board[s] = results[i]; });
 
     res.json({ success: true, data: board });
   } catch (error: unknown) {

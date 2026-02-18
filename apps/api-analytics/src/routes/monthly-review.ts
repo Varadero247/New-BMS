@@ -166,17 +166,15 @@ router.post('/trigger', async (_req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.post('/seed-targets', async (_req: Request, res: Response) => {
   try {
-    let created = 0;
-    let skipped = 0;
+    const existingMonths = new Set(
+      (await prisma.planTarget.findMany({ select: { month: true } })).map(t => t.month)
+    );
+    const toCreate = PLAN_TARGETS.filter(t => !existingMonths.has(t.month));
+    const skipped = PLAN_TARGETS.length - toCreate.length;
 
-    for (const target of PLAN_TARGETS) {
-      const existing = await prisma.planTarget.findUnique({ where: { month: target.month } });
-      if (existing) {
-        skipped++;
-        continue;
-      }
-      await prisma.planTarget.create({
-        data: {
+    if (toCreate.length > 0) {
+      await prisma.planTarget.createMany({
+        data: toCreate.map(target => ({
           month: target.month,
           monthNumber: target.monthNumber,
           plannedMrr: target.plannedMrr,
@@ -187,10 +185,11 @@ router.post('/seed-targets', async (_req: Request, res: Response) => {
           plannedArpu: target.plannedArpu,
           founderDirLoan: target.founderDirLoan,
           founderStarterLoan: target.founderStarterLoan,
-        },
+        })),
+        skipDuplicates: true,
       });
-      created++;
     }
+    const created = toCreate.length;
 
     res.json({
       success: true,

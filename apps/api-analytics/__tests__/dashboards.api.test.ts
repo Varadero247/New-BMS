@@ -16,6 +16,7 @@ jest.mock('../src/prisma', () => ({
       findFirst: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
+      createMany: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
       count: jest.fn(),
@@ -235,7 +236,7 @@ describe('POST /api/dashboards/:id/clone', () => {
     };
     (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(original);
     (prisma as any).analyticsDashboard.create.mockResolvedValue({ id: 'dash-clone', name: 'Original (Copy)' });
-    (prisma as any).analyticsWidget.create.mockResolvedValue({ id: 'w-clone' });
+    (prisma as any).analyticsWidget.createMany.mockResolvedValue({ count: 1 });
     (prisma as any).analyticsDashboard.findUnique.mockResolvedValue({ id: 'dash-clone', name: 'Original (Copy)', analyticsWidgets: [{ id: 'w-clone' }] });
 
     const res = await request(app).post('/api/dashboards/dash-1/clone');

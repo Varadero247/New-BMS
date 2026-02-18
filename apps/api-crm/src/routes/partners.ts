@@ -312,20 +312,25 @@ router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
     }
 
     const now = new Date();
-    let totalPaid = 0;
 
-    for (const commissionId of validation.data.commissionIds) {
-      const commission = await prisma.crmCommission.findFirst({
-        where: { id: commissionId, partnerId: req.params.id, status: 'PENDING', deletedAt: null } as any,
+    // Fetch all eligible commissions in one query
+    const eligibleCommissions = await prisma.crmCommission.findMany({
+      where: {
+        id: { in: validation.data.commissionIds },
+        partnerId: req.params.id,
+        status: 'PENDING',
+        deletedAt: null,
+      } as any,
+      select: { id: true, amount: true },
+    });
+
+    const totalPaid = eligibleCommissions.reduce((sum, c) => sum + Number(c.amount), 0);
+
+    if (eligibleCommissions.length > 0) {
+      await prisma.crmCommission.updateMany({
+        where: { id: { in: eligibleCommissions.map(c => c.id) } },
+        data: { status: 'PAID', paidAt: now },
       });
-
-      if (commission) {
-        await prisma.crmCommission.update({
-          where: { id: commissionId },
-          data: { status: 'PAID', paidAt: now },
-        });
-        totalPaid += Number(commission.amount);
-      }
     }
 
     // Update partner totalCommissionPaid
