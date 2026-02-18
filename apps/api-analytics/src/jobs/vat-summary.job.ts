@@ -43,10 +43,26 @@ export async function runVatSummaryJob(): Promise<string> {
     logger.warn('Could not fetch snapshot for VAT calculation, using dummy data', { error: String(err) });
   }
 
-  // Fall back to dummy data if no real data available
+  // Fall back to the most recent available snapshot if no current-month data
   if (totalRevenue === 0) {
-    totalRevenue = 8500; // Default dummy MRR
-    logger.info('Using dummy revenue data for VAT summary', { totalRevenue });
+    try {
+      const latest = await prisma.monthlySnapshot.findFirst({
+        where: { mrr: { gt: 0 } },
+        orderBy: { month: 'desc' },
+      });
+      if (latest) {
+        totalRevenue = Number(latest.mrr);
+        logger.warn('No snapshot for current period, using most recent available', {
+          period,
+          fallbackMonth: latest.month,
+          totalRevenue,
+        });
+      } else {
+        logger.warn('No revenue snapshot available; VAT summary will show zero revenue', { period });
+      }
+    } catch (fallbackErr) {
+      logger.warn('Could not fetch fallback snapshot; using zero revenue', { error: String(fallbackErr) });
+    }
   }
 
   // Calculate regional breakdown

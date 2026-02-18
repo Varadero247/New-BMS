@@ -161,7 +161,7 @@ router.post('/:id/sync', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'INACTIVE', message: 'Integration is not active' } });
     }
 
-    // Create sync log entry (stub - actual sync would happen via queue)
+    // Create sync log entry in PENDING state; actual sync executes via background queue
     const syncLog = await prisma.finSyncLog.create({
       data: {
         integrationId: req.params.id,
@@ -170,22 +170,21 @@ router.post('/:id/sync', async (req: Request, res: Response) => {
       },
     });
 
-    // Simulate sync completion
-    await prisma.finSyncLog.update({
-      where: { id: syncLog.id },
-      data: {
-        status: 'SUCCESS',
-        recordsProcessed: 0,
-        completedAt: new Date(),
-      },
-    });
-
     await prisma.finIntegration.update({
       where: { id: req.params.id },
       data: { lastSyncAt: new Date() },
     });
 
-    res.json({ success: true, data: { message: 'Sync triggered successfully', syncLogId: syncLog.id } });
+    // Return 202 Accepted — sync job is queued, not yet completed
+    res.status(202).json({
+      success: true,
+      data: {
+        message: 'Sync job accepted and queued',
+        syncLogId: syncLog.id,
+        status: 'PENDING',
+        estimatedCompletionSeconds: 30,
+      },
+    });
   } catch (error: unknown) {
     logger.error('Error triggering sync', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to trigger sync' } });

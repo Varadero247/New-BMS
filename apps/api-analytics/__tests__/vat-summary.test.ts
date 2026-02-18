@@ -1,6 +1,6 @@
 jest.mock('../src/prisma', () => ({
   prisma: {
-    monthlySnapshot: { findMany: jest.fn() },
+    monthlySnapshot: { findMany: jest.fn(), findFirst: jest.fn() },
     vatSummary: { upsert: jest.fn() },
   },
 }));
@@ -37,14 +37,15 @@ describe('runVatSummaryJob', () => {
     expect(Number(upsertCall.create.totalRevenue)).toBe(10000);
   });
 
-  it('falls back to dummy data when no snapshot exists', async () => {
+  it('falls back to zero when no snapshot exists at all', async () => {
     (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.monthlySnapshot.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'vat-3' });
 
     await runVatSummaryJob();
 
     const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
-    expect(Number(upsertCall.create.totalRevenue)).toBe(8500); // dummy default
+    expect(Number(upsertCall.create.totalRevenue)).toBe(0);
   });
 
   it('calculates UK VAT at 20%', async () => {
@@ -106,14 +107,15 @@ describe('runVatSummaryJob', () => {
 
   it('handles snapshot fetch error gracefully', async () => {
     (prisma.monthlySnapshot.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    (prisma.monthlySnapshot.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'vat-9' });
 
     const result = await runVatSummaryJob();
 
     expect(result).toBe('vat-9');
-    // Falls back to dummy data
+    // Falls back to zero revenue when no snapshot is available
     const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
-    expect(Number(upsertCall.create.totalRevenue)).toBe(8500);
+    expect(Number(upsertCall.create.totalRevenue)).toBe(0);
   });
 
   it('updates existing VAT summary via upsert', async () => {

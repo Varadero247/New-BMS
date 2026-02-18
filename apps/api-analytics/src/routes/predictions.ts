@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -226,7 +227,7 @@ router.post('/generate', requirePermission('analytics', 3), async (req: Request,
 
     // In production this would queue a background job.
     // For now, return a stub response indicating the job was accepted.
-    const predictionId = `pred-${Date.now()}`;
+    const predictionId = `pred-${randomUUID()}`;
 
     logger.info('Prediction run triggered', { predictionId, type, userId: authReq.user!.id });
 

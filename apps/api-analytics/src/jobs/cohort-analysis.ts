@@ -38,6 +38,23 @@ export async function runCohortAnalysis(monthNumber: number, month: string): Pro
       return;
     }
 
+    // Load all available monthly snapshots for data-driven rate calculation
+    const snapshots = await prisma.monthlySnapshot.findMany({
+      select: { month: true, revenueChurnPct: true, mrrGrowthPct: true },
+      orderBy: { month: 'asc' },
+    });
+    const snapshotMap = new Map(snapshots.map((s) => [
+      s.month,
+      {
+        churnPct: Math.max(0, Number(s.revenueChurnPct) || 0),
+        growthPct: Math.max(0, Number(s.mrrGrowthPct) || 0),
+      },
+    ]));
+
+    // Env-configurable fallback rates when no snapshot data exists
+    const FALLBACK_CHURN_PCT = parseFloat(process.env.COHORT_FALLBACK_CHURN_PCT || '2.5');
+    const FALLBACK_EXPANSION_PCT = parseFloat(process.env.COHORT_FALLBACK_EXPANSION_PCT || '1.5');
+
     // For each prior cohort month, calculate retention and NDR
     for (let i = 1; i <= monthNumber; i++) {
       const cohortAge = monthNumber - i;
@@ -45,15 +62,27 @@ export async function runCohortAnalysis(monthNumber: number, month: string): Pro
       cohortMonthDate.setMonth(cohortMonthDate.getMonth() - cohortAge);
       const cohortMonth = cohortMonthDate.toISOString().slice(0, 7);
 
-      // Dummy calculation based on cohort age:
-      // Retention decays slightly with age, NDR includes expansion
-      const baseRetention = 100;
-      const monthlyChurn = 2.5; // 2.5% churn per month
-      const retentionPct = Math.max(0, baseRetention - (cohortAge * monthlyChurn));
+      // Walk month-by-month from cohort start applying real churn/expansion rates
+      let retentionFactor = 1.0;
+      let ndrFactor = 1.0;
+      for (let age = 0; age < cohortAge; age++) {
+        const ageMonthDate = new Date(cohortMonth + '-01');
+        ageMonthDate.setMonth(ageMonthDate.getMonth() + age);
+        const ageMonth = ageMonthDate.toISOString().slice(0, 7);
 
-      // NDR: starts at 100%, expansion offsets some churn
-      const expansionRate = 1.5; // 1.5% expansion per month
-      const ndrPct = Math.max(0, 100 - (cohortAge * monthlyChurn) + (cohortAge * expansionRate));
+        const snap = snapshotMap.get(ageMonth);
+        const monthlyChurnRate = snap ? snap.churnPct / 100 : FALLBACK_CHURN_PCT / 100;
+        // Net expansion = total MRR growth minus churn (capped at 0 to avoid negative expansion)
+        const monthlyExpansionRate = snap
+          ? Math.max(0, (snap.growthPct - snap.churnPct)) / 100
+          : FALLBACK_EXPANSION_PCT / 100;
+
+        retentionFactor *= (1 - monthlyChurnRate);
+        ndrFactor *= (1 - monthlyChurnRate) * (1 + monthlyExpansionRate);
+      }
+
+      const retentionPct = Math.max(0, Math.round(retentionFactor * 10000) / 100);
+      const ndrPct = Math.max(0, Math.round(ndrFactor * 10000) / 100);
 
       await prisma.cohortData.upsert({
         where: {

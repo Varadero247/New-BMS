@@ -5,6 +5,7 @@ jest.mock('../src/prisma', () => ({
       upsert: jest.fn(),
       findMany: jest.fn(),
     },
+    monthlySnapshot: { findMany: jest.fn() },
   },
 }));
 
@@ -17,6 +18,8 @@ import { prisma } from '../src/prisma';
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // Default: no historical snapshots → fallback rates used (2.5% churn, 1.5% expansion)
+  (prisma as any).monthlySnapshot.findMany.mockResolvedValue([]);
 });
 
 describe('runCohortAnalysis', () => {
@@ -64,8 +67,8 @@ describe('runCohortAnalysis', () => {
     await runCohortAnalysis(2, '2026-04');
 
     const firstCall = (prisma.cohortData.upsert as jest.Mock).mock.calls[0][0];
-    // NDR = 100 - (1 * 2.5) + (1 * 1.5) = 99
-    expect(firstCall.create.ndrPct).toBe(99);
+    // NDR: ndrFactor = (1 - 0.025) * (1 + 0.015) = 0.975 * 1.015 = 0.989625 → 98.96%
+    expect(firstCall.create.ndrPct).toBe(98.96);
   });
 
   it('handles month 0 (no prior cohorts)', async () => {

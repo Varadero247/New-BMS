@@ -282,13 +282,12 @@ describe('POST /api/integrations/:id/sync', () => {
       direction: 'BIDIRECTIONAL',
     });
     (prisma as any).finSyncLog.create.mockResolvedValue({ id: 'log-new', status: 'PENDING' });
-    (prisma as any).finSyncLog.update.mockResolvedValue({ id: 'log-new', status: 'SUCCESS' });
     (prisma as any).finIntegration.update.mockResolvedValue({ id: 'f5000000-0000-4000-a000-000000000001' });
 
     const res = await request(app).post('/api/integrations/f5000000-0000-4000-a000-000000000001/sync');
 
-    expect(res.status).toBe(200);
-    expect(res.body.data.message).toContain('Sync triggered');
+    expect(res.status).toBe(202);
+    expect(res.body.data.message).toContain('Sync job accepted');
     expect(res.body.data.syncLogId).toBe('log-new');
   });
 
