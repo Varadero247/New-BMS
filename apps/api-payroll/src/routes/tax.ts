@@ -18,7 +18,7 @@ router.get('/filings', scopeToUser, async (req: Request, res: Response) => {
     const { taxYear, filingType, status } = req.query;
 
     const where: any = { deletedAt: null };
-    if (taxYear) where.taxYear = parseInt(taxYear as string);
+    if (taxYear) { const n = parseInt(taxYear as string, 10); if (!isNaN(n)) where.taxYear = n; }
     if (filingType) where.filingType = filingType as any;
     if (status) where.status = status as any;
 
@@ -125,7 +125,7 @@ router.get('/brackets', async (req: Request, res: Response) => {
     const { taxYear, country } = req.query;
 
     const where: any = { isActive: true, deletedAt: null };
-    if (taxYear) where.taxYear = parseInt(taxYear as string);
+    if (taxYear) { const n = parseInt(taxYear as string, 10); if (!isNaN(n)) where.taxYear = n; }
     if (country) where.country = country as any;
 
     const brackets = await prisma.taxBracket.findMany({

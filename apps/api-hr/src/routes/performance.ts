@@ -18,7 +18,7 @@ router.get('/cycles', scopeToUser, async (req: Request, res: Response) => {
     const { year, status } = req.query;
 
     const where: any = { deletedAt: null };
-    if (year) where.year = parseInt(year as string);
+    if (year) { const n = parseInt(year as string, 10); if (!isNaN(n)) where.year = n; }
     if (status) where.status = status as any;
 
     const cycles = await prisma.performanceCycle.findMany({

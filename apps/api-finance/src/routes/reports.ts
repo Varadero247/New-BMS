@@ -132,7 +132,7 @@ router.get('/budgets', async (req: Request, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (fiscalYear) where.fiscalYear = parseInt(fiscalYear as string);
+    if (fiscalYear) { const n = parseInt(fiscalYear as string, 10); if (!isNaN(n)) where.fiscalYear = n; }
     if (accountId) where.accountId = accountId;
 
     const [budgets, total] = await Promise.all([
