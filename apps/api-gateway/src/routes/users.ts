@@ -60,7 +60,6 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
           isActive: true,
           createdAt: true,
         },
-        orderBy: { createdAt: 'desc' },
       }),
       prisma.user.count({ where }),
     ]);

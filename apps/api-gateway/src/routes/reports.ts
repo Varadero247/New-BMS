@@ -290,7 +290,8 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 router.post('/audit/:auditId', async (req: AuthRequest, res: Response) => {
   try {
     const { auditId } = req.params;
-    const title = req.body.title || `Audit Report — ${auditId}`;
+    const bodyParsed = z.object({ title: z.string().max(200).optional() }).safeParse(req.body);
+    const title = (bodyParsed.success ? bodyParsed.data.title : undefined) || `Audit Report — ${auditId}`;
 
     // Fetch audit-related data from the audit logs
     const auditEntries = await prisma.auditLog.findMany({

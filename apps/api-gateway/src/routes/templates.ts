@@ -381,7 +381,8 @@ router.post('/:id/clone', requireRole('MANAGER', 'ADMIN'), async (req: AuthReque
     }
 
     const code = await generateCode(original.module);
-    const cloneName = req.body.name || `${original.name} (Copy)`;
+    const nameBody = z.object({ name: z.string().max(300).optional() }).safeParse(req.body);
+    const cloneName = (nameBody.success ? nameBody.data.name : undefined) || `${original.name} (Copy)`;
 
     const cloned = await (prisma as any).template.create({
       data: {

@@ -270,7 +270,8 @@ router.get('/:id/messages', async (req: Request, res: Response) => {
 router.put('/:id/resolve', async (req: Request, res: Response) => {
   try {
     const auth = req as AuthRequest;
-    const resolution = req.body.resolution as string | undefined;
+    const resolutionParsed = z.object({ resolution: z.string().max(5000).optional() }).safeParse(req.body);
+    const resolution = resolutionParsed.success ? resolutionParsed.data.resolution : undefined;
 
     const ticket = await prisma.portalTicket.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
