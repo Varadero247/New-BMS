@@ -144,7 +144,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const d = parsed.data;
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, deletedAt: null } as any });
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: d.chemicalId, orgId, deletedAt: null } as any });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     const referenceNumber = await generateCoshhRef(orgId);

@@ -108,7 +108,8 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const parsed = createInventorySchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
 
-    const chemical = await prisma.chemRegister.findFirst({ where: { id: parsed.data.chemicalId, deletedAt: null } as any });
+    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const chemical = await prisma.chemRegister.findFirst({ where: { id: parsed.data.chemicalId, orgId, deletedAt: null } as any });
     if (!chemical) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Chemical not found' } });
 
     // Check incompatibility at same location

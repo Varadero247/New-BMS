@@ -49,7 +49,8 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const item = await prisma.regLegalRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const item = await prisma.regLegalRegister.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!item) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'legal register entry not found' } });
     res.json({ success: true, data: item });
   } catch (error: unknown) {
@@ -84,7 +85,8 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 
 router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.regLegalRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const existing = await prisma.regLegalRegister.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'legal register entry not found' } });
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -112,7 +114,8 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const existing = await prisma.regLegalRegister.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
+    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const existing = await prisma.regLegalRegister.findFirst({ where: { id: req.params.id, orgId, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'legal register entry not found' } });
     await prisma.regLegalRegister.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { message: 'legal register entry deleted successfully' } });
