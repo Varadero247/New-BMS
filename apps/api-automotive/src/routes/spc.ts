@@ -212,7 +212,7 @@ router.get('/alerts', async (req: AuthRequest, res: Response) => {
       },
       orderBy: { updatedAt: 'desc' },
       take: Math.min(Number(req.query.limit) || 50, 200),
-      skip: Number(req.query.offset) || 0,
+      skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
     });
 
     const alerts = chartsWithOOC.map((chart) => ({
@@ -473,7 +473,7 @@ router.get('/:id/capability', async (req: AuthRequest, res: Response) => {
       where: { chartId },
       orderBy: { timestamp: 'asc' },
       take: Math.min(Number(req.query.limit) || 50, 200),
-      skip: Number(req.query.offset) || 0,
+      skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
     });
 
     if (dataPoints.length < 2) {

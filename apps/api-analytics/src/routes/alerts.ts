@@ -56,7 +56,7 @@ router.get('/triggered', async (req: Request, res: Response) => {
       where: { status: 'TRIGGERED', deletedAt: null } as any,
       orderBy: { triggeredAt: 'desc' },
       take: Math.min(Number(req.query.limit) || 50, 200),
-      skip: Number(req.query.offset) || 0,
+      skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
     });
 
     res.json({ success: true, data: alerts });

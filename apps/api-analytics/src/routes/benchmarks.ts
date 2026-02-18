@@ -70,7 +70,7 @@ router.get('/', async (req: Request, res: Response) => {
       where: { deletedAt: null } as any,
       orderBy: [{ module: 'asc' }, { name: 'asc' }],
       take: Math.min(Number(req.query.limit) || 50, 200),
-      skip: Number(req.query.offset) || 0,
+      skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
     });
 
     const customBenchmarks: Record<string, any[]> = {};
@@ -113,7 +113,7 @@ router.get('/:module', async (req: Request, res: Response) => {
       where: { module: moduleKey, deletedAt: null } as any,
       orderBy: { name: 'asc' },
       take: Math.min(Number(req.query.limit) || 50, 200),
-      skip: Number(req.query.offset) || 0,
+      skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
     });
 
     const orgData = kpis.map((kpi) => ({
