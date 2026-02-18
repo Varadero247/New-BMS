@@ -279,7 +279,7 @@ router.delete('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest,
   try {
     const existing = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Aspect not found' } });
-    await prisma.envAspect.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.envAspect.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: req.user?.id } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete aspect error', { error: (error as Error).message });

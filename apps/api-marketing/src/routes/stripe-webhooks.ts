@@ -165,7 +165,7 @@ router.post('/stripe', async (req: Request, res: Response) => {
     res.json({ received: true });
   } catch (error) {
     logger.error('Stripe webhook handling failed', { error: String(error) });
-    res.status(500).json({ error: 'Webhook handler failed' });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Webhook handler failed' } });
   }
 });
 

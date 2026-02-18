@@ -293,7 +293,7 @@ router.delete('/:id', checkOwnership(prisma.envObjective), async (req: AuthReque
   try {
     const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
-    await prisma.envObjective.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.envObjective.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: req.user?.id } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete objective error', { error: (error as Error).message });

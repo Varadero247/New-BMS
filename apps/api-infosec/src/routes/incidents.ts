@@ -62,7 +62,7 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = incidentCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
     }
 
     const authReq = req as AuthRequest;
@@ -179,7 +179,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = investigateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
     }
 
     const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } as any });
@@ -217,7 +217,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = closeSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
     }
 
     const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } as any });

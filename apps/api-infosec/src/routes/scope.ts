@@ -52,7 +52,7 @@ router.put('/', async (req: Request, res: Response) => {
   try {
     const parsed = scopeUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
     }
 
     const authReq = req as AuthRequest;

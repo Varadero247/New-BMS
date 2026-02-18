@@ -453,7 +453,7 @@ describe('Environment Legal Obligations API Routes', () => {
       expect(response.status).toBe(204);
       expect(mockPrisma.envLegal.update).toHaveBeenCalledWith({
         where: { id: '14000000-0000-4000-a000-000000000001' },
-        data: { deletedAt: expect.any(Date) },
+        data: { deletedAt: expect.any(Date), updatedBy: '20000000-0000-4000-a000-000000000123' },
       });
     });
 

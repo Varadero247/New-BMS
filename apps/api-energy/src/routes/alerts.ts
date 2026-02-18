@@ -91,7 +91,7 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const parsed = alertCreateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
     }
 
     const authReq = req as AuthRequest;
@@ -162,7 +162,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = alertUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
     }
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });

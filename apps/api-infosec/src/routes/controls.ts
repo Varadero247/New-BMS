@@ -303,7 +303,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = statusUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
     }
 
     const existing = await prisma.isControl.findUnique({ where: { id } });
@@ -338,7 +338,7 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
     const { id } = req.params;
     const parsed = implementationUpdateSchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ success: false, error: 'Validation failed', details: parsed.error.flatten() });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Validation failed' }, details: parsed.error.flatten() });
     }
 
     const existing = await prisma.isControl.findUnique({ where: { id } });

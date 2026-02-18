@@ -302,7 +302,7 @@ router.delete('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, r
   try {
     const existing = await prisma.envCapa.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
-    await prisma.envCapa.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.envCapa.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: req.user?.id } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete CAPA error', { error: (error as Error).message });
