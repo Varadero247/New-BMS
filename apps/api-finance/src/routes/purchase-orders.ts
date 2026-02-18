@@ -128,7 +128,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const supplier = await prisma.finSupplier.findFirst({ where: { id: supplierId, deletedAt: null, isActive: true } as any });
     if (!supplier) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Supplier not found or inactive' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found or inactive' } });
     }
 
     const authReq = req as AuthRequest;
@@ -191,7 +191,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
     }
     if (existing.status === 'RECEIVED' || existing.status === 'CANCELLED') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot update a ${existing.status} purchase order` } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot update a ${existing.status} purchase order` } });
     }
 
     const { orderDate, expectedDate, status, ...rest } = parsed.data;

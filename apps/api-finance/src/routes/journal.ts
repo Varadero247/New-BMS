@@ -154,7 +154,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const period = await prisma.finPeriod.findUnique({ where: { id: periodId } });
     if (!period) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Accounting period not found' } });
-    if (period.status !== 'OPEN') return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot post to a ${period.status} period` } });
+    if (period.status !== 'OPEN') return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot post to a ${period.status} period` } });
 
     const accountIds = [...new Set(lines.map(l => l.accountId))];
     const accounts = await prisma.finAccount.findMany({ where: { id: { in: accountIds }, deletedAt: null, isActive: true }, select: { id: true } });
@@ -217,7 +217,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finJournalEntry.findUnique({ where: { id } });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
-    if (existing.status !== 'DRAFT') return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only DRAFT entries can be updated' } });
+    if (existing.status !== 'DRAFT') return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only DRAFT entries can be updated' } });
 
     const { date, description, memo, lines } = parsed.data;
     const authReq = req as AuthRequest;
@@ -330,8 +330,8 @@ router.post('/:id/post', async (req: Request, res: Response) => {
 
     const entry = await prisma.finJournalEntry.findUnique({ where: { id }, include: { period: true } });
     if (!entry) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
-    if (entry.status !== 'DRAFT') return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Entry is already ${entry.status}` } });
-    if (entry.period.status !== 'OPEN') return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot post to a ${entry.period.status} period` } });
+    if (entry.status !== 'DRAFT') return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Entry is already ${entry.status}` } });
+    if (entry.period.status !== 'OPEN') return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot post to a ${entry.period.status} period` } });
 
     const authReq = req as AuthRequest;
     const updated = await prisma.finJournalEntry.update({

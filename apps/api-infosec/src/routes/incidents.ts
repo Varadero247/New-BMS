@@ -261,7 +261,7 @@ router.post('/:id/notify', async (req: Request, res: Response) => {
     }
 
     if (!existing.gdprBreachNotification) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'This incident does not require GDPR breach notification' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'This incident does not require GDPR breach notification' } });
     }
 
     const authReq = req as AuthRequest;

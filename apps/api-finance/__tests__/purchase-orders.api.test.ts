@@ -206,12 +206,12 @@ describe('POST /api/purchase-orders', () => {
     expect(res.body.data.id).toBe('po-new');
   });
 
-  it('should return 400 when supplier not found or inactive', async () => {
+  it('should return 404 when supplier not found or inactive', async () => {
     (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/purchase-orders').send(validOrder);
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     expect(res.body.error.message).toBe('Supplier not found or inactive');
   });
 

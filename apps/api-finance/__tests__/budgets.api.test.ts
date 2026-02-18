@@ -217,12 +217,12 @@ describe('POST /api/budgets', () => {
     expect(res.body.data.id).toBe('bud-new');
   });
 
-  it('should return 400 when account not found', async () => {
+  it('should return 404 when account not found', async () => {
     (prisma as any).finAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/budgets').send(validBudget);
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.message).toBe('Account not found');
   });

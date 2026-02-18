@@ -249,7 +249,7 @@ describe('POST /api/accounts', () => {
     expect(res.body.success).toBe(false);
   });
 
-  it('should return 400 for invalid parent', async () => {
+  it('should return 404 for invalid parent', async () => {
     (prisma as any).finAccount.findFirst
       .mockResolvedValueOnce(null) // no duplicate code
       .mockResolvedValueOnce(null); // parent not found
@@ -259,7 +259,7 @@ describe('POST /api/accounts', () => {
       parentId: '550e8400-e29b-41d4-a716-446655440000',
     });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     expect(res.body.error.message).toContain('Parent account not found');
   });
 
@@ -316,7 +316,7 @@ describe('PUT /api/accounts/:id', () => {
     expect(res.body.error.message).toContain('cannot be its own parent');
   });
 
-  it('should return 400 for non-existent parent', async () => {
+  it('should return 404 for non-existent parent', async () => {
     (prisma as any).finAccount.findFirst
       .mockResolvedValueOnce({ id: 'f2000000-0000-4000-a000-000000000001', code: '1000' }) // account exists
       .mockResolvedValueOnce(null); // parent not found
@@ -325,7 +325,7 @@ describe('PUT /api/accounts/:id', () => {
       parentId: '550e8400-e29b-41d4-a716-446655440000',
     });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     expect(res.body.error.message).toContain('Parent account not found');
   });
 });

@@ -579,7 +579,7 @@ router.put('/periods/:id/close', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Period not found' } });
     }
     if (period.status === 'CLOSED') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Period is already closed' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Period is already closed' } });
     }
 
     // Reject if unposted entries exist
@@ -663,7 +663,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (parentId) {
       const parent = await prisma.finAccount.findFirst({ where: { id: parentId, deletedAt: null } as any });
       if (!parent) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Parent account not found' } });
+        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Parent account not found' } });
       }
     }
 
@@ -715,11 +715,11 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     // Prevent circular parent references
     if (parsed.data.parentId) {
       if (parsed.data.parentId === id) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Account cannot be its own parent' } });
+        return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Account cannot be its own parent' } });
       }
       const parent = await prisma.finAccount.findFirst({ where: { id: parsed.data.parentId, deletedAt: null } as any });
       if (!parent) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Parent account not found' } });
+        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Parent account not found' } });
       }
     }
 
@@ -911,7 +911,7 @@ router.post('/entries', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Accounting period not found' } });
     }
     if (period.status !== 'OPEN') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot post to a ${period.status} period` } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot post to a ${period.status} period` } });
     }
 
     // Validate all account IDs exist
@@ -987,7 +987,7 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (existing.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only DRAFT entries can be updated' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only DRAFT entries can be updated' } });
     }
 
     const { date, description, memo, lines } = parsed.data;
@@ -1116,10 +1116,10 @@ router.post('/entries/:id/post', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (entry.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Entry is already ${entry.status}` } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Entry is already ${entry.status}` } });
     }
     if (entry.period.status !== 'OPEN') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot post to a ${entry.period.status} period` } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot post to a ${entry.period.status} period` } });
     }
 
     const authReq = req as AuthRequest;
@@ -1166,10 +1166,10 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (original.status !== 'POSTED') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only POSTED entries can be reversed' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only POSTED entries can be reversed' } });
     }
     if (original.period.status !== 'OPEN') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot reverse: period is ${original.period.status}` } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot reverse: period is ${original.period.status}` } });
     }
 
     const authReq = req as AuthRequest;

@@ -145,7 +145,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const account = await prisma.finAccount.findFirst({ where: { id: accountId, deletedAt: null } as any });
     if (!account) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Account not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     const budget = await prisma.finBudget.create({
