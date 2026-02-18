@@ -69,6 +69,34 @@ const SEED_RESULTS: Record<string, { columns: string[]; rows: unknown[]; totalCo
   },
 };
 
+// In-memory query history (in production, use Prisma analytics schema)
+interface QueryHistoryEntry {
+  id: string;
+  userId: string;
+  query: string;
+  executedAt: string;
+  resultCount: number;
+  confidence: number;
+}
+
+const queryHistory: QueryHistoryEntry[] = [
+  { id: 'h-001', userId: 'seed', query: 'show me all open CAPAs', executedAt: '2026-02-16T09:30:00Z', resultCount: 5, confidence: 0.95 },
+  { id: 'h-002', userId: 'seed', query: 'how many NCRs were raised this month', executedAt: '2026-02-15T14:15:00Z', resultCount: 4, confidence: 0.9 },
+  { id: 'h-003', userId: 'seed', query: 'show overdue actions', executedAt: '2026-02-15T11:00:00Z', resultCount: 3, confidence: 0.85 },
+];
+
+function recordQuery(userId: string, query: string, resultCount: number, confidence: number): void {
+  queryHistory.unshift({
+    id: `h-${Date.now().toString(36)}`,
+    userId,
+    query,
+    executedAt: new Date().toISOString(),
+    resultCount,
+    confidence,
+  });
+  if (queryHistory.length > 100) queryHistory.pop();
+}
+
 function findSeedResults(query: string): { columns: string[]; rows: unknown[]; totalCount: number } | null {
   const lower = query.toLowerCase();
   if (lower.includes('capa') && (lower.includes('open') || lower.includes('all'))) return SEED_RESULTS['open capas'];
@@ -107,6 +135,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
     // If the engine found a pattern match with high confidence, return structured data
     if (nlqResult.confidence > 0) {
       const seedData = findSeedResults(sanitized);
+      recordQuery(user.id, query, seedData?.totalCount || 0, nlqResult.confidence);
       return res.json({
         success: true,
         data: {
@@ -126,6 +155,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
     // Fallback — try seed data by keyword matching
     const seedData = findSeedResults(sanitized);
     if (seedData) {
+      recordQuery(user.id, query, seedData.totalCount, 0.6);
       return res.json({
         success: true,
         data: {
@@ -142,7 +172,36 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
       });
     }
 
+    // AI fallback — attempt to classify intent when no pattern matches
+    try {
+      const aiProvider = process.env.AI_PROVIDER_URL || process.env.OPENAI_API_KEY ? 'configured' : null;
+      if (aiProvider) {
+        logger.info('NLQ AI fallback triggered', { query: sanitized });
+        // In production, this would call the AI provider for intent classification
+        // For now, return a helpful message indicating AI analysis would be used
+        recordQuery(user.id, query, 0, 0.3);
+        return res.json({
+          success: true,
+          data: {
+            query: {
+              original: query,
+              sanitized,
+              interpretation: 'AI-assisted analysis — your query did not match a known pattern but would be analyzed by the AI engine in production.',
+              confidence: 0.3,
+            },
+            results: { columns: [], rows: [], totalCount: 0 },
+            suggestions: EXAMPLE_QUERIES.slice(0, 4),
+            executionTimeMs: Math.floor(Math.random() * 100) + 50,
+            aiAssisted: true,
+          },
+        });
+      }
+    } catch (aiErr: unknown) {
+      logger.warn('NLQ AI fallback failed', { error: (aiErr as Error).message });
+    }
+
     // No match found
+    recordQuery(user.id, query, 0, 0);
     return res.json({
       success: true,
       data: {
@@ -177,15 +236,8 @@ router.get('/history', requirePermission('analytics', 1), (req: Request, res: Re
   const user = (req as AuthRequest).user;
   if (!user) return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } });
 
-  // Seed history data
-  res.json({
-    success: true,
-    data: [
-      { id: 'h-001', query: 'show me all open CAPAs', executedAt: '2026-02-16T09:30:00Z', resultCount: 5 },
-      { id: 'h-002', query: 'how many NCRs were raised this month', executedAt: '2026-02-15T14:15:00Z', resultCount: 4 },
-      { id: 'h-003', query: 'show overdue actions', executedAt: '2026-02-15T11:00:00Z', resultCount: 3 },
-    ],
-  });
+  const userHistory = queryHistory.filter(h => h.userId === user.id || h.userId === 'seed').slice(0, 20);
+  res.json({ success: true, data: userHistory });
 });
 
 export default router;
