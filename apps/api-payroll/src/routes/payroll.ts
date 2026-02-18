@@ -62,7 +62,7 @@ function extractTaxAmounts(result: TaxResult): { incomeTax: number; socialSecuri
 async function fetchActiveEmployees(): Promise<HREmployee[]> {
   const headers = { ...createServiceHeaders('api-payroll'), 'Content-Type': 'application/json' };
   const url = `${HR_SERVICE_URL}/api/employees?status=ACTIVE&limit=500`;
-  const res = await fetch(url, { headers });
+  const res = await fetch(url, { headers, signal: AbortSignal.timeout(5000) });
   if (!res.ok) {
     throw new Error(`HR service returned ${res.status}: ${await res.text()}`);
   }

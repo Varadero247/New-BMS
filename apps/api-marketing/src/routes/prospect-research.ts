@@ -37,7 +37,7 @@ router.post('/research', authenticate, async (req: Request, res: Response) => {
       if (chKey) {
         const chResp = await fetch(
           `https://api.company-information.service.gov.uk/search/companies?q=${encodeURIComponent(data.companyName)}`,
-          { headers: { Authorization: `Basic ${Buffer.from(chKey + ':').toString('base64')}` } }
+          { headers: { Authorization: `Basic ${Buffer.from(chKey + ':').toString('base64')}` }, signal: AbortSignal.timeout(5000) }
         );
         if (chResp.ok) {
           companiesHouseData = await chResp.json();
@@ -84,6 +84,7 @@ Return as JSON: {"subject": "...", "body": "..."}`;
             max_tokens: 500,
             messages: [{ role: 'user', content: prompt }],
           }),
+          signal: AbortSignal.timeout(15000),
         });
 
         if (resp.ok) {
@@ -163,6 +164,7 @@ router.post('/:id/save-to-hubspot', authenticate, async (req: Request, res: Resp
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
           },
+          signal: AbortSignal.timeout(5000),
           body: JSON.stringify({
             properties: {
               dealname: `${prospect.companyName} - Prospect`,
