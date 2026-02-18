@@ -143,7 +143,7 @@ export default function HealthSafetyDashboard() {
         )}
 
         {/* Compliance & Metrics Row */}
-        <div aria-live="polite" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div data-tour="hs-stats" aria-live="polite" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6 flex justify-center">
               <ComplianceGauge
@@ -202,7 +202,7 @@ export default function HealthSafetyDashboard() {
         </div>
 
         {/* Stats Cards Row 1 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div data-tour="hs-incidents" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -274,7 +274,7 @@ export default function HealthSafetyDashboard() {
         </div>
 
         {/* Stats Cards Row 2 — Legal & Objectives */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div data-tour="hs-risks" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -349,7 +349,7 @@ export default function HealthSafetyDashboard() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div data-tour="hs-actions" className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Top Risks */}
           <Card>
             <CardHeader>

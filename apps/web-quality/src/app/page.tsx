@@ -107,7 +107,7 @@ export default function QualityDashboard() {
         )}
 
         {/* Compliance & Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div data-tour="quality-stats" className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6 flex justify-center">
               <ComplianceGauge
@@ -181,7 +181,7 @@ export default function QualityDashboard() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div data-tour="quality-ncrs" className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
@@ -249,7 +249,7 @@ export default function QualityDashboard() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div data-tour="quality-capas" className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Top Nonconformances */}
           <Card>
             <CardHeader>

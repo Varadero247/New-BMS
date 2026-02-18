@@ -97,6 +97,66 @@ export const TOURS: Record<string, TourConfig> = {
       },
     ],
   },
+  'quality-dashboard': {
+    id: 'quality-dashboard',
+    name: 'Quality Management Overview',
+    steps: [
+      {
+        targetSelector: '[data-tour="quality-stats"]',
+        title: 'Quality Metrics',
+        content: 'View key quality KPIs including open NCRs, CAPA progress, first pass yield, and audit schedule status.',
+        placement: 'bottom',
+      },
+      {
+        targetSelector: '[data-tour="quality-ncrs"]',
+        title: 'Non-Conformance Register',
+        content: 'Track all non-conformances from detection through root cause analysis to corrective action closure.',
+        placement: 'bottom',
+      },
+      {
+        targetSelector: '[data-tour="quality-capas"]',
+        title: 'CAPA Management',
+        content: 'Corrective and preventive actions linked to NCRs, audits, and customer complaints. Track effectiveness verification.',
+        placement: 'bottom',
+      },
+      {
+        targetSelector: '[data-tour="quality-documents"]',
+        title: 'Document Control',
+        content: 'Manage controlled documents with version history, review cycles, and distribution records. Integrated with ISO 9001 clause mapping.',
+        placement: 'top',
+      },
+    ],
+  },
+  'hs-dashboard': {
+    id: 'hs-dashboard',
+    name: 'Health & Safety Overview',
+    steps: [
+      {
+        targetSelector: '[data-tour="hs-stats"]',
+        title: 'Safety Dashboard',
+        content: 'Real-time safety metrics including incident rates, LTIFR, open actions, and days since last lost-time incident.',
+        placement: 'bottom',
+      },
+      {
+        targetSelector: '[data-tour="hs-incidents"]',
+        title: 'Incident Reporting',
+        content: 'Report and investigate workplace incidents. Supports near-miss reporting, RIDDOR classification, and root cause analysis.',
+        placement: 'bottom',
+      },
+      {
+        targetSelector: '[data-tour="hs-risks"]',
+        title: 'Risk Assessments',
+        content: 'Create and manage workplace risk assessments with 5x5 risk matrices. Link to control measures and monitor residual risk.',
+        placement: 'bottom',
+      },
+      {
+        targetSelector: '[data-tour="hs-actions"]',
+        title: 'Safety Actions',
+        content: 'Track corrective and preventive safety actions. Set priorities, assign owners, and monitor completion against due dates.',
+        placement: 'top',
+      },
+    ],
+  },
   'risk-assessment': {
     id: 'risk-assessment',
     name: 'Risk Assessment Guide',
