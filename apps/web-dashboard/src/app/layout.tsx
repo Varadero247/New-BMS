@@ -3,7 +3,7 @@ import { DM_Sans, Syne, DM_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { I18nProvider } from '@ims/i18n';
-import { ThemeSwitch } from '@ims/ui';
+import { ThemeSwitch, CookieConsent } from '@ims/ui';
 import { InstallBanner } from '@ims/pwa';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
@@ -33,6 +33,7 @@ export default function RootLayout({
       <body className={`${dmSans.variable} ${syne.variable} ${dmMono.variable} font-body antialiased`}>
         <I18nProvider><Providers>{children}</Providers></I18nProvider>
         <InstallBanner />
+        <CookieConsent />
         <ThemeSwitch />
       </body>
     </html>
