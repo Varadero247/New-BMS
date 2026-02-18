@@ -104,7 +104,7 @@ router.get('/low-stock', async (req: AuthRequest, res: Response) => {
           select: { quantityOnHand: true, warehouseId: true },
         },
       },
-    });
+      take: 1000});
 
     const lowStockProducts = products.filter(product => {
       const totalStock = product.inventoryItems.reduce((sum, inv) => sum + inv.quantityOnHand, 0);

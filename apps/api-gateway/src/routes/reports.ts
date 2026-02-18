@@ -393,19 +393,19 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
     const trends = await prisma.monthlyTrend.findMany({
       where: { year, month },
       orderBy: [{ standard: 'asc' }, { metric: 'asc' }],
-    });
+      take: 1000});
 
     // Fetch compliance scores for all standards
     const complianceScores = await prisma.complianceScore.findMany({
       orderBy: { standard: 'asc' },
-    });
+      take: 1000});
 
     // Fetch action stats
     const now = new Date();
     const allActions = await prisma.action.findMany({
       where: { deletedAt: null } as any,
       select: { status: true, dueDate: true, standard: true },
-    });
+      take: 1000});
 
     const actionKPIs = {
       total: allActions.length,
@@ -420,7 +420,7 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
     const allIncidents = await prisma.incident.findMany({
       where: { deletedAt: null } as any,
       select: { status: true, severity: true, standard: true, dateOccurred: true },
-    });
+      take: 1000});
 
     const incidentKPIs = {
       total: allIncidents.length,
@@ -521,7 +521,7 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
       where: {
         standard: { in: data.standards as any[] },
       },
-    });
+      take: 1000});
 
     const reportContent: Record<string, any> = {
       overview: {

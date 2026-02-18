@@ -290,7 +290,7 @@ router.get('/matrix', authenticate, async (req, res, next) => {
     const courses = await prisma.trainingCourse.findMany({
       where: courseWhere,
       orderBy: { title: 'asc' },
-    });
+      take: 1000});
 
     // Get all users
     const userWhere: Record<string, unknown> = { isActive: true };
@@ -317,7 +317,7 @@ router.get('/matrix', authenticate, async (req, res, next) => {
         },
       },
       orderBy: [{ department: 'asc' }, { lastName: 'asc' }],
-    });
+      take: 1000});
 
     // Build matrix
     const matrix = users.map((user) => {

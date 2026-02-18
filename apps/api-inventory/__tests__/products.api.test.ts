@@ -246,10 +246,12 @@ describe('Inventory Products API Routes', () => {
         .get('/api/products/low-stock')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.product.findMany).toHaveBeenCalledWith({
-        where: { status: 'ACTIVE', deletedAt: null },
-        include: expect.any(Object),
-      });
+      expect(mockPrisma.product.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: 'ACTIVE', deletedAt: null },
+          include: expect.any(Object),
+        })
+      );
     });
 
     it('should handle database errors', async () => {

@@ -199,7 +199,7 @@ router.get('/qualifications/:employeeId', async (req: Request, res: Response) =>
     const qualifications = await prisma.employeeQualification.findMany({
       where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       orderBy: { endDate: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: qualifications });
   } catch (error) {
@@ -252,7 +252,7 @@ router.get('/assets/:employeeId', async (req: Request, res: Response) => {
     const assets = await prisma.employeeAsset.findMany({
       where: { employeeId: req.params.employeeId, deletedAt: null } as any,
       orderBy: { assignedDate: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: assets });
   } catch (error) {

@@ -112,7 +112,7 @@ router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
       const nextTargets = await prisma.planTarget.findMany({
         where: { monthNumber: { gt: snapshot.monthNumber, lte: snapshot.monthNumber + 3 } },
         orderBy: { monthNumber: 'asc' },
-      });
+        take: 1000});
 
       for (let i = 0; i < nextTargets.length; i++) {
         const rec = mrrRecs[i];
@@ -167,7 +167,8 @@ router.post('/trigger', async (_req: Request, res: Response) => {
 router.post('/seed-targets', async (_req: Request, res: Response) => {
   try {
     const existingMonths = new Set(
-      (await prisma.planTarget.findMany({ select: { month: true } })).map(t => t.month)
+      (await prisma.planTarget.findMany({ select: { month: true },
+      take: 1000})).map(t => t.month)
     );
     const toCreate = PLAN_TARGETS.filter(t => !existingMonths.has(t.month));
     const skipped = PLAN_TARGETS.length - toCreate.length;

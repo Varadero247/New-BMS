@@ -81,7 +81,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 
     const allRows = await prisma.qualFmeaRow.findMany({
       select: { rpn: true },
-    });
+      take: 1000});
 
     const highRpnCount = allRows.filter(r => r.rpn > 200).length;
     const avgRpn = allRows.length > 0

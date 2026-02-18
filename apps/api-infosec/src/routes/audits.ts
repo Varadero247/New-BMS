@@ -393,7 +393,7 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
     // Enrich each clause with finding counts from this specific audit
     const findings = await prisma.isAuditFinding.findMany({
       where: { auditId: id } as any,
-    });
+      take: 1000});
     const findingsByClause = new Map<string, { count: number; hasOpen: boolean }>();
     for (const f of findings || []) {
       const clause = (f as any).clause as string | undefined;

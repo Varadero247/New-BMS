@@ -90,7 +90,7 @@ router.get('/active', authenticate, async (req: Request, res: Response) => {
       where: { organisationId: orgId, status: { in: ['ACTIVE', 'ELEVATED', 'CONTAINED'] } },
       include: { premises: { select: { name: true } }, _count: { select: { decisions: true, timeline: true } } },
       orderBy: { reportedAt: 'desc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch active incidents', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch active incidents' } }); }
 });
@@ -283,7 +283,7 @@ router.get('/:id/timeline', authenticate, async (req: Request, res: Response) =>
     const data = await prisma.femIncidentTimelineEvent.findMany({
       where: { incidentId: req.params.id },
       orderBy: { timestamp: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch timeline', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch timeline' } }); }
 });

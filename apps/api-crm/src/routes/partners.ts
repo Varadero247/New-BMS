@@ -322,7 +322,7 @@ router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
         deletedAt: null,
       } as any,
       select: { id: true, amount: true },
-    });
+      take: 1000});
 
     const totalPaid = eligibleCommissions.reduce((sum, c) => sum + Number(c.amount), 0);
 

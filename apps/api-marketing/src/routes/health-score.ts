@@ -84,7 +84,7 @@ router.get('/org/:orgId', authenticate, async (req: Request, res: Response) => {
       where: { orgId: req.params.orgId },
       orderBy: { createdAt: 'desc' },
       distinct: ['userId'],
-    });
+      take: 1000});
 
     const total = scores.length;
     const avgScore = total > 0 ? Math.round(scores.reduce((sum, s) => sum + s.score, 0) / total) : 0;

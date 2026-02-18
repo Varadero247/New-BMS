@@ -274,7 +274,7 @@ router.get('/building/:buildingId', authenticate, async (req: AuthRequest, res, 
         },
       },
       orderBy: { name: 'asc' },
-    });
+      take: 1000});
 
     res.json({
       success: true,

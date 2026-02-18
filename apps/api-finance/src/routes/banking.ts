@@ -73,7 +73,7 @@ router.get('/', async (req: Request, res: Response) => {
         _count: { select: { transactions: true } },
       },
       orderBy: { name: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: accounts });
   } catch (error: unknown) {
@@ -318,7 +318,7 @@ router.get('/reconciliations/list', async (req: Request, res: Response) => {
         _count: { select: { transactions: true } },
       },
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: reconciliations });
   } catch (error: unknown) {

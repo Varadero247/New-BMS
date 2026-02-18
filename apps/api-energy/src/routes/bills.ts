@@ -91,7 +91,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     const bills = await prisma.energyBill.findMany({
       where,
       select: { provider: true, cost: true, consumption: true },
-    });
+      take: 1000});
 
     const byProvider: Record<string, { totalCost: number; totalConsumption: number; count: number }> = {};
     for (const b of bills) {

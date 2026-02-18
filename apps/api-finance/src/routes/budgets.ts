@@ -80,7 +80,7 @@ router.get('/variance-report', async (req: Request, res: Response) => {
         account: { select: { id: true, code: true, name: true, type: true } },
       },
       orderBy: [{ account: { code: 'asc' } }, { month: 'asc' }],
-    });
+      take: 1000});
 
     const totalBudget = budgets.reduce((s, b) => s + Number(b.budgetAmount), 0);
     const totalActual = budgets.reduce((s, b) => s + Number(b.actualAmount), 0);

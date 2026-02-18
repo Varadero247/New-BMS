@@ -38,7 +38,7 @@ router.get('/due-review', authenticate, async (_req: Request, res: Response) => 
       where: { isActive: true, reviewDate: { lt: new Date() } },
       include: { premises: { select: { name: true } } },
       orderBy: { reviewDate: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch PEEPs due review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch PEEPs due review' } }); }
 });
@@ -49,7 +49,7 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
     const data = await prisma.femPeep.findMany({
       where: { premisesId: req.params.id },
       orderBy: { personName: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch PEEPs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch PEEPs' } }); }
 });

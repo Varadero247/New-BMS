@@ -54,7 +54,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     const kpis = await prisma.cmmsKpi.findMany({
       where: { deletedAt: null } as any,
       orderBy: { periodEnd: 'desc' },
-    });
+      take: 1000});
 
     // Group by metric type and get latest
     const latestByType: Record<string, any> = {};

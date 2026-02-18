@@ -77,7 +77,7 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
       where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: new Date() } as any },
       include: { premises: { select: { name: true } } },
       orderBy: { nextReviewDate: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch overdue FRAs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue FRAs' } }); }
 });

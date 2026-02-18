@@ -161,7 +161,7 @@ router.get('/data-export/:userId', async (req: AuthRequest, res: Response) => {
         createdAt: true,
         expiresAt: true,
       },
-    });
+      take: 1000});
 
     const exportData = {
       exportDate: new Date().toISOString(),
@@ -470,7 +470,7 @@ router.get('/data-map', async (_req: AuthRequest, res: Response) => {
     // Enrich with retention policies from database
     const policies = await (prisma as any).dataRetentionPolicy.findMany({
       where: { isActive: true },
-    });
+      take: 1000});
 
     const policyMap = new Map(
       policies.map((p: Record<string, unknown>) => [`${p.module}:${p.dataCategory}`, p])

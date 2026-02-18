@@ -29,7 +29,7 @@ router.get('/low-stock', authenticate, async (req: Request, res: Response) => {
     const items = await prisma.chemInventory.findMany({
       where: { isActive: true, minStockLevel: { not: null }, chemical: { orgId, isActive: true, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
-    });
+      take: 1000});
     const lowStock = items.filter((i: Record<string, unknown>) => Number(i.quantityOnhand) <= Number(i.minStockLevel || 0));
     res.json({ success: true, data: lowStock });
   } catch (error: unknown) {
@@ -49,7 +49,7 @@ router.get('/expiring', authenticate, async (req: Request, res: Response) => {
       where: { isActive: true, expiryDate: { lte: futureDate, not: null }, chemical: { orgId, isActive: true, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { expiryDate: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch expiring stock', { error: (error as Error).message });
@@ -121,7 +121,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
           chemical: { casNumber: { in: chemical.incompatibleWith }, deletedAt: null },
         },
         include: { chemical: { select: { productName: true, casNumber: true } } },
-      });
+        take: 1000});
       if (conflicting.length > 0) {
         // Batch create incompatibility alerts
         await prisma.chemIncompatAlert.createMany({

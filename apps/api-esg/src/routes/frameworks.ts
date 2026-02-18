@@ -124,7 +124,7 @@ router.get('/:id/metrics', async (req: Request, res: Response) => {
     const metrics = await prisma.esgMetric.findMany({
       where: { frameworkId: req.params.id, deletedAt: null } as any,
       orderBy: { code: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: metrics });
   } catch (error: unknown) {

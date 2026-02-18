@@ -45,7 +45,8 @@ router.get('/policies', async (req: Request, res: Response) => {
       category: { in: ['COMPLIANCE', 'TRANSPARENCY'] },
     };
 
-    const metrics = await prisma.esgGovernanceMetric.findMany({ where, orderBy: { periodStart: 'desc' } });
+    const metrics = await prisma.esgGovernanceMetric.findMany({ where, orderBy: { periodStart: 'desc' },
+      take: 1000});
 
     const policies = metrics.map((m: Record<string, any>) => ({
       id: m.id,
@@ -71,7 +72,8 @@ router.get('/ethics', async (req: Request, res: Response) => {
       category: { in: ['ETHICS', 'ANTI_CORRUPTION'] },
     };
 
-    const metrics = await prisma.esgGovernanceMetric.findMany({ where, orderBy: { periodStart: 'desc' } });
+    const metrics = await prisma.esgGovernanceMetric.findMany({ where, orderBy: { periodStart: 'desc' },
+      take: 1000});
 
     const ethicsData = metrics.map((m: Record<string, any>) => ({
       id: m.id,

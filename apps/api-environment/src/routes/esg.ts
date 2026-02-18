@@ -50,7 +50,7 @@ router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
         period: { startsWith: String(targetYear) },
       },
       orderBy: { period: 'asc' },
-    });
+      take: 1000});
 
     // Aggregate by category
     const summary: Record<string, { total: number; unit: string; count: number }> = {};
@@ -76,7 +76,7 @@ router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
     // Get targets for progress context
     const targets = await prisma.esgTarget.findMany({
       where: { deletedAt: null } as any,
-    });
+      take: 1000});
 
     const activeTargets = targets.length;
     const achievedTargets = targets.filter(t => t.status === 'ACHIEVED').length;
@@ -136,7 +136,7 @@ router.get('/trends', scopeToUser, async (req: AuthRequest, res: Response) => {
     const metrics = await prisma.esgMetric.findMany({
       where,
       orderBy: { period: 'asc' },
-    });
+      take: 1000});
 
     // Group by period and category
     const trendMap: Record<string, Record<string, number>> = {};
@@ -329,17 +329,17 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
     const metrics = await prisma.esgMetric.findMany({
       where: { period: { startsWith: String(targetYear) } },
       orderBy: { period: 'asc' },
-    });
+      take: 1000});
 
     // Get previous year for YoY comparison
     const prevMetrics = await prisma.esgMetric.findMany({
       where: { period: { startsWith: String(targetYear - 1) } },
-    });
+      take: 1000});
 
     // Get targets
     const targets = await prisma.esgTarget.findMany({
       where: { deletedAt: null } as any,
-    });
+      take: 1000});
 
     // Aggregate current year by category
     const currentTotals: Record<string, number> = {};

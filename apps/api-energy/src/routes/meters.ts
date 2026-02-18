@@ -74,7 +74,7 @@ router.get('/hierarchy', async (_req: Request, res: Response) => {
     const meters = await prisma.energyMeter.findMany({
       where: { deletedAt: null } as any,
       orderBy: { name: 'asc' },
-    });
+      take: 1000});
 
     const tree = buildMeterTree(meters);
     res.json({ success: true, data: tree });

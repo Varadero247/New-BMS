@@ -74,7 +74,7 @@ router.get('/due-review', authenticate, async (req: Request, res: Response) => {
     const data = await prisma.femBusinessContinuityPlan.findMany({
       where: { organisationId: orgId, reviewDate: { lt: thirtyDaysFromNow } },
       orderBy: { reviewDate: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch BCPs due review', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch BCPs due review' } }); }
 });

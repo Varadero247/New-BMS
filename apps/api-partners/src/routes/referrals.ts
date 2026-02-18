@@ -28,7 +28,7 @@ router.get('/', async (req: Request, res: Response) => {
     const referrals = await portalPrisma.mktPartnerReferral.findMany({
       where: { partnerId },
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: referrals });
   } catch (error) {
@@ -104,7 +104,7 @@ router.get('/stats', async (req: Request, res: Response) => {
 
     const referrals = await portalPrisma.mktPartnerReferral.findMany({
       where: { partnerId },
-    });
+      take: 1000});
 
     const total = referrals.length;
     const clicked = referrals.filter((r) => r.clickedAt).length;

@@ -336,7 +336,7 @@ router.get('/aging', async (req: AuthRequest, res: Response) => {
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },
-    });
+      take: 1000});
 
     const now = new Date();
     const buckets: Record<string, { total: number; count: number; invoices: Record<string, unknown>[] }> = {
@@ -401,7 +401,7 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
           amountDue: true,
           status: true,
         },
-      }),
+        take: 1000}),
       (prisma as any).finPayment.findMany({
         where: { customerId },
         orderBy: { date: 'asc' },
@@ -413,7 +413,7 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
           method: true,
           invoiceId: true,
         },
-      }),
+        take: 1000}),
       prisma.finCreditNote.findMany({
         where: { customerId },
         orderBy: { date: 'asc' },
@@ -425,7 +425,7 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
           reason: true,
           invoiceId: true,
         },
-      }),
+        take: 1000}),
     ]);
 
     const totalInvoiced = invoices.reduce((sum: number, inv: any) => sum + Number(inv.total), 0);
@@ -714,7 +714,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Batch-fetch tax rates for all lines that specify one
     const taxRateIds = [...new Set(data.lines.map((l) => l.taxRateId).filter(Boolean) as string[])];
     const taxRates = taxRateIds.length > 0
-      ? await prisma.finTaxRate.findMany({ where: { id: { in: taxRateIds }, isActive: true } as any })
+      ? await prisma.finTaxRate.findMany({ where: { id: { in: taxRateIds }, isActive: true } as any,
+      take: 1000})
       : [];
     const taxRateMap = new Map(taxRates.map((r: any) => [r.id, Number(r.rate)]));
 
@@ -822,7 +823,8 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     if (data.lines) {
       const updateTaxRateIds = [...new Set(data.lines.map((l) => l.taxRateId).filter(Boolean) as string[])];
       const updateTaxRates = updateTaxRateIds.length > 0
-        ? await prisma.finTaxRate.findMany({ where: { id: { in: updateTaxRateIds }, isActive: true } as any })
+        ? await prisma.finTaxRate.findMany({ where: { id: { in: updateTaxRateIds }, isActive: true } as any,
+      take: 1000})
         : [];
       const updateTaxRateMap = new Map(updateTaxRates.map((r: any) => [r.id, Number(r.rate)]));
 

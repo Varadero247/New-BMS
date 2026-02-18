@@ -233,7 +233,7 @@ router.get('/plugins/:id/versions', async (req: AuthRequest, res: Response) => {
     const versions = await (prisma as any).mktPluginVersion.findMany({
       where: { pluginId: req.params.id },
       orderBy: { publishedAt: 'desc' },
-    });
+      take: 1000});
     res.json({ success: true, data: versions });
   } catch (error) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });

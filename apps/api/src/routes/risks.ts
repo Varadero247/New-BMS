@@ -132,7 +132,7 @@ router.get('/matrix', authenticate, async (req, res, next) => {
         riskLevel: true,
         standard: true,
       },
-    });
+      take: 1000});
 
     // Create 5x5 matrix
     const matrix: Record<string, unknown[]> = {};

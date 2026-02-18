@@ -173,7 +173,7 @@ router.get('/heat-map', async (_req: Request, res: Response) => {
     const risks = await prisma.isRisk.findMany({
       where: { deletedAt: null } as any,
       select: { likelihood: true, impact: true },
-    });
+      take: 1000});
 
     // Build 5x5 matrix
     const matrix: number[][] = Array.from({ length: 5 }, () => Array(5).fill(0));

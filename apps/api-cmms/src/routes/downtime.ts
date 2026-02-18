@@ -53,7 +53,7 @@ router.get('/pareto', async (req: Request, res: Response) => {
     const downtimes = await prisma.cmmsDowntime.findMany({
       where: { deletedAt: null } as any,
       select: { reason: true, duration: true, impact: true },
-    });
+      take: 1000});
 
     const reasonMap: Record<string, { count: number; totalDuration: number }> = {};
     for (const d of downtimes) {

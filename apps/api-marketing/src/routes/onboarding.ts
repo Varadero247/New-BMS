@@ -75,7 +75,7 @@ router.get('/status/:userId', async (req: Request, res: Response) => {
         sequenceId: { startsWith: 'onboarding-' },
       },
       orderBy: { scheduledFor: 'asc' },
-    });
+      take: 1000});
 
     const sent = jobs.filter((j) => j.status === 'SENT').length;
     const pending = jobs.filter((j) => j.status === 'PENDING').length;

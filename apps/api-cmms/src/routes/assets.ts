@@ -226,19 +226,19 @@ router.get('/:id/history', async (req: Request, res: Response) => {
       prisma.cmmsWorkOrder.findMany({
         where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { createdAt: 'desc' },
-      }),
+        take: 1000}),
       prisma.cmmsInspection.findMany({
         where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { createdAt: 'desc' },
-      }),
+        take: 1000}),
       prisma.cmmsMeterReading.findMany({
         where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { readingDate: 'desc' },
-      }),
+        take: 1000}),
       prisma.cmmsDowntime.findMany({
         where: { assetId: req.params.id, deletedAt: null } as any,
         orderBy: { startTime: 'desc' },
-      }),
+        take: 1000}),
     ]);
 
     res.json({ success: true, data: { workOrders, inspections, meterReadings, downtimes } });

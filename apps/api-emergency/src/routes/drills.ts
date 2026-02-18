@@ -64,7 +64,7 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
     const data = await prisma.femEvacuationDrill.findMany({
       where: { premisesId: req.params.id },
       orderBy: { drillDate: 'desc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch drills', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch drills' } }); }
 });

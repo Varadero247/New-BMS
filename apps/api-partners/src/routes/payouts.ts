@@ -29,7 +29,7 @@ router.get('/', async (req: Request, res: Response) => {
     const payouts = await prisma.mktPartnerPayout.findMany({
       where: { partnerId },
       orderBy: { requestedAt: 'desc' },
-    });
+      take: 1000});
 
     // Calculate available balance
     const unpaidDeals = await prisma.mktPartnerDeal.findMany({
@@ -39,7 +39,7 @@ router.get('/', async (req: Request, res: Response) => {
         commissionPaid: false,
         commissionValue: { not: null },
       },
-    });
+      take: 1000});
 
     const availableBalance = unpaidDeals.reduce((sum, d) => sum + (d.commissionValue || 0), 0);
 
@@ -85,7 +85,7 @@ router.post('/request', async (req: Request, res: Response) => {
         commissionPaid: false,
         commissionValue: { not: null },
       },
-    });
+      take: 1000});
 
     const totalAmount = unpaidDeals.reduce((sum, d) => sum + (d.commissionValue || 0), 0);
 

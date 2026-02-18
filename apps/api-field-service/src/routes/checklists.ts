@@ -213,7 +213,7 @@ router.get('/:id/results', async (req: Request, res: Response) => {
     const data = await prisma.fsSvcChecklistResult.findMany({
       where: { checklistId: req.params.id, deletedAt: null } as any,
       orderBy: { completedAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data });
   } catch (error: unknown) {

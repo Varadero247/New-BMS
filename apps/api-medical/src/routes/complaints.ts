@@ -201,7 +201,7 @@ router.get('/trending', async (req: AuthRequest, res: Response) => {
       where: baseWhere,
       select: { complaintDate: true, deviceName: true, source: true, severity: true },
       orderBy: { complaintDate: 'asc' },
-    });
+      take: 1000});
 
     // Group by month
     const byMonth: Record<string, number> = {};

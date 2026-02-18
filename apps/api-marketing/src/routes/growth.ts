@@ -30,7 +30,7 @@ router.get('/metrics', authenticate, async (req: Request, res: Response) => {
     const healthScores = await prisma.mktHealthScore.findMany({
       orderBy: { createdAt: 'desc' },
       distinct: ['userId'],
-    });
+      take: 1000});
 
     const healthy = healthScores.filter((s) => s.score >= 70).length;
     const atRisk = healthScores.filter((s) => s.score >= 40 && s.score < 70).length;

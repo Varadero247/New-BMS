@@ -107,7 +107,7 @@ router.get('/expiring', async (req: Request, res: Response) => {
       },
       include: { customer: true },
       orderBy: { endDate: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data });
   } catch (error: unknown) {

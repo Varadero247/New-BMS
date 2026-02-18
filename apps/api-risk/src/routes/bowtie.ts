@@ -70,7 +70,7 @@ router.get('/bowtie/all', authenticate, async (req: Request, res: Response) => {
       where: { risk: { orgId, deletedAt: null } } as any,
       include: { risk: { select: { id: true, title: true, referenceNumber: true, residualRiskLevel: true, category: true } } },
       orderBy: { updatedAt: 'desc' },
-    });
+      take: 1000});
     res.json({ success: true, data: bowties });
   } catch (error: unknown) { logger.error('Failed to fetch bowties', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch bowties' } }); }
 });

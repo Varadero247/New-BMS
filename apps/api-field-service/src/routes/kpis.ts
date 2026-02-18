@@ -90,7 +90,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
         periodStart: { gte: thirtyDaysAgo } as any,
       },
       include: { technician: true },
-    });
+      take: 1000});
 
     // Aggregate by metric type
     const summary: Record<string, { metricType: string; average: number; count: number; unit: string; target: number | null }> = {};

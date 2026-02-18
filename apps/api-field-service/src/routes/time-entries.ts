@@ -88,7 +88,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     const entries = await prisma.fsSvcTimeEntry.findMany({
       where,
       include: { technician: true },
-    });
+      take: 1000});
 
     // Aggregate by technician
     const summary: Record<string, { technicianId: string; technicianName: string; totalHours: number; billableHours: number; breakdown: Record<string, number> }> = {};

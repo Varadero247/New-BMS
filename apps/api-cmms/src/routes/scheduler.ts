@@ -133,7 +133,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
       },
       orderBy: { nextDue: 'asc' },
       include: { asset: { select: { id: true, name: true } } },
-    });
+      take: 1000});
 
     // Also include work orders scheduled this month
     const workOrders = await prisma.cmmsWorkOrder.findMany({
@@ -143,7 +143,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
       },
       orderBy: { scheduledStart: 'asc' },
       include: { asset: { select: { id: true, name: true } } },
-    });
+      take: 1000});
 
     res.json({ success: true, data: { year, month: month + 1, scheduled, workOrders } });
   } catch (error: unknown) {

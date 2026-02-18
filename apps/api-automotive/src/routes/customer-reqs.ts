@@ -97,7 +97,7 @@ router.get('/customers', async (_req: AuthRequest, res: Response) => {
       select: { customer: true },
       distinct: ['customer'],
       orderBy: { customer: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: customers.map(c => c.customer) });
   } catch (error) {

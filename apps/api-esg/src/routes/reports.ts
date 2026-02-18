@@ -48,16 +48,19 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     const [emissions, targets, initiatives, reports, socialMetrics, governanceMetrics] = await Promise.all([
       prisma.esgEmission.findMany({
         where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
-      }),
-      prisma.esgTarget.findMany({ where: { deletedAt: null, year: currentYear } as any }),
-      prisma.esgInitiative.findMany({ where: { deletedAt: null } as any }),
-      prisma.esgReport.findMany({ where: { deletedAt: null, year: currentYear } as any }),
+        take: 1000}),
+      prisma.esgTarget.findMany({ where: { deletedAt: null, year: currentYear } as any,
+      take: 1000}),
+      prisma.esgInitiative.findMany({ where: { deletedAt: null } as any,
+      take: 1000}),
+      prisma.esgReport.findMany({ where: { deletedAt: null, year: currentYear } as any,
+      take: 1000}),
       prisma.esgSocialMetric.findMany({
         where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
-      }),
+        take: 1000}),
       prisma.esgGovernanceMetric.findMany({
         where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
-      }),
+        take: 1000}),
     ]);
 
     const totalEmissions = emissions.reduce((sum: number, e: Record<string, any>) => sum + Number(e.co2Equivalent), 0);
@@ -90,14 +93,15 @@ router.get('/csrd', async (req: Request, res: Response) => {
     const [emissions, socialMetrics, governanceMetrics, targets] = await Promise.all([
       prisma.esgEmission.findMany({
         where: { deletedAt: null, periodStart: { gte: new Date(`${year} as any-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
-      }),
+        take: 1000}),
       prisma.esgSocialMetric.findMany({
         where: { deletedAt: null, periodStart: { gte: new Date(`${year} as any-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
-      }),
+        take: 1000}),
       prisma.esgGovernanceMetric.findMany({
         where: { deletedAt: null, periodStart: { gte: new Date(`${year} as any-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
-      }),
-      prisma.esgTarget.findMany({ where: { deletedAt: null, year } as any }),
+        take: 1000}),
+      prisma.esgTarget.findMany({ where: { deletedAt: null, year } as any,
+      take: 1000}),
     ]);
 
     res.json({
@@ -127,9 +131,11 @@ router.get('/tcfd', async (req: Request, res: Response) => {
     const [emissions, targets, initiatives] = await Promise.all([
       prisma.esgEmission.findMany({
         where: { deletedAt: null, periodStart: { gte: new Date(`${year} as any-01-01`) }, periodEnd: { lte: new Date(`${year}-12-31`) } },
-      }),
-      prisma.esgTarget.findMany({ where: { deletedAt: null, year } as any }),
-      prisma.esgInitiative.findMany({ where: { deletedAt: null, category: 'ENVIRONMENTAL' } as any }),
+        take: 1000}),
+      prisma.esgTarget.findMany({ where: { deletedAt: null, year } as any,
+      take: 1000}),
+      prisma.esgInitiative.findMany({ where: { deletedAt: null, category: 'ENVIRONMENTAL' } as any,
+      take: 1000}),
     ]);
 
     const scopeTotals: Record<string, number> = { SCOPE_1: 0, SCOPE_2: 0, SCOPE_3: 0 };

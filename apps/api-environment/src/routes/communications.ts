@@ -168,7 +168,7 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
       prisma.envCommunication.findMany({
         where,
         select: { type: true, direction: true, status: true, createdAt: true } as any,
-      }),
+        take: 1000}),
     ]);
 
     const byType: Record<string, number> = {};

@@ -51,7 +51,7 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
   try {
     const obligations = await prisma.energyComplianceObligation.findMany({
       where: { deletedAt: null } as any,
-    });
+      take: 1000});
 
     const total = obligations.length;
     const compliant = obligations.filter(o => o.status === 'COMPLIANT').length;

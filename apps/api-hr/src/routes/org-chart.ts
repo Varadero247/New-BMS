@@ -114,7 +114,7 @@ router.get('/by-department', async (_req: Request, res: Response) => {
         manager: { select: { id: true, firstName: true, lastName: true, jobTitle: true } },
       } as any,
       orderBy: { name: 'asc' },
-    });
+      take: 1000});
 
     const result = departments.map((d: any) => ({
       id: d.id,

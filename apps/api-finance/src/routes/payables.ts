@@ -983,7 +983,7 @@ router.get('/aging', async (_req: Request, res: Response) => {
         supplier: { select: { id: true, code: true, name: true } },
       },
       orderBy: { dueDate: 'asc' },
-    });
+      take: 1000});
 
     const aging: {
       current: typeof bills;
@@ -1050,7 +1050,7 @@ router.post('/payment-run', async (req: Request, res: Response) => {
         supplier: { select: { id: true, code: true, name: true, currency: true, paymentTerms: true } },
       },
       orderBy: [{ supplier: { name: 'asc' } }, { dueDate: 'asc' }],
-    });
+      take: 1000});
 
     // Group by supplier
     const bySupplier: Record<string, { supplier: Record<string, unknown>; bills: typeof dueBills; totalDue: number }> = {};

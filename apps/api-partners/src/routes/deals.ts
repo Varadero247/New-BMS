@@ -96,7 +96,7 @@ router.get('/', async (req: Request, res: Response) => {
     const deals = await prisma.mktPartnerDeal.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     // Summary stats
     const submitted = deals.filter((d) => d.status === 'SUBMITTED').length;

@@ -704,7 +704,7 @@ router.get('/trends', authenticate, async (req, res, next) => {
     const trends = await prisma.monthlyTrend.findMany({
       where,
       orderBy: [{ year: 'asc' }, { month: 'asc' }],
-    });
+      take: 1000});
 
     res.json({ success: true, data: trends });
   } catch (error) {

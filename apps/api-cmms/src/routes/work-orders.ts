@@ -85,7 +85,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
       orderBy: { scheduledEnd: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: workOrders });
   } catch (error: unknown) {
@@ -110,7 +110,7 @@ router.get('/upcoming', async (req: Request, res: Response) => {
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
       orderBy: { scheduledStart: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: workOrders });
   } catch (error: unknown) {

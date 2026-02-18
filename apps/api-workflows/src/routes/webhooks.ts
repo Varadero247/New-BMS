@@ -357,7 +357,7 @@ router.post('/dispatch', async (req: AuthRequest, res: Response) => {
         deletedAt: null,
         events: { has: input.event } as any,
       },
-    });
+      take: 1000});
 
     if (webhooks.length === 0) {
       return res.json({ success: true, data: { dispatched: 0, deliveries: [] } });

@@ -132,7 +132,7 @@ router.get('/availability/:productId', async (req: AuthRequest, res: Response) =
       include: {
         warehouse: { select: { id: true, code: true, name: true, isActive: true } },
       },
-    });
+      take: 1000});
 
     const product = await prisma.product.findUnique({
       where: { id: req.params.productId },

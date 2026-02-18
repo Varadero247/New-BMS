@@ -219,7 +219,7 @@ router.get('/:id/results', async (req: Request, res: Response) => {
         asset: { select: { id: true, name: true, code: true } },
       },
       orderBy: { completedAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: results });
   } catch (error: unknown) {

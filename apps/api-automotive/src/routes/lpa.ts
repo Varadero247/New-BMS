@@ -305,7 +305,7 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
       // Update audit counts
       const allResponses = await tx.lpaResponse.findMany({
         where: { auditId: id },
-      });
+        take: 1000});
 
       const passCount = allResponses.filter(r => r.result === 'PASS').length;
       const failCount = allResponses.filter(r => r.result === 'FAIL').length;

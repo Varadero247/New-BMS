@@ -158,7 +158,8 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       prisma.benefit.count({ where: { ...where, status: 'REALISED' } }),
       prisma.benefit.count({ where: { ...where, status: 'TRACKING' } }),
       prisma.benefit.count({ where: { ...where, status: 'IDENTIFIED' } }),
-      prisma.benefit.findMany({ where, select: { type: true, financialValue: true, status: true, currentValue: true, targetValue: true } as any }),
+      prisma.benefit.findMany({ where, select: { type: true, financialValue: true, status: true, currentValue: true, targetValue: true } as any,
+      take: 1000}),
     ]);
 
     // Aggregate by type
@@ -209,7 +210,7 @@ router.get('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
     const measurements = await prisma.benefitMeasurement.findMany({
       where: { benefitId: benefit.id },
       orderBy: { measuredAt: 'desc' } as any,
-    });
+      take: 1000});
 
     res.json({ success: true, data: { ...benefit, measurements } });
   } catch (error) {

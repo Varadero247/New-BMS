@@ -119,7 +119,7 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
       where: { status: 'CURRENT', nextReviewDate: { lte: new Date() }, chemical: { orgId, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { nextReviewDate: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch overdue SDS', { error: (error as Error).message });

@@ -94,7 +94,8 @@ router.get('/trend', async (req: Request, res: Response) => {
       periodEnd: { lte: new Date(`${y}-12-31`) },
     };
 
-    const emissions = await prisma.esgEmission.findMany({ where, orderBy: { periodStart: 'asc' } });
+    const emissions = await prisma.esgEmission.findMany({ where, orderBy: { periodStart: 'asc' },
+      take: 1000});
 
     const monthlyData: Record<string, number> = {};
     for (let m = 1; m <= 12; m++) {

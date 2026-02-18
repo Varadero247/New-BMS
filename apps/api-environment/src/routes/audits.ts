@@ -71,7 +71,7 @@ router.get('/schedule', scopeToUser, async (req: AuthRequest, res: Response) => 
     const schedules = await prisma.envAuditSchedule.findMany({
       where: { active: true },
       orderBy: { nextDueDate: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: schedules });
   } catch (error) {

@@ -57,7 +57,7 @@ router.get('/pipeline-velocity', async (_req: Request, res: Response) => {
     const openDeals = await prisma.crmDeal.findMany({
       where: { status: 'OPEN', deletedAt: null } as any,
       select: { createdAt: true, stageId: true },
-    });
+      take: 1000});
 
     const now = new Date();
     const dealAges = openDeals.map((d) => {
@@ -100,7 +100,7 @@ router.get('/win-loss', async (_req: Request, res: Response) => {
     const closedDeals = await prisma.crmDeal.findMany({
       where: { status: { in: ['WON', 'LOST'] }, deletedAt: null },
       select: { status: true, source: true, assignedTo: true },
-    });
+      take: 1000});
 
     const wonCount = closedDeals.filter((d) => d.status === 'WON').length;
     const lostCount = closedDeals.filter((d) => d.status === 'LOST').length;
@@ -159,7 +159,7 @@ router.get('/forecast', async (_req: Request, res: Response) => {
     const openDeals = await prisma.crmDeal.findMany({
       where: { status: 'OPEN', deletedAt: null } as any,
       select: { value: true, probability: true, expectedCloseDate: true },
-    });
+      take: 1000});
 
     // Group by expected close month
     const monthMap: Record<string, { weighted: number; count: number; totalValue: number }> = {};
@@ -217,7 +217,7 @@ router.get('/partner-performance', async (_req: Request, res: Response) => {
         },
       },
       orderBy: { totalReferrals: 'desc' },
-    });
+      take: 1000});
 
     let totalPartnerSourcedRevenue = 0;
     let totalCommissions = 0;
@@ -268,7 +268,7 @@ router.get('/customer-health', async (_req: Request, res: Response) => {
         openNCRCount: true,
         lastInvoiceDate: true,
       },
-    });
+      take: 1000});
 
     const totalAccounts = accounts.length;
     const revenues = accounts.map((a) => Number(a.lifetimeRevenue || 0));

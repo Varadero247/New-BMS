@@ -188,7 +188,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       }),
       prisma.hRDepartment.findMany({
         select: { id: true, name: true },
-      }),
+        take: 1000}),
       // Get salary data from EmployeeSalary table
       prisma.employeeSalary.aggregate({
         _avg: { baseSalary: true },

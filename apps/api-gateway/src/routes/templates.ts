@@ -468,7 +468,7 @@ router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
     const versions = await (prisma as any).templateVersion.findMany({
       where: { templateId: req.params.id },
       orderBy: { version: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: versions });
   } catch (error: unknown) {

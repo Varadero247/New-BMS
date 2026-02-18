@@ -199,7 +199,7 @@ router.get('/:id/risks', async (req: Request, res: Response) => {
     const risks = await prisma.aiRiskAssessment.findMany({
       where: { systemId: id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: risks });
   } catch (error: unknown) {
@@ -221,7 +221,7 @@ router.get('/:id/incidents', async (req: Request, res: Response) => {
     const incidents = await prisma.aiIncident.findMany({
       where: { systemId: id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: incidents });
   } catch (error: unknown) {

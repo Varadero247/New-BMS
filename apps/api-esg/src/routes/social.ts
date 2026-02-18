@@ -47,7 +47,8 @@ router.get('/workforce', async (req: Request, res: Response) => {
       category: { in: ['DIVERSITY', 'LABOR'] },
     };
 
-    const metrics = await prisma.esgSocialMetric.findMany({ where, orderBy: { periodStart: 'desc' } });
+    const metrics = await prisma.esgSocialMetric.findMany({ where, orderBy: { periodStart: 'desc' },
+      take: 1000});
 
     const summary: Record<string, any[]> = { diversity: [], labor: [] };
     for (const m of metrics) {
@@ -73,7 +74,8 @@ router.get('/safety', async (req: Request, res: Response) => {
       category: 'HEALTH_SAFETY',
     };
 
-    const metrics = await prisma.esgSocialMetric.findMany({ where, orderBy: { periodStart: 'desc' } });
+    const metrics = await prisma.esgSocialMetric.findMany({ where, orderBy: { periodStart: 'desc' },
+      take: 1000});
 
     const safetyData = metrics.map((m: Record<string, any>) => ({
       metric: m.metric,

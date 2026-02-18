@@ -254,7 +254,7 @@ router.get('/:id/messages', async (req: Request, res: Response) => {
     const messages = await prisma.portalTicketMessage.findMany({
       where: { ticketId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'asc' },
-    });
+      take: 1000});
 
     return res.json({ success: true, data: messages });
   } catch (error: unknown) {

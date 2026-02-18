@@ -35,7 +35,7 @@ router.get('/training-expiring', authenticate, async (_req: Request, res: Respon
       where: { isActive: true, trainingExpiryDate: { lt: sixtyDaysFromNow } },
       include: { premises: { select: { name: true } } },
       orderBy: { trainingExpiryDate: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch expiring wardens', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch expiring training' } }); }
 });
@@ -46,7 +46,7 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
     const data = await prisma.femFireWarden.findMany({
       where: { premisesId: req.params.id },
       orderBy: { name: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch wardens', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch wardens' } }); }
 });

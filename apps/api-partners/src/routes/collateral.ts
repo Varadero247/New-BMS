@@ -41,7 +41,7 @@ router.get('/', async (req: Request, res: Response) => {
     const collateral = await portalPrisma.mktPartnerCollateral.findMany({
       where,
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: collateral });
   } catch (error) {

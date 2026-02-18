@@ -86,7 +86,7 @@ router.get('/available', async (req: Request, res: Response) => {
     const data = await prisma.fsSvcTechnician.findMany({
       where: { deletedAt: null, status: 'AVAILABLE' } as any,
       orderBy: { name: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to list available technicians', { error: error instanceof Error ? error.message : 'Unknown error' });
@@ -164,7 +164,7 @@ router.get('/:id/schedule', async (req: Request, res: Response) => {
         ...(Object.keys(dateFilter).length > 0 ? { scheduledStart: dateFilter } : {}),
       },
       orderBy: { scheduledStart: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: { technician, jobs } });
   } catch (error: unknown) {

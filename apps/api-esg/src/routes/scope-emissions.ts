@@ -29,7 +29,8 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const { scope } = req.query as Record<string, string>;
     const where: Record<string, any> = { orgId, deletedAt: null };
     if (scope) { const n = parseInt(scope, 10); if (!isNaN(n)) where.scope = n; }
-    const data = await prisma.esgScopeEmission.findMany({ where, orderBy: { period: 'desc' } });
+    const data = await prisma.esgScopeEmission.findMany({ where, orderBy: { period: 'desc' },
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });

@@ -239,10 +239,12 @@ describe('Environment Audits API Routes', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveLength(2);
-      expect(mockPrisma.envAuditSchedule.findMany).toHaveBeenCalledWith({
-        where: { active: true },
-        orderBy: { nextDueDate: 'asc' },
-      });
+      expect(mockPrisma.envAuditSchedule.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { active: true },
+          orderBy: { nextDueDate: 'asc' },
+        })
+      );
     });
 
     it('should handle database errors', async () => {

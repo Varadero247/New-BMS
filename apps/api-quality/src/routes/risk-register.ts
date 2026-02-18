@@ -62,7 +62,7 @@ router.get('/heatmap', async (req: Request, res: Response) => {
     const items = await prisma.qualRiskRegister.findMany({
       where,
       select: { id: true, referenceNumber: true, title: true, likelihood: true, impact: true, riskScore: true, status: true },
-    });
+      take: 1000});
 
     res.json({ success: true, data: items });
   } catch (error: unknown) {

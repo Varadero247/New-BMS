@@ -49,7 +49,7 @@ router.get('/appetite', authenticate, async (req: Request, res: Response) => {
     const statements = await prisma.riskAppetiteStatement.findMany({
       where: { isActive: true, OR: [{ organisationId: orgId }, { organisationId: null }] },
       orderBy: { category: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data: statements });
   } catch (error: unknown) { logger.error('Failed to fetch appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch appetite statements' } }); }
 });

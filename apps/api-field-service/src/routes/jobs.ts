@@ -138,7 +138,7 @@ router.get('/unassigned', async (req: Request, res: Response) => {
       where: { deletedAt: null, status: 'UNASSIGNED' } as any,
       include: { customer: true, site: true },
       orderBy: [{ priority: 'asc' }, { createdAt: 'asc' }],
-    });
+      take: 1000});
 
     res.json({ success: true, data });
   } catch (error: unknown) {

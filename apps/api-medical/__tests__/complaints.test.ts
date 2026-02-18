@@ -870,14 +870,16 @@ describe('Medical Complaint Handling & MDR API Routes', () => {
         .get('/api/complaints/trending')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.complaint.findMany).toHaveBeenCalledWith({
-        where: {
-          deletedAt: null,
-          complaintDate: { gte: expect.any(Date) },
-        },
-        select: { complaintDate: true, deviceName: true, source: true, severity: true },
-        orderBy: { complaintDate: 'asc' },
-      });
+      expect(mockPrisma.complaint.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            deletedAt: null,
+            complaintDate: { gte: expect.any(Date) },
+          },
+          select: { complaintDate: true, deviceName: true, source: true, severity: true },
+          orderBy: { complaintDate: 'asc' },
+        })
+      );
     });
 
     it('should handle database errors gracefully', async () => {

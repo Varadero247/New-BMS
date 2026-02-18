@@ -75,7 +75,7 @@ router.get('/low-stock', async (req: Request, res: Response) => {
         ],
       },
       orderBy: { quantity: 'asc' },
-    });
+      take: 1000});
 
     const lowStock = parts.filter((p: Record<string, unknown>) => {
       const threshold = (p.reorderPoint ?? p.minStock) as number;

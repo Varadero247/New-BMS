@@ -44,7 +44,7 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
     // Active targets
     const targets = await prisma.energyTarget.findMany({
       where: { deletedAt: null, year: now.getFullYear() } as any,
-    });
+      take: 1000});
     const onTrackTargets = targets.filter(t => t.status === 'ON_TRACK' || t.status === 'ACHIEVED').length;
 
     // Active projects
@@ -103,17 +103,17 @@ router.get('/esos', async (_req: Request, res: Response) => {
     const audits = await prisma.energyAudit.findMany({
       where: { deletedAt: null, type: { in: ['EXTERNAL', 'REGULATORY', 'ISO_50001'] } as any },
       orderBy: { scheduledDate: 'desc' },
-    });
+      take: 1000});
 
     const seus = await prisma.energySeu.findMany({
       where: { deletedAt: null } as any,
       orderBy: { consumptionPercentage: 'desc' },
-    });
+      take: 1000});
 
     const projects = await prisma.energyProject.findMany({
       where: { deletedAt: null } as any,
       orderBy: { estimatedSavings: 'desc' },
-    });
+      take: 1000});
 
     const totalConsumption = seus.reduce((sum, s) => sum + Number(s.annualConsumption), 0);
     const totalSavingsOpportunity = projects.reduce((sum, p) => sum + Number(p.estimatedSavings || 0), 0);
@@ -170,7 +170,7 @@ router.get('/secr', async (req: Request, res: Response) => {
       include: {
         meter: { select: { type: true, unit: true } },
       },
-    });
+      take: 1000});
 
     const byType: Record<string, { consumption: number; cost: number; count: number }> = {};
     for (const r of readings) {
@@ -197,7 +197,7 @@ router.get('/secr', async (req: Request, res: Response) => {
     const enpis = await prisma.energyEnpi.findMany({
       where: { deletedAt: null } as any,
       select: { name: true, unit: true, baselineValue: true, currentValue: true, targetValue: true },
-    });
+      take: 1000});
 
     const totalConsumption = Object.values(byType).reduce((sum, t) => sum + t.consumption, 0);
     const totalCost = Number(bills._sum.cost || 0);
@@ -248,7 +248,7 @@ router.get('/consumption', async (req: Request, res: Response) => {
       include: {
         meter: { select: { type: true, facility: true, unit: true, name: true } },
       },
-    });
+      take: 1000});
 
     // Filter by facility if provided
     const filtered = facility

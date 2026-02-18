@@ -99,7 +99,7 @@ router.get('/optimize/:technicianId/:date', async (req: Request, res: Response) 
       },
       include: { site: true, customer: true },
       orderBy: { scheduledStart: 'asc' },
-    });
+      take: 1000});
 
     // Simple optimization: order by scheduled start time
     const optimizedStops = jobs.map((job, index) => ({

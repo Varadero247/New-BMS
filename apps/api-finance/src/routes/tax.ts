@@ -52,7 +52,7 @@ router.get('/rates', async (req: Request, res: Response) => {
     const rates = await prisma.finTaxRate.findMany({
       where,
       orderBy: [{ jurisdiction: 'asc' }, { rate: 'asc' }],
-    });
+      take: 1000});
 
     res.json({ success: true, data: rates });
   } catch (error: unknown) {
@@ -336,7 +336,7 @@ router.get('/report', async (req: Request, res: Response) => {
       where,
       include: { taxRate: { select: { name: true, code: true, rate: true, jurisdiction: true } } },
       orderBy: { periodStart: 'asc' },
-    });
+      take: 1000});
 
     const summary = {
       totalSalesTax: returns.reduce((sum, r) => sum + Number(r.salesTax), 0),

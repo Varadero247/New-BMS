@@ -207,7 +207,7 @@ router.get('/:id/contacts', async (req: Request, res: Response) => {
     const contacts = await prisma.crmContact.findMany({
       where: { accountId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     return res.json({ success: true, data: contacts });
   } catch (error: unknown) {
@@ -230,7 +230,7 @@ router.get('/:id/deals', async (req: Request, res: Response) => {
     const deals = await prisma.crmDeal.findMany({
       where: { accountId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     return res.json({ success: true, data: deals });
   } catch (error: unknown) {

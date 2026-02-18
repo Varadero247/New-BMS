@@ -31,7 +31,7 @@ router.get('/service-due', authenticate, async (_req: Request, res: Response) =>
       where: { nextServiceDue: { lt: thirtyDaysFromNow } },
       include: { premises: { select: { name: true } } },
       orderBy: { nextServiceDue: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch service-due equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch service-due equipment' } }); }
 });
@@ -42,7 +42,7 @@ router.get('/premises/:id', authenticate, async (req: Request, res: Response) =>
     const data = await prisma.femEmergencyEquipment.findMany({
       where: { premisesId: req.params.id },
       orderBy: { location: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) { logger.error('Failed to fetch equipment', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch equipment' } }); }
 });

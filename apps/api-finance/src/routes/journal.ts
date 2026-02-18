@@ -157,7 +157,8 @@ router.post('/', async (req: Request, res: Response) => {
     if (period.status !== 'OPEN') return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: `Cannot post to a ${period.status} period` } });
 
     const accountIds = [...new Set(lines.map(l => l.accountId))];
-    const accounts = await prisma.finAccount.findMany({ where: { id: { in: accountIds }, deletedAt: null, isActive: true }, select: { id: true } });
+    const accounts = await prisma.finAccount.findMany({ where: { id: { in: accountIds }, deletedAt: null, isActive: true }, select: { id: true },
+      take: 1000});
     const foundIds = new Set(accounts.map(a => a.id));
     const missing = accountIds.filter(id => !foundIds.has(id));
     if (missing.length > 0) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Invalid or inactive account(s): ${missing.join(', ')}` } });
@@ -239,7 +240,8 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       }
 
       const accountIds = [...new Set(lines.map(l => l.accountId))];
-      const accounts = await prisma.finAccount.findMany({ where: { id: { in: accountIds }, deletedAt: null, isActive: true }, select: { id: true } });
+      const accounts = await prisma.finAccount.findMany({ where: { id: { in: accountIds }, deletedAt: null, isActive: true }, select: { id: true },
+      take: 1000});
       const foundIds = new Set(accounts.map(a => a.id));
       const missing = accountIds.filter(aid => !foundIds.has(aid));
       if (missing.length > 0) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Invalid or inactive account(s): ${missing.join(', ')}` } });

@@ -79,12 +79,12 @@ router.get('/alerts/expiry', authenticate, async (req: Request, res: Response) =
         where: { status: 'CURRENT', nextReviewDate: { lte: futureDate }, chemical: { orgId, isActive: true, deletedAt: null } },
         include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
         orderBy: { nextReviewDate: 'asc' },
-      }),
+        take: 1000}),
       prisma.chemInventory.findMany({
         where: { isActive: true, expiryDate: { lte: futureDate, not: null }, chemical: { orgId, isActive: true, deletedAt: null } },
         include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
         orderBy: { expiryDate: 'asc' },
-      }),
+        take: 1000}),
     ]);
     res.json({ success: true, data: { sdsExpiring, stockExpiring } });
   } catch (error: unknown) {
@@ -101,7 +101,7 @@ router.get('/alerts/incompatible', authenticate, async (req: Request, res: Respo
       where: { isActive: true, chemical: { orgId, isActive: true, deletedAt: null } as any },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
     res.json({ success: true, data: alerts });
   } catch (error: unknown) {
     logger.error('Failed to fetch incompatibility alerts', { error: (error as Error).message });

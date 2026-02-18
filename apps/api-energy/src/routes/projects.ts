@@ -67,7 +67,7 @@ router.get('/roi-summary', async (_req: Request, res: Response) => {
   try {
     const projects = await prisma.energyProject.findMany({
       where: { deletedAt: null, status: { in: ['COMPLETED', 'IN_PROGRESS'] } as any },
-    });
+      take: 1000});
 
     const totalInvestment = projects.reduce((sum, p) => sum + Number(p.investmentCost || 0), 0);
     const totalEstimatedSavings = projects.reduce((sum, p) => sum + Number(p.estimatedSavings || 0), 0);

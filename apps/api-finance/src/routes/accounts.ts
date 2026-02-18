@@ -174,7 +174,7 @@ router.get('/tree', async (_req: Request, res: Response) => {
       include: {
         _count: { select: { journalLines: true } },
       },
-    });
+      take: 1000});
 
     const tree = buildAccountTree(accounts);
     res.json({ success: true, data: tree });
@@ -208,7 +208,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
-    });
+      take: 1000});
 
     const balances = new Map<string, { account: Record<string, unknown>; totalDebit: number; totalCredit: number }>();
 
@@ -279,7 +279,7 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
-    });
+      take: 1000});
 
     const revenue: Record<string, { account: Record<string, unknown>; amount: number }> = {};
     const expenses: Record<string, { account: Record<string, unknown>; amount: number }> = {};
@@ -341,7 +341,7 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
-    });
+      take: 1000});
 
     const groups: Record<string, Record<string, { account: Record<string, unknown>; balance: number }>> = {
       ASSET: {},
@@ -367,7 +367,7 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
     const accounts = await prisma.finAccount.findMany({
       where: { type: { in: ['ASSET', 'LIABILITY', 'EQUITY'] }, deletedAt: null },
       select: { id: true, code: true, name: true, type: true, normalBalance: true, openingBalance: true },
-    });
+      take: 1000});
 
     for (const acc of accounts) {
       const group = groups[acc.type];
@@ -434,7 +434,7 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
-    });
+      take: 1000});
 
     // Categorize into operating, investing, financing
     const operating: { inflows: number; outflows: number } = { inflows: 0, outflows: 0 };
@@ -917,7 +917,7 @@ router.post('/entries', async (req: Request, res: Response) => {
     const accounts = await prisma.finAccount.findMany({
       where: { id: { in: accountIds }, deletedAt: null, isActive: true },
       select: { id: true },
-    });
+      take: 1000});
     const foundIds = new Set(accounts.map((a) => a.id));
     const missing = accountIds.filter((id) => !foundIds.has(id));
     if (missing.length > 0) {
@@ -1023,7 +1023,7 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
       const accounts = await prisma.finAccount.findMany({
         where: { id: { in: accountIds }, deletedAt: null, isActive: true },
         select: { id: true },
-      });
+        take: 1000});
       const foundIds = new Set(accounts.map((a) => a.id));
       const missing = accountIds.filter((aid) => !foundIds.has(aid));
       if (missing.length > 0) {

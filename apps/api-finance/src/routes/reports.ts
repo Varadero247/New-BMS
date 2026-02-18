@@ -273,7 +273,7 @@ router.get('/budget-vs-actual', async (req: Request, res: Response) => {
       where: { fiscalYear: year, deletedAt: null } as any,
       include: { account: { select: { id: true, code: true, name: true, type: true } } },
       orderBy: [{ account: { code: 'asc' } }, { month: 'asc' }],
-    });
+      take: 1000});
 
     // Group by account
     const byAccount: Record<string, { account: Record<string, unknown>; months: Record<string, unknown>[]; totalBudget: number; totalActual: number }> = {};
@@ -333,7 +333,7 @@ router.get('/revenue-breakdown', async (req: Request, res: Response) => {
       where,
       include: { customer: { select: { id: true, name: true, code: true } } },
       orderBy: { issueDate: 'asc' },
-    });
+      take: 1000});
 
     // Group by customer
     const byCustomer: Record<string, { customer: Record<string, unknown>; total: number; count: number }> = {};
@@ -375,7 +375,7 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
       where,
       include: { supplier: { select: { id: true, name: true, code: true } } },
       orderBy: { billDate: 'asc' },
-    });
+      take: 1000});
 
     // Group by supplier
     const bySupplier: Record<string, { supplier: Record<string, unknown>; total: number; count: number }> = {};
@@ -427,7 +427,7 @@ router.get('/cash-forecast', async (req: Request, res: Response) => {
       },
       select: { dueDate: true, amountDue: true },
       orderBy: { dueDate: 'asc' },
-    });
+      take: 1000});
 
     // Expected outflows (outstanding bills by due date)
     const outflows = await prisma.finBill.findMany({
@@ -441,7 +441,7 @@ router.get('/cash-forecast', async (req: Request, res: Response) => {
       },
       select: { dueDate: true, amountDue: true },
       orderBy: { dueDate: 'asc' },
-    });
+      take: 1000});
 
     const totalInflows = inflows.reduce((sum, i) => sum + Number(i.amountDue), 0);
     const totalOutflows = outflows.reduce((sum, o) => sum + Number(o.amountDue), 0);

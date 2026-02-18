@@ -101,7 +101,7 @@ router.get('/kri/breaches', authenticate, async (req: Request, res: Response) =>
       where: { isActive: true, currentStatus: { in: ['AMBER', 'RED'] }, risk: { orgId, deletedAt: null } } as any,
       include: { risk: { select: { id: true, title: true, referenceNumber: true, residualRiskLevel: true } } },
       orderBy: { updatedAt: 'desc' },
-    });
+      take: 1000});
     res.json({ success: true, data: kris });
   } catch (error: unknown) { logger.error('Failed to fetch KRI breaches', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch KRI breaches' } }); }
 });
@@ -116,7 +116,7 @@ router.get('/kri/due', authenticate, async (req: Request, res: Response) => {
       where: { isActive: true, nextMeasurementDue: { lte: nextWeek }, risk: { orgId, deletedAt: null } } as any,
       include: { risk: { select: { id: true, title: true, referenceNumber: true } } },
       orderBy: { nextMeasurementDue: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data: kris });
   } catch (error: unknown) { logger.error('Failed to fetch due KRIs', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch due KRIs' } }); }
 });

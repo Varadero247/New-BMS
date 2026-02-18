@@ -248,7 +248,7 @@ async function checkIsDescendant(categoryId: string, targetId: string): Promise<
   const children = await prisma.productCategory.findMany({
     where: { parentId: categoryId },
     select: { id: true },
-  });
+    take: 1000});
 
   for (const child of children) {
     if (child.id === targetId) return true;

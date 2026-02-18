@@ -82,7 +82,7 @@ router.get('/gantt/:projectId', async (req: AuthRequest, res: Response) => {
         assignedToId: true,
         priority: true,
       },
-    });
+      take: 1000});
 
     res.json({ success: true, data: tasks });
   } catch (error) {

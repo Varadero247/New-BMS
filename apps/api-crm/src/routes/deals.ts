@@ -64,7 +64,7 @@ router.get('/pipelines', async (_req: Request, res: Response) => {
     const pipelines = await prisma.crmPipeline.findMany({
       include: { stages: { orderBy: { order: 'asc' } } },
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     return res.json({ success: true, data: pipelines });
   } catch (error: unknown) {
@@ -162,7 +162,7 @@ router.get('/forecast', async (_req: Request, res: Response) => {
     const deals = await prisma.crmDeal.findMany({
       where: { status: 'OPEN', deletedAt: null } as any,
       select: { value: true, probability: true, currency: true },
-    });
+      take: 1000});
 
     const forecast = deals.reduce(
       (acc, deal) => {
@@ -196,7 +196,7 @@ router.get('/board', async (req: Request, res: Response) => {
     const deals = await prisma.crmDeal.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
-    });
+      take: 1000});
 
     // Group by stageId
     const board: Record<string, any[]> = {};
@@ -314,7 +314,7 @@ router.get('/:id', async (req: Request, res: Response) => {
       (deal as any).contactId
         ? prisma.crmContact.findMany({
             where: { id: (deal as any).contactId, deletedAt: null } as any,
-          })
+            take: 1000})
         : Promise.resolve([]),
     ]);
 

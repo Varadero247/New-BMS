@@ -131,7 +131,7 @@ campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
 
     const members = await prisma.crmCampaignMember.findMany({
       where: { campaignId: req.params.id, deletedAt: null } as any,
-    });
+      take: 1000});
 
     const totalMembers = members.length;
     const sent = members.filter((m) => ['SENT', 'OPENED', 'CLICKED', 'CONVERTED'].includes(m.status)).length;

@@ -90,7 +90,7 @@ router.get('/safety/summary', authenticate, async (req, res, next) => {
     const metrics = await prisma.safetyMetric.findMany({
       where: { year: targetYear },
       orderBy: { month: 'asc' },
-    });
+      take: 1000});
 
     // Calculate YTD totals
     const ytd = metrics.reduce(
@@ -117,7 +117,7 @@ router.get('/safety/summary', authenticate, async (req, res, next) => {
     // Get previous year for comparison
     const previousYearMetrics = await prisma.safetyMetric.findMany({
       where: { year: targetYear - 1 },
-    });
+      take: 1000});
 
     const previousYtd = previousYearMetrics.reduce(
       (acc, m) => ({
@@ -299,7 +299,7 @@ router.get('/quality/summary', authenticate, async (req, res, next) => {
     const metrics = await prisma.qualityMetric.findMany({
       where: { year: targetYear },
       orderBy: { month: 'asc' },
-    });
+      take: 1000});
 
     // Calculate YTD totals
     const ytd = metrics.reduce(
@@ -388,7 +388,7 @@ router.get('/compliance', authenticate, async (req, res, next) => {
   try {
     const scores = await prisma.complianceScore.findMany({
       orderBy: { calculatedAt: 'desc' },
-    });
+      take: 1000});
 
     // If no scores, return defaults
     if (scores.length === 0) {

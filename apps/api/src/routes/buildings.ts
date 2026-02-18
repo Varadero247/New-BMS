@@ -204,7 +204,7 @@ router.get('/:id/zones', authenticate, async (req: AuthRequest, res, next) => {
         _count: { select: { devices: true } },
       },
       orderBy: [{ floor: 'asc' }, { name: 'asc' }],
-    });
+      take: 1000});
 
     res.json({
       success: true,

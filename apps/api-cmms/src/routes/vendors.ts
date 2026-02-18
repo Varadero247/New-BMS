@@ -219,7 +219,7 @@ router.get('/:id/contracts', async (req: Request, res: Response) => {
     const contracts = await prisma.cmmsServiceContract.findMany({
       where: { vendorId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: contracts });
   } catch (error: unknown) {

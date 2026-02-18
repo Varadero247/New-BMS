@@ -81,7 +81,7 @@ router.get('/due-review', authenticate, async (req: Request, res: Response) => {
       where: { orgId, status: 'ACTIVE', reviewDate: { lte: futureDate }, deletedAt: null },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { reviewDate: 'asc' },
-    });
+      take: 1000});
     res.json({ success: true, data });
   } catch (error: unknown) {
     logger.error('Failed to fetch due reviews', { error: (error as Error).message });

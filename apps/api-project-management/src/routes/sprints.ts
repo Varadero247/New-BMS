@@ -65,7 +65,7 @@ router.get('/:id/stories', async (req: AuthRequest, res: Response) => {
     const stories = await prisma.projectUserStory.findMany({
       where: { sprintId: req.params.id, deletedAt: null } as any,
       orderBy: [{ backlogPriority: 'asc' }, { createdAt: 'asc' }],
-    });
+      take: 1000});
 
     res.json({ success: true, data: stories });
   } catch (error) {

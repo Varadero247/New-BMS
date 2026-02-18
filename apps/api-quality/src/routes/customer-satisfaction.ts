@@ -431,7 +431,7 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
         submittedAt: true,
       },
       orderBy: { submittedAt: 'asc' },
-    });
+      take: 1000});
 
     const totalResponses = responses.length;
 
@@ -521,7 +521,7 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
     const recentResponses = await prisma.surveyResponse.findMany({
       where: { submittedAt: { gte: ninetyDaysAgo } },
       select: { npsScore: true, csatScore: true, npsCategory: true, submittedAt: true },
-    });
+      take: 1000});
 
     const npsResponses = recentResponses.filter(r => r.npsCategory != null);
     const promoters = npsResponses.filter(r => r.npsCategory === 'PROMOTER').length;
@@ -545,7 +545,7 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         submittedAt: { gte: oneEightyDaysAgo, lt: ninetyDaysAgo },
       },
       select: { npsCategory: true },
-    });
+      take: 1000});
 
     const prevNps = previousResponses.filter(r => r.npsCategory != null);
     const prevPromoters = prevNps.filter(r => r.npsCategory === 'PROMOTER').length;

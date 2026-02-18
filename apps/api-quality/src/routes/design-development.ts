@@ -188,7 +188,7 @@ router.get('/:id', checkOwnership((prisma as any).designDevelopment), async (req
     const stages = await (prisma as any).designStage.findMany({
       where: { projectId: project.id },
       orderBy: { createdAt: 'asc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data: { ...project, stages } });
   } catch (error) {

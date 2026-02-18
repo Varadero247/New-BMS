@@ -132,7 +132,7 @@ router.get('/ageing', async (req: AuthRequest, res: Response) => {
         product: { select: { sku: true, name: true } },
         warehouse: { select: { code: true, name: true } },
       },
-    });
+      take: 1000});
 
     // Categorise by last received date
     const aged = items.map((item) => {

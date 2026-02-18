@@ -159,7 +159,7 @@ router.get('/heatmap', authenticate, async (req: Request, res: Response) => {
     const risks = await prisma.riskRegister.findMany({
       where,
       select: { id: true, title: true, referenceNumber: true, residualLikelihoodNum: true, residualConsequenceNum: true, residualRiskLevel: true, category: true, ownerName: true },
-    });
+      take: 1000});
     const matrix: Record<string, any[]> = {};
     for (const r of risks) {
       const l = r.residualLikelihoodNum || 3;
@@ -187,7 +187,7 @@ router.get('/overdue-review', authenticate, async (req: Request, res: Response) 
       where: { orgId, deletedAt: null, status: { not: 'CLOSED' } as any, nextReviewDate: { lt: new Date() } },
       orderBy: { nextReviewDate: 'asc' },
       select: { id: true, referenceNumber: true, title: true, ownerName: true, nextReviewDate: true, residualRiskLevel: true, category: true },
-    });
+      take: 1000});
     res.json({ success: true, data: risks });
   } catch (error: unknown) { logger.error('Failed to fetch overdue reviews', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch overdue reviews' } }); }
 });
@@ -200,7 +200,7 @@ router.get('/exceeds-appetite', authenticate, async (req: Request, res: Response
       where: { orgId, deletedAt: null, appetiteStatus: 'EXCEEDS', status: { not: 'CLOSED' } as any },
       orderBy: { residualScore: 'desc' },
       select: { id: true, referenceNumber: true, title: true, category: true, residualRiskLevel: true, residualScore: true, ownerName: true },
-    });
+      take: 1000});
     res.json({ success: true, data: risks });
   } catch (error: unknown) { logger.error('Failed to fetch exceeds-appetite', { error: (error as Error).message }); res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch risks exceeding appetite' } }); }
 });

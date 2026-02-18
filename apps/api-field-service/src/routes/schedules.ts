@@ -94,7 +94,7 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
     const schedules = await prisma.fsSvcSchedule.findMany({
       where,
       orderBy: { date: 'asc' },
-    });
+      take: 1000});
 
     const jobs = await prisma.fsSvcJob.findMany({
       where: {
@@ -110,7 +110,7 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
       },
       orderBy: { scheduledStart: 'asc' },
       include: { customer: true, site: true },
-    });
+      take: 1000});
 
     res.json({ success: true, data: { technician, schedules, jobs } });
   } catch (error: unknown) {

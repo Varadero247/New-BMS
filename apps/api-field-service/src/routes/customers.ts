@@ -149,7 +149,7 @@ router.get('/:id/sites', async (req: Request, res: Response) => {
     const data = await prisma.fsSvcSite.findMany({
       where: { customerId: req.params.id, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
-    });
+      take: 1000});
 
     res.json({ success: true, data });
   } catch (error: unknown) {
