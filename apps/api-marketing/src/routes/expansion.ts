@@ -69,6 +69,7 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
       const stale = await prisma.mktEmailLog.findMany({
         where: { template: { startsWith: 'onboarding_' }, sentAt: { lt: cutoff } },
         take: moduleLimit,
+        orderBy: { createdAt: 'desc' },
       });
       unusedModuleNudge = (stale || []).map((e: any) => e.email);
     } catch { /* DB unavailable — default to [] */ }
@@ -78,6 +79,7 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
       const improving = await (prisma as any).mktHealthScore.findMany({
         where: { ...(orgId ? { orgId } : {}), trend: 'IMPROVING' },
         take: 10,
+        orderBy: { createdAt: 'desc' },
       });
       growthFlag = (improving || []).map((s: any) => s.userId);
     } catch { /* DB unavailable — default to [] */ }

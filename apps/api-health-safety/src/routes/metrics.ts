@@ -40,6 +40,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     const metrics = await prisma.safetyMetric.findMany({
       where: { year },
       take: 100,
+      orderBy: { createdAt: 'desc' },
     });
 
     if (metrics.length === 0) {

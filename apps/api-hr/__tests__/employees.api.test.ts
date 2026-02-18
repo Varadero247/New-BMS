@@ -259,6 +259,7 @@ describe('HR Employees API Routes', () => {
         where: { employmentStatus: 'ACTIVE', deletedAt: null },
         select: expect.any(Object),
         take: 500,
+        orderBy: { createdAt: 'desc' },
       });
     });
 
@@ -564,6 +565,7 @@ describe('HR Employees API Routes', () => {
         where: { managerId: '53000000-0000-4000-a000-000000000001', employmentStatus: 'ACTIVE', deletedAt: null },
         include: expect.any(Object),
         take: 100,
+        orderBy: { createdAt: 'desc' },
       });
     });
 

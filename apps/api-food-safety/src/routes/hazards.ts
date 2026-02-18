@@ -66,6 +66,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       where: { deletedAt: null } as any,
       select: { type: true, severity: true, isSignificant: true },
       take: 10000,
+      orderBy: { createdAt: 'desc' },
     });
 
     const byType: Record<string, number> = {};

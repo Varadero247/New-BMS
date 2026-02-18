@@ -21,6 +21,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     const deals = await prisma.mktPartnerDeal.findMany({
       where: { partnerId },
       take: 500,
+      orderBy: { createdAt: 'desc' },
     });
 
     const totalEarned = deals

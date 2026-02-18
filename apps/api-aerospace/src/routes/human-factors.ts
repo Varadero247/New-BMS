@@ -224,6 +224,7 @@ router.get('/dirty-dozen', async (req: AuthRequest, res: Response) => {
         incidentDate: true,
       },
       take: 5000,
+      orderBy: { createdAt: 'desc' },
     });
 
     // Build month-by-month breakdown per category
@@ -313,6 +314,7 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         fitForDuty: true,
       },
       take: 2000,
+      orderBy: { createdAt: 'desc' },
     });
 
     const fatigueStats = {

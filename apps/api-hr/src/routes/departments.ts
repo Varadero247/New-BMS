@@ -185,6 +185,7 @@ router.get('/positions/all', async (req: Request, res: Response) => {
         _count: { select: { employees: true } },
       },
       take: 100,
+      orderBy: { createdAt: 'desc' },
     });
 
     res.json({ success: true, data: positions });

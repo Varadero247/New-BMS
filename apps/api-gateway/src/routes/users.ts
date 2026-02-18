@@ -46,6 +46,7 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
         where,
         skip,
         take: limitNum,
+        orderBy: { createdAt: 'desc' },
         select: {
           id: true,
           email: true,

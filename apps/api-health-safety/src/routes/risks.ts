@@ -102,6 +102,7 @@ router.get('/matrix', async (req: AuthRequest, res: Response) => {
       where: { status: 'ACTIVE', deletedAt: null } as any,
       select: { id: true, title: true, likelihood: true, severity: true, riskScore: true },
       take: 500,
+      orderBy: { createdAt: 'desc' },
     });
 
     const matrix: Record<string, { id: string; title: string; riskScore: number }[]> = {};

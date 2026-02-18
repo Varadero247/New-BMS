@@ -227,6 +227,7 @@ router.post('/reports', async (req: Request, res: Response) => {
     const expenses = await prisma.expense.findMany({
       where: { id: { in: data.expenseIds }, deletedAt: null },
       take: 100,
+      orderBy: { createdAt: 'desc' },
     });
 
     const totalAmount = expenses.reduce((sum, e) => sum + Number(e.amount), 0);

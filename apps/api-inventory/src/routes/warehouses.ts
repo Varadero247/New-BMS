@@ -142,6 +142,7 @@ router.get('/:id/inventory', checkOwnership(prisma.warehouse), async (req: AuthR
         where,
         skip,
         take: limitNum,
+        orderBy: { createdAt: 'desc' },
         include: {
           product: {
             select: {

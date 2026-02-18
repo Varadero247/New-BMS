@@ -65,7 +65,7 @@ router.get('/report', async (_req: Request, res: Response) => {
     const [categories, dpas, dataRequests] = await Promise.all([
       prisma.gdprDataCategory.findMany({ orderBy: { category: 'asc' }, take: 500 }),
       prisma.dataProcessingAgreement.findMany({ orderBy: { createdAt: 'desc' }, take: 500 }),
-      prisma.dataRequest.findMany({ take: 1000 }),
+      prisma.dataRequest.findMany({ take: 1000, orderBy: { createdAt: 'desc' } }),
     ]);
 
     const requestStats = {

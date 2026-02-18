@@ -26,6 +26,7 @@ router.get('/plans', scopeToUser, async (req: Request, res: Response) => {
         _count: { select: { employeeBenefits: true } },
       },
       take: 100,
+      orderBy: { createdAt: 'desc' },
     });
 
     res.json({ success: true, data: plans });
@@ -80,6 +81,7 @@ router.get('/employees/:employeeId', async (req: Request, res: Response) => {
         benefitPlan: true,
       },
       take: 100,
+      orderBy: { createdAt: 'desc' },
     });
 
     res.json({ success: true, data: benefits });

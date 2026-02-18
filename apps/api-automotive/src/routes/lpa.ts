@@ -397,6 +397,7 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       where: { status: 'COMPLETED', score: { not: null } },
       select: { layer: true, score: true },
       take: 10000,
+      orderBy: { createdAt: 'desc' },
     });
 
     const layerMap: Record<number, { total: number; count: number }> = {};
@@ -421,6 +422,7 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       where: { status: 'COMPLETED' },
       select: { processArea: true, passCount: true, failCount: true, naCount: true, totalQuestions: true },
       take: 10000,
+      orderBy: { createdAt: 'desc' },
     });
 
     const areaMap: Record<string, { totalApplicable: number; totalFails: number; auditCount: number }> = {};

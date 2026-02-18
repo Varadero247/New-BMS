@@ -123,6 +123,7 @@ router.get('/org-chart', async (_req: Request, res: Response) => {
         department: { select: { name: true } },
       },
       take: 500,
+      orderBy: { createdAt: 'desc' },
     });
 
     // Build hierarchical structure
@@ -352,6 +353,7 @@ router.get('/:id/subordinates', async (req: Request, res: Response) => {
         _count: { select: { subordinates: true } },
       },
       take: 100,
+      orderBy: { createdAt: 'desc' },
     });
 
     res.json({ success: true, data: subordinates });

@@ -358,6 +358,7 @@ router.get('/balances/:employeeId', async (req: Request, res: Response) => {
       } as any,
       include: { leaveType: true },
       take: 100,
+      orderBy: { createdAt: 'desc' },
     });
 
     res.json({ success: true, data: balances });
@@ -441,6 +442,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
         leaveType: { select: { name: true, color: true } },
       },
       take: 500,
+      orderBy: { createdAt: 'desc' },
     });
 
     res.json({ success: true, data: leaves });
