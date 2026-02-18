@@ -71,7 +71,7 @@ router.get('/variance-report', async (req: Request, res: Response) => {
     const { fiscalYear } = req.query;
 
     if (!fiscalYear) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'fiscalYear query parameter is required' } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'fiscalYear query parameter is required' } });
     }
 
     const budgets = await prisma.finBudget.findMany({

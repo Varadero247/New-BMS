@@ -136,10 +136,10 @@ router.post('/', async (req: Request, res: Response) => {
     // Validate each line has exactly one of debit/credit
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].debit > 0 && lines[i].credit > 0) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Line ${i + 1}: cannot have both debit and credit` } });
+        return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Line ${i + 1}: cannot have both debit and credit` } });
       }
       if (lines[i].debit === 0 && lines[i].credit === 0) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Line ${i + 1}: must have either debit or credit amount` } });
+        return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Line ${i + 1}: must have either debit or credit amount` } });
       }
     }
 
@@ -160,7 +160,7 @@ router.post('/', async (req: Request, res: Response) => {
     const accounts = await prisma.finAccount.findMany({ where: { id: { in: accountIds }, deletedAt: null, isActive: true }, select: { id: true } });
     const foundIds = new Set(accounts.map(a => a.id));
     const missing = accountIds.filter(id => !foundIds.has(id));
-    if (missing.length > 0) return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Invalid or inactive account(s): ${missing.join(', ')}` } });
+    if (missing.length > 0) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Invalid or inactive account(s): ${missing.join(', ')}` } });
 
     const authReq = req as AuthRequest;
     const reference = generateReference();
@@ -225,24 +225,24 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     if (lines) {
       for (let i = 0; i < lines.length; i++) {
         if (lines[i].debit > 0 && lines[i].credit > 0) {
-          return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Line ${i + 1}: cannot have both debit and credit` } });
+          return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Line ${i + 1}: cannot have both debit and credit` } });
         }
         if (lines[i].debit === 0 && lines[i].credit === 0) {
-          return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Line ${i + 1}: must have either debit or credit amount` } });
+          return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Line ${i + 1}: must have either debit or credit amount` } });
         }
       }
 
       const totalDebits = lines.reduce((s, l) => s + l.debit, 0);
       const totalCredits = lines.reduce((s, l) => s + l.credit, 0);
       if (Math.abs(totalDebits - totalCredits) > 0.01) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Debits (${totalDebits.toFixed(2)}) must equal credits (${totalCredits.toFixed(2)})` } });
+        return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Debits (${totalDebits.toFixed(2)}) must equal credits (${totalCredits.toFixed(2)})` } });
       }
 
       const accountIds = [...new Set(lines.map(l => l.accountId))];
       const accounts = await prisma.finAccount.findMany({ where: { id: { in: accountIds }, deletedAt: null, isActive: true }, select: { id: true } });
       const foundIds = new Set(accounts.map(a => a.id));
       const missing = accountIds.filter(aid => !foundIds.has(aid));
-      if (missing.length > 0) return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Invalid or inactive account(s): ${missing.join(', ')}` } });
+      if (missing.length > 0) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: `Invalid or inactive account(s): ${missing.join(', ')}` } });
 
       const entry = await prisma.$transaction(async (tx) => {
         await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } as any });

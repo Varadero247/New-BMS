@@ -190,7 +190,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
     const { periodId } = req.query;
 
     if (!periodId || typeof periodId !== 'string') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'periodId query parameter is required' } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'periodId query parameter is required' } });
     }
 
     const period = await prisma.finPeriod.findUnique({ where: { id: periodId } });
@@ -259,7 +259,7 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
     const { dateFrom, dateTo } = req.query;
 
     if (!dateFrom || !dateTo) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'dateFrom and dateTo query parameters are required' } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'dateFrom and dateTo query parameters are required' } });
     }
 
     const fromDate = new Date(String(dateFrom));
@@ -416,7 +416,7 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
     const { dateFrom, dateTo } = req.query;
 
     if (!dateFrom || !dateTo) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'dateFrom and dateTo query parameters are required' } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'dateFrom and dateTo query parameters are required' } });
     }
 
     const fromDate = new Date(String(dateFrom));
