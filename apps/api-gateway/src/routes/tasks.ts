@@ -122,8 +122,8 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const user = (req as AuthRequest).user;
     const orgId = (user as any).organisationId || (user as any).orgId || 'default';
 
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
 
     const result = await getTasks(orgId, {
       assigneeId: req.query.assigneeId as string | undefined,

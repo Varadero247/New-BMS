@@ -301,8 +301,8 @@ router.get('/history', requirePermission('analytics', 1), (req: Request, res: Re
   const user = (req as AuthRequest).user;
   if (!user) return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } });
 
-  const page = Math.max(1, parseInt(req.query.page as string) || 1);
-  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+  const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
   // Only show the current user's own query history (no cross-user data leakage)
   const userHistory = queryHistory.filter(h => h.userId === user.id);
   const total = userHistory.length;

@@ -52,8 +52,8 @@ router.get('/aggregate', async (_req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const skip = (page - 1) * limit;
     const status = req.query.status as string | undefined;
 

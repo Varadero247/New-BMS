@@ -30,8 +30,8 @@ router.get('/', async (_req: Request, res: Response) => {
 router.get('/:id/history', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const skip = (page - 1) * limit;
 
     const [incidents, total] = await Promise.all([

@@ -101,7 +101,7 @@ router.get('/:id/log', (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const orgId = (req.user as any)?.orgId || 'default';
-    const limit = parseInt(req.query.limit as string) || 50;
+    const limit = parseInt(req.query.limit as string, 10) || 50;
 
     const rule = getRuleById(id);
     if (!rule) {

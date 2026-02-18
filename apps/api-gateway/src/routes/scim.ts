@@ -293,8 +293,8 @@ router.use(scimAuth);
 // GET /scim/v2/Users — list users (supports filter query parameter)
 router.get('/Users', (req: Request, res: Response) => {
   try {
-    const startIndex = Math.max(1, parseInt(req.query.startIndex as string) || 1);
-    const count = Math.min(200, Math.max(1, parseInt(req.query.count as string) || 100));
+    const startIndex = Math.max(1, parseInt(req.query.startIndex as string, 10) || 1);
+    const count = Math.min(200, Math.max(1, parseInt(req.query.count as string, 10) || 100));
     const filterParam = req.query.filter as string | undefined;
 
     let allUsers = Array.from(scimUserStore.values());
@@ -584,8 +584,8 @@ router.delete('/Users/:id', (req: Request, res: Response) => {
 // GET /scim/v2/Groups — list groups (maps to Nexara roles, supports filter)
 router.get('/Groups', (req: Request, res: Response) => {
   try {
-    const startIndex = Math.max(1, parseInt(req.query.startIndex as string) || 1);
-    const count = Math.min(200, Math.max(1, parseInt(req.query.count as string) || 100));
+    const startIndex = Math.max(1, parseInt(req.query.startIndex as string, 10) || 1);
+    const count = Math.min(200, Math.max(1, parseInt(req.query.count as string, 10) || 100));
     const filterParam = req.query.filter as string | undefined;
 
     let allGroups = Array.from(scimGroupStore.values());

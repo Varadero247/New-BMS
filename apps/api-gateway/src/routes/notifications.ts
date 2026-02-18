@@ -17,8 +17,8 @@ export const bellState = new NotificationBellState();
 router.get('/', authenticate, (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
 
     const result = bellState.getAll(user!.id, page, limit);
 

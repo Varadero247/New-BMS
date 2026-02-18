@@ -240,7 +240,7 @@ router.post('/:id/test', (req: AuthRequest, res: Response) => {
 router.get('/:id/deliveries', (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const limit = parseInt(req.query.limit as string) || 20;
+    const limit = parseInt(req.query.limit as string, 10) || 20;
 
     const existing = getEndpoint(id);
     if (!existing) {

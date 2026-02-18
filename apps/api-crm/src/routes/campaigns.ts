@@ -64,8 +64,8 @@ campaignRouter.post('/', async (req: Request, res: Response) => {
 // GET / — List campaigns
 campaignRouter.get('/', async (req: Request, res: Response) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const skip = (page - 1) * limit;
     const status = req.query.status as string;
 
@@ -261,8 +261,8 @@ emailSequenceRouter.post('/', async (req: Request, res: Response) => {
 // GET / — List email sequences
 emailSequenceRouter.get('/', async (req: Request, res: Response) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };

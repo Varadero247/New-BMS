@@ -74,7 +74,7 @@ async function generateCoshhRef(orgId: string): Promise<string> {
 router.get('/due-review', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
-    const days = parseInt(req.query.days as string) || 30;
+    const days = parseInt(req.query.days as string, 10) || 30;
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
     const data = await prisma.chemCoshh.findMany({

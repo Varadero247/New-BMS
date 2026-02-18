@@ -76,8 +76,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // ============================================
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const skip = (page - 1) * limit;
 
     const where: any = { deletedAt: null };
@@ -303,8 +303,8 @@ router.post('/:id/test', checkOwnership(prisma.webhook), async (req: AuthRequest
 // ============================================
 router.get('/:id/deliveries', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
   try {
-    const page = Math.max(1, parseInt(req.query.page as string) || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const skip = (page - 1) * limit;
 
     const where: any = { webhookId: req.params.id };
