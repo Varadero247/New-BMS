@@ -123,7 +123,7 @@ describe('Templates API', () => {
         page: 1,
         limit: 20,
         total: 2,
-        pages: 1,
+        totalPages: 1,
       });
     });
 

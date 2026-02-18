@@ -147,7 +147,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     res.json({
       success: true,
       data: templates,
-      pagination: { page: parseInt(page, 10), limit: take, total, pages: Math.ceil(total / take) },
+      pagination: { page: parseInt(page, 10), limit: take, total, totalPages: Math.ceil(total / take) },
     });
   } catch (error: unknown) {
     logger.error('Request failed', { error: error instanceof Error ? error.message : 'Unknown error' });

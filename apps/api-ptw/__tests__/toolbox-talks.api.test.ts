@@ -49,7 +49,7 @@ describe('GET /api/toolbox-talks', () => {
     expect(res.body.pagination.page).toBe(2);
     expect(res.body.pagination.limit).toBe(10);
     expect(res.body.pagination.total).toBe(50);
-    expect(res.body.pagination.pages).toBe(5);
+    expect(res.body.pagination.totalPages).toBe(5);
   });
 
   it('should return 500 on database error', async () => {
