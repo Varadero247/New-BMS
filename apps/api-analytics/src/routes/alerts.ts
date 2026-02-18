@@ -55,7 +55,7 @@ router.get('/triggered', async (req: Request, res: Response) => {
     const alerts = await prisma.analyticsAlert.findMany({
       where: { status: 'TRIGGERED', deletedAt: null } as any,
       orderBy: { triggeredAt: 'desc' },
-      take: Math.min(Number(req.query.limit) || 50, 200),
+      take: Math.min(Math.max(1, parseInt(req.query.limit as string, 10) || 50), 200),
       skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
     });
 

@@ -61,7 +61,7 @@ router.get('/executive-dashboard', async (req: Request, res: Response) => {
     const kpis = await prisma.analyticsKpi.findMany({
       where: { deletedAt: null } as any,
       orderBy: [{ module: 'asc' }, { name: 'asc' }],
-      take: Math.min(Number(req.query.limit) || 50, 200),
+      take: Math.min(Math.max(1, parseInt(req.query.limit as string, 10) || 50), 200),
       skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
     });
 
@@ -89,7 +89,7 @@ router.get('/modules/:module', async (req: Request, res: Response) => {
     const kpis = await prisma.analyticsKpi.findMany({
       where: { module, deletedAt: null } as any,
       orderBy: { name: 'asc' },
-      take: Math.min(Number(req.query.limit) || 50, 200),
+      take: Math.min(Math.max(1, parseInt(req.query.limit as string, 10) || 50), 200),
       skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
     });
 
