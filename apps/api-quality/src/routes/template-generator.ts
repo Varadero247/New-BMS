@@ -266,7 +266,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
     const { category, isoStandard, page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * (parseInt(limit as string, 10) || 20);
+    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
 
     const where: Record<string, unknown> = { organisationId: (user as any).organisationId || 'default' };
     if (category) where.category = category;

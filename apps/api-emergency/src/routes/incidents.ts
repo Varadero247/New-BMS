@@ -73,7 +73,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { organisationId: orgId };
     if (status) where.status = status as any;
     if (emergencyType) where.emergencyType = emergencyType as any;
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.femEmergencyIncident.findMany({ where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100), orderBy: { reportedAt: 'desc' }, include: { premises: { select: { name: true } }, _count: { select: { decisions: true, timeline: true } } } }),
       prisma.femEmergencyIncident.count({ where }),

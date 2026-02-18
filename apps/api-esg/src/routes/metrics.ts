@@ -27,7 +27,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
     }
 
     const { page = '1', limit = '20' } = req.query;
-    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * (parseInt(limit as string, 10) || 20);
+    const skip = (Math.max(1, parseInt(page as string, 10) || 1) - 1) * Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
     const where: Record<string, any> = { metricId: req.params.id, deletedAt: null };

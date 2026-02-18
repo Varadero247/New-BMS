@@ -116,7 +116,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       ];
     }
 
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const take = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
 
     const [templates, total] = await Promise.all([

@@ -133,7 +133,7 @@ router.get('/register', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
     const { page = '1', limit = '50' } = req.query as Record<string, string>;
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const where = { orgId, deletedAt: null };
     const [data, total] = await Promise.all([
       prisma.riskRegister.findMany({
@@ -321,7 +321,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       { referenceNumber: { contains: search, mode: 'insensitive' } },
       { description: { contains: search, mode: 'insensitive' } },
     ];
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const validSorts = ['createdAt', 'residualScore', 'category', 'nextReviewDate', 'title'];
     const orderField = validSorts.includes(sort) ? sort : 'createdAt';
     const [data, total] = await Promise.all([

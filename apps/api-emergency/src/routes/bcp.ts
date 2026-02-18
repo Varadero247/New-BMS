@@ -57,7 +57,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const { status, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId };
     if (status) where.status = status as any;
-    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * (parseInt(limit, 10) || 20);
+    const skip = (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([
       prisma.femBusinessContinuityPlan.findMany({ where, skip, take: Math.min(Math.max(1, parseInt(limit, 10) || 20), 100), orderBy: { createdAt: 'desc' }, include: { _count: { select: { exercises: true } } } }),
       prisma.femBusinessContinuityPlan.count({ where }),
