@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { requirePermission } from '@ims/rbac';
@@ -280,6 +281,47 @@ router.put('/:id/dismiss', requirePermission('analytics', 3), async (req: Reques
       });
     }
 
+    // Try DB-backed alert first (real UUID records from monitoring system)
+    let dbAlert: Record<string, unknown> | null = null;
+    try {
+      dbAlert = await (prisma as any).analyticsAlert.findUnique({ where: { id } });
+    } catch { /* DB unavailable or model mismatch — fall through to seed data */ }
+
+    if (dbAlert) {
+      if (dbAlert.status === 'RESOLVED') {
+        return res.status(400).json({ success: false, error: { code: 'ALREADY_DISMISSED', message: 'Anomaly alert already dismissed' } });
+      }
+      const now = new Date().toISOString();
+      await (prisma as any).analyticsAlert.update({
+        where: { id },
+        data: {
+          status: 'RESOLVED',
+          acknowledgedBy: authReq.user!.id,
+          notificationChannels: { dismissedAt: now, dismissReason: parsed.data.reason },
+        },
+      });
+      const dismissed: AnomalyAlert = {
+        id: dbAlert.id as string,
+        kpiName: dbAlert.name as string,
+        module: dbAlert.metric as string,
+        detectedAt: (dbAlert.triggeredAt as Date | null)?.toISOString() ?? now,
+        severity: 'MEDIUM',
+        status: 'DISMISSED',
+        description: '',
+        expectedValue: Number(dbAlert.threshold ?? 0),
+        actualValue: Number(dbAlert.currentValue ?? 0),
+        deviationPercent: 0,
+        unit: '',
+        recommendation: '',
+        dismissedBy: authReq.user!.id,
+        dismissedAt: now,
+        dismissReason: parsed.data.reason,
+      };
+      logger.info('Anomaly dismissed (DB)', { id, userId: authReq.user!.id });
+      return res.json({ success: true, data: dismissed });
+    }
+
+    // Fall back to in-memory seed data
     const anomaly = SEED_ANOMALIES.find(a => a.id === id);
     if (!anomaly) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Anomaly alert not found' } });
@@ -289,8 +331,6 @@ router.put('/:id/dismiss', requirePermission('analytics', 3), async (req: Reques
       return res.status(400).json({ success: false, error: { code: 'ALREADY_DISMISSED', message: 'Anomaly alert already dismissed' } });
     }
 
-    // In production this would update the database.
-    // Return the dismissed version of the anomaly.
     const dismissed: AnomalyAlert = {
       ...anomaly,
       status: 'DISMISSED',

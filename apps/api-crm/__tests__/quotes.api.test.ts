@@ -469,17 +469,17 @@ describe('POST /api/quotes/:id/accept', () => {
 // ===================================================================
 
 describe('GET /api/quotes/:id/pdf', () => {
-  it('should return PDF mock data', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
+  it('should return a real PDF binary with correct headers', async () => {
+    (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, lines: [] });
 
     const res = await request(app).get('/api/quotes/quote-1/pdf');
 
     expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.data.url).toContain('quote-1');
-    expect(res.body.data.format).toBe('A4');
-    expect(res.body.data.quoteRef).toBe('QUO-2602-0001');
-    expect(res.body.data.generatedAt).toBeDefined();
+    expect(res.headers['content-type']).toMatch(/application\/pdf/);
+    expect(res.headers['content-disposition']).toMatch(/attachment/);
+    // PDF binary starts with %PDF-1.4
+    const bodyStr = Buffer.isBuffer(res.body) ? res.body.toString('ascii', 0, 8) : String(res.body ?? '');
+    expect(bodyStr.startsWith('%PDF-1.4')).toBe(true);
   });
 
   it('should return 404 when not found', async () => {

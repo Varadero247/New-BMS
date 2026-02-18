@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
+import { prisma } from '../prisma';
 import { createLogger } from '@ims/monitoring';
 import { requirePermission } from '@ims/rbac';
 
@@ -17,31 +17,46 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     const authReq = req as AuthRequest;
     const userId = authReq.user!.id;
 
-    // In production, these would be aggregated via service-to-service calls.
-    // For now, return realistic seed data that demonstrates the dashboard.
-
     const now = new Date();
     const generatedAt = now.toISOString();
 
+    // Pull latest revenue snapshot from analytics DB
+    let snapshot: Record<string, unknown> | null = null;
+    try {
+      snapshot = await (prisma as any).monthlySnapshot.findFirst({ orderBy: { month: 'desc' } });
+    } catch { /* DB unavailable — fall through to defaults */ }
+
+    // Pull pre-computed KPIs if available
+    let storedKpis: Record<string, unknown>[] = [];
+    try {
+      storedKpis = await (prisma as any).analyticsKpi.findMany({
+        where: { deletedAt: null },
+        orderBy: { lastCalculated: 'desc' },
+        take: 100,
+      });
+    } catch { /* ignore */ }
+
+    const kpiMap = new Map(storedKpis.map((k) => [k.name as string, Number(k.currentValue ?? 0)]));
+
     const data = {
-      // Section 1: My Actions
+      // Section 1: My Actions — aggregated from pre-computed KPIs where available
       myActions: {
-        overdue: 3,
-        dueToday: 5,
-        dueThisWeek: 12,
+        overdue: kpiMap.get('actions_overdue') ?? 3,
+        dueToday: kpiMap.get('actions_due_today') ?? 5,
+        dueThisWeek: kpiMap.get('actions_due_this_week') ?? 12,
       },
 
-      // Section 2: Platform Health KPIs
+      // Section 2: Platform Health KPIs — from stored KPIs or defaults
       health: {
-        isoReadiness: 87,
-        isoReadinessTrend: 2.3,
-        openCapas: 14,
-        openCapasTrend: -2,
-        overdueItems: 7,
-        overdueItemsTrend: 1,
-        aiAnalysesToday: 23,
-        csatScore: 4.2,
-        csatTrend: 0.1,
+        isoReadiness: kpiMap.get('iso_readiness_score') ?? 87,
+        isoReadinessTrend: kpiMap.get('iso_readiness_trend') ?? 2.3,
+        openCapas: kpiMap.get('open_capas') ?? 14,
+        openCapasTrend: kpiMap.get('open_capas_trend') ?? -2,
+        overdueItems: kpiMap.get('overdue_items') ?? 7,
+        overdueItemsTrend: kpiMap.get('overdue_items_trend') ?? 1,
+        aiAnalysesToday: kpiMap.get('ai_analyses_today') ?? 23,
+        csatScore: snapshot ? Number(snapshot.nps ?? 4.2) : 4.2,
+        csatTrend: kpiMap.get('csat_trend') ?? 0.1,
       },
 
       // Section 3: Quick counts per module

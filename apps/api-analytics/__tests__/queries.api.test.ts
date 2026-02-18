@@ -10,6 +10,7 @@ jest.mock('../src/prisma', () => ({
       update: jest.fn(),
       count: jest.fn(),
     },
+    $queryRawUnsafe: jest.fn(),
   },
   Prisma: {
     Decimal: jest.fn((v: any) => v),
@@ -190,13 +191,27 @@ describe('POST /api/queries/:id/execute', () => {
   it('should execute a query and return results', async () => {
     (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1', sql: 'SELECT 1' });
     (prisma as any).analyticsQuery.update.mockResolvedValue({ id: 'q-1', lastRun: new Date() });
+    (prisma as any).$queryRawUnsafe.mockResolvedValue([
+      { id: 1, name: 'Sample 1', value: 100 },
+      { id: 2, name: 'Sample 2', value: 200 },
+    ]);
 
     const res = await request(app).post('/api/queries/q-1/execute');
 
     expect(res.status).toBe(200);
     expect(res.body.data.results).toBeDefined();
     expect(res.body.data.results.rowCount).toBe(2);
+    expect(res.body.data.results.columns).toEqual(['id', 'name', 'value']);
     expect(res.body.data.executionMs).toBeDefined();
+  });
+
+  it('should reject non-SELECT queries', async () => {
+    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({ id: 'q-1', sql: 'DROP TABLE users' });
+
+    const res = await request(app).post('/api/queries/q-1/execute');
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_QUERY');
   });
 
   it('should return 404 for non-existent query', async () => {

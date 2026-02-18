@@ -131,19 +131,22 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Query not found' } });
     }
 
+    // Security guard: only SELECT / WITH (CTE) queries are permitted
+    const trimmedSql = (query.sql as string).trim().replace(/;\s*$/, '');
+    const firstWord = trimmedSql.split(/\s+/)[0].toUpperCase();
+    if (firstWord !== 'SELECT' && firstWord !== 'WITH') {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_QUERY', message: 'Only SELECT queries are permitted for safety' },
+      });
+    }
+
     const startTime = Date.now();
-
-    // Simulate query execution with mock results
-    const mockResults = {
-      columns: ['id', 'name', 'value'],
-      rows: [
-        { id: 1, name: 'Sample 1', value: 100 },
-        { id: 2, name: 'Sample 2', value: 200 },
-      ],
-      rowCount: 2,
-    };
-
+    const rows = await (prisma as any).$queryRawUnsafe(trimmedSql) as Record<string, unknown>[];
     const executionMs = Date.now() - startTime;
+
+    const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
+    const results = { columns, rows, rowCount: rows.length };
 
     // Update last run and avg execution time
     await prisma.analyticsQuery.update({
@@ -154,8 +157,8 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
       },
     });
 
-    logger.info('Query executed', { id, executionMs });
-    res.json({ success: true, data: { query: query.sql, results: mockResults, executionMs } });
+    logger.info('Query executed', { id, executionMs, rowCount: results.rowCount });
+    res.json({ success: true, data: { query: query.sql, results, executionMs } });
   } catch (error: unknown) {
     logger.error('Failed to execute query', { error: error instanceof Error ? error.message : 'Unknown error' });
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to execute query' } });
