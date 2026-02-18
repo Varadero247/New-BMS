@@ -105,7 +105,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!customer) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Customer not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     res.json({ success: true, data: customer });
@@ -141,7 +141,7 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     logger.error('Failed to create customer', { error: error instanceof Error ? error.message : 'Unknown error' });
     if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Customer code must be unique' } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Customer code must be unique' } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create customer' } });
   }
@@ -159,7 +159,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Customer not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -190,12 +190,12 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Customer not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
     const invoiceCount = await prisma.finInvoice.count({ where: { customerId: id, deletedAt: null } as any });
     if (invoiceCount > 0) {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot delete customer: ${invoiceCount} invoice(s) exist` } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Cannot delete customer: ${invoiceCount} invoice(s) exist` } });
     }
 
     const authReq = req as AuthRequest;

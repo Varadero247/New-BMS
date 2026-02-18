@@ -150,7 +150,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Validate meter exists
     const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
     if (!meter) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     const reading = await prisma.energyReading.create({
@@ -194,7 +194,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!reading) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Reading not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
     }
 
     res.json({ success: true, data: reading });
@@ -218,7 +218,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyReading.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Reading not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -255,7 +255,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyReading.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Reading not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Reading not found' } });
     }
 
     await prisma.energyReading.update({

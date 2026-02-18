@@ -216,7 +216,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!risk) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     res.json({ success: true, data: risk });
@@ -240,7 +240,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -283,7 +283,7 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
 
     const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
     }
 
     const authReq = req as AuthRequest;

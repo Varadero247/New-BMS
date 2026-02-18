@@ -217,7 +217,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!assessment) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk assessment not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
     }
 
     res.json({ success: true, data: assessment });
@@ -241,7 +241,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk assessment not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -282,7 +282,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk assessment not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -325,7 +325,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Risk assessment not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk assessment not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';

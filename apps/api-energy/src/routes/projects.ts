@@ -190,7 +190,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!project) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Project not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
     res.json({ success: true, data: project });
@@ -215,7 +215,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Project not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -258,7 +258,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Project not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
     await prisma.energyProject.update({
@@ -285,14 +285,14 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyProject.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Project not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
     if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Project is already completed' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Project is already completed' } });
     }
     if (existing.status === 'CANCELLED') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Cannot complete a cancelled project' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Cannot complete a cancelled project' } });
     }
 
     const investment = Number(existing.investmentCost || 0);

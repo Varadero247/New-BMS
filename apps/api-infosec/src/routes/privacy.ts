@@ -202,7 +202,7 @@ router.get('/ropa/:id', async (req: Request, res: Response) => {
     });
 
     if (!entry) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ROPA entry not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ROPA entry not found' } });
     }
 
     res.json({ success: true, data: entry });
@@ -225,7 +225,7 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.isRopa.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ROPA entry not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ROPA entry not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -341,7 +341,7 @@ router.get('/dpia/:id', async (req: Request, res: Response) => {
     });
 
     if (!dpia) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'DPIA not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'DPIA not found' } });
     }
 
     res.json({ success: true, data: dpia });
@@ -364,7 +364,7 @@ router.put('/dpia/:id/approve', async (req: Request, res: Response) => {
 
     const existing = await prisma.isDpia.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'DPIA not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'DPIA not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -490,7 +490,7 @@ router.put('/dsar/:id/respond', async (req: Request, res: Response) => {
 
     const existing = await prisma.isDsar.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'DSAR not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'DSAR not found' } });
     }
 
     const authReq = req as AuthRequest;

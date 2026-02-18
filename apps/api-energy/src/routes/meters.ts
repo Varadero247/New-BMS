@@ -154,14 +154,14 @@ router.post('/', async (req: Request, res: Response) => {
     // Check duplicate code
     const existing = await prisma.energyMeter.findFirst({ where: { code: data.code, deletedAt: null } as any });
     if (existing) {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Meter with code '${data.code}' already exists` } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Meter with code '${data.code}' already exists` } });
     }
 
     // Validate parent if provided
     if (data.parentMeterId) {
       const parent = await prisma.energyMeter.findFirst({ where: { id: data.parentMeterId, deletedAt: null } as any });
       if (!parent) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Parent meter not found' } });
+        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Parent meter not found' } });
       }
     }
 
@@ -186,7 +186,7 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     logger.error('Failed to create meter', { error: error instanceof Error ? error.message : 'Unknown error' });
     if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter code must be unique' } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Meter code must be unique' } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create meter' } });
   }
@@ -211,7 +211,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!meter) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     res.json({ success: true, data: meter });
@@ -235,7 +235,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -266,7 +266,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     await prisma.energyMeter.update({
@@ -295,7 +295,7 @@ router.get('/:id/readings', async (req: Request, res: Response) => {
 
     const meter = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
     if (!meter) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
     }
 
     const where: Record<string, unknown> = { meterId: id, deletedAt: null };

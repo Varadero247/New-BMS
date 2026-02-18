@@ -217,12 +217,12 @@ describe('Medical Design Validation API Routes', () => {
       expect(res.body.success).toBe(true);
     });
 
-    it('should return 400 when project not found', async () => {
+    it('should return 404 when project not found', async () => {
       mockPrisma.designProject.findUnique.mockResolvedValue(null);
 
       const res = await request(app).post('/api/validation').send(validBody);
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(404);
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
 

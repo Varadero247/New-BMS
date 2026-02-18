@@ -120,7 +120,7 @@ describe('POST /api/alerts', () => {
 
     const res = await request(app).post('/api/alerts').send({ ...validBody, meterId: '00000000-0000-0000-0000-000000000099' });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
   });
 
   it('should reject invalid body', async () => {

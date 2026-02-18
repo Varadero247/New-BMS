@@ -190,7 +190,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (data.meterId) {
       const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
       if (!meter) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
+        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
       }
     }
 
@@ -240,7 +240,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!bill) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Bill not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     res.json({ success: true, data: bill });
@@ -264,7 +264,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Bill not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -304,7 +304,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Bill not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     await prisma.energyBill.update({
@@ -330,11 +330,11 @@ router.put('/:id/verify', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBill.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Bill not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Bill not found' } });
     }
 
     if (existing.status !== 'PENDING') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only PENDING bills can be verified' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only PENDING bills can be verified' } });
     }
 
     const bill = await prisma.energyBill.update({

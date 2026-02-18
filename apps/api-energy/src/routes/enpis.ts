@@ -141,7 +141,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!enpi) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     res.json({ success: true, data: enpi });
@@ -165,7 +165,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -202,7 +202,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     await prisma.energyEnpi.update({
@@ -232,7 +232,7 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -279,7 +279,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     const where: Record<string, unknown> = { enpiId: id, deletedAt: null };
@@ -317,7 +317,7 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
 
     const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
     if (!enpi) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'EnPI not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'EnPI not found' } });
     }
 
     const dataPoints = await prisma.energyEnpiData.findMany({

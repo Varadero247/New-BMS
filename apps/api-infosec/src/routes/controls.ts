@@ -285,7 +285,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!control) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Control not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
     }
 
     res.json({ success: true, data: control });
@@ -308,7 +308,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
 
     const existing = await prisma.isControl.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Control not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -343,7 +343,7 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
 
     const existing = await prisma.isControl.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Control not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Control not found' } });
     }
 
     const authReq = req as AuthRequest;

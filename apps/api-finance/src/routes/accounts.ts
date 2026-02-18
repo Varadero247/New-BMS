@@ -195,7 +195,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
 
     const period = await prisma.finPeriod.findUnique({ where: { id: periodId } });
     if (!period) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Period not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Period not found' } });
     }
 
     const lines = await prisma.finJournalLine.findMany({
@@ -546,7 +546,7 @@ router.post('/periods', async (req: Request, res: Response) => {
     });
 
     if (overlap) {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Period overlaps with existing period: ${overlap.name}` } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Period overlaps with existing period: ${overlap.name}` } });
     }
 
     const period = await prisma.finPeriod.create({
@@ -576,7 +576,7 @@ router.put('/periods/:id/close', async (req: Request, res: Response) => {
 
     const period = await prisma.finPeriod.findUnique({ where: { id } });
     if (!period) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Period not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Period not found' } });
     }
     if (period.status === 'CLOSED') {
       return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Period is already closed' } });
@@ -632,7 +632,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Account not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     res.json({ success: true, data: account });
@@ -656,7 +656,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Check duplicate code
     const existing = await prisma.finAccount.findFirst({ where: { code, deletedAt: null } as any });
     if (existing) {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Account with code '${code}' already exists` } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Account with code '${code}' already exists` } });
     }
 
     // Validate parent exists if provided
@@ -691,7 +691,7 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     logger.error('Failed to create account', { error: error instanceof Error ? error.message : 'Unknown error' });
     if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Account code must be unique' } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Account code must be unique' } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create account' } });
   }
@@ -709,7 +709,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finAccount.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Account not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     // Prevent circular parent references
@@ -752,7 +752,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const account = await prisma.finAccount.findFirst({ where: { id, deletedAt: null } as any });
     if (!account) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Account not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Account not found' } });
     }
 
     // Reject if account has journal lines
@@ -857,7 +857,7 @@ router.get('/entries/:id', async (req: Request, res: Response) => {
     });
 
     if (!entry) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Journal entry not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
 
     res.json({ success: true, data: entry });
@@ -908,7 +908,7 @@ router.post('/entries', async (req: Request, res: Response) => {
     // Validate period exists and is OPEN
     const period = await prisma.finPeriod.findUnique({ where: { id: periodId } });
     if (!period) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Accounting period not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Accounting period not found' } });
     }
     if (period.status !== 'OPEN') {
       return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot post to a ${period.status} period` } });
@@ -984,7 +984,7 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.finJournalEntry.findUnique({ where: { id } });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Journal entry not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (existing.status !== 'DRAFT') {
       return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only DRAFT entries can be updated' } });
@@ -1113,7 +1113,7 @@ router.post('/entries/:id/post', async (req: Request, res: Response) => {
     });
 
     if (!entry) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Journal entry not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (entry.status !== 'DRAFT') {
       return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Entry is already ${entry.status}` } });
@@ -1163,7 +1163,7 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
     });
 
     if (!original) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Journal entry not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Journal entry not found' } });
     }
     if (original.status !== 'POSTED') {
       return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only POSTED entries can be reversed' } });

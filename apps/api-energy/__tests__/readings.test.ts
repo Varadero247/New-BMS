@@ -113,7 +113,7 @@ describe('POST /api/readings', () => {
       meterId: '00000000-0000-0000-0000-000000000099',
     });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
   });
 
   it('should reject invalid body', async () => {

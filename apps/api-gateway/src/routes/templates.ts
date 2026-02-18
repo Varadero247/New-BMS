@@ -247,7 +247,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Template not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
     res.json({ success: true, data: template });
   } catch (error: unknown) {
@@ -302,7 +302,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Template not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const parsed = updateTemplateSchema.safeParse(req.body);
@@ -347,7 +347,7 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Template not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     // Only ADMIN can delete built-in templates
@@ -377,7 +377,7 @@ router.post('/:id/clone', requireRole('MANAGER', 'ADMIN'), async (req: AuthReque
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!original) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Template not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const code = await generateCode(original.module);
@@ -418,7 +418,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Template not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const parsed = useTemplateSchema.safeParse(req.body);
@@ -462,7 +462,7 @@ router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
       select: { id: true },
     });
     if (!template) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Template not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const versions = await (prisma as any).templateVersion.findMany({
@@ -491,14 +491,14 @@ router.post(
         where: { templateId: req.params.id, version: versionNum },
       });
       if (!templateVersion) {
-        return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Version not found' } });
+        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Version not found' } });
       }
 
       const current = await (prisma as any).template.findFirst({
         where: { id: req.params.id, deletedAt: null } as any,
       });
       if (!current) {
-        return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Template not found' } });
+        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
       }
 
       // Snapshot current state before restoring
@@ -540,7 +540,7 @@ router.get('/:id/export', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!template) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Template not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
     const format = (req.query.format as string) === 'json' ? 'json' : 'html';

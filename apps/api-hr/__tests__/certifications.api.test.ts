@@ -166,11 +166,11 @@ describe('POST /api/certifications', () => {
     expect(res.body.success).toBe(true);
   });
 
-  it('returns 400 if employee not found', async () => {
+  it('returns 404 if employee not found', async () => {
     (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(null);
 
     const res = await request(app).post('/api/certifications').send(validBody);
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 

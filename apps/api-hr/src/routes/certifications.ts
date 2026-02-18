@@ -162,7 +162,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const employee = await prisma.employee.findUnique({ where: { id: data.employeeId } });
     if (!employee) {
-      return res.status(400).json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
     }
 
     const cert = await prisma.employeeCertification.create({

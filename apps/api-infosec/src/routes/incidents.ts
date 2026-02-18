@@ -161,7 +161,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!incident) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Security incident not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Security incident not found' } });
     }
 
     res.json({ success: true, data: incident });
@@ -184,7 +184,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
 
     const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Security incident not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Security incident not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -222,7 +222,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
 
     const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Security incident not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Security incident not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -257,7 +257,7 @@ router.post('/:id/notify', async (req: Request, res: Response) => {
 
     const existing = await prisma.isIncident.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Security incident not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Security incident not found' } });
     }
 
     if (!existing.gdprBreachNotification) {

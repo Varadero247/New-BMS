@@ -193,7 +193,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!gift) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Gift record not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     res.json({ success: true, data: gift });
@@ -217,7 +217,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Gift record not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -252,7 +252,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Gift record not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -282,7 +282,7 @@ router.put('/:id/decline', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Gift record not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -312,7 +312,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Gift record not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Gift record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';

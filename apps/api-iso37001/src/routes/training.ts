@@ -276,7 +276,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!record) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Training record not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
     }
 
     res.json({ success: true, data: record });
@@ -300,7 +300,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Training record not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -333,7 +333,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Training record not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Training record not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';

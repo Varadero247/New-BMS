@@ -341,7 +341,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ISMS audit not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
     }
 
     res.json({ success: true, data: audit });
@@ -361,7 +361,7 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
 
     const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ISMS audit not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
     }
 
     const ISO_27001_CLAUSES = [
@@ -439,7 +439,7 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
 
     const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ISMS audit not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -478,7 +478,7 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'ISMS audit not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'ISMS audit not found' } });
     }
 
     const authReq = req as AuthRequest;

@@ -182,20 +182,20 @@ describe('POST /api/goals', () => {
     expect(res.body.success).toBe(true);
   });
 
-  it('returns 400 when employee not found', async () => {
+  it('returns 404 when employee not found', async () => {
     (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue(null);
     (mockPrisma.performanceCycle.findUnique as jest.Mock).mockResolvedValue({ id: CYCLE_ID });
 
     const res = await request(app).post('/api/goals').send(validBody);
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
   });
 
-  it('returns 400 when cycle not found', async () => {
+  it('returns 404 when cycle not found', async () => {
     (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValue({ id: EMP_ID });
     (mockPrisma.performanceCycle.findUnique as jest.Mock).mockResolvedValue(null);
 
     const res = await request(app).post('/api/goals').send(validBody);
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
   });
 
   it('returns 400 on validation error', async () => {

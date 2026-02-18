@@ -122,7 +122,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!budget) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Budget not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     res.json({ success: true, data: budget });
@@ -171,7 +171,7 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     logger.error('Failed to create budget', { error: error instanceof Error ? error.message : 'Unknown error' });
     if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Budget entry already exists for this account/year/month combination' } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Budget entry already exists for this account/year/month combination' } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create budget' } });
   }
@@ -189,7 +189,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Budget not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     const { budgetAmount, actualAmount, ...rest } = parsed.data;
@@ -228,7 +228,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Budget not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Budget not found' } });
     }
 
     await prisma.finBudget.update({ where: { id }, data: { deletedAt: new Date() } });

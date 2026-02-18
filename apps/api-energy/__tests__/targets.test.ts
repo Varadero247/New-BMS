@@ -109,7 +109,7 @@ describe('POST /api/targets', () => {
 
     const res = await request(app).post('/api/targets').send({ ...validBody, baselineId: '00000000-0000-0000-0000-000000000099' });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     expect(res.body.error.message).toContain('Baseline');
   });
 

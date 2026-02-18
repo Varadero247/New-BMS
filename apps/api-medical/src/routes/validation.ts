@@ -129,7 +129,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     const project = await prisma.designProject.findUnique({ where: { id: data.projectId } });
     if (!project) {
-      return res.status(400).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Design project not found' } });
     }
 
     const validation = await prisma.designValidation.create({

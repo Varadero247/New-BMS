@@ -141,7 +141,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!seu) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'SEU not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SEU not found' } });
     }
 
     res.json({ success: true, data: seu });
@@ -165,7 +165,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'SEU not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SEU not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -199,7 +199,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'SEU not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'SEU not found' } });
     }
 
     await prisma.energySeu.update({

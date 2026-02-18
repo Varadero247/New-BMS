@@ -151,7 +151,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!baseline) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     res.json({ success: true, data: baseline });
@@ -175,7 +175,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -206,7 +206,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     await prisma.energyBaseline.update({
@@ -233,11 +233,11 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyBaseline.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
     }
 
     if (existing.status !== 'DRAFT') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Only DRAFT baselines can be approved' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Only DRAFT baselines can be approved' } });
     }
 
     const baseline = await prisma.energyBaseline.update({

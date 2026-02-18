@@ -196,7 +196,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!obligation) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Compliance obligation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' } });
     }
 
     res.json({ success: true, data: obligation });
@@ -220,7 +220,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Compliance obligation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -251,7 +251,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Compliance obligation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' } });
     }
 
     await prisma.energyComplianceObligation.update({
@@ -278,12 +278,12 @@ router.put('/:id/assess', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
 
     if (!status || !['COMPLIANT', 'NON_COMPLIANT', 'PARTIALLY_COMPLIANT'].includes(status)) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Valid status required: COMPLIANT, NON_COMPLIANT, or PARTIALLY_COMPLIANT' } });
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Valid status required: COMPLIANT, NON_COMPLIANT, or PARTIALLY_COMPLIANT' } });
     }
 
     const existing = await prisma.energyComplianceObligation.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Compliance obligation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance obligation not found' } });
     }
 
     const obligation = await prisma.energyComplianceObligation.update({

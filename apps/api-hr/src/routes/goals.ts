@@ -172,8 +172,8 @@ router.post('/', async (req: Request, res: Response) => {
       prisma.performanceCycle.findUnique({ where: { id: data.cycleId } }),
     ]);
 
-    if (!employee) return res.status(400).json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
-    if (!cycle) return res.status(400).json({ success: false, error: { code: 'NOT_FOUND', message: 'Performance cycle not found' } });
+    if (!employee) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
+    if (!cycle) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Performance cycle not found' } });
 
     const goal = await prisma.performanceGoal.create({
       data: {

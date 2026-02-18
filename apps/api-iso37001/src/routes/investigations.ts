@@ -217,7 +217,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!investigation) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
     }
 
     res.json({ success: true, data: investigation });
@@ -241,7 +241,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -274,7 +274,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -311,7 +311,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -348,7 +348,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Investigation not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Investigation not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';

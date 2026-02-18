@@ -106,7 +106,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (data.baselineId) {
       const baseline = await prisma.energyBaseline.findFirst({ where: { id: data.baselineId, deletedAt: null } as any });
       if (!baseline) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Baseline not found' } });
+        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Baseline not found' } });
       }
     }
 
@@ -150,7 +150,7 @@ router.get('/:id/progress', async (req: Request, res: Response) => {
     });
 
     if (!target) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Target not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
     const targetVal = Number(target.targetValue);
@@ -196,7 +196,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!target) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Target not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
     res.json({ success: true, data: target });
@@ -220,7 +220,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Target not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -254,7 +254,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Target not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Target not found' } });
     }
 
     await prisma.energyTarget.update({

@@ -104,7 +104,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!supplier) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Supplier not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     res.json({ success: true, data: supplier });
@@ -139,7 +139,7 @@ router.post('/', async (req: Request, res: Response) => {
   } catch (error: unknown) {
     logger.error('Failed to create supplier', { error: error instanceof Error ? error.message : 'Unknown error' });
     if (error != null && typeof error === 'object' && 'code' in error && (error as any).code === 'P2002') {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Supplier code must be unique' } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: 'Supplier code must be unique' } });
     }
     res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to create supplier' } });
   }
@@ -157,7 +157,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finSupplier.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Supplier not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     const supplier = await prisma.finSupplier.update({
@@ -181,12 +181,12 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finSupplier.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Supplier not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Supplier not found' } });
     }
 
     const poCount = await prisma.finPurchaseOrder.count({ where: { supplierId: id, deletedAt: null } as any });
     if (poCount > 0) {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot delete supplier: ${poCount} purchase order(s) exist` } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Cannot delete supplier: ${poCount} purchase order(s) exist` } });
     }
 
     await prisma.finSupplier.update({

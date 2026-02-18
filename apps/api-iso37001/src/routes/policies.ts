@@ -179,7 +179,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!policy) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Policy not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     res.json({ success: true, data: policy });
@@ -203,7 +203,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Policy not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -231,7 +231,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Policy not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
@@ -261,7 +261,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id, deletedAt: null } as any,
     });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Policy not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Policy not found' } });
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';

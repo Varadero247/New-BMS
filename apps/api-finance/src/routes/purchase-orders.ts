@@ -106,7 +106,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     });
 
     if (!order) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Purchase order not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
     }
 
     res.json({ success: true, data: order });
@@ -188,7 +188,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finPurchaseOrder.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Purchase order not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
     }
     if (existing.status === 'RECEIVED' || existing.status === 'CANCELLED') {
       return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot update a ${existing.status} purchase order` } });
@@ -229,10 +229,10 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
 
     const existing = await prisma.finPurchaseOrder.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Purchase order not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Purchase order not found' } });
     }
     if (existing.status !== 'DRAFT' && existing.status !== 'CANCELLED') {
-      return res.status(409).json({ success: false, error: { code: 'INTERNAL_ERROR', message: `Cannot delete a ${existing.status} purchase order` } });
+      return res.status(409).json({ success: false, error: { code: 'CONFLICT', message: `Cannot delete a ${existing.status} purchase order` } });
     }
 
     await prisma.finPurchaseOrder.update({

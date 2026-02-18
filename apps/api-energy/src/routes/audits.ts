@@ -136,7 +136,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!audit) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     res.json({ success: true, data: audit });
@@ -160,7 +160,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
@@ -194,7 +194,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     await prisma.energyAudit.update({
@@ -221,11 +221,11 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Audit not found' } });
     }
 
     if (existing.status === 'COMPLETED') {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Audit is already completed' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Audit is already completed' } });
     }
 
     const audit = await prisma.energyAudit.update({

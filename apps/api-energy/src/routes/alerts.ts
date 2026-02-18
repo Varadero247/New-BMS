@@ -101,7 +101,7 @@ router.post('/', async (req: Request, res: Response) => {
     if (data.meterId) {
       const meter = await prisma.energyMeter.findFirst({ where: { id: data.meterId, deletedAt: null } as any });
       if (!meter) {
-        return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Meter not found' } });
+        return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Meter not found' } });
       }
     }
 
@@ -143,7 +143,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!alert) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     res.json({ success: true, data: alert });
@@ -167,7 +167,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     const alert = await prisma.energyAlert.update({
@@ -193,7 +193,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     await prisma.energyAlert.update({
@@ -220,11 +220,11 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     if (existing.acknowledged) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert is already acknowledged' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Alert is already acknowledged' } });
     }
 
     const alert = await prisma.energyAlert.update({
@@ -254,11 +254,11 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
 
     const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Alert not found' } });
     }
 
     if (existing.resolvedAt) {
-      return res.status(400).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Alert is already resolved' } });
+      return res.status(400).json({ success: false, error: { code: 'INVALID_STATE', message: 'Alert is already resolved' } });
     }
 
     const alert = await prisma.energyAlert.update({

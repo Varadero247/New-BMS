@@ -149,7 +149,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 
     if (!asset) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Information asset not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Information asset not found' } });
     }
 
     res.json({ success: true, data: asset });
@@ -172,7 +172,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Information asset not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Information asset not found' } });
     }
 
     const authReq = req as AuthRequest;
@@ -202,7 +202,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
     if (!existing) {
-      return res.status(404).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Information asset not found' } });
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Information asset not found' } });
     }
 
     const authReq = req as AuthRequest;
