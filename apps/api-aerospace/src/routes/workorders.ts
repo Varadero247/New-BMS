@@ -11,6 +11,7 @@ const logger = createLogger('api-aerospace');
 const router: IRouter = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('tid', validateIdParam('tid'));
 
 // ============================================
 // AS9110 MRO Work Order Management — Interfaces

@@ -12,6 +12,7 @@ const router: IRouter = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('productId', validateIdParam('productId'));
 
 // GET /api/inventory/transactions - List transactions (audit trail)
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {

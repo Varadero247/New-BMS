@@ -11,6 +11,7 @@ const logger = createLogger('api-payroll');
 const router: Router = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('repaymentId', validateIdParam('repaymentId'));
 
 // GET /api/loans - Get all loans
 router.get('/', scopeToUser, async (req: Request, res: Response) => {

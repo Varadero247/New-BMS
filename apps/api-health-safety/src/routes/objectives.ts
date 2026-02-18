@@ -14,6 +14,7 @@ const router: IRouter = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('mid', validateIdParam('mid'));
 
 const OBJECTIVE_CATEGORIES = ['INCIDENT_REDUCTION', 'HAZARD_ELIMINATION', 'TRAINING', 'AUDIT', 'LEGAL_COMPLIANCE', 'HEALTH_WELLBEING', 'RISK_REDUCTION', 'CONTRACTOR_MANAGEMENT', 'OTHER'] as const;
 const OBJECTIVE_STATUSES = ['ACTIVE', 'ON_TRACK', 'AT_RISK', 'BEHIND', 'ACHIEVED', 'CANCELLED'] as const;

@@ -12,6 +12,7 @@ const router: Router = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('rowId', validateIdParam('rowId'));
 
 // Generate reference number
 async function generateRefNumber(): Promise<string> {

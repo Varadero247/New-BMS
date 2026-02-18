@@ -22,20 +22,20 @@ describe('POST /api/risks/:id/controls', () => {
     (prisma as any).riskControl.create.mockResolvedValue({ id: 'c1', controlType: 'PREVENTIVE' });
     (prisma as any).riskControl.findMany.mockResolvedValue([{ effectiveness: 'ADEQUATE' }]);
     (prisma as any).riskRegister.update.mockResolvedValue({});
-    const res = await request(app).post('/api/risks/r1/controls').send({ controlType: 'PREVENTIVE', description: 'Test control' });
+    const res = await request(app).post('/api/risks/00000000-0000-0000-0000-000000000001/controls').send({ controlType: 'PREVENTIVE', description: 'Test control' });
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 404 if risk not found', async () => {
     (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
-    const res = await request(app).post('/api/risks/r1/controls').send({ controlType: 'PREVENTIVE', description: 'Test' });
+    const res = await request(app).post('/api/risks/00000000-0000-0000-0000-000000000001/controls').send({ controlType: 'PREVENTIVE', description: 'Test' });
     expect(res.status).toBe(404);
   });
 
   it('should validate control type', async () => {
     (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
-    const res = await request(app).post('/api/risks/r1/controls').send({ controlType: 'INVALID', description: 'Test' });
+    const res = await request(app).post('/api/risks/00000000-0000-0000-0000-000000000001/controls').send({ controlType: 'INVALID', description: 'Test' });
     expect(res.status).toBe(400);
   });
 });
@@ -43,7 +43,7 @@ describe('POST /api/risks/:id/controls', () => {
 describe('GET /api/risks/:id/controls', () => {
   it('should return controls', async () => {
     (prisma as any).riskControl.findMany.mockResolvedValue([{ id: 'c1' }]);
-    const res = await request(app).get('/api/risks/r1/controls');
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/controls');
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
   });
@@ -55,13 +55,13 @@ describe('PUT /api/risks/:riskId/controls/:id', () => {
     (prisma as any).riskControl.update.mockResolvedValue({ id: 'c1', effectiveness: 'STRONG' });
     (prisma as any).riskControl.findMany.mockResolvedValue([{ effectiveness: 'STRONG' }]);
     (prisma as any).riskRegister.update.mockResolvedValue({});
-    const res = await request(app).put('/api/risks/r1/controls/c1').send({ effectiveness: 'STRONG' });
+    const res = await request(app).put('/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002').send({ effectiveness: 'STRONG' });
     expect(res.status).toBe(200);
   });
 
   it('should return 404 if control not found', async () => {
     (prisma as any).riskControl.findFirst.mockResolvedValue(null);
-    const res = await request(app).put('/api/risks/r1/controls/c1').send({ effectiveness: 'STRONG' });
+    const res = await request(app).put('/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002').send({ effectiveness: 'STRONG' });
     expect(res.status).toBe(404);
   });
 });
@@ -70,7 +70,7 @@ describe('DELETE /api/risks/:riskId/controls/:id', () => {
   it('should soft delete control', async () => {
     (prisma as any).riskControl.findFirst.mockResolvedValue({ id: 'c1' });
     (prisma as any).riskControl.update.mockResolvedValue({ id: 'c1', isActive: false });
-    const res = await request(app).delete('/api/risks/r1/controls/c1');
+    const res = await request(app).delete('/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002');
     expect(res.status).toBe(200);
   });
 });
@@ -79,7 +79,7 @@ describe('POST /api/risks/:riskId/controls/:id/test', () => {
   it('should record test result', async () => {
     (prisma as any).riskControl.findFirst.mockResolvedValue({ id: 'c1' });
     (prisma as any).riskControl.update.mockResolvedValue({ id: 'c1', lastTestedDate: new Date() });
-    const res = await request(app).post('/api/risks/r1/controls/c1/test').send({ testingNotes: 'Passed', effectiveness: 'STRONG' });
+    const res = await request(app).post('/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002/test').send({ testingNotes: 'Passed', effectiveness: 'STRONG' });
     expect(res.status).toBe(200);
   });
 });

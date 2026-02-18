@@ -4,9 +4,12 @@ import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 import { getControlEffectivenessOverall } from '../services/riskScoring';
+import { validateIdParam } from '@ims/shared';
 
 const router = Router();
 const logger = createLogger('risk-controls');
+router.param('id', validateIdParam());
+router.param('riskId', validateIdParam('riskId'));
 
 const controlSchema = z.object({
   controlType: z.enum(['PREVENTIVE', 'DETECTIVE', 'REACTIVE', 'DIRECTIVE']),

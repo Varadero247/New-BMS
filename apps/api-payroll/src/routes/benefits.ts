@@ -11,6 +11,7 @@ const logger = createLogger('api-payroll');
 const router: Router = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('employeeId', validateIdParam('employeeId'));
 
 // GET /api/benefits/plans - Get benefit plans
 router.get('/plans', scopeToUser, async (req: Request, res: Response) => {

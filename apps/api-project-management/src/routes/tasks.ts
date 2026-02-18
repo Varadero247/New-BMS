@@ -12,6 +12,7 @@ const logger = createLogger('api-project-management');
 const router: IRouter = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('projectId', validateIdParam('projectId'));
 
 // GET /api/tasks - List tasks by projectId
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {

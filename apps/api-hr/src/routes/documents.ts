@@ -11,6 +11,7 @@ const logger = createLogger('api-hr');
 const router: Router = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('employeeId', validateIdParam('employeeId'));
 
 // GET /api/documents - Get employee documents
 router.get('/', scopeToUser, async (req: Request, res: Response) => {

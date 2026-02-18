@@ -12,6 +12,7 @@ const logger = createLogger('api-medical');
 const router: IRouter = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('hazardId', validateIdParam('hazardId'));
 
 // ============================================
 // HELPERS

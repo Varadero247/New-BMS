@@ -14,6 +14,7 @@ const router: IRouter = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('productId', validateIdParam('productId'));
 
 // GET /api/inventory - List inventory levels
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {

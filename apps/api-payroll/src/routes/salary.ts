@@ -11,6 +11,7 @@ const logger = createLogger('api-payroll');
 const router: Router = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
+router.param('employeeId', validateIdParam('employeeId'));
 
 // GET /api/salary/component-types - Get salary component types
 router.get('/component-types', scopeToUser, async (req: Request, res: Response) => {

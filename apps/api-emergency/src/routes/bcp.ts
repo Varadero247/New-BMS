@@ -3,9 +3,12 @@ import { z } from 'zod';
 import { authenticate , type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+import { validateIdParam } from '@ims/shared';
 
 const router = Router();
 const logger = createLogger('emergency-bcp');
+router.param('id', validateIdParam());
+router.param('bcpId', validateIdParam('bcpId'));
 
 const emergencyTypeEnum = z.enum(['FIRE', 'EXPLOSION', 'CHEMICAL_SPILL', 'GAS_LEAK', 'FLOOD', 'STRUCTURAL_FAILURE', 'POWER_FAILURE', 'CYBER_ATTACK', 'BOMB_THREAT', 'CIVIL_UNREST', 'PANDEMIC', 'SEVERE_WEATHER', 'UTILITY_FAILURE', 'MEDICAL_MASS_CASUALTY', 'TERRORISM', 'ENVIRONMENTAL_RELEASE', 'SUPPLY_CHAIN_DISRUPTION', 'OTHER']);
 const bcpStatusEnum = z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'UNDER_REVIEW', 'SUPERSEDED']);
