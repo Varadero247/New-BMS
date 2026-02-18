@@ -90,7 +90,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       keyRisks: z.string().optional(),
       accomplishments: z.string().optional(),
       nextPeriodPlans: z.string().optional(),
-      progressPercentage: z.number().nonnegative().optional(),
+      progressPercentage: z.number().min(0).max(100).optional(),
       budgetConsumed: z.number().nonnegative().optional(),
       scheduleVariance: z.number().optional(),
       costVariance: z.number().nonnegative().optional(),

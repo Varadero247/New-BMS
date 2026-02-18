@@ -101,7 +101,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       actionsRequired: z.boolean().optional(),
       reviewFrequency: z.string().optional(),
       progressNotes: z.string().optional(),
-      progressPercent: z.number().optional(),
+      progressPercent: z.number().min(0).max(100).optional(),
       aiSmartAnalysis: z.string().optional(),
       aiImprovedStatement: z.string().optional(),
       aiSuggestedKPIs: z.string().optional(),

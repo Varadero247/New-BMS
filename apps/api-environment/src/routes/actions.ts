@@ -177,7 +177,7 @@ const actionUpdateSchema = z.object({
   verificationDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
   verifiedBy: z.string().optional(),
   status: z.string().optional(),
-  progress: z.number().optional(),
+  progress: z.number().min(0).max(100).optional(),
   evidence: z.string().optional(),
   resources: z.string().optional(),
   budget: z.number().nonnegative().optional(),

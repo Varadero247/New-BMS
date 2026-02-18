@@ -264,7 +264,7 @@ router.put('/enrollments/:id', checkOwnership(prisma.hRTrainingEnrollment), asyn
   try {
     const schema = z.object({
       status: z.enum(['ENROLLED', 'WAITLISTED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'CANCELLED', 'NO_SHOW']).optional(),
-      attendancePercent: z.number().optional(),
+      attendancePercent: z.number().min(0).max(100).optional(),
       assessmentScore: z.number().nonnegative().optional(),
       passed: z.boolean().optional(),
       certificateUrl: z.string().trim().url('Invalid URL').optional(),
