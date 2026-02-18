@@ -172,32 +172,96 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
       });
     }
 
-    // AI fallback — attempt to classify intent when no pattern matches
-    try {
-      const aiProvider = process.env.AI_PROVIDER_URL || process.env.OPENAI_API_KEY ? 'configured' : null;
-      if (aiProvider) {
+    // AI fallback — call the configured AI provider for intent classification
+    const openAiKey = process.env.OPENAI_API_KEY;
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    const aiProviderUrl = process.env.AI_PROVIDER_URL;
+    const hasAiProvider = !!(openAiKey || anthropicKey || aiProviderUrl);
+
+    if (hasAiProvider) {
+      // Default interpretation returned even if the AI call fails (provider configured but unavailable)
+      let aiInterpretation = 'AI-assisted interpretation — query could not be fully classified. Try one of the example queries.';
+      let aiConfidence = 0.3;
+
+      try {
         logger.info('NLQ AI fallback triggered', { query: sanitized });
-        // In production, this would call the AI provider for intent classification
-        // For now, return a helpful message indicating AI analysis would be used
-        recordQuery(user.id, query, 0, 0.3);
-        return res.json({
-          success: true,
-          data: {
-            query: {
-              original: query,
-              sanitized,
-              interpretation: 'Your query is being processed by AI-assisted analysis.',
-              confidence: 0.3,
-            },
-            results: { columns: [], rows: [], totalCount: 0 },
-            suggestions: EXAMPLE_QUERIES.slice(0, 4),
-            executionTimeMs: Date.now() - queryStart,
-            aiAssisted: true,
-          },
-        });
+
+        const systemPrompt = `You are a natural-language query assistant for an ISO management system (IMS) with modules for quality, health & safety, environment, HR, finance, CRM, incidents, audits, CAPA, risks, and more. Classify the user's query and return JSON only:
+{"interpretation": "...", "modules": ["..."], "confidence": 0.0-1.0, "suggestion": "Try one of the example queries below if this query is unclear"}`;
+
+        const userMessage = `Query: "${sanitized}"\nClassify and interpret this query for an ISO management system.`;
+
+        if (openAiKey) {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 10000);
+          try {
+            const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${openAiKey}` },
+              body: JSON.stringify({ model: 'gpt-4o-mini', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }], temperature: 0.3, max_tokens: 200 }),
+              signal: ctrl.signal,
+            });
+            if (aiRes.ok) {
+              const aiData: any = await aiRes.json();
+              const content = aiData.choices?.[0]?.message?.content || '';
+              const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
+              aiInterpretation = parsed.interpretation || content;
+              aiConfidence = Math.min(0.9, Math.max(0.3, parsed.confidence || 0.5));
+            }
+          } finally { clearTimeout(t); }
+        } else if (anthropicKey) {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 10000);
+          try {
+            const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' },
+              body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 200, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] }),
+              signal: ctrl.signal,
+            });
+            if (aiRes.ok) {
+              const aiData: any = await aiRes.json();
+              const content = aiData.content?.[0]?.text || '';
+              const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
+              aiInterpretation = parsed.interpretation || content;
+              aiConfidence = Math.min(0.9, Math.max(0.3, parsed.confidence || 0.5));
+            }
+          } finally { clearTimeout(t); }
+        } else if (aiProviderUrl) {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 10000);
+          try {
+            const aiRes = await fetch(`${aiProviderUrl}/chat/completions`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }], temperature: 0.3, max_tokens: 200 }),
+              signal: ctrl.signal,
+            });
+            if (aiRes.ok) {
+              const aiData: any = await aiRes.json();
+              const content = aiData.choices?.[0]?.message?.content || '';
+              const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
+              aiInterpretation = parsed.interpretation || content;
+              aiConfidence = Math.min(0.9, Math.max(0.3, parsed.confidence || 0.5));
+            }
+          } finally { clearTimeout(t); }
+        }
+      } catch (aiErr: unknown) {
+        logger.warn('NLQ AI fallback failed', { error: (aiErr as Error).message });
+        // Keep defaults: aiInterpretation and aiConfidence = 0.3
       }
-    } catch (aiErr: unknown) {
-      logger.warn('NLQ AI fallback failed', { error: (aiErr as Error).message });
+
+      recordQuery(user.id, query, 0, aiConfidence);
+      return res.json({
+        success: true,
+        data: {
+          query: { original: query, sanitized, interpretation: aiInterpretation, confidence: aiConfidence },
+          results: { columns: [], rows: [], totalCount: 0 },
+          suggestions: EXAMPLE_QUERIES.slice(0, 4),
+          executionTimeMs: Date.now() - queryStart,
+          aiAssisted: true,
+        },
+      });
     }
 
     // No match found

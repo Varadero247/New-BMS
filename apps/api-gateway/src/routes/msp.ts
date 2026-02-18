@@ -128,6 +128,13 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
 
     mspLinks.set(id, link);
 
+    // Persist audit entry (fire-and-forget — link creation succeeds regardless)
+    void (async () => {
+      try {
+        await prisma.auditLog.create({ data: { userId, action: 'MSP_LINK_CREATED', entity: 'msp_link', entityId: id, newData: link as any } });
+      } catch (e: unknown) { logger.warn('Audit log write failed', { error: (e as Error).message }); }
+    })();
+
     logger.info('MSP link created', { linkId: id, consultant: userId, client: clientOrganisationId });
 
     res.status(201).json({ success: true, data: link });
@@ -318,6 +325,12 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
 
     mspLinks.set(req.params.id, link);
 
+    void (async () => {
+      try {
+        await prisma.auditLog.create({ data: { userId: req.user!.id, action: 'MSP_LINK_UPDATED', entity: 'msp_link', entityId: req.params.id, newData: { status, permissions, whiteLabel } as any } });
+      } catch (e: unknown) { logger.warn('Audit log write failed', { error: (e as Error).message }); }
+    })();
+
     logger.info('MSP link updated', { linkId: req.params.id, status, consultant: req.user!.id });
 
     res.json({ success: true, data: link });
@@ -359,6 +372,12 @@ router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
     link.status = 'REVOKED';
     mspLinks.set(req.params.id, link);
 
+    void (async () => {
+      try {
+        await prisma.auditLog.create({ data: { userId: req.user!.id, action: 'MSP_LINK_REVOKED', entity: 'msp_link', entityId: req.params.id } });
+      } catch (e: unknown) { logger.warn('Audit log write failed', { error: (e as Error).message }); }
+    })();
+
     logger.info('MSP link revoked', { linkId: req.params.id, consultant: req.user!.id });
 
     res.json({ success: true, data: { message: 'MSP link revoked', linkId: req.params.id } });
@@ -397,16 +416,35 @@ router.get('/msp-link/:id/audit-log', async (req: AuthRequest, res: Response) =>
       });
     }
 
-    // Placeholder audit log — in production, this queries the audit trail table
+    // Query audit log from DB; fall back to creation entry if DB unavailable
+    let entries: Array<{ timestamp: string; action: string; user: string | null; details: string }> = [];
+    let total = 0;
+    try {
+      const logs = await prisma.auditLog.findMany({
+        where: { entity: 'msp_link', entityId: req.params.id },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      });
+      entries = logs.map((log) => ({
+        timestamp: log.createdAt.toISOString(),
+        action: log.action,
+        user: log.userId,
+        details: log.action.replace(/_/g, ' ').toLowerCase(),
+      }));
+      total = entries.length;
+    } catch {
+      // Fallback: return the in-memory link creation entry
+      entries = [{ timestamp: link.linkedAt, action: 'LINK_CREATED', user: link.consultantEmail, details: 'MSP link established' }];
+      total = 1;
+    }
+
     res.json({
       success: true,
       data: {
         linkId: req.params.id,
         clientName: link.clientOrganisationName,
-        entries: [
-          { timestamp: link.linkedAt, action: 'LINK_CREATED', user: link.consultantEmail, details: 'MSP link established' },
-        ],
-        total: 1,
+        entries,
+        total,
       },
     });
   } catch (error: unknown) {
