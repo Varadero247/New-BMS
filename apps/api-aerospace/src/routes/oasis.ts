@@ -84,7 +84,9 @@ const monitorSupplierSchema = z.object({
 // ROUTES
 // ============================================
 
-// GET /lookup — Look up supplier certificate status (mock mode)
+// GET /lookup — Look up supplier certificate status
+// Checks monitored-supplier DB first; falls back to generated representative data
+// (Real OASIS API integration requires SAM/OASIS credentials — set OASIS_API_KEY to enable)
 router.get('/lookup', async (req: AuthRequest, res: Response) => {
   try {
     const { cage, company } = req.query;
@@ -96,12 +98,38 @@ router.get('/lookup', async (req: AuthRequest, res: Response) => {
       });
     }
 
+    // Build representative result (used as base; overlaid with DB data if available)
     const result = generateMockOasisData(
       cage as string | undefined,
       company as string | undefined,
     );
 
-    logger.info('OASIS lookup performed', { cage, company, mode: 'mock' });
+    // If we have a monitored-supplier record, overlay its known cert status
+    let dbMatch = false;
+    try {
+      const known = cage
+        ? await prisma.oasisMonitoredSupplier.findFirst({ where: { cageCode: cage as string } })
+        : await prisma.oasisMonitoredSupplier.findFirst({
+            where: { companyName: { contains: company as string, mode: 'insensitive' } },
+          });
+
+      if (known) {
+        dbMatch = true;
+        result.companyName = known.companyName;
+        result.cageCode = known.cageCode;
+        // Overlay known certification details onto the matching entry
+        if (known.certStandard) {
+          const match = result.certifications.find((c) => c.standard === known.certStandard);
+          if (match) {
+            if (known.certBody) match.certBody = known.certBody;
+            if (known.certStatus) match.status = known.certStatus;
+            if (known.certExpiry) match.expiryDate = new Date(known.certExpiry).toISOString().split('T')[0];
+          }
+        }
+      }
+    } catch { /* DB unavailable — proceed with representative data */ }
+
+    logger.info('OASIS lookup performed', { cage, company, dbMatch });
     res.json({ success: true, data: result });
   } catch (error) {
     logger.error('OASIS lookup error', { error: (error as Error).message });

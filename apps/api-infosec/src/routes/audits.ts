@@ -362,7 +362,7 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
       return res.status(404).json({ success: false, error: 'ISMS audit not found' });
     }
 
-    const checklist = [
+    const ISO_27001_CLAUSES = [
       { clause: '4.1', title: 'Understanding the organization and its context', category: 'Context of the Organization' },
       { clause: '4.2', title: 'Understanding the needs and expectations of interested parties', category: 'Context of the Organization' },
       { clause: '4.3', title: 'Determining the scope of the ISMS', category: 'Context of the Organization' },
@@ -387,6 +387,27 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
       { clause: '10.1', title: 'Continual improvement', category: 'Improvement' },
       { clause: '10.2', title: 'Nonconformity and corrective action', category: 'Improvement' },
     ];
+
+    // Enrich each clause with finding counts from this specific audit
+    const findings = await prisma.isAuditFinding.findMany({
+      where: { auditId: id } as any,
+    });
+    const findingsByClause = new Map<string, { count: number; hasOpen: boolean }>();
+    for (const f of findings || []) {
+      const clause = (f as any).clause as string | undefined;
+      if (!clause) continue;
+      const entry = findingsByClause.get(clause) ?? { count: 0, hasOpen: false };
+      findingsByClause.set(clause, {
+        count: entry.count + 1,
+        hasOpen: entry.hasOpen || (f as any).status !== 'CLOSED',
+      });
+    }
+
+    const checklist = ISO_27001_CLAUSES.map((c) => ({
+      ...c,
+      findingCount: findingsByClause.get(c.clause)?.count ?? 0,
+      hasOpenFindings: findingsByClause.get(c.clause)?.hasOpen ?? false,
+    }));
 
     res.json({
       success: true,

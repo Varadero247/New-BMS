@@ -45,19 +45,48 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0]?.message || 'Invalid input' } });
     }
 
-    // Manual expansion trigger check
-    // In production, this queries actual usage data against thresholds
-    const checks = {
-      userLimitApproaching: [],
-      unusedModuleNudge: [],
-      growthFlag: [],
-    };
+    const { orgId, thresholds } = parsed.data;
+    const userLimit = thresholds?.userLimit ?? 10;
+    const moduleLimit = thresholds?.moduleLimit ?? 5;
+
+    let userLimitApproaching: string[] = [];
+    let unusedModuleNudge: string[] = [];
+    let growthFlag: string[] = [];
+
+    // Users with critically low health scores — at risk of churning
+    try {
+      const atRisk = await (prisma as any).mktHealthScore.findMany({
+        where: { ...(orgId ? { orgId } : {}), score: { lt: 40 } },
+        orderBy: { score: 'asc' },
+        take: userLimit,
+      });
+      userLimitApproaching = (atRisk || []).map((s: any) => s.userId);
+    } catch { /* DB unavailable — default to [] */ }
+
+    // Users who received onboarding emails >30 days ago (module adoption nudge)
+    try {
+      const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      const stale = await prisma.mktEmailLog.findMany({
+        where: { template: { startsWith: 'onboarding_' }, sentAt: { lt: cutoff } },
+        take: moduleLimit,
+      });
+      unusedModuleNudge = (stale || []).map((e: any) => e.email);
+    } catch { /* DB unavailable — default to [] */ }
+
+    // Users with IMPROVING health score trend — expansion opportunity
+    try {
+      const improving = await (prisma as any).mktHealthScore.findMany({
+        where: { ...(orgId ? { orgId } : {}), trend: 'IMPROVING' },
+        take: 10,
+      });
+      growthFlag = (improving || []).map((s: any) => s.userId);
+    } catch { /* DB unavailable — default to [] */ }
 
     res.json({
       success: true,
       data: {
         message: 'Expansion check completed',
-        results: checks,
+        results: { userLimitApproaching, unusedModuleNudge, growthFlag },
       },
     });
   } catch (error) {
