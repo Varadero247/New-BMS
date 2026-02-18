@@ -167,7 +167,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
       where: { id },
       data: {
         status: 'PUBLISHED',
-        signedBy: (z.string().uuid().safeParse(req.body?.signedBy).success ? req.body.signedBy : null) || authReq.user?.id || existing.signedBy,
+        signedBy: (z.string().trim().uuid().safeParse(req.body?.signedBy).success ? req.body.signedBy : null) || authReq.user?.id || existing.signedBy,
         publishedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),

@@ -14,7 +14,7 @@ router.use(authenticate);
 
 const planCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  assetId: z.string().uuid(),
+  assetId: z.string().trim().uuid(),
   description: z.string().max(2000).optional().nullable(),
   frequency: z.enum(['DAILY', 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMI_ANNUALLY', 'ANNUALLY']),
   lastPerformed: z.string().optional().nullable(),

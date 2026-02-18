@@ -72,7 +72,7 @@ router.get('/:id', checkOwnership(prisma.expense), async (req: Request, res: Res
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       category: z.enum(['TRAVEL', 'MEALS', 'ACCOMMODATION', 'TRANSPORTATION', 'OFFICE_SUPPLIES', 'SOFTWARE', 'HARDWARE', 'TRAINING', 'COMMUNICATION', 'CLIENT_ENTERTAINMENT', 'MISCELLANEOUS']),
       subcategory: z.string().optional(),
       description: z.string(),
@@ -218,7 +218,7 @@ router.post('/reports', async (req: Request, res: Response) => {
       description: z.string().optional(),
       periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
-      expenseIds: z.array(z.string().uuid()).default([]),
+      expenseIds: z.array(z.string().trim().uuid()).default([]),
     });
 
     const data = schema.parse(req.body);

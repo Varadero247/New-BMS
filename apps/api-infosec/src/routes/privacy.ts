@@ -81,7 +81,7 @@ const dpiaCreateSchema = z.object({
   necessity: z.string().max(5000).optional(),
   risksIdentified: z.array(z.string()).optional(),
   mitigationMeasures: z.array(z.string()).optional(),
-  ropaId: z.string().uuid().optional(),
+  ropaId: z.string().trim().uuid().optional(),
 });
 
 const dpiaApproveSchema = z.object({

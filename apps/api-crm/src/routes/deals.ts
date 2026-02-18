@@ -33,7 +33,7 @@ const createPipelineSchema = z.object({
 
 const updateStagesSchema = z.object({
   stages: z.array(z.object({
-    id: z.string().uuid().optional(),
+    id: z.string().trim().uuid().optional(),
     name: z.string().trim().min(1).max(200),
     order: z.number().int().min(0),
     probability: z.number().min(0).max(100).optional(),
@@ -44,10 +44,10 @@ const createDealSchema = z.object({
   title: z.string().min(1, 'Deal title is required'),
   value: z.number().min(0, 'Value is required'),
   currency: z.string().default('USD'),
-  accountId: z.string().uuid().optional(),
-  contactId: z.string().uuid().optional(),
-  pipelineId: z.string().uuid().optional(),
-  stageId: z.string().uuid().optional(),
+  accountId: z.string().trim().uuid().optional(),
+  contactId: z.string().trim().uuid().optional(),
+  pipelineId: z.string().trim().uuid().optional(),
+  stageId: z.string().trim().uuid().optional(),
   probability: z.number().min(0).max(100).optional(),
   expectedCloseDate: z.string().datetime().optional(),
   assignedTo: z.string().optional(),

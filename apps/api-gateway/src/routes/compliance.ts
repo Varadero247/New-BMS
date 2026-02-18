@@ -222,7 +222,7 @@ const importSchema = z.object({
     'food-safety', 'energy', 'esg', 'iso42001', 'iso37001',
   ]),
   notes: z.string().max(1000).optional(),
-  assignedTo: z.string().uuid().optional(),
+  assignedTo: z.string().trim().uuid().optional(),
   reviewDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional(),
 });
 

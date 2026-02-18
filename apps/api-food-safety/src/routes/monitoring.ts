@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const monitoringCreateSchema = z.object({
-  ccpId: z.string().uuid(),
+  ccpId: z.string().trim().uuid(),
   monitoredBy: z.string().max(200).optional().nullable(),
   monitoredAt: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   value: z.string().trim().min(1).max(200),

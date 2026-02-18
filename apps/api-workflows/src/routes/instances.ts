@@ -287,7 +287,7 @@ router.put('/:id/complete', checkOwnership(prisma.workflowInstance), async (req:
 
 // PUT /api/instances/:id/cancel - Cancel workflow
 const cancelInstanceSchema = z.object({
-  cancelledById: z.string().uuid(),
+  cancelledById: z.string().trim().uuid(),
   cancellationReason: z.string().trim().min(1).max(2000).optional(),
 });
 

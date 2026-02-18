@@ -44,7 +44,7 @@ const partUpdateSchema = z.object({
 });
 
 const partUsageSchema = z.object({
-  workOrderId: z.string().uuid(),
+  workOrderId: z.string().trim().uuid(),
   quantity: z.number().int().min(1),
 });
 

@@ -48,7 +48,7 @@ const ticketUpdateSchema = z.object({
   category: z.enum(['TECHNICAL', 'BILLING', 'ORDER', 'QUALITY', 'DELIVERY', 'OTHER']).optional(),
   priority: z.enum(['HIGH', 'MEDIUM', 'LOW']).optional(),
   status: z.enum(['OPEN', 'IN_PROGRESS', 'WAITING', 'RESOLVED', 'CLOSED']).optional(),
-  assignedTo: z.string().uuid().optional().nullable(),
+  assignedTo: z.string().trim().uuid().optional().nullable(),
 });
 
 const messageCreateSchema = z.object({

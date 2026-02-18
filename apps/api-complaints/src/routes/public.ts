@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('complaints-public');
 
 const submitSchema = z.object({
-  orgId: z.string().uuid().optional(),
+  orgId: z.string().trim().uuid().optional(),
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   complainantName: z.string().optional(),

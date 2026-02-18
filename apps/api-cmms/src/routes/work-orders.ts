@@ -28,7 +28,7 @@ function generateWONumber(): string {
 const workOrderCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
-  assetId: z.string().uuid(),
+  assetId: z.string().trim().uuid(),
   type: z.enum(['CORRECTIVE', 'PREVENTIVE', 'PREDICTIVE', 'EMERGENCY', 'INSPECTION']),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   assignedTo: z.string().max(200).optional().nullable(),

@@ -35,7 +35,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const orderCreateSchema = z.object({
-  portalUserId: z.string().uuid(),
+  portalUserId: z.string().trim().uuid(),
   type: z.enum(['PURCHASE', 'SALES', 'RETURN']),
   totalAmount: z.number().positive(),
   currency: z.string().length(3).default('GBP'),

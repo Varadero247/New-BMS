@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const routeCreateSchema = z.object({
-  technicianId: z.string().uuid(),
+  technicianId: z.string().trim().uuid(),
   date: z.string(),
   stops: z.array(z.any()),
   optimizedOrder: z.array(z.any()).optional().nullable(),

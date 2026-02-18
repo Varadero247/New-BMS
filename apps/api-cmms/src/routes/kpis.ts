@@ -15,7 +15,7 @@ router.use(authenticate);
 const kpiCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   metricType: z.enum(['MTBF', 'MTTR', 'OEE', 'AVAILABILITY', 'COMPLIANCE', 'COST']),
-  assetId: z.string().uuid().optional().nullable(),
+  assetId: z.string().trim().uuid().optional().nullable(),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),
   periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),

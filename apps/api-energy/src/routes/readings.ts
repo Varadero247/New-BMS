@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const readingCreateSchema = z.object({
-  meterId: z.string().uuid(),
+  meterId: z.string().trim().uuid(),
   value: z.number().min(0),
   readingDate: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
   source: z.enum(['MANUAL', 'AUTOMATIC', 'ESTIMATED', 'INVOICE']).optional().default('MANUAL'),

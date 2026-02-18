@@ -18,12 +18,12 @@ const createBankAccountSchema = z.object({
   type: z.enum(['CURRENT', 'SAVINGS', 'CREDIT_CARD', 'LOAN', 'MERCHANT', 'OTHER']).default('CURRENT'),
   currency: z.string().default('GBP'),
   bankName: z.string().optional(),
-  accountId: z.string().uuid().optional(),
+  accountId: z.string().trim().uuid().optional(),
   currentBalance: z.number().optional(),
 });
 
 const createTransactionSchema = z.object({
-  bankAccountId: z.string().uuid(),
+  bankAccountId: z.string().trim().uuid(),
   date: z.string(),
   description: z.string().trim().min(1).max(2000),
   reference: z.string().optional(),
@@ -33,7 +33,7 @@ const createTransactionSchema = z.object({
 });
 
 const importTransactionsSchema = z.object({
-  bankAccountId: z.string().uuid(),
+  bankAccountId: z.string().trim().uuid(),
   transactions: z.array(z.object({
     date: z.string(),
     description: z.string(),
@@ -43,7 +43,7 @@ const importTransactionsSchema = z.object({
 });
 
 const startReconciliationSchema = z.object({
-  bankAccountId: z.string().uuid(),
+  bankAccountId: z.string().trim().uuid(),
   startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   openingBalance: z.number(),
@@ -51,7 +51,7 @@ const startReconciliationSchema = z.object({
 });
 
 const reconcileTransactionsSchema = z.object({
-  transactionIds: z.array(z.string().uuid()),
+  transactionIds: z.array(z.string().trim().uuid()),
 });
 
 // ============================================

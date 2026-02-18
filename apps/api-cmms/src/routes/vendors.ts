@@ -38,7 +38,7 @@ const vendorUpdateSchema = z.object({
 });
 
 const contractCreateSchema = z.object({
-  assetId: z.string().uuid().optional().nullable(),
+  assetId: z.string().trim().uuid().optional().nullable(),
   contractNumber: z.string().trim().min(1).max(50),
   title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),

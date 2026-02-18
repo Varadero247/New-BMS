@@ -30,7 +30,7 @@ const createTaxRateSchema = z.object({
 });
 
 const createTaxReturnSchema = z.object({
-  taxRateId: z.string().uuid(),
+  taxRateId: z.string().trim().uuid(),
   periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   notes: z.string().optional(),

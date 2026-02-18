@@ -20,8 +20,8 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 }
 
 const createSchema = z.object({
-  cycleId: z.string().uuid(),
-  employeeId: z.string().uuid(),
+  cycleId: z.string().trim().uuid(),
+  employeeId: z.string().trim().uuid(),
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().min(1).max(2000),
   category: z.enum(['PERFORMANCE', 'DEVELOPMENT', 'BEHAVIORAL', 'TEAM', 'STRATEGIC', 'OPERATIONAL', 'INNOVATION']),

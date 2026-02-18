@@ -209,7 +209,7 @@ router.delete('/rules/:id', checkOwnership(prisma.automationRule), async (req: A
 const executeRuleSchema = z.object({
   triggerData: z.record(z.unknown()).optional(),
   entityType: z.string().trim().min(1).max(100).optional(),
-  entityId: z.string().uuid().optional(),
+  entityId: z.string().trim().uuid().optional(),
 });
 
 router.post('/rules/:id/execute', async (req: Request, res: Response) => {

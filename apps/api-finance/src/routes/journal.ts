@@ -23,7 +23,7 @@ function generateReference(): string {
 }
 
 const lineSchema = z.object({
-  accountId: z.string().uuid(),
+  accountId: z.string().trim().uuid(),
   debit: z.number().min(0).default(0),
   credit: z.number().min(0).default(0),
   description: z.string().max(500).optional().nullable(),
@@ -31,11 +31,11 @@ const lineSchema = z.object({
 
 const createSchema = z.object({
   date: z.string(),
-  periodId: z.string().uuid(),
+  periodId: z.string().trim().uuid(),
   description: z.string().trim().min(1).max(1000),
   memo: z.string().max(2000).optional().nullable(),
   source: z.string().max(100).optional().nullable(),
-  sourceId: z.string().uuid().optional().nullable(),
+  sourceId: z.string().trim().uuid().optional().nullable(),
   lines: z.array(lineSchema).min(2),
 });
 

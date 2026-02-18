@@ -45,7 +45,7 @@ const mspLinks = new Map<string, MspLink>();
 // ── Validation schemas ──────────────────────────────────────────────
 
 const linkSchema = z.object({
-  clientOrganisationId: z.string().uuid(),
+  clientOrganisationId: z.string().trim().uuid(),
   clientOrganisationName: z.string().trim().min(1).max(200),
   permissions: z.array(z.enum(['READ', 'AUDIT', 'MANAGE', 'BILLING'])).min(1),
   whiteLabel: z.object({

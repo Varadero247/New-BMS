@@ -17,7 +17,7 @@ const scheduleTypeEnum = z.enum(['REPORT', 'EXPORT', 'REFRESH', 'ALERT_CHECK']);
 const scheduleCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   type: scheduleTypeEnum,
-  referenceId: z.string().uuid(),
+  referenceId: z.string().trim().uuid(),
   cronExpression: z.string().trim().min(1).max(100),
   isActive: z.boolean().optional().default(true),
   timezone: z.string().max(50).optional().default('UTC'),
@@ -26,7 +26,7 @@ const scheduleCreateSchema = z.object({
 const scheduleUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   type: scheduleTypeEnum.optional(),
-  referenceId: z.string().uuid().optional(),
+  referenceId: z.string().trim().uuid().optional(),
   cronExpression: z.string().trim().min(1).max(100).optional(),
   isActive: z.boolean().optional(),
   timezone: z.string().max(50).optional(),

@@ -67,7 +67,7 @@ router.get('/:id', checkOwnership(prisma.employeeLoan), async (req: Request, res
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       loanType: z.enum(['SALARY_ADVANCE', 'PERSONAL_LOAN', 'EMERGENCY_LOAN', 'HOUSING_LOAN', 'VEHICLE_LOAN', 'EDUCATION_LOAN', 'OTHER']),
       principalAmount: z.number().positive(),
       interestRate: z.number().min(0).default(0),

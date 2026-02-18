@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const kpiCreateSchema = z.object({
-  technicianId: z.string().uuid().optional().nullable(),
+  technicianId: z.string().trim().uuid().optional().nullable(),
   metricType: z.enum(['FIRST_TIME_FIX', 'RESPONSE_TIME', 'RESOLUTION_TIME', 'CUSTOMER_SATISFACTION', 'UTILIZATION', 'JOBS_COMPLETED']),
   value: z.number(),
   unit: z.string().trim().min(1).max(50),

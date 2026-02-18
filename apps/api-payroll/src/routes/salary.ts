@@ -98,7 +98,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
       changeReason: z.string().optional(),
       changeType: z.enum(['PROMOTION', 'ANNUAL_INCREMENT', 'ADJUSTMENT', 'DEMOTION', 'TRANSFER', 'CORRECTION', 'INITIAL']).optional(),
       components: z.array(z.object({
-        componentTypeId: z.string().uuid(),
+        componentTypeId: z.string().trim().uuid(),
         amount: z.number().nonnegative(),
         percentage: z.number().nonnegative().optional(),
         calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),
@@ -160,8 +160,8 @@ router.put('/:id/components', checkOwnership(prisma.employeeSalary), async (req:
   try {
     const schema = z.object({
       components: z.array(z.object({
-        id: z.string().uuid().optional(),
-        componentTypeId: z.string().uuid(),
+        id: z.string().trim().uuid().optional(),
+        componentTypeId: z.string().trim().uuid(),
         amount: z.number().nonnegative(),
         percentage: z.number().nonnegative().optional(),
         calculationType: z.enum(['FIXED', 'PERCENTAGE_OF_BASIC', 'PERCENTAGE_OF_GROSS', 'HOURLY', 'DAILY', 'FORMULA', 'SLAB']).default('FIXED'),

@@ -86,8 +86,8 @@ router.post('/jobs', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
-      departmentId: z.string().uuid(),
-      positionId: z.string().uuid().optional(),
+      departmentId: z.string().trim().uuid(),
+      positionId: z.string().trim().uuid().optional(),
       description: z.string(),
       responsibilities: z.string(),
       requirements: z.string(),
@@ -238,7 +238,7 @@ router.get('/applicants/:id', checkOwnership(prisma.applicant), async (req: Requ
 router.post('/applicants', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      jobPostingId: z.string().uuid(),
+      jobPostingId: z.string().trim().uuid(),
       firstName: z.string().trim().min(1).max(200),
       lastName: z.string().trim().min(1).max(200),
       email: z.string().trim().email(),
@@ -313,8 +313,8 @@ router.put('/applicants/:id/status', checkOwnership(prisma.applicant), async (re
 router.post('/interviews', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      applicantId: z.string().uuid(),
-      jobPostingId: z.string().uuid(),
+      applicantId: z.string().trim().uuid(),
+      jobPostingId: z.string().trim().uuid(),
       round: z.number().default(1),
       interviewType: z.enum(['PHONE', 'VIDEO', 'IN_PERSON', 'TECHNICAL', 'BEHAVIORAL', 'PANEL', 'CASE_STUDY']),
       scheduledAt: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),

@@ -81,7 +81,7 @@ router.get('/:id', checkOwnership(prisma.employeeDocument), async (req: Request,
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       documentType: z.enum([
         'CONTRACT', 'OFFER_LETTER', 'NDA', 'POLICY_ACKNOWLEDGMENT', 'ID_PROOF', 'ADDRESS_PROOF',
         'EDUCATION_CERTIFICATE', 'EXPERIENCE_LETTER', 'BACKGROUND_CHECK', 'MEDICAL_CERTIFICATE',
@@ -212,7 +212,7 @@ router.get('/qualifications/:employeeId', async (req: Request, res: Response) =>
 router.post('/qualifications', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       qualificationType: z.enum(['HIGH_SCHOOL', 'ASSOCIATE', 'BACHELOR', 'MASTER', 'DOCTORATE', 'DIPLOMA', 'CERTIFICATE', 'PROFESSIONAL', 'OTHER']),
       institution: z.string(),
       degree: z.string().optional(),
@@ -265,7 +265,7 @@ router.get('/assets/:employeeId', async (req: Request, res: Response) => {
 router.post('/assets', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       assetTag: z.string(),
       assetType: z.enum(['LAPTOP', 'DESKTOP', 'MOBILE', 'TABLET', 'MONITOR', 'KEYBOARD', 'MOUSE', 'HEADSET', 'ID_CARD', 'ACCESS_CARD', 'PARKING_PASS', 'FURNITURE', 'VEHICLE', 'OTHER']),
       name: z.string(),

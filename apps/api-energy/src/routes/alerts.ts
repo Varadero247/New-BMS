@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const alertCreateSchema = z.object({
-  meterId: z.string().uuid().optional().nullable(),
+  meterId: z.string().trim().uuid().optional().nullable(),
   type: z.enum(['OVERCONSUMPTION', 'ANOMALY', 'THRESHOLD_BREACH', 'EQUIPMENT_FAULT', 'BILLING_DISCREPANCY']),
   severity: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional().default('MEDIUM'),
   message: z.string().trim().min(1).max(1000),

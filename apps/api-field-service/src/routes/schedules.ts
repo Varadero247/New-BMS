@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const scheduleCreateSchema = z.object({
-  technicianId: z.string().uuid(),
+  technicianId: z.string().trim().uuid(),
   date: z.string(),
   slots: z.array(z.any()),
   isAvailable: z.boolean().optional(),

@@ -30,10 +30,10 @@ const accountCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   type: z.enum(['ASSET', 'LIABILITY', 'EQUITY', 'REVENUE', 'EXPENSE']),
   normalBalance: z.enum(['DEBIT', 'CREDIT']),
-  parentId: z.string().uuid().optional().nullable(),
+  parentId: z.string().trim().uuid().optional().nullable(),
   description: z.string().max(1000).optional().nullable(),
   currency: z.string().length(3).default('USD'),
-  taxRateId: z.string().uuid().optional().nullable(),
+  taxRateId: z.string().trim().uuid().optional().nullable(),
   openingBalance: z.number().optional().default(0),
 });
 
@@ -41,13 +41,13 @@ const accountUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   description: z.string().max(1000).optional().nullable(),
   currency: z.string().length(3).optional(),
-  taxRateId: z.string().uuid().optional().nullable(),
+  taxRateId: z.string().trim().uuid().optional().nullable(),
   isActive: z.boolean().optional(),
-  parentId: z.string().uuid().optional().nullable(),
+  parentId: z.string().trim().uuid().optional().nullable(),
 });
 
 const journalLineSchema = z.object({
-  accountId: z.string().uuid(),
+  accountId: z.string().trim().uuid(),
   debit: z.number().min(0).default(0),
   credit: z.number().min(0).default(0),
   description: z.string().max(500).optional().nullable(),
@@ -55,11 +55,11 @@ const journalLineSchema = z.object({
 
 const journalEntryCreateSchema = z.object({
   date: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}$/)),
-  periodId: z.string().uuid(),
+  periodId: z.string().trim().uuid(),
   description: z.string().trim().min(1).max(1000),
   memo: z.string().max(2000).optional().nullable(),
   source: z.string().max(100).optional().nullable(),
-  sourceId: z.string().uuid().optional().nullable(),
+  sourceId: z.string().trim().uuid().optional().nullable(),
   lines: z.array(journalLineSchema).min(2),
 });
 

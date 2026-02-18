@@ -148,15 +148,15 @@ router.get('/requests/:id', checkOwnership(prisma.leaveRequest), async (req: Req
 router.post('/requests', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
-      leaveTypeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
+      leaveTypeId: z.string().trim().uuid(),
       startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       isHalfDay: z.boolean().default(false),
       halfDayPeriod: z.enum(['FIRST_HALF', 'SECOND_HALF']).optional(),
       reason: z.string().optional(),
       contactDuring: z.string().optional(),
-      handoverToId: z.string().uuid().optional(),
+      handoverToId: z.string().trim().uuid().optional(),
       handoverNotes: z.string().optional(),
     });
 
@@ -372,8 +372,8 @@ router.get('/balances/:employeeId', async (req: Request, res: Response) => {
 router.post('/balances', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
-      leaveTypeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
+      leaveTypeId: z.string().trim().uuid(),
       year: z.number(),
       entitled: z.number(),
       carryForward: z.number().default(0),

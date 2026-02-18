@@ -45,13 +45,13 @@ const poLineSchema = z.object({
   description: z.string().trim().min(1).max(500),
   quantity: z.number().positive(),
   unitPrice: z.number().min(0),
-  taxRateId: z.string().uuid().optional().nullable(),
-  accountId: z.string().uuid().optional().nullable(),
+  taxRateId: z.string().trim().uuid().optional().nullable(),
+  accountId: z.string().trim().uuid().optional().nullable(),
   sortOrder: z.number().int().min(0).optional(),
 });
 
 const poCreateSchema = z.object({
-  supplierId: z.string().uuid(),
+  supplierId: z.string().trim().uuid(),
   orderDate: z.string().or(z.date()),
   expectedDate: z.string().or(z.date()).optional().nullable(),
   notes: z.string().optional().nullable(),
@@ -60,7 +60,7 @@ const poCreateSchema = z.object({
 });
 
 const poUpdateSchema = z.object({
-  supplierId: z.string().uuid().optional(),
+  supplierId: z.string().trim().uuid().optional(),
   orderDate: z.string().or(z.date()).optional(),
   expectedDate: z.string().or(z.date()).optional().nullable(),
   notes: z.string().optional().nullable(),
@@ -72,14 +72,14 @@ const billLineSchema = z.object({
   description: z.string().trim().min(1).max(500),
   quantity: z.number().positive(),
   unitPrice: z.number().min(0),
-  taxRateId: z.string().uuid().optional().nullable(),
-  accountId: z.string().uuid().optional().nullable(),
+  taxRateId: z.string().trim().uuid().optional().nullable(),
+  accountId: z.string().trim().uuid().optional().nullable(),
   sortOrder: z.number().int().min(0).optional(),
 });
 
 const billCreateSchema = z.object({
-  supplierId: z.string().uuid(),
-  purchaseOrderId: z.string().uuid().optional().nullable(),
+  supplierId: z.string().trim().uuid(),
+  purchaseOrderId: z.string().trim().uuid().optional().nullable(),
   billDate: z.string().or(z.date()),
   dueDate: z.string().or(z.date()),
   supplierRef: z.string().max(100).optional().nullable(),
@@ -89,8 +89,8 @@ const billCreateSchema = z.object({
 });
 
 const billUpdateSchema = z.object({
-  supplierId: z.string().uuid().optional(),
-  purchaseOrderId: z.string().uuid().optional().nullable(),
+  supplierId: z.string().trim().uuid().optional(),
+  purchaseOrderId: z.string().trim().uuid().optional().nullable(),
   billDate: z.string().or(z.date()).optional(),
   dueDate: z.string().or(z.date()).optional(),
   supplierRef: z.string().max(100).optional().nullable(),
@@ -100,8 +100,8 @@ const billUpdateSchema = z.object({
 });
 
 const paymentMadeCreateSchema = z.object({
-  supplierId: z.string().uuid(),
-  billId: z.string().uuid().optional().nullable(),
+  supplierId: z.string().trim().uuid(),
+  billId: z.string().trim().uuid().optional().nullable(),
   date: z.string().or(z.date()),
   amount: z.number().positive(),
   method: z.enum([
@@ -113,7 +113,7 @@ const paymentMadeCreateSchema = z.object({
     'STANDING_ORDER',
     'OTHER',
   ]),
-  bankAccountId: z.string().uuid().optional().nullable(),
+  bankAccountId: z.string().trim().uuid().optional().nullable(),
   notes: z.string().optional().nullable(),
 });
 

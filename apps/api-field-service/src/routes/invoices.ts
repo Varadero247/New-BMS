@@ -25,8 +25,8 @@ function generateInvoiceNumber(): string {
 // ---------------------------------------------------------------------------
 
 const invoiceCreateSchema = z.object({
-  jobId: z.string().uuid(),
-  customerId: z.string().uuid(),
+  jobId: z.string().trim().uuid(),
+  customerId: z.string().trim().uuid(),
   lineItems: z.array(z.any()),
   laborTotal: z.number().min(0),
   partsTotal: z.number().min(0),

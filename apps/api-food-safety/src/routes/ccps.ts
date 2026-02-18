@@ -15,7 +15,7 @@ router.use(authenticate);
 const ccpCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   processStep: z.string().trim().min(1).max(200),
-  hazardId: z.string().uuid().optional().nullable(),
+  hazardId: z.string().trim().uuid().optional().nullable(),
   criticalLimit: z.string().trim().min(1).max(500),
   monitoringMethod: z.string().trim().min(1).max(500),
   monitoringFrequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']),
@@ -28,7 +28,7 @@ const ccpCreateSchema = z.object({
 const ccpUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   processStep: z.string().trim().min(1).max(200).optional(),
-  hazardId: z.string().uuid().optional().nullable(),
+  hazardId: z.string().trim().uuid().optional().nullable(),
   criticalLimit: z.string().trim().min(1).max(500).optional(),
   monitoringMethod: z.string().trim().min(1).max(500).optional(),
   monitoringFrequency: z.enum(['CONTINUOUS', 'HOURLY', 'PER_BATCH', 'DAILY', 'WEEKLY']).optional(),

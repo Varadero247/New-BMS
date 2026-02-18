@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const jobNoteCreateSchema = z.object({
-  jobId: z.string().uuid(),
+  jobId: z.string().trim().uuid(),
   type: z.enum(['NOTE', 'PHOTO', 'SIGNATURE', 'CHECKLIST', 'FORM']).optional(),
   content: z.string().min(1),
   attachments: z.any().optional().nullable(),

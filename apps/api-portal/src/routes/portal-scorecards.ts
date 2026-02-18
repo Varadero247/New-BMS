@@ -22,7 +22,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const scorecardCreateSchema = z.object({
-  portalUserId: z.string().uuid(),
+  portalUserId: z.string().trim().uuid(),
   period: z.string().trim().min(1).max(50),
   overallScore: z.number().min(0).max(100),
   qualityScore: z.number().min(0).max(100).optional().nullable(),

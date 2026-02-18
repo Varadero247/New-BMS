@@ -29,8 +29,8 @@ const checklistUpdateSchema = z.object({
 });
 
 const checklistResultSchema = z.object({
-  workOrderId: z.string().uuid().optional().nullable(),
-  assetId: z.string().uuid(),
+  workOrderId: z.string().trim().uuid().optional().nullable(),
+  assetId: z.string().trim().uuid(),
   completedBy: z.string().trim().min(1).max(200),
   completedAt: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   results: z.any(),

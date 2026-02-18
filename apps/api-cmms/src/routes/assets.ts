@@ -36,7 +36,7 @@ const assetCreateSchema = z.object({
   purchaseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   purchaseCost: z.number().nonnegative().optional().nullable(),
   warrantyExpiry: z.string().optional().nullable(),
-  parentAssetId: z.string().uuid().optional().nullable(),
+  parentAssetId: z.string().trim().uuid().optional().nullable(),
   criticality: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
 });
 
@@ -54,7 +54,7 @@ const assetUpdateSchema = z.object({
   purchaseDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format').optional().nullable(),
   purchaseCost: z.number().nonnegative().optional().nullable(),
   warrantyExpiry: z.string().optional().nullable(),
-  parentAssetId: z.string().uuid().optional().nullable(),
+  parentAssetId: z.string().trim().uuid().optional().nullable(),
   criticality: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
 });
 

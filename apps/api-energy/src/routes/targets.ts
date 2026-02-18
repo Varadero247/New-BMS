@@ -15,7 +15,7 @@ router.use(authenticate);
 const targetCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),
   metricType: z.enum(['CONSUMPTION', 'INTENSITY', 'COST', 'EMISSIONS', 'RENEWABLE_PERCENTAGE']),
-  baselineId: z.string().uuid().optional().nullable(),
+  baselineId: z.string().trim().uuid().optional().nullable(),
   year: z.number().int().min(2000).max(2100),
   targetValue: z.number().nonnegative(),
   unit: z.string().trim().min(1).max(50),
@@ -24,7 +24,7 @@ const targetCreateSchema = z.object({
 const targetUpdateSchema = z.object({
   name: z.string().trim().min(1).max(200).optional(),
   metricType: z.enum(['CONSUMPTION', 'INTENSITY', 'COST', 'EMISSIONS', 'RENEWABLE_PERCENTAGE']).optional(),
-  baselineId: z.string().uuid().optional().nullable(),
+  baselineId: z.string().trim().uuid().optional().nullable(),
   year: z.number().int().min(2000).max(2100).optional(),
   targetValue: z.number().nonnegative().optional(),
   actualValue: z.number().optional().nullable(),

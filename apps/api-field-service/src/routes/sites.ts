@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const siteCreateSchema = z.object({
-  customerId: z.string().uuid(),
+  customerId: z.string().trim().uuid(),
   name: z.string().trim().min(1).max(200),
   address: z.record(z.any()),
   coordinates: z.record(z.any()).optional().nullable(),

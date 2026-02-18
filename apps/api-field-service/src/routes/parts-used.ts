@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const partUsedCreateSchema = z.object({
-  jobId: z.string().uuid(),
+  jobId: z.string().trim().uuid(),
   partName: z.string().trim().min(1).max(200),
   partNumber: z.string().trim().min(1).max(100),
   quantity: z.number().int().min(1),

@@ -21,7 +21,7 @@ const meterCreateSchema = z.object({
   unit: z.string().trim().min(1).max(50),
   multiplier: z.number().min(0).optional().default(1),
   isVirtual: z.boolean().optional().default(false),
-  parentMeterId: z.string().uuid().optional().nullable(),
+  parentMeterId: z.string().trim().uuid().optional().nullable(),
 });
 
 const meterUpdateSchema = z.object({
@@ -32,7 +32,7 @@ const meterUpdateSchema = z.object({
   unit: z.string().trim().min(1).max(50).optional(),
   multiplier: z.number().min(0).optional(),
   isVirtual: z.boolean().optional(),
-  parentMeterId: z.string().uuid().optional().nullable(),
+  parentMeterId: z.string().trim().uuid().optional().nullable(),
   status: z.enum(['ACTIVE', 'INACTIVE', 'FAULTY', 'DECOMMISSIONED']).optional(),
 });
 

@@ -208,7 +208,7 @@ router.get('/summary', async (req: Request, res: Response) => {
 router.post('/clock-in', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       location: z.string().optional(),
       method: z.enum(['MANUAL', 'BIOMETRIC', 'CARD_SWIPE', 'MOBILE_APP', 'WEB_PORTAL', 'FACIAL_RECOGNITION']).default('WEB_PORTAL'),
     });
@@ -283,7 +283,7 @@ router.post('/clock-in', async (req: Request, res: Response) => {
 router.post('/clock-out', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       location: z.string().optional(),
       method: z.enum(['MANUAL', 'BIOMETRIC', 'CARD_SWIPE', 'MOBILE_APP', 'WEB_PORTAL', 'FACIAL_RECOGNITION']).default('WEB_PORTAL'),
     });
@@ -381,7 +381,7 @@ router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: 
 router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       date: z.string(),
       clockIn: z.string().optional(),
       clockOut: z.string().optional(),

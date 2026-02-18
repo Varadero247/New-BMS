@@ -59,7 +59,7 @@ function getRiskLevel(score: number): string {
 // ---------------------------------------------------------------------------
 
 const riskCreateSchema = z.object({
-  systemId: z.string().uuid(),
+  systemId: z.string().trim().uuid(),
   title: z.string().trim().min(1).max(300),
   description: z.string().max(4000).optional().nullable(),
   category: z.enum([

@@ -15,7 +15,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 
 const createSchema = z.object({
   name: z.string().trim().min(1).max(200),
-  accountId: z.string().uuid(),
+  accountId: z.string().trim().uuid(),
   fiscalYear: z.number().int().min(2000).max(2100),
   month: z.number().int().min(1).max(12).optional().nullable(),
   quarter: z.number().int().min(1).max(4).optional().nullable(),

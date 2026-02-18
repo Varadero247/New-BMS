@@ -13,8 +13,8 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const timeEntryCreateSchema = z.object({
-  jobId: z.string().uuid(),
-  technicianId: z.string().uuid(),
+  jobId: z.string().trim().uuid(),
+  technicianId: z.string().trim().uuid(),
   type: z.enum(['TRAVEL', 'WORK', 'BREAK', 'ADMIN']),
   startTime: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
   endTime: z.string().optional().nullable(),

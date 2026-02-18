@@ -26,7 +26,7 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const incidentCreateSchema = z.object({
-  systemId: z.string().uuid(),
+  systemId: z.string().trim().uuid(),
   title: z.string().trim().min(1).max(300),
   description: z.string().max(10000).optional().nullable(),
   severity: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),

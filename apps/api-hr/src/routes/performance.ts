@@ -163,9 +163,9 @@ router.get('/reviews/:id', checkOwnership(prisma.performanceReview), async (req:
 router.post('/reviews', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      cycleId: z.string().uuid(),
-      employeeId: z.string().uuid(),
-      reviewerId: z.string().uuid(),
+      cycleId: z.string().trim().uuid(),
+      employeeId: z.string().trim().uuid(),
+      reviewerId: z.string().trim().uuid(),
       reviewType: z.enum(['ANNUAL', 'MID_YEAR', 'QUARTERLY', 'PROBATION', 'PROJECT_END', 'AD_HOC']),
       periodStart: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       periodEnd: z.string().trim().min(1).refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
@@ -270,8 +270,8 @@ router.get('/goals', scopeToUser, async (req: Request, res: Response) => {
 router.post('/goals', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      cycleId: z.string().uuid(),
-      employeeId: z.string().uuid(),
+      cycleId: z.string().trim().uuid(),
+      employeeId: z.string().trim().uuid(),
       title: z.string().trim().min(1).max(200),
       description: z.string(),
       category: z.enum(['PERFORMANCE', 'DEVELOPMENT', 'BEHAVIORAL', 'STRATEGIC', 'OPERATIONAL']),

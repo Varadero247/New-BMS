@@ -18,7 +18,7 @@ function generateReference(prefix: string): string {
 }
 
 const targetCreateSchema = z.object({
-  metricId: z.string().uuid(),
+  metricId: z.string().trim().uuid(),
   year: z.number().int().min(2000).max(2100),
   targetValue: z.number().nonnegative(),
   actualValue: z.number().optional().nullable(),
@@ -28,7 +28,7 @@ const targetCreateSchema = z.object({
 });
 
 const targetUpdateSchema = z.object({
-  metricId: z.string().uuid().optional(),
+  metricId: z.string().trim().uuid().optional(),
   year: z.number().int().min(2000).max(2100).optional(),
   targetValue: z.number().nonnegative().optional(),
   actualValue: z.number().optional().nullable(),

@@ -277,7 +277,7 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
     }
 
     // Validate orgId format to prevent path traversal or injection
-    const orgIdSchema = z.string().uuid().or(z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/));
+    const orgIdSchema = z.string().trim().uuid().or(z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/));
     const orgIdResult = orgIdSchema.safeParse(orgId);
     if (!orgIdResult.success) {
       return res.status(400).json({

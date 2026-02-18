@@ -29,8 +29,8 @@ const requestCreateSchema = z.object({
   title: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional().nullable(),
   requestedBy: z.string().trim().min(1).max(200),
-  assetId: z.string().uuid().optional().nullable(),
-  locationId: z.string().uuid().optional().nullable(),
+  assetId: z.string().trim().uuid().optional().nullable(),
+  locationId: z.string().trim().uuid().optional().nullable(),
   priority: z.enum(['CRITICAL', 'HIGH', 'MEDIUM', 'LOW']).optional(),
   notes: z.string().max(2000).optional().nullable(),
 });

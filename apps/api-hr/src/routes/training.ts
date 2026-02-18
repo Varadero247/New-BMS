@@ -137,7 +137,7 @@ router.get('/sessions', async (req: Request, res: Response) => {
 router.post('/sessions', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      courseId: z.string().uuid(),
+      courseId: z.string().trim().uuid(),
       startDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       endDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),
       location: z.string().optional(),
@@ -209,9 +209,9 @@ router.get('/enrollments', async (req: Request, res: Response) => {
 router.post('/enrollments', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
-      courseId: z.string().uuid(),
-      sessionId: z.string().uuid().optional(),
+      employeeId: z.string().trim().uuid(),
+      courseId: z.string().trim().uuid(),
+      sessionId: z.string().trim().uuid().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -334,7 +334,7 @@ router.get('/certifications', async (req: Request, res: Response) => {
 router.post('/certifications', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      employeeId: z.string().uuid(),
+      employeeId: z.string().trim().uuid(),
       name: z.string().trim().min(1).max(200),
       issuingOrganization: z.string(),
       credentialId: z.string().optional(),

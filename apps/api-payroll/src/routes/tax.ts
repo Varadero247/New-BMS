@@ -42,7 +42,7 @@ router.get('/filings', scopeToUser, async (req: Request, res: Response) => {
 router.post('/filings', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      payrollRunId: z.string().uuid().optional(),
+      payrollRunId: z.string().trim().uuid().optional(),
       filingType: z.enum(['WITHHOLDING', 'QUARTERLY', 'ANNUAL', 'AMENDMENT', 'SOCIAL_SECURITY', 'MEDICARE', 'STATE', 'LOCAL']),
       taxPeriod: z.string(),
       taxYear: z.number().nonnegative(),

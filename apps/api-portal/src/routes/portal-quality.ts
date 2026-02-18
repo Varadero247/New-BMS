@@ -35,7 +35,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // ---------------------------------------------------------------------------
 
 const qualityReportCreateSchema = z.object({
-  portalUserId: z.string().uuid(),
+  portalUserId: z.string().trim().uuid(),
   reportType: z.enum(['NCR', 'COMPLAINT', 'INSPECTION', 'AUDIT']),
   description: z.string().trim().min(1).max(5000),
   severity: z.enum(['CRITICAL', 'MAJOR', 'MINOR']),

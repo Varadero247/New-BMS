@@ -13,7 +13,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 
 const meterCreateSchema = z.object({
-  assetId: z.string().uuid(),
+  assetId: z.string().trim().uuid(),
   meterType: z.enum(['HOURS', 'MILES', 'KILOMETERS', 'CYCLES', 'UNITS']),
   reading: z.number(),
   readingDate: z.string().refine(s => !isNaN(Date.parse(s)), 'Invalid date format'),

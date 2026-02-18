@@ -95,7 +95,7 @@ router.get('/employees/:employeeId', async (req: Request, res: Response) => {
 router.post('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
-      benefitPlanId: z.string().uuid(),
+      benefitPlanId: z.string().trim().uuid(),
       coverageLevel: z.enum(['EMPLOYEE_ONLY', 'EMPLOYEE_SPOUSE', 'EMPLOYEE_CHILDREN', 'FAMILY']),
       dependents: z.array(z.record(z.unknown())).optional(),
       employeeContribution: z.number().default(0),

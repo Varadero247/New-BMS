@@ -56,12 +56,12 @@ const invoiceLineSchema = z.object({
   description: z.string().trim().min(1).max(500),
   quantity: z.number().positive(),
   unitPrice: z.number().min(0),
-  taxRateId: z.string().uuid().optional(),
-  accountId: z.string().uuid().optional(),
+  taxRateId: z.string().trim().uuid().optional(),
+  accountId: z.string().trim().uuid().optional(),
 });
 
 const invoiceCreateSchema = z.object({
-  customerId: z.string().uuid(),
+  customerId: z.string().trim().uuid(),
   issueDate: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
   dueDate: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
   notes: z.string().max(2000).optional(),
@@ -69,7 +69,7 @@ const invoiceCreateSchema = z.object({
 });
 
 const invoiceUpdateSchema = z.object({
-  customerId: z.string().uuid().optional(),
+  customerId: z.string().trim().uuid().optional(),
   issueDate: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }).optional(),
   dueDate: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }).optional(),
   notes: z.string().max(2000).optional().nullable(),
@@ -77,21 +77,21 @@ const invoiceUpdateSchema = z.object({
 });
 
 const paymentCreateSchema = z.object({
-  customerId: z.string().uuid(),
-  invoiceId: z.string().uuid().optional(),
+  customerId: z.string().trim().uuid(),
+  invoiceId: z.string().trim().uuid().optional(),
   date: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
   amount: z.number().positive(),
   method: z.string().trim().min(1).max(50),
-  bankAccountId: z.string().uuid().optional(),
+  bankAccountId: z.string().trim().uuid().optional(),
   notes: z.string().max(2000).optional(),
 });
 
 const creditNoteCreateSchema = z.object({
-  customerId: z.string().uuid(),
+  customerId: z.string().trim().uuid(),
   date: z.string().refine((d) => !isNaN(Date.parse(d)), { message: 'Invalid date' }),
   amount: z.number().positive(),
   reason: z.string().trim().min(1).max(2000),
-  invoiceId: z.string().uuid().optional(),
+  invoiceId: z.string().trim().uuid().optional(),
 });
 
 // ===========================================================================

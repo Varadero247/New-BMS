@@ -18,7 +18,7 @@ const createContactSchema = z.object({
   mobile: z.string().optional(),
   jobTitle: z.string().optional(),
   department: z.string().optional(),
-  accountId: z.string().uuid().optional(),
+  accountId: z.string().trim().uuid().optional(),
   source: z.string().optional(),
   tags: z.array(z.string()).optional(),
   address: z.string().optional(),

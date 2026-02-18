@@ -26,7 +26,7 @@ function generateReference(prefix: string): string {
 // ---------------------------------------------------------------------------
 
 const billCreateSchema = z.object({
-  meterId: z.string().uuid().optional().nullable(),
+  meterId: z.string().trim().uuid().optional().nullable(),
   provider: z.string().trim().min(1).max(200),
   accountNumber: z.string().max(100).optional().nullable(),
   invoiceNumber: z.string().max(100).optional().nullable(),
@@ -39,7 +39,7 @@ const billCreateSchema = z.object({
 });
 
 const billUpdateSchema = z.object({
-  meterId: z.string().uuid().optional().nullable(),
+  meterId: z.string().trim().uuid().optional().nullable(),
   provider: z.string().trim().min(1).max(200).optional(),
   accountNumber: z.string().max(100).optional().nullable(),
   invoiceNumber: z.string().max(100).optional().nullable(),

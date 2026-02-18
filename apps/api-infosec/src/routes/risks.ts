@@ -47,7 +47,7 @@ const riskCreateSchema = z.object({
   vulnerability: z.string().trim().min(1).max(500),
   likelihood: z.number().int().min(1).max(5),
   impact: z.number().int().min(1).max(5),
-  assetId: z.string().uuid().optional(),
+  assetId: z.string().trim().uuid().optional(),
   category: z.string().max(100).optional(),
   owner: z.string().max(200).optional(),
 });
@@ -59,7 +59,7 @@ const riskUpdateSchema = z.object({
   vulnerability: z.string().trim().min(1).max(500).optional(),
   likelihood: z.number().int().min(1).max(5).optional(),
   impact: z.number().int().min(1).max(5).optional(),
-  assetId: z.string().uuid().optional().nullable(),
+  assetId: z.string().trim().uuid().optional().nullable(),
   category: z.string().max(100).optional(),
   owner: z.string().max(200).optional(),
   status: z.enum(['IDENTIFIED', 'ASSESSED', 'TREATING', 'ACCEPTED', 'CLOSED']).optional(),
