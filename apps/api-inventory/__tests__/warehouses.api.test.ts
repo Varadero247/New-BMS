@@ -470,7 +470,7 @@ describe('Inventory Warehouses API Routes', () => {
       expect(response.status).toBe(204);
       expect(mockPrisma.warehouse.update).toHaveBeenCalledWith({
         where: { id: '28000000-0000-4000-a000-000000000001' },
-        data: { deletedAt: expect.any(Date) },
+        data: { deletedAt: expect.any(Date), updatedBy: expect.any(String) },
       });
     });
 

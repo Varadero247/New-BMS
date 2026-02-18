@@ -457,7 +457,7 @@ router.delete('/:id', checkOwnership(prisma.project), async (req: AuthRequest, r
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Project not found' } });
     }
 
-    await prisma.project.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.project.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.status(204).send();
   } catch (error) {
     logger.error('Delete project error', { error: (error as Error).message });

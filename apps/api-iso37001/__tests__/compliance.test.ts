@@ -450,7 +450,7 @@ describe('ISO 37001 Compliance API', () => {
 
       expect(mockPrisma.abCompliance.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: { deletedAt: expect.any(Date) },
+          data: expect.objectContaining({ deletedAt: expect.any(Date) }),
         })
       );
     });

@@ -189,7 +189,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const existing = await prisma.abCompliance.findFirst({ where: { id: req.params.id, deletedAt: null } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Compliance record not found' } });
 
-    await prisma.abCompliance.update({ where: { id: req.params.id }, data: { deletedAt: new Date() } });
+    await prisma.abCompliance.update({ where: { id: req.params.id }, data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } });
     res.json({ success: true, data: { id: req.params.id, deleted: true } });
   } catch (error: unknown) {
     logger.error('Failed to delete compliance record', { error: error instanceof Error ? error.message : 'Unknown error' });

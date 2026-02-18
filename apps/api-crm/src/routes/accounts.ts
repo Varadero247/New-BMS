@@ -182,7 +182,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     await prisma.crmAccount.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date() },
+      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
     });
 
     logger.info('Account soft deleted', { accountId: req.params.id });
