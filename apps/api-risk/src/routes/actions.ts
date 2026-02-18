@@ -49,9 +49,10 @@ router.post('/:id/actions', authenticate, async (req: Request, res: Response) =>
 // PUT /api/risks/:riskId/actions/:id
 router.put('/:riskId/actions/:id', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const parsed = actionSchema.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
-    const existing = await prisma.riskAction.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null } as any });
+    const existing = await prisma.riskAction.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null, risk: { orgId } } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     const action = await prisma.riskAction.update({ where: { id: req.params.id }, data: parsed.data });
     res.json({ success: true, data: action });
@@ -61,11 +62,12 @@ router.put('/:riskId/actions/:id', authenticate, async (req: Request, res: Respo
 // POST /api/risks/:riskId/actions/:id/complete
 router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, res: Response) => {
   try {
+    const orgId = ((req as any).user as any)?.orgId || 'default';
     const completeSchema = z.object({ evidenceOfCompletion: z.string().optional(), effectiveness: z.string().optional() });
     const parsed = completeSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     const { evidenceOfCompletion, effectiveness } = parsed.data;
-    const existing = await prisma.riskAction.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null } as any });
+    const existing = await prisma.riskAction.findFirst({ where: { id: req.params.id, riskId: req.params.riskId, deletedAt: null, risk: { orgId } } as any });
     if (!existing) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Action not found' } });
     const action = await prisma.riskAction.update({
       where: { id: req.params.id },
