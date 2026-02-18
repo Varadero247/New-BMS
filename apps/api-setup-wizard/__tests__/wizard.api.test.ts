@@ -11,6 +11,8 @@ jest.mock('../src/prisma', () => ({
     setupWizardStep: {
       update: jest.fn(),
     },
+    // Static transaction: resolve each operation in the array
+    $transaction: jest.fn((ops: any[]) => Promise.all(ops)),
   },
 }));
 

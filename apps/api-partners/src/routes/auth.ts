@@ -77,21 +77,22 @@ router.post('/register', async (req: Request, res: Response) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const partner = await prisma.mktPartner.create({
-      data: {
-        email,
-        passwordHash,
-        name,
-        company,
-        phone,
-        isoSpecialisms: isoSpecialisms || [],
-      },
-    });
-
-    // Generate referral URL
-    await prisma.mktPartner.update({
-      where: { id: partner.id },
-      data: { referralUrl: `https://nexara.io/signup?ref=${partner.referralCode}` },
+    // Atomic: create partner and set referral URL in one transaction
+    const partner = await prisma.$transaction(async (tx) => {
+      const p = await tx.mktPartner.create({
+        data: {
+          email,
+          passwordHash,
+          name,
+          company,
+          phone,
+          isoSpecialisms: isoSpecialisms || [],
+        },
+      });
+      return tx.mktPartner.update({
+        where: { id: p.id },
+        data: { referralUrl: `https://nexara.io/signup?ref=${p.referralCode}` },
+      });
     });
 
     const token = jwt.sign(

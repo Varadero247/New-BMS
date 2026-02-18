@@ -121,6 +121,11 @@ router.post('/', async (req: Request, res: Response) => {
         passwordHash: 'pending-setup',
         createdBy: auth.user!.id,
       },
+      select: {
+        id: true, email: true, name: true, company: true,
+        role: true, portalType: true, status: true, phone: true,
+        createdBy: true, createdAt: true, updatedAt: true,
+      },
     });
 
     logger.info('Portal user created', { id: user.id, email: user.email });
@@ -182,6 +187,11 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     const user = await prisma.portalUser.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
+      select: {
+        id: true, email: true, name: true, company: true,
+        role: true, portalType: true, status: true, phone: true,
+        createdBy: true, createdAt: true, updatedAt: true,
+      },
     });
 
     if (!user) {
@@ -216,6 +226,11 @@ router.put('/:id', async (req: Request, res: Response) => {
     const updated = await prisma.portalUser.update({
       where: { id: req.params.id },
       data: parsed.data,
+      select: {
+        id: true, email: true, name: true, company: true,
+        role: true, portalType: true, status: true, phone: true,
+        createdBy: true, createdAt: true, updatedAt: true,
+      },
     });
 
     logger.info('Portal user updated', { id: updated.id });

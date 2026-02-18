@@ -10,6 +10,11 @@ jest.mock('../src/prisma', () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    // Interactive transaction: execute the callback with a tx proxy
+    $transaction: jest.fn(async (fn: any) => {
+      const { prisma: p } = jest.requireMock('../src/prisma');
+      return fn(p);
+    }),
   },
 }));
 

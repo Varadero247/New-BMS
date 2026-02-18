@@ -182,37 +182,40 @@ router.post('/register', registerLimiter, async (req, res) => {
 
     const hashedPassword = await hashPassword(data.password);
 
-    const user = await prisma.user.create({
-      data: {
-        id: uuidv4(),
-        email: data.email,
-        password: hashedPassword,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        department: data.department,
-        jobTitle: data.jobTitle,
-        role: 'USER',
-        isActive: true,
-      },
-    });
-
-    // Generate access token (15 minutes) and refresh token (7 days)
-    const accessToken = generateToken({ userId: user.id, email: user.email, role: user.role, expiresIn: '15m' });
-    const refreshToken = generateRefreshToken(user.id);
+    // Pre-compute tokens before the transaction (CPU-only, no I/O)
+    const userId = uuidv4();
+    const accessToken = generateToken({ userId, email: data.email, role: 'USER', expiresIn: '15m' });
+    const refreshToken = generateRefreshToken(userId);
     const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
     const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    await prisma.session.create({
-      data: {
-        id: uuidv4(),
-        userId: user.id,
-        token: accessToken,
-        expiresAt: accessTokenExpiresAt,
-        userAgent: req.headers['user-agent'] || null,
-        ipAddress: req.ip || null,
-      },
-    });
+    // Atomic: user + session created together or not at all
+    const [user] = await prisma.$transaction([
+      prisma.user.create({
+        data: {
+          id: userId,
+          email: data.email,
+          password: hashedPassword,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          department: data.department,
+          jobTitle: data.jobTitle,
+          role: 'USER',
+          isActive: true,
+        },
+      }),
+      prisma.session.create({
+        data: {
+          id: uuidv4(),
+          userId,
+          token: accessToken,
+          expiresAt: accessTokenExpiresAt,
+          userAgent: req.headers['user-agent'] || null,
+          ipAddress: req.ip || null,
+        },
+      }),
+    ]);
 
     logger.info('Registration successful', { userId: user.id, ip: req.ip });
 
@@ -492,23 +495,21 @@ router.post('/reset-password', passwordResetLimiter, async (req, res) => {
       });
     }
 
-    // Update password
+    // Atomic: password update, token invalidation, session purge
     const hashedPassword = await hashPassword(password);
-    await prisma.user.update({
-      where: { id: resetToken.userId },
-      data: { password: hashedPassword },
-    });
-
-    // Mark token as used
-    await prisma.passwordResetToken.update({
-      where: { id: resetToken.id },
-      data: { usedAt: new Date() },
-    });
-
-    // Invalidate all user sessions for security
-    await prisma.session.deleteMany({
-      where: { userId: resetToken.userId },
-    });
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: resetToken.userId },
+        data: { password: hashedPassword },
+      }),
+      prisma.passwordResetToken.update({
+        where: { id: resetToken.id },
+        data: { usedAt: new Date() },
+      }),
+      prisma.session.deleteMany({
+        where: { userId: resetToken.userId },
+      }),
+    ]);
 
     // Reset any account lockout
     await lockoutManager.reset(resetToken.user.email);

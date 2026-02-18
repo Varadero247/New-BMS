@@ -16,6 +16,16 @@ jest.mock('@ims/database', () => ({
       deleteMany: jest.fn(),
       update: jest.fn(),
     },
+    passwordResetToken: {
+      findFirst: jest.fn(),
+      update: jest.fn(),
+    },
+    // $transaction resolves each operation in the array and returns their results
+    $transaction: jest.fn((ops: any) =>
+      Array.isArray(ops)
+        ? Promise.all(ops)
+        : ops({ user: { create: jest.fn(), update: jest.fn() }, session: { create: jest.fn(), deleteMany: jest.fn() }, passwordResetToken: { update: jest.fn() } })
+    ),
   },
 }));
 

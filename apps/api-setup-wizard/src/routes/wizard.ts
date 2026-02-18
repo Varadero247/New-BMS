@@ -156,23 +156,25 @@ router.patch('/step/:stepIndex', async (req: Request, res: Response) => {
       });
     }
 
-    const step = await prisma.setupWizardStep.update({
-      where: {
-        wizardId_stepIndex: { wizardId: wizard.id, stepIndex },
-      },
-      data: {
-        status: 'COMPLETED',
-        data: (parsed.data.data || {}) as any,
-        completedAt: new Date(),
-      },
-    });
-
-    // Advance currentStep if needed
     const nextStep = Math.max(wizard.currentStep, stepIndex + 1);
-    await prisma.setupWizard.update({
-      where: { id: wizard.id },
-      data: { currentStep: Math.min(nextStep, 4) },
-    });
+
+    // Atomic: step completion and wizard progress advance together
+    const [step] = await prisma.$transaction([
+      prisma.setupWizardStep.update({
+        where: {
+          wizardId_stepIndex: { wizardId: wizard.id, stepIndex },
+        },
+        data: {
+          status: 'COMPLETED',
+          data: (parsed.data.data || {}) as any,
+          completedAt: new Date(),
+        },
+      }),
+      prisma.setupWizard.update({
+        where: { id: wizard.id },
+        data: { currentStep: Math.min(nextStep, 4) },
+      }),
+    ]);
 
     res.json({ success: true, data: step });
   } catch (error) {
