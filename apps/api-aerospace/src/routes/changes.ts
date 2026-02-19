@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -110,7 +110,7 @@ const implementChangeRequestSchema = z.object({
 // ============================================
 
 // GET / - List change requests
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, changeType, priority, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -155,7 +155,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get change request
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const changeRequest = await prisma.aeroChangeRequest.findUnique({
       where: { id: req.params.id },
@@ -179,7 +179,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create change request
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createChangeRequestSchema.parse(req.body);
     const refNumber = await generateChangeRequestRefNumber();
@@ -192,18 +192,18 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         changeType: data.changeType,
         priority: data.priority,
         reason: data.reason,
-        affectedDocuments: data.affectedDocuments,
-        affectedProcesses: data.affectedProcesses,
-        affectedParts: data.affectedParts,
-        customerImpact: data.customerImpact,
-        regulatoryImpact: data.regulatoryImpact,
-        safetyImpact: data.safetyImpact,
+        affectedDocuments: JSON.stringify(data.affectedDocuments),
+        affectedProcesses: JSON.stringify(data.affectedProcesses),
+        affectedParts: JSON.stringify(data.affectedParts),
+        customerImpact: String(data.customerImpact),
+        regulatoryImpact: String(data.regulatoryImpact),
+        safetyImpact: String(data.safetyImpact),
         costEstimate: data.costEstimate,
-        proposedBy: data.proposedBy || req.user?.id,
+        proposedBy: data.proposedBy || (req as AuthRequest).user?.id,
         requestedDate: data.requestedDate ? new Date(data.requestedDate) : new Date(),
         status: 'DRAFT',
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -228,7 +228,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update change request
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -242,7 +242,22 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
-      data: data as Record<string, unknown>,
+      data: {
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.changeType !== undefined && { changeType: data.changeType }),
+        ...(data.priority !== undefined && { priority: data.priority }),
+        ...(data.reason !== undefined && { reason: data.reason }),
+        ...(data.affectedDocuments !== undefined && { affectedDocuments: JSON.stringify(data.affectedDocuments) }),
+        ...(data.affectedProcesses !== undefined && { affectedProcesses: JSON.stringify(data.affectedProcesses) }),
+        ...(data.affectedParts !== undefined && { affectedParts: JSON.stringify(data.affectedParts) }),
+        ...(data.customerImpact !== undefined && { customerImpact: String(data.customerImpact) }),
+        ...(data.regulatoryImpact !== undefined && { regulatoryImpact: String(data.regulatoryImpact) }),
+        ...(data.safetyImpact !== undefined && { safetyImpact: String(data.safetyImpact) }),
+        ...(data.costEstimate !== undefined && { costEstimate: data.costEstimate }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.notes !== undefined && { notes: data.notes }),
+      },
     });
 
     res.json({ success: true, data: changeRequest });
@@ -266,7 +281,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Soft delete change request
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -296,7 +311,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // PUT /:id/submit - Submit for review
-router.put('/:id/submit', async (req: AuthRequest, res: Response) => {
+router.put('/:id/submit', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -308,7 +323,7 @@ router.put('/:id/submit', async (req: AuthRequest, res: Response) => {
 
     const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
-      data: { status: 'SUBMITTED', submittedDate: new Date(), submittedBy: req.user?.id },
+      data: { status: 'SUBMITTED', submittedDate: new Date(), submittedBy: (req as AuthRequest).user?.id },
     });
 
     res.json({ success: true, data: changeRequest });
@@ -322,7 +337,7 @@ router.put('/:id/submit', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/review - Review decision
-router.put('/:id/review', async (req: AuthRequest, res: Response) => {
+router.put('/:id/review', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -355,10 +370,10 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
     const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
       data: {
-        status: newStatus,
+        status: newStatus as never,
         reviewDecision: data.decision,
         reviewNotes: data.reviewNotes,
-        reviewedBy: data.reviewedBy || req.user?.id,
+        reviewedBy: data.reviewedBy || (req as AuthRequest).user?.id,
         reviewedDate: new Date(),
         conditions: data.conditions,
       },
@@ -385,7 +400,7 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/implement - Mark as implemented
-router.put('/:id/implement', async (req: AuthRequest, res: Response) => {
+router.put('/:id/implement', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroChangeRequest.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -402,7 +417,7 @@ router.put('/:id/implement', async (req: AuthRequest, res: Response) => {
       data: {
         status: 'IMPLEMENTED',
         implementationNotes: data.implementationNotes,
-        implementedBy: data.implementedBy || req.user?.id,
+        implementedBy: data.implementedBy || (req as AuthRequest).user?.id,
         implementedDate: new Date(),
         verificationRequired: data.verificationRequired,
       },

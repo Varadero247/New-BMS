@@ -426,6 +426,7 @@ model EmployeeBenefit {
 
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
 
   // Relations
   benefitPlan         BenefitPlan @relation(fields: [benefitPlanId], references: [id])
@@ -498,6 +499,7 @@ model EmployeeLoan {
 enum LoanType {
   SALARY_ADVANCE
   PERSONAL
+  PERSONAL_LOAN
   EMERGENCY
   EDUCATION
   HOUSING

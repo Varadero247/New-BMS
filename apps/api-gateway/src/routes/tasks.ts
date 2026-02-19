@@ -142,8 +142,8 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 
     const result = await getTasks(orgId, {
       assigneeId: req.query.assigneeId as string | undefined,
-      status: req.query.status as string,
-      priority: req.query.priority as string,
+      status: req.query.status as never,
+      priority: req.query.priority as never,
       recordType: req.query.recordType as string | undefined,
       page,
       limit,

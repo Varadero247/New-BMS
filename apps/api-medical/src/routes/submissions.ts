@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -96,7 +96,7 @@ const createChangeSchema = z.object({
 // ============================================
 
 // POST / — Create submission
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSubmissionSchema.parse(req.body);
     const refNumber = await generateRefNumber();
@@ -109,7 +109,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         submissionType: data.submissionType,
         status: 'PREPARATION',
         notes: data.notes,
-        createdBy: req.user?.email || req.user?.id || 'unknown',
+        createdBy: (req as AuthRequest).user?.id || 'unknown',
       },
     });
 
@@ -139,7 +139,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET / — List submissions with market/status filters, paginated
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', market, status, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -183,7 +183,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get submission with changes included
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const submission = await prisma.regulatorySubmission.findUnique({
       where: { id: req.params.id },
@@ -208,7 +208,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id — Update submission status, dates, conditions
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.regulatorySubmission.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -257,7 +257,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/changes — Log post-approval change notification
-router.post('/:id/changes', async (req: AuthRequest, res: Response) => {
+router.post('/:id/changes', async (req: Request, res: Response) => {
   try {
     const submission = await prisma.regulatorySubmission.findUnique({
       where: { id: req.params.id },

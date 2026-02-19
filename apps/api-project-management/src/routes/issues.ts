@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -14,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/issues - List issues by projectId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, status, severity, page = '1', limit = '50' } = req.query;
 
@@ -83,7 +83,7 @@ const updateIssueSchema = createIssueSchema
   .partial();
 
 // POST /api/issues - Create issue
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createIssueSchema.parse(req.body);
 
@@ -97,7 +97,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         category: data.category,
         severity: data.severity || 'MEDIUM',
         priority: data.priority || 'MEDIUM',
-        reportedBy: req.user?.id,
+        reportedBy: (req as AuthRequest).user?.id,
         assignedTo: data.assignedTo,
         raisedDate: new Date(),
         targetResolutionDate: data.targetResolutionDate
@@ -127,7 +127,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/issues/:id - Update issue
-router.put('/:id', checkOwnership(prisma.projectIssue), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectIssue), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -170,7 +170,7 @@ router.put('/:id', checkOwnership(prisma.projectIssue), async (req: AuthRequest,
 router.put(
   '/:id/resolve',
   checkOwnership(prisma.projectIssue),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -218,7 +218,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.projectIssue),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectIssue.findUnique({ where: { id: req.params.id } });
       if (!existing) {

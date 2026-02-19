@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -16,7 +16,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 }
 
 // GET /low-stock — Products below reorder point (must be before /:id)
-router.get('/low-stock', async (req: AuthRequest, res: Response) => {
+router.get('/low-stock', async (req: Request, res: Response) => {
   try {
     const page = parseIntParam(req.query.page, 1);
     const limit = parseIntParam(req.query.limit, 25, 100);
@@ -72,7 +72,7 @@ router.get('/low-stock', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /summary — Stock level summary
-router.get('/summary', async (req: AuthRequest, res: Response) => {
+router.get('/summary', async (req: Request, res: Response) => {
   try {
     const { warehouseId } = req.query;
     const where: Record<string, unknown> = {};
@@ -107,7 +107,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 });
 
 // GET / — List stock levels
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { warehouseId, productId, search: _search } = req.query;
     const page = parseIntParam(req.query.page, 1);
@@ -156,7 +156,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get stock level by inventory ID
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.inventory.findFirst({
       where: { id: req.params.id },

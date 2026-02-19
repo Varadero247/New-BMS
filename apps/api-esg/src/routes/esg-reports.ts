@@ -41,18 +41,28 @@ router.post('/generate', authenticate, async (req: Request, res: Response) => {
     }
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const y = new Date().getFullYear();
-    const c = await prisma.esgReport.count({ where: { orgId } });
     const { title, framework, period } = parsed.data;
+    // Derive year from period string (e.g. "2024", "2024-Q1", "FY2024") or use current year
+    const periodYear = period ? parseInt(period.replace(/\D/g, '').slice(0, 4), 10) || y : y;
+    // Map framework string to a valid EsgReportType enum value, defaulting to ANNUAL
+    const validReportTypes = ['ANNUAL', 'QUARTERLY', 'SUSTAINABILITY', 'GRI', 'SASB', 'TCFD', 'CDP'];
+    const reportType = (framework && validReportTypes.includes(framework.toUpperCase())
+      ? framework.toUpperCase()
+      : 'ANNUAL') as 'ANNUAL' | 'QUARTERLY' | 'SUSTAINABILITY' | 'GRI' | 'SASB' | 'TCFD' | 'CDP';
+    const count = await prisma.esgReport.count({ where: { orgId } });
+    const referenceNumber = `ESGR-${periodYear}-${String(count + 1).padStart(4, '0')}`;
     const data = await prisma.esgReport.create({
       data: {
         orgId,
-        referenceNumber: `ESGR-${y}-${String(c + 1).padStart(4, '0')}`,
-        title: title || `ESG Report ${y}`,
-        framework,
-        period,
+        referenceNumber,
+        title: title || `ESG Report ${periodYear}`,
+        reportType,
+        year: periodYear,
         status: 'DRAFT',
         aiGenerated: true,
-        createdBy: (req as AuthRequest).user?.id,
+        generatedBy: 'AI',
+        content: { framework, period, aiGenerated: true },
+        createdBy: (req as AuthRequest).user?.id || 'system',
       },
     });
     res.status(201).json({ success: true, data });

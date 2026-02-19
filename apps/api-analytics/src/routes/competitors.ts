@@ -193,7 +193,8 @@ router.post('/:id/intel', async (req: Request, res: Response) => {
 
     const competitor = await prisma.competitorMonitor.update({
       where: { id: req.params.id },
-      data: { intel: updatedIntel },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: { intel: updatedIntel as any },
     });
 
     logger.info('Intel added to competitor', { id: competitor.id, type });

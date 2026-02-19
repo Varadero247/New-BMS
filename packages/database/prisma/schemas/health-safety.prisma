@@ -1044,24 +1044,38 @@ enum HSMRActionStatus {
 // ============================================
 
 model HSCommunication {
-  id              String    @id @default(cuid())
-  orgId           String?
-  tenantId        String    @default("default")
-  refNumber       String    @unique
-  direction       HSCommDirection
-  commType        HSCommType
-  subject         String
-  description     String?
-  stakeholders    String[]
-  date            DateTime
-  responseRequired Boolean  @default(false)
-  responseDate    DateTime?
-  responseNotes   String?
-  status          HSCommStatus @default(OPEN)
-  createdBy       String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
+  id                  String    @id @default(cuid())
+  orgId               String?
+  tenantId            String    @default("default")
+  refNumber           String    @unique
+  direction           HSCommDirection
+  commType            HSCommType?
+  type                String?
+  subject             String
+  content             String?
+  description         String?
+  recipients          String?
+  sender              String?
+  relatedIncidentId   String?
+  scheduledDate       DateTime?
+  attendees           String?
+  location            String?
+  priority            String?
+  stakeholders        String[]
+  date                DateTime?
+  responseRequired    Boolean   @default(false)
+  responseDate        DateTime?
+  responseNotes       String?
+  response            String?
+  respondedBy         String?
+  respondedAt         DateTime?
+  outcome             String?
+  status              String    @default("OPEN")
+  createdBy           String?
+  deletedBy           String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
 
   @@index([tenantId, direction])
   @@index([status])

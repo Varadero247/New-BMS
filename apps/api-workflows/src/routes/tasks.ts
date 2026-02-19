@@ -28,7 +28,7 @@ const taskTypeEnum = z.enum([
 const _taskStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'OVERDUE']);
 
 // GET /api/tasks - Get workflow tasks
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { assignedToId, status, instanceId } = req.query;
 
@@ -129,7 +129,7 @@ router.get('/my/:userId', async (req: Request, res: Response) => {
 });
 
 // GET /api/tasks/:id - Get single task
-router.get('/:id', checkOwnership(prisma.workflowTask), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.workflowTask), async (req: Request, res: Response) => {
   try {
     const task = await prisma.workflowTask.findUnique({
       where: { id: req.params.id },
@@ -213,7 +213,7 @@ const claimTaskSchema = z.object({
 router.put(
   '/:id/claim',
   checkOwnership(prisma.workflowTask),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const data = claimTaskSchema.parse(req.body);
 
@@ -247,7 +247,7 @@ router.put(
 router.put(
   '/:id/complete',
   checkOwnership(prisma.workflowTask),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const schema = z.object({
         outcome: z.string().trim().optional(),
@@ -304,7 +304,7 @@ const reassignTaskSchema = z.object({
 router.put(
   '/:id/reassign',
   checkOwnership(prisma.workflowTask),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const data = reassignTaskSchema.parse(req.body);
 

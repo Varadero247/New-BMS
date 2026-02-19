@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -52,7 +52,7 @@ function calculateRiskLevel(severity: number, probability: number): string {
 // ============================================
 // 1. POST / - Create Risk Management File
 // ============================================
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -73,8 +73,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         deviceClass: data.deviceClass,
         intendedUse: data.intendedUse,
         riskPolicy: data.riskPolicy,
-        status: 'DRAFT',
-        createdBy: req.user?.id,
+        status: 'DRAFT' as never,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -101,7 +101,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 2. GET / - List Risk Management Files
 // ============================================
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, deviceName } = req.query;
 
@@ -145,7 +145,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.riskManagementFile),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const rmf = await prisma.riskManagementFile.findUnique({
         where: { id: req.params.id },
@@ -180,7 +180,7 @@ router.get(
 // ============================================
 // 4. POST /:id/hazards - Add hazard identification
 // ============================================
-router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
+router.post('/:id/hazards', async (req: Request, res: Response) => {
   try {
     const rmf = await prisma.riskManagementFile.findUnique({ where: { id: req.params.id } });
     if (!rmf || rmf.deletedAt) {
@@ -227,13 +227,13 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
       data: {
         fileId: req.params.id,
         hazardId,
-        hazardCategory: data.hazardCategory as string,
+        hazardCategory: data.hazardCategory as never,
         hazardDescription: data.hazardDescription,
         hazardousSituation: data.hazardousSituation,
         harm: data.harm,
         severityBefore: data.severityBefore,
         probabilityBefore: data.probabilityBefore,
-        riskLevelBefore: riskLevelBefore as string,
+        riskLevelBefore: riskLevelBefore as never,
       },
     });
 
@@ -260,7 +260,7 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 5. PUT /:id/hazards/:hazardId - Update hazard + manage controls
 // ============================================
-router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/hazards/:hazardId', async (req: Request, res: Response) => {
   try {
     const rmf = await prisma.riskManagementFile.findUnique({ where: { id: req.params.id } });
     if (!rmf || rmf.deletedAt) {
@@ -329,7 +329,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
               hazardId: req.params.hazardId,
               controlType: control.controlType,
               description: control.description,
-              implementationStatus: (control.implementationStatus || 'PLANNED') as string,
+              implementationStatus: (control.implementationStatus || 'PLANNED') as never,
               verificationMethod: control.verificationMethod,
             },
           })
@@ -367,7 +367,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
 // ============================================
 // 6. POST /:id/benefit-risk - Submit benefit-risk analysis
 // ============================================
-router.post('/:id/benefit-risk', async (req: AuthRequest, res: Response) => {
+router.post('/:id/benefit-risk', async (req: Request, res: Response) => {
   try {
     const rmf = await prisma.riskManagementFile.findUnique({ where: { id: req.params.id } });
     if (!rmf || rmf.deletedAt) {
@@ -419,7 +419,7 @@ router.post('/:id/benefit-risk', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 7. GET /:id/report - Full risk management report
 // ============================================
-router.get('/:id/report', async (req: AuthRequest, res: Response) => {
+router.get('/:id/report', async (req: Request, res: Response) => {
   try {
     const rmf = await prisma.riskManagementFile.findUnique({
       where: { id: req.params.id },
@@ -500,7 +500,7 @@ router.get('/:id/report', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 8. GET /:id/residual - Residual risk summary
 // ============================================
-router.get('/:id/residual', async (req: AuthRequest, res: Response) => {
+router.get('/:id/residual', async (req: Request, res: Response) => {
   try {
     const rmf = await prisma.riskManagementFile.findUnique({
       where: { id: req.params.id },

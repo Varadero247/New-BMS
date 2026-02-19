@@ -184,7 +184,7 @@ router.get(
 
       // Get employee's goals for this cycle
       const goals = await prisma.performanceGoal.findMany({
-        where: { cycleId: review.cycleId, employeeId: review.employeeId, deletedAt: null },
+        where: { cycleId: review.cycleId, employeeId: review.employeeId },
         include: { updates: { orderBy: { createdAt: 'desc' }, take: 5 } },
         take: 100,
       });

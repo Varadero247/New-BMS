@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -35,7 +35,7 @@ function getActionPriority(rpn: number): 'LOW' | 'MEDIUM' | 'HIGH' {
 // ============================================
 
 // GET / — List FMEAs (paginated)
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, fmeaType, fmeaFormat } = req.query;
 
@@ -78,7 +78,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /stats — FMEA statistics
-router.get('/stats', async (_req: AuthRequest, res: Response) => {
+router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const totalFmeas = await prisma.qualFmea.count();
 
@@ -107,7 +107,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get single FMEA
-router.get('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualFmea), async (req: Request, res: Response) => {
   try {
     const fmea = await prisma.qualFmea.findUnique({
       where: { id: req.params.id },
@@ -130,7 +130,7 @@ router.get('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
 });
 
 // POST / — Create FMEA
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       fmeaType: z.enum(['DFMEA', 'PFMEA', 'SFMEA']),
@@ -213,7 +213,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id — Update FMEA
-router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualFmea), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -282,7 +282,7 @@ router.put('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res
 });
 
 // DELETE /:id — Delete FMEA
-router.delete('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualFmea), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -311,7 +311,7 @@ router.delete('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, 
 // ============================================
 
 // POST /:id/rows — Create FMEA row with auto RPN
-router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
+router.post('/:id/rows', async (req: Request, res: Response) => {
   try {
     const fmea = await prisma.qualFmea.findUnique({ where: { id: req.params.id } });
     if (!fmea) {
@@ -404,7 +404,7 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/rows/:rowId — Update FMEA row, recalc RPN
-router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/rows/:rowId', async (req: Request, res: Response) => {
   try {
     const existingRow = await prisma.qualFmeaRow.findFirst({
       where: { id: req.params.rowId, fmeaId: req.params.id },
@@ -497,7 +497,7 @@ router.put('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id/rows/:rowId — Delete FMEA row
-router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
+router.delete('/:id/rows/:rowId', async (req: Request, res: Response) => {
   try {
     const existingRow = await prisma.qualFmeaRow.findFirst({
       where: { id: req.params.rowId, fmeaId: req.params.id },
@@ -508,9 +508,8 @@ router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'FMEA row not found' } });
     }
 
-    await prisma.qualFmeaRow.update({
+    await prisma.qualFmeaRow.delete({
       where: { id: req.params.rowId },
-      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();
@@ -524,7 +523,7 @@ router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/rows/reorder — Bulk update sortOrder
-router.post('/:id/rows/reorder', async (req: AuthRequest, res: Response) => {
+router.post('/:id/rows/reorder', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       rows: z.array(

@@ -96,17 +96,17 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         refNumber,
         title: parsed.data.title,
-        description: parsed.data.description || null,
+        description: parsed.data.description || '',
         threat: parsed.data.threat,
         vulnerability: parsed.data.vulnerability,
         likelihood: parsed.data.likelihood,
         impact: parsed.data.impact,
         riskScore,
-        riskLevel: riskLevel as string,
+        riskLevel: riskLevel as any,
+        treatment: 'MITIGATE' as any,
         assetId: parsed.data.assetId || null,
-        category: parsed.data.category || null,
-        owner: parsed.data.owner || null,
-        status: 'IDENTIFIED' as string,
+        owner: parsed.data.owner || '',
+        status: 'IDENTIFIED' as any,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -289,12 +289,11 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const risk = await prisma.isRisk.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...parsed.data as any,
         likelihood,
         impact,
         riskScore,
-        riskLevel: riskLevel as string,
-        updatedBy: authReq.user?.id || 'system',
+        riskLevel: riskLevel as any,
         updatedAt: new Date(),
       },
     });

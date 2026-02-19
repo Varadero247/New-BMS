@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -47,7 +47,7 @@ async function generateCapaRef(): Promise<string> {
 }
 
 // POST /schedules - Create LPA schedule with questions
-router.post('/schedules', async (req: AuthRequest, res: Response) => {
+router.post('/schedules', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       processArea: z.string().trim().min(1).max(200),
@@ -71,7 +71,7 @@ router.post('/schedules', async (req: AuthRequest, res: Response) => {
           processArea: data.processArea,
           layer: data.layer,
           frequency: data.frequency,
-          createdBy: req.user?.id,
+          createdBy: (req as AuthRequest).user?.id,
         },
       });
 
@@ -116,7 +116,7 @@ router.post('/schedules', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /schedules - List LPA schedules
-router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/schedules', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', layer, frequency, active } = req.query;
 
@@ -161,7 +161,7 @@ router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) =>
 });
 
 // POST /audits - Create/start LPA audit from schedule
-router.post('/audits', async (req: AuthRequest, res: Response) => {
+router.post('/audits', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       scheduleId: z.string().trim().min(1).max(200),
@@ -209,7 +209,7 @@ router.post('/audits', async (req: AuthRequest, res: Response) => {
         processArea: schedule.processArea,
         status: 'IN_PROGRESS',
         totalQuestions: schedule.questions.length,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -234,7 +234,7 @@ router.post('/audits', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /audits - List LPA audits with pagination/filters
-router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/audits', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, layer, processArea, auditor } = req.query;
 
@@ -279,7 +279,7 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /audits/:id/respond - Submit question responses
-router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
+router.post('/audits/:id/respond', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -403,7 +403,7 @@ router.post('/audits/:id/respond', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /audits/:id/complete - Complete LPA, calculate score
-router.post('/audits/:id/complete', async (req: AuthRequest, res: Response) => {
+router.post('/audits/:id/complete', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -473,7 +473,7 @@ router.post('/audits/:id/complete', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /dashboard - LPA performance dashboard
-router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/dashboard', scopeToUser, async (req: Request, res: Response) => {
   try {
     // Total audits and completed count
     const [totalAudits, completedAudits] = await Promise.all([

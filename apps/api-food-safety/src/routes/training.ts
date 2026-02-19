@@ -330,7 +330,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
         completedDate: new Date(),
         ...(attendees !== null ? { attendees } : {}),
         ...(certificate !== null ? { certificate } : {}),
-        ...(validUntil !== null ? { validUntil: new Date(validUntil) } : {}),
+        ...(validUntil != null ? { validUntil: new Date(validUntil) } : {}),
       },
     });
 

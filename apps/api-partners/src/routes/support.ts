@@ -29,7 +29,7 @@ const SLA_HOURS: Record<string, number> = {
 // GET /api/support — list partner's tickets
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -60,7 +60,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/support — create a new ticket
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -88,7 +88,7 @@ router.post('/', async (req: Request, res: Response) => {
         slaTarget,
         messages: {
           create: {
-            senderId: partnerId,
+            senderId: partnerId as string,
             senderType: 'PARTNER',
             body: parsed.data.description,
           },
@@ -110,7 +110,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/support/:id — get ticket detail with messages
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -143,7 +143,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 // POST /api/support/:id/messages — add a message to a ticket
 router.post('/:id/messages', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -207,7 +207,7 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
 // PATCH /api/support/:id/close — close a ticket
 router.patch('/:id/close', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

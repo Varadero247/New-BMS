@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -27,7 +27,7 @@ async function generateRefNumber(): Promise<string> {
 // ============================================
 
 // GET / — List changes (paginated)
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', changeType, status, priority, search } = req.query;
 
@@ -71,7 +71,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get single change
-router.get('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualChange), async (req: Request, res: Response) => {
   try {
     const change = await prisma.qualChange.findUnique({
       where: { id: req.params.id },
@@ -93,7 +93,7 @@ router.get('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
 });
 
 // POST / — Create change
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -271,7 +271,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id — Update change
-router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualChange), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualChange.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -406,7 +406,7 @@ router.put('/:id', checkOwnership(prisma.qualChange), async (req: AuthRequest, r
 router.delete(
   '/:id',
   checkOwnership(prisma.qualChange),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualChange.findUnique({ where: { id: req.params.id } });
       if (!existing) {

@@ -128,19 +128,24 @@ model AbPolicy {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   deletedAt      DateTime?
-  organisationId String
+  organisationId String?
   createdBy      String
 
+  referenceNumber String?
   title          String
-  description    String
+  description    String?
   content        String
-  version        String
-  status         AbPolicyStatus @default(DRAFT)
+  version        String?        @default("1.0")
+  status         String         @default("DRAFT")
   approvedBy     String?
   approvedAt     DateTime?
   effectiveDate  DateTime?
   reviewDate     DateTime?
   policyType     String         // ANTI_BRIBERY, GIFTS_HOSPITALITY, WHISTLEBLOWING, DUE_DILIGENCE, FACILITATION_PAYMENTS
+  scope          String?
+  owner          String?
+  notes          String?
+  updatedBy      String?
 
   @@index([organisationId, deletedAt])
   @@index([organisationId, status])
@@ -155,29 +160,38 @@ model AbDueDiligence {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   deletedAt         DateTime?
-  organisationId    String
+  organisationId    String?
   createdBy         String
 
+  referenceNumber   String?
   thirdPartyName    String
-  thirdPartyType    AbThirdPartyType
-  level             AbDueDiligenceLevel @default(STANDARD)
+  thirdPartyType    String
+  level             String              @default("STANDARD")
   status            AbDueDiligenceStatus @default(PENDING)
   country           String
   sector            String?
-  riskLevel         AbRiskLevel          @default(MEDIUM)
+  industry          String?
+  riskLevel         String              @default("MEDIUM")
   riskJustification String?
   assessmentDate    DateTime?
   expiryDate        DateTime?
   findings          String?
   recommendations   String?
   approvedBy        String?
+  updatedBy         String?
+  scopeOfEngagement String?
+  notes             String?
+  contactName       String?
+  contactEmail      String?
+  contractValue     Float?
+  conditions        String?
+  completedAt       DateTime?
+  completedBy       String?
 
   @@index([organisationId, deletedAt])
   @@index([organisationId, status])
-  @@index([organisationId, thirdPartyType])
-  @@index([organisationId, riskLevel])
-  @@map("ab_due_diligence")
   @@index([deletedAt])
+  @@map("ab_due_diligence")
 }
 
 /// Gifts, hospitality, and facilitation payments register
@@ -248,27 +262,39 @@ model AbRiskAssessment {
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
   deletedAt          DateTime?
-  organisationId     String
+  organisationId     String?
   createdBy          String
+  updatedBy          String?
 
+  referenceNumber    String?
   title              String
-  description        String
-  category           AbRiskCategory
-  riskLevel          AbRiskLevel             @default(MEDIUM)
+  description        String?
+  category           String
+  riskLevel          String                  @default("MEDIUM")
   businessFunction   String
   jurisdiction       String?
+  country            String?
   likelihood         Int
   impact             Int
   riskScore          Int
+  existingControls   String?
   mitigationMeasures String?
-  residualRisk       AbRiskLevel?
-  owner              String
+  mitigationPlan     String?
+  residualRisk       String?
+  residualLikelihood Int?
+  residualImpact     Int?
+  residualRiskScore  Int?
+  residualRiskLevel  String?
+  controlsAdded      String?
+  mitigationOwner    String?
+  targetDate         DateTime?
+  owner              String?
   reviewDate         DateTime?
+  notes              String?
   status             AbRiskAssessmentStatus  @default(IDENTIFIED)
 
   @@index([organisationId, deletedAt])
   @@index([organisationId, status])
-  @@index([organisationId, category])
   @@index([organisationId, riskLevel])
   @@map("ab_risk_assessments")
   @@index([deletedAt])
@@ -276,27 +302,44 @@ model AbRiskAssessment {
 
 /// Investigation log — tracks reports, investigations, outcomes, and lessons learned
 model AbInvestigation {
-  id              String                   @id @default(cuid())
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
-  deletedAt       DateTime?
-  organisationId  String
-  createdBy       String
+  id                     String                @id @default(cuid())
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  deletedAt              DateTime?
+  organisationId         String?
+  createdBy              String
+  updatedBy              String?
 
-  referenceNumber String                   @unique
-  title           String
-  description     String
-  allegationType  String
-  reportedBy      String
-  reportedDate    DateTime
-  status          AbInvestigationStatus    @default(REPORTED)
-  outcome         AbInvestigationOutcome?
-  investigator    String?
-  findings        String?
-  actionsTaken    String?
-  closedDate      DateTime?
-  lessonsLearned  String?
-  isAnonymous     Boolean                  @default(false)
+  referenceNumber        String                @unique
+  title                  String
+  description            String?
+  allegationType         String
+  reportedBy             String
+  reportedDate           DateTime
+  department             String?
+  location               String?
+  involvedParties        String?
+  estimatedValue         Float?
+  currency               String                @default("USD")
+  priority               String                @default("MEDIUM")
+  notes                  String?
+  anonymous              Boolean               @default(false)
+  status                 AbInvestigationStatus @default(REPORTED)
+  outcome                String?
+  investigator           String?
+  investigatorName       String?
+  investigationNotes     String?
+  investigationStartDate DateTime?
+  findings               String?
+  actions                String?
+  actionsTaken           String?
+  disciplinaryAction     String?
+  reportedToAuthorities  Boolean               @default(false)
+  authorityDetails       String?
+  closedDate             DateTime?
+  closedAt               DateTime?
+  closedBy               String?
+  lessonsLearned         String?
 
   @@index([organisationId, deletedAt])
   @@index([organisationId, status])

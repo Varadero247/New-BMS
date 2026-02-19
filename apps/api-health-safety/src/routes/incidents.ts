@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -64,7 +64,7 @@ const STATUSES = [
 ] as const;
 
 // GET /api/incidents - List incidents
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, type, severity, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -103,7 +103,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/incidents/:id - Get single incident
-router.get('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.incident), async (req: Request, res: Response) => {
   try {
     const incident = await prisma.incident.findUnique({
       where: { id: req.params.id },
@@ -127,7 +127,7 @@ router.get('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res
 });
 
 // POST /api/incidents - Create incident
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -257,7 +257,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/incidents/:id - Update incident
-router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.incident), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.incident.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -344,7 +344,7 @@ router.patch('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, r
 });
 
 // DELETE /api/incidents/:id - Delete incident
-router.delete('/:id', checkOwnership(prisma.incident), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.incident), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.incident.findUnique({ where: { id: req.params.id } });
     if (!existing) {

@@ -239,7 +239,8 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
 
     const data = await prisma.chemSds.create({
-      data: { ...(parsed.data as Record<string, unknown>), chemicalId, createdBy: (req as AuthRequest).user?.id },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: { ...parsed.data, chemicalId, createdBy: (req as AuthRequest).user?.id } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

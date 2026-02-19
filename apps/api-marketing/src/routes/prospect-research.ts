@@ -94,7 +94,7 @@ Return as JSON: {"subject": "...", "body": "..."}`;
 
         if (resp.ok) {
           const aiData = (await resp.json()) as Record<string, unknown>;
-          const text = aiData.content?.[0]?.text || '';
+          const text = (aiData.content as any[])?.[0]?.text || '';
           const jsonMatch = text.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             generatedEmail = JSON.parse(jsonMatch[0]);
@@ -110,8 +110,8 @@ Return as JSON: {"subject": "...", "body": "..."}`;
         companyName: data.companyName,
         website: data.website,
         industry: data.industry,
-        companiesHouseData: companiesHouseData as Record<string, unknown>,
-        generatedEmail: generatedEmail as string,
+        companiesHouseData: companiesHouseData as any,
+        generatedEmail: generatedEmail as any,
         sourceContext: data.sourceContext,
         createdBy: userId,
       },

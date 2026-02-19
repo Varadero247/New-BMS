@@ -210,10 +210,7 @@ router.post('/ropa', async (req: Request, res: Response) => {
         recipients: parsed.data.recipients || [],
         retentionPeriod: parsed.data.retentionPeriod || null,
         transfersOutsideEEA: parsed.data.transfersOutsideEEA || false,
-        safeguards: parsed.data.safeguards || null,
-        controller: parsed.data.controller || null,
-        processor: parsed.data.processor || null,
-        description: parsed.data.description || null,
+        transferSafeguards: parsed.data.safeguards || null,
         status: 'ACTIVE',
         createdBy: authReq.user?.id || 'system',
       },
@@ -291,8 +288,7 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
     const entry = await prisma.isRopa.update({
       where: { id },
       data: {
-        ...parsed.data,
-        updatedBy: authReq.user?.id || 'system',
+        ...parsed.data as any,
         updatedAt: new Date(),
       },
     });
@@ -339,12 +335,11 @@ router.post('/dpia', async (req: Request, res: Response) => {
       data: {
         refNumber,
         title: parsed.data.title,
-        description: parsed.data.description || null,
+        description: parsed.data.description || '',
         processingDescription: parsed.data.processingDescription || null,
-        necessity: parsed.data.necessity || null,
-        risksIdentified: parsed.data.risksIdentified || [],
-        mitigationMeasures: parsed.data.mitigationMeasures || [],
-        ropaId: parsed.data.ropaId || null,
+        necessityAssessment: parsed.data.necessity || null,
+        riskAssessment: (parsed.data.risksIdentified || []).join('; ') || null,
+        mitigationMeasures: (parsed.data.mitigationMeasures || []).join('; ') || null,
         status: 'DRAFT',
         createdBy: authReq.user?.id || 'system',
       },
@@ -470,9 +465,8 @@ router.put('/dpia/:id/approve', async (req: Request, res: Response) => {
       data: {
         approvedBy: authReq.user?.id || 'system',
         approvedAt: new Date(),
-        approvalNotes: parsed.data.approvalNotes || null,
+        dpoOpinion: parsed.data.approvalNotes || null,
         status: 'APPROVED',
-        updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       },
     });
@@ -575,7 +569,6 @@ router.post('/dsar', async (req: Request, res: Response) => {
         subjectEmail: parsed.data.subjectEmail,
         requestType: parsed.data.requestType,
         description: parsed.data.description || null,
-        identityVerified: parsed.data.identityVerified || false,
         receivedAt,
         deadline,
         status: 'RECEIVED',
@@ -629,10 +622,8 @@ router.put('/dsar/:id/respond', async (req: Request, res: Response) => {
       where: { id },
       data: {
         responseNotes: parsed.data.responseNotes,
-        actionTaken: parsed.data.actionTaken || null,
         respondedAt: new Date(),
         status: 'COMPLETED',
-        updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       },
     });
@@ -683,7 +674,7 @@ router.get('/consents', async (req: Request, res: Response) => {
         where,
         skip,
         take: limit,
-        orderBy: { consentedAt: 'desc' },
+        orderBy: { consentDate: 'desc' },
       }),
       prisma.isConsent.count({ where }),
     ]);

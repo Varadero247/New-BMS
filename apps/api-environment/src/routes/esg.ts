@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, EsgCategory } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -46,7 +46,7 @@ async function generateTargetRefNumber(): Promise<string> {
 // GET /summary — GHG Scope 1/2/3, water, waste, energy KPIs
 // ============================================
 
-router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/summary', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { year } = req.query;
     const targetYear = year ? parseInt(year as string, 10) : new Date().getFullYear();
@@ -132,7 +132,7 @@ router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /trends — Monthly trend data for all ESG metrics
 // ============================================
 
-router.get('/trends', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/trends', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { months = '12', category } = req.query;
     const monthCount = Math.min(parseInt(months as string, 10) || 12, 36);
@@ -186,7 +186,7 @@ router.get('/trends', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /targets — Progress against ESG targets
 // ============================================
 
-router.get('/targets', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/targets', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, category, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -246,7 +246,7 @@ router.get('/targets', scopeToUser, async (req: AuthRequest, res: Response) => {
 // POST /targets — Set ESG target
 // ============================================
 
-router.post('/targets', async (req: AuthRequest, res: Response) => {
+router.post('/targets', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       category: z.enum(ESG_CATEGORIES),
@@ -268,7 +268,7 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
     const target = await prisma.esgTarget.create({
       data: {
         refNumber,
-        category: data.category as string,
+        category: data.category as EsgCategory,
         subcategory: data.subcategory,
         description: data.description,
         baselineValue: data.baselineValue,
@@ -310,7 +310,7 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
 router.put(
   '/targets/:id',
   checkOwnership(prisma.esgTarget as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.esgTarget.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -365,7 +365,7 @@ router.put(
 // GET /report — Auto-generate ESG report data (GRI/TCFD aligned)
 // ============================================
 
-router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/report', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { year } = req.query;
     const targetYear = year ? parseInt(year as string, 10) : new Date().getFullYear();
@@ -503,7 +503,7 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
 // POST /metrics — Record ESG metric data point
 // ============================================
 
-router.post('/metrics', async (req: AuthRequest, res: Response) => {
+router.post('/metrics', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       category: z.enum(ESG_CATEGORIES),
@@ -523,7 +523,7 @@ router.post('/metrics', async (req: AuthRequest, res: Response) => {
 
     const metric = await prisma.esgMetric.create({
       data: {
-        category: data.category as string,
+        category: data.category as EsgCategory,
         subcategory: data.subcategory,
         period: data.period,
         value: data.value,
@@ -559,7 +559,7 @@ router.post('/metrics', async (req: AuthRequest, res: Response) => {
 // GET /metrics — List metric data points with filters
 // ============================================
 
-router.get('/metrics', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/metrics', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', category, period, subcategory, verified } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -57,7 +57,7 @@ async function generateReportRefNumber(reportType: string): Promise<string> {
 // ============================================
 // 1. POST /plans - Create PMS plan
 // ============================================
-router.post('/plans', async (req: AuthRequest, res: Response) => {
+router.post('/plans', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       deviceName: z.string().trim().min(1).max(200),
@@ -88,7 +88,7 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
         status: data.status || 'DRAFT',
         lastReviewDate: data.lastReviewDate ? new Date(data.lastReviewDate) : undefined,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : undefined,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -115,7 +115,7 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 2. GET /plans - List plans with pagination
 // ============================================
-router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/plans', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, deviceName } = req.query;
 
@@ -160,7 +160,7 @@ router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/plans/:id',
   checkOwnership(prisma.pmsPlan),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const plan = await prisma.pmsPlan.findUnique({
         where: { id: req.params.id },
@@ -192,7 +192,7 @@ router.get(
 router.put(
   '/plans/:id',
   checkOwnership(prisma.pmsPlan),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.pmsPlan.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -260,7 +260,7 @@ router.put(
 // ============================================
 // 5. POST /reports/psur - Create PSUR report
 // ============================================
-router.post('/reports/psur', async (req: AuthRequest, res: Response) => {
+router.post('/reports/psur', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       planId: z.string().trim().min(1).max(200),
@@ -302,7 +302,7 @@ router.post('/reports/psur', async (req: AuthRequest, res: Response) => {
         conclusions: data.conclusions,
         actions: data.actions,
         status: 'DRAFT',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -329,7 +329,7 @@ router.post('/reports/psur', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 6. POST /reports/pmcf - Create PMCF report
 // ============================================
-router.post('/reports/pmcf', async (req: AuthRequest, res: Response) => {
+router.post('/reports/pmcf', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       planId: z.string().trim().min(1).max(200),
@@ -371,7 +371,7 @@ router.post('/reports/pmcf', async (req: AuthRequest, res: Response) => {
         conclusions: data.conclusions,
         actions: data.actions,
         status: 'DRAFT',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -398,7 +398,7 @@ router.post('/reports/pmcf', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 7. GET /dashboard - PMS overview
 // ============================================
-router.get('/dashboard', async (req: AuthRequest, res: Response) => {
+router.get('/dashboard', async (req: Request, res: Response) => {
   try {
     const now = new Date();
 

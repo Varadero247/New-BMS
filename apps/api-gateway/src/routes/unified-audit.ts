@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import {
@@ -26,7 +26,7 @@ router.use(authenticate);
 // ---------------------------------------------------------------------------
 // GET /standards - List available standards with clause counts
 // ---------------------------------------------------------------------------
-router.get('/standards', async (_req: AuthRequest, res: Response) => {
+router.get('/standards', async (_req: Request, res: Response) => {
   try {
     const standards = getAvailableStandards();
 
@@ -57,7 +57,7 @@ router.get('/standards', async (_req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /standards/:standard/checklist - Get full checklist for a standard
 // ---------------------------------------------------------------------------
-router.get('/standards/:standard/checklist', async (req: AuthRequest, res: Response) => {
+router.get('/standards/:standard/checklist', async (req: Request, res: Response) => {
   try {
     const { standard } = req.params;
     const checklist = getChecklist(standard);
@@ -94,7 +94,7 @@ const createPlanSchema = z.object({
   scope: z.string().trim().min(1, 'Scope is required').max(2000),
 });
 
-router.post('/plans', async (req: AuthRequest, res: Response) => {
+router.post('/plans', async (req: Request, res: Response) => {
   try {
     const data = createPlanSchema.parse(req.body);
 
@@ -116,7 +116,7 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
       planId: plan.id,
       standard: plan.standard,
       auditType: plan.auditType,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({ success: true, data: plan });
@@ -144,7 +144,7 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /plans - List all audit plans (with optional filters)
 // ---------------------------------------------------------------------------
-router.get('/plans', async (req: AuthRequest, res: Response) => {
+router.get('/plans', async (req: Request, res: Response) => {
   try {
     const { standard, auditType, page = '1', limit = '20' } = req.query;
 
@@ -210,7 +210,7 @@ router.get('/plans', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /plans/:id - Get specific audit plan with clause statuses
 // ---------------------------------------------------------------------------
-router.get('/plans/:id', async (req: AuthRequest, res: Response) => {
+router.get('/plans/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const plan = auditPlans.get(id);
@@ -264,7 +264,7 @@ const updateClauseSchema = z.object({
   auditorNotes: z.string().trim().optional(),
 });
 
-router.patch('/plans/:id/clauses/:clause', async (req: AuthRequest, res: Response) => {
+router.patch('/plans/:id/clauses/:clause', async (req: Request, res: Response) => {
   try {
     const { id, clause } = req.params;
     const plan = auditPlans.get(id);
@@ -310,7 +310,7 @@ router.patch('/plans/:id/clauses/:clause', async (req: AuthRequest, res: Respons
       planId: id,
       clause: decodedClause,
       status: clauseEntry.status,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.json({ success: true, data: clauseEntry });
@@ -338,7 +338,7 @@ router.patch('/plans/:id/clauses/:clause', async (req: AuthRequest, res: Respons
 // ---------------------------------------------------------------------------
 // GET /plans/:id/score - Get audit score / conformance rate
 // ---------------------------------------------------------------------------
-router.get('/plans/:id/score', async (req: AuthRequest, res: Response) => {
+router.get('/plans/:id/score', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const plan = auditPlans.get(id);
@@ -377,7 +377,7 @@ router.get('/plans/:id/score', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /plans/:id/gaps - Get mandatory gaps
 // ---------------------------------------------------------------------------
-router.get('/plans/:id/gaps', async (req: AuthRequest, res: Response) => {
+router.get('/plans/:id/gaps', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const plan = auditPlans.get(id);
@@ -423,7 +423,7 @@ router.get('/plans/:id/gaps', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /plans/:id/report - Generate audit report summary
 // ---------------------------------------------------------------------------
-router.get('/plans/:id/report', async (req: AuthRequest, res: Response) => {
+router.get('/plans/:id/report', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const plan = auditPlans.get(id);
@@ -528,7 +528,7 @@ router.get('/plans/:id/report', async (req: AuthRequest, res: Response) => {
       planId: plan.id,
       standard: plan.standard,
       recommendation,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.json({ success: true, data: report });

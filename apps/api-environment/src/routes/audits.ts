@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma, Prisma, EnvAuditType } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -26,7 +26,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List audits
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', type, status, search, dateFrom, dateTo } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -38,8 +38,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     if (status) where.status = status;
     if (dateFrom || dateTo) {
       where.auditDate = {};
-      if (dateFrom) where.auditDate.gte = new Date(dateFrom as string);
-      if (dateTo) where.auditDate.lte = new Date(dateTo as string);
+      if (dateFrom) (where.auditDate as { gte?: Date; lte?: Date }).gte = new Date(dateFrom as string);
+      if (dateTo) (where.auditDate as { gte?: Date; lte?: Date }).lte = new Date(dateTo as string);
     }
     if (search) {
       where.OR = [
@@ -77,7 +77,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /schedule - Get upcoming audit schedules
-router.get('/schedule', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/schedule', scopeToUser, async (req: Request, res: Response) => {
   try {
     const schedules = await prisma.envAuditSchedule.findMany({
       where: { isActive: true },
@@ -96,7 +96,7 @@ router.get('/schedule', scopeToUser, async (req: AuthRequest, res: Response) => 
 });
 
 // POST /schedule - Create audit schedule
-router.post('/schedule', async (req: AuthRequest, res: Response) => {
+router.post('/schedule', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -119,7 +119,7 @@ router.post('/schedule', async (req: AuthRequest, res: Response) => {
     const schedule = await prisma.envAuditSchedule.create({
       data: {
         title: data.title,
-        type: data.type as Prisma.EnvAuditType,
+        type: data.type as EnvAuditType,
         frequency: data.frequency as string,
         nextDueDate: new Date(data.nextDueDate),
         iso14001Clauses: data.iso14001Clauses,
@@ -150,7 +150,7 @@ router.post('/schedule', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single audit with findings
-router.get('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envAudit), async (req: Request, res: Response) => {
   try {
     const audit = await prisma.envAudit.findUnique({
       where: { id: req.params.id },
@@ -170,7 +170,7 @@ router.get('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
 });
 
 // POST / - Create audit
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -219,7 +219,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       data: {
         refNumber,
         title: data.title,
-        type: data.type as Prisma.EnvAuditType,
+        type: data.type as EnvAuditType,
         scope: data.scope,
         auditDate: new Date(data.auditDate),
         leadAuditor: data.leadAuditor,
@@ -265,7 +265,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update audit
-router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envAudit), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envAudit.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -349,7 +349,7 @@ router.put('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res
 });
 
 // DELETE /:id - Soft delete
-router.delete('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envAudit), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envAudit.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -373,7 +373,7 @@ router.delete('/:id', checkOwnership(prisma.envAudit), async (req: AuthRequest, 
 });
 
 // POST /:id/findings - Add finding to audit
-router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
+router.post('/:id/findings', async (req: Request, res: Response) => {
   try {
     const audit = await prisma.envAudit.findUnique({ where: { id: req.params.id } });
     if (!audit)
@@ -402,7 +402,7 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
       data: {
         auditId: req.params.id,
         clause: data.clause,
-        type: data.type as Prisma.EnvAuditType,
+        type: data.type as EnvAuditType,
         description: data.description,
         evidence: data.evidence,
         requirement: data.requirement,
@@ -434,7 +434,7 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/findings/:fid - Update finding
-router.put('/:id/findings/:fid', async (req: AuthRequest, res: Response) => {
+router.put('/:id/findings/:fid', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envAuditFinding.findFirst({
       where: { id: req.params.fid, auditId: req.params.id },
@@ -502,7 +502,7 @@ router.put('/:id/findings/:fid', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id/checklist - Get clause checklist progress
-router.get('/:id/checklist', async (req: AuthRequest, res: Response) => {
+router.get('/:id/checklist', async (req: Request, res: Response) => {
   try {
     const audit = await prisma.envAudit.findUnique({
       where: { id: req.params.id },
@@ -558,7 +558,7 @@ router.get('/:id/checklist', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/complete - Mark audit complete
-router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
+router.post('/:id/complete', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envAudit.findUnique({
       where: { id: req.params.id },
@@ -582,8 +582,8 @@ router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
       data: {
         status: 'COMPLETED',
         summary: data.summary,
-        conclusions: data.conclusions ?? (existing as Record<string, unknown>).conclusions,
-        recommendations: data.recommendations ?? (existing as Record<string, unknown>).recommendations,
+        conclusions: data.conclusions ?? (existing as Record<string, unknown>).conclusions as string | null | undefined,
+        recommendations: data.recommendations ?? (existing as Record<string, unknown>).recommendations as string | null | undefined,
         completedDate: new Date(),
       },
       include: { findings: true },

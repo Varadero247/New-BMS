@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
@@ -31,7 +31,7 @@ const executeSchema = z.object({
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
 // GET /api/admin/import/schemas — List available import schemas
-router.get('/schemas', requireRole('ADMIN'), (_req: AuthRequest, res: Response) => {
+router.get('/schemas', requireRole('ADMIN'), (_req: Request, res: Response) => {
   try {
     const schemas = IMPORT_SCHEMAS.map((s) => ({
       recordType: s.recordType,
@@ -53,7 +53,7 @@ router.get('/schemas', requireRole('ADMIN'), (_req: AuthRequest, res: Response) 
 });
 
 // POST /api/admin/import/validate — Validate CSV data
-router.post('/validate', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/validate', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = validateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -83,7 +83,7 @@ router.post('/validate', requireRole('ADMIN'), (req: AuthRequest, res: Response)
       totalRows: result.totalRows,
       validRows: result.valid.length,
       errorCount: result.errors.length,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.json({
@@ -108,7 +108,7 @@ router.post('/validate', requireRole('ADMIN'), (req: AuthRequest, res: Response)
 });
 
 // POST /api/admin/import/execute — Execute import
-router.post('/execute', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/execute', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = executeSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -131,7 +131,7 @@ router.post('/execute', requireRole('ADMIN'), (req: AuthRequest, res: Response) 
       recordType,
       imported: result.imported,
       orgId,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.json({ success: true, data: result });
@@ -147,7 +147,7 @@ router.post('/execute', requireRole('ADMIN'), (req: AuthRequest, res: Response) 
 });
 
 // GET /api/admin/import/templates/:type — Get CSV template for a record type
-router.get('/templates/:type', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/templates/:type', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const { type } = req.params;
     const headers = getTemplateHeaders(type);

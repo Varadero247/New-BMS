@@ -18,7 +18,7 @@ router.param('id', validateIdParam());
 // ============================================
 
 // GET /api/approvals/chains - Get approval chains
-router.get('/chains', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/chains', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { chainType, isActive } = req.query;
 
@@ -46,7 +46,7 @@ router.get('/chains', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/chains/:id',
   checkOwnership(prisma.approvalChain),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const chain = await prisma.approvalChain.findUnique({
         where: { id: req.params.id },
@@ -117,7 +117,7 @@ router.post('/chains', async (req: Request, res: Response) => {
 router.put(
   '/chains/:id',
   checkOwnership(prisma.approvalChain),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const schema = z.object({
         name: z.string().trim().min(1).max(200).optional(),
@@ -158,7 +158,7 @@ router.put(
 router.delete(
   '/chains/:id',
   checkOwnership(prisma.approvalChain),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       await prisma.approvalChain.update({
         where: { id: req.params.id },
@@ -188,7 +188,7 @@ function generateRequestNumber(): string {
 }
 
 // GET /api/approvals/requests - Get approval requests
-router.get('/requests', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { status, requestType, requesterId, entityType, limit = '50', offset = '0' } = req.query;
 
@@ -264,7 +264,6 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
       where: {
         approverId: req.params.userId,
         status: 'PENDING',
-        deletedAt: null,
       },
       orderBy: { createdAt: 'desc' },
       take: 100,
@@ -291,7 +290,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
 router.get(
   '/requests/:id',
   checkOwnership(prisma.approvalRequest),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const request = await prisma.approvalRequest.findUnique({
         where: { id: req.params.id },
@@ -392,7 +391,7 @@ router.post('/requests', async (req: Request, res: Response) => {
 router.put(
   '/requests/:id/respond',
   checkOwnership(prisma.approvalRequest),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const schema = z.object({
         approverId: z.string().trim(),
@@ -457,7 +456,7 @@ router.put(
           level: request.currentLevel,
           decision: data.decision,
           comments: data.comments,
-          conditions: data.conditions as Prisma.InputJsonValue,
+          conditions: data.conditions,
           attachments: data.attachments as Prisma.InputJsonValue,
         },
       });
@@ -494,9 +493,10 @@ router.put(
       // Update request
       await prisma.approvalRequest.update({
         where: { id: request.id },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data: {
-          status: newStatus as string,
-          outcome: outcome as string,
+          status: newStatus as any,
+          outcome: outcome as any,
           decidedAt,
           currentLevel,
         },
@@ -534,7 +534,7 @@ const cancelApprovalSchema = z.object({
 router.put(
   '/requests/:id/cancel',
   checkOwnership(prisma.approvalRequest),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const _data = cancelApprovalSchema.parse(req.body);
 
@@ -572,7 +572,7 @@ router.put(
 router.put(
   '/step/:id/respond',
   checkOwnership(prisma.workflowStepApproval),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const schema = z.object({
         decision: z.enum([
@@ -622,7 +622,7 @@ router.put(
 );
 
 // GET /api/approvals/step - Get workflow step approvals
-router.get('/step', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/step', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { stepId, approverId, status, limit = '50', offset = '0' } = req.query;
 

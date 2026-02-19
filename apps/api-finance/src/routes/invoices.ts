@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -48,7 +48,7 @@ const customerCreateSchema = z.object({
   country: z.string().trim().max(100).optional(),
   taxNumber: z.string().trim().max(50).optional(),
   currency: z.string().trim().length(3).default('USD'),
-  paymentTerms: z.string().trim().max(50).optional(),
+  paymentTerms: z.coerce.number().int().min(0).optional(),
   creditLimit: z.number().min(0).optional(),
 });
 
@@ -119,7 +119,8 @@ const creditNoteCreateSchema = z.object({
 // ===========================================================================
 
 // GET /customers - List customers
-router.get('/customers', async (req: AuthRequest, res: Response) => {
+router.get('/customers', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const { page = '1', limit = '20', search, isActive } = req.query;
 
@@ -170,7 +171,8 @@ router.get('/customers', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /customers/:id - Single customer with invoice count
-router.get('/customers/:id', async (req: AuthRequest, res: Response) => {
+router.get('/customers/:id', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const customer = await prisma.finCustomer.findUnique({
       where: { id: req.params.id },
@@ -196,7 +198,8 @@ router.get('/customers/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /customers - Create customer
-router.post('/customers', async (req: AuthRequest, res: Response) => {
+router.post('/customers', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const data = customerCreateSchema.parse(req.body);
 
@@ -213,8 +216,8 @@ router.post('/customers', async (req: AuthRequest, res: Response) => {
       data: {
         ...data,
         isActive: true,
-        createdById: req.user?.id,
-        updatedById: req.user?.id,
+        createdBy: authReq.user?.id || 'system',
+        updatedById: authReq.user?.id,
       },
     });
 
@@ -239,7 +242,8 @@ router.post('/customers', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /customers/:id - Update customer
-router.put('/customers/:id', async (req: AuthRequest, res: Response) => {
+router.put('/customers/:id', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const existing = await prisma.finCustomer.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -254,7 +258,7 @@ router.put('/customers/:id', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...data,
-        updatedById: req.user?.id,
+        updatedById: authReq.user?.id,
       },
     });
 
@@ -279,7 +283,8 @@ router.put('/customers/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /customers/:id - Soft delete (409 if has unpaid invoices)
-router.delete('/customers/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/customers/:id', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const existing = await prisma.finCustomer.findUnique({
       where: { id: req.params.id },
@@ -311,7 +316,7 @@ router.delete('/customers/:id', async (req: AuthRequest, res: Response) => {
 
     await prisma.finCustomer.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), isActive: false, updatedById: req.user?.id },
+      data: { deletedAt: new Date(), isActive: false, updatedById: authReq.user?.id },
     });
 
     res.json({ success: true, data: { message: 'Customer deleted' } });
@@ -329,7 +334,8 @@ router.delete('/customers/:id', async (req: AuthRequest, res: Response) => {
 // ===========================================================================
 
 // GET / - List invoices
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const { page = '1', limit = '20', status, customerId, dateFrom, dateTo, search } = req.query;
 
@@ -343,9 +349,10 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     if (customerId) where.customerId = customerId as string;
 
     if (dateFrom || dateTo) {
-      where.issueDate = {};
-      if (dateFrom) where.issueDate.gte = new Date(dateFrom as string);
-      if (dateTo) where.issueDate.lte = new Date(dateTo as string);
+      const issueDateFilter: { gte?: Date; lte?: Date } = {};
+      if (dateFrom) issueDateFilter.gte = new Date(dateFrom as string);
+      if (dateTo) issueDateFilter.lte = new Date(dateTo as string);
+      where.issueDate = issueDateFilter;
     }
 
     if (search) {
@@ -384,7 +391,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /aging - AR aging report
-router.get('/aging', async (req: AuthRequest, res: Response) => {
+router.get('/aging', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const invoices = await prisma.finInvoice.findMany({
       where: {
@@ -446,7 +454,8 @@ router.get('/aging', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /statements/:customerId - Customer statement
-router.get('/statements/:customerId', async (req: AuthRequest, res: Response) => {
+router.get('/statements/:customerId', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const { customerId } = req.params;
 
@@ -532,7 +541,8 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
 });
 
 // GET /credit-notes - List credit notes
-router.get('/credit-notes', async (req: AuthRequest, res: Response) => {
+router.get('/credit-notes', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const { page = '1', limit = '20', customerId } = req.query;
 
@@ -551,7 +561,6 @@ router.get('/credit-notes', async (req: AuthRequest, res: Response) => {
         orderBy: { createdAt: 'desc' },
         include: {
           customer: { select: { id: true, code: true, name: true } },
-          invoice: { select: { id: true, reference: true } },
         },
       }),
       prisma.finCreditNote.count({ where }),
@@ -572,7 +581,8 @@ router.get('/credit-notes', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /credit-notes - Create credit note
-router.post('/credit-notes', async (req: AuthRequest, res: Response) => {
+router.post('/credit-notes', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const data = creditNoteCreateSchema.parse(req.body);
 
@@ -610,7 +620,7 @@ router.post('/credit-notes', async (req: AuthRequest, res: Response) => {
         date: new Date(data.date),
         amount: data.amount,
         reason: data.reason,
-        createdById: req.user?.id,
+        createdBy: authReq.user?.id || 'system',
       },
       include: {
         customer: { select: { id: true, code: true, name: true } },
@@ -638,7 +648,8 @@ router.post('/credit-notes', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /payments - List payments received
-router.get('/payments', async (req: AuthRequest, res: Response) => {
+router.get('/payments', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const { page = '1', limit = '20', customerId, dateFrom, dateTo } = req.query;
 
@@ -650,9 +661,10 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
     if (customerId) where.customerId = customerId as string;
 
     if (dateFrom || dateTo) {
-      where.date = {};
-      if (dateFrom) where.date.gte = new Date(dateFrom as string);
-      if (dateTo) where.date.lte = new Date(dateTo as string);
+      const dateFilter: { gte?: Date; lte?: Date } = {};
+      if (dateFrom) dateFilter.gte = new Date(dateFrom as string);
+      if (dateTo) dateFilter.lte = new Date(dateTo as string);
+      where.date = dateFilter;
     }
 
     const [payments, total] = await Promise.all([
@@ -684,7 +696,8 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /payments - Record payment received
-router.post('/payments', async (req: AuthRequest, res: Response) => {
+router.post('/payments', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const data = paymentCreateSchema.parse(req.body);
 
@@ -733,10 +746,10 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
           invoiceId: data.invoiceId || null,
           date: new Date(data.date),
           amount: data.amount,
-          method: data.method,
+          method: data.method as import('@ims/database/finance').FinPaymentMethod,
           bankAccountId: data.bankAccountId || null,
           notes: data.notes || null,
-          createdById: req.user?.id,
+          createdBy: authReq.user?.id || 'system',
         },
         include: {
           customer: { select: { id: true, code: true, name: true } },
@@ -785,7 +798,8 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Single invoice with lines, customer, and payments
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const invoice = await prisma.finInvoice.findUnique({
       where: { id: req.params.id },
@@ -813,7 +827,8 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create invoice with lines
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest; void authReq;
   try {
     const data = invoiceCreateSchema.parse(req.body);
 
@@ -853,7 +868,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         unitPrice: line.unitPrice,
         taxRateId: line.taxRateId || null,
         accountId: line.accountId || null,
-        lineTotal: lineSubtotal,
+        amount: lineSubtotal,
         taxAmount: lineTax,
       };
     });
@@ -875,10 +890,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         amountDue: total,
         currency: customer.currency || 'USD',
         notes: data.notes || null,
-        createdById: req.user?.id,
-        updatedById: req.user?.id,
+        createdBy: authReq.user?.id || 'system',
+        updatedById: authReq.user?.id,
         lines: {
-          create: lineData as Record<string, unknown>,
+          create: lineData,
         },
       },
       include: {
@@ -908,7 +923,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update draft invoice
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest;
   try {
     const existing = await prisma.finInvoice.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -942,7 +958,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
       issueDate: data.issueDate ? new Date(data.issueDate) : undefined,
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
       notes: data.notes,
-      updatedById: req.user?.id,
+      updatedById: authReq.user?.id,
     };
 
     // Remove undefined keys
@@ -979,7 +995,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
           unitPrice: line.unitPrice,
           taxRateId: line.taxRateId || null,
           accountId: line.accountId || null,
-          lineTotal: lineSubtotal,
+          amount: lineSubtotal,
           taxAmount: lineTax,
         };
       });
@@ -1001,7 +1017,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const invoice = await prisma.finInvoice.update({
       where: { id: req.params.id },
-      data: updateData,
+      data: updateData as Parameters<typeof prisma.finInvoice.update>[0]['data'],
       include: {
         customer: { select: { id: true, code: true, name: true } },
         lines: { orderBy: { sortOrder: 'asc' } },
@@ -1029,7 +1045,8 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/send - Mark invoice as SENT
-router.post('/:id/send', async (req: AuthRequest, res: Response) => {
+router.post('/:id/send', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest;
   try {
     const existing = await prisma.finInvoice.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -1048,10 +1065,10 @@ router.post('/:id/send', async (req: AuthRequest, res: Response) => {
     const invoice = await prisma.finInvoice.update({
       where: { id: req.params.id },
       data: {
-        status: 'SENT',
+        status: 'SENT' as const,
         sentAt: new Date(),
-        updatedById: req.user?.id,
-      },
+        updatedById: authReq.user?.id ?? null,
+      } as Parameters<typeof prisma.finInvoice.update>[0]['data'],
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },
@@ -1068,7 +1085,8 @@ router.post('/:id/send', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/void - Void invoice
-router.post('/:id/void', async (req: AuthRequest, res: Response) => {
+router.post('/:id/void', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest;
   try {
     const existing = await prisma.finInvoice.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -1102,12 +1120,12 @@ router.post('/:id/void', async (req: AuthRequest, res: Response) => {
     const invoice = await prisma.finInvoice.update({
       where: { id: req.params.id },
       data: {
-        status: 'VOID',
+        status: 'VOID' as const,
         voidedAt: new Date(),
         voidReason: reason,
         amountDue: 0,
-        updatedById: req.user?.id,
-      },
+        updatedById: authReq.user?.id ?? null,
+      } as Parameters<typeof prisma.finInvoice.update>[0]['data'],
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },

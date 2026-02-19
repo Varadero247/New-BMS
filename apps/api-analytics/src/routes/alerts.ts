@@ -145,7 +145,8 @@ router.post('/', async (req: Request, res: Response) => {
         condition: data.condition,
         threshold: data.threshold,
         status: data.status,
-        notificationChannels: (data.notificationChannels ?? null) as Prisma.InputJsonValue | null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        notificationChannels: (data.notificationChannels ?? null) as any,
         cooldownMinutes: data.cooldownMinutes,
         createdBy: authReq.user!.id,
       },

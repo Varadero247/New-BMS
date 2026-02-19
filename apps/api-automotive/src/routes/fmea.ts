@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -89,7 +89,7 @@ const itemUpdateSchema = itemCreateSchema.partial().extend({
 });
 
 // GET / - List FMEA studies
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, fmeaType, customer, search } = req.query;
 
@@ -138,7 +138,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get FMEA study with items
-router.get('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.fmeaStudy), async (req: Request, res: Response) => {
   try {
     const study = await prisma.fmeaStudy.findUnique({
       where: { id: req.params.id },
@@ -164,7 +164,7 @@ router.get('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest, re
 });
 
 // POST / - Create FMEA study
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = studyCreateSchema.parse(req.body);
     const refNumber = await generateRefNumber();
@@ -183,7 +183,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         scope: data.scope,
         assumptions: data.assumptions,
         status: 'DRAFT',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -208,7 +208,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update FMEA study
-router.put('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.fmeaStudy), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fmeaStudy.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -247,7 +247,7 @@ router.put('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest, re
 });
 
 // DELETE /:id - Soft delete FMEA study
-router.delete('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.fmeaStudy), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fmeaStudy.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -272,7 +272,7 @@ router.delete('/:id', checkOwnership(prisma.fmeaStudy), async (req: AuthRequest,
 });
 
 // POST /:id/items - Add FMEA item
-router.post('/:id/items', async (req: AuthRequest, res: Response) => {
+router.post('/:id/items', async (req: Request, res: Response) => {
   try {
     const study = await prisma.fmeaStudy.findUnique({ where: { id: req.params.id } });
     if (!study || study.deletedAt) {
@@ -325,7 +325,7 @@ router.post('/:id/items', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/items/:itemId - Update FMEA item
-router.put('/:id/items/:itemId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/items/:itemId', async (req: Request, res: Response) => {
   try {
     const { id, itemId } = req.params;
 
@@ -394,7 +394,7 @@ router.put('/:id/items/:itemId', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id/items/:itemId - Delete FMEA item
-router.delete('/:id/items/:itemId', async (req: AuthRequest, res: Response) => {
+router.delete('/:id/items/:itemId', async (req: Request, res: Response) => {
   try {
     const { id, itemId } = req.params;
 

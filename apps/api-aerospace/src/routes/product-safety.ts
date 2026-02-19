@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -142,7 +142,7 @@ const completeSafetyReviewSchema = z.object({
 // ============================================
 
 // GET / - List product safety items
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', category, riskLevel, complianceStatus, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -187,7 +187,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /reviews - List safety reviews
-router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/reviews', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', reviewType, result, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -230,7 +230,7 @@ router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get product safety item
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.aeroProductSafetyItem.findUnique({
       where: { id: req.params.id },
@@ -254,7 +254,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create product safety item
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createProductSafetyItemSchema.parse(req.body);
     const refNumber = await generateProductSafetyItemRefNumber();
@@ -269,14 +269,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         regulatoryBasis: data.regulatoryBasis,
         hazardDescription: data.hazardDescription,
         riskLevel: data.riskLevel,
-        mitigations: data.mitigations,
+        mitigations: JSON.stringify(data.mitigations),
         verificationMethod: data.verificationMethod,
         complianceStatus: data.complianceStatus,
         status: 'ACTIVE',
         responsibleEngineer: data.responsibleEngineer,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : null,
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -301,7 +301,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update product safety item
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroProductSafetyItem.findUnique({
       where: { id: req.params.id },
@@ -318,7 +318,19 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     const item = await prisma.aeroProductSafetyItem.update({
       where: { id: req.params.id },
       data: {
-        ...data,
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.partNumber !== undefined && { partNumber: data.partNumber }),
+        ...(data.category !== undefined && { category: data.category }),
+        ...(data.regulatoryBasis !== undefined && { regulatoryBasis: data.regulatoryBasis }),
+        ...(data.hazardDescription !== undefined && { hazardDescription: data.hazardDescription }),
+        ...(data.riskLevel !== undefined && { riskLevel: data.riskLevel }),
+        ...(data.mitigations !== undefined && { mitigations: JSON.stringify(data.mitigations) }),
+        ...(data.verificationMethod !== undefined && { verificationMethod: data.verificationMethod }),
+        ...(data.complianceStatus !== undefined && { complianceStatus: data.complianceStatus }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.responsibleEngineer !== undefined && { responsibleEngineer: data.responsibleEngineer }),
+        ...(data.notes !== undefined && { notes: data.notes }),
         lastReviewDate: data.lastReviewDate
           ? new Date(data.lastReviewDate)
           : existing.lastReviewDate,
@@ -349,7 +361,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Soft delete product safety item
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroProductSafetyItem.findUnique({
       where: { id: req.params.id },
@@ -381,7 +393,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /reviews - Create safety review
-router.post('/reviews', async (req: AuthRequest, res: Response) => {
+router.post('/reviews', async (req: Request, res: Response) => {
   try {
     const data = createSafetyReviewSchema.parse(req.body);
     const refNumber = await generateSafetyReviewRefNumber();
@@ -391,14 +403,14 @@ router.post('/reviews', async (req: AuthRequest, res: Response) => {
         refNumber,
         title: data.title,
         reviewType: data.reviewType,
-        productSafetyItemIds: data.productSafetyItemIds,
+        productSafetyItemIds: JSON.stringify(data.productSafetyItemIds),
         scope: data.scope,
         scheduledDate: new Date(data.scheduledDate),
-        reviewTeam: data.reviewTeam,
+        reviewTeam: JSON.stringify(data.reviewTeam),
         leadReviewer: data.leadReviewer,
         status: 'PLANNED',
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -423,7 +435,7 @@ router.post('/reviews', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /reviews/:id/complete - Complete safety review
-router.put('/reviews/:id/complete', async (req: AuthRequest, res: Response) => {
+router.put('/reviews/:id/complete', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroSafetyReview.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -438,9 +450,9 @@ router.put('/reviews/:id/complete', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         findings: data.findings,
-        recommendations: data.recommendations,
+        recommendations: JSON.stringify(data.recommendations),
         result: data.result,
-        completedBy: data.completedBy || req.user?.id,
+        completedBy: data.completedBy || (req as AuthRequest).user?.id,
         completedDate: new Date(),
         approvedBy: data.approvedBy,
         status: 'COMPLETED',

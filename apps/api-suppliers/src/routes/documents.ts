@@ -93,10 +93,12 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
+    const referenceNumber = await generateRef(orgId);
     const { supplierId, type, title, fileUrl, expiryDate, isVerified, verifiedBy, notes } =
       parsed.data;
     const data = await prisma.suppDocument.create({
       data: {
+        referenceNumber,
         supplierId,
         type,
         title,

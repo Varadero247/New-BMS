@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -14,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/timesheets - List timesheets by projectId or employeeId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, employeeId, page = '1', limit = '50' } = req.query;
 
@@ -82,7 +82,7 @@ const createTimesheetSchema = z.object({
 const updateTimesheetSchema = createTimesheetSchema.partial();
 
 // POST /api/timesheets - Create timesheet entry
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createTimesheetSchema.parse(req.body);
 
@@ -128,7 +128,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.projectTimesheet),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -175,7 +175,7 @@ router.put(
 router.put(
   '/:id/approve',
   checkOwnership(prisma.projectTimesheet),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -188,7 +188,7 @@ router.put(
         where: { id: req.params.id },
         data: {
           status: 'APPROVED',
-          approvedBy: req.user?.id,
+          approvedBy: (req as AuthRequest).user?.id,
           approvedAt: new Date(),
         },
       });
@@ -208,7 +208,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.projectTimesheet),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectTimesheet.findUnique({ where: { id: req.params.id } });
       if (!existing) {

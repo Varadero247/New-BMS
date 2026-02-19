@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -50,7 +50,7 @@ async function generateRefNumber(): Promise<string> {
 // ============================================
 // 1. POST /devices - Register device with UDI
 // ============================================
-router.post('/devices', async (req: AuthRequest, res: Response) => {
+router.post('/devices', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       deviceName: z.string().trim().min(1).max(200),
@@ -77,7 +77,7 @@ router.post('/devices', async (req: AuthRequest, res: Response) => {
         gmdn: data.gmdn,
         emdn: data.emdn,
         status: data.status || 'DRAFT',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -104,7 +104,7 @@ router.post('/devices', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 2. GET /devices - List devices with pagination
 // ============================================
-router.get('/devices', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/devices', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, deviceClass, deviceName, manufacturer } = req.query;
 
@@ -153,7 +153,7 @@ router.get('/devices', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/devices/:id',
   checkOwnership(prisma.udiDevice),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const device = await prisma.udiDevice.findUnique({
         where: { id: req.params.id },
@@ -184,7 +184,7 @@ router.get(
 // ============================================
 // 4. POST /devices/:id/di - Register UDI-DI
 // ============================================
-router.post('/devices/:id/di', async (req: AuthRequest, res: Response) => {
+router.post('/devices/:id/di', async (req: Request, res: Response) => {
   try {
     const device = await prisma.udiDevice.findUnique({ where: { id: req.params.id } });
     if (!device || device.deletedAt) {
@@ -239,7 +239,7 @@ router.post('/devices/:id/di', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 5. POST /devices/:id/pi - Register UDI-PI
 // ============================================
-router.post('/devices/:id/pi', async (req: AuthRequest, res: Response) => {
+router.post('/devices/:id/pi', async (req: Request, res: Response) => {
   try {
     const device = await prisma.udiDevice.findUnique({ where: { id: req.params.id } });
     if (!device || device.deletedAt) {
@@ -296,7 +296,7 @@ router.post('/devices/:id/pi', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 6. GET /devices/:id/submissions - List submissions for a device
 // ============================================
-router.get('/devices/:id/submissions', async (req: AuthRequest, res: Response) => {
+router.get('/devices/:id/submissions', async (req: Request, res: Response) => {
   try {
     const device = await prisma.udiDevice.findUnique({ where: { id: req.params.id } });
     if (!device || device.deletedAt) {
@@ -343,7 +343,7 @@ router.get('/devices/:id/submissions', async (req: AuthRequest, res: Response) =
 // ============================================
 // 7. PUT /devices/:id/submissions/:sid - Update submission status
 // ============================================
-router.put('/devices/:id/submissions/:sid', async (req: AuthRequest, res: Response) => {
+router.put('/devices/:id/submissions/:sid', async (req: Request, res: Response) => {
   try {
     const device = await prisma.udiDevice.findUnique({ where: { id: req.params.id } });
     if (!device || device.deletedAt) {

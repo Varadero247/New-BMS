@@ -6,6 +6,7 @@ const logger = createLogger('activity:middleware');
 
 interface ActivityUser {
   id: string;
+  role: string;
   name?: string;
   email?: string;
   avatar?: string;

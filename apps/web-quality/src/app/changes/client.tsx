@@ -810,7 +810,7 @@ export default function ChangesClient() {
                 <div key={i.key}>
                   <Label>{i.label}</Label>
                   <Select
-                    value={(form as Record<string, unknown>)[i.key]}
+                    value={(form as unknown as Record<string, unknown>)[i.key] as string}
                     onChange={(e) => setForm({ ...form, [i.key]: e.target.value })}
                   >
                     <option value="">N/A</option>

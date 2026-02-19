@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -16,7 +16,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/warehouses - List warehouses
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', isActive } = req.query;
 
@@ -72,7 +72,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/warehouses/:id - Get single warehouse with inventory summary
-router.get('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.warehouse), async (req: Request, res: Response) => {
   try {
     const warehouse = await prisma.warehouse.findUnique({
       where: { id: req.params.id },
@@ -127,7 +127,7 @@ router.get('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, re
 router.get(
   '/:id/inventory',
   checkOwnership(prisma.warehouse),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { page = '1', limit = '50', search } = req.query;
 
@@ -192,7 +192,7 @@ router.get(
 );
 
 // POST /api/warehouses - Create warehouse
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       code: z.string().trim().min(1).max(200),
@@ -228,13 +228,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     }
 
     const warehouse = await prisma.warehouse.create({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         id: uuidv4(),
         ...data,
         isActive: true,
-        createdById: req.user?.id,
-        updatedById: req.user?.id,
-      },
+        createdById: (req as AuthRequest).user?.id,
+        updatedById: (req as AuthRequest).user?.id,
+      } as any,
     });
 
     res.status(201).json({ success: true, data: warehouse });
@@ -258,7 +259,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/warehouses/:id - Update warehouse
-router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.warehouse), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.warehouse.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -320,11 +321,12 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
 
     const warehouse = await prisma.warehouse.update({
       where: { id: req.params.id },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         ...updateData,
         version: { increment: 1 },
-        updatedById: req.user?.id,
-      },
+        updatedById: (req as AuthRequest).user?.id,
+      } as any,
     });
 
     res.json({ success: true, data: warehouse });
@@ -348,7 +350,7 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
 });
 
 // DELETE /api/warehouses/:id - Delete warehouse
-router.delete('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.warehouse), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.warehouse.findUnique({
       where: { id: req.params.id },

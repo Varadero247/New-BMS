@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -16,7 +16,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/products - List products with search and filters
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -101,7 +101,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/products/low-stock - Get low stock alerts
-router.get('/low-stock', async (req: AuthRequest, res: Response) => {
+router.get('/low-stock', async (req: Request, res: Response) => {
   try {
     const products = await prisma.product.findMany({
       where: { status: 'ACTIVE', deletedAt: null },
@@ -143,7 +143,7 @@ router.get('/low-stock', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/products/search - Quick search by SKU or barcode
-router.get('/search', async (req: AuthRequest, res: Response) => {
+router.get('/search', async (req: Request, res: Response) => {
   try {
     const { q } = req.query;
     if (!q) {
@@ -184,7 +184,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/products/:id - Get single product
-router.get('/:id', checkOwnership(prisma.product), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.product), async (req: Request, res: Response) => {
   try {
     const product = await prisma.product.findUnique({
       where: { id: req.params.id },
@@ -214,7 +214,7 @@ router.get('/:id', checkOwnership(prisma.product), async (req: AuthRequest, res:
 });
 
 // POST /api/products - Create product
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       sku: z.string().trim().min(1).max(200),
@@ -265,13 +265,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     }
 
     const product = await prisma.product.create({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         id: uuidv4(),
         ...data,
         status: 'ACTIVE',
-        createdById: req.user?.id,
-        updatedById: req.user?.id,
-      },
+        createdById: (req as AuthRequest).user?.id,
+        updatedById: (req as AuthRequest).user?.id,
+      } as any,
       include: {
         category: true,
         supplier: true,
@@ -299,7 +300,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/products/:id - Update product
-router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.product), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.product.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -376,11 +377,12 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
 
     const product = await prisma.product.update({
       where: { id: req.params.id },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         ...updateData,
         version: { increment: 1 },
-        updatedById: req.user?.id,
-      },
+        updatedById: (req as AuthRequest).user?.id,
+      } as any,
       include: {
         category: true,
         supplier: true,
@@ -408,7 +410,7 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
 });
 
 // DELETE /api/products/:id - Delete product (soft delete by setting status)
-router.delete('/:id', checkOwnership(prisma.product), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.product), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.product.findUnique({
       where: { id: req.params.id },

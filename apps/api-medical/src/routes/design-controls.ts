@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -44,7 +44,7 @@ async function generateRefNumber(): Promise<string> {
 // ============================================
 // 1. GET / - List design projects
 // ============================================
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, deviceClass, stage, search } = req.query;
 
@@ -94,7 +94,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.designProject),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const project = await prisma.designProject.findUnique({
         where: { id: req.params.id },
@@ -130,7 +130,7 @@ router.get(
 // ============================================
 // 3. POST / - Create design project
 // ============================================
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -172,7 +172,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         teamMembers: data.teamMembers,
         startDate: new Date(data.startDate),
         targetDate: data.targetDate ? new Date(data.targetDate) : null,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -202,7 +202,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.designProject),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.designProject.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -289,7 +289,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.designProject),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.designProject.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -318,7 +318,7 @@ router.delete(
 // ============================================
 // 6. POST /:id/inputs - Add design input
 // ============================================
-router.post('/:id/inputs', async (req: AuthRequest, res: Response) => {
+router.post('/:id/inputs', async (req: Request, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -383,7 +383,7 @@ router.post('/:id/inputs', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 7. POST /:id/outputs - Add design output
 // ============================================
-router.post('/:id/outputs', async (req: AuthRequest, res: Response) => {
+router.post('/:id/outputs', async (req: Request, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -448,7 +448,7 @@ router.post('/:id/outputs', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 8. POST /:id/reviews - Add design review
 // ============================================
-router.post('/:id/reviews', async (req: AuthRequest, res: Response) => {
+router.post('/:id/reviews', async (req: Request, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -523,7 +523,7 @@ router.post('/:id/reviews', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 9. POST /:id/verifications - Add verification
 // ============================================
-router.post('/:id/verifications', async (req: AuthRequest, res: Response) => {
+router.post('/:id/verifications', async (req: Request, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -590,7 +590,7 @@ router.post('/:id/verifications', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 10. POST /:id/validations - Add validation
 // ============================================
-router.post('/:id/validations', async (req: AuthRequest, res: Response) => {
+router.post('/:id/validations', async (req: Request, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -653,7 +653,7 @@ router.post('/:id/validations', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 11. POST /:id/stages/:stage/review - Stage gate review
 // ============================================
-router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response) => {
+router.post('/:id/stages/:stage/review', async (req: Request, res: Response) => {
   try {
     const { id, stage } = req.params;
 
@@ -686,7 +686,7 @@ router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response)
     const review = await prisma.designReview.create({
       data: {
         projectId: id,
-        stage: stage as string,
+        stage: stage as never,
         reviewDate: new Date(),
         reviewers: data.reviewers,
         decision: data.decision,
@@ -707,7 +707,7 @@ router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response)
         updatedProject = await prisma.designProject.update({
           where: { id },
           data: {
-            currentStage: nextStage as string,
+            currentStage: nextStage as never,
             completedDate: nextStage === 'COMPLETE' ? new Date() : null,
             status: nextStage === 'COMPLETE' ? 'COMPLETED' : project.status,
           },
@@ -745,7 +745,7 @@ router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response)
 // ============================================
 // 12. GET /:id/traceability-matrix - Build traceability matrix
 // ============================================
-router.get('/:id/traceability-matrix', async (req: AuthRequest, res: Response) => {
+router.get('/:id/traceability-matrix', async (req: Request, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({
       where: { id: req.params.id },
@@ -859,7 +859,7 @@ router.get('/:id/traceability-matrix', async (req: AuthRequest, res: Response) =
 // ============================================
 // 13. POST /:id/transfer - Design transfer approval
 // ============================================
-router.post('/:id/transfer', async (req: AuthRequest, res: Response) => {
+router.post('/:id/transfer', async (req: Request, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -892,7 +892,7 @@ router.post('/:id/transfer', async (req: AuthRequest, res: Response) => {
         qaApproval: data.qaApproval,
         raApproval: data.raApproval,
         notes: data.notes,
-        status: status as string,
+        status: status as never,
       },
     });
 
@@ -939,7 +939,7 @@ router.post('/:id/transfer', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 14. POST /:id/dhf - Add design history file
 // ============================================
-router.post('/:id/dhf', async (req: AuthRequest, res: Response) => {
+router.post('/:id/dhf', async (req: Request, res: Response) => {
   try {
     const project = await prisma.designProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -979,7 +979,7 @@ router.post('/:id/dhf', async (req: AuthRequest, res: Response) => {
         category: data.category,
         documentRef: data.documentRef,
         version: data.version || '1.0',
-        uploadedBy: req.user?.id,
+        uploadedBy: (req as AuthRequest).user?.id,
       },
     });
 

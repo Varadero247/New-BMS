@@ -836,12 +836,14 @@ model QualCapaAction {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
 
   capa            QualCapa @relation(fields: [capaId], references: [id], onDelete: Cascade)
 
   @@index([capaId])
   @@index([status])
   @@index([dueDate])
+  @@index([deletedAt])
   @@map("qual_capa_actions")
 }
 
@@ -1042,11 +1044,13 @@ model QualFmeaRow {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
 
   fmea            QualFmea @relation(fields: [fmeaId], references: [id], onDelete: Cascade)
 
   @@index([fmeaId])
   @@index([rpn])
+  @@index([deletedAt])
   @@map("qual_fmea_rows")
 }
 
@@ -1537,11 +1541,13 @@ model QualMilestone {
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
 
   objective       QualObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 
   @@index([objectiveId])
   @@index([targetDate])
+  @@index([deletedAt])
   @@map("qual_milestones")
 }
 
@@ -1892,6 +1898,7 @@ model SafetyCharacteristic {
   partName        String
   characteristicName String
   characteristicType SafetyCharType
+  description     String?
   specification   String?
   controlMethod   String?
   module          String?   // AUTOMOTIVE, AEROSPACE, QUALITY
@@ -2598,8 +2605,10 @@ model QualGeneratedTemplate {
   organisationId  String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
 
   @@map("qual_generated_templates")
+  @@index([deletedAt])
   @@index([organisationId])
   @@index([category])
   @@index([isoStandard])

@@ -800,9 +800,8 @@ router.delete(
   requirePermission('quality', PermissionLevel.FULL),
   async (req: Request, res: Response) => {
     try {
-      await prisma.qualGeneratedTemplate.update({
+      await prisma.qualGeneratedTemplate.delete({
         where: { id: req.params.id },
-        data: { deletedAt: new Date() },
       });
       res.json({ success: true, data: { message: 'Template deleted' } });
     } catch (error: unknown) {

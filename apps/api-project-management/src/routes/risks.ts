@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -23,7 +23,7 @@ function getRiskLevel(probability: number, impact: number): string {
 }
 
 // GET /api/risks - List project risks by projectId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, riskLevel, status, page = '1', limit = '50' } = req.query;
 
@@ -97,7 +97,7 @@ const updateProjectRiskSchema = createProjectRiskSchema
   .partial();
 
 // POST /api/risks - Create project risk
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createProjectRiskSchema.parse(req.body);
 
@@ -124,7 +124,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         mitigationActions: data.mitigationActions,
         contingencyPlan: data.contingencyPlan,
         status: data.status || 'IDENTIFIED',
-        identifiedBy: req.user?.id,
+        identifiedBy: (req as AuthRequest).user?.id,
         identifiedDate: new Date(),
         reviewDate: data.reviewDate ? new Date(data.reviewDate) : null,
       },
@@ -147,7 +147,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/risks/:id - Update project risk
-router.put('/:id', checkOwnership(prisma.projectRisk), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectRisk), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.projectRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -206,7 +206,7 @@ router.put('/:id', checkOwnership(prisma.projectRisk), async (req: AuthRequest, 
 router.delete(
   '/:id',
   checkOwnership(prisma.projectRisk),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectRisk.findUnique({ where: { id: req.params.id } });
       if (!existing) {

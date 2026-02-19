@@ -165,30 +165,30 @@ function autoCalculateFields(data: unknown): Record<string, unknown> {
   const result = { ...(data as Record<string, unknown>) } as Record<string, unknown>;
   // Auto-calculate inherent score from numeric or enum values
   if (result.inherentLikelihood && result.inherentConsequence) {
-    result.inherentScore = calculateScore(result.inherentLikelihood, result.inherentConsequence);
-    result.inherentRiskLevel = getRiskLevel(result.inherentScore);
+    result.inherentScore = calculateScore(result.inherentLikelihood as number, result.inherentConsequence as number);
+    result.inherentRiskLevel = getRiskLevel(result.inherentScore as number);
   } else if (result.likelihood && result.consequence) {
-    const l = likelihoodToNum(result.likelihood);
-    const c = consequenceToNum(result.consequence);
+    const l = likelihoodToNum(result.likelihood as string);
+    const c = consequenceToNum(result.consequence as string);
     if (!result.inherentLikelihood) result.inherentLikelihood = l;
     if (!result.inherentConsequence) result.inherentConsequence = c;
     result.inherentScore = calculateScore(l, c);
-    result.inherentRiskLevel = getRiskLevel(result.inherentScore);
+    result.inherentRiskLevel = getRiskLevel(result.inherentScore as number);
   }
   // Auto-calculate residual score
   if (result.residualLikelihoodNum && result.residualConsequenceNum) {
     result.residualScore = calculateScore(
-      result.residualLikelihoodNum,
-      result.residualConsequenceNum
+      result.residualLikelihoodNum as number,
+      result.residualConsequenceNum as number
     );
-    result.residualRiskLevel = getRiskLevel(result.residualScore);
+    result.residualRiskLevel = getRiskLevel(result.residualScore as number);
   } else if (result.residualLikelihood && result.residualConsequence) {
-    const rl = likelihoodToNum(result.residualLikelihood);
-    const rc = consequenceToNum(result.residualConsequence);
+    const rl = likelihoodToNum(result.residualLikelihood as string);
+    const rc = consequenceToNum(result.residualConsequence as string);
     if (!result.residualLikelihoodNum) result.residualLikelihoodNum = rl;
     if (!result.residualConsequenceNum) result.residualConsequenceNum = rc;
     result.residualScore = calculateScore(rl, rc);
-    result.residualRiskLevel = getRiskLevel(result.residualScore);
+    result.residualRiskLevel = getRiskLevel(result.residualScore as number);
   }
   // Default next review date if not set
   if (!result.nextReviewDate) {
@@ -393,7 +393,7 @@ router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
     const validFields = ['category', 'department', 'sourceModule', 'aggregationGroup', 'status'];
     const field = validFields.includes(groupBy) ? groupBy : 'category';
     const raw = await prisma.riskRegister.groupBy({
-      by: [field] as string[],
+      by: [field] as any,
       where: { orgId, deletedAt: null },
       _count: true,
     });
@@ -434,7 +434,7 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
       data: {
-        ...mapped,
+        ...(mapped as any),
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
@@ -471,7 +471,7 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
       data: {
-        ...mapped,
+        ...(mapped as any),
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
@@ -508,7 +508,7 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
       data: {
-        ...mapped,
+        ...(mapped as any),
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
@@ -690,7 +690,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     }
     const data = await prisma.riskRegister.create({
       data: {
-        ...calculated,
+        ...(calculated as any),
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
@@ -724,7 +724,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     const calculated = autoCalculateFields(parsed.data);
-    const resScore = calculated.residualScore ?? existing.residualScore;
+    const resScore = (calculated.residualScore ?? existing.residualScore) as number | null;
     const cat = calculated.category ?? existing.category;
     if (resScore && cat) {
       try {

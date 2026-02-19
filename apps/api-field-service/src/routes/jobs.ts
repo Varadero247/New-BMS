@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
+import { FsSvcJobStatus } from '@ims/database/field-service';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -131,7 +132,7 @@ router.get('/dispatch-board', async (req: Request, res: Response) => {
     const results = await Promise.all(
       statuses.map((s) =>
         prisma.fsSvcJob.findMany({
-          where: { deletedAt: null, status: s as string },
+          where: { deletedAt: null, status: s as FsSvcJobStatus },
           include: { customer: true, site: true, technician: true },
           orderBy: { priority: 'asc' },
           take: 50,

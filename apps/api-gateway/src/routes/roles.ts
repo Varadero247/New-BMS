@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '@ims/database';
@@ -176,7 +176,7 @@ router.use(authenticate);
 
 // GET /api/roles/modules — List all IMS modules
 // NOTE: This must be defined BEFORE /:id to avoid "modules" being captured as an id param
-router.get('/modules', (_req: AuthRequest, res: Response) => {
+router.get('/modules', (_req: Request, res: Response) => {
   const moduleList = ALL_MODULES.map((m: string) => ({
     id: m,
     name: m
@@ -189,7 +189,7 @@ router.get('/modules', (_req: AuthRequest, res: Response) => {
 });
 
 // POST /api/roles/resolve — Resolve permissions for a set of role IDs
-router.post('/resolve', (req: AuthRequest, res: Response) => {
+router.post('/resolve', (req: Request, res: Response) => {
   try {
     const schema = z.object({
       roles: z.array(z.string().trim()).min(1, 'At least one role ID is required'),
@@ -240,7 +240,7 @@ router.post('/resolve', (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/roles — List all platform roles + custom roles with their permission matrices
-router.get('/', async (_req: AuthRequest, res: Response) => {
+router.get('/', async (_req: Request, res: Response) => {
   try {
     const rbac = getRbac();
     const systemRoles = rbac.PLATFORM_ROLES.map((role: RoleDefinition) => ({
@@ -296,7 +296,7 @@ router.get('/', async (_req: AuthRequest, res: Response) => {
 });
 
 // POST /api/roles — Create a custom role
-router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.post('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100),
@@ -347,7 +347,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
         name: data.name,
         description: data.description || '',
         permissions: data.permissions,
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -356,8 +356,8 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
     // Audit
     accessLog.unshift({
       id: uuidv4(),
-      userId: req.user!.id,
-      userEmail: req.user!.email || 'unknown',
+      userId: (req as AuthRequest).user!.id,
+      userEmail: (req as AuthRequest).user!.email || 'unknown',
       module: 'rbac',
       action: 'CREATE_ROLE',
       resource: `role:${customRole.id}`,
@@ -404,7 +404,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
 });
 
 // PUT /api/roles/:id — Update a custom role
-router.put('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.put('/:id', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -469,8 +469,8 @@ router.put('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response)
 
     accessLog.unshift({
       id: uuidv4(),
-      userId: req.user!.id,
-      userEmail: req.user!.email || 'unknown',
+      userId: (req as AuthRequest).user!.id,
+      userEmail: (req as AuthRequest).user!.email || 'unknown',
       module: 'rbac',
       action: 'UPDATE_ROLE',
       resource: `role:${updated.id}`,
@@ -517,7 +517,7 @@ router.put('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response)
 });
 
 // DELETE /api/roles/:id — Delete a custom role
-router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -542,8 +542,8 @@ router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Respon
 
     accessLog.unshift({
       id: uuidv4(),
-      userId: req.user!.id,
-      userEmail: req.user!.email || 'unknown',
+      userId: (req as AuthRequest).user!.id,
+      userEmail: (req as AuthRequest).user!.email || 'unknown',
       module: 'rbac',
       action: 'DELETE_ROLE',
       resource: `role:${id}`,
@@ -570,7 +570,7 @@ router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Respon
 // ============================================
 
 // GET /access-log — List audit log entries (paginated, filterable)
-router.get('/access-log', (req: AuthRequest, res: Response) => {
+router.get('/access-log', (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', userId, module, action, startDate, endDate } = req.query;
 
@@ -621,7 +621,7 @@ router.get('/access-log', (req: AuthRequest, res: Response) => {
 });
 
 // POST /access-log — Record an audit entry (internal use)
-router.post('/access-log', (req: AuthRequest, res: Response) => {
+router.post('/access-log', (req: Request, res: Response) => {
   try {
     const schema = z.object({
       module: z.string().trim().min(1).max(200),
@@ -634,8 +634,8 @@ router.post('/access-log', (req: AuthRequest, res: Response) => {
 
     const entry: AccessLogEntry = {
       id: uuidv4(),
-      userId: req.user!.id,
-      userEmail: req.user!.email || 'unknown',
+      userId: (req as AuthRequest).user!.id,
+      userEmail: (req as AuthRequest).user!.email || 'unknown',
       module: data.module,
       action: data.action,
       resource: data.resource,
@@ -670,7 +670,7 @@ router.post('/access-log', (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/roles/:id — Get role detail with permissions and description
-router.get('/:id', (req: AuthRequest, res: Response) => {
+router.get('/:id', (req: Request, res: Response) => {
   const { id } = req.params;
   const rbac = getRbac();
   const role = rbac.getRoleById(id);
@@ -704,12 +704,12 @@ router.get('/:id', (req: AuthRequest, res: Response) => {
 // ============================================
 
 // GET /users/:userId/permissions — Get effective permissions for a user
-router.get('/users/:userId/permissions', async (req: AuthRequest, res: Response) => {
+router.get('/users/:userId/permissions', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
     // Users can view their own permissions; admins/managers can view any
-    if (req.user!.id !== userId && !['ADMIN', 'MANAGER'].includes(req.user!.role)) {
+    if ((req as AuthRequest).user!.id !== userId && !['ADMIN', 'MANAGER'].includes((req as AuthRequest).user!.role)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Access denied' },
@@ -757,7 +757,7 @@ router.get('/users/:userId/permissions', async (req: AuthRequest, res: Response)
 router.patch(
   '/users/:userId/roles',
   requireRole('ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { userId } = req.params;
 
@@ -799,8 +799,8 @@ router.patch(
       // Record audit entry
       accessLog.unshift({
         id: uuidv4(),
-        userId: req.user!.id,
-        userEmail: req.user!.email || 'unknown',
+        userId: (req as AuthRequest).user!.id,
+        userEmail: (req as AuthRequest).user!.email || 'unknown',
         module: 'rbac',
         action: 'UPDATE_ROLES',
         resource: `user:${userId}`,

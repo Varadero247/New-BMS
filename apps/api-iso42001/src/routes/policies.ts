@@ -186,11 +186,11 @@ router.post('/', async (req: Request, res: Response) => {
 
     const policy = await prisma.aiPolicy.create({
       data: {
-        reference: reference as string,
+        reference: reference,
         title: parsed.data.title,
         content: parsed.data.content,
         policyType: parsed.data.policyType,
-        status: 'DRAFT',
+        status: 'DRAFT' as any,
         summary: parsed.data.summary ?? null,
         scope: parsed.data.scope ?? null,
         effectiveDate: parsed.data.effectiveDate ? new Date(parsed.data.effectiveDate) : null,
@@ -199,6 +199,7 @@ router.post('/', async (req: Request, res: Response) => {
         department: parsed.data.department ?? null,
         version: parsed.data.version || '1.0',
         notes: parsed.data.notes ?? null,
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -239,7 +240,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const policy = await prisma.aiPolicy.update({
       where: { id },
       data: {
-        status: 'APPROVED',
+        status: 'APPROVED' as any,
         approvedBy: authReq.user?.id || 'system',
         approvedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
@@ -318,7 +319,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const policy = await prisma.aiPolicy.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...(parsed.data as any),
         effectiveDate:
           parsed.data.effectiveDate !== undefined
             ? parsed.data.effectiveDate

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -144,7 +144,7 @@ const updateNadcapApprovalSchema = z.object({
 // ============================================
 
 // GET / - List special processes
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', processType, status, approvalBody, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -194,7 +194,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /nadcap - List Nadcap approvals
-router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/nadcap', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', approvalStatus, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -227,7 +227,7 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
     const ninetyDays = new Date();
     ninetyDays.setDate(ninetyDays.getDate() + 90);
 
-    const enriched = approvals.map((approval: Record<string, unknown> & { expiryDate?: string | null }) => ({
+    const enriched = approvals.map((approval) => ({
       ...approval,
       expiringSoon:
         approval.expiryDate &&
@@ -251,7 +251,7 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get special process
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const process = await prisma.aeroSpecialProcess.findUnique({
       where: { id: req.params.id },
@@ -276,7 +276,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create special process
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSpecialProcessSchema.parse(req.body);
     const refNumber = await generateSpecialProcessRefNumber();
@@ -289,15 +289,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         processType: data.processType,
         specification: data.specification,
         approvalBody: data.approvalBody,
-        applicableParts: data.applicableParts,
-        qualityRequirements: data.qualityRequirements,
-        equipmentRequired: data.equipmentRequired,
-        personnelQualifications: data.personnelQualifications,
+        applicableParts: JSON.stringify(data.applicableParts),
+        qualityRequirements: JSON.stringify(data.qualityRequirements),
+        equipmentRequired: JSON.stringify(data.equipmentRequired),
+        personnelQualifications: JSON.stringify(data.personnelQualifications),
         controlPlan: data.controlPlan,
         responsibleEngineer: data.responsibleEngineer,
         status: 'ACTIVE',
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -322,7 +322,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update special process
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroSpecialProcess.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -336,7 +336,21 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const process = await prisma.aeroSpecialProcess.update({
       where: { id: req.params.id },
-      data: data as Record<string, unknown>,
+      data: {
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.processType !== undefined && { processType: data.processType }),
+        ...(data.specification !== undefined && { specification: data.specification }),
+        ...(data.approvalBody !== undefined && { approvalBody: data.approvalBody }),
+        ...(data.applicableParts !== undefined && { applicableParts: JSON.stringify(data.applicableParts) }),
+        ...(data.qualityRequirements !== undefined && { qualityRequirements: JSON.stringify(data.qualityRequirements) }),
+        ...(data.equipmentRequired !== undefined && { equipmentRequired: JSON.stringify(data.equipmentRequired) }),
+        ...(data.personnelQualifications !== undefined && { personnelQualifications: JSON.stringify(data.personnelQualifications) }),
+        ...(data.controlPlan !== undefined && { controlPlan: data.controlPlan }),
+        ...(data.responsibleEngineer !== undefined && { responsibleEngineer: data.responsibleEngineer }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.notes !== undefined && { notes: data.notes }),
+      },
     });
 
     res.json({ success: true, data: process });
@@ -360,7 +374,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Soft delete special process
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroSpecialProcess.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -390,7 +404,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /nadcap - Record Nadcap approval
-router.post('/nadcap', async (req: AuthRequest, res: Response) => {
+router.post('/nadcap', async (req: Request, res: Response) => {
   try {
     const data = createNadcapApprovalSchema.parse(req.body);
     const refNumber = await generateNadcapApprovalRefNumber();
@@ -420,7 +434,7 @@ router.post('/nadcap', async (req: AuthRequest, res: Response) => {
         limitations: data.limitations,
         approvalStatus: 'ACTIVE',
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -445,7 +459,7 @@ router.post('/nadcap', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /nadcap/:id - Update Nadcap approval
-router.put('/nadcap/:id', async (req: AuthRequest, res: Response) => {
+router.put('/nadcap/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroNadcapApproval.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -460,7 +474,11 @@ router.put('/nadcap/:id', async (req: AuthRequest, res: Response) => {
     const approval = await prisma.aeroNadcapApproval.update({
       where: { id: req.params.id },
       data: {
-        ...data,
+        ...(data.certificateNumber !== undefined && { certificateNumber: data.certificateNumber }),
+        ...(data.scope !== undefined && { scope: data.scope }),
+        ...(data.limitations !== undefined && { limitations: data.limitations }),
+        ...(data.approvalStatus !== undefined && { approvalStatus: data.approvalStatus }),
+        ...(data.notes !== undefined && { notes: data.notes }),
         auditDate: data.auditDate ? new Date(data.auditDate) : existing.auditDate,
         approvalDate: data.approvalDate ? new Date(data.approvalDate) : existing.approvalDate,
         expiryDate: data.expiryDate ? new Date(data.expiryDate) : existing.expiryDate,

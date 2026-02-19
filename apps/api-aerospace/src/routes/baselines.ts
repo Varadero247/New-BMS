@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -79,7 +79,7 @@ const updateBaselineSchema = z.object({
 // ============================================
 
 // GET / - List baselines
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, baselineType, program, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -124,7 +124,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get baseline
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const baseline = await prisma.aeroConfigBaseline.findUnique({
       where: { id: req.params.id },
@@ -147,7 +147,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create baseline
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createBaselineSchema.parse(req.body);
     const refNumber = await generateBaselineRefNumber();
@@ -161,13 +161,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         version: data.version,
         baselineType: data.baselineType,
         program_phase: data.program_phase,
-        configuration_items: data.configuration_items,
-        documents: data.documents,
+        configuration_items: JSON.stringify(data.configuration_items),
+        documents: JSON.stringify(data.documents),
         status: 'DRAFT',
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
         approvedBy: data.approvedBy,
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -192,7 +192,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update baseline
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -206,7 +206,17 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     const baseline = await prisma.aeroConfigBaseline.update({
       where: { id: req.params.id },
       data: {
-        ...data,
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.program !== undefined && { program: data.program }),
+        ...(data.version !== undefined && { version: data.version }),
+        ...(data.baselineType !== undefined && { baselineType: data.baselineType }),
+        ...(data.program_phase !== undefined && { program_phase: data.program_phase }),
+        ...(data.configuration_items !== undefined && { configuration_items: JSON.stringify(data.configuration_items) }),
+        ...(data.documents !== undefined && { documents: JSON.stringify(data.documents) }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.approvedBy !== undefined && { approvedBy: data.approvedBy }),
+        ...(data.notes !== undefined && { notes: data.notes }),
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : existing.effectiveDate,
         approvedDate: data.approvedDate ? new Date(data.approvedDate) : existing.approvedDate,
       },
@@ -233,7 +243,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Soft delete baseline
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -258,7 +268,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/approve - Approve baseline
-router.put('/:id/approve', async (req: AuthRequest, res: Response) => {
+router.put('/:id/approve', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroConfigBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {

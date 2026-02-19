@@ -62,7 +62,7 @@ export default function MonitoringPage() {
       ]);
       setItems(monRes.data.data || []);
       setCcps(ccpRes.data.data || []);
-    } catch {
+    } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);

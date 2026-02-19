@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma, Prisma, EnvEventSeverity, EnvEventType, EnvRCAMethod, EnvReputationalImpact } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -22,7 +22,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List events
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, eventType, severity, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -62,7 +62,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envEvent), async (req: Request, res: Response) => {
   try {
     const event = await prisma.envEvent.findUnique({ where: { id: req.params.id } });
     if (!event)
@@ -79,7 +79,7 @@ router.get('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res
 });
 
 // POST /
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       eventType: z.string().trim().min(1).max(200),
@@ -157,8 +157,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const event = await prisma.envEvent.create({
       data: {
         referenceNumber,
-        eventType: data.eventType as Prisma.EnvEventType,
-        severity: data.severity as Prisma.EnvEventSeverity,
+        eventType: data.eventType as EnvEventType,
+        severity: data.severity as EnvEventSeverity,
         dateOfEvent: new Date(data.dateOfEvent),
         location: data.location,
         department: data.department,
@@ -182,7 +182,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         emergencyServicesCalled: data.emergencyServicesCalled,
         materialsUsed: data.materialsUsed,
         cleanupDuration: data.cleanupDuration,
-        rcaMethod: data.rcaMethod as Prisma.EnvRCAMethod,
+        rcaMethod: data.rcaMethod as EnvRCAMethod,
         rootCause: data.rootCause,
         linkedAspectId: data.linkedAspectId,
         investigationLead: data.investigationLead,
@@ -199,7 +199,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         waterCourseName: data.waterCourseName,
         airQualityImpact: data.airQualityImpact,
         remediationCost: data.remediationCost,
-        reputationalImpact: data.reputationalImpact as Prisma.EnvReputationalImpact,
+        reputationalImpact: data.reputationalImpact as EnvReputationalImpact,
         capaRequired: data.capaRequired,
         capaReference: data.capaReference,
         preventiveMeasures: data.preventiveMeasures,
@@ -313,7 +313,7 @@ const eventUpdateSchema = z.object({
   aiGenerated: z.boolean().optional(),
 });
 
-router.put('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envEvent), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envEvent.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -365,7 +365,7 @@ router.put('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res
 });
 
 // DELETE /:id
-router.delete('/:id', checkOwnership(prisma.envEvent), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envEvent), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envEvent.findUnique({ where: { id: req.params.id } });
     if (!existing)

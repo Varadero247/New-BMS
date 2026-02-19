@@ -106,7 +106,7 @@ router.post('/', async (req: Request, res: Response) => {
         periodStart: new Date(data.periodStart),
         periodEnd: new Date(data.periodEnd),
         facility: data.facility || null,
-        cost: data.cost !== null ? new Prisma.Decimal(data.cost) : null,
+        cost: data.cost != null ? new Prisma.Decimal(data.cost) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });

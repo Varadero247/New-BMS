@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -184,12 +184,12 @@ router.post('/', async (req: Request, res: Response) => {
 
     const assessment = await prisma.aiImpactAssessment.create({
       data: {
-        reference: reference as string,
+        reference: reference,
         systemId: parsed.data.systemId,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
-        impactLevel: (parsed.data.impactLevel || 'LIMITED') as Prisma.AiImpactLevel,
-        status: 'DRAFT',
+        impactLevel: (parsed.data.impactLevel || 'LIMITED') as any,
+        status: 'DRAFT' as any,
         assessmentType: parsed.data.assessmentType || 'INITIAL',
         scope: parsed.data.scope ?? null,
         methodology: parsed.data.methodology ?? null,
@@ -203,6 +203,7 @@ router.post('/', async (req: Request, res: Response) => {
         assessor: parsed.data.assessor ?? null,
         reviewDate: parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null,
         notes: parsed.data.notes ?? null,
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
       include: {
@@ -249,7 +250,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const assessment = await prisma.aiImpactAssessment.update({
       where: { id },
       data: {
-        status: 'APPROVED',
+        status: 'APPROVED' as any,
         approvedBy: authReq.user?.id || 'system',
         approvedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
@@ -339,7 +340,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const assessment = await prisma.aiImpactAssessment.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...(parsed.data as any),
         reviewDate:
           parsed.data.reviewDate !== undefined
             ? parsed.data.reviewDate

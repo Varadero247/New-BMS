@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -70,7 +70,7 @@ async function generateRecallRef(): Promise<string> {
 // =============================================
 
 // POST /characteristics - Define safety characteristic
-router.post('/characteristics', async (req: AuthRequest, res: Response) => {
+router.post('/characteristics', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       partNumber: z.string().trim().min(1).max(200),
@@ -93,16 +93,13 @@ router.post('/characteristics', async (req: AuthRequest, res: Response) => {
         refNumber,
         partNumber: data.partNumber,
         partName: data.partName,
+        characteristicName: data.description,
         characteristicType: data.characteristicType,
-        description: data.description,
         controlMethod: data.controlMethod,
-        measurementMethod: data.measurementMethod,
-        tolerance: data.tolerance,
+        notes: [data.notes, data.tolerance, data.measurementMethod].filter(Boolean).join('; ') || undefined,
         linkedFmeaId: data.linkedFmeaId,
         linkedControlPlanId: data.linkedControlPlanId,
-        notes: data.notes,
-        status: 'ACTIVE',
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -127,7 +124,7 @@ router.post('/characteristics', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /characteristics - List all safety-critical characteristics
-router.get('/characteristics', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/characteristics', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', characteristicType, partNumber, status } = req.query;
 
@@ -173,7 +170,7 @@ router.get('/characteristics', scopeToUser, async (req: AuthRequest, res: Respon
 router.get(
   '/characteristics/:id',
   checkOwnership(prisma.safetyCharacteristic),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const characteristic = await prisma.safetyCharacteristic.findUnique({
         where: { id: req.params.id },
@@ -201,7 +198,7 @@ router.get(
 router.put(
   '/characteristics/:id',
   checkOwnership(prisma.safetyCharacteristic),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.safetyCharacteristic.findUnique({
         where: { id: req.params.id },
@@ -260,7 +257,7 @@ router.put(
 // =============================================
 
 // POST /incidents - Log potential safety issue
-router.post('/incidents', async (req: AuthRequest, res: Response) => {
+router.post('/incidents', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -288,9 +285,9 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
         source: data.source || 'INTERNAL',
         affectedCharacteristicId: data.affectedCharacteristicId,
         immediateAction: data.immediateAction,
-        reportedBy: data.reportedBy || req.user!.id,
+        reportedBy: data.reportedBy || (req as AuthRequest).user!.id,
         status: 'OPEN',
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -315,7 +312,7 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /incidents - List safety incidents
-router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/incidents', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, severity, product } = req.query;
 
@@ -361,7 +358,7 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
 router.put(
   '/incidents/:id',
   checkOwnership(safetyDb.productSafetyIncident as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await safetyDb.productSafetyIncident.findUnique({
         where: { id: req.params.id },
@@ -417,7 +414,7 @@ router.put(
 // =============================================
 
 // POST /recalls - Initiate recall investigation
-router.post('/recalls', async (req: AuthRequest, res: Response) => {
+router.post('/recalls', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       product: z.string().trim().min(1).max(200),
@@ -447,7 +444,7 @@ router.post('/recalls', async (req: AuthRequest, res: Response) => {
         regulatoryNotified: data.regulatoryNotified || false,
         notes: data.notes,
         status: 'INITIATED',
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -472,7 +469,7 @@ router.post('/recalls', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /recalls - List recall actions
-router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/recalls', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, product } = req.query;
 
@@ -517,7 +514,7 @@ router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.put(
   '/recalls/:id',
   checkOwnership(safetyDb.productRecall as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await safetyDb.productRecall.findUnique({
         where: { id: req.params.id },
@@ -577,7 +574,7 @@ router.put(
 // =============================================
 
 // GET /compliance - REACH/RoHS/IMDS compliance tracker summary
-router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/compliance', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', regulation, status } = req.query;
 
@@ -628,7 +625,7 @@ router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) =
 });
 
 // POST /compliance - Add compliance record
-router.post('/compliance', async (req: AuthRequest, res: Response) => {
+router.post('/compliance', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       partNumber: z.string().trim().min(1).max(200),
@@ -656,7 +653,7 @@ router.post('/compliance', async (req: AuthRequest, res: Response) => {
         expiryDate: data.expiryDate ? new Date(data.expiryDate) : undefined,
         substances: data.substances,
         notes: data.notes,
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 

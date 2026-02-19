@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -68,7 +68,7 @@ const linkCreateSchema = z.object({
 const linkUpdateSchema = linkCreateSchema.partial();
 
 // GET / - List traceability matrices
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, deviceName, search } = req.query;
 
@@ -116,7 +116,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.traceabilityMatrix),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const matrix = await prisma.traceabilityMatrix.findUnique({
         where: { id: req.params.id },
@@ -142,7 +142,7 @@ router.get(
 );
 
 // POST / - Create traceability matrix
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSchema.parse(req.body);
     const refNumber = await generateRefNumber();
@@ -159,7 +159,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         preparedBy: data.preparedBy,
         reviewedBy: data.reviewedBy,
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -187,7 +187,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.traceabilityMatrix),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.traceabilityMatrix.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -231,7 +231,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.traceabilityMatrix),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.traceabilityMatrix.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -257,7 +257,7 @@ router.delete(
 );
 
 // POST /:id/links - Add traceability link
-router.post('/:id/links', async (req: AuthRequest, res: Response) => {
+router.post('/:id/links', async (req: Request, res: Response) => {
   try {
     const matrix = await prisma.traceabilityMatrix.findUnique({ where: { id: req.params.id } });
     if (!matrix || matrix.deletedAt) {
@@ -294,7 +294,7 @@ router.post('/:id/links', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/links/:linkId - Update traceability link
-router.put('/:id/links/:linkId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/links/:linkId', async (req: Request, res: Response) => {
   try {
     const { id, linkId } = req.params;
 
@@ -330,7 +330,7 @@ router.put('/:id/links/:linkId', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id/links/:linkId - Delete traceability link
-router.delete('/:id/links/:linkId', async (req: AuthRequest, res: Response) => {
+router.delete('/:id/links/:linkId', async (req: Request, res: Response) => {
   try {
     const { id, linkId } = req.params;
 

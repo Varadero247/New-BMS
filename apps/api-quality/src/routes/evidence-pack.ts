@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -725,7 +725,7 @@ const createEvidencePackSchema = z.object({
 // ============================================
 
 // POST / — Generate a new evidence pack
-router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.post('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const data = createEvidencePackSchema.parse(req.body);
 
@@ -737,7 +737,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const pack: EvidencePack = {
       id,
       referenceNumber,
-      organisationId: (req as Record<string, unknown>).organisationId || 'default',
+      organisationId: ((req as unknown as Record<string, unknown>).organisationId as string) || 'default',
       standard: data.standard,
       status: 'GENERATING',
       format: data.format,
@@ -745,7 +745,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
       dateTo: data.dateTo || null,
       sections: [],
       generatedAt: now,
-      generatedBy: req.user?.id || 'unknown',
+      generatedBy: (req as AuthRequest).user?.id || 'unknown',
       totalDocuments: 0,
       totalRecords: 0,
       createdAt: now,
@@ -841,7 +841,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET / — List evidence packs with pagination
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', standard, status } = req.query;
 
@@ -887,7 +887,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get evidence pack detail
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const pack = evidencePackStore.get(req.params.id);
 
@@ -908,7 +908,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id/download — Download evidence pack
-router.get('/:id/download', async (req: AuthRequest, res: Response) => {
+router.get('/:id/download', async (req: Request, res: Response) => {
   try {
     const pack = evidencePackStore.get(req.params.id);
 

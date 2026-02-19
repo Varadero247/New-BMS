@@ -1,6 +1,9 @@
-import { Router, Response } from 'express';
-import { prisma } from '@ims/database';
+import { Router, Request, Response } from 'express';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import { authenticate, type AuthRequest } from '@ims/auth';
+
+const prisma = prismaBase as unknown as PrismaClient;
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
@@ -94,9 +97,9 @@ function isMspUser(user: Record<string, unknown>): boolean {
 
 // ── POST /msp-link — Link consultant to client organisation ────────
 
-router.post('/msp-link', async (req: AuthRequest, res: Response) => {
+router.post('/msp-link', async (req: Request, res: Response) => {
   try {
-    if (!isMspUser(req.user as Record<string, unknown>)) {
+    if (!isMspUser((req as AuthRequest).user as Record<string, unknown>)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -116,7 +119,7 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
     }
 
     const { clientOrganisationId, clientOrganisationName, permissions, whiteLabel } = parsed.data;
-    const userId = req.user!.id;
+    const userId = (req as AuthRequest).user!.id;
 
     // Check for duplicate link
     const existing = Array.from(mspLinks.values()).find(
@@ -139,7 +142,7 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
     const link: MspLink = {
       id,
       consultantUserId: userId,
-      consultantEmail: req.user!.email || '',
+      consultantEmail: (req as AuthRequest).user!.email || '',
       clientOrganisationId,
       clientOrganisationName,
       status: 'ACTIVE',
@@ -161,7 +164,7 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
             action: 'MSP_LINK_CREATED',
             entity: 'msp_link',
             entityId: id,
-            newData: link as Record<string, unknown>,
+            changes: link as unknown as never,
           },
         });
       } catch (e: unknown) {
@@ -189,16 +192,16 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
 
 // ── GET /msp-clients — List consultant's client portfolio ──────────
 
-router.get('/msp-clients', async (req: AuthRequest, res: Response) => {
+router.get('/msp-clients', async (req: Request, res: Response) => {
   try {
-    if (!isMspUser(req.user as Record<string, unknown>)) {
+    if (!isMspUser((req as AuthRequest).user as Record<string, unknown>)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
       });
     }
 
-    const userId = req.user!.id;
+    const userId = (req as AuthRequest).user!.id;
     const { status, page = '1', limit = '20' } = req.query;
 
     let clients = Array.from(mspLinks.values()).filter((link) => link.consultantUserId === userId);
@@ -242,16 +245,16 @@ router.get('/msp-clients', async (req: AuthRequest, res: Response) => {
 
 // ── GET /msp-dashboard — Consultant compliance health dashboard ────
 
-router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
+router.get('/msp-dashboard', async (req: Request, res: Response) => {
   try {
-    if (!isMspUser(req.user as Record<string, unknown>)) {
+    if (!isMspUser((req as AuthRequest).user as Record<string, unknown>)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
       });
     }
 
-    const userId = req.user!.id;
+    const userId = (req as AuthRequest).user!.id;
     const activeClients = Array.from(mspLinks.values()).filter(
       (link) => link.consultantUserId === userId && link.status === 'ACTIVE'
     );
@@ -308,7 +311,7 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
     const dashboard = {
       consultant: {
         userId,
-        email: req.user!.email,
+        email: (req as AuthRequest).user!.email,
         totalClients: activeClients.length,
       },
       summary: {
@@ -346,9 +349,9 @@ router.get('/msp-dashboard', async (req: AuthRequest, res: Response) => {
 
 // ── PUT /msp-link/:id — Update MSP link ────────────────────────────
 
-router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
+router.put('/msp-link/:id', async (req: Request, res: Response) => {
   try {
-    if (!isMspUser(req.user as Record<string, unknown>)) {
+    if (!isMspUser((req as AuthRequest).user as Record<string, unknown>)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -363,7 +366,7 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (link.consultantUserId !== req.user!.id) {
+    if (link.consultantUserId !== (req as AuthRequest).user!.id) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'You can only modify your own MSP links' },
@@ -394,11 +397,11 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
       try {
         await prisma.auditLog.create({
           data: {
-            userId: req.user!.id,
+            userId: (req as AuthRequest).user!.id,
             action: 'MSP_LINK_UPDATED',
             entity: 'msp_link',
             entityId: req.params.id,
-            newData: { status, permissions, whiteLabel } as Record<string, unknown>,
+            changes: { status, permissions, whiteLabel } as unknown as never,
           },
         });
       } catch (e: unknown) {
@@ -406,7 +409,7 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
       }
     })();
 
-    logger.info('MSP link updated', { linkId: req.params.id, status, consultant: req.user!.id });
+    logger.info('MSP link updated', { linkId: req.params.id, status, consultant: (req as AuthRequest).user!.id });
 
     res.json({ success: true, data: link });
   } catch (error: unknown) {
@@ -422,9 +425,9 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
 
 // ── DELETE /msp-link/:id — Revoke MSP link ─────────────────────────
 
-router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/msp-link/:id', async (req: Request, res: Response) => {
   try {
-    if (!isMspUser(req.user as Record<string, unknown>)) {
+    if (!isMspUser((req as AuthRequest).user as Record<string, unknown>)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -439,7 +442,7 @@ router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (link.consultantUserId !== req.user!.id) {
+    if (link.consultantUserId !== (req as AuthRequest).user!.id) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'You can only revoke your own MSP links' },
@@ -453,7 +456,7 @@ router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
       try {
         await prisma.auditLog.create({
           data: {
-            userId: req.user!.id,
+            userId: (req as AuthRequest).user!.id,
             action: 'MSP_LINK_REVOKED',
             entity: 'msp_link',
             entityId: req.params.id,
@@ -464,7 +467,7 @@ router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
       }
     })();
 
-    logger.info('MSP link revoked', { linkId: req.params.id, consultant: req.user!.id });
+    logger.info('MSP link revoked', { linkId: req.params.id, consultant: (req as AuthRequest).user!.id });
 
     res.json({ success: true, data: { message: 'MSP link revoked', linkId: req.params.id } });
   } catch (error: unknown) {
@@ -480,9 +483,9 @@ router.delete('/msp-link/:id', async (req: AuthRequest, res: Response) => {
 
 // ── GET /msp-link/:id/audit-log — MSP access audit trail ──────────
 
-router.get('/msp-link/:id/audit-log', async (req: AuthRequest, res: Response) => {
+router.get('/msp-link/:id/audit-log', async (req: Request, res: Response) => {
   try {
-    if (!isMspUser(req.user as Record<string, unknown>)) {
+    if (!isMspUser((req as AuthRequest).user as Record<string, unknown>)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'MSP consultant role required' },
@@ -497,7 +500,7 @@ router.get('/msp-link/:id/audit-log', async (req: AuthRequest, res: Response) =>
       });
     }
 
-    if (link.consultantUserId !== req.user!.id) {
+    if (link.consultantUserId !== (req as AuthRequest).user!.id) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Access denied' },

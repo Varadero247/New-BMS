@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -117,7 +117,7 @@ const completeFodInspectionSchema = z.object({
 // ============================================
 
 // GET / - List FOD incidents
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, severity, fodType, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -162,7 +162,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /inspections - List FOD inspections
-router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/inspections', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', result, inspectionType, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -206,7 +206,7 @@ router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) 
 });
 
 // GET /:id - Get FOD incident
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const incident = await prisma.aeroFodIncident.findUnique({
       where: { id: req.params.id },
@@ -229,7 +229,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Report FOD incident
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createFodIncidentSchema.parse(req.body);
     const refNumber = await generateFodIncidentRefNumber();
@@ -244,17 +244,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         workCenter: data.workCenter,
         fodType: data.fodType,
         severity: data.severity,
-        foundBy: data.foundBy || req.user?.id,
+        foundBy: data.foundBy || (req as AuthRequest).user?.id,
         dateFound: new Date(data.dateFound),
         affectedEquipment: data.affectedEquipment,
         partNumberAffected: data.partNumberAffected,
         immediateAction: data.immediateAction,
         rootCause: data.rootCause,
         preventiveAction: data.preventiveAction,
-        safetyImpact: data.safetyImpact,
+        safetyImpact: String(data.safetyImpact),
         status: 'OPEN',
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -279,7 +279,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update FOD incident
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroFodIncident.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -293,7 +293,22 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     const incident = await prisma.aeroFodIncident.update({
       where: { id: req.params.id },
       data: {
-        ...data,
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.location !== undefined && { location: data.location }),
+        ...(data.area !== undefined && { area: data.area }),
+        ...(data.workCenter !== undefined && { workCenter: data.workCenter }),
+        ...(data.fodType !== undefined && { fodType: data.fodType }),
+        ...(data.severity !== undefined && { severity: data.severity }),
+        ...(data.affectedEquipment !== undefined && { affectedEquipment: data.affectedEquipment }),
+        ...(data.partNumberAffected !== undefined && { partNumberAffected: data.partNumberAffected }),
+        ...(data.immediateAction !== undefined && { immediateAction: data.immediateAction }),
+        ...(data.rootCause !== undefined && { rootCause: data.rootCause }),
+        ...(data.preventiveAction !== undefined && { preventiveAction: data.preventiveAction }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.closedBy !== undefined && { closedBy: data.closedBy }),
+        ...(data.safetyImpact !== undefined && { safetyImpact: String(data.safetyImpact) }),
+        ...(data.notes !== undefined && { notes: data.notes }),
         closedDate: data.closedDate ? new Date(data.closedDate) : existing.closedDate,
       },
     });
@@ -319,7 +334,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Soft delete FOD incident
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroFodIncident.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -348,7 +363,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /inspections - Schedule FOD inspection
-router.post('/inspections', async (req: AuthRequest, res: Response) => {
+router.post('/inspections', async (req: Request, res: Response) => {
   try {
     const data = createFodInspectionSchema.parse(req.body);
     const refNumber = await generateFodInspectionRefNumber();
@@ -361,10 +376,10 @@ router.post('/inspections', async (req: AuthRequest, res: Response) => {
         inspectionType: data.inspectionType,
         scheduledDate: new Date(data.scheduledDate),
         inspector: data.inspector,
-        checklistItems: data.checklistItems,
+        checklistItems: JSON.stringify(data.checklistItems),
         status: 'SCHEDULED',
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -389,7 +404,7 @@ router.post('/inspections', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /inspections/:id/complete - Complete FOD inspection
-router.put('/inspections/:id/complete', async (req: AuthRequest, res: Response) => {
+router.put('/inspections/:id/complete', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroFodInspection.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -405,10 +420,10 @@ router.put('/inspections/:id/complete', async (req: AuthRequest, res: Response) 
       where: { id: req.params.id },
       data: {
         result: data.result,
-        findings: data.findings,
+        findings: JSON.stringify(data.findings),
         fodFound: data.fodFound,
         fodDescription: data.fodDescription,
-        completedBy: data.completedBy || req.user?.id,
+        completedBy: data.completedBy || (req as AuthRequest).user?.id,
         completedDate: new Date(),
         status: 'COMPLETED',
         notes: data.notes

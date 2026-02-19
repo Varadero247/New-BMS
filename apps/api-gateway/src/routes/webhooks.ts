@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
@@ -39,7 +39,7 @@ const updateEndpointSchema = z.object({
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
 // GET /api/admin/webhooks — List all webhook endpoints
-router.get('/', (req: AuthRequest, res: Response) => {
+router.get('/', (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const endpoints = listEndpoints(orgId);
@@ -64,7 +64,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/admin/webhooks/events — List available webhook events
-router.get('/events', (_req: AuthRequest, res: Response) => {
+router.get('/events', (_req: Request, res: Response) => {
   return res.json({
     success: true,
     data: WEBHOOK_EVENTS,
@@ -72,7 +72,7 @@ router.get('/events', (_req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/webhooks — Create a new webhook endpoint
-router.post('/', (req: AuthRequest, res: Response) => {
+router.post('/', (req: Request, res: Response) => {
   try {
     const parsed = createEndpointSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -113,7 +113,7 @@ router.post('/', (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/admin/webhooks/:id — Update a webhook endpoint
-router.patch('/:id', (req: AuthRequest, res: Response) => {
+router.patch('/:id', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -162,7 +162,7 @@ router.patch('/:id', (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/admin/webhooks/:id — Delete a webhook endpoint
-router.delete('/:id', (req: AuthRequest, res: Response) => {
+router.delete('/:id', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -199,7 +199,7 @@ router.delete('/:id', (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/webhooks/:id/test — Send a test ping event
-router.post('/:id/test', (req: AuthRequest, res: Response) => {
+router.post('/:id/test', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -241,7 +241,7 @@ router.post('/:id/test', (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/admin/webhooks/:id/deliveries — List deliveries for endpoint
-router.get('/:id/deliveries', (req: AuthRequest, res: Response) => {
+router.get('/:id/deliveries', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -39,7 +39,7 @@ async function generateRefNumber(): Promise<string> {
 // ============================================
 
 // POST /assessments — Create LCA (auto-creates 5 empty stages)
-router.post('/assessments', async (req: AuthRequest, res: Response) => {
+router.post('/assessments', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -89,7 +89,7 @@ router.post('/assessments', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /assessments — List with pagination
-router.get('/assessments', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/assessments', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -136,7 +136,7 @@ router.get('/assessments', scopeToUser, async (req: AuthRequest, res: Response) 
 router.get(
   '/assessments/:id',
   checkOwnership(prisma.lifeCycleAssessment as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const assessment = await prisma.lifeCycleAssessment.findUnique({
         where: { id: req.params.id },
@@ -165,12 +165,12 @@ router.get(
 router.put(
   '/assessments/:id/stages/:stage',
   checkOwnership(prisma.lifeCycleAssessment as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { id, stage } = req.params;
 
       // Validate stage name
-      if (!LCA_STAGE_NAMES.includes(stage as string)) {
+      if (!(LCA_STAGE_NAMES as readonly string[]).includes(stage)) {
         return res.status(400).json({
           success: false,
           error: {

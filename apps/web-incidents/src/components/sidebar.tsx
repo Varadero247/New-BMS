@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import React from 'react';
 import {
   LayoutDashboard,
-  AlertOctagon as SearchIcon,
+  AlertOctagon,
   FileWarning,
   Clock,
   Home,
@@ -37,7 +37,7 @@ const navGroups: NavGroup[] = [
     collapsible: true,
     items: [
       { name: 'Incidents', href: '/incidents', icon: AlertOctagon },
-      { name: 'Investigation', href: '/investigation', icon: SearchIcon },
+      { name: 'Investigation', href: '/investigation', icon: FileWarning },
     ] },
   {
     title: 'Reporting & Compliance',

@@ -1289,22 +1289,22 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                               <div className="flex items-center gap-2 my-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                 {review.previousScore !== null && (
                                   <span
-                                    className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.previousScore)}`}
+                                    className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.previousScore ?? 0)}`}
                                   >
                                     {review.previousScore}
                                   </span>
                                 )}
-                                {review.previousScore !== null && review.newScore !== null && (
+                                {review.previousScore != null && review.newScore != null && (
                                   <ChevronRight className="h-4 w-4 text-gray-400" />
                                 )}
                                 {review.newScore !== null && (
                                   <span
-                                    className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.newScore)}`}
+                                    className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.newScore ?? 0)}`}
                                   >
                                     {review.newScore}
                                   </span>
                                 )}
-                                {review.previousScore !== null && review.newScore !== null && (
+                                {review.previousScore != null && review.newScore != null && (
                                   <span
                                     className={`text-xs font-medium ${review.newScore < review.previousScore ? 'text-green-600 dark:text-green-400' : review.newScore > review.previousScore ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}
                                   >

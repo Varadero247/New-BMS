@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -67,7 +67,7 @@ const updateSchema = createSchema.partial().extend({
 });
 
 // GET / - List customer requirements
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', customer, category, complianceStatus, search } = req.query;
 
@@ -113,7 +113,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /customers - List distinct customers
-router.get('/customers', async (_req: AuthRequest, res: Response) => {
+router.get('/customers', async (_req: Request, res: Response) => {
   try {
     const customers = await prisma.customerReq.findMany({
       where: { deletedAt: null },
@@ -134,7 +134,7 @@ router.get('/customers', async (_req: AuthRequest, res: Response) => {
 });
 
 // GET /compliance-summary - Compliance status summary
-router.get('/compliance-summary', async (_req: AuthRequest, res: Response) => {
+router.get('/compliance-summary', async (_req: Request, res: Response) => {
   try {
     const [total, byStatus, byCustomer, overdue] = await Promise.all([
       prisma.customerReq.count({ where: { deletedAt: null } }),
@@ -179,7 +179,7 @@ router.get('/compliance-summary', async (_req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single customer requirement
-router.get('/:id', checkOwnership(prisma.customerReq), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.customerReq), async (req: Request, res: Response) => {
   try {
     const req_ = await prisma.customerReq.findUnique({ where: { id: req.params.id } });
     if (!req_ || req_.deletedAt) {
@@ -199,7 +199,7 @@ router.get('/:id', checkOwnership(prisma.customerReq), async (req: AuthRequest, 
 });
 
 // POST / - Create customer requirement
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSchema.parse(req.body);
     const refNumber = await generateRefNumber();
@@ -219,7 +219,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         reviewDate: data.reviewDate ? new Date(data.reviewDate) : null,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : null,
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -244,7 +244,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update customer requirement
-router.put('/:id', checkOwnership(prisma.customerReq), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.customerReq), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.customerReq.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -288,7 +288,7 @@ router.put('/:id', checkOwnership(prisma.customerReq), async (req: AuthRequest, 
 router.delete(
   '/:id',
   checkOwnership(prisma.customerReq),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.customerReq.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {

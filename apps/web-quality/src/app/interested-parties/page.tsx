@@ -50,7 +50,7 @@ const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'ou
   ARCHIVED: 'default',
 };
 
-const typeColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info'> = {
+const typeColors: Record<string, string> = {
   INTERNAL: 'bg-blue-100 text-blue-700',
   EXTERNAL: 'bg-purple-100 text-purple-700',
 };

@@ -105,7 +105,7 @@ router.post('/', async (req: Request, res: Response) => {
       data.gdprNotificationDeadline = new Date(Date.now() + 72 * 60 * 60 * 1000);
     }
 
-    const incident = await prisma.isIncident.create({ data: data as Record<string, unknown> });
+    const incident = await prisma.isIncident.create({ data: data as any });
 
     logger.info('Security incident reported', {
       incidentId: incident.id,
@@ -239,10 +239,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
       data: {
         investigationNotes: parsed.data.investigationNotes,
         rootCause: parsed.data.rootCause || null,
-        containmentActions: parsed.data.containmentActions || null,
-        assignedTo: parsed.data.assignedTo || null,
         status: 'INVESTIGATING',
-        updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       },
     });
@@ -289,12 +286,8 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       where: { id },
       data: {
         lessonsLearned: parsed.data.lessonsLearned,
-        correctiveActions: parsed.data.correctiveActions || null,
-        preventiveActions: parsed.data.preventiveActions || null,
         status: 'CLOSED',
         closedAt: new Date(),
-        closedBy: authReq.user?.id || 'system',
-        updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       },
     });
@@ -343,7 +336,6 @@ router.post('/:id/notify', async (req: Request, res: Response) => {
       where: { id },
       data: {
         gdprNotifiedAt: new Date(),
-        updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       },
     });

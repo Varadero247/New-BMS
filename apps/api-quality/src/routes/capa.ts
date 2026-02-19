@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -25,7 +25,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List CAPAs
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', capaType, status, severity, triggerSource } = req.query;
 
@@ -71,7 +71,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /stats - CAPA statistics
-router.get('/stats', async (req: AuthRequest, res: Response) => {
+router.get('/stats', async (req: Request, res: Response) => {
   try {
     const [byStatus, bySeverity, byCapaType, total] = await Promise.all([
       prisma.qualCapa.groupBy({
@@ -117,7 +117,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single CAPA with nested actions
-router.get('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualCapa), async (req: Request, res: Response) => {
   try {
     const capa = await prisma.qualCapa.findUnique({
       where: { id: req.params.id },
@@ -142,7 +142,7 @@ router.get('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
 });
 
 // POST / - Create CAPA
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       capaType: z.enum(['CORRECTIVE', 'PREVENTIVE', 'IMPROVEMENT']),
@@ -261,7 +261,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update CAPA
-router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualCapa), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualCapa.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -447,7 +447,7 @@ router.put('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res
 });
 
 // DELETE /:id - Delete CAPA (cascades to actions)
-router.delete('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualCapa), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualCapa.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -476,7 +476,7 @@ router.delete('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, 
 // ============================================
 
 // POST /:id/actions - Create CAPA action
-router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
+router.post('/:id/actions', async (req: Request, res: Response) => {
   try {
     const capa = await prisma.qualCapa.findUnique({ where: { id: req.params.id } });
     if (!capa) {
@@ -530,7 +530,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/actions/:actionId - Update CAPA action
-router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/actions/:actionId', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualCapaAction.findFirst({
       where: { id: req.params.actionId, capaId: req.params.id },
@@ -600,7 +600,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
 });
 
 // DELETE /:id/actions/:actionId - Delete CAPA action
-router.delete('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => {
+router.delete('/:id/actions/:actionId', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualCapaAction.findFirst({
       where: { id: req.params.actionId, capaId: req.params.id },
@@ -611,9 +611,8 @@ router.delete('/:id/actions/:actionId', async (req: AuthRequest, res: Response) 
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA action not found' } });
     }
 
-    await prisma.qualCapaAction.update({
+    await prisma.qualCapaAction.delete({
       where: { id: req.params.actionId },
-      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();

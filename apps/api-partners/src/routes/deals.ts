@@ -35,7 +35,7 @@ const VALID_TRANSITIONS: Record<string, string[]> = {
 // POST /api/deals
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -59,7 +59,7 @@ router.post('/', async (req: Request, res: Response) => {
       RESELLER: 0.375,
       GCC_SPECIALIST: 0.3,
     };
-    const commissionRate = commissionRates[partner?.tier || 'REFERRAL'] || 0.25;
+    const commissionRate = commissionRates[(partner?.tier as string) || 'REFERRAL'] || 0.25;
 
     const deal = await prisma.mktPartnerDeal.create({
       data: {
@@ -82,7 +82,7 @@ router.post('/', async (req: Request, res: Response) => {
 // GET /api/deals
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -130,7 +130,7 @@ router.get('/', async (req: Request, res: Response) => {
 // PATCH /api/deals/:id/status
 router.patch('/:id/status', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

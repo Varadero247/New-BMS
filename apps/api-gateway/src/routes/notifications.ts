@@ -144,7 +144,7 @@ const testNotificationSchema = z.object({
 router.post('/test', authenticate, (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const roles: string[] = (user as { roles?: string[] }).roles || [(user as { role?: string }).role] || [];
+    const roles: string[] = (user as { roles?: string[] }).roles || [(user as { role?: string }).role].filter((r): r is string => r !== undefined) || [];
 
     // Admin only
     if (

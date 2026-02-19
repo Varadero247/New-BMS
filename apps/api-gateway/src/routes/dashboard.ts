@@ -11,10 +11,13 @@
  *
  * Tracking: System Review Finding #4
  */
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma } from '@ims/database';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import { authenticate, type AuthRequest } from '@ims/auth';
+
+const prisma = prismaBase as unknown as PrismaClient;
 import { createLogger } from '@ims/monitoring';
 
 const logger = createLogger('api-gateway');
@@ -25,7 +28,7 @@ const router: IRouter = Router();
 router.use(authenticate);
 
 // GET /api/dashboard/stats - Get IMS dashboard statistics
-router.get('/stats', async (req: AuthRequest, res: Response) => {
+router.get('/stats', async (req: Request, res: Response) => {
   try {
     // Compute date boundaries before the parallel query block
     const thisMonthStart = new Date();
@@ -191,7 +194,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/dashboard/compliance - Get compliance summary
-router.get('/compliance', async (req: AuthRequest, res: Response) => {
+router.get('/compliance', async (req: Request, res: Response) => {
   try {
     const complianceScores = await prisma.complianceScore.findMany({
       orderBy: { standard: 'asc' },
@@ -209,7 +212,7 @@ router.get('/compliance', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/dashboard/trends - Get monthly trends
-router.get('/trends', async (req: AuthRequest, res: Response) => {
+router.get('/trends', async (req: Request, res: Response) => {
   try {
     const { standard, metric, year } = req.query;
     const currentYear = year ? parseInt(year as string, 10) : new Date().getFullYear();
@@ -219,7 +222,7 @@ router.get('/trends', async (req: AuthRequest, res: Response) => {
     if (metric) where.metric = metric as string;
 
     const trends = await prisma.monthlyTrend.findMany({
-      where: where as Parameters<typeof prisma.monthlyTrend.findMany>[0]['where'],
+      where: where as never,
       orderBy: [{ standard: 'asc' }, { metric: 'asc' }, { month: 'asc' }],
       take: 120,
     });

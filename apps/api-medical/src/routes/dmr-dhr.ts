@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -50,7 +50,7 @@ async function generateDHRRefNumber(): Promise<string> {
 // ============================================
 // 1. POST /dmr - Create Device Master Record
 // ============================================
-router.post('/dmr', async (req: AuthRequest, res: Response) => {
+router.post('/dmr', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       deviceName: z.string().trim().min(1).max(200),
@@ -85,7 +85,7 @@ router.post('/dmr', async (req: AuthRequest, res: Response) => {
         servicingProcs: data.servicingProcs,
         status: 'DRAFT',
         currentVersion: '1.0',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -112,7 +112,7 @@ router.post('/dmr', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 2. GET /dmr - List Device Master Records
 // ============================================
-router.get('/dmr', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/dmr', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, deviceClass, deviceName } = req.query;
 
@@ -157,7 +157,7 @@ router.get('/dmr', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/dmr/:id',
   checkOwnership(prisma.deviceMasterRecord),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const dmr = await prisma.deviceMasterRecord.findUnique({
         where: { id: req.params.id },
@@ -196,7 +196,7 @@ router.get(
 router.put(
   '/dmr/:id',
   checkOwnership(prisma.deviceMasterRecord),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.deviceMasterRecord.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -253,7 +253,7 @@ router.put(
 // ============================================
 // 5. POST /dmr/:id/approve - Approve DMR
 // ============================================
-router.post('/dmr/:id/approve', async (req: AuthRequest, res: Response) => {
+router.post('/dmr/:id/approve', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.deviceMasterRecord.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -275,7 +275,7 @@ router.post('/dmr/:id/approve', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'APPROVED',
-        approvedBy: req.user?.email || req.user?.id,
+        approvedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id,
         approvedDate: new Date(),
         currentVersion: newVersion,
       },
@@ -298,7 +298,7 @@ router.post('/dmr/:id/approve', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 6. POST /dhr - Create Device History Record
 // ============================================
-router.post('/dhr', async (req: AuthRequest, res: Response) => {
+router.post('/dhr', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       dmrId: z.string().trim().min(1).max(200),
@@ -337,7 +337,7 @@ router.post('/dhr', async (req: AuthRequest, res: Response) => {
         labelsUsed: data.labelsUsed,
         primaryId: data.primaryId,
         status: 'IN_PRODUCTION',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -364,7 +364,7 @@ router.post('/dhr', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 7. GET /dhr - List Device History Records
 // ============================================
-router.get('/dhr', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/dhr', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, dmrId, batchNumber } = req.query;
 
@@ -412,7 +412,7 @@ router.get('/dhr', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/dhr/:id',
   checkOwnership(prisma.deviceHistoryRecord),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const dhr = await prisma.deviceHistoryRecord.findUnique({
         where: { id: req.params.id },
@@ -451,7 +451,7 @@ router.get(
 // ============================================
 // 9. POST /dhr/:id/records - Add production record
 // ============================================
-router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
+router.post('/dhr/:id/records', async (req: Request, res: Response) => {
   try {
     const dhr = await prisma.deviceHistoryRecord.findUnique({ where: { id: req.params.id } });
     if (!dhr || dhr.deletedAt) {
@@ -491,7 +491,7 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
     const record = await prisma.dHRRecord.create({
       data: {
         dhrId: req.params.id,
-        recordType: data.recordType as string,
+        recordType: data.recordType as never,
         title: data.title,
         description: data.description,
         result: data.result,
@@ -525,7 +525,7 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 10. POST /dhr/:id/release - Release batch
 // ============================================
-router.post('/dhr/:id/release', async (req: AuthRequest, res: Response) => {
+router.post('/dhr/:id/release', async (req: Request, res: Response) => {
   try {
     const dhr = await prisma.deviceHistoryRecord.findUnique({
       where: { id: req.params.id },
@@ -566,7 +566,7 @@ router.post('/dhr/:id/release', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'RELEASED',
-        releasedBy: req.user?.email || req.user?.id,
+        releasedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id,
         releaseDate: new Date(),
       },
     });

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
@@ -64,7 +64,7 @@ try {
 // ============================================
 
 // GET /api/admin/feature-flags — List all flags with org overrides
-router.get('/admin/feature-flags', requireRole('ADMIN'), (_req: AuthRequest, res: Response) => {
+router.get('/admin/feature-flags', requireRole('ADMIN'), (_req: Request, res: Response) => {
   try {
     const flags = getAllFlags();
     const overrides = getAllOrgOverrides();
@@ -92,7 +92,7 @@ router.get('/admin/feature-flags', requireRole('ADMIN'), (_req: AuthRequest, res
 });
 
 // POST /api/admin/feature-flags — Create a new flag
-router.post('/admin/feature-flags', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/admin/feature-flags', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = createFlagSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -116,7 +116,7 @@ router.post('/admin/feature-flags', requireRole('ADMIN'), (req: AuthRequest, res
       });
     }
 
-    logger.info('Feature flag created', { name, createdBy: req.user!.id });
+    logger.info('Feature flag created', { name, createdBy: (req as AuthRequest).user!.id });
 
     res.status(201).json({ success: true, data: flag });
   } catch (error: unknown) {
@@ -134,7 +134,7 @@ router.post('/admin/feature-flags', requireRole('ADMIN'), (req: AuthRequest, res
 router.put(
   '/admin/feature-flags/:name',
   requireRole('ADMIN'),
-  (req: AuthRequest, res: Response) => {
+  (req: Request, res: Response) => {
     try {
       const parsed = updateFlagSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -159,7 +159,7 @@ router.put(
       logger.info('Feature flag updated', {
         name: req.params.name,
         updates: parsed.data,
-        updatedBy: req.user!.id,
+        updatedBy: (req as AuthRequest).user!.id,
       });
 
       res.json({ success: true, data: flag });
@@ -179,7 +179,7 @@ router.put(
 router.delete(
   '/admin/feature-flags/:name',
   requireRole('ADMIN'),
-  (req: AuthRequest, res: Response) => {
+  (req: Request, res: Response) => {
     try {
       const deleted = deleteFlag(req.params.name);
       if (!deleted) {
@@ -189,7 +189,7 @@ router.delete(
         });
       }
 
-      logger.info('Feature flag deleted', { name: req.params.name, deletedBy: req.user!.id });
+      logger.info('Feature flag deleted', { name: req.params.name, deletedBy: (req as AuthRequest).user!.id });
 
       res.json({ success: true, data: { deleted: true } });
     } catch (error: unknown) {
@@ -208,7 +208,7 @@ router.delete(
 router.put(
   '/admin/feature-flags/:name/orgs/:orgId',
   requireRole('ADMIN'),
-  (req: AuthRequest, res: Response) => {
+  (req: Request, res: Response) => {
     try {
       const parsed = orgOverrideSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -234,7 +234,7 @@ router.put(
         flagName: req.params.name,
         orgId: req.params.orgId,
         enabled: parsed.data.enabled,
-        setBy: req.user!.id,
+        setBy: (req as AuthRequest).user!.id,
       });
 
       res.json({ success: true, data: override });
@@ -254,7 +254,7 @@ router.put(
 router.delete(
   '/admin/feature-flags/:name/orgs/:orgId',
   requireRole('ADMIN'),
-  (req: AuthRequest, res: Response) => {
+  (req: Request, res: Response) => {
     try {
       const removed = removeOrgOverride(req.params.name, req.params.orgId);
       if (!removed) {
@@ -267,7 +267,7 @@ router.delete(
       logger.info('Org feature flag override removed', {
         flagName: req.params.name,
         orgId: req.params.orgId,
-        removedBy: req.user!.id,
+        removedBy: (req as AuthRequest).user!.id,
       });
 
       res.json({ success: true, data: { deleted: true } });
@@ -288,7 +288,7 @@ router.delete(
 // ============================================
 
 // GET /api/feature-flags/check — Check single flag (?name=xxx)
-router.get('/feature-flags/check', async (req: AuthRequest, res: Response) => {
+router.get('/feature-flags/check', async (req: Request, res: Response) => {
   try {
     const nameSchema = z.object({
       name: z.string().trim().min(1, 'Flag name is required'),
@@ -325,7 +325,7 @@ router.get('/feature-flags/check', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/feature-flags — Get all flags for current org
-router.get('/feature-flags', async (req: AuthRequest, res: Response) => {
+router.get('/feature-flags', async (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || undefined;
     const flags = await getAll(orgId);

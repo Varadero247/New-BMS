@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -48,7 +48,7 @@ function calculatePriorityScore(
 // ============================================
 
 // GET / — List improvements (paginated)
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', category, status, pdcaStage, source, search } = req.query;
 
@@ -96,7 +96,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.qualImprovement),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const improvement = await prisma.qualImprovement.findUnique({
         where: { id: req.params.id },
@@ -120,7 +120,7 @@ router.get(
 );
 
 // POST / — Create improvement
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -283,7 +283,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.qualImprovement),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualImprovement.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -421,7 +421,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.qualImprovement),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualImprovement.findUnique({ where: { id: req.params.id } });
       if (!existing) {

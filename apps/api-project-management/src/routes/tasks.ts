@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -15,7 +15,7 @@ router.param('id', validateIdParam());
 router.param('projectId', validateIdParam('projectId'));
 
 // GET /api/tasks - List tasks by projectId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, status, page = '1', limit = '100' } = req.query;
 
@@ -57,7 +57,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/tasks/gantt/:projectId - Get Gantt chart data
-router.get('/gantt/:projectId', async (req: AuthRequest, res: Response) => {
+router.get('/gantt/:projectId', async (req: Request, res: Response) => {
   try {
     const tasks = await prisma.projectTask.findMany({
       where: { projectId: req.params.projectId, deletedAt: null },
@@ -102,7 +102,7 @@ router.get('/gantt/:projectId', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/tasks/:id - Get single task
-router.get('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.projectTask), async (req: Request, res: Response) => {
   try {
     const task = await prisma.projectTask.findUnique({
       where: { id: req.params.id },
@@ -174,7 +174,7 @@ const updateTaskSchema = createTaskSchema
   .partial();
 
 // POST /api/tasks - Create task
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createTaskSchema.parse(req.body);
 
@@ -223,7 +223,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/tasks/:id - Update task
-router.put('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.projectTask), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.projectTask.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -283,7 +283,7 @@ router.put('/:id', checkOwnership(prisma.projectTask), async (req: AuthRequest, 
 router.delete(
   '/:id',
   checkOwnership(prisma.projectTask),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectTask.findUnique({ where: { id: req.params.id } });
       if (!existing) {

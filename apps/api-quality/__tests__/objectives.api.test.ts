@@ -732,7 +732,7 @@ describe('Quality Objectives API Routes', () => {
         id: '1b000000-0000-4000-a000-000000000001',
         objectiveId: '15000000-0000-4000-a000-000000000001',
       });
-      (mockPrisma.qualMilestone.update as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualMilestone.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete(
@@ -741,9 +741,8 @@ describe('Quality Objectives API Routes', () => {
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualMilestone.update).toHaveBeenCalledWith({
+      expect(mockPrisma.qualMilestone.delete).toHaveBeenCalledWith({
         where: { id: '1b000000-0000-4000-a000-000000000001' },
-        data: { deletedAt: expect.any(Date) },
       });
     });
 

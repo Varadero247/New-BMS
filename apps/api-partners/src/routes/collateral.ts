@@ -19,7 +19,7 @@ const TIER_HIERARCHY: Record<string, string[]> = {
 // GET /api/collateral — list accessible collateral
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -33,7 +33,7 @@ router.get('/', async (req: Request, res: Response) => {
       select: { tier: true },
     });
 
-    const allowedTiers = TIER_HIERARCHY[partner?.tier || 'REFERRAL'] || ['ALL'];
+    const allowedTiers = TIER_HIERARCHY[(partner?.tier as string) || 'REFERRAL'] || ['ALL'];
     const { type } = req.query;
 
     const where: Record<string, unknown> = { accessTier: { in: allowedTiers } };
@@ -58,7 +58,7 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/collateral/:id/download — track & return download URL
 router.get('/:id/download', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -71,7 +71,7 @@ router.get('/:id/download', async (req: Request, res: Response) => {
       select: { tier: true },
     });
 
-    const allowedTiers = TIER_HIERARCHY[partner?.tier || 'REFERRAL'] || ['ALL'];
+    const allowedTiers = TIER_HIERARCHY[(partner?.tier as string) || 'REFERRAL'] || ['ALL'];
 
     const item = await portalPrisma.mktPartnerCollateral.findUnique({
       where: { id: req.params.id },

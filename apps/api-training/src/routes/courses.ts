@@ -97,7 +97,8 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
-    const code = await generateRef(orgId);
+    const referenceNumber = await generateRef(orgId);
+    const code = referenceNumber;
     const {
       title,
       description,
@@ -127,6 +128,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         objectives,
         isActive,
         orgId,
+        referenceNumber,
         code,
         createdBy: (req as AuthRequest).user?.id,
         updatedBy: (req as AuthRequest).user?.id,

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
@@ -29,7 +29,7 @@ const createSchema = z.object({
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
 // GET /api/admin/privacy/dsar — List DSAR requests
-router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const requests = listRequests(orgId);
@@ -51,7 +51,7 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/privacy/dsar — Create DSAR request
-router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -70,7 +70,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       orgId,
       type: parsed.data.type,
       subjectEmail: parsed.data.subjectEmail,
-      requestedById: req.user!.id,
+      requestedById: (req as AuthRequest).user!.id,
       notes: parsed.data.notes,
     });
 
@@ -78,7 +78,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       id: request.id,
       type: request.type,
       subjectEmail: request.subjectEmail,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({ success: true, data: request });
@@ -94,7 +94,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/admin/privacy/dsar/:id — Get DSAR request by ID
-router.get('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const request = getRequest(req.params.id);
     if (!request) {
@@ -117,7 +117,7 @@ router.get('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/privacy/dsar/:id/process — Process (execute) a DSAR request
-router.post('/:id/process', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.post('/:id/process', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const request = getRequest(req.params.id);
     if (!request) {
@@ -144,7 +144,7 @@ router.post('/:id/process', requireRole('ADMIN'), async (req: AuthRequest, res: 
     logger.info('Processing DSAR request', {
       id: request.id,
       type: request.type,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     let result;

@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -42,7 +42,7 @@ function classifyNPS(score: number): 'PROMOTER' | 'PASSIVE' | 'DETRACTOR' {
 // =============================================
 
 // GET /public/:token - Get public survey for customer-facing form
-router.get('/public/:token', async (req: AuthRequest, res: Response) => {
+router.get('/public/:token', async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
 
@@ -69,7 +69,7 @@ router.get('/public/:token', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /public/:token/respond - Submit public survey response
-router.post('/public/:token/respond', async (req: AuthRequest, res: Response) => {
+router.post('/public/:token/respond', async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
 
@@ -110,10 +110,10 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
       const question = survey.questions.find((q) => q.id === answer.questionId);
       if (!question) continue;
       if (question.type === 'NPS_SCALE' && answer.numericValue !== null) {
-        npsScore = answer.numericValue;
+        npsScore = answer.numericValue ?? null;
       }
       if (question.type === 'RATING' && answer.numericValue !== null) {
-        csatScore = answer.numericValue;
+        csatScore = answer.numericValue ?? null;
       }
     }
 
@@ -168,7 +168,7 @@ router.use(authenticate);
 // =============================================
 // POST /surveys - Create survey template
 // =============================================
-router.post('/surveys', async (req: AuthRequest, res: Response) => {
+router.post('/surveys', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -205,7 +205,7 @@ router.post('/surveys', async (req: AuthRequest, res: Response) => {
         type: data.type,
         isPublic: data.isPublic || false,
         publicToken,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
         questions: {
           create: data.questions.map((q, idx) => ({
             orderIndex: idx,
@@ -244,7 +244,7 @@ router.post('/surveys', async (req: AuthRequest, res: Response) => {
 // =============================================
 // GET /surveys - List surveys
 // =============================================
-router.get('/surveys', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/surveys', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', type, isActive, search } = req.query;
 
@@ -294,7 +294,7 @@ router.get('/surveys', scopeToUser, async (req: AuthRequest, res: Response) => {
 // =============================================
 // GET /surveys/:id - Get single survey with questions
 // =============================================
-router.get('/surveys/:id', async (req: AuthRequest, res: Response) => {
+router.get('/surveys/:id', async (req: Request, res: Response) => {
   try {
     const survey = await prisma.customerSurvey.findUnique({
       where: { id: req.params.id },
@@ -322,7 +322,7 @@ router.get('/surveys/:id', async (req: AuthRequest, res: Response) => {
 // =============================================
 // POST /responses - Submit survey response (authenticated)
 // =============================================
-router.post('/responses', async (req: AuthRequest, res: Response) => {
+router.post('/responses', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       surveyId: z.string().trim().min(1).max(200),
@@ -364,10 +364,10 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
       const question = survey.questions.find((q) => q.id === answer.questionId);
       if (!question) continue;
       if (question.type === 'NPS_SCALE' && answer.numericValue !== null) {
-        npsScore = answer.numericValue;
+        npsScore = answer.numericValue ?? null;
       }
       if (question.type === 'RATING' && answer.numericValue !== null) {
-        csatScore = answer.numericValue;
+        csatScore = answer.numericValue ?? null;
       }
     }
 
@@ -417,7 +417,7 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
 // =============================================
 // GET /responses - List/filter responses
 // =============================================
-router.get('/responses', async (req: AuthRequest, res: Response) => {
+router.get('/responses', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', surveyId, npsCategory, startDate, endDate } = req.query;
 
@@ -429,9 +429,10 @@ router.get('/responses', async (req: AuthRequest, res: Response) => {
     if (surveyId) where.surveyId = surveyId as string;
     if (npsCategory) where.npsCategory = npsCategory;
     if (startDate || endDate) {
-      where.submittedAt = {};
-      if (startDate) where.submittedAt.gte = new Date(startDate as string);
-      if (endDate) where.submittedAt.lte = new Date(endDate as string);
+      const submittedAtFilter: { gte?: Date; lte?: Date } = {};
+      if (startDate) submittedAtFilter.gte = new Date(startDate as string);
+      if (endDate) submittedAtFilter.lte = new Date(endDate as string);
+      where.submittedAt = submittedAtFilter;
     }
 
     const [items, total] = await Promise.all([
@@ -470,7 +471,7 @@ router.get('/responses', async (req: AuthRequest, res: Response) => {
 // =============================================
 // GET /metrics - Calculate NPS, CSAT, trends
 // =============================================
-router.get('/metrics', async (req: AuthRequest, res: Response) => {
+router.get('/metrics', async (req: Request, res: Response) => {
   try {
     const { surveyId, months = '12' } = req.query;
     const monthsNum = parseInt(months as string, 10) || 12;
@@ -578,7 +579,7 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
 // =============================================
 // GET /dashboard - Aggregated stats
 // =============================================
-router.get('/dashboard', async (req: AuthRequest, res: Response) => {
+router.get('/dashboard', async (req: Request, res: Response) => {
   try {
     // Total surveys
     const totalSurveys = await prisma.customerSurvey.count({ where: { deletedAt: null } });

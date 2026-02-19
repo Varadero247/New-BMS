@@ -164,7 +164,7 @@ router.post('/', async (req: Request, res: Response) => {
         code,
         ...parsed.data,
         creditLimit:
-          parsed.data.creditLimit !== null ? new Prisma.Decimal(parsed.data.creditLimit) : null,
+          parsed.data.creditLimit != null ? new Prisma.Decimal(parsed.data.creditLimit) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });

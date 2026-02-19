@@ -83,10 +83,10 @@ export async function runBoardPackJob(): Promise<string> {
     const boardPack = await prisma.boardPack.create({
       data: {
         title,
-        quarter: `Q${quarter}`,
-        year,
+        quarter: `${year}-Q${quarter}`,
         status: 'DRAFT',
-        sections: sections as Record<string, unknown>,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        sections: sections as any,
         generatedAt: now,
       },
     });

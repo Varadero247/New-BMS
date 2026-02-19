@@ -1,8 +1,11 @@
-import { Router, Response } from 'express';
-import { prisma } from '@ims/database';
+import { Router, Request, Response } from 'express';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
+
+const prisma = prismaBase as unknown as PrismaClient;
 
 const logger = createLogger('compliance-calendar');
 const router = Router();
@@ -121,7 +124,7 @@ const updateEventSchema = z.object({
 // ---------------------------------------------------------------------------
 // GET / — All compliance events with filtering
 // ---------------------------------------------------------------------------
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { standard, type, status, startDate, endDate, page = '1', limit = '50' } = req.query;
 
@@ -184,7 +187,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /upcoming — Events in the next N days
 // ---------------------------------------------------------------------------
-router.get('/upcoming', async (req: AuthRequest, res: Response) => {
+router.get('/upcoming', async (req: Request, res: Response) => {
   try {
     const days = Math.min(parseInt(req.query.days as string, 10) || 30, 365);
     const now = new Date();
@@ -235,7 +238,7 @@ router.get('/upcoming', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // POST /events — Create a compliance event
 // ---------------------------------------------------------------------------
-router.post('/events', async (req: AuthRequest, res: Response) => {
+router.post('/events', async (req: Request, res: Response) => {
   try {
     const data = createEventSchema.parse(req.body);
 
@@ -248,14 +251,14 @@ router.post('/events', async (req: AuthRequest, res: Response) => {
         description: data.description,
         type: data.type,
         standard: data.standard,
-        status: initialStatus as string,
+        status: initialStatus as never,
         dueDate,
         assigneeId: data.assigneeId,
         assignee: data.assignee,
         location: data.location,
         notes: data.notes,
         recurrence: data.recurrence,
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -263,7 +266,7 @@ router.post('/events', async (req: AuthRequest, res: Response) => {
       eventId: event.id,
       type: event.type,
       standard: event.standard,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({ success: true, data: enrichEvent(event) });
@@ -289,7 +292,7 @@ router.post('/events', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // PUT /events/:id — Update a compliance event
 // ---------------------------------------------------------------------------
-router.put('/events/:id', async (req: AuthRequest, res: Response) => {
+router.put('/events/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -337,7 +340,7 @@ router.put('/events/:id', async (req: AuthRequest, res: Response) => {
 
     logger.info('Compliance event updated', {
       eventId: id,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.json({ success: true, data: enrichEvent(updated) });
@@ -363,7 +366,7 @@ router.put('/events/:id', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // DELETE /events/:id — Soft-delete a compliance event
 // ---------------------------------------------------------------------------
-router.delete('/events/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/events/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -382,7 +385,7 @@ router.delete('/events/:id', async (req: AuthRequest, res: Response) => {
 
     logger.info('Compliance event deleted', {
       eventId: id,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.json({ success: true, data: { id, deleted: true } });

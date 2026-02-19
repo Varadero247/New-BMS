@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -78,7 +78,7 @@ const deferSchema = z.object({
 // ============================================
 
 // POST / — Create work order
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createWorkOrderSchema.parse(req.body);
     const refNumber = await generateWORefNumber();
@@ -90,12 +90,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         aircraftType: data.aircraftType,
         aircraftReg: data.aircraftReg,
         description: data.description,
-        priority: (data.priority || 'ROUTINE') as string,
+        priority: (data.priority || 'ROUTINE') as never,
         status: 'OPEN',
         assignedTo: data.assignedTo,
         startDate: data.startDate ? new Date(data.startDate) : undefined,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
-        createdBy: req.user?.email || req.user?.id || 'unknown',
+        createdBy: (req as AuthRequest).user?.id || 'unknown',
       },
     });
 
@@ -121,7 +121,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET / — List work orders with status filter, pagination
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, priority, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -167,7 +167,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get work order with task cards and signoffs
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({
       where: { id: req.params.id },
@@ -191,7 +191,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/tasks — Add task card
-router.post('/:id/tasks', async (req: AuthRequest, res: Response) => {
+router.post('/:id/tasks', async (req: Request, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({ where: { id: req.params.id } });
     if (!wo || wo.deletedAt) {
@@ -257,7 +257,7 @@ router.post('/:id/tasks', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/tasks/:tid/complete — Complete task + technician sign
-router.put('/:id/tasks/:tid/complete', async (req: AuthRequest, res: Response) => {
+router.put('/:id/tasks/:tid/complete', async (req: Request, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({ where: { id: req.params.id } });
     if (!wo || wo.deletedAt) {
@@ -322,7 +322,7 @@ router.put('/:id/tasks/:tid/complete', async (req: AuthRequest, res: Response) =
 });
 
 // POST /:id/inspect — Quality inspection signoff
-router.post('/:id/inspect', async (req: AuthRequest, res: Response) => {
+router.post('/:id/inspect', async (req: Request, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({
       where: { id: req.params.id },
@@ -370,7 +370,7 @@ router.post('/:id/inspect', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'INSPECTION',
-        inspectedBy: req.user?.email || req.user?.id || 'unknown',
+        inspectedBy: (req as AuthRequest).user?.id || 'unknown',
         inspectedDate: new Date(),
       },
     });
@@ -391,7 +391,7 @@ router.post('/:id/inspect', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/release — Airworthiness release
-router.post('/:id/release', async (req: AuthRequest, res: Response) => {
+router.post('/:id/release', async (req: Request, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({
       where: { id: req.params.id },
@@ -437,7 +437,7 @@ router.post('/:id/release', async (req: AuthRequest, res: Response) => {
         status: 'RELEASED',
         releaseCertType: data.releaseCertType,
         releaseCertRef: data.releaseCertRef,
-        releasedBy: req.user?.email || req.user?.id || 'unknown',
+        releasedBy: (req as AuthRequest).user?.id || 'unknown',
         releasedDate: new Date(),
         completedDate: new Date(),
       },
@@ -470,7 +470,7 @@ router.post('/:id/release', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/defer — Defer defect with MEL/CDL reference
-router.post('/:id/defer', async (req: AuthRequest, res: Response) => {
+router.post('/:id/defer', async (req: Request, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({ where: { id: req.params.id } });
     if (!wo || wo.deletedAt) {
@@ -526,7 +526,7 @@ router.post('/:id/defer', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id/release-cert — Generate release certificate data
-router.get('/:id/release-cert', async (req: AuthRequest, res: Response) => {
+router.get('/:id/release-cert', async (req: Request, res: Response) => {
   try {
     const wo = await prisma.workOrder.findUnique({
       where: { id: req.params.id },

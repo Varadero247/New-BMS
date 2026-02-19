@@ -86,15 +86,14 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         refNumber,
         name: parsed.data.name,
-        type: parsed.data.type as string,
-        classification: parsed.data.classification as string,
-        description: parsed.data.description || null,
-        owner: parsed.data.owner || null,
-        custodian: parsed.data.custodian || null,
-        location: parsed.data.location || null,
-        value: parsed.data.value || null,
-        riskLevel: parsed.data.riskLevel || null,
-        status: 'ACTIVE',
+        type: parsed.data.type as any,
+        classification: parsed.data.classification as any,
+        format: 'DIGITAL' as any,
+        description: parsed.data.description,
+        owner: parsed.data.owner || '',
+        custodian: parsed.data.custodian,
+        location: parsed.data.location,
+        status: 'ACTIVE' as any,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -222,8 +221,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const asset = await prisma.isAsset.update({
       where: { id },
       data: {
-        ...parsed.data,
-        updatedBy: authReq.user?.id || 'system',
+        ...parsed.data as any,
         updatedAt: new Date(),
       },
     });
@@ -262,7 +260,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       where: { id },
       data: {
         deletedAt: new Date(),
-        deletedBy: authReq.user?.id || 'system',
+        deletedBy: authReq.user?.id,
       },
     });
 

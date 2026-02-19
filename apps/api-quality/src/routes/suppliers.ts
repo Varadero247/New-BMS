@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -56,7 +56,7 @@ function getRiskLevel(score: number): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
 // ============================================
 
 // GET / — List suppliers (paginated)
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', approvedStatus, category, overallRating, search } = req.query;
 
@@ -100,7 +100,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get single supplier
-router.get('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualSupplier), async (req: Request, res: Response) => {
   try {
     const supplier = await prisma.qualSupplier.findUnique({
       where: { id: req.params.id },
@@ -123,7 +123,7 @@ router.get('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
 });
 
 // POST / — Create supplier
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       supplierName: z.string().trim().min(1).max(200),
@@ -297,7 +297,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id — Update supplier
-router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualSupplier.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -436,7 +436,7 @@ router.put('/:id', checkOwnership(prisma.qualSupplier), async (req: AuthRequest,
 router.delete(
   '/:id',
   checkOwnership(prisma.qualSupplier),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualSupplier.findUnique({ where: { id: req.params.id } });
       if (!existing) {

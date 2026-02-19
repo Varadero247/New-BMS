@@ -205,9 +205,9 @@ router.post('/', async (req: Request, res: Response) => {
         requestedBy: data.requestedBy,
         scheduledStart: data.scheduledStart ? new Date(data.scheduledStart) : null,
         scheduledEnd: data.scheduledEnd ? new Date(data.scheduledEnd) : null,
-        laborHours: data.laborHours !== null ? new Prisma.Decimal(data.laborHours) : null,
-        laborCost: data.laborCost !== null ? new Prisma.Decimal(data.laborCost) : null,
-        partsCost: data.partsCost !== null ? new Prisma.Decimal(data.partsCost) : null,
+        laborHours: data.laborHours != null ? new Prisma.Decimal(data.laborHours ?? 0) : null,
+        laborCost: data.laborCost != null ? new Prisma.Decimal(data.laborCost ?? 0) : null,
+        partsCost: data.partsCost != null ? new Prisma.Decimal(data.partsCost ?? 0) : null,
         failureCode: data.failureCode,
         createdBy: authReq.user?.id || 'system',
       },
@@ -439,8 +439,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       actualEnd: new Date(),
       completionNotes: completionNotes || null,
     };
-    if (laborHours !== null) updateData.laborHours = new Prisma.Decimal(laborHours);
-    if (partsCost !== null) updateData.partsCost = new Prisma.Decimal(partsCost);
+    if (laborHours != null) updateData.laborHours = new Prisma.Decimal(laborHours ?? 0);
+    if (partsCost != null) updateData.partsCost = new Prisma.Decimal(partsCost ?? 0);
 
     const workOrder = await prisma.cmmsWorkOrder.update({
       where: { id: req.params.id },

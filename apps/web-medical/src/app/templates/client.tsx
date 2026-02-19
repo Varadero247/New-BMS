@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { gateway } from '@/lib/gateway';
+import { Input, Card, CardContent, Badge, Button, Modal, ModalFooter } from '@ims/ui';
 import { FileText, Search, Download, Copy, Eye } from 'lucide-react';
 
 // ---------------------------------------------------------------------------

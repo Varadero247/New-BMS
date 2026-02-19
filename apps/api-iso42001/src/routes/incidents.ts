@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -203,14 +203,15 @@ router.post('/', async (req: Request, res: Response) => {
         systemId: parsed.data.systemId,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
-        severity: parsed.data.severity,
-        status: 'REPORTED',
+        severity: parsed.data.severity as any,
+        status: 'REPORTED' as any,
         incidentDate: new Date(parsed.data.incidentDate),
         category: parsed.data.category || 'OTHER',
         affectedParties: parsed.data.affectedParties ?? null,
         immediateAction: parsed.data.immediateAction ?? null,
         reportedBy: parsed.data.reportedBy ?? null,
         notes: parsed.data.notes ?? null,
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
       include: {
@@ -269,12 +270,12 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     const incident = await prisma.aiIncident.update({
       where: { id },
       data: {
-        status: 'INVESTIGATING',
+        status: 'INVESTIGATING' as any,
         investigator: parsed.data.investigator ?? null,
         rootCause: parsed.data.rootCause ?? null,
         findings: parsed.data.findings ?? null,
         contributingFactors: parsed.data.contributingFactors ?? null,
-        investigationStartedAt: (existing as Record<string, unknown>).investigationStartedAt || new Date(),
+        investigationStartedAt: existing.investigationStartedAt || new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       },
@@ -331,7 +332,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     const incident = await prisma.aiIncident.update({
       where: { id },
       data: {
-        status: 'CLOSED',
+        status: 'CLOSED' as any,
         resolution: parsed.data.resolution,
         lessonsLearned: parsed.data.lessonsLearned ?? null,
         preventiveActions: parsed.data.preventiveActions ?? null,
@@ -420,7 +421,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const incident = await prisma.aiIncident.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...(parsed.data as any),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       },

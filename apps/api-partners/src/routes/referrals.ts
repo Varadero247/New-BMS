@@ -16,7 +16,7 @@ const trackReferralSchema = z.object({
 // GET /api/referrals — list partner's referrals
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -43,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
 // POST /api/referrals/track — track a new referral
 router.post('/track', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -74,7 +74,7 @@ router.post('/track', async (req: Request, res: Response) => {
 
     const referral = await portalPrisma.mktPartnerReferral.create({
       data: {
-        partnerId,
+        partnerId: partnerId as string,
         referralCode: partner.referralCode,
         prospectEmail: parsed.data.prospectEmail,
         prospectName: parsed.data.prospectName,
@@ -94,7 +94,7 @@ router.post('/track', async (req: Request, res: Response) => {
 // GET /api/referrals/stats — referral statistics
 router.get('/stats', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

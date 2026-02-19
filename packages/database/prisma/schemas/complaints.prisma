@@ -88,19 +88,21 @@ model CompComplaint {
 }
 
 model CompAction {
-  id           String   @id @default(cuid())
-  orgId        String
-  complaintId  String
-  action       String
-  assignee     String?
-  dueDate      DateTime?
-  completedAt  DateTime?
-  status       String   @default("OPEN")
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String?
-  deletedAt    DateTime?
+  id              String   @id @default(cuid())
+  orgId           String
+  complaintId     String
+  referenceNumber String?
+  action          String
+  assignee        String?
+  dueDate         DateTime?
+  completedAt     DateTime?
+  status          String   @default("OPEN")
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
   complaint    CompComplaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
   @@map("comp_actions")
   @@index([complaintId])
@@ -108,17 +110,21 @@ model CompAction {
 }
 
 model CompCommunication {
-  id           String   @id @default(cuid())
-  orgId        String
-  complaintId  String
-  direction    String   @default("OUTBOUND")
-  channel      String?
-  subject      String?
-  content      String?
-  sentAt       DateTime?
-  sentBy       String?
-  createdAt    DateTime @default(now())
-  deletedAt    DateTime?
+  id              String   @id @default(cuid())
+  orgId           String
+  complaintId     String
+  referenceNumber String?
+  direction       String   @default("OUTBOUND")
+  channel         String?
+  subject         String?
+  content         String?
+  sentAt          DateTime?
+  sentBy          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
   complaint    CompComplaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
   @@map("comp_communications")
   @@index([complaintId])

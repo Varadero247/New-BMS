@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -44,7 +44,8 @@ async function generateRefNumber(): Promise<string> {
 // POST / — Create benefit
 // =============================================
 
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest;
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -57,13 +58,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       currentValue: z.number().nonnegative().optional(),
       unit: z.string().trim().optional(),
       measurementMethod: z.enum(MEASUREMENT_METHODS).optional(),
-      measurementSchedule: z.string().trim().optional(),
+      realisationDate: z
+        .string()
+        .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
+        .optional(),
       expectedRealisationDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
       financialValue: z.number().optional(),
-      priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
+      priority: z.string().trim().optional(),
+      measurementSchedule: z.string().trim().optional(),
     });
 
     const data = schema.parse(req.body);
@@ -74,22 +79,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         refNumber,
         title: data.title,
         description: data.description,
-        type: data.type,
+        benefitType: data.type,
         projectId: data.projectId,
-        owner: data.owner,
-        baselineValue: data.baselineValue,
-        targetValue: data.targetValue,
-        currentValue: data.currentValue ?? data.baselineValue,
-        unit: data.unit,
+        owner: data.owner ?? authReq.user?.id ?? 'unassigned',
+        baselineValue: data.baselineValue ?? 0,
+        targetValue: data.targetValue ?? 0,
+        currentValue: data.currentValue ?? data.baselineValue ?? 0,
+        unit: data.unit ?? 'units',
         measurementMethod: data.measurementMethod || 'QUANTITATIVE',
-        measurementSchedule: data.measurementSchedule,
-        expectedRealisationDate: data.expectedRealisationDate
-          ? new Date(data.expectedRealisationDate)
-          : undefined,
-        financialValue: data.financialValue,
-        priority: data.priority || 'MEDIUM',
+        realisationDate: (data.expectedRealisationDate || data.realisationDate) ? new Date((data.expectedRealisationDate || data.realisationDate) as string) : undefined,
         status: 'IDENTIFIED',
-        createdBy: req.user!.id,
+        createdBy: authReq.user?.id,
       },
     });
 
@@ -117,9 +117,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // GET / — List benefits
 // =============================================
 
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
-    const { page = '1', limit = '20', status, type, projectId, search } = req.query;
+    const { page = '1', limit = '20', status, type, benefitType, projectId, search } = req.query;
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
@@ -128,6 +128,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (type) where.type = type;
+    if (benefitType) where.benefitType = benefitType;
     if (projectId) where.projectId = projectId;
     if (search) {
       where.OR = [
@@ -169,7 +170,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /dashboard — Realisation overview stats
 // =============================================
 
-router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/dashboard', scopeToUser, async (req: Request, res: Response) => {
   try {
     const where: Record<string, unknown> = { deletedAt: null };
 
@@ -181,8 +182,7 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       prisma.benefit.findMany({
         where,
         select: {
-          type: true,
-          financialValue: true,
+          benefitType: true,
           status: true,
           currentValue: true,
           targetValue: true,
@@ -193,14 +193,18 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
 
     // Aggregate by type
     const byType: Record<string, number> = {};
-    const financialSummary = { totalExpected: 0, totalRealised: 0 };
 
     for (const b of benefits as Array<Record<string, unknown>>) {
-      byType[b.type as string] = (byType[b.type as string] || 0) + 1;
-      if (b.financialValue) financialSummary.totalExpected += b.financialValue as number;
-      if (b.status === 'REALISED' && b.financialValue)
-        financialSummary.totalRealised += b.financialValue as number;
+      const t = (b.type || b.benefitType) as string;
+      byType[t] = (byType[t] || 0) + 1;
     }
+
+    // Calculate financial summary
+    const financialBenefits = (benefits as Array<Record<string, unknown>>).filter((b) => (b.type || b.benefitType) === "FINANCIAL");
+    const financialSummary = {
+      totalValue: financialBenefits.reduce((sum, b) => sum + (Number(b.financialValue) || 0), 0),
+      realisedValue: financialBenefits.filter((b) => b.status === "REALISED").reduce((sum, b) => sum + (Number(b.currentValue) || 0), 0),
+    };
 
     // Calculate realisation rate
     const realisationRate = total > 0 ? Math.round((realised / total) * 100) : 0;
@@ -230,7 +234,7 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
 // GET /:id — Get with measurement history
 // =============================================
 
-router.get('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.benefit), async (req: Request, res: Response) => {
   try {
     const benefit = await prisma.benefit.findUnique({
       where: { id: req.params.id },
@@ -244,7 +248,7 @@ router.get('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
 
     const measurements = await prisma.benefitMeasurement.findMany({
       where: { benefitId: benefit.id },
-      orderBy: { measuredAt: 'desc' as const },
+      orderBy: { measureDate: 'desc' as const },
       take: 1000,
     });
 
@@ -262,7 +266,7 @@ router.get('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
 // PUT /:id — Update benefit
 // =============================================
 
-router.put('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.benefit), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.benefit.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -275,28 +279,26 @@ router.put('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
       title: z.string().trim().min(1).max(200).optional(),
       description: z.string().trim().optional(),
       type: z.enum(BENEFIT_TYPES).optional(),
+      benefitType: z.enum(BENEFIT_TYPES).optional(),
       owner: z.string().trim().optional(),
       baselineValue: z.number().optional(),
       targetValue: z.number().nonnegative().optional(),
       currentValue: z.number().nonnegative().optional(),
       unit: z.string().trim().optional(),
       measurementMethod: z.enum(MEASUREMENT_METHODS).optional(),
-      measurementSchedule: z.string().trim().optional(),
-      expectedRealisationDate: z
+      realisationDate: z
         .string()
         .refine((s) => !isNaN(Date.parse(s)), 'Invalid date format')
         .optional(),
-      financialValue: z.number().optional(),
-      priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']).optional(),
       status: z
         .enum([
           'IDENTIFIED',
-          'BASELINED',
+          'PLANNED',
           'TRACKING',
           'REALISED',
-          'PARTIALLY_REALISED',
-          'NOT_REALISED',
-          'CLOSED',
+          'EXCEEDED',
+          'NOT_ACHIEVED',
+          'BASELINED',
         ])
         .optional(),
     });
@@ -307,18 +309,15 @@ router.put('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
     if (data.title !== undefined) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.type !== undefined) updateData.type = data.type;
+    if (data.benefitType !== undefined) updateData.benefitType = data.benefitType;
     if (data.owner !== undefined) updateData.owner = data.owner;
     if (data.baselineValue !== undefined) updateData.baselineValue = data.baselineValue;
     if (data.targetValue !== undefined) updateData.targetValue = data.targetValue;
     if (data.currentValue !== undefined) updateData.currentValue = data.currentValue;
     if (data.unit !== undefined) updateData.unit = data.unit;
     if (data.measurementMethod !== undefined) updateData.measurementMethod = data.measurementMethod;
-    if (data.measurementSchedule !== undefined)
-      updateData.measurementSchedule = data.measurementSchedule;
-    if (data.expectedRealisationDate !== undefined)
-      updateData.expectedRealisationDate = new Date(data.expectedRealisationDate);
-    if (data.financialValue !== undefined) updateData.financialValue = data.financialValue;
-    if (data.priority !== undefined) updateData.priority = data.priority;
+    if (data.realisationDate !== undefined)
+      updateData.realisationDate = new Date(data.realisationDate);
     if (data.status !== undefined) updateData.status = data.status;
 
     const benefit = await prisma.benefit.update({
@@ -353,7 +352,8 @@ router.put('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
 router.post(
   '/:id/measurements',
   checkOwnership(prisma.benefit),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
+    const authReq = req as AuthRequest;
     try {
       const existing = await prisma.benefit.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -363,31 +363,37 @@ router.post(
       }
 
       const schema = z.object({
-        value: z.number(),
+        value: z.number().optional(),
+        measuredValue: z.number().optional(),
         notes: z.string().trim().optional(),
         measuredAt: z.string().trim().optional(),
+        measureDate: z.string().trim().optional(),
         source: z.string().trim().optional(),
-      });
+      }).refine((d) => d.value !== undefined || d.measuredValue !== undefined, { message: "value is required" });
 
       const data = schema.parse(req.body);
+      const measureVal = data.value ?? data.measuredValue ?? 0;
+      const measureDt = data.measuredAt || data.measureDate;
 
       const measurement = await prisma.benefitMeasurement.create({
         data: {
           benefitId: existing.id,
-          value: data.value,
+          measuredValue: measureVal,
+          value: measureVal,
           notes: data.notes,
-          measuredAt: data.measuredAt ? new Date(data.measuredAt) : new Date(),
           source: data.source,
-          measuredBy: req.user!.id,
-        },
+          measureDate: measureDt ? new Date(measureDt) : new Date(),
+          measuredAt: measureDt ? new Date(measureDt) : new Date(),
+          measuredBy: authReq.user?.id,
+        } as any,
       });
 
       // Update current value on the benefit
       await prisma.benefit.update({
         where: { id: existing.id },
         data: {
-          currentValue: data.value,
-          status: existing.status === 'IDENTIFIED' ? 'TRACKING' : existing.status,
+          currentValue: measureVal,
+          status: (existing.status === 'IDENTIFIED' || existing.status === 'PLANNED') ? 'TRACKING' : existing.status,
         },
       });
 
@@ -416,7 +422,7 @@ router.post(
 // DELETE /:id — Soft delete
 // =============================================
 
-router.delete('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.benefit), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.benefit.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -427,7 +433,7 @@ router.delete('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, r
 
     await prisma.benefit.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), deletedBy: req.user!.id },
+      data: { deletedAt: new Date() },
     });
 
     res.json({ success: true, data: { message: 'Benefit deleted' } });

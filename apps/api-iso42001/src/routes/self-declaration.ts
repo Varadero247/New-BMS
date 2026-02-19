@@ -142,18 +142,19 @@ router.post('/', async (req: Request, res: Response) => {
 
     const declaration = await prisma.aiSelfDeclaration.create({
       data: {
-        reference: reference as string,
+        reference: reference,
         title: parsed.data.title,
         scope: parsed.data.scope,
         conformanceStatement: parsed.data.conformanceStatement,
         standard: parsed.data.standard || 'ISO 42001:2023',
-        status: 'DRAFT',
+        status: 'DRAFT' as any,
         declarationDate: new Date(parsed.data.declarationDate),
         validUntil: parsed.data.validUntil ? new Date(parsed.data.validUntil) : null,
         signedBy: parsed.data.signedBy ?? null,
         exclusions: parsed.data.exclusions ?? null,
         supportingEvidence: parsed.data.supportingEvidence ?? null,
         notes: parsed.data.notes ?? null,
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -197,7 +198,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
     const declaration = await prisma.aiSelfDeclaration.update({
       where: { id },
       data: {
-        status: 'PUBLISHED',
+        status: 'PUBLISHED' as any,
         signedBy:
           (z.string().trim().uuid().safeParse(req.body?.signedBy).success
             ? req.body.signedBy
@@ -286,7 +287,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const declaration = await prisma.aiSelfDeclaration.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...(parsed.data as any),
         declarationDate: parsed.data.declarationDate
           ? new Date(parsed.data.declarationDate)
           : undefined,

@@ -59,6 +59,7 @@ model ConfigItem {
   notes           String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
 
   baseline        ConfigBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
 
@@ -66,6 +67,7 @@ model ConfigItem {
   @@index([partNumber])
   @@index([status])
   @@index([orgId])
+  @@index([deletedAt])
 
   @@map("config_items")
 }
@@ -585,6 +587,7 @@ model AeroAuditFinding {
   evidence            String?
   requirement         String?
   responsiblePerson   String?
+  raisedBy            String?
   targetDate          DateTime?
   status              AeroFindingStatus   @default(OPEN)
   correctiveAction    String?

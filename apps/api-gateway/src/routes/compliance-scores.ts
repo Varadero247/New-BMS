@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -198,7 +198,7 @@ function calculateStandardScore(
 // =============================================
 
 // GET /compliance-scores — Live compliance % per standard
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     // Parse optional overrides from query parameters
     // Format: ?override_ISO_9001_objectives_on_track=95&override_IATF_16949_apqp_completion=80
@@ -276,7 +276,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /compliance-scores/standard/:code — Detailed breakdown for one standard
-router.get('/standard/:code', async (req: AuthRequest, res: Response) => {
+router.get('/standard/:code', async (req: Request, res: Response) => {
   try {
     const { code } = req.params;
     const def = STANDARD_DEFINITIONS.find((s) => s.code === code);

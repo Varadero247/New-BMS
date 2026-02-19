@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { z } from 'zod';
 import { prisma } from '../prisma';
@@ -224,7 +224,7 @@ function findRelevantModules(question: string): string[] {
   return matches.slice(0, 5);
 }
 
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const body = assistantSchema.parse(req.body);
 
@@ -241,7 +241,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Try AI provider
     let aiAnswer: string | null = null;
     try {
-      const settings = await prisma.aISettings.findFirst({ where: { isActive: true } });
+      const settings = await prisma.aISettings.findFirst({ where: { deletedAt: null }, orderBy: { createdAt: 'desc' } });
       if (settings?.apiKey) {
         const moduleList = Object.entries(MODULE_KB)
           .map(
@@ -288,7 +288,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         });
 
         if (response.ok) {
-          const data: unknown = await response.json();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const data = await response.json() as any;
           if (provider === 'ANTHROPIC') {
             aiAnswer = data.content?.[0]?.text || null;
           } else {

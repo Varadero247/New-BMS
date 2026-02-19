@@ -12,6 +12,7 @@ interface FinLineWithAccount {
   credit: unknown;
   account: { id: string; code: string; name: string; type: string; normalBalance: string };
 }
+type AnyRecord = Record<string, unknown>;
 
 const router: Router = Router();
 router.use(authenticate);
@@ -260,7 +261,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
 
     const lines = await prisma.finJournalLine.findMany({
       where: {
-        journalEntry: {
+        journal: {
           status: 'POSTED',
           periodId,
         },
@@ -279,7 +280,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
     for (const line of lines) {
       const key = line.accountId;
       if (!balances.has(key)) {
-        balances.set(key, { account: (line as FinLineWithAccount).account, totalDebit: 0, totalCredit: 0 });
+        balances.set(key, { account: (line as unknown as FinLineWithAccount).account, totalDebit: 0, totalCredit: 0 });
       }
       const entry = balances.get(key)!;
       entry.totalDebit += Number(line.debit);
@@ -293,7 +294,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
       balance: b.totalDebit - b.totalCredit,
     }));
 
-    rows.sort((a, b) => (a as { code: string }).code.localeCompare((b as { code: string }).code));
+    rows.sort((a, b) => (a as unknown as { code: string }).code.localeCompare((b as unknown as { code: string }).code));
 
     const totalDebits = rows.reduce((s, r) => s + r.totalDebit, 0);
     const totalCredits = rows.reduce((s, r) => s + r.totalCredit, 0);
@@ -342,7 +343,7 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
 
     const lines = await prisma.finJournalLine.findMany({
       where: {
-        journalEntry: {
+        journal: {
           status: 'POSTED',
           date: { gte: fromDate, lte: toDate },
         },
@@ -361,13 +362,13 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
     const expenses: Record<string, { account: Record<string, unknown>; amount: number }> = {};
 
     for (const line of lines) {
-      const target = (line as FinLineWithAccount).account.type === 'REVENUE' ? revenue : expenses;
+      const target = (line as unknown as FinLineWithAccount).account.type === 'REVENUE' ? revenue : expenses;
       if (!target[line.accountId]) {
-        target[line.accountId] = { account: (line as FinLineWithAccount).account, amount: 0 };
+        target[line.accountId] = { account: (line as unknown as FinLineWithAccount).account, amount: 0 };
       }
       // Revenue: credits increase, debits decrease
       // Expenses: debits increase, credits decrease
-      if ((line as FinLineWithAccount).account.type === 'REVENUE') {
+      if ((line as unknown as FinLineWithAccount).account.type === 'REVENUE') {
         target[line.accountId].amount += Number(line.credit) - Number(line.debit);
       } else {
         target[line.accountId].amount += Number(line.debit) - Number(line.credit);
@@ -375,10 +376,10 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
     }
 
     const revenueItems = Object.values(revenue).sort((a, b) =>
-      (a as { account: { code: string } }).account.code.localeCompare((b as { account: { code: string } }).account.code)
+      (a as unknown as { account: { code: string } }).account.code.localeCompare((b as unknown as { account: { code: string } }).account.code)
     );
     const expenseItems = Object.values(expenses).sort((a, b) =>
-      (a as { account: { code: string } }).account.code.localeCompare((b as { account: { code: string } }).account.code)
+      (a as unknown as { account: { code: string } }).account.code.localeCompare((b as unknown as { account: { code: string } }).account.code)
     );
 
     const totalRevenue = revenueItems.reduce((s, r) => s + r.amount, 0);
@@ -414,7 +415,7 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
 
     const lines = await prisma.finJournalLine.findMany({
       where: {
-        journalEntry: {
+        journal: {
           status: 'POSTED',
           date: { lte: asOfDate },
         },
@@ -439,13 +440,13 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
     };
 
     for (const line of lines) {
-      const group = groups[(line as FinLineWithAccount).account.type];
+      const group = groups[(line as unknown as FinLineWithAccount).account.type];
       if (!group[line.accountId]) {
-        group[line.accountId] = { account: (line as FinLineWithAccount).account, balance: 0 };
+        group[line.accountId] = { account: (line as unknown as FinLineWithAccount).account, balance: 0 };
       }
       // Assets: normal debit — debits increase, credits decrease
       // Liabilities/Equity: normal credit — credits increase, debits decrease
-      if ((line as FinLineWithAccount).account.normalBalance === 'DEBIT') {
+      if ((line as unknown as FinLineWithAccount).account.normalBalance === 'DEBIT') {
         group[line.accountId].balance += Number(line.debit) - Number(line.credit);
       } else {
         group[line.accountId].balance += Number(line.credit) - Number(line.debit);
@@ -477,7 +478,7 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
     const toList = (g: Record<string, { account: Record<string, unknown>; balance: number }>) =>
       Object.values(g)
         .filter((v) => Math.abs(v.balance) >= 0.01)
-        .sort((a, b) => (a as { account: { code: string } }).account.code.localeCompare((b as { account: { code: string } }).account.code));
+        .sort((a, b) => (a as unknown as { account: { code: string } }).account.code.localeCompare((b as unknown as { account: { code: string } }).account.code));
 
     const assets = toList(groups.ASSET);
     const liabilities = toList(groups.LIABILITY);
@@ -535,7 +536,7 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
     // Cash flow grouped by account type
     const lines = await prisma.finJournalLine.findMany({
       where: {
-        journalEntry: {
+        journal: {
           status: 'POSTED',
           date: { gte: fromDate, lte: toDate },
         },
@@ -556,7 +557,7 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
       const debit = Number(line.debit);
       const credit = Number(line.credit);
 
-      switch ((line as FinLineWithAccount).account.type) {
+      switch ((line as unknown as FinLineWithAccount).account.type) {
         case 'REVENUE':
         case 'EXPENSE':
           operating.inflows += credit;
@@ -1043,9 +1044,10 @@ router.get('/entries', async (req: Request, res: Response) => {
       where.periodId = periodId;
     }
     if (dateFrom || dateTo) {
-      where.date = {};
-      if (dateFrom) where.date.gte = new Date(String(dateFrom));
-      if (dateTo) where.date.lte = new Date(String(dateTo));
+      const dateFilter: { gte?: Date; lte?: Date } = {};
+      if (dateFrom) dateFilter.gte = new Date(String(dateFrom));
+      if (dateTo) dateFilter.lte = new Date(String(dateTo));
+      where.date = dateFilter;
     }
 
     const [entries, total] = await Promise.all([
@@ -1059,7 +1061,7 @@ router.get('/entries', async (req: Request, res: Response) => {
             include: {
               account: { select: { id: true, code: true, name: true, type: true } },
             },
-            orderBy: { lineNumber: 'asc' as const },
+            orderBy: { createdAt: 'asc' as const },
           },
           period: { select: { id: true, name: true, status: true } },
         },
@@ -1097,7 +1099,7 @@ router.get('/entries/:id', async (req: Request, res: Response) => {
               select: { id: true, code: true, name: true, type: true, normalBalance: true },
             },
           },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
         period: true,
       },
@@ -1218,16 +1220,13 @@ router.post('/entries', async (req: Request, res: Response) => {
         date: new Date(date),
         periodId,
         description,
-        memo: memo ?? null,
-        source: source ?? null,
+        notes: memo ?? null,
+        sourceType: source ?? null,
         sourceId: sourceId ?? null,
         status: 'DRAFT',
-        totalDebit: new Prisma.Decimal(totalDebits),
-        totalCredit: new Prisma.Decimal(totalCredits),
         createdBy: authReq.user?.id || 'system',
         lines: {
-          create: lines.map((line, idx) => ({
-            lineNumber: idx + 1,
+          create: lines.map((line) => ({
             accountId: line.accountId,
             debit: new Prisma.Decimal(line.debit),
             credit: new Prisma.Decimal(line.credit),
@@ -1240,7 +1239,7 @@ router.post('/entries', async (req: Request, res: Response) => {
           include: {
             account: { select: { id: true, code: true, name: true, type: true } },
           },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },
@@ -1348,21 +1347,16 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
 
       // Replace lines in a transaction
       const entry = await prisma.$transaction(async (tx) => {
-        await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } });
+        await tx.finJournalLine.deleteMany({ where: { journalId: id } });
 
         return tx.finJournalEntry.update({
           where: { id },
           data: {
             ...(date && { date: new Date(date) }),
             ...(description && { description }),
-            ...(memo !== undefined && { memo }),
-            totalDebit: new Prisma.Decimal(totalDebits),
-            totalCredit: new Prisma.Decimal(totalCredits),
-            updatedBy: authReq.user?.id || 'system',
-            updatedAt: new Date(),
+            ...(memo !== undefined && { notes: memo }),
             lines: {
-              create: lines.map((line, idx) => ({
-                lineNumber: idx + 1,
+              create: lines.map((line) => ({
                 accountId: line.accountId,
                 debit: new Prisma.Decimal(line.debit),
                 credit: new Prisma.Decimal(line.credit),
@@ -1375,7 +1369,7 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
               include: {
                 account: { select: { id: true, code: true, name: true, type: true } },
               },
-              orderBy: { lineNumber: 'asc' as const },
+              orderBy: { createdAt: 'asc' as const },
             },
           },
         });
@@ -1391,16 +1385,14 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
       data: {
         ...(date && { date: new Date(date) }),
         ...(description && { description }),
-        ...(memo !== undefined && { memo }),
-        updatedBy: authReq.user?.id || 'system',
-        updatedAt: new Date(),
+        ...(memo !== undefined && { notes: memo }),
       },
       include: {
         lines: {
           include: {
             account: { select: { id: true, code: true, name: true, type: true } },
           },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
       },
     });
@@ -1463,7 +1455,7 @@ router.post('/entries/:id/post', async (req: Request, res: Response) => {
           include: {
             account: { select: { id: true, code: true, name: true, type: true } },
           },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },
@@ -1527,18 +1519,15 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
         date: new Date(),
         periodId: original.periodId,
         description: `Reversal of ${original.reference}: ${original.description}`,
-        memo: `Reversal of journal entry ${original.reference}`,
-        source: 'REVERSAL',
+        notes: `Reversal of journal entry ${original.reference}`,
+        sourceType: 'REVERSAL',
         sourceId: original.id,
         status: 'POSTED',
         postedAt: new Date(),
         postedBy: authReq.user?.id || 'system',
-        totalDebit: (original as Record<string, unknown>).totalCredit,
-        totalCredit: (original as Record<string, unknown>).totalDebit,
         createdBy: authReq.user?.id || 'system',
         lines: {
-          create: original.lines.map((line, idx) => ({
-            lineNumber: idx + 1,
+          create: original.lines.map((line) => ({
             accountId: line.accountId,
             debit: line.credit, // Swap: original credit becomes reversal debit
             credit: line.debit, // Swap: original debit becomes reversal credit
@@ -1551,7 +1540,7 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
           include: {
             account: { select: { id: true, code: true, name: true, type: true } },
           },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },

@@ -17,7 +17,7 @@ const requestPayoutSchema = z.object({
 // GET /api/payouts
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -76,7 +76,7 @@ router.post('/request', async (req: Request, res: Response) => {
       });
     }
 
-    const partnerId = (req as PartnerRequest).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id as string | undefined;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

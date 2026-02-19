@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -79,7 +79,7 @@ const DEFAULT_AI_PROMPT = `Analyse this incident/non-conformance/environmental a
 4. Key text highlights requiring attention`;
 
 // POST /api/analyse - Perform AI analysis
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       sourceType: z.enum(['risk', 'incident', 'aspect', 'nonconformance']),
@@ -163,7 +163,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const analysis = await prisma.aIAnalysis.create({
       data: {
         id: uuidv4(),
-        userId: req.user!.id,
+        userId: (req as AuthRequest).user!.id,
         sourceType: data.sourceType,
         sourceId: data.sourceId,
         sourceData: sourceData as Prisma.InputJsonValue,
@@ -229,8 +229,8 @@ async function callOpenAIImpl(
     if (!response.ok) {
       let errorMessage = 'OpenAI API error';
       try {
-        const errBody: unknown = await response.json();
-        errorMessage = errBody.error?.message || errorMessage;
+        const errBody = await response.json() as Record<string, unknown>;
+        errorMessage = (errBody.error as Record<string, unknown> | undefined)?.message as string || errorMessage;
       } catch {
         /* non-JSON error response */
       }
@@ -239,7 +239,7 @@ async function callOpenAIImpl(
 
     let data: Record<string, unknown>;
     try {
-      data = await response.json();
+      data = await response.json() as Record<string, unknown>;
     } catch {
       throw new Error('Invalid response from OpenAI');
     }
@@ -279,8 +279,8 @@ async function callAnthropicImpl(
     if (!response.ok) {
       let errorMessage = 'Anthropic API error';
       try {
-        const errBody: unknown = await response.json();
-        errorMessage = errBody.error?.message || errorMessage;
+        const errBody = await response.json() as Record<string, unknown>;
+        errorMessage = (errBody.error as Record<string, unknown> | undefined)?.message as string || errorMessage;
       } catch {
         /* non-JSON error response */
       }
@@ -289,7 +289,7 @@ async function callAnthropicImpl(
 
     let data: Record<string, unknown>;
     try {
-      data = await response.json();
+      data = await response.json() as Record<string, unknown>;
     } catch {
       throw new Error('Invalid response from Anthropic');
     }
@@ -326,8 +326,8 @@ async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderR
     if (!response.ok) {
       let errorMessage = 'Grok API error';
       try {
-        const errBody: unknown = await response.json();
-        errorMessage = errBody.error?.message || errorMessage;
+        const errBody = await response.json() as Record<string, unknown>;
+        errorMessage = (errBody.error as Record<string, unknown> | undefined)?.message as string || errorMessage;
       } catch {
         /* non-JSON error response */
       }
@@ -336,7 +336,7 @@ async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderR
 
     let data: Record<string, unknown>;
     try {
-      data = await response.json();
+      data = await response.json() as Record<string, unknown>;
     } catch {
       throw new Error('Invalid response from Grok');
     }

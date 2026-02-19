@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -40,7 +40,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET /api/management-reviews - List management reviews
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, year, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -92,7 +92,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.hSManagementReview),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const review = await prisma.hSManagementReview.findUnique({
         where: { id: req.params.id },
@@ -118,7 +118,7 @@ router.get(
 );
 
 // POST /api/management-reviews - Create management review
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       reviewDate: z
@@ -197,7 +197,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.hSManagementReview),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -265,7 +265,7 @@ router.put(
 router.post(
   '/:id/complete',
   checkOwnership(prisma.hSManagementReview),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -303,7 +303,7 @@ router.post(
 );
 
 // POST /api/management-reviews/:id/actions - Add action to review
-router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
+router.post('/:id/actions', async (req: Request, res: Response) => {
   try {
     const review = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
     if (!review || (review as Record<string, unknown>).deletedAt) {
@@ -358,7 +358,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/management-reviews/:id/actions/:actionId - Update action status
-router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/actions/:actionId', async (req: Request, res: Response) => {
   try {
     const action = await prisma.hSMRAction.findUnique({ where: { id: req.params.actionId } });
     if (!action || action.reviewId !== req.params.id) {
@@ -415,7 +415,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
 router.delete(
   '/:id',
   checkOwnership(prisma.hSManagementReview),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
       if (!existing) {

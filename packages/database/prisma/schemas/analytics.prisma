@@ -988,6 +988,7 @@ model CohortData {
   id            String    @id @default(uuid())
   cohortMonth   String    // YYYY-MM (month customers signed up)
   measureMonth  String    // YYYY-MM (month of measurement)
+  cohortAge     Int       @default(0)  // months since cohort start
   customersStart Int      @default(0)
   customersEnd  Int       @default(0)
   retentionPct  Decimal   @default(0)

@@ -581,7 +581,7 @@ export default function MsaClient() {
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          {study.grrPercent !== null ? (
+                          {study.grrPercent != null ? (
                             <span
                               className={`text-sm font-bold ${
                                 study.grrPercent <= 10

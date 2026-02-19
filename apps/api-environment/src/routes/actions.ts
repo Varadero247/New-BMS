@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma, Prisma, EnvActionSource, EnvActionType, EnvEffectiveness, EnvPriority, EnvVerificationMethod } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -22,7 +22,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List actions
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, priority, actionType, source, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -63,7 +63,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envAction), async (req: Request, res: Response) => {
   try {
     const action = await prisma.envAction.findUnique({ where: { id: req.params.id } });
     if (!action)
@@ -80,7 +80,7 @@ router.get('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, re
 });
 
 // POST /
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -136,9 +136,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       data: {
         referenceNumber,
         title: data.title,
-        actionType: data.actionType as Prisma.EnvActionType,
-        priority: data.priority as Prisma.EnvPriority,
-        source: data.source as Prisma.EnvActionSource,
+        actionType: data.actionType as EnvActionType,
+        priority: data.priority as EnvPriority,
+        source: data.source as EnvActionSource,
         sourceReference: data.sourceReference,
         description: data.description,
         expectedOutcome: data.expectedOutcome,
@@ -157,11 +157,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         completionDate: data.completionDate ? new Date(data.completionDate) : null,
         percentComplete: data.percentComplete ?? 0,
         evidenceRefs: data.evidenceRefs,
-        verificationMethod: data.verificationMethod as Prisma.EnvVerificationMethod,
+        verificationMethod: data.verificationMethod as EnvVerificationMethod,
         verifiedBy: data.verifiedBy,
         verificationDate: data.verificationDate ? new Date(data.verificationDate) : null,
         verificationNotes: data.verificationNotes,
-        effective: data.effective as Prisma.EnvEffectiveness,
+        effective: data.effective as EnvEffectiveness,
         aiActionPlan: data.aiActionPlan,
         aiPriorityJustification: data.aiPriorityJustification,
         aiResourceEstimate: data.aiResourceEstimate,
@@ -226,7 +226,7 @@ const actionUpdateSchema = z.object({
   aiGenerated: z.boolean().optional(),
 });
 
-router.put('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envAction), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envAction.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -276,7 +276,7 @@ router.put('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, re
 });
 
 // DELETE /:id
-router.delete('/:id', checkOwnership(prisma.envAction), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envAction), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envAction.findUnique({ where: { id: req.params.id } });
     if (!existing)

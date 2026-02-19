@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -24,7 +24,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List non-conformances
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', ncType, status, severity, search } = req.query;
 
@@ -70,7 +70,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /stats - Non-conformance statistics
-router.get('/stats', async (req: AuthRequest, res: Response) => {
+router.get('/stats', async (req: Request, res: Response) => {
   try {
     const [byStatus, bySeverity, total] = await Promise.all([
       prisma.qualNonConformance.groupBy({
@@ -111,7 +111,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.qualNonConformance),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const nc = await prisma.qualNonConformance.findUnique({
         where: { id: req.params.id },
@@ -136,7 +136,7 @@ router.get(
 );
 
 // POST / - Create non-conformance
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       ncType: z.enum([
@@ -250,7 +250,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.qualNonConformance),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -414,7 +414,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.qualNonConformance),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualNonConformance.findUnique({ where: { id: req.params.id } });
       if (!existing) {

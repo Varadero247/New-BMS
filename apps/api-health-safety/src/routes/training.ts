@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -25,7 +25,7 @@ type PrismaWithHsTrain = typeof prisma & {
 const hsTrainDb = prisma as unknown as PrismaWithHsTrain;
 
 // GET /api/training/courses - List H&S training courses
-router.get('/courses', async (req: AuthRequest, res: Response) => {
+router.get('/courses', async (req: Request, res: Response) => {
   try {
     const courses = await hsTrainDb.trainCourse.findMany({
       where: {
@@ -47,7 +47,7 @@ router.get('/courses', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/training/records - List training records
-router.get('/records', async (req: AuthRequest, res: Response) => {
+router.get('/records', async (req: Request, res: Response) => {
   try {
     const { userId, courseId, status } = req.query;
 
@@ -82,7 +82,7 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/training/courses - Create H&S training course
-router.post('/courses', async (req: AuthRequest, res: Response) => {
+router.post('/courses', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -126,7 +126,7 @@ router.post('/courses', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/training/records - Create training record
-router.post('/records', async (req: AuthRequest, res: Response) => {
+router.post('/records', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       userId: z.string().trim(),

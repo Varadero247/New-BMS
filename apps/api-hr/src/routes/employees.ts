@@ -213,9 +213,9 @@ router.get('/stats', async (_req: Request, res: Response) => {
     const departmentMap = new Map(
       departments.map((d: { id: string; name: string }) => [d.id, d.name])
     );
-    const byDepartment = byDepartmentRaw.map((d: { departmentId: string; _count: { id: number } }) => ({
-      department: departmentMap.get(d.departmentId) || 'Unknown',
-      departmentId: d.departmentId,
+    const byDepartment = byDepartmentRaw.map((d: { departmentId: string | null; _count: { id: number } }) => ({
+      department: departmentMap.get(d.departmentId || '') || 'Unknown',
+      departmentId: d.departmentId || '',
       count: d._count.id,
     }));
 
@@ -237,8 +237,8 @@ router.get('/stats', async (_req: Request, res: Response) => {
           })
         ),
         recentHires,
-        avgSalary: Math.round((salaryData._avg?.baseSalary || 0) || 0),
-        totalSalaryExpense: Math.round((salaryData._sum?.baseSalary || 0) || 0),
+        avgSalary: Math.round(Number(salaryData._avg?.baseSalary || 0) || 0),
+        totalSalaryExpense: Math.round(Number(salaryData._sum?.baseSalary || 0) || 0),
       },
     });
   } catch (error) {

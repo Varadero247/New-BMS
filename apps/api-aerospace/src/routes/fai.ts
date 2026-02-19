@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -157,7 +157,7 @@ function safeParseJSON<T>(value: string | null | undefined, fallback: T[]): T[] 
 // ============================================
 
 // POST / — Create FAI
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createFAISchema.parse(req.body);
     const refNumber = await generateFAIRefNumber();
@@ -174,10 +174,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         poNumber: data.poNumber,
         faiType: data.faiType || 'FULL',
         status: 'PLANNING',
-        part1Status: 'NOT_STARTED',
-        part2Status: 'NOT_STARTED',
-        part3Status: 'NOT_STARTED',
-        createdBy: req.user?.email || req.user?.id || 'unknown',
+        part1Status: 'NOT_STARTED' as never,
+        part2Status: 'NOT_STARTED' as never,
+        part3Status: 'NOT_STARTED' as never,
+        createdBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id || 'unknown',
       },
     });
 
@@ -203,7 +203,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET / — List FAIs with pagination
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, faiType, partNumber, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -249,7 +249,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get FAI with parsed part data
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const fai = await prisma.firstArticleInspection.findUnique({
       where: { id: req.params.id },
@@ -282,7 +282,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/part1 — Update Part 1 (Design Characteristics)
-router.put('/:id/part1', async (req: AuthRequest, res: Response) => {
+router.put('/:id/part1', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.firstArticleInspection.findUnique({
       where: { id: req.params.id },
@@ -311,7 +311,7 @@ router.put('/:id/part1', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         part1Data: JSON.stringify(data.characteristics),
-        part1Status,
+        part1Status: part1Status as never,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
       },
     });
@@ -345,7 +345,7 @@ router.put('/:id/part1', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/part2 — Update Part 2 (Manufacturing Process Documentation)
-router.put('/:id/part2', async (req: AuthRequest, res: Response) => {
+router.put('/:id/part2', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.firstArticleInspection.findUnique({
       where: { id: req.params.id },
@@ -374,7 +374,7 @@ router.put('/:id/part2', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         part2Data: JSON.stringify(data.documents),
-        part2Status,
+        part2Status: part2Status as never,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
       },
     });
@@ -408,7 +408,7 @@ router.put('/:id/part2', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/part3 — Update Part 3 (Test Results)
-router.put('/:id/part3', async (req: AuthRequest, res: Response) => {
+router.put('/:id/part3', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.firstArticleInspection.findUnique({
       where: { id: req.params.id },
@@ -437,7 +437,7 @@ router.put('/:id/part3', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         part3Data: JSON.stringify(data.testResults),
-        part3Status,
+        part3Status: part3Status as never,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
       },
     });
@@ -468,7 +468,7 @@ router.put('/:id/part3', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/approve — Full FAI approval
-router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
+router.post('/:id/approve', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.firstArticleInspection.findUnique({
       where: { id: req.params.id },
@@ -533,7 +533,7 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'APPROVED',
-        approvedBy: req.user?.email || req.user?.id || 'unknown',
+        approvedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id || 'unknown',
         approvedDate: new Date(),
       },
     });
@@ -554,7 +554,7 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/partial — Mark as Partial FAI with open items
-router.post('/:id/partial', async (req: AuthRequest, res: Response) => {
+router.post('/:id/partial', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.firstArticleInspection.findUnique({
       where: { id: req.params.id },
@@ -573,7 +573,7 @@ router.post('/:id/partial', async (req: AuthRequest, res: Response) => {
       data: {
         status: 'APPROVED_PARTIAL',
         openItems: JSON.stringify(data.openItems),
-        approvedBy: req.user?.email || req.user?.id || 'unknown',
+        approvedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id || 'unknown',
         approvedDate: new Date(),
       },
     });

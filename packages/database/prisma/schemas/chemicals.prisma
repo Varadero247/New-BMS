@@ -412,7 +412,7 @@ model ChemCoshh {
   inherentLikelihood    Int
   inherentSeverity      Int
   inherentRiskScore     Int
-  inherentRiskLevel     ChemRiskLevel
+  inherentRiskLevel     String
 
   // Hierarchy of controls applied (ISO 45001 order)
   controlMeasures       Json
@@ -430,7 +430,7 @@ model ChemCoshh {
   residualLikelihood    Int
   residualSeverity      Int
   residualRiskScore     Int
-  residualRiskLevel     ChemRiskLevel
+  residualRiskLevel     String
   residualRiskAccepted  Boolean   @default(false)
 
   // Emergency procedures
@@ -571,7 +571,7 @@ model ChemMonitoring {
   welTwaLimit           Float?
   welStelLimit          Float?
   percentageOfWel       Float?
-  resultVsWel           ChemWelResult?
+  resultVsWel           String?
 
   reportUrl             String?
   nextMonitoringDue     DateTime?

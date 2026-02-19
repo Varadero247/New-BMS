@@ -217,7 +217,7 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
         name: data.name,
         code: data.code,
         unit: data.unit,
-        targetValue: data.targetValue !== null ? new Prisma.Decimal(data.targetValue) : null,
+        targetValue: data.targetValue != null ? new Prisma.Decimal(data.targetValue) : null,
         description: data.description || null,
         frequency: data.frequency,
         isRequired: data.isRequired || false,

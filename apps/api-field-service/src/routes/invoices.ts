@@ -127,7 +127,7 @@ router.post('/', async (req: Request, res: Response) => {
         laborTotal: new Prisma.Decimal(parsed.data.laborTotal),
         partsTotal: new Prisma.Decimal(parsed.data.partsTotal),
         total: new Prisma.Decimal(parsed.data.total),
-        tax: parsed.data.tax !== null ? new Prisma.Decimal(parsed.data.tax) : null,
+        tax: parsed.data.tax != null ? new Prisma.Decimal(parsed.data.tax) : null,
         dueDate: new Date(parsed.data.dueDate),
         createdBy: authReq.user!.id,
       },

@@ -156,7 +156,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const user = (req as AuthRequest).user;
 
     // Admin check
-    if (user!.role !== 'admin' && user!.role !== 'ADMIN') {
+    if ((user!.role as string) !== 'admin' && (user!.role as string) !== 'ADMIN') {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Only administrators can create changelog entries' },

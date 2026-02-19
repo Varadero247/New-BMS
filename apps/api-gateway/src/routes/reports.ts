@@ -1,6 +1,9 @@
-import { Router, Response } from 'express';
-import { prisma, Prisma } from '@ims/database';
+import { Router, Request, Response } from 'express';
+import { prisma as prismaBase, Prisma } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import { authenticate, type AuthRequest } from '@ims/auth';
+
+const prisma = prismaBase as unknown as PrismaClient;
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
 
@@ -93,7 +96,7 @@ function generateHtmlTemplate(title: string, content: Record<string, any>): stri
 // ---------------------------------------------------------------------------
 // POST /management-review/:module — Generate management review report
 // ---------------------------------------------------------------------------
-router.post('/management-review/:module', async (req: AuthRequest, res: Response) => {
+router.post('/management-review/:module', async (req: Request, res: Response) => {
   try {
     const { module } = req.params;
     const data = managementReviewSchema.parse(req.body);
@@ -134,13 +137,13 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
         module,
         period: data.period,
         generatedAt: new Date().toISOString(),
-        generatedBy: req.user?.email || req.user?.id,
+        generatedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id,
       },
     };
 
     if (data.includeRisks && standard) {
       const risks = await prisma.risk.findMany({
-        where: { standard: standard, deletedAt: null },
+        where: { standard: standard as never, deletedAt: null },
         orderBy: { createdAt: 'desc' },
         take: 50,
         select: {
@@ -173,7 +176,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeIncidents && standard) {
       const incidents = await prisma.incident.findMany({
-        where: { standard: standard, deletedAt: null },
+        where: { standard: standard as never, deletedAt: null as never },
         orderBy: { dateOccurred: 'desc' },
         take: 50,
         select: {
@@ -203,7 +206,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeActions && standard) {
       const actions = await prisma.action.findMany({
-        where: { standard: standard, deletedAt: null },
+        where: { standard: standard as never, deletedAt: null as never },
         orderBy: { dueDate: 'asc' },
         take: 50,
         select: {
@@ -232,7 +235,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeCompliance && standard) {
       const complianceScore = await prisma.complianceScore.findUnique({
-        where: { standard: standard },
+        where: { standard: standard as never },
       });
 
       reportContent.compliance = complianceScore || {
@@ -252,7 +255,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
         content: reportContent as Prisma.InputJsonValue,
         htmlTemplate,
         format: 'JSON',
-        generatedBy: req.user!.id,
+        generatedBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -260,7 +263,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
       reportId: report.id,
       module,
       period: data.period,
-      generatedBy: req.user?.id,
+      generatedBy: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({
@@ -300,7 +303,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 // ---------------------------------------------------------------------------
 // POST /audit/:auditId — Generate audit report
 // ---------------------------------------------------------------------------
-router.post('/audit/:auditId', async (req: AuthRequest, res: Response) => {
+router.post('/audit/:auditId', async (req: Request, res: Response) => {
   try {
     const { auditId } = req.params;
     const bodyParsed = z
@@ -327,7 +330,7 @@ router.post('/audit/:auditId', async (req: AuthRequest, res: Response) => {
       overview: {
         auditId,
         generatedAt: new Date().toISOString(),
-        generatedBy: req.user?.email || req.user?.id,
+        generatedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id,
       },
       auditTrail: {
         entryCount: auditEntries.length,
@@ -361,14 +364,14 @@ router.post('/audit/:auditId', async (req: AuthRequest, res: Response) => {
         content: reportContent as Prisma.InputJsonValue,
         htmlTemplate,
         format: 'JSON',
-        generatedBy: req.user!.id,
+        generatedBy: (req as AuthRequest).user!.id,
       },
     });
 
     logger.info('Audit report generated', {
       reportId: report.id,
       auditId,
-      generatedBy: req.user?.id,
+      generatedBy: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({
@@ -397,7 +400,7 @@ router.post('/audit/:auditId', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // POST /kpi-pack — Generate monthly KPI pack
 // ---------------------------------------------------------------------------
-router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
+router.post('/kpi-pack', async (req: Request, res: Response) => {
   try {
     const data = kpiPackSchema.parse(req.body);
     const reportTitle = data.title || `KPI Pack — ${data.period}`;
@@ -423,7 +426,7 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
     // Fetch action stats
     const now = new Date();
     const allActions = await prisma.action.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null as never },
       select: { status: true, dueDate: true, standard: true },
       take: 1000,
     });
@@ -444,7 +447,7 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
 
     // Fetch incident stats
     const allIncidents = await prisma.incident.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null as never },
       select: { status: true, severity: true, standard: true, dateOccurred: true },
       take: 1000,
     });
@@ -468,7 +471,7 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
         year,
         month,
         generatedAt: new Date().toISOString(),
-        generatedBy: req.user?.email || req.user?.id,
+        generatedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id,
       },
       complianceScores: complianceScores.map((cs) => ({
         standard: cs.standard,
@@ -497,14 +500,14 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
         content: reportContent as Prisma.InputJsonValue,
         htmlTemplate,
         format: 'JSON',
-        generatedBy: req.user!.id,
+        generatedBy: (req as AuthRequest).user!.id,
       },
     });
 
     logger.info('KPI pack generated', {
       reportId: report.id,
       period: data.period,
-      generatedBy: req.user?.id,
+      generatedBy: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({
@@ -543,7 +546,7 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // POST /compliance-summary — Multi-standard compliance summary
 // ---------------------------------------------------------------------------
-router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
+router.post('/compliance-summary', async (req: Request, res: Response) => {
   try {
     const data = complianceSummarySchema.parse(req.body);
     const reportTitle = data.title || `Compliance Summary — ${data.standards.join(', ')}`;
@@ -551,7 +554,7 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
     // Fetch compliance scores for requested standards
     const complianceScores = await prisma.complianceScore.findMany({
       where: {
-        standard: { in: data.standards as string[] },
+        standard: { in: data.standards as never[] },
       },
       take: 1000,
     });
@@ -560,7 +563,7 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
       overview: {
         standards: data.standards,
         generatedAt: new Date().toISOString(),
-        generatedBy: req.user?.email || req.user?.id,
+        generatedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id,
       },
       complianceScores: complianceScores.map((cs) => ({
         standard: cs.standard,
@@ -609,9 +612,9 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
       if (standardEnums.length > 0) {
         const openActions = await prisma.action.findMany({
           where: {
-            standard: { in: standardEnums as string[] },
+            standard: { in: standardEnums as never[] },
             status: { in: ['OPEN', 'IN_PROGRESS', 'OVERDUE'] },
-            deletedAt: null,
+            deletedAt: null as never,
           },
           orderBy: { dueDate: 'asc' },
           take: 50,
@@ -643,14 +646,14 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
         content: reportContent as Prisma.InputJsonValue,
         htmlTemplate,
         format: 'JSON',
-        generatedBy: req.user!.id,
+        generatedBy: (req as AuthRequest).user!.id,
       },
     });
 
     logger.info('Compliance summary report generated', {
       reportId: report.id,
       standards: data.standards,
-      generatedBy: req.user?.id,
+      generatedBy: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({
@@ -689,7 +692,7 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET / — List generated reports
 // ---------------------------------------------------------------------------
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { type, module, page = '1', limit = '20' } = req.query;
 
@@ -744,7 +747,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /:id — Get report details
 // ---------------------------------------------------------------------------
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 

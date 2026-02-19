@@ -106,6 +106,7 @@ model SuppScorecard {
 
 model SuppDocument {
   id              String       @id @default(cuid())
+  referenceNumber String       @unique
   orgId           String
   supplierId      String
   type            SuppDocType  @default(OTHER)
@@ -129,6 +130,7 @@ model SuppDocument {
 
 model SuppSpend {
   id           String   @id @default(cuid())
+  referenceNumber String @unique
   orgId        String
   supplierId   String
   period       String
@@ -140,6 +142,7 @@ model SuppSpend {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   createdBy    String?
+  updatedBy    String?
   deletedAt    DateTime?
   @@map("supp_spend")
   @@index([orgId])

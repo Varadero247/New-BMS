@@ -181,7 +181,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const userId = (req as AuthRequest).user?.id || 'system';
-    const organisationId = ((req as AuthRequest).user as { orgId?: string })?.organisationId || 'default';
+    const organisationId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const referenceNumber = generateReference();
 
     const record = await prisma.abCompliance.create({

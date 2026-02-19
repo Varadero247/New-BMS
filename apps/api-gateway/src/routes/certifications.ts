@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
@@ -89,7 +89,7 @@ function serializeCert(cert: IsoCertificate) {
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
 // GET /api/admin/certifications — List certificates with readiness scores
-router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || '00000000-0000-0000-0000-000000000001';
     const certs = listCertificates(orgId);
@@ -122,7 +122,7 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/certifications — Add a new certificate
-router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = createCertSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -159,7 +159,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
     logger.info('Certificate created', {
       id: cert.id,
       standard: cert.standard,
-      createdBy: req.user!.id,
+      createdBy: (req as AuthRequest).user!.id,
     });
 
     res.status(201).json({ success: true, data: serializeCert(cert) });
@@ -175,7 +175,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // PUT /api/admin/certifications/:id — Update a certificate
-router.put('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.put('/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = updateCertSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -213,7 +213,7 @@ router.put('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       });
     }
 
-    logger.info('Certificate updated', { id, updatedBy: req.user!.id });
+    logger.info('Certificate updated', { id, updatedBy: (req as AuthRequest).user!.id });
 
     res.json({ success: true, data: serializeCert(cert) });
   } catch (error: unknown) {
@@ -228,7 +228,7 @@ router.put('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/admin/certifications/:id — Remove a certificate
-router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.delete('/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const deleted = deleteCertificate(id);
@@ -240,7 +240,7 @@ router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) =>
       });
     }
 
-    logger.info('Certificate deleted', { id, deletedBy: req.user!.id });
+    logger.info('Certificate deleted', { id, deletedBy: (req as AuthRequest).user!.id });
 
     res.json({ success: true, data: { deleted: true } });
   } catch (error: unknown) {
@@ -255,7 +255,7 @@ router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) =>
 });
 
 // GET /api/admin/certifications/:id/readiness — Get readiness score details
-router.get('/:id/readiness', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/:id/readiness', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const cert = getCertificate(id);

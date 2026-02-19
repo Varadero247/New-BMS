@@ -128,10 +128,14 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description || null,
         type: data.type,
         format: data.format,
-        schedule: (data.schedule ?? null) as Prisma.InputJsonValue | null,
-        query: data.query as Prisma.InputJsonValue,
-        filters: (data.filters ?? null) as Prisma.InputJsonValue | null,
-        recipients: (data.recipients ?? null) as Prisma.InputJsonValue | null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        schedule: (data.schedule ?? null) as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        query: data.query as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        filters: (data.filters ?? null) as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        recipients: (data.recipients ?? null) as any,
         isActive: data.isActive,
         createdBy: authReq.user!.id,
       },
@@ -183,7 +187,8 @@ router.post('/:id/run', async (req: Request, res: Response) => {
       data: {
         reportId: id,
         status: 'QUEUED',
-        parameters: (runParsed.data.parameters ?? null) as Prisma.InputJsonValue | null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        parameters: (runParsed.data.parameters ?? null) as any,
         createdBy: authReq.user!.id,
       },
     });

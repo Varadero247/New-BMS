@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -74,7 +74,7 @@ function shouldFlagForMDR(complaint: {
 // ============================================
 // 1. POST / - Log new complaint
 // ============================================
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       deviceName: z.string().trim().min(1).max(200),
@@ -132,7 +132,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         malfunctionOccurred,
         severity: data.severity || 'MINOR',
         status: needsMDRReview ? 'MDR_REVIEW' : 'RECEIVED',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -159,7 +159,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 2. GET / - List complaints with pagination & filters
 // ============================================
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -220,7 +220,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // ============================================
 // 3. GET /trending - Complaint trend analysis
 // ============================================
-router.get('/trending', async (req: AuthRequest, res: Response) => {
+router.get('/trending', async (req: Request, res: Response) => {
   try {
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
@@ -309,7 +309,7 @@ router.get('/trending', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 4. GET /mdr-pending - Complaints needing MDR decision
 // ============================================
-router.get('/mdr-pending', async (req: AuthRequest, res: Response) => {
+router.get('/mdr-pending', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20' } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -349,7 +349,7 @@ router.get('/mdr-pending', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 5. GET /:id - Get complaint with full details
 // ============================================
-router.get('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.complaint), async (req: Request, res: Response) => {
   try {
     const complaint = await prisma.complaint.findUnique({
       where: { id: req.params.id },
@@ -374,7 +374,7 @@ router.get('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, re
 // ============================================
 // 6. PUT /:id - Update investigation details
 // ============================================
-router.put('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.complaint), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.complaint.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -429,7 +429,7 @@ router.put('/:id', checkOwnership(prisma.complaint), async (req: AuthRequest, re
 // ============================================
 // 7. POST /:id/mdr - Flag MDR reportability decision
 // ============================================
-router.post('/:id/mdr', async (req: AuthRequest, res: Response) => {
+router.post('/:id/mdr', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.complaint.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -449,7 +449,7 @@ router.post('/:id/mdr', async (req: AuthRequest, res: Response) => {
     const updateData: Prisma.ComplaintUpdateInput = {
       mdrReportable: data.reportable,
       mdrDecisionDate: new Date(),
-      mdrDecisionBy: req.user?.email || req.user?.id,
+      mdrDecisionBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id,
     };
 
     if (data.mdrReportRef) {
@@ -489,7 +489,7 @@ router.post('/:id/mdr', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 8. POST /:id/close - Close complaint
 // ============================================
-router.post('/:id/close', async (req: AuthRequest, res: Response) => {
+router.post('/:id/close', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.complaint.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -532,7 +532,7 @@ router.post('/:id/close', async (req: AuthRequest, res: Response) => {
       data: {
         status: 'CLOSED',
         closedDate: new Date(),
-        closedBy: req.user?.email || req.user?.id,
+        closedBy: (req as AuthRequest).user?.email || (req as AuthRequest).user?.id,
         ...(data.disposition && {
           investigationSummary: existing.investigationSummary
             ? `${existing.investigationSummary}\n\nDisposition: ${data.disposition}`

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -14,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/resources - List resources by projectId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, page = '1', limit = '50' } = req.query;
 
@@ -77,7 +77,7 @@ const updateResourceSchema = createResourceSchema
   .partial();
 
 // POST /api/resources - Create resource
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createResourceSchema.parse(req.body);
 
@@ -119,7 +119,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.projectResource),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectResource.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -169,7 +169,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.projectResource),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectResource.findUnique({ where: { id: req.params.id } });
       if (!existing) {

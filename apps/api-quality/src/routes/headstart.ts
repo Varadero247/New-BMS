@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -1672,7 +1672,7 @@ const headstartSchema = z.object({
 const headstartStore = new Map<string, any>();
 
 // POST / — Run headstart assessment
-router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.post('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const parsed = headstartSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -1688,7 +1688,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const { standards, industry, organisationSize, certificationStatus, organisationName } =
       parsed.data;
-    const userId = req.user!.id;
+    const userId = (req as AuthRequest).user!.id;
     const orgId = (req.user as Record<string, unknown>)!.organisationId || 'default';
 
     // Build headstart pack for each selected standard
@@ -1788,10 +1788,10 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
       certificationStatus,
       standardPacks,
       convergenceInfo,
-      totalDocuments: standardPacks.reduce((sum: number, p: { documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }) => sum + p.documents.length, 0),
-      totalRisks: standardPacks.reduce((sum: number, p: { documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }) => sum + p.risks.length, 0),
-      totalObjectives: standardPacks.reduce((sum: number, p: { documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }) => sum + p.objectives.length, 0),
-      totalAudits: standardPacks.reduce((sum: number, p: { documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }) => sum + p.auditSchedule.length, 0),
+      totalDocuments: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.documents.length, 0),
+      totalRisks: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.risks.length, 0),
+      totalObjectives: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.objectives.length, 0),
+      totalAudits: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.auditSchedule.length, 0),
       overallCompletenessScore: certificationStatus === 'ALREADY_CERTIFIED' ? 85 : 90,
       status: 'COMPLETE',
       generatedAt: new Date().toISOString(),
@@ -1822,10 +1822,10 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET / — List headstart assessments
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const items = Array.from(headstartStore.values())
-      .filter((a) => a.organisationId === ((req.user as Record<string, unknown>)!.organisationId || 'default'))
+      .filter((a) => a.organisationId === ((((req as AuthRequest).user as unknown) as Record<string, unknown> | undefined)?.organisationId || 'default'))
       .sort((a, b) => new Date(b.generatedAt).getTime() - new Date(a.generatedAt).getTime());
 
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
@@ -1880,7 +1880,7 @@ router.get('/standards', async (_req, res: Response) => {
 });
 
 // GET /:id — Get headstart assessment detail
-router.get('/:id', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/:id', scopeToUser, async (req: Request, res: Response) => {
   try {
     const assessment = headstartStore.get(req.params.id);
     if (!assessment) {
@@ -1890,7 +1890,7 @@ router.get('/:id', scopeToUser, async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (assessment.organisationId !== ((req.user as Record<string, unknown>)!.organisationId || 'default')) {
+    if (assessment.organisationId !== ((((req as AuthRequest).user as unknown) as Record<string, unknown> | undefined)?.organisationId || 'default')) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Access denied' },

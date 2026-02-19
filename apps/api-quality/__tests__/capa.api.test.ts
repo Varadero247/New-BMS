@@ -836,9 +836,8 @@ describe('Quality CAPA API Routes', () => {
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualCapaAction.update).toHaveBeenCalledWith({
+      expect(mockPrisma.qualCapaAction.delete).toHaveBeenCalledWith({
         where: { id: '1a000000-0000-4000-a000-000000000001' },
-        data: { deletedAt: expect.any(Date) },
       });
     });
 

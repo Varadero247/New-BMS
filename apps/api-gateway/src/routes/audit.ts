@@ -1,13 +1,17 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { prisma } from '@ims/database';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import { authenticate, type AuthRequest } from '@ims/auth';
+
+const prisma = prismaBase as unknown as PrismaClient;
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import {
   createSignature,
   verifySignature,
   isValidMeaning,
+  type SignatureMeaning,
 } from '@ims/esig';
 import { createEnhancedAuditService } from '@ims/audit';
 
@@ -19,7 +23,7 @@ const auditService = createEnhancedAuditService(prisma as unknown as Parameters<
 router.use(authenticate);
 
 // GET /api/audit/trail - Query enhanced audit trail
-router.get('/trail', async (req: AuthRequest, res: Response) => {
+router.get('/trail', async (req: Request, res: Response) => {
   try {
     const {
       userId,
@@ -56,7 +60,7 @@ router.get('/trail', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/audit/trail/:resourceId - All events for a specific record
-router.get('/trail/:resourceType/:resourceId', async (req: AuthRequest, res: Response) => {
+router.get('/trail/:resourceType/:resourceId', async (req: Request, res: Response) => {
   try {
     const { resourceType, resourceId } = req.params;
     const { page = '1', limit = '50' } = req.query;
@@ -79,7 +83,7 @@ router.get('/trail/:resourceType/:resourceId', async (req: AuthRequest, res: Res
 });
 
 // GET /api/audit/trail/verify/:entryId - Verify audit entry integrity
-router.get('/trail/verify/:entryId', async (req: AuthRequest, res: Response) => {
+router.get('/trail/verify/:entryId', async (req: Request, res: Response) => {
   try {
     const result = await auditService.verifyEntry(req.params.entryId);
     res.json({ success: true, data: result });
@@ -95,7 +99,7 @@ router.get('/trail/verify/:entryId', async (req: AuthRequest, res: Response) => 
 });
 
 // POST /api/audit/esignature - Create electronic signature (requires password re-auth)
-router.post('/esignature', async (req: AuthRequest, res: Response) => {
+router.post('/esignature', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       password: z.string().trim().min(1),
@@ -117,7 +121,7 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
 
     // Get user's password hash from DB for re-authentication
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { id: (req as AuthRequest).user!.id },
       select: { id: true, email: true, firstName: true, lastName: true, password: true },
     });
 
@@ -134,7 +138,7 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
         userEmail: user.email,
         userFullName: `${user.firstName} ${user.lastName}`,
         password: data.password,
-        meaning: data.meaning as string,
+        meaning: data.meaning as SignatureMeaning,
         reason: data.reason,
         resourceType: data.resourceType,
         resourceId: data.resourceId,
@@ -153,14 +157,14 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
     }
 
     // Persist the e-signature to the database
-    const sig = result.signature as Record<string, unknown>;
+    const sig = result.signature;
     await prisma.eSignature.create({
       data: {
         id: sig.id,
         userId: sig.userId,
         userEmail: sig.userEmail,
         userFullName: sig.userFullName,
-        meaning: sig.meaning,
+        meaning: sig.meaning as string,
         reason: sig.reason,
         resourceType: sig.resourceType,
         resourceId: sig.resourceId,
@@ -208,7 +212,7 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/audit/esignature/:id - Verify a specific signature
-router.get('/esignature/:id', async (req: AuthRequest, res: Response) => {
+router.get('/esignature/:id', async (req: Request, res: Response) => {
   try {
     const signature = await prisma.eSignature.findUnique({
       where: { id: req.params.id },
@@ -221,22 +225,27 @@ router.get('/esignature/:id', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const sigData = signature as Record<string, unknown>;
+    const sigRecord = signature as unknown as {
+      id: string; userId: string; userEmail: string; userFullName: string;
+      meaning: string; reason: string; createdAt: Date; ipAddress: string;
+      userAgent: string; resourceType: string; resourceId: string;
+      resourceRef: string; checksum: string; valid: boolean;
+    };
     const verification = verifySignature({
-      id: sigData.id,
-      userId: sigData.userId,
-      userEmail: sigData.userEmail,
-      userFullName: sigData.userFullName,
-      meaning: sigData.meaning,
-      reason: sigData.reason,
-      timestamp: sigData.createdAt,
-      ipAddress: sigData.ipAddress || '',
-      userAgent: sigData.userAgent || '',
-      resourceType: sigData.resourceType,
-      resourceId: sigData.resourceId,
-      resourceRef: sigData.resourceRef,
-      checksum: sigData.checksum,
-      valid: sigData.valid,
+      id: sigRecord.id,
+      userId: sigRecord.userId,
+      userEmail: sigRecord.userEmail,
+      userFullName: sigRecord.userFullName,
+      meaning: sigRecord.meaning as SignatureMeaning,
+      reason: sigRecord.reason,
+      timestamp: sigRecord.createdAt,
+      ipAddress: sigRecord.ipAddress || '',
+      userAgent: sigRecord.userAgent || '',
+      resourceType: sigRecord.resourceType,
+      resourceId: sigRecord.resourceId,
+      resourceRef: sigRecord.resourceRef,
+      checksum: sigRecord.checksum || '',
+      valid: sigRecord.valid ?? true,
     });
 
     res.json({ success: true, data: verification });

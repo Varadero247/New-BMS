@@ -553,7 +553,7 @@ export default function SpcClient() {
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-center text-sm font-mono">
-                          {chart.lastDataPoint !== null ? chart.lastDataPoint.toFixed(3) : '-'}
+                          {chart.lastDataPoint != null ? chart.lastDataPoint.toFixed(3) : '-'}
                         </td>
                         <td className="px-4 py-3 text-center">
                           <span
@@ -809,7 +809,7 @@ export default function SpcClient() {
                   <p className="text-xs text-gray-500 dark:text-gray-400">USL</p>
                   <p className="text-sm font-bold text-red-600">{selectedChart.usl?.toFixed(3)}</p>
                 </div>
-                {selectedChart.ucl !== null && (
+                {selectedChart.ucl != null && (
                   <div className="text-center p-2 bg-orange-50 rounded">
                     <p className="text-xs text-gray-500 dark:text-gray-400">UCL</p>
                     <p className="text-sm font-bold text-orange-600">
@@ -817,7 +817,7 @@ export default function SpcClient() {
                     </p>
                   </div>
                 )}
-                {selectedChart.cl !== null && (
+                {selectedChart.cl != null && (
                   <div className="text-center p-2 bg-blue-50 rounded">
                     <p className="text-xs text-gray-500 dark:text-gray-400">CL</p>
                     <p className="text-sm font-bold text-blue-600">{selectedChart.cl.toFixed(3)}</p>
@@ -829,7 +829,7 @@ export default function SpcClient() {
                     {selectedChart.target?.toFixed(3)}
                   </p>
                 </div>
-                {selectedChart.lcl !== null && (
+                {selectedChart.lcl != null && (
                   <div className="text-center p-2 bg-orange-50 rounded">
                     <p className="text-xs text-gray-500 dark:text-gray-400">LCL</p>
                     <p className="text-sm font-bold text-orange-600">

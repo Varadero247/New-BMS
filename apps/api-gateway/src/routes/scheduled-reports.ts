@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
@@ -48,7 +48,7 @@ const updateSchema = z.object({
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
 // GET /api/admin/reports/types — List available report types
-router.get('/types', requireRole('ADMIN'), (_req: AuthRequest, res: Response) => {
+router.get('/types', requireRole('ADMIN'), (_req: Request, res: Response) => {
   try {
     res.json({ success: true, data: REPORT_TYPES });
   } catch (error: unknown) {
@@ -63,7 +63,7 @@ router.get('/types', requireRole('ADMIN'), (_req: AuthRequest, res: Response) =>
 });
 
 // GET /api/admin/reports/schedules — List schedules
-router.get('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/schedules', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const schedules = listSchedules(orgId);
@@ -85,7 +85,7 @@ router.get('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response)
 });
 
 // POST /api/admin/reports/schedules — Create schedule
-router.post('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/schedules', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -105,7 +105,7 @@ router.post('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response
     logger.info('Report schedule created', {
       id: schedule.id,
       name: schedule.name,
-      userId: req.user?.id,
+      userId: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({ success: true, data: schedule });
@@ -121,7 +121,7 @@ router.post('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response
 });
 
 // GET /api/admin/reports/schedules/:id — Get schedule by ID
-router.get('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/schedules/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const schedule = getSchedule(req.params.id);
     if (!schedule) {
@@ -144,7 +144,7 @@ router.get('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Respo
 });
 
 // PUT /api/admin/reports/schedules/:id — Update schedule
-router.put('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.put('/schedules/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = updateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -166,7 +166,7 @@ router.put('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Respo
       });
     }
 
-    logger.info('Report schedule updated', { id: schedule.id, userId: req.user?.id });
+    logger.info('Report schedule updated', { id: schedule.id, userId: (req as AuthRequest).user?.id });
 
     res.json({ success: true, data: schedule });
   } catch (error: unknown) {
@@ -181,7 +181,7 @@ router.put('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Respo
 });
 
 // DELETE /api/admin/reports/schedules/:id — Delete schedule
-router.delete('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.delete('/schedules/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const deleted = deleteSchedule(req.params.id);
     if (!deleted) {
@@ -191,7 +191,7 @@ router.delete('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Re
       });
     }
 
-    logger.info('Report schedule deleted', { id: req.params.id, userId: req.user?.id });
+    logger.info('Report schedule deleted', { id: req.params.id, userId: (req as AuthRequest).user?.id });
 
     res.json({ success: true, data: { deleted: true } });
   } catch (error: unknown) {
@@ -206,7 +206,7 @@ router.delete('/schedules/:id', requireRole('ADMIN'), (req: AuthRequest, res: Re
 });
 
 // POST /api/admin/reports/schedules/:id/run — Trigger manual run
-router.post('/schedules/:id/run', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/schedules/:id/run', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const schedule = runScheduleNow(req.params.id);
     if (!schedule) {
@@ -216,7 +216,7 @@ router.post('/schedules/:id/run', requireRole('ADMIN'), (req: AuthRequest, res: 
       });
     }
 
-    logger.info('Report schedule manually triggered', { id: schedule.id, userId: req.user?.id });
+    logger.info('Report schedule manually triggered', { id: schedule.id, userId: (req as AuthRequest).user?.id });
 
     res.json({
       success: true,

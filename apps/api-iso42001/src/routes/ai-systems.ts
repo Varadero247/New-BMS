@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -181,14 +181,15 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const reference = generateReference('SYS');
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const system = await prisma.aiSystem.create({
       data: {
-        reference: reference as string,
+        reference: reference,
         name: parsed.data.name,
         description: parsed.data.description,
-        category: parsed.data.category as Prisma.AiSystemCategory,
-        riskTier: parsed.data.riskTier as Prisma.AiSystemRiskTier,
-        status: 'ACTIVE',
+        category: parsed.data.category as any,
+        riskTier: parsed.data.riskTier as any,
+        status: 'ACTIVE' as any,
         purpose: parsed.data.purpose ?? null,
         vendor: parsed.data.vendor ?? null,
         version: parsed.data.version ?? null,
@@ -198,6 +199,7 @@ router.post('/', async (req: Request, res: Response) => {
         dataTypes: parsed.data.dataTypes ?? null,
         userBase: parsed.data.userBase ?? null,
         notes: parsed.data.notes ?? null,
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -335,7 +337,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const system = await prisma.aiSystem.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...(parsed.data as any),
         deploymentDate:
           parsed.data.deploymentDate !== undefined
             ? parsed.data.deploymentDate

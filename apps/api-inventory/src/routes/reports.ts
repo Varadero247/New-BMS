@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -9,7 +9,7 @@ const router: IRouter = Router();
 router.use(authenticate);
 
 // GET /valuation — Inventory valuation report
-router.get('/valuation', async (req: AuthRequest, res: Response) => {
+router.get('/valuation', async (req: Request, res: Response) => {
   try {
     const { warehouseId } = req.query;
 
@@ -61,7 +61,7 @@ router.get('/valuation', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /movement — Stock movement report
-router.get('/movement', async (req: AuthRequest, res: Response) => {
+router.get('/movement', async (req: Request, res: Response) => {
   try {
     const { warehouseId, startDate, endDate } = req.query;
     const start = startDate
@@ -106,11 +106,11 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         period: { start, end },
-        byType: byType.map((t: { transactionType: string; _count: { id: number }; _sum?: { quantityChange?: number; totalCost?: number } }) => ({
-          transactionType: t.transactionType,
+        byType: byType.map((t) => ({
+          transactionType: t.transactionType as string,
           count: t._count.id,
-          quantityChange: t._sum?.quantityChange,
-          totalValue: t._sum?.totalCost,
+          quantityChange: t._sum?.quantityChange ?? null,
+          totalValue: t._sum?.totalCost != null ? Number(t._sum.totalCost) : null,
         })),
         dailyMovement,
         topMovingProducts,
@@ -126,7 +126,7 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /ageing — Stock ageing report
-router.get('/ageing', async (req: AuthRequest, res: Response) => {
+router.get('/ageing', async (req: Request, res: Response) => {
   try {
     const { warehouseId } = req.query;
     const now = new Date();
@@ -190,7 +190,7 @@ router.get('/ageing', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /turnover — Inventory turnover report
-router.get('/turnover', async (req: AuthRequest, res: Response) => {
+router.get('/turnover', async (req: Request, res: Response) => {
   try {
     const { startDate, endDate } = req.query;
     const start = startDate
@@ -212,7 +212,7 @@ router.get('/turnover', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         period: { start, end },
-        products: outbound.map((o: { productId: string; _sum?: { quantityChange?: number; totalCost?: unknown } }) => ({
+        products: outbound.map((o) => ({
           productId: o.productId,
           totalOutbound: Math.abs(o._sum?.quantityChange ?? 0),
           totalCost: Math.abs(Number(o._sum?.totalCost ?? 0)),

@@ -196,7 +196,7 @@ router.post('/', async (req: Request, res: Response) => {
         value: new Prisma.Decimal(data.value),
         readingDate: new Date(data.readingDate),
         source: data.source,
-        cost: data.cost !== null ? new Prisma.Decimal(data.cost) : null,
+        cost: data.cost != null ? new Prisma.Decimal(data.cost) : null,
         notes: data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
       },

@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '@ims/database';
-import { Prisma as MktPrisma } from '@ims/database/marketplace';
+import type { PrismaClient as MktPrismaClient } from '@ims/database/marketplace';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import crypto from 'crypto';
@@ -9,13 +9,7 @@ import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-gateway');
 
 // Marketplace models live in a separate schema; use a typed cast
-type PrismaWithMarketplace = typeof prisma & {
-  mktPlugin: MktPrisma.MktPluginDelegate<object>;
-  mktPluginVersion: MktPrisma.MktPluginVersionDelegate<object>;
-  mktPluginInstall: MktPrisma.MktPluginInstallDelegate<object>;
-  mktWebhookSubscription: MktPrisma.MktWebhookSubscriptionDelegate<object>;
-};
-const mp = prisma as unknown as PrismaWithMarketplace;
+const mp = prisma as unknown as MktPrismaClient;
 
 const router = Router();
 router.use(authenticate);
@@ -101,7 +95,7 @@ const webhookSchema = z.object({
 // ---------------------------------------------------------------------------
 // GET /api/marketplace/plugins — List plugins (public + org-owned)
 // ---------------------------------------------------------------------------
-router.get('/plugins', async (req: AuthRequest, res: Response) => {
+router.get('/plugins', async (req: Request, res: Response) => {
   try {
     const { category, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const skip =
@@ -145,7 +139,7 @@ router.get('/plugins', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /api/marketplace/plugins/search — Search plugins
 // ---------------------------------------------------------------------------
-router.get('/plugins/search', async (req: AuthRequest, res: Response) => {
+router.get('/plugins/search', async (req: Request, res: Response) => {
   try {
     const { q, category } = req.query as Record<string, string>;
     if (!q || q.length < 2) {
@@ -188,7 +182,7 @@ router.get('/plugins/search', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /api/marketplace/plugins/:id — Get plugin details
 // ---------------------------------------------------------------------------
-router.get('/plugins/:id', async (req: AuthRequest, res: Response) => {
+router.get('/plugins/:id', async (req: Request, res: Response) => {
   try {
     const plugin = await mp.mktPlugin.findUnique({
       where: { id: req.params.id },
@@ -221,7 +215,7 @@ router.get('/plugins/:id', async (req: AuthRequest, res: Response) => {
 router.post(
   '/plugins',
   requireRole('ADMIN', 'SUPER_ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const data = registerPluginSchema.parse(req.body);
 
@@ -234,7 +228,7 @@ router.post(
       }
 
       const plugin = await mp.mktPlugin.create({
-        data: { ...data, orgId: (req.user as { organisationId?: string; orgId?: string })?.organisationId },
+        data: { ...data, configSchema: (data.configSchema ?? null) as never, orgId: (req.user as { organisationId?: string; orgId?: string })?.organisationId ?? null } as never,
       });
 
       res.status(201).json({ success: true, data: plugin });
@@ -266,7 +260,7 @@ router.post(
 router.patch(
   '/plugins/:id',
   requireRole('ADMIN', 'SUPER_ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await mp.mktPlugin.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -277,7 +271,7 @@ router.patch(
       const data = updatePluginSchema.parse(req.body);
       const plugin = await mp.mktPlugin.update({
         where: { id: req.params.id },
-        data: { ...data, updatedAt: new Date() },
+        data: { ...data, configSchema: (data.configSchema ?? null) as never, updatedAt: new Date() } as never,
       });
       res.json({ success: true, data: plugin });
     } catch (error) {
@@ -308,7 +302,7 @@ router.patch(
 router.post(
   '/plugins/:id/versions',
   requireRole('ADMIN', 'SUPER_ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const data = publishVersionSchema.parse(req.body);
 
@@ -319,7 +313,7 @@ router.post(
       });
 
       const version = await mp.mktPluginVersion.create({
-        data: { ...data, pluginId: req.params.id, isLatest: true },
+        data: { ...data, manifest: data.manifest as never, pluginId: req.params.id, isLatest: true },
       });
 
       res.status(201).json({ success: true, data: version });
@@ -348,7 +342,7 @@ router.post(
 // ---------------------------------------------------------------------------
 // GET /api/marketplace/plugins/:id/versions — List versions
 // ---------------------------------------------------------------------------
-router.get('/plugins/:id/versions', async (req: AuthRequest, res: Response) => {
+router.get('/plugins/:id/versions', async (req: Request, res: Response) => {
   try {
     const versions = await mp.mktPluginVersion.findMany({
       where: { pluginId: req.params.id },
@@ -373,7 +367,7 @@ router.get('/plugins/:id/versions', async (req: AuthRequest, res: Response) => {
 router.post(
   '/plugins/:id/install',
   requireRole('ADMIN', 'SUPER_ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const parsedInstall = installSchema.safeParse(req.body);
       if (!parsedInstall.success) {
@@ -393,9 +387,9 @@ router.post(
       }
 
       const install = await mp.mktPluginInstall.upsert({
-        where: { pluginId_orgId: { pluginId: req.params.id, orgId } },
-        create: { pluginId: req.params.id, orgId, installedBy: req.user?.id, config: data.config },
-        update: { status: 'ACTIVE', config: data.config, uninstalledAt: null },
+        where: { pluginId_orgId: { pluginId: req.params.id, orgId: orgId ?? '' } },
+        create: { pluginId: req.params.id, orgId: orgId ?? '', installedBy: (req as AuthRequest).user?.id ?? '', config: (data.config ?? null) as never },
+        update: { status: 'ACTIVE', config: (data.config ?? null) as never, uninstalledAt: null },
       });
 
       // Increment download count
@@ -423,11 +417,11 @@ router.post(
 router.delete(
   '/plugins/:id/install',
   requireRole('ADMIN', 'SUPER_ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const orgId = (req.user as { organisationId?: string; orgId?: string })?.organisationId;
       await mp.mktPluginInstall.update({
-        where: { pluginId_orgId: { pluginId: req.params.id, orgId } },
+        where: { pluginId_orgId: { pluginId: req.params.id, orgId: orgId ?? '' } },
         data: { status: 'UNINSTALLED', uninstalledAt: new Date() },
       });
       res.json({ success: true, data: { message: 'Plugin uninstalled' } });
@@ -449,7 +443,7 @@ router.delete(
 router.post(
   '/plugins/:id/webhooks',
   requireRole('ADMIN', 'SUPER_ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const data = webhookSchema.parse(req.body);
       const orgId = (req.user as { organisationId?: string; orgId?: string })?.organisationId;
@@ -458,7 +452,7 @@ router.post(
       const subscription = await mp.mktWebhookSubscription.create({
         data: {
           pluginId: req.params.id,
-          orgId,
+          orgId: orgId ?? '',
           event: data.event,
           targetUrl: data.targetUrl,
           secret,
@@ -491,7 +485,7 @@ router.post(
 // ---------------------------------------------------------------------------
 // GET /api/marketplace/stats — Marketplace statistics
 // ---------------------------------------------------------------------------
-router.get('/stats', async (_req: AuthRequest, res: Response) => {
+router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [totalPlugins, publishedPlugins, totalInstalls, totalDownloads] = await Promise.all([
       mp.mktPlugin.count({ where: { deletedAt: null } }),

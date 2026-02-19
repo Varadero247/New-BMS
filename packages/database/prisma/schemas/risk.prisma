@@ -205,7 +205,7 @@ model RiskRegister {
 
   // Controls summary
   controls              String?
-  controlEffectiveness  ControlEffectiveness?
+  controlEffectiveness  String?
 
   // Residual risk (post-controls)
   residualLikelihood    RiskLikelihood?
@@ -382,7 +382,7 @@ model RiskControl {
   controlType         ControlType
   description         String
   owner               String?
-  effectiveness       ControlEffectiveness @default(ADEQUATE)
+  effectiveness       String               @default("ADEQUATE")
   lastTestedDate      DateTime?
   testingFrequency    String?
   testingMethod       String?
@@ -415,7 +415,7 @@ model RiskKri {
   redThreshold          Float?
   thresholdDirection    String      @default("INCREASING_IS_WORSE")
   currentValue          Float?
-  currentStatus         KriStatus?
+  currentStatus         String?
   lastMeasuredAt        DateTime?
   measuredBy            String?
   measurementFrequency  String?
@@ -439,7 +439,7 @@ model RiskKriReading {
   kriId         String
   kri           RiskKri   @relation(fields: [kriId], references: [id], onDelete: Cascade)
   value         Float
-  status        KriStatus
+  status        String
   recordedAt    DateTime  @default(now())
   recordedBy    String?
   notes         String?

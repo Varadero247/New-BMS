@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -16,7 +16,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/suppliers - List suppliers
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', search, status, isActive } = req.query;
 
@@ -65,7 +65,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/suppliers/:id - Get single supplier
-router.get('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.supplier), async (req: Request, res: Response) => {
   try {
     const supplier = await prisma.supplier.findUnique({
       where: { id: req.params.id },
@@ -95,7 +95,7 @@ router.get('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, res
 });
 
 // POST /api/suppliers - Create supplier
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       code: z.string().trim().min(1).max(200),
@@ -124,14 +124,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     }
 
     const supplier = await prisma.supplier.create({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         id: uuidv4(),
         ...data,
         status: 'ACTIVE',
         isActive: true,
-        createdById: req.user?.id,
-        updatedById: req.user?.id,
-      },
+        createdById: (req as AuthRequest).user?.id,
+        updatedById: (req as AuthRequest).user?.id,
+      } as any,
     });
 
     res.status(201).json({ success: true, data: supplier });
@@ -155,7 +156,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/suppliers/:id - Update supplier
-router.patch('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.supplier), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.supplier.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -196,10 +197,11 @@ router.patch('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, r
 
     const supplier = await prisma.supplier.update({
       where: { id: req.params.id },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         ...data,
-        updatedById: req.user?.id,
-      },
+        updatedById: (req as AuthRequest).user?.id,
+      } as any,
     });
 
     res.json({ success: true, data: supplier });
@@ -223,7 +225,7 @@ router.patch('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, r
 });
 
 // DELETE /api/suppliers/:id - Delete supplier
-router.delete('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.supplier), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.supplier.findUnique({
       where: { id: req.params.id },

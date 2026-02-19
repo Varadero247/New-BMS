@@ -266,7 +266,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
     const nlqResult = parseNaturalLanguage(query, {
       userId: user.id,
       role: user.role || 'USER',
-      modulePermissions: (user as { permissions?: Record<string, unknown> }).permissions || {},
+      modulePermissions: ((user as { permissions?: Record<string, unknown> }).permissions || {}) as Record<string, number>,
     });
 
     // If the engine found a pattern match with high confidence, return structured data
@@ -347,7 +347,8 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              const aiData: unknown = await aiRes.json();
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const aiData = (await aiRes.json()) as any;
               const content = aiData.choices?.[0]?.message?.content || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;
@@ -376,7 +377,8 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              const aiData: unknown = await aiRes.json();
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const aiData = (await aiRes.json()) as any;
               const content = aiData.content?.[0]?.text || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;
@@ -403,7 +405,8 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              const aiData: unknown = await aiRes.json();
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const aiData = (await aiRes.json()) as any;
               const content = aiData.choices?.[0]?.message?.content || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;

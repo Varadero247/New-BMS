@@ -215,9 +215,9 @@ function RiskHeatmap({
                 })}
                 <td className="py-2 px-2 text-center">
                   <span
-                    className={`inline-flex px-2 py-1 rounded-md font-bold text-foreground ${getScoreColor(avg)}`}
+                    className={`inline-flex px-2 py-1 rounded-md font-bold text-foreground ${getScoreColor(_avg)}`}
                   >
-                    {avg.toFixed(1)}
+                    {_avg.toFixed(1)}
                   </span>
                 </td>
               </tr>

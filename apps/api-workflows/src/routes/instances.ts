@@ -28,7 +28,7 @@ const _statusEnum = z.enum([
 ]);
 
 // GET /api/instances - Get workflow instances
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { status, definitionId, initiatedById, page = '1', limit = '20' } = req.query;
 
@@ -112,7 +112,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.workflowInstance),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const instance = await prisma.workflowInstance.findUnique({
         where: { id: req.params.id },
@@ -234,7 +234,7 @@ const advanceInstanceSchema = z.object({
 router.put(
   '/:id/advance',
   checkOwnership(prisma.workflowInstance),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const data = advanceInstanceSchema.parse(req.body);
 
@@ -290,7 +290,7 @@ router.put(
 router.put(
   '/:id/complete',
   checkOwnership(prisma.workflowInstance),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const schema = z.object({
         completedById: z.string().trim().optional(),
@@ -347,7 +347,7 @@ const cancelInstanceSchema = z.object({
 router.put(
   '/:id/cancel',
   checkOwnership(prisma.workflowInstance),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const data = cancelInstanceSchema.parse(req.body);
 

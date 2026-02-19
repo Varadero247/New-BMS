@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -250,7 +250,7 @@ const importSchema = z.object({
 
 // ── GET /regulations — List regulatory updates ─────────────────────
 
-router.get('/regulations', async (req: AuthRequest, res: Response) => {
+router.get('/regulations', async (req: Request, res: Response) => {
   try {
     const {
       jurisdiction,
@@ -342,7 +342,7 @@ router.get('/regulations', async (req: AuthRequest, res: Response) => {
 
 // ── GET /regulations/:id — Get regulation detail ───────────────────
 
-router.get('/regulations/:id', async (req: AuthRequest, res: Response) => {
+router.get('/regulations/:id', async (req: Request, res: Response) => {
   try {
     const regulation = regulations.find((r) => r.id === req.params.id);
     if (!regulation) {
@@ -366,7 +366,7 @@ router.get('/regulations/:id', async (req: AuthRequest, res: Response) => {
 
 // ── POST /regulations/:id/import — Import to legal register ───────
 
-router.post('/regulations/:id/import', async (req: AuthRequest, res: Response) => {
+router.post('/regulations/:id/import', async (req: Request, res: Response) => {
   try {
     const regulation = regulations.find((r) => r.id === req.params.id);
     if (!regulation) {
@@ -399,7 +399,7 @@ router.post('/regulations/:id/import', async (req: AuthRequest, res: Response) =
       regulationTitle: regulation.title,
       regulationReference: regulation.reference,
       targetModule,
-      importedBy: req.user!.id,
+      importedBy: (req as AuthRequest).user!.id,
       importedAt: new Date().toISOString(),
       notes: notes || null,
       assignedTo: assignedTo || null,
@@ -418,7 +418,7 @@ router.post('/regulations/:id/import', async (req: AuthRequest, res: Response) =
     logger.info('Regulation imported to legal register', {
       regulationId: regulation.id,
       targetModule,
-      importedBy: req.user!.id,
+      importedBy: (req as AuthRequest).user!.id,
     });
 
     res.status(201).json({ success: true, data: importRecord });
@@ -435,7 +435,7 @@ router.post('/regulations/:id/import', async (req: AuthRequest, res: Response) =
 
 // ── PUT /regulations/:id/status — Update regulation review status ──
 
-router.put('/regulations/:id/status', async (req: AuthRequest, res: Response) => {
+router.put('/regulations/:id/status', async (req: Request, res: Response) => {
   try {
     const regulation = regulations.find((r) => r.id === req.params.id);
     if (!regulation) {
@@ -467,7 +467,7 @@ router.put('/regulations/:id/status', async (req: AuthRequest, res: Response) =>
     logger.info('Regulation status updated', {
       regulationId: regulation.id,
       status: parsed.data.status,
-      updatedBy: req.user!.id,
+      updatedBy: (req as AuthRequest).user!.id,
     });
 
     res.json({ success: true, data: regulation });
@@ -484,7 +484,7 @@ router.put('/regulations/:id/status', async (req: AuthRequest, res: Response) =>
 
 // ── GET /regulations/summary — Summary stats ──────────────────────
 
-router.get('/summary', async (_req: AuthRequest, res: Response) => {
+router.get('/summary', async (_req: Request, res: Response) => {
   try {
     const summary = {
       totalRegulations: regulations.length,

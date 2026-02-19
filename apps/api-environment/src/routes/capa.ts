@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma, Prisma, EnvCapaSeverity, EnvCapaTrigger, EnvCapaType, EnvEffectiveness, EnvRCAMethod, EnvRootCauseCategory } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -23,7 +23,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List CAPAs
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, capaType, severity, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -68,7 +68,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envCapa), async (req: Request, res: Response) => {
   try {
     const capa = await prisma.envCapa.findUnique({
       where: { id: req.params.id },
@@ -88,7 +88,7 @@ router.get('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, res:
 });
 
 // POST /
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const capaActionSchema = z.object({
       description: z.string().trim().min(1).max(2000),
@@ -186,10 +186,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const capa = await prisma.envCapa.create({
       data: {
         referenceNumber,
-        capaType: data.capaType as Prisma.EnvCapaType,
+        capaType: data.capaType as EnvCapaType,
         title: data.title,
-        severity: data.severity as Prisma.EnvCapaSeverity,
-        triggerSource: data.triggerSource as Prisma.EnvCapaTrigger,
+        severity: data.severity as EnvCapaSeverity,
+        triggerSource: data.triggerSource as EnvCapaTrigger,
         sourceReference: data.sourceReference,
         description: data.description,
         initiatedBy: data.initiatedBy,
@@ -198,7 +198,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         immediateActions: data.immediateActions,
         containmentVerifiedBy: data.containmentVerifiedBy,
         containmentDate: data.containmentDate ? new Date(data.containmentDate) : null,
-        rcaMethod: data.rcaMethod as Prisma.EnvRCAMethod,
+        rcaMethod: data.rcaMethod as EnvRCAMethod,
         problemStatement: data.problemStatement,
         why1: data.why1,
         why2: data.why2,
@@ -217,7 +217,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         bowtieConsequences: data.bowtieConsequences,
         bowtieMitigating: data.bowtieMitigating,
         rootCauseStatement: data.rootCauseStatement,
-        rootCauseCategory: data.rootCauseCategory as Prisma.EnvRootCauseCategory,
+        rootCauseCategory: data.rootCauseCategory as EnvRootCauseCategory,
         effectivenessCriteria: data.effectivenessCriteria,
         effectivenessKPI: data.effectivenessKPI,
         effectivenessTarget: data.effectivenessTarget,
@@ -231,7 +231,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         verifiedBy: data.verifiedBy,
         effectivenessAssessment: data.effectivenessAssessment,
         recurrenceCheck: data.recurrenceCheck,
-        actionsEffective: data.actionsEffective as Prisma.EnvEffectiveness,
+        actionsEffective: data.actionsEffective as EnvEffectiveness,
         furtherActions: data.furtherActions,
         managementSignoff: data.managementSignoff,
         closureDate: data.closureDate ? new Date(data.closureDate) : null,
@@ -326,7 +326,7 @@ const capaUpdateSchema = z.object({
   aiGenerated: z.boolean().optional(),
 });
 
-router.put('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envCapa), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envCapa.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -374,7 +374,7 @@ router.put('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, res:
 });
 
 // DELETE /:id
-router.delete('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envCapa), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envCapa.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -396,7 +396,7 @@ router.delete('/:id', checkOwnership(prisma.envCapa), async (req: AuthRequest, r
 });
 
 // POST /:id/actions - Add a CAPA action
-router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
+router.post('/:id/actions', async (req: Request, res: Response) => {
   try {
     const capa = await prisma.envCapa.findUnique({ where: { id: req.params.id } });
     if (!capa)
@@ -468,7 +468,7 @@ const capaActionUpdateSchema = z.object({
   evidence: z.string().trim().optional(),
 });
 
-router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/actions/:actionId', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envCapaAction.findFirst({
       where: { id: req.params.actionId, capaId: req.params.id },

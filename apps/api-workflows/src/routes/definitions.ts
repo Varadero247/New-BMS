@@ -19,7 +19,7 @@ const triggerTypeEnum = z.enum(['MANUAL', 'AUTOMATIC', 'SCHEDULED', 'EVENT', 'AP
 const _statusEnum = z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED', 'ARCHIVED']);
 
 // GET /api/definitions - Get workflow definitions
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { status, category, createdById } = req.query;
 
@@ -51,7 +51,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.workflowDefinition),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const definition = await prisma.workflowDefinition.findUnique({
         where: { id: req.params.id },
@@ -150,7 +150,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.workflowDefinition),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const schema = z.object({
         name: z.string().trim().min(1).max(200).optional(),
@@ -175,10 +175,11 @@ router.put(
 
       const definition = await prisma.workflowDefinition.update({
         where: { id: req.params.id },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data: {
           ...data,
           version: current.version + 1,
-        },
+        } as any,
       });
 
       res.json({ success: true, data: definition });
@@ -201,7 +202,7 @@ router.put(
 router.put(
   '/:id/activate',
   checkOwnership(prisma.workflowDefinition),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const current = await prisma.workflowDefinition.findUnique({ where: { id: req.params.id } });
       if (!current) {
@@ -233,7 +234,7 @@ router.put(
 router.put(
   '/:id/archive',
   checkOwnership(prisma.workflowDefinition),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const definition = await prisma.workflowDefinition.update({
         where: { id: req.params.id },

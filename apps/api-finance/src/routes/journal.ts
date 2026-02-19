@@ -77,7 +77,7 @@ router.get('/', async (req: Request, res: Response) => {
             include: {
               account: { select: { id: true, code: true, name: true, type: true } },
             },
-            orderBy: { lineNumber: 'asc' as const },
+            orderBy: { createdAt: 'asc' as const },
           },
           period: { select: { id: true, name: true, status: true } },
         },
@@ -116,7 +116,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
               select: { id: true, code: true, name: true, type: true, normalBalance: true },
             },
           },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
         period: true,
       },
@@ -230,16 +230,13 @@ router.post('/', async (req: Request, res: Response) => {
         date: new Date(date),
         periodId,
         description,
-        memo: memo ?? null,
-        source: source ?? null,
+        notes: memo ?? null,
+        sourceType: source ?? null,
         sourceId: sourceId ?? null,
         status: 'DRAFT',
-        totalDebit: new Prisma.Decimal(totalDebits),
-        totalCredit: new Prisma.Decimal(totalCredits),
         createdBy: authReq.user?.id || 'system',
         lines: {
-          create: lines.map((l, idx) => ({
-            lineNumber: idx + 1,
+          create: lines.map((l) => ({
             accountId: l.accountId,
             debit: new Prisma.Decimal(l.debit),
             credit: new Prisma.Decimal(l.credit),
@@ -250,7 +247,7 @@ router.post('/', async (req: Request, res: Response) => {
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },
@@ -352,20 +349,15 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         });
 
       const entry = await prisma.$transaction(async (tx) => {
-        await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } });
+        await tx.finJournalLine.deleteMany({ where: { journalId: id } });
         return tx.finJournalEntry.update({
           where: { id },
           data: {
             ...(date && { date: new Date(date) }),
             ...(description && { description }),
-            ...(memo !== undefined && { memo }),
-            totalDebit: new Prisma.Decimal(totalDebits),
-            totalCredit: new Prisma.Decimal(totalCredits),
-            updatedBy: authReq.user?.id || 'system',
-            updatedAt: new Date(),
+            ...(memo !== undefined && { notes: memo }),
             lines: {
-              create: lines.map((l, idx) => ({
-                lineNumber: idx + 1,
+              create: lines.map((l) => ({
                 accountId: l.accountId,
                 debit: new Prisma.Decimal(l.debit),
                 credit: new Prisma.Decimal(l.credit),
@@ -376,7 +368,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
           include: {
             lines: {
               include: { account: { select: { id: true, code: true, name: true, type: true } } },
-              orderBy: { lineNumber: 'asc' as const },
+              orderBy: { createdAt: 'asc' as const },
             },
           },
         });
@@ -391,14 +383,12 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       data: {
         ...(date && { date: new Date(date) }),
         ...(description && { description }),
-        ...(memo !== undefined && { memo }),
-        updatedBy: authReq.user?.id || 'system',
-        updatedAt: new Date(),
+        ...(memo !== undefined && { notes: memo }),
       },
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
       },
     });
@@ -440,7 +430,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } });
+      await tx.finJournalLine.deleteMany({ where: { journalId: id } });
       await tx.finJournalEntry.delete({ where: { id } });
     });
 
@@ -496,7 +486,7 @@ router.post('/:id/post', async (req: Request, res: Response) => {
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },
-          orderBy: { lineNumber: 'asc' as const },
+          orderBy: { createdAt: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },

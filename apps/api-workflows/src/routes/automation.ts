@@ -62,7 +62,7 @@ const createRuleSchema = z.object({
 const updateRuleSchema = createRuleSchema.partial().omit({ code: true });
 
 // GET /api/automation/rules - Get automation rules
-router.get('/rules', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/rules', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { triggerType, actionType, isActive, entityType } = req.query;
 
@@ -97,7 +97,7 @@ router.get('/rules', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/rules/:id',
   checkOwnership(prisma.automationRule),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const rule = await prisma.automationRule.findUnique({
         where: { id: req.params.id },
@@ -188,7 +188,7 @@ router.post('/rules', async (req: Request, res: Response) => {
 router.put(
   '/rules/:id',
   checkOwnership(prisma.automationRule),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const data = updateRuleSchema.parse(req.body);
 
@@ -218,7 +218,7 @@ router.put(
 router.delete(
   '/rules/:id',
   checkOwnership(prisma.automationRule),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       await prisma.automationRule.update({
         where: { id: req.params.id },
@@ -490,7 +490,6 @@ router.get('/stats', async (req: Request, res: Response) => {
           _count: { status: true },
         }),
         prisma.automationExecution.findMany({
-          where: { deletedAt: null },
           take: 10,
           orderBy: { createdAt: 'desc' },
           include: {

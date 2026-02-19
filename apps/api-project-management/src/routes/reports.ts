@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -16,7 +16,7 @@ router.param('id', validateIdParam());
 const RAG_STATUSES = ['GREEN', 'AMBER', 'RED'] as const;
 
 // GET /api/reports - List status reports by projectId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, page = '1', limit = '20' } = req.query;
 
@@ -61,7 +61,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.projectStatusReport),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const report = await prisma.projectStatusReport.findUnique({
         where: { id: req.params.id },
@@ -85,7 +85,7 @@ router.get(
 );
 
 // POST /api/reports - Create status report
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       projectId: z.string().trim().min(1).max(200),
@@ -137,7 +137,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         budgetConsumed: data.budgetConsumed,
         scheduleVariance: data.scheduleVariance,
         costVariance: data.costVariance,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -161,7 +161,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.delete(
   '/:id',
   checkOwnership(prisma.projectStatusReport),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectStatusReport.findUnique({
         where: { id: req.params.id },

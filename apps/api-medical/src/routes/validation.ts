@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -36,7 +36,7 @@ const createSchema = z.object({
 const updateSchema = createSchema.omit({ projectId: true }).partial();
 
 // GET / - List design validations
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', projectId, pass, search } = req.query;
 
@@ -82,7 +82,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /stats - Validation statistics
-router.get('/stats', async (_req: AuthRequest, res: Response) => {
+router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, passed, failed, pending, confirmedIntendedUse] = await Promise.all([
       prisma.designValidation.count(),
@@ -113,7 +113,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single validation
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const validation = await prisma.designValidation.findUnique({
       where: { id: req.params.id },
@@ -138,7 +138,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create design validation
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSchema.parse(req.body);
 
@@ -186,7 +186,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update design validation
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.designValidation.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -227,7 +227,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Delete design validation
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.designValidation.findUnique({ where: { id: req.params.id } });
     if (!existing) {

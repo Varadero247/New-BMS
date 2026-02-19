@@ -1,6 +1,9 @@
-import { Router, Response } from 'express';
-import { prisma } from '@ims/database';
+import { Router, Request, Response } from 'express';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
+
+const prisma = prismaBase as unknown as PrismaClient;
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
 
@@ -211,7 +214,7 @@ const retentionPolicySchema = z.object({
 // ---------------------------------------------------------------------------
 // GET /data-export/:userId — Export all personal data for a user (GDPR Art 20)
 // ---------------------------------------------------------------------------
-router.get('/data-export/:userId', async (req: AuthRequest, res: Response) => {
+router.get('/data-export/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
@@ -284,7 +287,7 @@ router.get('/data-export/:userId', async (req: AuthRequest, res: Response) => {
 
     logger.info('GDPR data export generated', {
       targetUserId: userId,
-      requestedBy: req.user?.id,
+      requestedBy: (req as AuthRequest).user?.id,
       auditLogCount: auditLogs.length,
       sessionCount: sessions.length,
     });
@@ -304,7 +307,7 @@ router.get('/data-export/:userId', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // POST /erasure-request — Submit right-to-erasure request (GDPR Art 17)
 // ---------------------------------------------------------------------------
-router.post('/erasure-request', async (req: AuthRequest, res: Response) => {
+router.post('/erasure-request', async (req: Request, res: Response) => {
   try {
     const data = erasureRequestSchema.parse(req.body);
 
@@ -333,7 +336,7 @@ router.post('/erasure-request', async (req: AuthRequest, res: Response) => {
     logger.info('Erasure request created', {
       requestId: erasureRequest.id,
       targetUserId: data.userId,
-      requestedBy: req.user?.id,
+      requestedBy: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({ success: true, data: erasureRequest });
@@ -361,7 +364,7 @@ router.post('/erasure-request', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /erasure-request — List all erasure requests
 // ---------------------------------------------------------------------------
-router.get('/erasure-request', async (req: AuthRequest, res: Response) => {
+router.get('/erasure-request', async (req: Request, res: Response) => {
   try {
     const { status, page = '1', limit = '20' } = req.query;
 
@@ -408,7 +411,7 @@ router.get('/erasure-request', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // PUT /erasure-request/:id — Process/complete an erasure request
 // ---------------------------------------------------------------------------
-router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
+router.put('/erasure-request/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const data = processErasureSchema.parse(req.body);
@@ -434,7 +437,7 @@ router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
     const updateData: Record<string, unknown> = {
       status: data.status,
       notes: data.notes,
-      processedBy: req.user!.id,
+      processedBy: (req as AuthRequest).user!.id,
     };
 
     if (data.status === 'COMPLETED' || data.status === 'REJECTED') {
@@ -449,7 +452,7 @@ router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
     logger.info('Erasure request updated', {
       requestId: id,
       newStatus: data.status,
-      processedBy: req.user?.id,
+      processedBy: (req as AuthRequest).user?.id,
     });
 
     res.json({ success: true, data: updated });
@@ -477,7 +480,7 @@ router.put('/erasure-request/:id', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /retention-policies — List all data retention policies
 // ---------------------------------------------------------------------------
-router.get('/retention-policies', async (req: AuthRequest, res: Response) => {
+router.get('/retention-policies', async (req: Request, res: Response) => {
   try {
     const { module, isActive, page = '1', limit = '50' } = req.query;
 
@@ -527,7 +530,7 @@ router.get('/retention-policies', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // POST /retention-policies — Create or update a retention policy
 // ---------------------------------------------------------------------------
-router.post('/retention-policies', async (req: AuthRequest, res: Response) => {
+router.post('/retention-policies', async (req: Request, res: Response) => {
   try {
     const data = retentionPolicySchema.parse(req.body);
 
@@ -558,7 +561,7 @@ router.post('/retention-policies', async (req: AuthRequest, res: Response) => {
       policyId: policy.id,
       dataCategory: data.dataCategory,
       module: data.module,
-      updatedBy: req.user?.id,
+      updatedBy: (req as AuthRequest).user?.id,
     });
 
     res.status(201).json({ success: true, data: policy });
@@ -586,7 +589,7 @@ router.post('/retention-policies', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /data-map — Show what personal data is stored where
 // ---------------------------------------------------------------------------
-router.get('/data-map', async (_req: AuthRequest, res: Response) => {
+router.get('/data-map', async (_req: Request, res: Response) => {
   try {
     // Enrich with retention policies from database
     const policies = await prisma.dataRetentionPolicy.findMany({

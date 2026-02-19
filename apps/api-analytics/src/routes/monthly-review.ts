@@ -135,7 +135,7 @@ router.post('/:snapshotId/approve', async (req: Request, res: Response) => {
         if (rec) {
           await prisma.planTarget.update({
             where: { id: nextTargets[i].id },
-            data: { revisedMrr: rec.suggested, revisedAt: new Date() },
+            data: { revisedMrr: Number(rec.suggested), revisedAt: new Date() },
           });
         }
       }

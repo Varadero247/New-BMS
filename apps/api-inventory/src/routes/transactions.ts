@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -15,7 +15,7 @@ router.param('id', validateIdParam());
 router.param('productId', validateIdParam('productId'));
 
 // GET /api/inventory/transactions - List transactions (audit trail)
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -43,9 +43,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     // Date range filter
     if (startDate || endDate) {
-      where.transactionDate = {};
-      if (startDate) where.transactionDate.gte = new Date(startDate as string);
-      if (endDate) where.transactionDate.lte = new Date(endDate as string);
+      const dateFilter: { gte?: Date; lte?: Date } = {};
+      if (startDate) dateFilter.gte = new Date(startDate as string);
+      if (endDate) dateFilter.lte = new Date(endDate as string);
+      where.transactionDate = dateFilter;
     }
 
     const [transactions, total] = await Promise.all([
@@ -78,7 +79,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/inventory/transactions/summary - Transaction summary statistics
-router.get('/summary', async (req: AuthRequest, res: Response) => {
+router.get('/summary', async (req: Request, res: Response) => {
   try {
     const { startDate, endDate, warehouseId } = req.query;
 
@@ -181,7 +182,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/inventory/transactions/product/:productId - Transaction history for a product
-router.get('/product/:productId', async (req: AuthRequest, res: Response) => {
+router.get('/product/:productId', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50' } = req.query;
 
@@ -234,7 +235,7 @@ router.get('/product/:productId', async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.inventoryTransaction),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const transaction = await prisma.inventoryTransaction.findUnique({
         where: { id: req.params.id },

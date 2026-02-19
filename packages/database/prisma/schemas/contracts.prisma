@@ -80,36 +80,43 @@ model ContContract {
 }
 
 model ContApproval {
-  id           String                 @id @default(cuid())
-  orgId        String
-  contractId   String
-  approver     String
-  approverName String?
-  status       ContractApprovalStatus @default(PENDING)
-  comments     String?
-  decidedAt    DateTime?
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  contract     ContContract           @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  id              String                 @id @default(cuid())
+  orgId           String
+  contractId      String
+  referenceNumber String?
+  approver        String
+  approverName    String?
+  status          ContractApprovalStatus @default(PENDING)
+  comments        String?
+  decidedAt       DateTime?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
+  contract        ContContract           @relation(fields: [contractId], references: [id], onDelete: Cascade)
   @@map("cont_approvals")
   @@index([contractId])
+  @@index([deletedAt])
 }
 
 model ContNotice {
-  id           String                  @id @default(cuid())
-  orgId        String
-  contractId   String
-  title        String
-  description  String?
-  priority     ContractNoticePriority  @default(MEDIUM)
-  dueDate      DateTime
-  acknowledged Boolean                 @default(false)
-  acknowledgedBy String?
-  acknowledgedAt DateTime?
-  createdAt    DateTime                @default(now())
-  updatedAt    DateTime                @updatedAt
-  createdBy    String?
-  deletedAt    DateTime?
+  id              String                  @id @default(cuid())
+  orgId           String
+  contractId      String
+  referenceNumber String?
+  title           String
+  description     String?
+  priority        ContractNoticePriority  @default(MEDIUM)
+  dueDate         DateTime
+  acknowledged    Boolean                 @default(false)
+  acknowledgedBy  String?
+  acknowledgedAt  DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
   contract     ContContract            @relation(fields: [contractId], references: [id], onDelete: Cascade)
   @@map("cont_notices")
   @@index([contractId])
@@ -117,18 +124,20 @@ model ContNotice {
 }
 
 model ContClause {
-  id           String   @id @default(cuid())
-  orgId        String
-  contractId   String
-  title        String
-  content      String?
-  clauseNumber String?
-  category     String?
-  isKey        Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String?
-  deletedAt    DateTime?
+  id              String   @id @default(cuid())
+  orgId           String
+  contractId      String
+  referenceNumber String?
+  title           String
+  content         String?
+  clauseNumber    String?
+  category        String?
+  isKey           Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  updatedBy       String?
+  deletedAt       DateTime?
   contract     ContContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
   @@map("cont_clauses")
   @@index([contractId])

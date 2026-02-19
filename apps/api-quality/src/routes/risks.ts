@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -57,7 +57,7 @@ function calculateRiskFields(data: {
 }
 
 // GET / - List risks
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', riskLevel, status, process, search } = req.query;
 
@@ -102,7 +102,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single risk
-router.get('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualRisk), async (req: Request, res: Response) => {
   try {
     const risk = await prisma.qualRisk.findUnique({
       where: { id: req.params.id },
@@ -124,7 +124,7 @@ router.get('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
 });
 
 // POST / - Create risk
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       process: z.enum([
@@ -215,7 +215,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update risk
-router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualRisk), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -312,7 +312,7 @@ router.put('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res
 });
 
 // DELETE /:id - Delete risk
-router.delete('/:id', checkOwnership(prisma.qualRisk), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualRisk), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualRisk.findUnique({ where: { id: req.params.id } });
     if (!existing) {

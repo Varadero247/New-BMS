@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -45,7 +45,7 @@ const createSchema = z.object({
 });
 
 // GET / — List stock adjustments
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { productId, warehouseId, adjustmentType, startDate, endDate } = req.query;
     const page = parseIntParam(req.query.page, 1);
@@ -98,7 +98,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / — Create stock adjustment
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
+  const authReq = req as AuthRequest;
   try {
     const parsed = createSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -153,7 +154,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         data: {
           productId,
           warehouseId,
-          transactionType: adjustmentType as string,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          transactionType: adjustmentType as any,
           referenceType: 'ADJUSTMENT',
           quantityBefore,
           quantityAfter,
@@ -165,7 +167,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           serialNumber: serialNumber ?? undefined,
           unitCost: unitCost ? unitCost : 0,
           totalCost: unitCost ? Math.abs(quantityChange) * unitCost : 0,
-          performedById: req.user?.id || 'system',
+          performedById: authReq.user?.id || 'system',
           transactionDate: adjustmentDate ? new Date(adjustmentDate) : new Date(),
         },
       }),
@@ -190,7 +192,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id — Get single adjustment
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.inventoryTransaction.findFirst({
       where: { id: req.params.id },

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -24,7 +24,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List legal obligations
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -77,7 +77,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single legal obligation
-router.get('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualLegal), async (req: Request, res: Response) => {
   try {
     const legal = await prisma.qualLegal.findUnique({
       where: { id: req.params.id },
@@ -101,7 +101,7 @@ router.get('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
 });
 
 // POST / - Create legal obligation
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -187,7 +187,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update legal obligation
-router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualLegal), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -309,7 +309,7 @@ router.put('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, re
 });
 
 // DELETE /:id - Delete legal obligation
-router.delete('/:id', checkOwnership(prisma.qualLegal), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualLegal), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualLegal.findUnique({ where: { id: req.params.id } });
     if (!existing) {

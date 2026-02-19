@@ -221,7 +221,7 @@ export default function BenefitsPage() {
     }
   };
 
-  const formatCurrency = (v?: number) => (v !== null ? `$${v.toLocaleString()}` : '-');
+  const formatCurrency = (v?: number) => (v != null ? `$${v.toLocaleString()}` : '-');
   const getProgress = (b: Benefit) => {
     if (!b.baselineValue || !b.targetValue || !b.currentValue) return 0;
     const total = Math.abs(b.targetValue - b.baselineValue);

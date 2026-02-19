@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -55,7 +55,7 @@ function calculateOpportunityFields(data: {
 }
 
 // GET / - List opportunities
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', priorityLevel, status, process, search } = req.query;
 
@@ -104,7 +104,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.qualOpportunity),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const opportunity = await prisma.qualOpportunity.findUnique({
         where: { id: req.params.id },
@@ -128,7 +128,7 @@ router.get(
 );
 
 // POST / - Create opportunity
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       process: z.enum([
@@ -217,7 +217,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.qualOpportunity),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualOpportunity.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -317,7 +317,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.qualOpportunity),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualOpportunity.findUnique({ where: { id: req.params.id } });
       if (!existing) {

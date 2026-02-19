@@ -136,11 +136,12 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
 
       // Re-compute score from stored metrics and persist a new snapshot
       for (const prev of existingScores || []) {
+        const prevBreakdown = (prev.breakdown as Record<string, unknown>) || {};
         const newScore = calculateHealthScore({
-          loginsLast7Days: (prev as Record<string, unknown>).loginsLast7Days ?? 0,
-          recordsCreated: (prev as Record<string, unknown>).recordsCreated ?? 0,
-          modulesVisited: (prev as Record<string, unknown>).modulesVisited ?? 0,
-          teamMembersInvited: (prev as Record<string, unknown>).teamMembersInvited ?? 0 });
+          loginsLast7Days: Number(prevBreakdown.loginsLast7Days ?? 0),
+          recordsCreated: Number(prevBreakdown.recordsCreated ?? 0),
+          modulesVisited: Number(prevBreakdown.modulesVisited ?? 0),
+          teamMembersInvited: Number(prevBreakdown.teamMembersInvited ?? 0) });
         const trend = determineTrend(newScore, prev.score);
         await prisma.mktHealthScore.create({
           data: {
@@ -148,10 +149,13 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
             orgId: prev.orgId,
             score: newScore,
             trend,
-            loginsLast7Days: (prev as Record<string, unknown>).loginsLast7Days ?? 0,
-            recordsCreated: (prev as Record<string, unknown>).recordsCreated ?? 0,
-            modulesVisited: (prev as Record<string, unknown>).modulesVisited ?? 0,
-            teamMembersInvited: (prev as Record<string, unknown>).teamMembersInvited ?? 0 } });
+            breakdown: {
+              loginsLast7Days: Number(prevBreakdown.loginsLast7Days ?? 0),
+              recordsCreated: Number(prevBreakdown.recordsCreated ?? 0),
+              modulesVisited: Number(prevBreakdown.modulesVisited ?? 0),
+              teamMembersInvited: Number(prevBreakdown.teamMembersInvited ?? 0),
+            },
+          } });
         updatedCount++;
       }
     } catch {

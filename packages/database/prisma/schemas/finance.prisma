@@ -167,6 +167,8 @@ model FinAccount {
   currency      String           @default("GBP")
   openingBalance Decimal         @default(0) @db.Decimal(14, 2)
   createdBy     String
+  updatedBy     String?
+  deletedBy     String?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   deletedAt     DateTime?
@@ -202,6 +204,8 @@ model FinJournalEntry {
   approvedBy    String?
   approvedAt    DateTime?
   postedAt      DateTime?
+  postedBy      String?
+  reversedBy    String?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   deletedAt     DateTime?
@@ -285,6 +289,7 @@ model FinCustomer {
   isActive      Boolean         @default(true)
   notes         String?
   createdBy     String
+  updatedById   String?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   deletedAt     DateTime?
@@ -321,6 +326,7 @@ model FinInvoice {
   voidReason    String?
   journalEntryId String?
   createdBy     String
+  updatedById   String?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   deletedAt     DateTime?

@@ -150,7 +150,7 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         category: data.category,
         manufacturer: data.manufacturer,
-        unitCost: data.unitCost !== null ? new Prisma.Decimal(data.unitCost) : null,
+        unitCost: data.unitCost != null ? new Prisma.Decimal(data.unitCost ?? 0) : null,
         quantity: data.quantity ?? 0,
         minStock: data.minStock ?? 0,
         maxStock: data.maxStock,

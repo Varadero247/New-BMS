@@ -105,8 +105,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Auto-calculate delta from previous reading if not provided
     let delta = data.delta;
-    if (delta === null && data.previousReading !== null) {
-      delta = data.reading - data.previousReading;
+    if (delta === null && data.previousReading != null) {
+      delta = data.reading - (data.previousReading ?? 0);
     }
 
     const reading = await prisma.cmmsMeterReading.create({
@@ -116,8 +116,8 @@ router.post('/', async (req: Request, res: Response) => {
         reading: new Prisma.Decimal(data.reading),
         readingDate: new Date(data.readingDate),
         previousReading:
-          data.previousReading !== null ? new Prisma.Decimal(data.previousReading) : null,
-        delta: delta !== null ? new Prisma.Decimal(delta) : null,
+          data.previousReading != null ? new Prisma.Decimal(data.previousReading ?? 0) : null,
+        delta: delta != null ? new Prisma.Decimal(delta ?? 0) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });

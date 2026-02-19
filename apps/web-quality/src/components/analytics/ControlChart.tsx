@@ -107,7 +107,7 @@ function detectRuleViolations(
 export function ControlChart({
   data,
   title = 'Control Chart',
-  _chartType = 'i-mr',
+  chartType: _chartType = 'i-mr',
   ucl: customUcl,
   lcl: customLcl,
   target: customTarget,

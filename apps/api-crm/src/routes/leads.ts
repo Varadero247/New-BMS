@@ -245,7 +245,7 @@ router.put('/:id/qualify', async (req: Request, res: Response) => {
         lastName: lead.lastName,
         email: lead.email,
         phone: lead.phone,
-        source: (lead.source || 'INBOUND'),
+        source: (lead.source || 'INBOUND') as any,
         createdBy: userId,
       },
     });
@@ -284,7 +284,7 @@ router.put('/:id/qualify', async (req: Request, res: Response) => {
         refNumber: dealRefNumber,
         title: `${lead.firstName} ${lead.lastName} - Qualified Lead`,
         value: 0,
-        source: (lead.source || undefined),
+        source: (lead.source || undefined) as any,
         accountId: account?.id,
         createdBy: userId,
       },

@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma, Prisma, EnvObjectiveCategory, EnvReviewFrequency } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -23,7 +23,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List objectives
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, category, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -68,7 +68,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envObjective), async (req: Request, res: Response) => {
   try {
     const objective = await prisma.envObjective.findUnique({
       where: { id: req.params.id },
@@ -89,7 +89,7 @@ router.get('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest,
 });
 
 // POST /
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -161,7 +161,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         referenceNumber,
         title: data.title,
         objectiveStatement: data.objectiveStatement,
-        category: data.category as Prisma.EnvObjectiveCategory,
+        category: data.category as EnvObjectiveCategory,
         targetDate: new Date(data.targetDate),
         owner: data.owner,
         status: data.status || 'NOT_STARTED',
@@ -184,7 +184,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         resourcesRequired: data.resourcesRequired,
         estimatedCost: data.estimatedCost,
         actionsRequired: data.actionsRequired ?? false,
-        reviewFrequency: data.reviewFrequency as Prisma.EnvReviewFrequency,
+        reviewFrequency: data.reviewFrequency as EnvReviewFrequency,
         progressNotes: data.progressNotes,
         progressPercent: data.progressPercent ?? 0,
         aiSmartAnalysis: data.aiSmartAnalysis,
@@ -268,7 +268,7 @@ const objectiveUpdateSchema = z.object({
   aiGenerated: z.boolean().optional(),
 });
 
-router.put('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envObjective), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -311,7 +311,7 @@ router.put('/:id', checkOwnership(prisma.envObjective), async (req: AuthRequest,
 });
 
 // PATCH /:id/milestones/:milestoneId - Update milestone completion
-router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Response) => {
+router.patch('/:id/milestones/:milestoneId', async (req: Request, res: Response) => {
   try {
     const objective = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
     if (!objective)
@@ -386,7 +386,7 @@ router.patch('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Respo
 router.delete(
   '/:id',
   checkOwnership(prisma.envObjective),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.envObjective.findUnique({ where: { id: req.params.id } });
       if (!existing)

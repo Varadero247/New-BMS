@@ -25,9 +25,9 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status;
     if (startDate || endDate) {
-      where.date = {};
-      if (startDate) where.date.gte = new Date(startDate as string);
-      if (endDate) where.date.lte = new Date(endDate as string);
+      (where as any).date = {};
+      if (startDate) (where as any).date.gte = new Date(startDate as string);
+      if (endDate) (where as any).date.lte = new Date(endDate as string);
     }
 
     const [attendances, total] = await Promise.all([
@@ -400,7 +400,7 @@ router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: 
 
     // Recalculate worked hours if both times are present
     if (updateData.clockIn && updateData.clockOut) {
-      const workedMs = updateData.clockOut.getTime() - updateData.clockIn.getTime();
+      const workedMs = (updateData.clockOut as Date).getTime() - (updateData.clockIn as Date).getTime();
       updateData.workedHours = Math.round((workedMs / 3600000) * 100) / 100;
     }
 
@@ -469,19 +469,19 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     if (createData.clockIn && createData.clockOut) {
-      const workedMs = createData.clockOut.getTime() - createData.clockIn.getTime();
+      const workedMs = (createData.clockOut as Date).getTime() - (createData.clockIn as Date).getTime();
       createData.workedHours = Math.round((workedMs / 3600000) * 100) / 100;
       const standardHours = 8;
       createData.overtimeHours = Math.max(
         0,
-        Math.round((createData.workedHours - standardHours) * 100) / 100
+        Math.round((Number(createData.workedHours) - standardHours) * 100) / 100
       );
     }
 
     const attendance = await prisma.attendance.upsert({
       where: { employeeId_date: { employeeId: data.employeeId, date: attendanceDate } },
-      update: createData,
-      create: createData,
+      update: createData as any,
+      create: createData as any,
       include: {
         employee: {
           select: { id: true, firstName: true, lastName: true, employeeNumber: true },

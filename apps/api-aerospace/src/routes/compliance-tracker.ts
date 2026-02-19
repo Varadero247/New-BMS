@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -115,7 +115,7 @@ const updateComplianceItemSchema = z.object({
 // ============================================
 
 // GET /clauses - List AS9100D clause reference data
-router.get('/clauses', async (_req: AuthRequest, res: Response) => {
+router.get('/clauses', async (_req: Request, res: Response) => {
   try {
     res.json({ success: true, data: AS9100D_CLAUSES });
   } catch (error) {
@@ -128,7 +128,7 @@ router.get('/clauses', async (_req: AuthRequest, res: Response) => {
 });
 
 // GET / - List compliance items
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, standard, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -172,7 +172,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get compliance item
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.aeroComplianceItem.findUnique({
       where: { id: req.params.id },
@@ -196,7 +196,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create compliance item
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createComplianceItemSchema.parse(req.body);
     const refNumber = await generateComplianceItemRefNumber();
@@ -213,11 +213,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         description: data.description,
         standard: data.standard,
         complianceStatus: 'UNDER_REVIEW',
-        evidenceDocuments: data.evidenceDocuments,
+        evidenceDocuments: JSON.stringify(data.evidenceDocuments),
         responsiblePerson: data.responsiblePerson,
         targetDate: data.targetDate ? new Date(data.targetDate) : null,
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -242,7 +242,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update compliance item
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroComplianceItem.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -257,7 +257,14 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
     const item = await prisma.aeroComplianceItem.update({
       where: { id: req.params.id },
       data: {
-        ...data,
+        ...(data.clause !== undefined && { clause: data.clause }),
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.standard !== undefined && { standard: data.standard }),
+        ...(data.complianceStatus !== undefined && { complianceStatus: data.complianceStatus }),
+        ...(data.evidenceDocuments !== undefined && { evidenceDocuments: JSON.stringify(data.evidenceDocuments) }),
+        ...(data.responsiblePerson !== undefined && { responsiblePerson: data.responsiblePerson }),
+        ...(data.notes !== undefined && { notes: data.notes }),
         targetDate: data.targetDate ? new Date(data.targetDate) : existing.targetDate,
         lastReviewDate: data.lastReviewDate
           ? new Date(data.lastReviewDate)
@@ -289,7 +296,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Soft delete compliance item
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroComplianceItem.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -315,7 +322,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /dashboard/summary - Compliance summary dashboard
-router.get('/dashboard/summary', async (_req: AuthRequest, res: Response) => {
+router.get('/dashboard/summary', async (_req: Request, res: Response) => {
   try {
     const [total, compliant, partiallyCompliant, nonCompliant, notApplicable, underReview] =
       await Promise.all([

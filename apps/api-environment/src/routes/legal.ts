@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma, Prisma, EnvAssessmentMethod, EnvJurisdiction, EnvObligationType, EnvPriority, EnvReportingFrequency } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -22,7 +22,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List legal obligations
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -71,7 +71,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envLegal), async (req: Request, res: Response) => {
   try {
     const obligation = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
     if (!obligation)
@@ -90,7 +90,7 @@ router.get('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res
 });
 
 // POST /
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       obligationType: z.string().trim().min(1).max(200),
@@ -153,9 +153,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const obligation = await prisma.envLegal.create({
       data: {
         referenceNumber,
-        obligationType: data.obligationType as Prisma.EnvObligationType,
+        obligationType: data.obligationType as EnvObligationType,
         title: data.title,
-        jurisdiction: data.jurisdiction as Prisma.EnvJurisdiction,
+        jurisdiction: data.jurisdiction as EnvJurisdiction,
         regulatoryBody: data.regulatoryBody,
         legislationReference: data.legislationReference,
         description: data.description,
@@ -173,15 +173,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         evidenceReference: data.evidenceReference,
         lastAssessedDate: data.lastAssessedDate ? new Date(data.lastAssessedDate) : null,
         assessedBy: data.assessedBy,
-        assessmentMethod: data.assessmentMethod as Prisma.EnvAssessmentMethod,
+        assessmentMethod: data.assessmentMethod as EnvAssessmentMethod,
         complianceGaps: data.complianceGaps,
         requiredActions: data.requiredActions,
-        actionPriority: data.actionPriority as Prisma.EnvPriority,
+        actionPriority: data.actionPriority as EnvPriority,
         actionsDueDate: data.actionsDueDate ? new Date(data.actionsDueDate) : null,
         capaRequired: data.capaRequired,
         monitoringRequirements: data.monitoringRequirements,
         reportingRequirements: data.reportingRequirements,
-        reportingFrequency: data.reportingFrequency as Prisma.EnvReportingFrequency,
+        reportingFrequency: data.reportingFrequency as EnvReportingFrequency,
         nextReportingDue: data.nextReportingDue ? new Date(data.nextReportingDue) : null,
         permitConditions: data.permitConditions,
         aiKeyObligations: data.aiKeyObligations,
@@ -267,7 +267,7 @@ const legalUpdateSchema = z.object({
   aiGenerated: z.boolean().optional(),
 });
 
-router.put('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envLegal), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -312,7 +312,7 @@ router.put('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res
 });
 
 // DELETE /:id
-router.delete('/:id', checkOwnership(prisma.envLegal), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envLegal), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envLegal.findUnique({ where: { id: req.params.id } });
     if (!existing)

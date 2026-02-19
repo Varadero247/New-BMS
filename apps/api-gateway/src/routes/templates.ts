@@ -1,11 +1,13 @@
-import { Router, Response } from 'express';
-import { prisma, Prisma } from '@ims/database';
+import { Router, Request, Response } from 'express';
+import { prisma as prismaBase, Prisma } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { renderTemplateToHtml } from '@ims/templates';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-gateway');
+const prisma = prismaBase as unknown as PrismaClient;
 
 const router = Router();
 router.param('id', validateIdParam());
@@ -144,7 +146,7 @@ async function generateCode(module: string): Promise<string> {
 // GET /api/v1/templates — List templates
 // ---------------------------------------------------------------------------
 
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const {
       module,
@@ -224,7 +226,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 // GET /api/v1/templates/stats — Usage statistics
 // ---------------------------------------------------------------------------
 
-router.get('/stats', async (_req: AuthRequest, res: Response) => {
+router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [byModule, byCategory, topUsed, totals] = await Promise.all([
       prisma.template.groupBy({
@@ -281,7 +283,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 // GET /api/v1/templates/search — Full-text search
 // ---------------------------------------------------------------------------
 
-router.get('/search', async (req: AuthRequest, res: Response) => {
+router.get('/search', async (req: Request, res: Response) => {
   try {
     const { q = '', limit = '20' } = req.query as Record<string, string>;
     if (!q.trim()) {
@@ -327,7 +329,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
 // GET /api/v1/templates/:id — Single template
 // ---------------------------------------------------------------------------
 
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -353,7 +355,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 // POST /api/v1/templates — Create template
 // ---------------------------------------------------------------------------
 
-router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
+router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
   try {
     const parsed = createTemplateSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -372,9 +374,9 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
         status: data.status,
         tags: data.tags,
         fields: data.fields as Prisma.InputJsonValue,
-        defaultContent: data.defaultContent ?? null,
+        defaultContent: (data.defaultContent ?? null) as never,
         isBuiltIn: false,
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -394,7 +396,7 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
 // PUT /api/v1/templates/:id — Update template (auto-versions)
 // ---------------------------------------------------------------------------
 
-router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
+router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -415,9 +417,9 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
       data: {
         templateId: existing.id,
         version: existing.version,
-        fields: existing.fields,
-        defaultContent: existing.defaultContent,
-        changedById: req.user!.id,
+        fields: existing.fields as never,
+        defaultContent: existing.defaultContent as never,
+        changedById: (req as AuthRequest).user!.id,
         changeNote: parsed.data.changeNote ?? `Updated to version ${existing.version + 1}`,
       },
     });
@@ -446,7 +448,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
 // DELETE /api/v1/templates/:id — Soft-delete
 // ---------------------------------------------------------------------------
 
-router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -458,7 +460,7 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
     }
 
     // Only ADMIN can delete built-in templates
-    if (existing.isBuiltIn && req.user!.role !== 'ADMIN') {
+    if (existing.isBuiltIn && (req as AuthRequest).user!.role !== 'ADMIN') {
       return res.status(403).json({
         success: false,
         error: {
@@ -492,7 +494,7 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
 router.post(
   '/:id/clone',
   requireRole('MANAGER', 'ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const original = await prisma.template.findFirst({
         where: { id: req.params.id, deletedAt: null },
@@ -519,11 +521,11 @@ router.post(
           category: original.category,
           status: 'DRAFT',
           tags: original.tags,
-          fields: original.fields,
-          defaultContent: original.defaultContent,
+          fields: original.fields as never,
+          defaultContent: original.defaultContent as never,
           isBuiltIn: false,
           usageCount: 0,
-          createdBy: req.user!.id,
+          createdBy: (req as AuthRequest).user!.id,
         },
       });
 
@@ -544,7 +546,7 @@ router.post(
 // POST /api/v1/templates/:id/use — Create TemplateInstance
 // ---------------------------------------------------------------------------
 
-router.post('/:id/use', async (req: AuthRequest, res: Response) => {
+router.post('/:id/use', async (req: Request, res: Response) => {
   try {
     const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -568,7 +570,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
           templateName: template.name,
           module: template.module,
           filledData: parsed.data.filledData as Prisma.InputJsonValue,
-          createdById: req.user!.id,
+          createdById: (req as AuthRequest).user!.id,
           referenceId: parsed.data.referenceId ?? null,
         },
       }),
@@ -594,7 +596,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
 // GET /api/v1/templates/:id/versions — Version history
 // ---------------------------------------------------------------------------
 
-router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
+router.get('/:id/versions', async (req: Request, res: Response) => {
   try {
     const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -631,7 +633,7 @@ router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
 router.post(
   '/:id/versions/:version/restore',
   requireRole('MANAGER', 'ADMIN'),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const versionNum = parseInt(req.params.version, 10);
       if (isNaN(versionNum)) {
@@ -663,9 +665,9 @@ router.post(
         data: {
           templateId: current.id,
           version: current.version,
-          fields: current.fields,
-          defaultContent: current.defaultContent,
-          changedById: req.user!.id,
+          fields: current.fields as never,
+          defaultContent: current.defaultContent as never,
+          changedById: (req as AuthRequest).user!.id,
           changeNote: `Restored from version ${versionNum}`,
         },
       });
@@ -673,8 +675,8 @@ router.post(
       const restored = await prisma.template.update({
         where: { id: req.params.id },
         data: {
-          fields: templateVersion.fields,
-          defaultContent: templateVersion.defaultContent,
+          fields: templateVersion.fields as never,
+          defaultContent: (templateVersion.defaultContent ?? null) as never,
           version: current.version + 1,
         },
       });
@@ -696,7 +698,7 @@ router.post(
 // GET /api/v1/templates/:id/export — Export as HTML or JSON
 // ---------------------------------------------------------------------------
 
-router.get('/:id/export', async (req: AuthRequest, res: Response) => {
+router.get('/:id/export', async (req: Request, res: Response) => {
   try {
     const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -733,7 +735,7 @@ router.get('/:id/export', async (req: AuthRequest, res: Response) => {
         code: template.code,
         name: template.name,
         description: template.description,
-        fields: template.fields as Prisma.InputJsonValue,
+        fields: template.fields as unknown as import('@ims/templates').FieldDefinition[],
       },
       undefined
     );

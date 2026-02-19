@@ -425,7 +425,7 @@ export default function ImprovementsClient() {
   }
 
   function formatCurrency(val: number | null | undefined): string {
-    if (val === null) return '-';
+    if (val == null) return '-';
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
       currency: 'GBP',

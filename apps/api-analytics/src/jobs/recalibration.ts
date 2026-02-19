@@ -116,7 +116,7 @@ export async function runRecalibration(snapshotId: string): Promise<void> {
   }
 
   const averages = calculateRollingAverages(
-    history as { mrrGrowthPct: number | null; revenueChurnPct: number | null; newCustomers: number }[]
+    history as unknown as { mrrGrowthPct: number | null; revenueChurnPct: number | null; newCustomers: number }[]
   );
   const currentMrr = Number(snapshot.mrr);
 
@@ -151,7 +151,8 @@ export async function runRecalibration(snapshotId: string): Promise<void> {
     where: { id: snapshotId },
     data: {
       trajectory,
-      aiRecommendations: [...existingRecs, ...recommendations],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      aiRecommendations: [...existingRecs, ...recommendations] as any,
     },
   });
 

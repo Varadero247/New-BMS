@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -24,7 +24,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List issues
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', bias, priority, status, search } = req.query;
 
@@ -73,7 +73,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single issue
-router.get('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualIssue), async (req: Request, res: Response) => {
   try {
     const issue = await prisma.qualIssue.findUnique({
       where: { id: req.params.id },
@@ -98,7 +98,7 @@ router.get('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, re
 });
 
 // POST / - Create issue
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       partyId: z.string().trim().optional(),
@@ -157,7 +157,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update issue
-router.put('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualIssue), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -220,7 +220,7 @@ router.put('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, re
 });
 
 // DELETE /:id - Delete issue
-router.delete('/:id', checkOwnership(prisma.qualIssue), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.qualIssue), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualIssue.findUnique({ where: { id: req.params.id } });
     if (!existing) {

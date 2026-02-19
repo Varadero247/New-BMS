@@ -40,7 +40,7 @@ router.get('/:id/history', async (req: Request, res: Response) => {
     const [incidents, total] = await Promise.all([
       prisma.uptimeIncident.findMany({
         where: { uptimeCheckId: id },
-        orderBy: { detectedAt: 'desc' as const },
+        orderBy: { startedAt: 'desc' as const },
         skip,
         take: limit,
       }),
@@ -78,7 +78,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     const recentIncidents = await prisma.uptimeIncident.findMany({
       where: { uptimeCheckId: id },
-      orderBy: { detectedAt: 'desc' as const },
+      orderBy: { startedAt: 'desc' as const },
       take: 10,
     });
 

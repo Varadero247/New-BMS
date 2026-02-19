@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -24,7 +24,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List actions
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', actionType, status, priority, source, search } = req.query;
 
@@ -71,7 +71,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /stats - Action statistics
-router.get('/stats', async (req: AuthRequest, res: Response) => {
+router.get('/stats', async (req: Request, res: Response) => {
   try {
     const [byStatus, byPriority, byActionType, total] = await Promise.all([
       prisma.qualAction.groupBy({
@@ -117,7 +117,7 @@ router.get('/stats', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single action
-router.get('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.qualAction), async (req: Request, res: Response) => {
   try {
     const action = await prisma.qualAction.findUnique({
       where: { id: req.params.id },
@@ -139,7 +139,7 @@ router.get('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
 });
 
 // POST / - Create action
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -220,7 +220,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update action
-router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.qualAction), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualAction.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -351,7 +351,7 @@ router.put('/:id', checkOwnership(prisma.qualAction), async (req: AuthRequest, r
 router.delete(
   '/:id',
   checkOwnership(prisma.qualAction),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualAction.findUnique({ where: { id: req.params.id } });
       if (!existing) {

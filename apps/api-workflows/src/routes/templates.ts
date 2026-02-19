@@ -49,7 +49,7 @@ const industryTypeEnum = z.enum([
 ]);
 
 // GET /api/templates - Get workflow templates
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { category, industryType, isActive } = req.query;
 
@@ -96,7 +96,7 @@ router.get('/categories/list', async (_req: Request, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.workflowTemplate),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const template = await prisma.workflowTemplate.findUnique({
         where: { id: req.params.id },
@@ -165,7 +165,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.workflowTemplate),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const schema = z.object({
         name: z.string().trim().min(1).max(200).optional(),
@@ -204,7 +204,7 @@ router.put(
 router.put(
   '/:id/publish',
   checkOwnership(prisma.workflowTemplate),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const template = await prisma.workflowTemplate.update({
         where: { id: req.params.id },

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import {
@@ -16,7 +16,7 @@ const router = Router();
 router.use(authenticate);
 
 // GET /api/admin/automation-rules — List all rules with enabled status
-router.get('/', (req: AuthRequest, res: Response) => {
+router.get('/', (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const rules = listRules(orgId);
@@ -37,7 +37,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/automation-rules/:id/enable — Enable a rule
-router.post('/:id/enable', (req: AuthRequest, res: Response) => {
+router.post('/:id/enable', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
@@ -67,7 +67,7 @@ router.post('/:id/enable', (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/automation-rules/:id/disable — Disable a rule
-router.post('/:id/disable', (req: AuthRequest, res: Response) => {
+router.post('/:id/disable', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
@@ -97,7 +97,7 @@ router.post('/:id/disable', (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/admin/automation-rules/:id/log — Get execution log
-router.get('/:id/log', (req: AuthRequest, res: Response) => {
+router.get('/:id/log', (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';

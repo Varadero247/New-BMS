@@ -1,4 +1,4 @@
-import type { Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { prisma } from '@ims/database';
 import { verifyToken } from './jwt';
 import type { AuthRequest } from './types';
@@ -13,15 +13,17 @@ import type { AuthRequest } from './types';
  * 4. Checks the user is still active
  * 5. Updates the session's lastActivityAt timestamp
  */
-export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
+export async function authenticate(req: Request, res: Response, next: NextFunction): Promise<void> {
+  const authReq = req as AuthRequest;
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader?.startsWith('Bearer ')) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { code: 'UNAUTHORIZED', message: 'No token provided' },
       });
+      return;
     }
 
     const token = authHeader.substring(7);
@@ -31,10 +33,11 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
     try {
       decoded = verifyToken(token);
     } catch (error) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { code: 'TOKEN_INVALID', message: 'Invalid or expired token' },
       });
+      return;
     }
 
     // 2. Validate session exists in database and is not expired
@@ -48,20 +51,22 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
     });
 
     if (!session) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { code: 'SESSION_EXPIRED', message: 'Session has expired or been revoked' },
       });
+      return;
     }
 
     // 3. Check user is still active
     if (!session.user.isActive) {
       // Delete the session since user is inactive
       await prisma.session.delete({ where: { id: session.id } });
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         error: { code: 'USER_INACTIVE', message: 'Account has been deactivated' },
       });
+      return;
     }
 
     // 4. Update last activity timestamp (fire and forget for performance)
@@ -75,13 +80,13 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
       });
 
     // 5. Attach user and session info to request
-    req.user = session.user;
-    req.sessionId = session.id;
-    req.token = token;
+    authReq.user = session.user;
+    authReq.sessionId = session.id;
+    authReq.token = token;
 
     next();
   } catch (error) {
-    return res.status(401).json({
+    res.status(401).json({
       success: false,
       error: { code: 'UNAUTHORIZED', message: 'Authentication failed' },
     });
@@ -92,19 +97,22 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
  * Require specific role(s) for access
  */
 export function requireRole(...roles: string[]) {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return res.status(401).json({
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const authReq = req as AuthRequest;
+    if (!authReq.user) {
+      res.status(401).json({
         success: false,
         error: { code: 'UNAUTHORIZED', message: 'Not authenticated' },
       });
+      return;
     }
 
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
+    if (!roles.includes(authReq.user.role)) {
+      res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Insufficient permissions' },
       });
+      return;
     }
 
     next();
@@ -114,12 +122,13 @@ export function requireRole(...roles: string[]) {
 /**
  * Optional authentication - doesn't fail if no token provided
  */
-export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
+export function optionalAuth(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith('Bearer ')) {
-    return next();
+    next();
+    return;
   }
 
-  authenticate(req, res, next);
+  authenticate(req, res, next).catch(() => next());
 }

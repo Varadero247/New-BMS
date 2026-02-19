@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
@@ -14,7 +14,7 @@ const router: IRouter = Router();
 router.use(authenticate);
 
 // GET /api/settings - Get AI settings
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const settings = await prisma.aISettings.findFirst({
       where: { deletedAt: null },
@@ -58,7 +58,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/settings - Create or update AI settings (Admin only)
-router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.post('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       provider: z.enum(['OPENAI', 'ANTHROPIC', 'GROK']),
@@ -135,7 +135,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
 });
 
 // DELETE /api/settings - Delete AI settings (Admin only)
-router.delete('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.delete('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     await prisma.aISettings.deleteMany();
 

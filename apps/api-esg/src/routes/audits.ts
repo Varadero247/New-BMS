@@ -117,7 +117,7 @@ router.post('/', async (req: Request, res: Response) => {
         endDate: data.endDate ? new Date(data.endDate) : null,
         status: data.status || 'PLANNED',
         findings: data.findings || null,
-        score: data.score !== null ? new Prisma.Decimal(data.score) : null,
+        score: data.score != null ? new Prisma.Decimal(data.score) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });

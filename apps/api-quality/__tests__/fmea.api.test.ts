@@ -830,7 +830,7 @@ describe('Quality FMEA API Routes', () => {
         id: '4e000000-0000-4000-a000-000000000001',
         fmeaId: '1f000000-0000-4000-a000-000000000001',
       });
-      (mockPrisma.qualFmeaRow.update as jest.Mock).mockResolvedValueOnce({});
+      (mockPrisma.qualFmeaRow.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete(
@@ -839,9 +839,8 @@ describe('Quality FMEA API Routes', () => {
         .set('Authorization', 'Bearer token');
 
       expect(response.status).toBe(204);
-      expect(mockPrisma.qualFmeaRow.update).toHaveBeenCalledWith({
+      expect(mockPrisma.qualFmeaRow.delete).toHaveBeenCalledWith({
         where: { id: '4e000000-0000-4000-a000-000000000001' },
-        data: { deletedAt: expect.any(Date) },
       });
     });
 

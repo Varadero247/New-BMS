@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -95,7 +95,7 @@ const createSuspectPartSchema = z.object({
 // ============================================
 
 // GET / - List counterfeit reports
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, disposition, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -140,7 +140,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /suspect-parts - List suspect parts
-router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/suspect-parts', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', riskLevel, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -183,7 +183,7 @@ router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response
 });
 
 // GET /:id - Get counterfeit report
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const report = await prisma.aeroCounterfeitReport.findUnique({
       where: { id: req.params.id },
@@ -207,7 +207,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create counterfeit report
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createCounterfeitReportSchema.parse(req.body);
     const refNumber = await generateCounterfeitReportRefNumber();
@@ -223,15 +223,15 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         poNumber: data.poNumber,
         quantity: data.quantity,
         dateDiscovered: new Date(data.dateDiscovered),
-        discoveredBy: data.discoveredBy || req.user?.id,
+        discoveredBy: data.discoveredBy || (req as AuthRequest).user?.id,
         discrepancyDescription: data.discrepancyDescription,
-        suspicionIndicators: data.suspicionIndicators,
+        suspicionIndicators: JSON.stringify(data.suspicionIndicators),
         disposition: data.disposition,
         status: 'OPEN',
         reportedToGidep: data.reportedToGidep,
-        safetyImpact: data.safetyImpact,
+        safetyImpact: String(data.safetyImpact),
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -256,7 +256,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update counterfeit report
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroCounterfeitReport.findUnique({
       where: { id: req.params.id },
@@ -272,7 +272,19 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const report = await prisma.aeroCounterfeitReport.update({
       where: { id: req.params.id },
-      data: data as Record<string, unknown>,
+      data: {
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.discrepancyDescription !== undefined && { discrepancyDescription: data.discrepancyDescription }),
+        ...(data.suspicionIndicators !== undefined && { suspicionIndicators: JSON.stringify(data.suspicionIndicators) }),
+        ...(data.disposition !== undefined && { disposition: data.disposition }),
+        ...(data.status !== undefined && { status: data.status }),
+        ...(data.investigationFindings !== undefined && { investigationFindings: data.investigationFindings }),
+        ...(data.correctiveAction !== undefined && { correctiveAction: data.correctiveAction }),
+        ...(data.reportedToGidep !== undefined && { reportedToGidep: data.reportedToGidep }),
+        ...(data.gidepReportRef !== undefined && { gidepReportRef: data.gidepReportRef }),
+        ...(data.safetyImpact !== undefined && { safetyImpact: String(data.safetyImpact) }),
+        ...(data.notes !== undefined && { notes: data.notes }),
+      },
     });
 
     res.json({ success: true, data: report });
@@ -296,7 +308,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Soft delete counterfeit report
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroCounterfeitReport.findUnique({
       where: { id: req.params.id },
@@ -328,7 +340,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /suspect-parts - Add suspect part to database
-router.post('/suspect-parts', async (req: AuthRequest, res: Response) => {
+router.post('/suspect-parts', async (req: Request, res: Response) => {
   try {
     const data = createSuspectPartSchema.parse(req.body);
     const refNumber = await generateSuspectPartRefNumber();
@@ -341,10 +353,10 @@ router.post('/suspect-parts', async (req: AuthRequest, res: Response) => {
         manufacturer: data.manufacturer,
         nsn: data.nsn,
         riskLevel: data.riskLevel,
-        indicators: data.indicators,
-        sources: data.sources,
+        indicators: JSON.stringify(data.indicators),
+        sources: JSON.stringify(data.sources),
         notes: data.notes,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 

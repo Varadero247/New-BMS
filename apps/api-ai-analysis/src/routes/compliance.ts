@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -71,7 +71,7 @@ function parseJsonResponse(content: string): unknown {
 }
 
 // POST /api/compliance/gap-analysis — Cross-standard gap detection
-router.post('/gap-analysis', async (req: AuthRequest, res: Response) => {
+router.post('/gap-analysis', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       standards: z.array(z.string().trim()).min(1).max(10),
@@ -170,7 +170,7 @@ Perform a comprehensive gap analysis. Respond with ONLY valid JSON:
 });
 
 // POST /api/compliance/predictive-risk — Predictive risk scoring
-router.post('/predictive-risk', async (req: AuthRequest, res: Response) => {
+router.post('/predictive-risk', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       historicalIncidents: z
@@ -291,7 +291,7 @@ Provide predictive risk analysis. Respond with ONLY valid JSON:
 });
 
 // POST /api/compliance/search — Semantic search across modules
-router.post('/search', async (req: AuthRequest, res: Response) => {
+router.post('/search', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       query: z.string().trim().min(3).max(500),

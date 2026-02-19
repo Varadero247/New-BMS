@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -110,7 +110,7 @@ const updateSchema = z.object({
 });
 
 // GET / - List CAPAs
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, capaType, source, severity, search } = req.query;
 
@@ -151,7 +151,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /stats - CAPA statistics
-router.get('/stats', async (_req: AuthRequest, res: Response) => {
+router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, byStatus, byType, bySeverity, overdue] = await Promise.all([
       prisma.medCapa.count({ where: { deletedAt: null } }),
@@ -199,7 +199,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single CAPA
-router.get('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.medCapa), async (req: Request, res: Response) => {
   try {
     const capa = await prisma.medCapa.findUnique({ where: { id: req.params.id } });
     if (!capa || capa.deletedAt) {
@@ -217,7 +217,7 @@ router.get('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, res:
 });
 
 // POST / - Create CAPA
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSchema.parse(req.body);
     const refNumber = await generateRefNumber();
@@ -234,7 +234,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         deviceId: data.deviceId,
         severity: data.severity || 'MODERATE',
         status: 'OPEN',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -259,7 +259,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update CAPA
-router.put('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.medCapa), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.medCapa.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -313,7 +313,7 @@ router.put('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, res:
 });
 
 // DELETE /:id - Soft delete CAPA
-router.delete('/:id', checkOwnership(prisma.medCapa), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.medCapa), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.medCapa.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {

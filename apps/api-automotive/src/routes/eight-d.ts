@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -100,7 +100,7 @@ const updateSchema = z.object({
 });
 
 // GET / - List 8D reports
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, customer, severity, search } = req.query;
 
@@ -146,7 +146,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /stats - 8D summary statistics
-router.get('/stats', async (_req: AuthRequest, res: Response) => {
+router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, byStatus, bySeverity, openCritical] = await Promise.all([
       prisma.eightDReport.count({ where: { deletedAt: null } }),
@@ -184,7 +184,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get single 8D report
-router.get('/:id', checkOwnership(prisma.eightDReport), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.eightDReport), async (req: Request, res: Response) => {
   try {
     const report = await prisma.eightDReport.findUnique({ where: { id: req.params.id } });
     if (!report || report.deletedAt) {
@@ -203,7 +203,7 @@ router.get('/:id', checkOwnership(prisma.eightDReport), async (req: AuthRequest,
 });
 
 // POST / - Create new 8D report
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSchema.parse(req.body);
     const refNumber = await generateRefNumber();
@@ -220,7 +220,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         teamLeader: data.teamLeader,
         teamMembers: data.teamMembers,
         status: 'D1_TEAM_FORMATION',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -245,7 +245,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update 8D report
-router.put('/:id', checkOwnership(prisma.eightDReport), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.eightDReport), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.eightDReport.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -292,7 +292,7 @@ router.put('/:id', checkOwnership(prisma.eightDReport), async (req: AuthRequest,
 router.delete(
   '/:id',
   checkOwnership(prisma.eightDReport),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.eightDReport.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {

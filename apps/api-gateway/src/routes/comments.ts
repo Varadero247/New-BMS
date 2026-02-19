@@ -208,7 +208,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
     const commentId = req.params.id;
-    const roles: string[] = (user as { roles?: string[] }).roles || [(user as { role?: string }).role] || [];
+    const roles: string[] = (user as { roles?: string[] }).roles || [(user as { role?: string }).role].filter((r): r is string => r !== undefined) || [];
     const isAdmin =
       roles.includes('SUPER_ADMIN') || roles.includes('ORG_ADMIN') || roles.includes('ADMIN');
 

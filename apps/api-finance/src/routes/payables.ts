@@ -377,9 +377,10 @@ router.get('/purchase-orders', async (req: Request, res: Response) => {
       where.supplierId = String(supplierId);
     }
     if (dateFrom || dateTo) {
-      where.orderDate = {};
-      if (dateFrom) where.orderDate.gte = new Date(String(dateFrom));
-      if (dateTo) where.orderDate.lte = new Date(String(dateTo));
+      const orderDateFilter: { gte?: Date; lte?: Date } = {};
+      if (dateFrom) orderDateFilter.gte = new Date(String(dateFrom));
+      if (dateTo) orderDateFilter.lte = new Date(String(dateTo));
+      where.orderDate = orderDateFilter;
     }
     if (search) {
       where.OR = [
@@ -772,9 +773,10 @@ router.get('/', async (req: Request, res: Response) => {
       where.supplierId = String(supplierId);
     }
     if (dateFrom || dateTo) {
-      where.billDate = {};
-      if (dateFrom) where.billDate.gte = new Date(String(dateFrom));
-      if (dateTo) where.billDate.lte = new Date(String(dateTo));
+      const billDateFilter: { gte?: Date; lte?: Date } = {};
+      if (dateFrom) billDateFilter.gte = new Date(String(dateFrom));
+      if (dateTo) billDateFilter.lte = new Date(String(dateTo));
+      where.billDate = billDateFilter;
     }
     if (search) {
       where.OR = [
@@ -1088,7 +1090,7 @@ router.post('/payments', async (req: Request, res: Response) => {
         billId: parsed.data.billId || null,
         date: new Date(parsed.data.date as string),
         amount: new Prisma.Decimal(parsed.data.amount),
-        method: parsed.data.method as string,
+        method: parsed.data.method as import('@ims/database/finance').FinPaymentMethod,
         bankAccountId: parsed.data.bankAccountId || null,
         notes: parsed.data.notes || null,
         createdBy: authReq.user?.id || 'system',
@@ -1125,7 +1127,7 @@ router.post('/payments', async (req: Request, res: Response) => {
         data: {
           amountPaid: new Prisma.Decimal(Math.max(0, newAmountPaid).toFixed(2)),
           amountDue: new Prisma.Decimal(Math.max(0, newAmountDue).toFixed(2)),
-          status: newStatus as string,
+          status: newStatus as import('@ims/database/finance').FinBillStatus,
         },
       });
     }
@@ -1160,9 +1162,10 @@ router.get('/payments', async (req: Request, res: Response) => {
       where.supplierId = String(supplierId);
     }
     if (dateFrom || dateTo) {
-      where.date = {};
-      if (dateFrom) where.date.gte = new Date(String(dateFrom));
-      if (dateTo) where.date.lte = new Date(String(dateTo));
+      const dateFilter: { gte?: Date; lte?: Date } = {};
+      if (dateFrom) dateFilter.gte = new Date(String(dateFrom));
+      if (dateTo) dateFilter.lte = new Date(String(dateTo));
+      where.date = dateFilter;
     }
 
     const [payments, total] = await Promise.all([

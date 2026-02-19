@@ -25,7 +25,7 @@ model EnvAspect {
   department          String
   location            String?
   lifecyclePhases     String[]
-  operatingCondition  EnvOperatingCondition
+  operatingCondition  String?
   description         String?
   aspect              String
   impact              String
@@ -57,7 +57,7 @@ model EnvAspect {
   responsiblePerson   String?
   reviewFrequency     EnvReviewFrequency?
   nextReviewDate      DateTime?
-  status              EnvAspectStatus @default(ACTIVE)
+  status              String @default("ACTIVE")
   // AI
   aiSignificanceJustification  String?
   aiControlRecommendations     String?
@@ -136,7 +136,7 @@ model EnvEvent {
   monitoringRequired       Boolean?
   monitoringDescription    String?
   followUpDate             DateTime?
-  status                   EnvEventStatus @default(REPORTED)
+  status                   String @default("REPORTED")
   closedBy                 String?
   closureDate              DateTime?
   lessonsLearned           String?
@@ -184,13 +184,13 @@ model EnvLegal {
   relevantSection         String?
   effectiveDate           DateTime?
   expiryReviewDate        DateTime?
-  status                  EnvLegalStatus @default(ACTIVE)
+  status                  String @default("ACTIVE")
   description             String
   applicableActivities    String
   applicableSites         String?
   linkedAspects           String[]
   penalties               String?
-  complianceStatus        EnvComplianceStatus @default(NOT_ASSESSED)
+  complianceStatus        String @default("NOT_ASSESSED")
   complianceEvidence      String?
   evidenceReference       String?
   lastAssessedDate        DateTime?
@@ -243,7 +243,7 @@ model EnvObjective {
   title                  String
   objectiveStatement     String
   category               EnvObjectiveCategory
-  status                 EnvObjectiveStatus @default(NOT_STARTED)
+  status                 String @default("NOT_STARTED")
   policyCommitment       String?
   iso14001Clause         String?
   linkedAspects          String[]
@@ -326,7 +326,7 @@ model EnvAction {
   referenceNumber  String    @unique
   title            String
   actionType       EnvActionType
-  priority         EnvPriority
+  priority         String
   source           EnvActionSource
   sourceReference  String?
   description      String
@@ -341,7 +341,7 @@ model EnvAction {
   estimatedHours   Float?
   estimatedCost    Float?
   resourcesRequired String?
-  status           EnvActionStatus @default(OPEN)
+  status           String @default("OPEN")
   progressNotes    String?
   completionDate   DateTime?
   percentComplete  Int       @default(0)
@@ -425,7 +425,7 @@ model EnvCapa {
   effectivenessKPI       String?
   effectivenessTarget    String?
   effectivenessMethod    String?
-  status                 EnvCapaStatus @default(INITIATED)
+  status                 String @default("INITIATED")
   progressNotes          String?
   percentComplete        Int       @default(0)
   responsiblePerson      String
@@ -475,8 +475,8 @@ model EnvCapaAction {
   description String
   assignedTo  String
   dueDate     DateTime
-  priority    EnvPriority @default(MEDIUM)
-  status      EnvActionStatus @default(OPEN)
+  priority    String @default("MEDIUM")
+  status      String @default("OPEN")
   notes       String?
   completedDate DateTime?
   createdAt     DateTime     @default(now())
@@ -507,10 +507,26 @@ model EnvAudit {
   auditDate       DateTime
   leadAuditor     String
   auditees        String[]
-  status          EnvAuditStatus @default(PLANNED)
+  department      String?
+  auditTeam       String[]
+  objective       String?
+  criteria        String?
+  methodology     String?
+  status          String @default("PLANNED")
   iso14001Clauses String[]  // e.g. ["4.1","4.2","6.1.1","9.2"]
+  openingMeetingDate DateTime?
+  closingMeetingDate DateTime?
+  reportDueDate   DateTime?
+  completedDate   DateTime?
+  recommendations String?
+  aiAuditPlan     String?
+  aiClauseAnalysis String?
+  aiRiskAssessment String?
+  aiRecommendations String?
+  aiGenerated     Boolean   @default(false)
   findings        EnvAuditFinding[]
   summary         String?
+  conclusions     String?
   nextAuditDate   DateTime?
   createdBy       String?
   createdAt       DateTime  @default(now())
@@ -526,19 +542,22 @@ model EnvAudit {
 }
 
 model EnvAuditFinding {
-  id          String              @id @default(cuid())
+  id              String              @id @default(cuid())
   orgId           String?
-  auditId     String
-  clause      String              // ISO 14001 clause reference e.g. "6.1.1"
-  type        EnvFindingType
-  description String
-  evidence    String?
-  capaRef     String?             // Link to CAPA if NC
-  status      EnvFindingStatus    @default(OPEN)
-  dueDate     DateTime?
-  closedDate  DateTime?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+  auditId         String
+  clause          String              // ISO 14001 clause reference e.g. "6.1.1"
+  type            String
+  description     String
+  evidence        String?
+  requirement     String?
+  correctiveAction String?
+  assignedTo      String?
+  capaRef         String?             // Link to CAPA if NC
+  status          String    @default("OPEN")
+  dueDate         DateTime?
+  closedDate      DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
   audit       EnvAudit            @relation(fields: [auditId], references: [id], onDelete: Cascade)
 
@@ -555,10 +574,13 @@ model EnvAuditSchedule {
   tenantId      String    @default("default")
   title         String
   type          EnvAuditType
-  frequency     EnvReviewFrequency
+  frequency     String
   nextDueDate   DateTime
   lastCompleted DateTime?
   assignedTo    String?
+  assignedAuditor String?
+  description   String?
+  active        Boolean   @default(true)
   iso14001Clauses String[]
   isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
@@ -618,6 +640,7 @@ model EnvMRAction {
   owner       String
   dueDate     DateTime
   status      EnvActionStatus     @default(OPEN)
+  notes       String?
   completedAt DateTime?
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
@@ -1229,7 +1252,7 @@ model LifeCycleStage {
   id              String    @id @default(cuid())
   orgId           String?
   assessmentId    String
-  stageName       LcaStageName
+  stageName       String
   aspects         String?   // Environmental aspects at this stage
   impacts         String?   // Environmental impacts
   severity        Int?      // 1-5
@@ -1349,15 +1372,29 @@ model EnvCommunication {
   tenantId        String    @default("default")
   refNumber       String    @unique
   direction       CommDirection
-  commType        CommType
+  commType        CommType?
+  type            String?
   subject         String
   description     String?
+  content         String?
+  recipients      String?
+  sender          String?
+  relatedAspectId String?
+  scheduledDate   DateTime?
+  attendees       String?
+  location        String?
+  priority        String?
   stakeholders    String[]
   date            DateTime
   responseRequired Boolean  @default(false)
   responseDate    DateTime?
   responseNotes   String?
-  status          CommStatus @default(OPEN)
+  response        String?
+  respondedBy     String?
+  respondedAt     DateTime?
+  outcome         String?
+  status          String @default("OPEN")
+  deletedBy       String?
   createdBy       String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -67,7 +67,7 @@ async function generatePswNumber(): Promise<string> {
 }
 
 // POST / - Create PPAP project with auto-generated 18 elements
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       partNumber: z.string().trim().min(1).max(200),
@@ -89,7 +89,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           customer: data.customer,
           submissionLevel: data.submissionLevel,
           status: 'DRAFT',
-          createdBy: req.user?.id,
+          createdBy: (req as AuthRequest).user?.id,
         },
       });
 
@@ -136,7 +136,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET / - List PPAP projects
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, customer, partNumber } = req.query;
 
@@ -174,7 +174,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get PPAP project with elements and submissions
-router.get('/:id', checkOwnership(prisma.ppapProject), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.ppapProject), async (req: Request, res: Response) => {
   try {
     const project = await prisma.ppapProject.findUnique({
       where: { id: req.params.id },
@@ -201,7 +201,7 @@ router.get('/:id', checkOwnership(prisma.ppapProject), async (req: AuthRequest, 
 });
 
 // PUT /:id/elements/:elementNumber - Update element status/docs
-router.put('/:id/elements/:elementNumber', async (req: AuthRequest, res: Response) => {
+router.put('/:id/elements/:elementNumber', async (req: Request, res: Response) => {
   try {
     const { id, elementNumber: elemNumStr } = req.params;
     const elementNumber = parseInt(elemNumStr, 10);
@@ -280,7 +280,7 @@ router.put('/:id/elements/:elementNumber', async (req: AuthRequest, res: Respons
 });
 
 // POST /:id/psw - Submit Part Submission Warrant
-router.post('/:id/psw', async (req: AuthRequest, res: Response) => {
+router.post('/:id/psw', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -306,7 +306,7 @@ router.post('/:id/psw', async (req: AuthRequest, res: Response) => {
         pswNumber,
         submissionLevel: data.submissionLevel || project.submissionLevel,
         customerNotes: data.customerNotes,
-        submittedBy: req.user?.id,
+        submittedBy: (req as AuthRequest).user?.id,
         submittedDate: new Date(),
         status: 'SUBMITTED',
       },
@@ -338,7 +338,7 @@ router.post('/:id/psw', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id/readiness - PPAP readiness check
-router.get('/:id/readiness', async (req: AuthRequest, res: Response) => {
+router.get('/:id/readiness', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -385,7 +385,7 @@ router.get('/:id/readiness', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/submit-level - Set submission level (1-5)
-router.post('/:id/submit-level', async (req: AuthRequest, res: Response) => {
+router.post('/:id/submit-level', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 

@@ -46,6 +46,13 @@ enum IsAssetFormat {
   BOTH
 }
 
+enum IsAssetStatus {
+  ACTIVE
+  INACTIVE
+  DISPOSED
+  UNDER_REVIEW
+}
+
 enum IsControlDomain {
   ORGANISATIONAL
   PEOPLE
@@ -214,6 +221,7 @@ model IsScope {
   approvedBy     String?
   approvedAt     DateTime?
   createdBy      String
+  updatedBy      String?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   deletedAt      DateTime?
@@ -243,10 +251,12 @@ model IsAsset {
   encryptionRequired  Boolean             @default(false)
   description         String?
   notes               String?
+  status              IsAssetStatus       @default(ACTIVE)
   createdBy           String
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   deletedAt           DateTime?
+  deletedBy           String?
 
   @@index([orgId])
 
@@ -274,6 +284,7 @@ model IsControl {
   reviewDate           DateTime?
   lastReviewedAt       DateTime?
   createdBy            String
+  updatedBy            String?
   createdAt            DateTime                      @default(now())
   updatedAt            DateTime                      @updatedAt
   deletedAt            DateTime?
@@ -379,6 +390,7 @@ model IsAudit {
   status        IsAuditStatus @default(PLANNED)
   summary       String?
   nextAuditDate DateTime?
+  completedAt   DateTime?
   createdBy     String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt

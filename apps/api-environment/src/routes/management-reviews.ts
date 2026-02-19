@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -23,7 +23,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List management reviews
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, year, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -84,7 +84,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.envManagementReview),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const review = await prisma.envManagementReview.findUnique({
         where: { id: req.params.id },
@@ -107,7 +107,7 @@ router.get(
 );
 
 // POST / - Create management review
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       reviewDate: z
@@ -182,7 +182,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.envManagementReview),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.envManagementReview.findUnique({
         where: { id: req.params.id },
@@ -264,7 +264,7 @@ router.put(
 router.post(
   '/:id/complete',
   checkOwnership(prisma.envManagementReview),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.envManagementReview.findUnique({
         where: { id: req.params.id },
@@ -328,7 +328,7 @@ router.post(
 );
 
 // POST /:id/actions - Add action to review
-router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
+router.post('/:id/actions', async (req: Request, res: Response) => {
   try {
     const review = await prisma.envManagementReview.findUnique({ where: { id: req.params.id } });
     if (!review)
@@ -382,7 +382,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id/actions/:actionId - Update action
-router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/actions/:actionId', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envMRAction.findFirst({
       where: { id: req.params.actionId, reviewId: req.params.id },
@@ -448,7 +448,7 @@ router.put('/:id/actions/:actionId', async (req: AuthRequest, res: Response) => 
 router.delete(
   '/:id',
   checkOwnership(prisma.envManagementReview),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.envManagementReview.findUnique({
         where: { id: req.params.id },

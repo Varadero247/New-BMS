@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -14,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/documents - List documents by projectId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, page = '1', limit = '50' } = req.query;
 
@@ -86,7 +86,7 @@ const updateDocumentSchema = createDocumentSchema
   .partial();
 
 // POST /api/documents - Create document
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createDocumentSchema.parse(req.body);
 
@@ -105,7 +105,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         keywords: data.keywords,
         accessLevel: data.accessLevel || 'PROJECT_TEAM',
         status: data.status || 'DRAFT',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -129,7 +129,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.projectDocument),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectDocument.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -145,7 +145,7 @@ router.put(
           error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
         });
       const data = parsed.data;
-      const updateData = { ...data, updatedBy: req.user?.id } as Record<string, unknown>;
+      const updateData = { ...data, updatedBy: (req as AuthRequest).user?.id } as Record<string, unknown>;
 
       if (data.reviewedAt) updateData.reviewedAt = new Date(data.reviewedAt);
       if (data.approvedAt) updateData.approvedAt = new Date(data.approvedAt);
@@ -170,7 +170,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.projectDocument),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectDocument.findUnique({ where: { id: req.params.id } });
       if (!existing) {

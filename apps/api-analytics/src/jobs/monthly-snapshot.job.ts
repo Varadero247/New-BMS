@@ -5,7 +5,7 @@ import { runRecalibration } from './recalibration';
 import { sendEmail, monthlyReportEmail } from '@ims/email';
 
 interface StripeSub { plan?: { amount?: number }; canceled_at?: number | string; created?: number | string; status?: string }
-interface HubSpotDeal { properties?: { dealstage?: string; amount?: string; createdate?: string } }
+interface HubSpotDeal { createdAt?: string; properties?: { dealstage?: string; amount?: string; createdate?: string } }
 
 const logger = createLogger('monthly-snapshot');
 
@@ -117,7 +117,7 @@ export async function collectHubSpotMetrics(): Promise<{
       (rawDeals as { results?: HubSpotDeal[] })?.results ||
       (Array.isArray(rawDeals) ? (rawDeals as HubSpotDeal[]) : []);
     const openDeals = deals.filter(
-      (d: HubSpotDeal) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage)
+      (d: HubSpotDeal) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage ?? '')
     );
     const pipelineValue = openDeals.reduce(
       (sum: number, d: HubSpotDeal) => sum + Number(d.properties?.amount || 0),
@@ -413,8 +413,8 @@ export async function runMonthlySnapshot(): Promise<string> {
   if (planTarget) {
     try {
       await runVarianceAnalysis(
-        snapshot as Parameters<typeof runVarianceAnalysis>[0],
-        planTarget as Parameters<typeof runVarianceAnalysis>[1]
+        snapshot as unknown as Parameters<typeof runVarianceAnalysis>[0],
+        planTarget as unknown as Parameters<typeof runVarianceAnalysis>[1]
       );
     } catch (err) {
       logger.error('AI variance analysis failed', { error: String(err) });

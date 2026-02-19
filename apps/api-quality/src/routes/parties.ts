@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
@@ -24,7 +24,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List interested parties
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', partyType, status, search } = req.query;
 
@@ -75,7 +75,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.qualInterestedParty),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const party = await prisma.qualInterestedParty.findUnique({
         where: { id: req.params.id },
@@ -103,7 +103,7 @@ router.get(
 );
 
 // POST / - Create interested party
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       partyName: z.string().trim().min(1).max(200),
@@ -152,7 +152,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.qualInterestedParty),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualInterestedParty.findUnique({
         where: { id: req.params.id },
@@ -209,7 +209,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.qualInterestedParty),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualInterestedParty.findUnique({
         where: { id: req.params.id },

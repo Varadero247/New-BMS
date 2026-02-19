@@ -114,7 +114,7 @@ export default function LinkedInTrackerPage() {
               : r.status === 'CLOSED_LOST'
                 ? 'closedLost'
                 : r.status.toLowerCase();
-          if (key in stats) (stats as Record<string, number>)[key]++++;
+          if (key in stats) (stats as unknown as Record<string, number>)[key]++;
         });
         setFunnelStats(stats);
       }

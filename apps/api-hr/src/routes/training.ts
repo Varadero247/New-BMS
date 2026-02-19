@@ -133,13 +133,13 @@ router.get('/sessions', async (req: Request, res: Response) => {
   try {
     const { courseId, status, startDate, endDate } = req.query;
 
-    const where: Record<string, unknown> = { deletedAt: null };
+    const where: Record<string, unknown> = {};
     if (courseId) where.courseId = courseId as string;
     if (status) where.status = status;
     if (startDate || endDate) {
-      where.startDate = {};
-      if (startDate) where.startDate.gte = new Date(startDate as string);
-      if (endDate) where.startDate.lte = new Date(endDate as string);
+      (where as any).startDate = {};
+      if (startDate) (where as any).startDate.gte = new Date(startDate as string);
+      if (endDate) (where as any).startDate.lte = new Date(endDate as string);
     }
 
     const sessions = await prisma.hRTrainingSession.findMany({

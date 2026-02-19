@@ -73,9 +73,12 @@ model DocVersion {
   changeNotes  String?
   createdAt    DateTime @default(now())
   createdBy    String?
+  updatedBy    String?
+  deletedAt    DateTime?
   document     DocDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
   @@map("doc_versions")
   @@index([documentId])
+  @@index([deletedAt])
 }
 
 model DocApproval {
@@ -89,9 +92,13 @@ model DocApproval {
   decidedAt    DateTime?
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
+  createdBy    String?
+  updatedBy    String?
+  deletedAt    DateTime?
   document     DocDocument       @relation(fields: [documentId], references: [id])
   @@map("doc_approvals")
   @@index([documentId])
+  @@index([deletedAt])
 }
 
 model DocReadReceipt {
@@ -104,8 +111,13 @@ model DocReadReceipt {
   readAt       DateTime?
   acknowledgedAt DateTime?
   createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  createdBy    String?
+  updatedBy    String?
+  deletedAt    DateTime?
   document     DocDocument   @relation(fields: [documentId], references: [id])
   @@map("doc_read_receipts")
   @@index([documentId])
   @@index([userId])
+  @@index([deletedAt])
 }

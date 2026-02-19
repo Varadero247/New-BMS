@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -14,7 +14,7 @@ const router: IRouter = Router();
 router.use(authenticate);
 
 // GET /api/metrics/safety - List safety metrics
-router.get('/', async (req: AuthRequest, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { year } = req.query;
     const filterYear = year ? parseInt(year as string, 10) : new Date().getFullYear();
@@ -36,7 +36,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/metrics/safety/summary - Get summary for current year
-router.get('/summary', async (req: AuthRequest, res: Response) => {
+router.get('/summary', async (req: Request, res: Response) => {
   try {
     const year = new Date().getFullYear();
 
@@ -103,7 +103,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/metrics/safety - Create or update monthly metric
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       year: z.number().int().min(2000).max(2100),

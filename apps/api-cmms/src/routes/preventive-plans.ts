@@ -133,7 +133,7 @@ router.post('/', async (req: Request, res: Response) => {
         assignedTo: data.assignedTo,
         isActive: data.isActive !== undefined ? data.isActive : true,
         estimatedDuration: data.estimatedDuration,
-        estimatedCost: data.estimatedCost !== null ? new Prisma.Decimal(data.estimatedCost) : null,
+        estimatedCost: data.estimatedCost != null ? new Prisma.Decimal(data.estimatedCost ?? 0) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });

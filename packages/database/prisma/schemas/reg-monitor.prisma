@@ -91,21 +91,22 @@ model RegLegalRegister {
 }
 
 model RegObligation {
-  id           String   @id @default(cuid())
-  orgId        String
-  title        String
-  description  String?
-  source       String?
-  dueDate      DateTime?
-  frequency    String?
-  responsible  String?
-  status       String   @default("PENDING")
-  evidence     String?
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String?
-  deletedAt    DateTime?
+  id              String   @id @default(cuid())
+  orgId           String
+  referenceNumber String?
+  title           String
+  description     String?
+  source          String?
+  dueDate         DateTime?
+  frequency       String?
+  responsible     String?
+  status          String   @default("PENDING")
+  evidence        String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  deletedAt       DateTime?
   @@map("reg_obligations")
   @@index([orgId])
   @@index([deletedAt])

@@ -74,24 +74,25 @@ router.put('/', async (req: Request, res: Response) => {
       scope = await prisma.isScope.update({
         where: { id: existing.id },
         data: {
-          ...parsed.data,
-          updatedBy: authReq.user?.id || 'system',
+          title: parsed.data.name || existing.title,
+          description: parsed.data.description || existing.description,
+          boundaries: parsed.data.boundaries || null,
+          exclusions: parsed.data.exclusions || null,
+          justifications: parsed.data.justification || null,
+          status: (parsed.data.status || existing.status) as any,
+          updatedBy: authReq.user?.id,
           updatedAt: new Date(),
         },
       });
     } else {
       scope = await prisma.isScope.create({
         data: {
-          name: parsed.data.name || 'ISMS Scope',
-          description: parsed.data.description || null,
+          title: parsed.data.name || 'ISMS Scope',
+          description: parsed.data.description || '',
           boundaries: parsed.data.boundaries || null,
-          inclusions: parsed.data.inclusions || null,
           exclusions: parsed.data.exclusions || null,
-          justification: parsed.data.justification || null,
-          interestedParties: parsed.data.interestedParties || [],
-          applicableRequirements: parsed.data.applicableRequirements || [],
-          interfaces: parsed.data.interfaces || [],
-          status: (parsed.data.status || 'DRAFT') as string,
+          justifications: parsed.data.justification || null,
+          status: (parsed.data.status || 'DRAFT') as any,
           createdBy: authReq.user?.id || 'system',
         },
       });

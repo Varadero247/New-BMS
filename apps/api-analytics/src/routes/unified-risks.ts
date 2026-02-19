@@ -625,8 +625,8 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     const field = sortBy || 'score';
     const order = sortOrder || 'desc';
     filtered.sort((a, b) => {
-      const aVal = (a as Record<string, unknown>)[field];
-      const bVal = (b as Record<string, unknown>)[field];
+      const aVal = (a as unknown as Record<string, unknown>)[field];
+      const bVal = (b as unknown as Record<string, unknown>)[field];
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         return order === 'asc' ? aVal - bVal : bVal - aVal;
       }

@@ -110,19 +110,20 @@ model AudFinding {
 }
 
 model AudChecklist {
-  id           String   @id @default(cuid())
-  orgId        String
-  auditId      String
-  title        String
-  standard     String?
-  items        String?
-  completedItems Int    @default(0)
-  totalItems   Int      @default(0)
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String?
-  deletedAt    DateTime?
+  id              String   @id @default(cuid())
+  orgId           String
+  auditId         String
+  referenceNumber String?
+  title           String
+  standard        String?
+  items           String?
+  completedItems  Int      @default(0)
+  totalItems      Int      @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  deletedAt       DateTime?
   audit        AudAudit @relation(fields: [auditId], references: [id], onDelete: Cascade)
   @@map("aud_checklists")
   @@index([auditId])
@@ -130,17 +131,18 @@ model AudChecklist {
 }
 
 model AudProgramme {
-  id           String   @id @default(cuid())
-  orgId        String
-  title        String
-  year         Int
-  description  String?
-  status       String   @default("ACTIVE")
-  auditIds     String[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String?
-  deletedAt    DateTime?
+  id              String   @id @default(cuid())
+  orgId           String
+  referenceNumber String?
+  title           String
+  year            Int
+  description     String?
+  status          String   @default("ACTIVE")
+  auditIds        String[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  createdBy       String?
+  deletedAt       DateTime?
   @@map("aud_programmes")
   @@index([orgId])
   @@index([deletedAt])

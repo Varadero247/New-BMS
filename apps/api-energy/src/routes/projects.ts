@@ -198,9 +198,9 @@ router.post('/', async (req: Request, res: Response) => {
         type: data.type,
         status: 'PROPOSED',
         estimatedSavings:
-          data.estimatedSavings !== null ? new Prisma.Decimal(data.estimatedSavings) : null,
+          data.estimatedSavings != null ? new Prisma.Decimal(data.estimatedSavings) : null,
         investmentCost:
-          data.investmentCost !== null ? new Prisma.Decimal(data.investmentCost) : null,
+          data.investmentCost != null ? new Prisma.Decimal(data.investmentCost) : null,
         paybackMonths: data.paybackMonths ?? null,
         startDate: data.startDate ? new Date(data.startDate) : null,
         owner: data.owner ?? null,
@@ -391,7 +391,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     }
 
     const investment = Number(existing.investmentCost || 0);
-    const savings = actualSavings !== null ? actualSavings : Number(existing.estimatedSavings || 0);
+    const savings = actualSavings != null ? actualSavings : Number(existing.estimatedSavings || 0);
     const roi = investment > 0 ? ((savings - investment) / investment) * 100 : 0;
 
     const project = await prisma.energyProject.update({

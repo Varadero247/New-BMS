@@ -272,7 +272,7 @@ router.delete(
 router.get('/qualifications/:employeeId', async (req: Request, res: Response) => {
   try {
     const qualifications = await prisma.employeeQualification.findMany({
-      where: { employeeId: req.params.employeeId, deletedAt: null },
+      where: { employeeId: req.params.employeeId },
       orderBy: { endDate: 'desc' },
       take: 1000,
     });
@@ -350,7 +350,7 @@ router.post('/qualifications', async (req: Request, res: Response) => {
 router.get('/assets/:employeeId', async (req: Request, res: Response) => {
   try {
     const assets = await prisma.employeeAsset.findMany({
-      where: { employeeId: req.params.employeeId, deletedAt: null },
+      where: { employeeId: req.params.employeeId },
       orderBy: { assignedDate: 'desc' },
       take: 1000,
     });

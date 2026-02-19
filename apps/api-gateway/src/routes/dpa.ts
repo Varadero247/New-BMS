@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
@@ -21,7 +21,7 @@ const acceptSchema = z.object({
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
 // GET /api/admin/dpa — Get the active DPA document
-router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const dpa = getActiveDpa();
     if (!dpa) {
@@ -53,7 +53,7 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/dpa/accept — Accept the active DPA
-router.post('/accept', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/accept', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = acceptSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -81,7 +81,7 @@ router.post('/accept', requireRole('ADMIN'), (req: AuthRequest, res: Response) =
 
     const acceptance = acceptDpa({
       orgId,
-      userId: req.user!.id,
+      userId: (req as AuthRequest).user!.id,
       signerName: parsed.data.signerName,
       signerTitle: parsed.data.signerTitle,
       signature: parsed.data.signature,
@@ -95,7 +95,7 @@ router.post('/accept', requireRole('ADMIN'), (req: AuthRequest, res: Response) =
       });
     }
 
-    logger.info('DPA accepted', { orgId, userId: req.user?.id, dpaVersion: acceptance.dpaVersion });
+    logger.info('DPA accepted', { orgId, userId: (req as AuthRequest).user?.id, dpaVersion: acceptance.dpaVersion });
 
     res.status(201).json({ success: true, data: acceptance });
   } catch (error: unknown) {
@@ -110,7 +110,7 @@ router.post('/accept', requireRole('ADMIN'), (req: AuthRequest, res: Response) =
 });
 
 // GET /api/admin/dpa/acceptance — Get acceptance status for the org
-router.get('/acceptance', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/acceptance', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const acceptance = getDpaAcceptance(orgId);

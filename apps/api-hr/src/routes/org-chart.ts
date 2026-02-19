@@ -117,7 +117,6 @@ router.get('/by-department', async (_req: Request, res: Response) => {
           },
           orderBy: { lastName: 'asc' },
         },
-        manager: { select: { id: true, firstName: true, lastName: true, jobTitle: true } },
       },
       orderBy: { name: 'asc' },
       take: 1000,
@@ -128,7 +127,6 @@ router.get('/by-department', async (_req: Request, res: Response) => {
       name: d.name,
       code: d.code,
       headCount: d.employees.length,
-      manager: d.manager,
       employees: d.employees.map((e) => ({
         ...e,
         fullName: `${e.firstName} ${e.lastName}`,
@@ -157,7 +155,15 @@ router.get('/reporting-chain/:employeeId', async (req: Request, res: Response) =
     while (currentId && !visited.has(currentId)) {
       visited.add(currentId);
 
-      const employee = await prisma.employee.findUnique({
+      const employee: {
+        id: string;
+        employeeNumber: string;
+        firstName: string;
+        lastName: string;
+        jobTitle: string;
+        managerId: string | null;
+        department: { id: string; name: string } | null;
+      } | null = await prisma.employee.findUnique({
         where: { id: currentId },
         select: {
           id: true,

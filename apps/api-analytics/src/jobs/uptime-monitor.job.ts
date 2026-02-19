@@ -49,8 +49,8 @@ export async function runUptimeMonitorJob(): Promise<void> {
         await prisma.uptimeIncident.create({
           data: {
             uptimeCheckId: check.id,
-            detectedAt: now,
-            httpStatus: status,
+            startedAt: now,
+            statusCode: status,
             errorMessage:
               status === 0 ? 'Connection failed or timeout' : `Unexpected status ${status}`,
           },
@@ -63,7 +63,7 @@ export async function runUptimeMonitorJob(): Promise<void> {
             uptimeCheckId: check.id,
             resolvedAt: null,
           },
-          orderBy: { detectedAt: 'desc' as const },
+          orderBy: { startedAt: 'desc' as const },
         });
 
         if (openIncident) {

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -72,7 +72,7 @@ function parseJsonResponse(content: string): unknown {
 }
 
 // POST /api/documents/analyze — Analyze document content
-router.post('/analyze', async (req: AuthRequest, res: Response) => {
+router.post('/analyze', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       content: z.string().trim().min(1).max(50000),

@@ -267,19 +267,22 @@ model EsgTarget {
 // ============================================
 
 model EsgReport {
-  id          String          @id @default(uuid())
-  title       String
-  reportType  EsgReportType
-  year        Int
-  quarter     Int?
-  status      EsgReportStatus @default(DRAFT)
-  publishedAt DateTime?
-  content     Json?
-  generatedBy String?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  deletedAt   DateTime?
-  createdBy   String
+  id              String          @id @default(uuid())
+  orgId           String?
+  referenceNumber String?         @unique
+  title           String
+  reportType      EsgReportType
+  year            Int
+  quarter         Int?
+  status          EsgReportStatus @default(DRAFT)
+  publishedAt     DateTime?
+  content         Json?
+  aiGenerated     Boolean         @default(false)
+  generatedBy     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
+  createdBy       String
 
   @@index([reportType])
   @@index([year])

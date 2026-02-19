@@ -291,7 +291,8 @@ router.get('/soa', async (_req: Request, res: Response) => {
     };
 
     for (const item of soa) {
-      statusCounts[item.implementationStatus] = (statusCounts[item.implementationStatus] || 0) + 1;
+      const statusKey = String(item.implementationStatus);
+      statusCounts[statusKey] = (statusCounts[statusKey] || 0) + 1;
     }
 
     const totalControls = soa.length;

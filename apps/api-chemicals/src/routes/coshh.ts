@@ -234,6 +234,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const healthSurveillanceReq = d.healthSurveillanceReq || chemical.isCmr;
     const recordRetentionYears = chemical.isCmr ? 40 : d.recordRetentionYears || null;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = await prisma.chemCoshh.create({
       data: {
         ...d,
@@ -246,7 +247,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         recordRetentionYears,
         orgId,
         createdBy: (req as AuthRequest).user?.id,
-      },
+      } as any,
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

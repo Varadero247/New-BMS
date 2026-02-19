@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -73,7 +73,7 @@ async function generateAnomalyRefNumber(): Promise<string> {
 // ============================================
 // 1. POST /projects - Create software project
 // ============================================
-router.post('/projects', async (req: AuthRequest, res: Response) => {
+router.post('/projects', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -94,7 +94,7 @@ router.post('/projects', async (req: AuthRequest, res: Response) => {
         safetyClass: data.safetyClass,
         currentPhase: data.currentPhase || 'PLANNING',
         status: data.status || 'ACTIVE',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -121,7 +121,7 @@ router.post('/projects', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 2. GET /projects - List projects with pagination
 // ============================================
-router.get('/projects', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/projects', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, safetyClass, currentPhase } = req.query;
 
@@ -165,7 +165,7 @@ router.get('/projects', scopeToUser, async (req: AuthRequest, res: Response) => 
 router.get(
   '/projects/:id',
   checkOwnership(prisma.softwareProject),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const project = await prisma.softwareProject.findUnique({
         where: { id: req.params.id },
@@ -197,7 +197,7 @@ router.get(
 // ============================================
 // 4. POST /projects/:id/soup - Add SOUP item
 // ============================================
-router.post('/projects/:id/soup', async (req: AuthRequest, res: Response) => {
+router.post('/projects/:id/soup', async (req: Request, res: Response) => {
   try {
     const project = await prisma.softwareProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -258,7 +258,7 @@ router.post('/projects/:id/soup', async (req: AuthRequest, res: Response) => {
 // ============================================
 // 5. PUT /projects/:id/phase/:phase - Update lifecycle phase docs
 // ============================================
-router.put('/projects/:id/phase/:phase', async (req: AuthRequest, res: Response) => {
+router.put('/projects/:id/phase/:phase', async (req: Request, res: Response) => {
   try {
     const project = await prisma.softwareProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -336,7 +336,7 @@ router.put('/projects/:id/phase/:phase', async (req: AuthRequest, res: Response)
 // ============================================
 // 6. POST /projects/:id/anomalies - Report anomaly
 // ============================================
-router.post('/projects/:id/anomalies', async (req: AuthRequest, res: Response) => {
+router.post('/projects/:id/anomalies', async (req: Request, res: Response) => {
   try {
     const project = await prisma.softwareProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {
@@ -366,7 +366,7 @@ router.post('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =
         severity: data.severity || 'MINOR',
         status: data.status || 'OPEN',
         resolution: data.resolution,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -393,7 +393,7 @@ router.post('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =
 // ============================================
 // 7. GET /projects/:id/anomalies - List anomalies with filters
 // ============================================
-router.get('/projects/:id/anomalies', async (req: AuthRequest, res: Response) => {
+router.get('/projects/:id/anomalies', async (req: Request, res: Response) => {
   try {
     const project = await prisma.softwareProject.findUnique({ where: { id: req.params.id } });
     if (!project || project.deletedAt) {

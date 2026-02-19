@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -64,7 +64,7 @@ async function generateRefNumber(): Promise<string> {
 // POST / — Create design project
 // =============================================
 
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -101,7 +101,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           plannedStartDate: data.plannedStartDate ? new Date(data.plannedStartDate) : undefined,
           plannedEndDate: data.plannedEndDate ? new Date(data.plannedEndDate) : undefined,
           requirements: data.requirements,
-          createdBy: req.user!.id,
+          createdBy: (req as AuthRequest).user!.id,
         },
       });
 
@@ -112,7 +112,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
             projectId: created.id,
             stage,
             status: stage === 'PLANNING' ? 'IN_PROGRESS' : 'NOT_STARTED',
-            createdBy: req.user!.id,
+            createdBy: (req as AuthRequest).user!.id,
           },
         });
       }
@@ -144,7 +144,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // GET / — List projects with filters
 // =============================================
 
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, stage, search } = req.query;
 
@@ -199,7 +199,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const project = await designDb.qualDesignProject.findUnique({
         where: { id: req.params.id },
@@ -236,7 +236,7 @@ router.get(
 router.put(
   '/:id',
   checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await designDb.qualDesignProject.findUnique({
         where: { id: req.params.id },
@@ -314,11 +314,11 @@ router.put(
 router.post(
   '/:id/stages/:stage/submit',
   checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { id, stage } = req.params;
 
-      if (!STAGES.includes(stage as string)) {
+      if (!STAGES.includes(stage as typeof STAGES[number])) {
         return res.status(400).json({
           success: false,
           error: { code: 'INVALID_STAGE', message: `Invalid stage: ${stage}` },
@@ -366,7 +366,7 @@ router.post(
           deliverables: data.deliverables,
           notes: data.notes,
           attachments: data.attachments,
-          submittedBy: req.user!.id,
+          submittedBy: (req as AuthRequest).user!.id,
           submittedAt: new Date(),
         },
       });
@@ -399,11 +399,11 @@ router.post(
 router.post(
   '/:id/stages/:stage/approve',
   checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const { id, stage } = req.params;
 
-      if (!STAGES.includes(stage as string)) {
+      if (!STAGES.includes(stage as typeof STAGES[number])) {
         return res.status(400).json({
           success: false,
           error: { code: 'INVALID_STAGE', message: `Invalid stage: ${stage}` },
@@ -443,7 +443,7 @@ router.post(
       }
 
       // Approve the stage and advance to the next
-      const stageIdx = STAGES.indexOf(stage as string);
+      const stageIdx = STAGES.indexOf(stage as typeof STAGES[number]);
       const nextStage = stageIdx < STAGES.length - 1 ? STAGES[stageIdx + 1] : null;
 
       const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -452,7 +452,7 @@ router.post(
           where: { id: stageRecord.id },
           data: {
             status: 'APPROVED',
-            approvedBy: req.user!.id,
+            approvedBy: (req as AuthRequest).user!.id,
             approvedAt: new Date(),
             approvalNotes: data.approvalNotes,
           },
@@ -464,16 +464,15 @@ router.post(
           projectUpdate.currentStage = nextStage;
 
           // Set next stage to IN_PROGRESS
-          await txDb.qualDesignStageDoc.update({
-            where: {
-              id: (
-                await txDb.qualDesignStageDoc.findFirst({
-                  where: { projectId: id, stage: nextStage },
-                })
-              ).id,
-            },
-            data: { status: 'IN_PROGRESS' },
+          const nextStageDoc = await txDb.qualDesignStageDoc.findFirst({
+            where: { projectId: id, stage: nextStage },
           });
+          if (nextStageDoc) {
+            await txDb.qualDesignStageDoc.update({
+              where: { id: nextStageDoc.id },
+              data: { status: 'IN_PROGRESS' },
+            });
+          }
         } else {
           // All stages completed
           projectUpdate.status = 'COMPLETED';
@@ -516,7 +515,7 @@ router.post(
 router.delete(
   '/:id',
   checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await designDb.qualDesignProject.findUnique({
         where: { id: req.params.id },
@@ -530,7 +529,7 @@ router.delete(
 
       await designDb.qualDesignProject.update({
         where: { id: req.params.id },
-        data: { deletedAt: new Date(), deletedBy: req.user!.id },
+        data: { deletedAt: new Date(), deletedBy: (req as AuthRequest).user!.id },
       });
 
       res.json({ success: true, data: { message: 'Design project deleted' } });

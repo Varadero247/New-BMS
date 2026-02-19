@@ -162,10 +162,10 @@ router.post('/', async (req: Request, res: Response) => {
         workOrderId: data.workOrderId,
         startTime: new Date(data.startTime),
         endTime: data.endTime ? new Date(data.endTime) : null,
-        duration: duration !== null ? new Prisma.Decimal(duration) : null,
+        duration: duration != null ? new Prisma.Decimal(duration ?? 0) : null,
         reason: data.reason,
         impact: data.impact || 'NONE',
-        estimatedLoss: data.estimatedLoss !== null ? new Prisma.Decimal(data.estimatedLoss) : null,
+        estimatedLoss: data.estimatedLoss != null ? new Prisma.Decimal(data.estimatedLoss ?? 0) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });

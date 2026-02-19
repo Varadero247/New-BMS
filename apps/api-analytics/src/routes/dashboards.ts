@@ -209,7 +209,8 @@ router.post('/', async (req: Request, res: Response) => {
         isDefault: data.isDefault,
         isPublic: data.isPublic,
         ownerId: authReq.user!.id,
-        tags: (data.tags ?? null) as Prisma.InputJsonValue | null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tags: (data.tags ?? null) as any,
         createdBy: authReq.user!.id,
       },
     });
@@ -334,7 +335,8 @@ router.post('/:id/widgets', async (req: Request, res: Response) => {
         type: data.type,
         config: data.config,
         dataSource: data.dataSource,
-        query: (data.query ?? null) as Prisma.InputJsonValue | null,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        query: (data.query ?? null) as any,
         position: data.position,
         refreshInterval: data.refreshInterval || null,
         createdBy: authReq.user!.id,

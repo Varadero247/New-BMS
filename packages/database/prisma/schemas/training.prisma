@@ -50,6 +50,7 @@ enum TrainPriority {
 
 model TrainCourse {
   id              String         @id @default(cuid())
+  referenceNumber String         @unique
   orgId           String
   code            String         @unique
   title           String

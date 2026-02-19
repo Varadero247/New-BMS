@@ -116,6 +116,7 @@ model PtwToolboxTalk {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   createdBy    String?
+  updatedBy    String?
   deletedAt    DateTime?
   permit       PtwPermit? @relation(fields: [permitId], references: [id], onDelete: SetNull)
   @@map("ptw_toolbox_talks")

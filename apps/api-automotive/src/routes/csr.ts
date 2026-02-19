@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -19,7 +19,7 @@ router.param('id', validateIdParam());
 // ============================================
 
 // GET /oems - List distinct OEM names
-router.get('/oems', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/oems', scopeToUser, async (req: Request, res: Response) => {
   try {
     const results = await prisma.csrRequirement.findMany({
       distinct: ['oem'],
@@ -40,7 +40,7 @@ router.get('/oems', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /gaps - All non-compliant CSRs (status != COMPLIANT && status != NOT_ASSESSED)
-router.get('/gaps', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/gaps', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20' } = req.query;
 
@@ -79,7 +79,7 @@ router.get('/gaps', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /oems/:oem - Get all CSRs for a specific OEM
-router.get('/oems/:oem', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/oems/:oem', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { oem } = req.params;
     const { page = '1', limit = '20', complianceStatus, iatfClause } = req.query;
@@ -119,7 +119,7 @@ router.get('/oems/:oem', scopeToUser, async (req: AuthRequest, res: Response) =>
 });
 
 // PUT /:id/status - Update compliance status
-router.put('/:id/status', async (req: AuthRequest, res: Response) => {
+router.put('/:id/status', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 

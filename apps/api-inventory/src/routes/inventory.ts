@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request as ExpressRequest, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -17,7 +17,7 @@ router.param('id', validateIdParam());
 router.param('productId', validateIdParam('productId'));
 
 // GET /api/inventory - List inventory levels
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: ExpressRequest, res: Response) => {
   try {
     const { page = '1', limit = '20', warehouseId, productId, lowStock } = req.query;
 
@@ -69,7 +69,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/inventory/summary - Get inventory summary stats
-router.get('/summary', async (req: AuthRequest, res: Response) => {
+router.get('/summary', async (req: ExpressRequest, res: Response) => {
   try {
     const { warehouseId } = req.query;
     const where: Prisma.InventoryWhereInput = warehouseId
@@ -123,7 +123,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/inventory/availability/:productId - Check product availability
-router.get('/availability/:productId', async (req: AuthRequest, res: Response) => {
+router.get('/availability/:productId', async (req: ExpressRequest, res: Response) => {
   try {
     const inventory = await prisma.inventory.findMany({
       where: { productId: req.params.productId, deletedAt: null },
@@ -175,7 +175,7 @@ router.get('/availability/:productId', async (req: AuthRequest, res: Response) =
 });
 
 // POST /api/inventory/adjust - Create stock adjustment
-router.post('/adjust', async (req: AuthRequest, res: Response) => {
+router.post('/adjust', async (req: ExpressRequest, res: Response) => {
   try {
     const schema = z.object({
       productId: z.string().trim(),
@@ -237,8 +237,8 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
           warehouseId: data.warehouseId,
           quantityOnHand: quantityAfter,
           binLocation: data.binLocation,
-          createdById: req.user?.id,
-          updatedById: req.user?.id,
+          createdById: (req as unknown as AuthRequest).user?.id,
+          updatedById: (req as unknown as AuthRequest).user?.id,
         },
       });
     } else {
@@ -250,7 +250,7 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
           lastCountedAt:
             data.adjustmentType === 'CYCLE_COUNT' ? new Date() : inventory.lastCountedAt,
           version: { increment: 1 },
-          updatedById: req.user?.id,
+          updatedById: (req as unknown as AuthRequest).user?.id,
         },
       });
     }
@@ -273,7 +273,7 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
         totalCost: (data.unitCost || 0) * Math.abs(quantityChange),
         reason: data.reason,
         notes: data.notes,
-        performedById: req.user?.id || '',
+        performedById: (req as unknown as AuthRequest).user?.id || '',
       },
     });
 
@@ -304,7 +304,7 @@ router.post('/adjust', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/inventory/transfer - Transfer stock between warehouses
-router.post('/transfer', async (req: AuthRequest, res: Response) => {
+router.post('/transfer', async (req: ExpressRequest, res: Response) => {
   try {
     const schema = z.object({
       productId: z.string().trim(),
@@ -368,7 +368,7 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
         data: {
           quantityOnHand: { decrement: data.quantity },
           version: { increment: 1 },
-          updatedById: req.user?.id,
+          updatedById: (req as unknown as AuthRequest).user?.id,
         },
       });
 
@@ -384,8 +384,8 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
             binLocation: data.toBinLocation,
             averageCost: sourceInventory.averageCost,
             lastCost: sourceInventory.lastCost,
-            createdById: req.user?.id,
-            updatedById: req.user?.id,
+            createdById: (req as unknown as AuthRequest).user?.id,
+            updatedById: (req as unknown as AuthRequest).user?.id,
           },
         });
       } else {
@@ -395,7 +395,7 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
             quantityOnHand: { increment: data.quantity },
             binLocation: data.toBinLocation || destInventory.binLocation,
             version: { increment: 1 },
-            updatedById: req.user?.id,
+            updatedById: (req as unknown as AuthRequest).user?.id,
           },
         });
       }
@@ -418,7 +418,7 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
           binLocation: data.fromBinLocation,
           reason: data.reason || 'Warehouse transfer',
           notes: data.notes,
-          performedById: req.user?.id || '',
+          performedById: (req as unknown as AuthRequest).user?.id || '',
         },
       });
 
@@ -440,7 +440,7 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
           binLocation: data.toBinLocation,
           reason: data.reason || 'Warehouse transfer',
           notes: data.notes,
-          performedById: req.user?.id || '',
+          performedById: (req as unknown as AuthRequest).user?.id || '',
         },
       });
 
@@ -476,7 +476,7 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/inventory/receive - Receive goods (e.g., from purchase order)
-router.post('/receive', async (req: AuthRequest, res: Response) => {
+router.post('/receive', async (req: ExpressRequest, res: Response) => {
   try {
     const schema = z.object({
       productId: z.string().trim(),
@@ -527,8 +527,8 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
           lastCost: data.unitCost,
           inventoryValue: newValue,
           lastReceivedAt: new Date(),
-          createdById: req.user?.id,
-          updatedById: req.user?.id,
+          createdById: (req as unknown as AuthRequest).user?.id,
+          updatedById: (req as unknown as AuthRequest).user?.id,
         },
       });
     } else {
@@ -542,7 +542,7 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
           binLocation: data.binLocation || inventory.binLocation,
           lastReceivedAt: new Date(),
           version: { increment: 1 },
-          updatedById: req.user?.id,
+          updatedById: (req as unknown as AuthRequest).user?.id,
         },
       });
     }
@@ -566,7 +566,7 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
         unitCost: data.unitCost,
         totalCost: data.unitCost * data.quantity,
         notes: data.notes,
-        performedById: req.user?.id || '',
+        performedById: (req as unknown as AuthRequest).user?.id || '',
       },
     });
 
@@ -597,7 +597,7 @@ router.post('/receive', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/inventory/issue - Issue goods (e.g., for sales order)
-router.post('/issue', async (req: AuthRequest, res: Response) => {
+router.post('/issue', async (req: ExpressRequest, res: Response) => {
   try {
     const schema = z.object({
       productId: z.string().trim(),
@@ -653,7 +653,7 @@ router.post('/issue', async (req: AuthRequest, res: Response) => {
         quantityOnHand: quantityAfter,
         inventoryValue: Number(inventory.averageCost) * quantityAfter,
         version: { increment: 1 },
-        updatedById: req.user?.id,
+        updatedById: (req as unknown as AuthRequest).user?.id,
       },
     });
 
@@ -675,7 +675,7 @@ router.post('/issue', async (req: AuthRequest, res: Response) => {
         unitCost: inventory.averageCost,
         totalCost: Number(inventory.averageCost) * data.quantity,
         notes: data.notes,
-        performedById: req.user?.id || '',
+        performedById: (req as unknown as AuthRequest).user?.id || '',
       },
     });
 

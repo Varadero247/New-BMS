@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -229,21 +229,22 @@ router.post('/', async (req: Request, res: Response) => {
 
     const risk = await prisma.aiRiskAssessment.create({
       data: {
-        reference: reference as string,
+        reference: reference,
         systemId: parsed.data.systemId,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
-        category: parsed.data.category as Prisma.AiRiskCategory,
-        likelihood: parsed.data.likelihood as Prisma.AiRiskLikelihood,
-        impact: parsed.data.impact as Prisma.AiRiskImpact,
+        category: parsed.data.category as any,
+        likelihood: parsed.data.likelihood as any,
+        impact: parsed.data.impact as any,
         riskScore,
         riskLevel,
-        status: 'IDENTIFIED',
+        status: 'IDENTIFIED' as any,
         existingControls: parsed.data.existingControls ?? null,
         proposedMitigations: parsed.data.proposedMitigations ?? null,
         riskOwner: parsed.data.riskOwner ?? null,
         reviewDate: parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null,
         notes: parsed.data.notes ?? null,
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
       include: {
@@ -333,7 +334,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const risk = await prisma.aiRiskAssessment.update({
       where: { id },
       data: {
-        ...parsed.data,
+        ...(parsed.data as any),
         riskScore,
         riskLevel,
         reviewDate:

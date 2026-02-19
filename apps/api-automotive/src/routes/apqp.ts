@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -91,7 +91,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List APQP projects
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, customer, search } = req.query;
 
@@ -137,7 +137,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get project with phases and deliverables
-router.get('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.apqpProject), async (req: Request, res: Response) => {
   try {
     const project = await prisma.apqpProject.findUnique({
       where: { id: req.params.id },
@@ -169,7 +169,7 @@ router.get('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
 });
 
 // POST / - Create APQP project with auto-generated phases and deliverables
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -209,7 +209,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           targetDate: new Date(data.targetDate),
           teamLeader: data.teamLeader,
           teamMembers: data.teamMembers,
-          createdBy: req.user?.id,
+          createdBy: (req as AuthRequest).user?.id,
         },
       });
 
@@ -274,7 +274,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update APQP project
-router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.apqpProject), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.apqpProject.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -340,7 +340,7 @@ router.put('/:id', checkOwnership(prisma.apqpProject), async (req: AuthRequest, 
 router.delete(
   '/:id',
   checkOwnership(prisma.apqpProject),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.apqpProject.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -367,7 +367,7 @@ router.delete(
 );
 
 // POST /:id/phases/:phaseNum/gate-review - Submit phase gate review
-router.post('/:id/phases/:phaseNum/gate-review', async (req: AuthRequest, res: Response) => {
+router.post('/:id/phases/:phaseNum/gate-review', async (req: Request, res: Response) => {
   try {
     const { id, phaseNum } = req.params;
     const phaseNumber = parseInt(phaseNum, 10);
@@ -496,7 +496,7 @@ router.post('/:id/phases/:phaseNum/gate-review', async (req: AuthRequest, res: R
 });
 
 // PUT /:id/deliverables/:did - Update deliverable status
-router.put('/:id/deliverables/:did', async (req: AuthRequest, res: Response) => {
+router.put('/:id/deliverables/:did', async (req: Request, res: Response) => {
   try {
     const { id, did } = req.params;
 
@@ -578,7 +578,7 @@ router.put('/:id/deliverables/:did', async (req: AuthRequest, res: Response) => 
 });
 
 // GET /:id/status-report - APQP status summary with phase completion percentages
-router.get('/:id/status-report', async (req: AuthRequest, res: Response) => {
+router.get('/:id/status-report', async (req: Request, res: Response) => {
   try {
     const project = await prisma.apqpProject.findUnique({
       where: { id: req.params.id },

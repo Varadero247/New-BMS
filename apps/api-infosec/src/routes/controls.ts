@@ -265,12 +265,12 @@ router.get('/soa', async (_req: Request, res: Response) => {
       applicable: controls.filter((c) => c.applicability === 'APPLICABLE').length,
       notApplicable: controls.filter((c) => c.applicability === 'NOT_APPLICABLE').length,
       fullyImplemented: controls.filter(
-        (c) => c.implementationStatus === 'FULLY_IMPLEMENTED'
+        (c) => c.implementationStatus === 'IMPLEMENTED'
       ).length,
       partiallyImplemented: controls.filter(
-        (c) => c.implementationStatus === 'PARTIALLY_IMPLEMENTED'
+        (c) => c.implementationStatus === 'PARTIAL'
       ).length,
-      notImplemented: controls.filter((c) => c.implementationStatus === 'NOT_IMPLEMENTED')
+      notImplemented: controls.filter((c) => c.implementationStatus === 'NOT_STARTED')
         .length,
     };
 
@@ -388,7 +388,6 @@ router.put('/:id/status', async (req: Request, res: Response) => {
       data: {
         applicability: parsed.data.applicability,
         justification: parsed.data.justification,
-        updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
       },
     });
@@ -436,12 +435,12 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
     const control = await prisma.isControl.update({
       where: { id },
       data: {
-        implementationStatus: parsed.data.implementationStatus as string,
+        implementationStatus: parsed.data.implementationStatus as any,
         implementationNotes: parsed.data.implementationNotes || null,
         evidence: parsed.data.evidence || null,
         owner: parsed.data.owner || null,
         reviewDate: parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null,
-        updatedBy: authReq.user?.id || 'system',
+        updatedBy: authReq.user?.id,
         updatedAt: new Date(),
       },
     });

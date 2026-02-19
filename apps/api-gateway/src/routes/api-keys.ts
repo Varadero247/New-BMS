@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
@@ -53,7 +53,7 @@ router.use(authenticate);
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
 // POST /api/admin/api-keys — Create a new API key
-router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.post('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const parsed = createKeySchema.safeParse(req.body);
     if (!parsed.success) {
@@ -86,7 +86,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
       keyHash,
       scopes,
       orgId,
-      createdById: req.user!.id,
+      createdById: (req as AuthRequest).user!.id,
       createdAt: new Date().toISOString(),
       lastUsedAt: null,
       usageCount: 0,
@@ -100,7 +100,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
       id: record.id,
       name,
       prefix: keyPrefix,
-      createdBy: req.user!.id,
+      createdBy: (req as AuthRequest).user!.id,
     });
 
     // Return the full key ONCE — it cannot be retrieved again
@@ -128,7 +128,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
 });
 
 // GET /api/admin/api-keys — List all API keys (never returns the full key)
-router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const keys = Array.from(apiKeyStore.values())
@@ -162,7 +162,7 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/admin/api-keys/:id — Revoke an API key
-router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.delete('/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const record = apiKeyStore.get(id);
@@ -184,7 +184,7 @@ router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) =>
     record.status = 'revoked';
     record.revokedAt = new Date().toISOString();
 
-    logger.info('API key revoked', { id, name: record.name, revokedBy: req.user!.id });
+    logger.info('API key revoked', { id, name: record.name, revokedBy: (req as AuthRequest).user!.id });
 
     res.json({
       success: true,

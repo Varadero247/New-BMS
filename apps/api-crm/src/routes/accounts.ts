@@ -57,8 +57,7 @@ router.post('/', async (req: Request, res: Response) => {
         id: uuidv4(),
         ...validation.data,
         createdBy: (req as AuthRequest).user?.id || 'system',
-        updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Account created', { accountId: account.id });
@@ -182,8 +181,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...validation.data,
-        updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Account updated', { accountId: account.id });
@@ -354,7 +352,7 @@ router.get('/:id/invoices', async (req: Request, res: Response) => {
 
     // Fetch invoices from the Finance service filtered by this account's name
     const headers = { ...createServiceHeaders('api-crm'), 'Content-Type': 'application/json' };
-    const params = new URLSearchParams({ search: (account as Record<string, unknown>).name || '', limit: '50' });
+    const params = new URLSearchParams({ search: String(account.name || ''), limit: '50' });
     const financeRes = await fetch(`${FINANCE_SERVICE_URL}/api/invoices?${params}`, {
       headers,
       signal: AbortSignal.timeout(5000),

@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -22,7 +22,7 @@ function getStakeholderCategory(powerLevel: number, interestLevel: number): stri
 }
 
 // GET /api/stakeholders - List stakeholders by projectId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, page = '1', limit = '50' } = req.query;
 
@@ -85,7 +85,7 @@ const createStakeholderSchema = z.object({
 const updateStakeholderSchema = createStakeholderSchema.partial();
 
 // POST /api/stakeholders - Create stakeholder
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createStakeholderSchema.parse(req.body);
 
@@ -134,7 +134,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.projectStakeholder),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectStakeholder.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -177,7 +177,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.projectStakeholder),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectStakeholder.findUnique({ where: { id: req.params.id } });
       if (!existing) {

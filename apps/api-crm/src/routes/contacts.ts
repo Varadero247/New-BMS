@@ -61,8 +61,7 @@ router.post('/', async (req: Request, res: Response) => {
         id: uuidv4(),
         ...validation.data,
         createdBy: (req as AuthRequest).user?.id || 'system',
-        updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Contact created', { contactId: contact.id });
@@ -195,8 +194,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...validation.data,
-        updatedBy: (req as AuthRequest).user?.id || 'system',
-      },
+      } as any,
     });
 
     logger.info('Contact updated', { contactId: contact.id });

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Clock, Search, AlertOctagon, ChevronRight, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { Card, CardContent, Badge } from '@ims/ui';
 
 interface Incident {
   id: string;

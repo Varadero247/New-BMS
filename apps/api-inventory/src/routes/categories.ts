@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -16,7 +16,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/categories - List categories (hierarchical)
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { flat, isActive } = req.query;
 
@@ -65,7 +65,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/:id',
   checkOwnership(prisma.productCategory),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const category = await prisma.productCategory.findUnique({
         where: { id: req.params.id },
@@ -98,7 +98,7 @@ router.get(
 );
 
 // POST /api/categories - Create category
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(200),
@@ -167,7 +167,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.patch(
   '/:id',
   checkOwnership(prisma.productCategory),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.productCategory.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -261,7 +261,7 @@ router.patch(
 router.delete(
   '/:id',
   checkOwnership(prisma.productCategory),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.productCategory.findUnique({
         where: { id: req.params.id },

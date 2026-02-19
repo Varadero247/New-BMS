@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -28,7 +28,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // POST / - Create MSA study
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -67,7 +67,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         numParts: data.numParts,
         numTrials: data.numTrials,
         status: 'DRAFT',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -92,7 +92,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET / - List MSA studies
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, studyType, result } = req.query;
 
@@ -130,7 +130,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get MSA study with all measurements
-router.get('/:id', checkOwnership(prisma.msaStudy), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.msaStudy), async (req: Request, res: Response) => {
   try {
     const study = await prisma.msaStudy.findUnique({
       where: { id: req.params.id },
@@ -156,7 +156,7 @@ router.get('/:id', checkOwnership(prisma.msaStudy), async (req: AuthRequest, res
 });
 
 // POST /:id/data - Enter measurement data
-router.post('/:id/data', async (req: AuthRequest, res: Response) => {
+router.post('/:id/data', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -229,7 +229,7 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id/results - Calculate GR&R results
-router.get('/:id/results', async (req: AuthRequest, res: Response) => {
+router.get('/:id/results', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -369,7 +369,7 @@ router.get('/:id/results', async (req: AuthRequest, res: Response) => {
         where: { id },
         data: {
           status: 'COMPLETED',
-          result: resultStr as string,
+          result: resultStr as 'ACCEPTABLE' | 'CONDITIONAL' | 'UNACCEPTABLE',
           grrPercent: Math.round(grrPercent * 100) / 100,
           ndc,
           ev: Math.round(ev * 100000) / 100000,

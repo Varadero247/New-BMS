@@ -1,6 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma, Prisma, EnvActivityCategory, EnvControlHierarchy, EnvImpactDirection, EnvReviewFrequency, EnvScale } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -43,7 +43,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // GET / - List aspects
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, significant, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -88,7 +88,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id
-router.get('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.envAspect), async (req: Request, res: Response) => {
   try {
     const aspect = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
     if (!aspect)
@@ -105,7 +105,7 @@ router.get('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, re
 });
 
 // POST /
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       activityProcess: z.string().trim().min(1).max(200),
@@ -182,17 +182,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       data: {
         referenceNumber,
         activityProcess: data.activityProcess,
-        activityCategory: data.activityCategory as Prisma.EnvActivityCategory,
+        activityCategory: data.activityCategory as EnvActivityCategory,
         department: data.department,
         location: data.location,
         lifecyclePhases: data.lifecyclePhases,
-        operatingCondition: data.operatingCondition as Prisma.EnvOperatingCondition,
+        operatingCondition: data.operatingCondition,
         description: data.description,
         aspect: data.aspect,
         impact: data.impact,
-        impactDirection: data.impactDirection as Prisma.EnvImpactDirection,
+        impactDirection: data.impactDirection as EnvImpactDirection,
         environmentalMedia: data.environmentalMedia,
-        scaleOfImpact: data.scaleOfImpact as Prisma.EnvScale,
+        scaleOfImpact: data.scaleOfImpact as EnvScale,
         scoreSeverity: data.scoreSeverity,
         scoreProbability: data.scoreProbability,
         scoreDuration: data.scoreDuration,
@@ -210,14 +210,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         significanceOverride: data.significanceOverride ?? false,
         overrideReason: data.overrideReason,
         existingControls: data.existingControls,
-        controlHierarchy: data.controlHierarchy as Prisma.EnvControlHierarchy,
+        controlHierarchy: data.controlHierarchy as EnvControlHierarchy,
         residualScore: data.residualScore,
         targetScore: data.targetScore,
         legalReferences: data.legalReferences,
         permitReference: data.permitReference,
         applicableStandards: data.applicableStandards,
         responsiblePerson: data.responsiblePerson,
-        reviewFrequency: data.reviewFrequency as Prisma.EnvReviewFrequency,
+        reviewFrequency: data.reviewFrequency as EnvReviewFrequency,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : null,
         status: data.status || 'ACTIVE',
         aiSignificanceJustification: data.aiSignificanceJustification,
@@ -312,7 +312,7 @@ const aspectUpdateSchema = z.object({
   aiGenerated: z.boolean().optional(),
 });
 
-router.put('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.envAspect), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
     if (!existing)
@@ -346,13 +346,13 @@ router.put('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, re
     const aspect = await prisma.envAspect.update({
       where: { id: req.params.id },
       data: {
-        ...data,
+        ...(data as Record<string, unknown>),
         significanceScore: sig.score,
         isSignificant: data.significanceOverride ? !sig.isSignificant : sig.isSignificant,
         nextReviewDate: data.nextReviewDate
           ? new Date(data.nextReviewDate)
           : existing.nextReviewDate,
-      },
+      } as Record<string, unknown>,
     });
 
     res.json({ success: true, data: aspect });
@@ -366,7 +366,7 @@ router.put('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, re
 });
 
 // DELETE /:id
-router.delete('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.envAspect), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envAspect.findUnique({ where: { id: req.params.id } });
     if (!existing)

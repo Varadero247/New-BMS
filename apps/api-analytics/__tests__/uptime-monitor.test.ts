@@ -150,7 +150,7 @@ describe('runUptimeMonitorJob', () => {
     await runUptimeMonitorJob();
 
     const createCall = (prisma.uptimeIncident.create as jest.Mock).mock.calls[0][0];
-    expect(createCall.data.httpStatus).toBe(200); // test mode returns 200
+    expect(createCall.data.statusCode).toBe(200); // test mode returns 200
   });
 
   it('sets error message for unexpected status', async () => {

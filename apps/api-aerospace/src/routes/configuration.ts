@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -46,7 +46,7 @@ async function generateAuditRefNumber(type: 'FCA' | 'PCA'): Promise<string> {
 // ============================================
 
 // GET /baselines - List baselines
-router.get('/baselines', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/baselines', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -92,7 +92,7 @@ router.get('/baselines', scopeToUser, async (req: AuthRequest, res: Response) =>
 });
 
 // GET /baselines/:id - Get baseline with all config items
-router.get('/baselines/:id', async (req: AuthRequest, res: Response) => {
+router.get('/baselines/:id', async (req: Request, res: Response) => {
   try {
     const baseline = await prisma.configBaseline.findUnique({
       where: { id: req.params.id },
@@ -116,7 +116,7 @@ router.get('/baselines/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /baselines - Create baseline
-router.post('/baselines', async (req: AuthRequest, res: Response) => {
+router.post('/baselines', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1, 'Title is required'),
@@ -140,7 +140,7 @@ router.post('/baselines', async (req: AuthRequest, res: Response) => {
         program: data.program,
         status: data.status || 'DRAFT',
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -165,7 +165,7 @@ router.post('/baselines', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /baselines/:id - Update baseline
-router.put('/baselines/:id', async (req: AuthRequest, res: Response) => {
+router.put('/baselines/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.configBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -222,7 +222,7 @@ router.put('/baselines/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /baselines/:id - Soft delete baseline
-router.delete('/baselines/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/baselines/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.configBaseline.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -251,7 +251,7 @@ router.delete('/baselines/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /items - Add configuration item to a baseline
-router.post('/items', async (req: AuthRequest, res: Response) => {
+router.post('/items', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       baselineId: z.string().trim().min(1, 'Baseline ID is required'),
@@ -324,7 +324,7 @@ router.post('/items', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /items/:id - Update configuration item
-router.put('/items/:id', async (req: AuthRequest, res: Response) => {
+router.put('/items/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.configItem.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -390,7 +390,7 @@ router.put('/items/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /changes - Submit Engineering Change Proposal
-router.post('/changes', async (req: AuthRequest, res: Response) => {
+router.post('/changes', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1, 'Title is required'),
@@ -414,7 +414,7 @@ router.post('/changes', async (req: AuthRequest, res: Response) => {
         urgency: data.urgency || 'ROUTINE',
         affectedItems: data.affectedItems,
         affectedBaselines: data.affectedBaselines,
-        proposedBy: data.proposedBy || req.user?.id || 'unknown',
+        proposedBy: data.proposedBy || (req as AuthRequest).user?.id || 'unknown',
         status: 'PROPOSED',
       },
     });
@@ -440,7 +440,7 @@ router.post('/changes', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /changes - List ECPs
-router.get('/changes', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/changes', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, urgency, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -484,7 +484,7 @@ router.get('/changes', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /changes/:id/approve - CCB approval
-router.put('/changes/:id/approve', async (req: AuthRequest, res: Response) => {
+router.put('/changes/:id/approve', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.engineeringChangeProposal.findUnique({
       where: { id: req.params.id },
@@ -531,11 +531,11 @@ router.put('/changes/:id/approve', async (req: AuthRequest, res: Response) => {
     const ecp = await prisma.engineeringChangeProposal.update({
       where: { id: req.params.id },
       data: {
-        ccbDecision: data.ccbDecision as string,
+        ccbDecision: data.ccbDecision as never,
         ccbDate: new Date(),
         ccbMembers: data.ccbMembers,
         ccbNotes: data.ccbNotes,
-        status: newStatus as string,
+        status: newStatus as never,
       },
     });
 
@@ -564,7 +564,7 @@ router.put('/changes/:id/approve', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /audits/fca - Create Functional Configuration Audit
-router.post('/audits/fca', async (req: AuthRequest, res: Response) => {
+router.post('/audits/fca', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1, 'Title is required'),
@@ -621,7 +621,7 @@ router.post('/audits/fca', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /audits/pca - Create Physical Configuration Audit
-router.post('/audits/pca', async (req: AuthRequest, res: Response) => {
+router.post('/audits/pca', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1, 'Title is required'),
@@ -678,7 +678,7 @@ router.post('/audits/pca', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /audits - List configuration audits
-router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/audits', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', type, status, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -725,7 +725,7 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // GET /status-accounting - Full Configuration Status Accounting report
-router.get('/status-accounting', async (req: AuthRequest, res: Response) => {
+router.get('/status-accounting', async (_req: Request, res: Response) => {
   try {
     const [
       totalBaselines,
@@ -761,11 +761,11 @@ router.get('/status-accounting', async (req: AuthRequest, res: Response) => {
       prisma.configBaseline.count({ where: { deletedAt: null, status: 'DRAFT' } }),
       prisma.configBaseline.count({ where: { deletedAt: null, status: 'SUPERSEDED' } }),
       prisma.configBaseline.count({ where: { deletedAt: null, status: 'ARCHIVED' } }),
-      prisma.configItem.count({ where: { deletedAt: null } }),
-      prisma.configItem.count({ where: { deletedAt: null, status: 'CURRENT' } }),
-      prisma.configItem.count({ where: { deletedAt: null, status: 'PENDING_CHANGE' } }),
-      prisma.configItem.count({ where: { deletedAt: null, status: 'SUPERSEDED' } }),
-      prisma.configItem.count({ where: { deletedAt: null, status: 'OBSOLETE' } }),
+      prisma.configItem.count(),
+      prisma.configItem.count({ where: { status: 'CURRENT' } }),
+      prisma.configItem.count({ where: { status: 'PENDING_CHANGE' } }),
+      prisma.configItem.count({ where: { status: 'SUPERSEDED' } }),
+      prisma.configItem.count({ where: { status: 'OBSOLETE' } }),
       prisma.engineeringChangeProposal.count({ where: { deletedAt: null } }),
       prisma.engineeringChangeProposal.count({
         where: { deletedAt: null, status: 'PROPOSED' },

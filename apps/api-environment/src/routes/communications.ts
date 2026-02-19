@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -49,7 +49,7 @@ async function generateRefNumber(): Promise<string> {
 // POST / — Create communication
 // =============================================
 
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       subject: z.string().trim().min(1).max(200),
@@ -79,12 +79,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         direction: data.direction,
         content: data.content,
         recipients: data.recipients,
-        sender: data.sender || req.user!.email,
+        sender: data.sender || req.user!.id,
         relatedAspectId: data.relatedAspectId,
         scheduledDate: data.scheduledDate ? new Date(data.scheduledDate) : undefined,
         attendees: data.attendees,
         location: data.location,
         priority: data.priority || 'MEDIUM',
+        date: new Date(),
         status: 'DRAFT',
         createdBy: req.user!.id,
       },
@@ -114,7 +115,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // GET / — List with filters
 // =============================================
 
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -181,7 +182,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /participation — Worker participation summary
 // =============================================
 
-router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/participation', scopeToUser, async (req: Request, res: Response) => {
   try {
     const where: Record<string, unknown> = { deletedAt: null };
 
@@ -202,12 +203,15 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
     let committeeMeetings = 0;
 
     for (const c of communications as Array<Record<string, unknown>>) {
-      byType[c.type] = (byType[c.type] || 0) + 1;
-      byDirection[c.direction] = (byDirection[c.direction] || 0) + 1;
-      byStatus[c.status] = (byStatus[c.status] || 0) + 1;
-      if (c.type === 'WORKER_CONSULTATION') workerConsultations++;
-      if (c.type === 'TOOLBOX_TALK') toolboxTalks++;
-      if (c.type === 'COMMITTEE_MEETING') committeeMeetings++;
+      const cType = c.type as string;
+      const cDirection = c.direction as string;
+      const cStatus = c.status as string;
+      byType[cType] = (byType[cType] || 0) + 1;
+      byDirection[cDirection] = (byDirection[cDirection] || 0) + 1;
+      byStatus[cStatus] = (byStatus[cStatus] || 0) + 1;
+      if (cType === 'WORKER_CONSULTATION') workerConsultations++;
+      if (cType === 'TOOLBOX_TALK') toolboxTalks++;
+      if (cType === 'COMMITTEE_MEETING') committeeMeetings++;
     }
 
     res.json({
@@ -242,7 +246,7 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
 router.get(
   '/:id',
   checkOwnership(prisma.envCommunication),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const communication = await prisma.envCommunication.findUnique({
         where: { id: req.params.id },
@@ -273,7 +277,7 @@ router.get(
 router.put(
   '/:id',
   checkOwnership(prisma.envCommunication),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.envCommunication.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -350,7 +354,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.envCommunication),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.envCommunication.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {

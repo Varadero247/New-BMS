@@ -294,7 +294,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
         status: 'COMPLETED',
         findings: parsed.data.findings,
         riskLevel: parsed.data.riskLevel as string,
-        recommendation: parsed.data.recommendation,
+        recommendations: parsed.data.recommendation,
         conditions: parsed.data.conditions,
         completedAt: new Date(),
         completedBy: userId,

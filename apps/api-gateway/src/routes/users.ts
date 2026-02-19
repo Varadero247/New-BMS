@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, requireRole, hashPassword, type AuthRequest } from '@ims/auth';
@@ -15,7 +15,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/users - List all users (Admin/Manager only)
-router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: Response) => {
+router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', search, role, department } = req.query;
 
@@ -84,10 +84,10 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: AuthRequest, res: R
 });
 
 // GET /api/users/me - Get current user profile
-router.get('/me', async (req: AuthRequest, res: Response) => {
+router.get('/me', async (req: Request, res: Response) => {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: req.user!.id },
+      where: { id: (req as AuthRequest).user!.id },
       select: {
         id: true,
         email: true,
@@ -122,12 +122,13 @@ router.get('/me', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/users/:id - Get user by ID
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const authUser = (req as AuthRequest).user!;
 
     // Users can view their own profile, admins/managers can view any
-    if (req.user!.id !== id && !['ADMIN', 'MANAGER'].includes(req.user!.role)) {
+    if (authUser.id !== id && !['ADMIN', 'MANAGER'].includes(authUser.role as string)) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Access denied' },
@@ -170,7 +171,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/users - Create user (Admin only)
-router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.post('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       email: z.string().trim().email(),
@@ -236,13 +237,14 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
 });
 
 // PATCH /api/users/:id - Update user
-router.patch('/:id', async (req: AuthRequest, res: Response) => {
+router.patch('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const authUser = (req as AuthRequest).user!;
 
     // Users can update their own profile, admins can update any
-    const isAdmin = req.user!.role === 'ADMIN';
-    const isSelf = req.user!.id === id;
+    const isAdmin = (authUser.role as string) === 'ADMIN';
+    const isSelf = authUser.id === id;
 
     if (!isAdmin && !isSelf) {
       return res.status(403).json({
@@ -317,12 +319,12 @@ router.patch('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/users/:id - Delete user (Admin only)
-router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
     // Cannot delete yourself
-    if (req.user!.id === id) {
+    if ((req as AuthRequest).user!.id === id) {
       return res.status(400).json({
         success: false,
         error: { code: 'CANNOT_DELETE_SELF', message: 'Cannot delete your own account' },

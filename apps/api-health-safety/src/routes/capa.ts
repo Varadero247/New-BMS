@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -72,7 +72,7 @@ function getTargetDate(priority: string): Date {
 }
 
 // GET /api/capa - List CAPAs
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, capaType, source, priority, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -117,7 +117,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/capa/:id - Get single CAPA
-router.get('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.capa), async (req: Request, res: Response) => {
   try {
     const capa = await prisma.capa.findUnique({
       where: { id: req.params.id },
@@ -140,7 +140,7 @@ router.get('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Re
 });
 
 // POST /api/capa - Create CAPA
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const actionSchema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -248,7 +248,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/capa/:id - Update CAPA
-router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.capa), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.capa.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -318,7 +318,7 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
 });
 
 // DELETE /api/capa/:id - Delete CAPA (cascades actions)
-router.delete('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.capa), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.capa.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -339,7 +339,7 @@ router.delete('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res:
 });
 
 // POST /api/capa/:id/actions - Add action to CAPA
-router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
+router.post('/:id/actions', async (req: Request, res: Response) => {
   try {
     const capa = await prisma.capa.findUnique({
       where: { id: req.params.id },
@@ -399,7 +399,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/capa/:id/actions/:aid - Update CAPA action
-router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
+router.patch('/:id/actions/:aid', async (req: Request, res: Response) => {
   try {
     const action = await prisma.capaAction.findUnique({ where: { id: req.params.aid } });
     if (!action || action.capaId !== req.params.id) {

@@ -206,7 +206,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Determine trend
     let trend: 'UP' | 'DOWN' | 'STABLE' = 'STABLE';
-    if (data.currentValue !== null) {
+    if (data.currentValue != null) {
       if (data.currentValue > data.industryAverage) trend = 'UP';
       else if (data.currentValue < data.industryAverage) trend = 'DOWN';
     }

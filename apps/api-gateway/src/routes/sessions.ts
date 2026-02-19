@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -14,10 +14,10 @@ router.param('id', validateIdParam());
  * GET /api/sessions
  * List all active sessions for the current user
  */
-router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
+router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
-    const currentSessionId = req.sessionId;
+    const userId = (req as AuthRequest).user!.id;
+    const currentSessionId = (req as AuthRequest).sessionId;
 
     const sessions = await prisma.session.findMany({
       where: {
@@ -46,7 +46,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
       data: sessionsWithCurrent,
     });
   } catch (error) {
-    logger.error('Failed to list sessions', { error, userId: req.user?.id });
+    logger.error('Failed to list sessions', { error, userId: (req as AuthRequest).user?.id });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to retrieve sessions' },
@@ -58,11 +58,11 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
  * DELETE /api/sessions/:id
  * Revoke a specific session (logout from specific device)
  */
-router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
+router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const sessionId = req.params.id;
-    const userId = req.user!.id;
-    const currentSessionId = req.sessionId;
+    const userId = (req as AuthRequest).user!.id;
+    const currentSessionId = (req as AuthRequest).sessionId;
 
     // Validate session ID format
     const { id } = z.object({ id: z.string().trim().min(1).max(200) }).parse({ id: sessionId });
@@ -102,7 +102,7 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: 'Invalid session ID' },
       });
     }
-    logger.error('Failed to revoke session', { error, userId: req.user?.id });
+    logger.error('Failed to revoke session', { error, userId: (req as AuthRequest).user?.id });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to revoke session' },
@@ -114,10 +114,10 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res: Response) => {
  * DELETE /api/sessions
  * Revoke all sessions except the current one (logout from all other devices)
  */
-router.delete('/', authenticate, async (req: AuthRequest, res: Response) => {
+router.delete('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const userId = req.user!.id;
-    const currentSessionId = req.sessionId;
+    const userId = (req as AuthRequest).user!.id;
+    const currentSessionId = (req as AuthRequest).sessionId;
 
     const result = await prisma.session.deleteMany({
       where: {
@@ -134,7 +134,7 @@ router.delete('/', authenticate, async (req: AuthRequest, res: Response) => {
 
     res.status(204).send();
   } catch (error) {
-    logger.error('Failed to revoke all sessions', { error, userId: req.user?.id });
+    logger.error('Failed to revoke all sessions', { error, userId: (req as AuthRequest).user?.id });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to revoke sessions' },

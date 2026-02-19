@@ -48,10 +48,11 @@ router.post('/plans', async (req: Request, res: Response) => {
       name: z.string().trim().min(1).max(200),
       description: z.string().trim().optional(),
       category: z.enum([
-        'HEALTH_INSURANCE',
-        'LIFE_INSURANCE',
+        'HEALTH',
         'DENTAL',
         'VISION',
+        'LIFE_INSURANCE',
+        'DISABILITY',
         'RETIREMENT',
         'PENSION',
         'HSA',

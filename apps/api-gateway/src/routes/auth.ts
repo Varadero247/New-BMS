@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
@@ -269,14 +269,14 @@ router.post('/register', registerLimiter, async (req, res) => {
 });
 
 // POST /api/auth/logout
-router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/logout', authenticate, async (req: Request, res: Response) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader?.substring(7);
 
     if (token) {
       await prisma.session.deleteMany({ where: { token } });
-      logger.info('Logout successful', { userId: req.user?.id });
+      logger.info('Logout successful', { userId: (req as AuthRequest).user?.id });
     }
 
     res.json({ success: true, data: { message: 'Logged out successfully' } });
@@ -290,9 +290,9 @@ router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => 
 });
 
 // GET /api/auth/me
-router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
+router.get('/me', authenticate, async (req: Request, res: Response) => {
   try {
-    const user = req.user;
+    const user = (req as AuthRequest).user;
 
     res.json({
       success: true,

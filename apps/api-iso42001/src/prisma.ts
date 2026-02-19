@@ -1,5 +1,46 @@
-import { PrismaClient, Prisma } from '@ims/database/iso42001';
-export { Prisma };
+import {
+  PrismaClient,
+  Prisma,
+  AiSystemCategory,
+  AiSystemRiskTier,
+  AiSystemStatus,
+  AiRiskCategory,
+  AiRiskLikelihood,
+  AiRiskImpact,
+  AiRiskStatus,
+  AiPolicyStatus,
+  AiIncidentSeverity,
+  AiIncidentStatus,
+  AiControlStatus,
+  AiImpactLevel,
+  AiImpactAssessmentStatus,
+  AiSelfDeclarationStatus,
+  AiAuditAction,
+  HumanReviewStatus,
+  AiMonitoringStatus,
+  AiMonitoringMetricType,
+} from '@ims/database/iso42001';
+export {
+  Prisma,
+  AiSystemCategory,
+  AiSystemRiskTier,
+  AiSystemStatus,
+  AiRiskCategory,
+  AiRiskLikelihood,
+  AiRiskImpact,
+  AiRiskStatus,
+  AiPolicyStatus,
+  AiIncidentSeverity,
+  AiIncidentStatus,
+  AiControlStatus,
+  AiImpactLevel,
+  AiImpactAssessmentStatus,
+  AiSelfDeclarationStatus,
+  AiAuditAction,
+  HumanReviewStatus,
+  AiMonitoringStatus,
+  AiMonitoringMetricType,
+};
 
 declare global {
   // eslint-disable-next-line no-var

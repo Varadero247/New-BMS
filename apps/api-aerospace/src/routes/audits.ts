@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -119,7 +119,7 @@ const closeFindingSchema = z.object({
 // ============================================
 
 // GET / - List audits
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, auditType, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -168,7 +168,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get audit with findings
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const audit = await prisma.aeroAudit.findUnique({
       where: { id: req.params.id },
@@ -191,7 +191,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // POST / - Create audit
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createAuditSchema.parse(req.body);
     const refNumber = await generateAuditRefNumber();
@@ -212,7 +212,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         objectives: data.objectives,
         notes: data.notes,
         status: 'SCHEDULED',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -237,7 +237,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /:id - Update audit
-router.put('/:id', async (req: AuthRequest, res: Response) => {
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroAudit.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -278,7 +278,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /:id - Soft delete audit
-router.delete('/:id', async (req: AuthRequest, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroAudit.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -307,7 +307,7 @@ router.delete('/:id', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /findings - Record finding
-router.post('/findings', async (req: AuthRequest, res: Response) => {
+router.post('/findings', async (req: Request, res: Response) => {
   try {
     const data = createFindingSchema.parse(req.body);
 
@@ -334,7 +334,7 @@ router.post('/findings', async (req: AuthRequest, res: Response) => {
         responsiblePerson: data.responsiblePerson,
         targetDate: data.targetDate ? new Date(data.targetDate) : null,
         status: 'OPEN',
-        raisedBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -359,7 +359,7 @@ router.post('/findings', async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /findings/:id/close - Close a finding
-router.put('/findings/:id/close', async (req: AuthRequest, res: Response) => {
+router.put('/findings/:id/close', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.aeroAuditFinding.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -374,7 +374,7 @@ router.put('/findings/:id/close', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       data: {
         correctiveAction: data.correctiveAction,
-        closedBy: data.closedBy || req.user?.id,
+        closedBy: data.closedBy || (req as AuthRequest).user?.id,
         verificationEvidence: data.verificationEvidence,
         closedDate: new Date(),
         status: 'CLOSED',
@@ -402,7 +402,7 @@ router.put('/findings/:id/close', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /schedule/upcoming - Upcoming scheduled audits
-router.get('/schedule/upcoming', async (req: AuthRequest, res: Response) => {
+router.get('/schedule/upcoming', async (req: Request, res: Response) => {
   try {
     const { days = '90', page = '1', limit = '50' } = req.query;
     const daysNum = parseInt(days as string, 10) || 90;

@@ -156,7 +156,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     let actionRequired = false;
 
     const welLimit = d.welTwaLimit || chemical.welTwa8hr;
-    if (d.resultValue !== null && welLimit) {
+    if (d.resultValue != null && welLimit) {
       percentageOfWel = calculateWelPercentage(d.resultValue, welLimit);
       resultVsWel = getWelStatus(percentageOfWel);
       actionRequired = resultVsWel === 'ABOVE_WEL' || resultVsWel === 'AT_WEL';

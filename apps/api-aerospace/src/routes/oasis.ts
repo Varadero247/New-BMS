@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -87,7 +87,7 @@ const monitorSupplierSchema = z.object({
 // GET /lookup — Look up supplier certificate status
 // Checks monitored-supplier DB first; falls back to generated representative data
 // (Real OASIS API integration requires SAM/OASIS credentials — set OASIS_API_KEY to enable)
-router.get('/lookup', async (req: AuthRequest, res: Response) => {
+router.get('/lookup', async (req: Request, res: Response) => {
   try {
     const { cage, company } = req.query;
 
@@ -144,7 +144,7 @@ router.get('/lookup', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /monitor — Add supplier to monitoring watchlist
-router.post('/monitor', async (req: AuthRequest, res: Response) => {
+router.post('/monitor', async (req: Request, res: Response) => {
   try {
     const data = monitorSupplierSchema.parse(req.body);
 
@@ -156,7 +156,7 @@ router.post('/monitor', async (req: AuthRequest, res: Response) => {
         certBody: data.certBody,
         certExpiry: data.certExpiry ? new Date(data.certExpiry) : undefined,
         certStatus: 'UNKNOWN',
-        createdBy: req.user?.email || req.user?.id || 'unknown',
+        createdBy: (req as AuthRequest).user?.id || 'unknown',
       },
     });
 
@@ -194,7 +194,7 @@ router.post('/monitor', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /monitor — List monitored suppliers with certStatus filter
-router.get('/monitor', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/monitor', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', certStatus, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -236,7 +236,7 @@ router.get('/monitor', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /alerts — List unacknowledged alerts
-router.get('/alerts', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/alerts', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20' } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -271,7 +271,7 @@ router.get('/alerts', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // PUT /alerts/:id/acknowledge — Acknowledge an alert
-router.put('/alerts/:id/acknowledge', async (req: AuthRequest, res: Response) => {
+router.put('/alerts/:id/acknowledge', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.oasisAlert.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -291,7 +291,7 @@ router.put('/alerts/:id/acknowledge', async (req: AuthRequest, res: Response) =>
       where: { id: req.params.id },
       data: {
         acknowledged: true,
-        acknowledgedBy: req.user?.email || req.user?.id || 'unknown',
+        acknowledgedBy: (req as AuthRequest).user?.id || 'unknown',
         acknowledgedAt: new Date(),
       },
     });

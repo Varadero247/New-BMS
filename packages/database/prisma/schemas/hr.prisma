@@ -483,6 +483,7 @@ model WorkShift {
   isActive       Boolean @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
 
   employees   Employee[]
   attendances Attendance[]
@@ -550,6 +551,7 @@ model LeaveType {
   isActive           Boolean      @default(true)
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
 
   leaveRequests LeaveRequest[]
   leaveBalances LeaveBalance[]
@@ -609,6 +611,7 @@ model LeaveBalance {
   balance      Decimal @default(0) @db.Decimal(5, 1)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
 
   employee  Employee  @relation(fields: [employeeId], references: [id])
   leaveType LeaveType @relation(fields: [leaveTypeId], references: [id])
@@ -656,6 +659,7 @@ model Holiday {
   description         String?
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
+  deletedAt           DateTime?
 
   @@index([year])
   @@index([date])

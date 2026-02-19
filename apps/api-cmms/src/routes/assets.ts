@@ -157,7 +157,7 @@ router.post('/', async (req: Request, res: Response) => {
         department: data.department,
         status: data.status || 'ACTIVE',
         purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : null,
-        purchaseCost: data.purchaseCost !== null ? new Prisma.Decimal(data.purchaseCost) : null,
+        purchaseCost: data.purchaseCost != null ? new Prisma.Decimal(data.purchaseCost ?? 0) : null,
         warrantyExpiry: data.warrantyExpiry ? new Date(data.warrantyExpiry) : null,
         parentAssetId: data.parentAssetId,
         criticality: data.criticality || 'MEDIUM',

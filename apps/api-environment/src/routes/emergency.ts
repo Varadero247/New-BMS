@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -40,7 +40,7 @@ async function generateIncidentRefNumber(): Promise<string> {
 // ============================================
 
 // POST /plans — Create emergency plan
-router.post('/plans', async (req: AuthRequest, res: Response) => {
+router.post('/plans', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -106,7 +106,7 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /plans — List plans with pagination
-router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/plans', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', status, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -179,7 +179,7 @@ const planUpdateSchema = z.object({
 router.put(
   '/plans/:id',
   checkOwnership(prisma.envEmergencyPlan as unknown as Parameters<typeof checkOwnership>[0]),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.envEmergencyPlan.findUnique({ where: { id: req.params.id } });
       if (!existing)
@@ -228,7 +228,7 @@ router.put(
 // ============================================
 
 // POST /drills — Log drill exercise
-router.post('/drills', async (req: AuthRequest, res: Response) => {
+router.post('/drills', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       planId: z.string().trim().min(1).max(200),
@@ -292,7 +292,7 @@ router.post('/drills', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /drills — List drills with outcomes
-router.get('/drills', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/drills', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50', planId, outcome, drillType, search } = req.query;
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
@@ -341,7 +341,7 @@ router.get('/drills', scopeToUser, async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // POST /incidents — Log environmental emergency
-router.post('/incidents', async (req: AuthRequest, res: Response) => {
+router.post('/incidents', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -414,7 +414,7 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // GET /dashboard — Overview stats
-router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/dashboard', scopeToUser, async (req: Request, res: Response) => {
   try {
     const twelveMonthsAgo = new Date();
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);

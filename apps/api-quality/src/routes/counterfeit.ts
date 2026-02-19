@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -43,7 +43,7 @@ async function generateQuarantineRefNumber(): Promise<string> {
 // =============================================
 
 // POST /reports — Report suspected counterfeit part
-router.post('/reports', async (req: AuthRequest, res: Response) => {
+router.post('/reports', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       partNumber: z.string().trim().min(1).max(200),
@@ -70,9 +70,9 @@ router.post('/reports', async (req: AuthRequest, res: Response) => {
         serialNumber: data.serialNumber,
         suspicionReason: data.suspicionReason,
         evidence: data.evidence,
-        reportedBy: req.user!.id,
+        reportedBy: (req as AuthRequest).user!.id,
         status: 'REPORTED',
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -97,7 +97,7 @@ router.post('/reports', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /reports — List counterfeit reports with pagination
-router.get('/reports', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/reports', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, partNumber, manufacturer } = req.query;
 
@@ -144,7 +144,7 @@ router.get('/reports', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get(
   '/reports/:id',
   checkOwnership(prisma.counterfeitReport),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const report = await prisma.counterfeitReport.findUnique({
         where: { id: req.params.id },
@@ -172,7 +172,7 @@ router.get(
 router.put(
   '/reports/:id',
   checkOwnership(prisma.counterfeitReport),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.counterfeitReport.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -208,7 +208,7 @@ router.put(
       if (data.disposition !== undefined) {
         updateData.disposition = data.disposition;
         updateData.dispositionDate = new Date();
-        updateData.dispositionBy = req.user!.id;
+        updateData.dispositionBy = (req as AuthRequest).user!.id;
       }
 
       const report = await prisma.counterfeitReport.update({
@@ -241,7 +241,7 @@ router.put(
 router.post(
   '/reports/:id/quarantine',
   checkOwnership(prisma.counterfeitReport),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.counterfeitReport.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -269,7 +269,7 @@ router.post(
           reason: data.reason || `Suspected counterfeit part - ${existing.refNumber}`,
           reportId: existing.id,
           status: 'QUARANTINED',
-          createdBy: req.user!.id,
+          createdBy: (req as AuthRequest).user!.id,
         },
       });
 
@@ -304,7 +304,7 @@ router.post(
 router.post(
   '/reports/:id/notify',
   checkOwnership(prisma.counterfeitReport),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.counterfeitReport.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
@@ -356,7 +356,7 @@ router.post(
 // =============================================
 
 // POST /approved-sources — Add to approved source list
-router.post('/approved-sources', async (req: AuthRequest, res: Response) => {
+router.post('/approved-sources', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       companyName: z.string().trim().min(1).max(200),
@@ -388,7 +388,7 @@ router.post('/approved-sources', async (req: AuthRequest, res: Response) => {
         notes: data.notes,
         riskRating: data.riskRating || 'LOW',
         status: 'APPROVED',
-        createdBy: req.user!.id,
+        createdBy: (req as AuthRequest).user!.id,
       },
     });
 
@@ -413,7 +413,7 @@ router.post('/approved-sources', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /approved-sources — Query approved sources
-router.get('/approved-sources', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/approved-sources', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, cageCode, companyName, riskRating } = req.query;
 

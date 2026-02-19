@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -29,7 +29,7 @@ async function generateRefNumber(): Promise<string> {
 }
 
 // POST / - Create control plan
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -51,7 +51,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         planType: data.planType,
         revision: data.revision || '1.0',
         status: 'DRAFT',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -76,7 +76,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // GET / - List control plans
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, planType, partNumber } = req.query;
 
@@ -114,7 +114,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /:id - Get control plan with all characteristics
-router.get('/:id', checkOwnership(prisma.controlPlan), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.controlPlan), async (req: Request, res: Response) => {
   try {
     const plan = await prisma.controlPlan.findUnique({
       where: { id: req.params.id },
@@ -140,7 +140,7 @@ router.get('/:id', checkOwnership(prisma.controlPlan), async (req: AuthRequest, 
 });
 
 // PUT /:id/characteristics/:charId - Update characteristic
-router.put('/:id/characteristics/:charId', async (req: AuthRequest, res: Response) => {
+router.put('/:id/characteristics/:charId', async (req: Request, res: Response) => {
   try {
     const { id, charId } = req.params;
 
@@ -216,7 +216,7 @@ router.put('/:id/characteristics/:charId', async (req: AuthRequest, res: Respons
 });
 
 // POST /:id/characteristics - Add characteristic to plan
-router.post('/:id/characteristics', async (req: AuthRequest, res: Response) => {
+router.post('/:id/characteristics', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -292,7 +292,7 @@ router.post('/:id/characteristics', async (req: AuthRequest, res: Response) => {
 });
 
 // POST /:id/approve - Approve control plan
-router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
+router.post('/:id/approve', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -314,7 +314,7 @@ router.post('/:id/approve', async (req: AuthRequest, res: Response) => {
       where: { id },
       data: {
         status: 'APPROVED',
-        approvedBy: req.user?.id,
+        approvedBy: (req as AuthRequest).user?.id,
         approvedDate: new Date(),
       },
     });

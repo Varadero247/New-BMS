@@ -151,7 +151,8 @@ router.get('/seed', async (_req: Request, res: Response) => {
     ];
 
     const result = await prisma.contract.createMany({
-      data: seeds as Record<string, unknown>[],
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      data: seeds as any[],
       skipDuplicates: true,
     });
 
@@ -210,7 +211,8 @@ router.post('/', async (req: Request, res: Response) => {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         annualCost: annualCost || 0,
-        status: (status || 'ACTIVE'),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        status: (status || 'ACTIVE') as any,
         notes: notes || null,
       },
     });

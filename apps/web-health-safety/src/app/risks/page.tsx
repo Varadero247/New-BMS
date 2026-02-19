@@ -893,7 +893,7 @@ export default function RisksPage() {
                         id={key}
                         placeholder={aiLoading ? 'Waiting for AI...' : `${label}...`}
                         rows={2}
-                        value={(form as Record<string, unknown>)[key]}
+                        value={(form as unknown as Record<string, unknown>)[key] as string}
                         onChange={(e) => handleAiControlEdit(key, e.target.value)}
                         disabled={aiLoading}
                         className="mt-0"

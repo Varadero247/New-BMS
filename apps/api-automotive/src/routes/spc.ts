@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -90,7 +90,7 @@ const listQuerySchema = z.object({
 // POST / - Create SPC chart
 // ============================================
 
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createChartSchema.parse(req.body);
     const refNumber = await generateRefNumber();
@@ -111,7 +111,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         frequency: data.frequency,
         notes: data.notes,
         status: 'ACTIVE',
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
       },
     });
 
@@ -145,7 +145,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // GET / - List SPC charts with pagination
 // ============================================
 
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const parsedQuery = listQuerySchema.safeParse(req.query);
     if (!parsedQuery.success) {
@@ -202,7 +202,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // GET /alerts - All active charts with OOC points
 // ============================================
 
-router.get('/alerts', async (req: AuthRequest, res: Response) => {
+router.get('/alerts', async (req: Request, res: Response) => {
   try {
     // Find active charts that have out-of-control data points
     const chartsWithOOC = await prisma.spcChart.findMany({
@@ -257,7 +257,7 @@ router.get('/alerts', async (req: AuthRequest, res: Response) => {
 // GET /:id - Get chart with last 100 data points
 // ============================================
 
-router.get('/:id', checkOwnership(prisma.spcChart), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.spcChart), async (req: Request, res: Response) => {
   try {
     const chart = await prisma.spcChart.findUnique({
       where: { id: req.params.id },
@@ -334,7 +334,7 @@ router.get('/:id', checkOwnership(prisma.spcChart), async (req: AuthRequest, res
 // POST /:id/data - Add data point(s) to chart
 // ============================================
 
-router.post('/:id/data', async (req: AuthRequest, res: Response) => {
+router.post('/:id/data', async (req: Request, res: Response) => {
   try {
     const chartId = req.params.id;
 
@@ -486,7 +486,7 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
 // GET /:id/capability - Calculate Cpk/Ppk
 // ============================================
 
-router.get('/:id/capability', async (req: AuthRequest, res: Response) => {
+router.get('/:id/capability', async (req: Request, res: Response) => {
   try {
     const chartId = req.params.id;
 

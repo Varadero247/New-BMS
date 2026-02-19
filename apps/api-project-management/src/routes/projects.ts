@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -31,7 +31,7 @@ async function generateProjectCode(): Promise<string> {
 }
 
 // GET /api/projects - List projects with pagination and filters
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, priority, methodology, search } = req.query;
 
@@ -86,7 +86,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/projects/:id - Get single project with all relations
-router.get('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.project), async (req: Request, res: Response) => {
   try {
     const project = await prisma.project.findUnique({
       where: { id: req.params.id },
@@ -138,7 +138,7 @@ router.get('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res:
 router.get(
   '/:id/dashboard',
   checkOwnership(prisma.project),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const project = await prisma.project.findUnique({
         where: { id: req.params.id },
@@ -296,7 +296,7 @@ router.get(
 );
 
 // POST /api/projects - Create project
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       projectName: z.string().trim().min(1).max(200),
@@ -373,7 +373,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         linkedRiskIds: data.linkedRiskIds,
         linkedAspectIds: data.linkedAspectIds,
         linkedDepartmentIds: data.linkedDepartmentIds,
-        createdBy: req.user?.id,
+        createdBy: (req as AuthRequest).user?.id,
         status: 'PLANNING',
         healthStatus: 'GREEN',
         progressPercentage: 0,
@@ -451,7 +451,7 @@ const projectUpdateSchema = z.object({
   progressPercentage: z.number().min(0).max(100).optional(),
 });
 
-router.put('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.project), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
     if (!existing) {
@@ -472,7 +472,7 @@ router.put('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res:
       });
     }
     const data = parsed.data;
-    const updateData: Record<string, unknown> = { ...data, updatedBy: req.user?.id };
+    const updateData: Record<string, unknown> = { ...data, updatedBy: (req as AuthRequest).user?.id };
 
     // Handle date conversions
     if (data.startDate) updateData.startDate = new Date(data.startDate);
@@ -492,23 +492,19 @@ router.put('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res:
 
       if (ac > 0) updateData.costPerformanceIndex = parseFloat((ev / ac).toFixed(4));
       if (pv > 0) updateData.schedulePerformanceIndex = parseFloat((ev / pv).toFixed(4));
-      if (updateData.costPerformanceIndex && existing.plannedBudget) {
-        updateData.estimateAtCompletion = parseFloat(
-          (existing.plannedBudget / updateData.costPerformanceIndex).toFixed(2)
-        );
-        updateData.estimateToComplete = parseFloat(
-          (updateData.estimateAtCompletion - ac).toFixed(2)
-        );
-        updateData.varianceAtCompletion = parseFloat(
-          (existing.plannedBudget - updateData.estimateAtCompletion).toFixed(2)
-        );
+      const cpi = updateData.costPerformanceIndex as number | undefined;
+      if (cpi && existing.plannedBudget) {
+        const eac = parseFloat((existing.plannedBudget / cpi).toFixed(2));
+        updateData.estimateAtCompletion = eac;
+        updateData.estimateToComplete = parseFloat((eac - ac).toFixed(2));
+        updateData.varianceAtCompletion = parseFloat((existing.plannedBudget - eac).toFixed(2));
       }
     }
 
     // Handle closure
     if (data.status === 'CLOSED' && existing.status !== 'CLOSED') {
       updateData.closedAt = new Date();
-      updateData.closedBy = req.user?.id;
+      updateData.closedBy = (req as AuthRequest).user?.id;
     }
 
     const project = await prisma.project.update({
@@ -527,7 +523,7 @@ router.put('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res:
 });
 
 // DELETE /api/projects/:id - Delete project
-router.delete('/:id', checkOwnership(prisma.project), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.project), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.project.findUnique({ where: { id: req.params.id } });
     if (!existing) {

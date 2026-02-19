@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -90,7 +90,7 @@ const createFatigueSchema = z.object({
 // ============================================
 
 // POST /incidents — Report HF incident
-router.post('/incidents', async (req: AuthRequest, res: Response) => {
+router.post('/incidents', async (req: Request, res: Response) => {
   try {
     const data = createIncidentSchema.parse(req.body);
     const refNumber = await generateHFRefNumber();
@@ -109,7 +109,7 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
         correctiveAction: data.correctiveAction,
         capaRef: data.capaRef,
         status: 'REPORTED',
-        reportedBy: req.user?.email || req.user?.id || 'unknown',
+        reportedBy: (req as AuthRequest).user?.id || 'unknown',
         incidentDate: new Date(data.incidentDate),
       },
     });
@@ -140,7 +140,7 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /incidents — List HF incidents with filters
-router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/incidents', scopeToUser, async (req: Request, res: Response) => {
   try {
     const {
       page = '1',
@@ -161,9 +161,10 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     if (severity) where.severity = severity;
     if (status) where.status = status;
     if (dateFrom || dateTo) {
-      where.incidentDate = {};
-      if (dateFrom) where.incidentDate.gte = new Date(dateFrom as string);
-      if (dateTo) where.incidentDate.lte = new Date(dateTo as string);
+      const dateFilter: Record<string, Date> = {};
+      if (dateFrom) dateFilter.gte = new Date(dateFrom as string);
+      if (dateTo) dateFilter.lte = new Date(dateTo as string);
+      where.incidentDate = dateFilter;
     }
     if (search) {
       where.OR = [
@@ -203,7 +204,7 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
 // ============================================
 
 // POST /fatigue — Log fatigue risk assessment
-router.post('/fatigue', async (req: AuthRequest, res: Response) => {
+router.post('/fatigue', async (req: Request, res: Response) => {
   try {
     const data = createFatigueSchema.parse(req.body);
 
@@ -219,7 +220,7 @@ router.post('/fatigue', async (req: AuthRequest, res: Response) => {
         mitigations: data.mitigations,
         fitForDuty: data.fitForDuty,
         notes: data.notes,
-        createdBy: req.user?.email || req.user?.id || 'unknown',
+        createdBy: (req as AuthRequest).user?.id || 'unknown',
       },
     });
 
@@ -254,7 +255,7 @@ router.post('/fatigue', async (req: AuthRequest, res: Response) => {
 // ============================================
 
 // GET /dirty-dozen — Dirty Dozen trending: count per category for last 12 months
-router.get('/dirty-dozen', async (req: AuthRequest, res: Response) => {
+router.get('/dirty-dozen', async (_req: Request, res: Response) => {
   try {
     const now = new Date();
     const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
@@ -317,7 +318,7 @@ router.get('/dirty-dozen', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /dashboard — HF overview
-router.get('/dashboard', async (req: AuthRequest, res: Response) => {
+router.get('/dashboard', async (_req: Request, res: Response) => {
   try {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);

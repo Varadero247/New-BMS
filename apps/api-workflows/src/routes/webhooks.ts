@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -30,7 +30,7 @@ const webhookEventTypeEnum = z.enum(WEBHOOK_EVENT_TYPES);
 // ============================================
 // POST /api/webhooks — Register webhook endpoint
 // ============================================
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(255),
@@ -83,7 +83,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 // ============================================
 // GET /api/webhooks — List webhooks (paginated)
 // ============================================
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
@@ -126,7 +126,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 // ============================================
 // GET /api/webhooks/:id — Get webhook with recent deliveries
 // ============================================
-router.get('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.webhook), async (req: Request, res: Response) => {
   try {
     const webhook = await prisma.webhook.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -157,7 +157,7 @@ router.get('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
 // ============================================
 // PUT /api/webhooks/:id — Update webhook
 // ============================================
-router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.webhook), async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       name: z.string().trim().min(1).max(255).optional(),
@@ -206,7 +206,7 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
 // ============================================
 // DELETE /api/webhooks/:id — Soft-delete webhook
 // ============================================
-router.delete('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.webhook), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.webhook.findFirst({
       where: { id: req.params.id, deletedAt: null },
@@ -241,7 +241,7 @@ router.delete('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, r
 router.post(
   '/:id/test',
   checkOwnership(prisma.webhook),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const webhook = await prisma.webhook.findFirst({
         where: { id: req.params.id, deletedAt: null },
@@ -346,7 +346,7 @@ router.post(
 router.get(
   '/:id/deliveries',
   checkOwnership(prisma.webhook),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
       const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
@@ -390,7 +390,7 @@ router.get(
 // ============================================
 // POST /api/webhooks/dispatch — Internal: dispatch event to all subscribed webhooks
 // ============================================
-router.post('/dispatch', async (req: AuthRequest, res: Response) => {
+router.post('/dispatch', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       event: webhookEventTypeEnum,

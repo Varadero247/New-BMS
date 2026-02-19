@@ -42,19 +42,19 @@ function extractTaxAmounts(result: TaxResult): { incomeTax: number; socialSecuri
     return { incomeTax: result.incomeTax, socialSecurity: result.nationalInsurance };
   }
   if ('socialSecurity' in result && 'federalTax' in result) {
-    const r = result as string;
+    const r = result as any;
     return { incomeTax: r.federalTax, socialSecurity: r.socialSecurity + (r.medicare ?? 0) };
   }
   if ('gratuity' in result) {
-    const r = result as string;
+    const r = result as any;
     return { incomeTax: 0, socialSecurity: r.socialSecurity ?? 0 };
   }
   if ('superannuation' in result) {
-    const r = result as string;
+    const r = result as any;
     return { incomeTax: r.incomeTax, socialSecurity: r.superannuation + (r.medicareLevy ?? 0) };
   }
   if ('cpp' in result) {
-    const r = result as string;
+    const r = result as any;
     return { incomeTax: r.federalTax, socialSecurity: r.cpp + r.ei };
   }
   return { incomeTax: 0, socialSecurity: 0 };

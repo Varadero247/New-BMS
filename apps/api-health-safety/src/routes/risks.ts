@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -62,7 +62,7 @@ function getDefaultReviewDate(riskLevel: string): Date {
 }
 
 // GET /api/risks - List H&S risks
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, riskLevel, category, search } = req.query;
 
@@ -106,7 +106,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/risks/matrix - Get risk matrix data
-router.get('/matrix', async (req: AuthRequest, res: Response) => {
+router.get('/matrix', async (req: Request, res: Response) => {
   try {
     const risks = await prisma.risk.findMany({
       where: { status: 'ACTIVE', deletedAt: null },
@@ -134,7 +134,7 @@ router.get('/matrix', async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/risks/:id - Get single risk
-router.get('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Response) => {
+router.get('/:id', checkOwnership(prisma.risk), async (req: Request, res: Response) => {
   try {
     const risk = await prisma.risk.findUnique({
       where: { id: req.params.id },
@@ -157,7 +157,7 @@ router.get('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Re
 });
 
 // POST /api/risks - Create risk
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const schema = z.object({
       title: z.string().trim().min(1).max(200),
@@ -260,7 +260,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 });
 
 // PATCH /api/risks/:id - Update risk
-router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Response) => {
+router.patch('/:id', checkOwnership(prisma.risk), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.risk.findUnique({ where: { id: req.params.id } });
     if (!existing || existing.deletedAt) {
@@ -348,14 +348,14 @@ router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: 
 });
 
 // PUT /api/risks/:id - Update risk (alias for PATCH)
-router.put('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Response) => {
+router.put('/:id', checkOwnership(prisma.risk), async (req: Request, res: Response) => {
   // Forward to PATCH handler
   req.method = 'PATCH';
   return router(req, res, () => {});
 });
 
 // DELETE /api/risks/:id - Delete risk
-router.delete('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Response) => {
+router.delete('/:id', checkOwnership(prisma.risk), async (req: Request, res: Response) => {
   try {
     const existing = await prisma.risk.findUnique({ where: { id: req.params.id } });
     if (!existing) {

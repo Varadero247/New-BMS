@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
@@ -35,7 +35,7 @@ const addCidrSchema = z.object({
 // ─── Routes ─────────────────────────────────────────────────────────────────
 
 // GET /api/admin/ip-allowlist — List allowed CIDRs for current org
-router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.get('/', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const entries = getOrgAllowlist(orgId);
@@ -57,7 +57,7 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // POST /api/admin/ip-allowlist — Add a CIDR entry
-router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.post('/', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = addCidrSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -90,7 +90,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       orgId,
       cidr: normalizedCidr,
       label,
-      addedBy: req.user!.id,
+      addedBy: (req as AuthRequest).user!.id,
     });
 
     res.status(201).json({ success: true, data: entry });
@@ -106,7 +106,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 });
 
 // DELETE /api/admin/ip-allowlist/:id — Remove an allowlist entry
-router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
+router.delete('/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const { id } = req.params;
@@ -119,7 +119,7 @@ router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) =>
       });
     }
 
-    logger.info('IP allowlist entry removed', { orgId, entryId: id, removedBy: req.user!.id });
+    logger.info('IP allowlist entry removed', { orgId, entryId: id, removedBy: (req as AuthRequest).user!.id });
 
     res.json({ success: true, data: { deleted: true } });
   } catch (error: unknown) {
@@ -134,7 +134,7 @@ router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) =>
 });
 
 // GET /api/admin/ip-allowlist/my-ip — Return the current client IP
-router.get('/my-ip', authenticate, (req: AuthRequest, res: Response) => {
+router.get('/my-ip', authenticate, (req: Request, res: Response) => {
   try {
     const clientIp = req.ip || req.socket.remoteAddress || '0.0.0.0';
     // Normalize IPv4-mapped IPv6

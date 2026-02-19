@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -14,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // GET /api/sprints - List sprints by projectId
-router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
+router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { projectId, page = '1', limit = '50' } = req.query;
 
@@ -61,7 +61,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 });
 
 // GET /api/sprints/:id/stories - Get user stories for sprint
-router.get('/:id/stories', async (req: AuthRequest, res: Response) => {
+router.get('/:id/stories', async (req: Request, res: Response) => {
   try {
     const sprint = await prisma.projectSprint.findUnique({ where: { id: req.params.id } });
     if (!sprint) {
@@ -115,7 +115,7 @@ const updateSprintSchema = createSprintSchema
   .partial();
 
 // POST /api/sprints - Create sprint
-router.post('/', async (req: AuthRequest, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSprintSchema.parse(req.body);
 
@@ -156,7 +156,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 router.put(
   '/:id',
   checkOwnership(prisma.projectSprint),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectSprint.findUnique({ where: { id: req.params.id } });
       if (!existing) {
@@ -197,7 +197,7 @@ router.put(
 router.delete(
   '/:id',
   checkOwnership(prisma.projectSprint),
-  async (req: AuthRequest, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const existing = await prisma.projectSprint.findUnique({ where: { id: req.params.id } });
       if (!existing) {

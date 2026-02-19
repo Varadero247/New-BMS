@@ -475,7 +475,7 @@ router.get(
   '/admin/security/sso',
   authenticate,
   requireRole('ADMIN'),
-  (req: AuthRequest, res: Response) => {
+  (req: Request, res: Response) => {
     try {
       const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
       const config = getConfigByOrgId(orgId);
@@ -527,7 +527,7 @@ router.post(
   '/admin/security/sso',
   authenticate,
   requireRole('ADMIN'),
-  (req: AuthRequest, res: Response) => {
+  (req: Request, res: Response) => {
     try {
       const parsed = samlConfigSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -559,7 +559,7 @@ router.post(
         existing.allowUnencryptedAssertions = parsed.data.allowUnencryptedAssertions;
         existing.updatedAt = now;
 
-        logger.info('SAML config updated', { orgId, id: existing.id, updatedBy: req.user!.id });
+        logger.info('SAML config updated', { orgId, id: existing.id, updatedBy: (req as AuthRequest).user!.id });
 
         res.json({
           success: true,
@@ -594,7 +594,7 @@ router.post(
         samlConfigStore.set(config.id, config);
         samlConfigByOrgId.set(orgId, config.id);
 
-        logger.info('SAML config created', { orgId, id: config.id, createdBy: req.user!.id });
+        logger.info('SAML config created', { orgId, id: config.id, createdBy: (req as AuthRequest).user!.id });
 
         res.status(201).json({
           success: true,
@@ -625,7 +625,7 @@ router.delete(
   '/admin/security/sso',
   authenticate,
   requireRole('ADMIN'),
-  (req: AuthRequest, res: Response) => {
+  (req: Request, res: Response) => {
     try {
       const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
       const config = getConfigByOrgId(orgId);
@@ -639,7 +639,7 @@ router.delete(
 
       samlConfigStore.delete(config.id);
       samlConfigByOrgId.delete(orgId);
-      logger.info('SAML config deleted', { orgId, id: config.id, deletedBy: req.user!.id });
+      logger.info('SAML config deleted', { orgId, id: config.id, deletedBy: (req as AuthRequest).user!.id });
 
       res.json({
         success: true,
