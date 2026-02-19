@@ -4,6 +4,9 @@ import { runVarianceAnalysis } from './ai-variance';
 import { runRecalibration } from './recalibration';
 import { sendEmail, monthlyReportEmail } from '@ims/email';
 
+interface StripeSub { plan?: { amount?: number }; canceled_at?: number | string; created?: number | string; status?: string }
+interface HubSpotDeal { properties?: { dealstage?: string; amount?: string; createdate?: string } }
+
 const logger = createLogger('monthly-snapshot');
 
 // ---------------------------------------------------------------------------
@@ -28,28 +31,28 @@ export async function collectStripeMetrics(): Promise<{
     const stripe = new StripeClient();
 
     const rawSubs: unknown = await stripe.getSubscriptions(100);
-    const subscriptions: any[] = (rawSubs as any)?.data || (Array.isArray(rawSubs) ? rawSubs : []);
-    const mrr = subscriptions.reduce((sum: number, s: any) => sum + (s.plan?.amount || 0) / 100, 0);
+    const subscriptions: StripeSub[] = (rawSubs as { data?: StripeSub[] })?.data || (Array.isArray(rawSubs) ? (rawSubs as StripeSub[]) : []);
+    const mrr = subscriptions.reduce((sum: number, s: StripeSub) => sum + (s.plan?.amount || 0) / 100, 0);
     const customers = subscriptions.length;
     const arpu = customers > 0 ? mrr / customers : 0;
 
     // Approximate churn — getSubscriptions only fetches active, so estimate from data
-    const canceled: any[] = [];
+    const canceled: StripeSub[] = [];
     const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const recentCanceled = canceled.filter(
-      (s: any) => new Date(s.canceled_at || 0).getTime() > thirtyDaysAgo
+      (s: StripeSub) => new Date(s.canceled_at || 0).getTime() > thirtyDaysAgo
     );
     const churnedMrr = recentCanceled.reduce(
-      (sum: number, s: any) => sum + (s.plan?.amount || 0) / 100,
+      (sum: number, s: StripeSub) => sum + (s.plan?.amount || 0) / 100,
       0
     );
     const churnedCustomers = recentCanceled.length;
 
     // New subscriptions in last 30 days
     const newSubs = subscriptions.filter(
-      (s: any) => new Date(s.created || 0).getTime() > thirtyDaysAgo
+      (s: StripeSub) => new Date(s.created || 0).getTime() > thirtyDaysAgo
     );
-    const newMrr = newSubs.reduce((sum: number, s: any) => sum + (s.plan?.amount || 0) / 100, 0);
+    const newMrr = newSubs.reduce((sum: number, s: StripeSub) => sum + (s.plan?.amount || 0) / 100, 0);
     const newCustomers = newSubs.length;
 
     const netNewMrr = newMrr - churnedMrr;
@@ -110,29 +113,29 @@ export async function collectHubSpotMetrics(): Promise<{
     const hs = new HubSpotClient();
 
     const rawDeals: unknown = await hs.getDeals(200);
-    const deals: any[] = (rawDeals as any)?.results || (Array.isArray(rawDeals) ? rawDeals : []);
+    const deals: HubSpotDeal[] = (rawDeals as any)?.results || (Array.isArray(rawDeals) ? rawDeals : []);
     const openDeals = deals.filter(
-      (d: any) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage)
+      (d: HubSpotDeal) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage)
     );
     const pipelineValue = openDeals.reduce(
-      (sum: number, d: any) => sum + Number(d.properties?.amount || 0),
+      (sum: number, d: HubSpotDeal) => sum + Number(d.properties?.amount || 0),
       0
     );
     const pipelineDeals = openDeals.length;
 
-    const wonDeals = deals.filter((d: any) => d.properties?.dealstage === 'closedwon').length;
-    const lostDeals = deals.filter((d: any) => d.properties?.dealstage === 'closedlost').length;
+    const wonDeals = deals.filter((d: HubSpotDeal) => d.properties?.dealstage === 'closedwon').length;
+    const lostDeals = deals.filter((d: HubSpotDeal) => d.properties?.dealstage === 'closedlost').length;
     const totalClosed = wonDeals + lostDeals;
     const winRate = totalClosed > 0 ? (wonDeals / totalClosed) * 100 : 0;
     const avgDealSize =
       wonDeals > 0
         ? deals
-            .filter((d: any) => d.properties?.dealstage === 'closedwon')
-            .reduce((sum: number, d: any) => sum + Number(d.properties?.amount || 0), 0) / wonDeals
+            .filter((d: HubSpotDeal) => d.properties?.dealstage === 'closedwon')
+            .reduce((sum: number, d: HubSpotDeal) => sum + Number(d.properties?.amount || 0), 0) / wonDeals
         : 0;
 
     // HubSpotClient doesn't have getContacts yet, so estimate leads from deals
-    const newLeads = deals.filter((d: any) => {
+    const newLeads = deals.filter((d: HubSpotDeal) => {
       const created = d.createdAt || d.properties?.createdate;
       return created && Date.now() - new Date(created).getTime() < 30 * 24 * 60 * 60 * 1000;
     }).length;

@@ -204,9 +204,9 @@ router.get('/stats', async (_req: Request, res: Response) => {
         inProgress,
         overdue,
         completionRate,
-        byType: byType.map((t: any) => ({
+        byType: byType.map((t: { courseType: string; _count: { id: number } }) => ({
           courseType: t.courseType,
-          count: (t as { _count: { id: number } })._count.id,
+          count: t._count.id,
         })),
       },
     });

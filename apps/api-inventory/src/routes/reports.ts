@@ -106,7 +106,7 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         period: { start, end },
-        byType: byType.map((t: any) => ({
+        byType: byType.map((t: { transactionType: string; _count: { id: number }; _sum?: { quantityChange?: number; totalCost?: number } }) => ({
           transactionType: t.transactionType,
           count: t._count.id,
           quantityChange: t._sum?.quantityChange,
@@ -212,7 +212,7 @@ router.get('/turnover', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         period: { start, end },
-        products: outbound.map((o: any) => ({
+        products: outbound.map((o: { productId: string; _sum?: { quantityChange?: number; totalCost?: unknown } }) => ({
           productId: o.productId,
           totalOutbound: Math.abs(o._sum?.quantityChange ?? 0),
           totalCost: Math.abs(Number(o._sum?.totalCost ?? 0)),

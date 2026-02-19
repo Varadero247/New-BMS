@@ -518,7 +518,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         totalRules,
         activeRules,
         inactiveRules: totalRules - activeRules,
-        executionsByStatus: executionsByStatus.map((e: any) => ({
+        executionsByStatus: executionsByStatus.map((e: { status: string; _count: { status: number } }) => ({
           status: e.status,
           count: e._count.status,
         })),

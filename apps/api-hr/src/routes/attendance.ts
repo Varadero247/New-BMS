@@ -445,7 +445,7 @@ router.post('/', async (req: Request, res: Response) => {
     const attendanceDate = new Date(data.date);
     attendanceDate.setHours(0, 0, 0, 0);
 
-    const createData: any = {
+    const createData: Record<string, unknown> = {
       employeeId: data.employeeId,
       date: attendanceDate,
       status: data.status,

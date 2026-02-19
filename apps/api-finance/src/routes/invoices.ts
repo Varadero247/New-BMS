@@ -501,9 +501,9 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
       }),
     ]);
 
-    const totalInvoiced = invoices.reduce((sum: number, inv: any) => sum + Number(inv.total), 0);
-    const totalPaid = payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
-    const totalCredits = creditNotes.reduce((sum: number, cn: any) => sum + Number(cn.amount), 0);
+    const totalInvoiced = invoices.reduce((sum: number, inv: { total: unknown }) => sum + Number(inv.total), 0);
+    const totalPaid = payments.reduce((sum: number, p: { amount: unknown }) => sum + Number(p.amount), 0);
+    const totalCredits = creditNotes.reduce((sum: number, cn: { amount: unknown }) => sum + Number(cn.amount), 0);
     const balanceDue = totalInvoiced - totalPaid - totalCredits;
 
     res.json({
@@ -834,7 +834,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
             take: 1000,
           })
         : [];
-    const taxRateMap = new Map(taxRates.map((r: any) => [r.id, Number(r.rate)]));
+    const taxRateMap = new Map(taxRates.map((r: { id: string; rate: unknown }) => [r.id, Number(r.rate)]));
 
     // Calculate totals from lines
     let subtotal = 0;
@@ -961,7 +961,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
               take: 1000,
             })
           : [];
-      const updateTaxRateMap = new Map(updateTaxRates.map((r: any) => [r.id, Number(r.rate)]));
+      const updateTaxRateMap = new Map(updateTaxRates.map((r: { id: string; rate: unknown }) => [r.id, Number(r.rate)]));
 
       let subtotal = 0;
       let taxTotal = 0;

@@ -35,7 +35,8 @@ interface PdfPage {
   ops: string[];
 }
 
-function buildSoaPdf(controls: any[], generatedAt: string): Buffer {
+interface SoaControl { controlId?: string; title?: string; domain?: string; applicability?: string; implementationStatus?: string }
+function buildSoaPdf(controls: SoaControl[], generatedAt: string): Buffer {
   const W = 595,
     H = 842,
     ML = 40,
@@ -264,12 +265,12 @@ router.get('/soa', async (_req: Request, res: Response) => {
       applicable: controls.filter((c) => c.applicability === 'APPLICABLE').length,
       notApplicable: controls.filter((c) => c.applicability === 'NOT_APPLICABLE').length,
       fullyImplemented: controls.filter(
-        (c) => (c.implementationStatus as any) === 'FULLY_IMPLEMENTED'
+        (c) => c.implementationStatus === 'FULLY_IMPLEMENTED'
       ).length,
       partiallyImplemented: controls.filter(
-        (c) => (c.implementationStatus as any) === 'PARTIALLY_IMPLEMENTED'
+        (c) => c.implementationStatus === 'PARTIALLY_IMPLEMENTED'
       ).length,
-      notImplemented: controls.filter((c) => (c.implementationStatus as any) === 'NOT_IMPLEMENTED')
+      notImplemented: controls.filter((c) => c.implementationStatus === 'NOT_IMPLEMENTED')
         .length,
     };
 

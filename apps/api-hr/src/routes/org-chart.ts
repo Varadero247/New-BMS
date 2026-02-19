@@ -123,13 +123,13 @@ router.get('/by-department', async (_req: Request, res: Response) => {
       take: 1000,
     });
 
-    const result = departments.map((d: any) => ({
+    const result = departments.map((d) => ({
       id: d.id,
       name: d.name,
       code: d.code,
       headCount: d.employees.length,
       manager: d.manager,
-      employees: d.employees.map((e: any) => ({
+      employees: d.employees.map((e) => ({
         ...e,
         fullName: `${e.firstName} ${e.lastName}`,
       })),
@@ -157,7 +157,7 @@ router.get('/reporting-chain/:employeeId', async (req: Request, res: Response) =
     while (currentId && !visited.has(currentId)) {
       visited.add(currentId);
 
-      const employee: any = await prisma.employee.findUnique({
+      const employee = await prisma.employee.findUnique({
         where: { id: currentId },
         select: {
           id: true,

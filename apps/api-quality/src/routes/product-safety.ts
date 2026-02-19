@@ -586,9 +586,9 @@ router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) =
     // Compute summary stats
     const summary = {
       totalRecords: total,
-      compliant: items.filter((i: any) => i.status === 'COMPLIANT').length,
-      nonCompliant: items.filter((i: any) => i.status === 'NON_COMPLIANT').length,
-      pending: items.filter((i: any) => i.status === 'PENDING').length,
+      compliant: items.filter((i: { status?: string }) => i.status === 'COMPLIANT').length,
+      nonCompliant: items.filter((i: { status?: string }) => i.status === 'NON_COMPLIANT').length,
+      pending: items.filter((i: { status?: string }) => i.status === 'PENDING').length,
     };
 
     res.json({

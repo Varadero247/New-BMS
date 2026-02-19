@@ -68,7 +68,7 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
         orderBy: { score: 'asc' },
         take: userLimit,
       });
-      userLimitApproaching = (atRisk || []).map((s: any) => s.userId);
+      userLimitApproaching = (atRisk || []).map((s: { userId: string }) => s.userId);
     } catch {
       /* DB unavailable — default to [] */
     }
@@ -81,7 +81,7 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
         take: moduleLimit,
         orderBy: { createdAt: 'desc' },
       });
-      unusedModuleNudge = (stale || []).map((e: any) => e.email);
+      unusedModuleNudge = (stale || []).map((e: { email: string }) => e.email);
     } catch {
       /* DB unavailable — default to [] */
     }
@@ -93,7 +93,7 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
-      growthFlag = (improving || []).map((s: any) => s.userId);
+      growthFlag = (improving || []).map((s: { userId: string }) => s.userId);
     } catch {
       /* DB unavailable — default to [] */
     }

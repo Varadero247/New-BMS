@@ -158,7 +158,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         completed,
         overdue,
         completionRate,
-        byType: byType.map((t: any) => ({ trainingType: t.trainingType, count: t._count.id })),
+        byType: byType.map((t: { trainingType: string; _count: { id: number } }) => ({ trainingType: t.trainingType, count: t._count.id })),
       },
     });
   } catch (error: unknown) {

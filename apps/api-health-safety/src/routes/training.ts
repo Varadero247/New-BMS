@@ -57,7 +57,7 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
 
     // Filter for H&S courses
     const hsRecords = records.filter(
-      (r: any) => r.course.standard === STANDARD || r.course.standard === null
+      (r: { course?: { standard?: string | null } }) => r.course?.standard === STANDARD || r.course?.standard === null
     );
 
     res.json({ success: true, data: hsRecords });

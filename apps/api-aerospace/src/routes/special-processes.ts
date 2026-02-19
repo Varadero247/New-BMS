@@ -227,7 +227,7 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
     const ninetyDays = new Date();
     ninetyDays.setDate(ninetyDays.getDate() + 90);
 
-    const enriched = approvals.map((approval: any) => ({
+    const enriched = approvals.map((approval: Record<string, unknown> & { expiryDate?: string | null }) => ({
       ...approval,
       expiringSoon:
         approval.expiryDate &&

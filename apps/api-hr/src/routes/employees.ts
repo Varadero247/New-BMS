@@ -213,7 +213,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
     const departmentMap = new Map(
       departments.map((d: { id: string; name: string }) => [d.id, d.name])
     );
-    const byDepartment = byDepartmentRaw.map((d: any) => ({
+    const byDepartment = byDepartmentRaw.map((d: { departmentId: string; _count: { id: number } }) => ({
       department: departmentMap.get(d.departmentId) || 'Unknown',
       departmentId: d.departmentId,
       count: d._count.id,

@@ -252,9 +252,9 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
     });
 
     // Filter to requests where this user needs to respond at the current level
-    const userPending = pendingRequests.filter((request: any) => {
-      const userResponded = request.responses.some(
-        (r: any) => r.approverId === req.params.userId && r.level === request.currentLevel
+    const userPending = pendingRequests.filter((request: { currentLevel: number; responses?: Array<{ approverId: string; level: number }> }) => {
+      const userResponded = (request.responses || []).some(
+        (r) => r.approverId === req.params.userId && r.level === request.currentLevel
       );
       return !userResponded;
     });
@@ -437,7 +437,7 @@ router.put(
 
       // Check if user already responded at this level
       const existingResponse = request.responses.find(
-        (r: any) => r.approverId === data.approverId && r.level === request.currentLevel
+        (r) => r.approverId === data.approverId && r.level === request.currentLevel
       );
 
       if (existingResponse) {
@@ -736,11 +736,11 @@ router.get('/stats', async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-        requestsByStatus: requestsByStatus.map((r: any) => ({
+        requestsByStatus: requestsByStatus.map((r: { status: string; _count: { status: number } }) => ({
           status: r.status,
           count: r._count.status,
         })),
-        requestsByType: requestsByType.map((r: any) => ({
+        requestsByType: requestsByType.map((r: { requestType: string; _count: { requestType: number } }) => ({
           type: r.requestType,
           count: r._count.requestType,
         })),
