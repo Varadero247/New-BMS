@@ -1,4 +1,4 @@
-import { initSentry } from '@ims/sentry';
+import { initSentry, sentryErrorHandler, Sentry } from '@ims/sentry';
 import express from 'express';
 import type { Express, Request } from 'express';
 import cors from 'cors';
@@ -279,6 +279,15 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(sanitizeMiddleware());
 app.use(sanitizeQueryMiddleware());
 
+// Set Sentry user scope from JWT if already decoded upstream (e.g. optional auth paths)
+app.use((req, _res, next) => {
+  const user = (req as import('@ims/auth').AuthRequest).user;
+  if (user) {
+    Sentry.getCurrentScope().setUser({ id: user.id, email: user.email, username: user.role });
+  }
+  next();
+});
+
 // Request timeout (30 seconds)
 app.use((req, res, next) => {
   req.setTimeout(30000);
@@ -286,11 +295,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Rate limiting (using Redis-backed limiter)
-app.use('/api', apiLimiter);
-
-// Per-organisation sliding window rate limit (in-memory, plan-tier aware)
-app.use('/api', orgRateLimit());
+// Rate limiting (using Redis-backed limiter) — skip entirely when RATE_LIMIT_ENABLED=false
+if (process.env.RATE_LIMIT_ENABLED !== 'false') {
+  app.use('/api', apiLimiter);
+  // Per-organisation sliding window rate limit (in-memory, plan-tier aware)
+  app.use('/api', orgRateLimit());
+}
 
 // API Key authentication — checks for rxk_ tokens before JWT auth handles other tokens
 app.use('/api', apiKeyAuth);
@@ -1156,6 +1166,7 @@ app.use(
 
 // Error handling
 app.use(notFoundHandler);
+app.use(sentryErrorHandler());
 app.use(errorHandler);
 
 // Validate secrets on startup

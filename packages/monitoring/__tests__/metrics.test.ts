@@ -4,6 +4,8 @@ import {
   httpRequestTotal,
   activeRequests,
   databaseQueryDuration,
+  authFailuresTotal,
+  rateLimitExceededTotal,
   metricsMiddleware,
   metricsHandler,
 } from '../src/metrics';
@@ -33,6 +35,14 @@ describe('Prometheus metrics', () => {
       expect(databaseQueryDuration).toBeInstanceOf(client.Histogram);
     });
 
+    it('authFailuresTotal is a Counter', () => {
+      expect(authFailuresTotal).toBeInstanceOf(client.Counter);
+    });
+
+    it('rateLimitExceededTotal is a Counter', () => {
+      expect(rateLimitExceededTotal).toBeInstanceOf(client.Counter);
+    });
+
     it('register contains default metrics', async () => {
       const metrics = await register.getMetricsAsJSON();
       // Default metrics include things like process_cpu_seconds_total
@@ -42,6 +52,49 @@ describe('Prometheus metrics', () => {
       expect(
         metricNames.some((name) => name.startsWith('process_') || name.startsWith('nodejs_'))
       ).toBe(true);
+    });
+  });
+
+  describe('authFailuresTotal counter', () => {
+    it('increments with reason and service labels', async () => {
+      authFailuresTotal.inc({ reason: 'wrong_password', service: 'api-gateway' });
+      authFailuresTotal.inc({ reason: 'invalid_credentials', service: 'api-gateway' });
+
+      const metricsOutput = await register.metrics();
+      expect(metricsOutput).toContain('auth_failures_total');
+    });
+
+    it('can be incremented multiple times', async () => {
+      const before = await register.getMetricsAsJSON();
+      const beforeEntry = before.find((m) => m.name === 'auth_failures_total');
+      const beforeValue = beforeEntry?.values?.[0]?.value ?? 0;
+
+      authFailuresTotal.inc({ reason: 'wrong_password', service: 'test-svc' });
+
+      const after = await register.getMetricsAsJSON();
+      const afterEntry = after.find((m) => m.name === 'auth_failures_total');
+      const afterTotal = (afterEntry?.values ?? []).reduce((s, v) => s + v.value, 0);
+      expect(afterTotal).toBeGreaterThan(beforeValue);
+    });
+  });
+
+  describe('rateLimitExceededTotal counter', () => {
+    it('increments with limiter and service labels', async () => {
+      rateLimitExceededTotal.inc({ limiter: 'auth', service: 'api-gateway' });
+
+      const metricsOutput = await register.metrics();
+      expect(metricsOutput).toContain('rate_limit_exceeded_total');
+    });
+
+    it('supports different limiter label values', async () => {
+      rateLimitExceededTotal.inc({ limiter: 'api', service: 'api-gateway' });
+      rateLimitExceededTotal.inc({ limiter: 'strict_api', service: 'api-gateway' });
+      rateLimitExceededTotal.inc({ limiter: 'register', service: 'api-gateway' });
+
+      const metrics = await register.getMetricsAsJSON();
+      const entry = metrics.find((m) => m.name === 'rate_limit_exceeded_total');
+      const limiterLabels = (entry?.values ?? []).map((v) => v.labels?.limiter);
+      expect(limiterLabels).toEqual(expect.arrayContaining(['api', 'strict_api', 'register']));
     });
   });
 

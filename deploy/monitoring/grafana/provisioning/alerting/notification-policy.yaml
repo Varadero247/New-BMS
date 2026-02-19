@@ -1,0 +1,34 @@
+# Grafana Unified Alerting — Notification Policy
+# Routes alerts to the appropriate contact point based on severity and alert group.
+apiVersion: 1
+
+policies:
+  - orgId: 1
+    receiver: ims-default
+    group_by: ["alertname", "job"]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
+    routes:
+      # Security alerts → dedicated security channel (highest priority match)
+      - receiver: ims-security
+        matchers:
+          - alertname =~ "HighAuthentication.*|RateLimit.*"
+        group_wait: 10s
+        repeat_interval: 1h
+
+      # Critical severity → critical channel
+      - receiver: ims-critical
+        matchers:
+          - severity = critical
+        group_wait: 10s
+        group_interval: 1m
+        repeat_interval: 30m
+
+      # Warning severity → warning channel
+      - receiver: ims-warning
+        matchers:
+          - severity = warning
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 2h

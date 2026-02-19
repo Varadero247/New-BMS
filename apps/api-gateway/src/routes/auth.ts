@@ -16,7 +16,7 @@ import {
 import { getEmailService, templates } from '@ims/email';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
-import { createLogger } from '@ims/monitoring';
+import { createLogger, authFailuresTotal } from '@ims/monitoring';
 import { authLimiter, registerLimiter, passwordResetLimiter } from '../middleware/rate-limiter';
 import { getAccountLockoutManager, checkAccountLockout } from '../middleware/account-lockout';
 
@@ -55,6 +55,7 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
       const remaining = await lockoutManager.getRemainingAttempts(email);
 
       logger.info('Login failed - invalid credentials', { ip: req.ip });
+      authFailuresTotal.inc({ reason: 'invalid_credentials', service: 'api-gateway' });
 
       return res.status(401).json({
         success: false,
@@ -72,6 +73,7 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
       const { locked, remainingAttempts } = await lockoutManager.recordFailedAttempt(email);
 
       logger.info('Login failed - wrong password', { userId: user.id, ip: req.ip, locked });
+      authFailuresTotal.inc({ reason: 'wrong_password', service: 'api-gateway' });
 
       if (locked) {
         const timeRemaining = await lockoutManager.getLockoutTimeRemaining(email);

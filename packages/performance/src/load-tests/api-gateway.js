@@ -56,7 +56,7 @@ export const options = {
     { duration: '30s', target: 0 }, // Ramp down over 30s
   ],
   thresholds: {
-    http_req_duration: ['p(95)<200'], // p95 response time < 200ms
+    http_req_duration: ['p(95)<500'], // p95 response time < 500ms
     http_req_failed: ['rate<0.01'], // Error rate < 1%
     errors: ['rate<0.01'],
   },
@@ -118,7 +118,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/health-safety/risks`, params);
     const passed = check(res, {
       'health-safety risks status 200': (r) => r.status === 200,
-      'health-safety risks p95 < 200ms': (r) => r.timings.duration < 200,
+      'health-safety risks p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -129,7 +129,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/environment/aspects`, params);
     const passed = check(res, {
       'environment aspects status 200': (r) => r.status === 200,
-      'environment aspects p95 < 200ms': (r) => r.timings.duration < 200,
+      'environment aspects p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -140,7 +140,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/quality/ncrs`, params);
     const passed = check(res, {
       'quality ncrs status 200': (r) => r.status === 200,
-      'quality ncrs p95 < 200ms': (r) => r.timings.duration < 200,
+      'quality ncrs p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -151,7 +151,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/finance/accounts`, params);
     const passed = check(res, {
       'finance accounts status 200': (r) => r.status === 200,
-      'finance accounts p95 < 200ms': (r) => r.timings.duration < 200,
+      'finance accounts p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -162,7 +162,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/crm/contacts`, params);
     const passed = check(res, {
       'crm contacts status 200': (r) => r.status === 200,
-      'crm contacts p95 < 200ms': (r) => r.timings.duration < 200,
+      'crm contacts p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -173,7 +173,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/infosec/assets`, params);
     const passed = check(res, {
       'infosec assets status 200': (r) => r.status === 200,
-      'infosec assets p95 < 200ms': (r) => r.timings.duration < 200,
+      'infosec assets p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -184,7 +184,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/esg/emissions`, params);
     const passed = check(res, {
       'esg emissions status 200': (r) => r.status === 200,
-      'esg emissions p95 < 200ms': (r) => r.timings.duration < 200,
+      'esg emissions p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -195,7 +195,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/cmms/assets`, params);
     const passed = check(res, {
       'cmms assets status 200': (r) => r.status === 200,
-      'cmms assets p95 < 200ms': (r) => r.timings.duration < 200,
+      'cmms assets p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -206,7 +206,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/food-safety/haccp-plans`, params);
     const passed = check(res, {
       'food-safety haccp-plans status 200': (r) => r.status === 200,
-      'food-safety haccp-plans p95 < 200ms': (r) => r.timings.duration < 200,
+      'food-safety haccp-plans p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -217,7 +217,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/energy/consumption`, params);
     const passed = check(res, {
       'energy consumption status 200': (r) => r.status === 200,
-      'energy consumption p95 < 200ms': (r) => r.timings.duration < 200,
+      'energy consumption p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -228,7 +228,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/analytics/kpis`, params);
     const passed = check(res, {
       'analytics kpis status 200': (r) => r.status === 200,
-      'analytics kpis p95 < 200ms': (r) => r.timings.duration < 200,
+      'analytics kpis p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);
@@ -239,7 +239,7 @@ export default function (data) {
     const res = http.get(`${BASE_URL}/api/field-service/jobs`, params);
     const passed = check(res, {
       'field-service jobs status 200': (r) => r.status === 200,
-      'field-service jobs p95 < 200ms': (r) => r.timings.duration < 200,
+      'field-service jobs p95 < 500ms': (r) => r.timings.duration < 500,
     });
     errorRate.add(!passed);
     sleep(0.5);

@@ -35,6 +35,28 @@ const createEquipmentSchema = z.object({
 
 const updateEquipmentSchema = createEquipmentSchema.partial();
 
+// GET /api/equipment — list all equipment
+router.get('/', authenticate, async (req: Request, res: Response) => {
+  try {
+    const page = Math.max(1, parseInt(String(req.query.page ?? 1), 10));
+    const limit = Math.min(1000, Math.max(1, parseInt(String(req.query.limit ?? 50), 10)));
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      prisma.femEmergencyEquipment.findMany({
+        skip,
+        take: limit,
+        orderBy: { nextServiceDue: 'asc' },
+        include: { premises: { select: { name: true } } },
+      }),
+      prisma.femEmergencyEquipment.count(),
+    ]);
+    res.json({ success: true, data, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+  } catch (error: unknown) {
+    logger.error('Failed to fetch equipment', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch equipment' } });
+  }
+});
+
 // GET /api/equipment/service-due — upcoming service due (before /:id)
 router.get('/service-due', authenticate, async (_req: Request, res: Response) => {
   try {

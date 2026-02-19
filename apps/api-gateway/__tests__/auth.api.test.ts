@@ -53,6 +53,8 @@ jest.mock('@ims/monitoring', () => ({
     error: jest.fn(),
     debug: jest.fn(),
   }),
+  authFailuresTotal: { inc: jest.fn() },
+  rateLimitExceededTotal: { inc: jest.fn() },
 }));
 
 jest.mock('../src/middleware/rate-limiter', () => ({

@@ -378,6 +378,95 @@ describe('Rate Limiter Middleware', () => {
     });
   });
 
+  describe('RATE_LIMIT_ENABLED bypass', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      process.env = { ...originalEnv };
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it('should skip rate limiting when RATE_LIMIT_ENABLED=false', async () => {
+      process.env.RATE_LIMIT_ENABLED = 'false';
+
+      // createRateLimiter with max=1 — but skip should bypass the limit
+      const limiter = createRateLimiter({
+        windowMs: 60000,
+        max: 1,
+        keyGenerator: () => 'bypass-test-key',
+        skip: () => process.env.RATE_LIMIT_ENABLED === 'false',
+      });
+
+      const makeRequest = () =>
+        new Promise<{ called: boolean; status?: number }>((resolve) => {
+          const mockRes = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            setHeader: jest.fn(),
+            getHeader: jest.fn(),
+          };
+          const mockReq = {
+            ip: '10.10.10.10',
+            socket: { remoteAddress: '10.10.10.10' },
+            body: {},
+            method: 'GET',
+            path: '/test',
+            headers: {},
+            get: jest.fn(),
+          };
+          limiter(mockReq as unknown as Request, mockRes as unknown as Response, () => {
+            resolve({ called: true, status: mockRes.status.mock.calls[0]?.[0] });
+          });
+        });
+
+      // Both requests should pass through (skip=true bypasses limit)
+      const result1 = await makeRequest();
+      const result2 = await makeRequest();
+
+      expect(result1.called).toBe(true);
+      expect(result2.called).toBe(true);
+      expect(result1.status).toBeUndefined(); // no 429
+      expect(result2.status).toBeUndefined(); // no 429
+    });
+
+    it('should enforce rate limits when RATE_LIMIT_ENABLED is not false', async () => {
+      delete process.env.RATE_LIMIT_ENABLED;
+
+      // RATE_LIMIT_ENABLED not set → skip returns false → limits enforced
+      const limiter = createRateLimiter({
+        windowMs: 60000,
+        max: 100, // high limit so we don't actually trigger it in test
+        keyGenerator: () => 'enforce-test-key',
+      });
+
+      const mockReq = {
+        ip: '10.10.10.20',
+        socket: { remoteAddress: '10.10.10.20' },
+        body: {},
+        method: 'GET',
+        path: '/test',
+        headers: {},
+        get: jest.fn(),
+      };
+      const mockRes = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+        setHeader: jest.fn(),
+        getHeader: jest.fn(),
+      };
+
+      await new Promise<void>((resolve) => {
+        limiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
+      });
+
+      // Request should pass (under limit), not 429
+      expect(mockRes.status).not.toHaveBeenCalledWith(429);
+    });
+  });
+
   describe('rate limit handler response', () => {
     it('should return proper 429 response structure when rate limited', async () => {
       // Create a limiter with very low limit for testing

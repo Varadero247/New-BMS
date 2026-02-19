@@ -36,7 +36,7 @@ const scenarios = [
   },
   {
     name: 'Quality — Large NCR List',
-    endpoint: '/api/quality/ncrs?page=1&limit=1000',
+    endpoint: '/api/quality/nonconformances?page=1&limit=1000',
     method: 'GET',
     category: 'pagination',
   },
@@ -48,7 +48,7 @@ const scenarios = [
   },
   {
     name: 'Inventory — Large Items List',
-    endpoint: '/api/inventory/items?page=1&limit=1000',
+    endpoint: '/api/inventory/inventory?page=1&limit=1000',
     method: 'GET',
     category: 'pagination',
   },
@@ -60,13 +60,13 @@ const scenarios = [
   },
   {
     name: 'Finance — Large Journal Entries',
-    endpoint: '/api/finance/journal-entries?page=1&limit=1000',
+    endpoint: '/api/finance/journal?page=1&limit=1000',
     method: 'GET',
     category: 'pagination',
   },
   {
     name: 'Finance — Filtered Invoices',
-    endpoint: '/api/finance/invoices?status=PENDING&limit=500',
+    endpoint: '/api/finance/invoices?status=DRAFT&limit=500',
     method: 'GET',
     category: 'filtered',
   },

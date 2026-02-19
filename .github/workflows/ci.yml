@@ -284,8 +284,8 @@ jobs:
 
       - name: Run Lighthouse CI
         run: |
-          lhci autorun --config=packages/performance/lighthouserc.json || true
+          lhci autorun --config=packages/performance/lighthouserc.json
 
       - name: Run accessibility audit
         run: |
-          cd packages/performance && node src/accessibility/audit.js || true
+          cd packages/performance && node src/accessibility/audit.js

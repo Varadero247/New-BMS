@@ -61,3 +61,7 @@ deploy/k8s/overlays/*/secrets*.yaml
 # Misc
 *.tsbuildinfo
 .cache
+
+# Test reports
+playwright-report/
+.zap/

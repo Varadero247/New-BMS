@@ -106,6 +106,25 @@ module.exports = {
       functions: 65,
       lines: 70,
     },
+    // Security-critical packages require higher coverage
+    './packages/auth/src/**': {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+    },
+    './packages/rbac/src/**': {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+    },
+    './packages/validation/src/**': {
+      statements: 85,
+      branches: 80,
+      functions: 85,
+      lines: 85,
+    },
   },
 
   // Coverage (applied when --coverage is passed)

@@ -64,6 +64,10 @@ data:
   # Observability
   OTEL_EXPORTER_OTLP_ENDPOINT: 'http://jaeger-collector:4317'
   OTEL_SERVICE_NAME: 'ims'
+  # Distributed tracing — disabled by default; enabled via prod overlay
+  OTEL_TRACING_ENABLED: 'false'
+  # Sentry — DSN set via secrets; sample rate is non-sensitive
+  SENTRY_TRACES_SAMPLE_RATE: '0.1'
 
   # CSRF
   CSRF_ENABLED: 'true'

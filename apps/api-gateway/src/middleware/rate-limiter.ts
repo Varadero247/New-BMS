@@ -2,7 +2,7 @@ import rateLimit, { type RateLimitRequestHandler, type Options } from 'express-r
 import type { Request, Response } from 'express';
 import Redis from 'ioredis';
 import RedisStore from 'rate-limit-redis';
-import { createLogger } from '@ims/monitoring';
+import { createLogger, rateLimitExceededTotal } from '@ims/monitoring';
 
 const logger = createLogger('rate-limiter');
 
@@ -87,10 +87,19 @@ function createStore(): RedisStore | undefined {
 }
 
 /**
+ * Skip rate limiting when RATE_LIMIT_ENABLED=false (load testing / CI).
+ * Never disable in production.
+ */
+function skipRateLimit(): boolean {
+  return process.env.RATE_LIMIT_ENABLED === 'false';
+}
+
+/**
  * Standard rate limit error response
  */
-function createRateLimitHandler(message: string) {
+function createRateLimitHandler(message: string, limiterName = 'api') {
   return (_req: Request, res: Response) => {
+    rateLimitExceededTotal.inc({ limiter: limiterName, service: 'api-gateway' });
     res.status(429).json({
       success: false,
       error: {
@@ -112,13 +121,14 @@ export const authLimiter: RateLimitRequestHandler = rateLimit({
   skipSuccessfulRequests: true, // Don't count successful logins
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipRateLimit,
   keyGenerator: (req: Request) => {
     const email = req.body?.email || 'unknown';
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     return `auth:${ip}:${email}`;
   },
   store: createStore(),
-  handler: createRateLimitHandler('Too many login attempts. Please try again in 15 minutes.'),
+  handler: createRateLimitHandler('Too many login attempts. Please try again in 15 minutes.', 'auth'),
 });
 
 /**
@@ -130,12 +140,13 @@ export const registerLimiter: RateLimitRequestHandler = rateLimit({
   max: 3, // 3 registrations
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipRateLimit,
   keyGenerator: (req: Request) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     return `register:${ip}`;
   },
   store: createStore(),
-  handler: createRateLimitHandler('Too many registration attempts. Please try again in 1 hour.'),
+  handler: createRateLimitHandler('Too many registration attempts. Please try again in 1 hour.', 'register'),
 });
 
 /**
@@ -147,6 +158,7 @@ export const passwordResetLimiter: RateLimitRequestHandler = rateLimit({
   max: 3,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipRateLimit,
   keyGenerator: (req: Request) => {
     const email = req.body?.email || 'unknown';
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
@@ -154,7 +166,8 @@ export const passwordResetLimiter: RateLimitRequestHandler = rateLimit({
   },
   store: createStore(),
   handler: createRateLimitHandler(
-    'Too many password reset attempts. Please try again in 15 minutes.'
+    'Too many password reset attempts. Please try again in 15 minutes.',
+    'password_reset'
   ),
 });
 
@@ -167,12 +180,13 @@ export const apiLimiter: RateLimitRequestHandler = rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipRateLimit,
   keyGenerator: (req: Request) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     return `api:${ip}`;
   },
   store: createStore(),
-  handler: createRateLimitHandler('Too many requests. Please slow down.'),
+  handler: createRateLimitHandler('Too many requests. Please slow down.', 'api'),
 });
 
 /**
@@ -184,12 +198,13 @@ export const strictApiLimiter: RateLimitRequestHandler = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: skipRateLimit,
   keyGenerator: (req: Request) => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown';
     return `strict:${ip}`;
   },
   store: createStore(),
-  handler: createRateLimitHandler('Rate limit exceeded for this operation.'),
+  handler: createRateLimitHandler('Rate limit exceeded for this operation.', 'strict_api'),
 });
 
 /**

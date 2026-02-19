@@ -1,0 +1,250 @@
+# =============================================================================
+# IMS Prometheus Configuration
+# Scrapes metrics from all 42 API services and loads alert rules.
+# =============================================================================
+
+global:
+  scrape_interval: 15s       # How often to scrape targets
+  evaluation_interval: 15s   # How often to evaluate alert rules
+  scrape_timeout: 10s
+  external_labels:
+    cluster: 'ims'
+    environment: '{{ env "NODE_ENV" | default "production" }}'
+
+# ─── Alertmanager ─────────────────────────────────────────────────────────────
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+      timeout: 10s
+      api_version: v2
+
+# ─── Alert Rules ──────────────────────────────────────────────────────────────
+rule_files:
+  - /etc/prometheus/rules/*.yaml
+
+# ─── Scrape Configs ───────────────────────────────────────────────────────────
+scrape_configs:
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Alertmanager self-monitoring
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+
+  # ── IMS API Services ──────────────────────────────────────────────────────
+  - job_name: 'ims-api-gateway'
+    static_configs:
+      - targets: ['api-gateway:4000']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  - job_name: 'ims-api-health-safety'
+    static_configs:
+      - targets: ['api-health-safety:4001']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-environment'
+    static_configs:
+      - targets: ['api-environment:4002']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-quality'
+    static_configs:
+      - targets: ['api-quality:4003']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-ai-analysis'
+    static_configs:
+      - targets: ['api-ai-analysis:4004']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-inventory'
+    static_configs:
+      - targets: ['api-inventory:4005']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-hr'
+    static_configs:
+      - targets: ['api-hr:4006']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-payroll'
+    static_configs:
+      - targets: ['api-payroll:4007']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-workflows'
+    static_configs:
+      - targets: ['api-workflows:4008']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-project-management'
+    static_configs:
+      - targets: ['api-project-management:4009']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-automotive'
+    static_configs:
+      - targets: ['api-automotive:4010']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-medical'
+    static_configs:
+      - targets: ['api-medical:4011']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-aerospace'
+    static_configs:
+      - targets: ['api-aerospace:4012']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-finance'
+    static_configs:
+      - targets: ['api-finance:4013']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-crm'
+    static_configs:
+      - targets: ['api-crm:4014']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-infosec'
+    static_configs:
+      - targets: ['api-infosec:4015']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-esg'
+    static_configs:
+      - targets: ['api-esg:4016']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-cmms'
+    static_configs:
+      - targets: ['api-cmms:4017']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-portal'
+    static_configs:
+      - targets: ['api-portal:4018']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-food-safety'
+    static_configs:
+      - targets: ['api-food-safety:4019']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-energy'
+    static_configs:
+      - targets: ['api-energy:4020']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-analytics'
+    static_configs:
+      - targets: ['api-analytics:4021']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-field-service'
+    static_configs:
+      - targets: ['api-field-service:4022']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-iso42001'
+    static_configs:
+      - targets: ['api-iso42001:4023']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-iso37001'
+    static_configs:
+      - targets: ['api-iso37001:4024']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-marketing'
+    static_configs:
+      - targets: ['api-marketing:4025']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-partners'
+    static_configs:
+      - targets: ['api-partners:4026']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-risk'
+    static_configs:
+      - targets: ['api-risk:4027']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-training'
+    static_configs:
+      - targets: ['api-training:4028']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-suppliers'
+    static_configs:
+      - targets: ['api-suppliers:4029']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-assets'
+    static_configs:
+      - targets: ['api-assets:4030']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-documents'
+    static_configs:
+      - targets: ['api-documents:4031']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-complaints'
+    static_configs:
+      - targets: ['api-complaints:4032']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-contracts'
+    static_configs:
+      - targets: ['api-contracts:4033']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-ptw'
+    static_configs:
+      - targets: ['api-ptw:4034']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-reg-monitor'
+    static_configs:
+      - targets: ['api-reg-monitor:4035']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-incidents'
+    static_configs:
+      - targets: ['api-incidents:4036']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-audits'
+    static_configs:
+      - targets: ['api-audits:4037']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-mgmt-review'
+    static_configs:
+      - targets: ['api-mgmt-review:4038']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-setup-wizard'
+    static_configs:
+      - targets: ['api-setup-wizard:4039']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-chemicals'
+    static_configs:
+      - targets: ['api-chemicals:4040']
+    metrics_path: /metrics
+
+  - job_name: 'ims-api-emergency'
+    static_configs:
+      - targets: ['api-emergency:4041']
+    metrics_path: /metrics

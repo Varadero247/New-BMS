@@ -1,0 +1,147 @@
+# IMS Monitoring Stack
+# Deploys Prometheus, Alertmanager, and Grafana.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+#
+# Or standalone (connects to the 'ims-network' created by docker-compose.yml):
+#   docker compose -f docker-compose.monitoring.yml up -d
+#
+# Required environment variables (add to .env):
+#   GRAFANA_USER, GRAFANA_PASSWORD
+#   ALERT_EMAIL, SLACK_WEBHOOK_URL, ALERTMANAGER_WEBHOOK_URL
+#   GRAFANA_SMTP_HOST, GRAFANA_SMTP_USER, GRAFANA_SMTP_PASS (optional — for email alerts)
+
+version: '3.8'
+
+networks:
+  ims-network:
+    external: true
+
+volumes:
+  prometheus-data:
+    driver: local
+  alertmanager-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+services:
+  # ── Prometheus ──────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: ims-prometheus
+    restart: unless-stopped
+    networks:
+      - ims-network
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deploy/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/monitoring/prometheus/alerts.yaml:/etc/prometheus/rules/alerts.yaml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── Alertmanager ─────────────────────────────────────────────────────────────
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: ims-alertmanager
+    restart: unless-stopped
+    networks:
+      - ims-network
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./deploy/monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--cluster.advertise-address=0.0.0.0:9093'
+    environment:
+      # Alert routing env vars — interpolated at startup by Alertmanager
+      ALERT_EMAIL: ${ALERT_EMAIL:-ops@example.com}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      ALERTMANAGER_WEBHOOK_URL: ${ALERTMANAGER_WEBHOOK_URL:-}
+      GRAFANA_SMTP_HOST: ${GRAFANA_SMTP_HOST:-smtp.sendgrid.net:587}
+      GRAFANA_SMTP_USER: ${GRAFANA_SMTP_USER:-}
+      GRAFANA_SMTP_PASS: ${GRAFANA_SMTP_PASS:-}
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ── Grafana ───────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.2
+    container_name: ims-grafana
+    restart: unless-stopped
+    networks:
+      - ims-network
+    ports:
+      - "3100:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./deploy/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      # Admin credentials
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-changeme}
+      GF_SECURITY_SECRET_KEY: ${GRAFANA_SECRET_KEY:-SW2YcwTIb9zpOOhoPsMm}
+
+      # Server
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3100}
+      GF_SERVER_SERVE_FROM_SUB_PATH: "false"
+
+      # Unified alerting (disable legacy alerting)
+      GF_ALERTING_ENABLED: "false"
+      GF_UNIFIED_ALERTING_ENABLED: "true"
+
+      # SMTP for email contact points
+      GF_SMTP_ENABLED: ${GRAFANA_SMTP_ENABLED:-false}
+      GF_SMTP_HOST: ${GRAFANA_SMTP_HOST:-smtp.sendgrid.net:587}
+      GF_SMTP_USER: ${GRAFANA_SMTP_USER:-}
+      GF_SMTP_PASSWORD: ${GRAFANA_SMTP_PASS:-}
+      GF_SMTP_FROM_ADDRESS: ${ALERT_EMAIL:-alerts@ims.local}
+      GF_SMTP_FROM_NAME: "IMS Grafana"
+
+      # Alert routing env vars (used in contact-points.yaml)
+      ALERT_EMAIL: ${ALERT_EMAIL:-ops@example.com}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-}
+      ALERTMANAGER_WEBHOOK_URL: ${ALERTMANAGER_WEBHOOK_URL:-}
+
+      # Plugins
+      GF_INSTALL_PLUGINS: ""
+
+      # Analytics (disable telemetry)
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      alertmanager:
+        condition: service_healthy

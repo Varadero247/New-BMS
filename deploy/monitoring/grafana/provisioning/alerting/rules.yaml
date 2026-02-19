@@ -1,0 +1,382 @@
+# Grafana Unified Alerting — Alert Rules
+# These rules are evaluated by Grafana against the Prometheus datasource.
+# They mirror the Prometheus alert rules in alerts.yaml so Grafana's alert UI
+# shows state (Normal / Pending / Firing) alongside dashboards.
+apiVersion: 1
+
+groups:
+  # ── Availability ─────────────────────────────────────────────────────────────
+  - orgId: 1
+    name: ims-availability
+    folder: IMS Alerts
+    interval: 1m
+    rules:
+      - uid: ims-service-down
+        title: ServiceDown
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: up{job=~"ims-.*"} == 0
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been unreachable for more than 1 minute."
+
+      - uid: ims-high-error-rate
+        title: HighErrorRate
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                sum(rate(http_requests_total{job=~"ims-.*", status_code=~"5.."}[5m])) by (job)
+                / sum(rate(http_requests_total{job=~"ims-.*"}[5m])) by (job)
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [0.05]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} error rate > 5% for 5 minutes."
+
+      - uid: ims-critical-error-rate
+        title: CriticalErrorRate
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                sum(rate(http_requests_total{job=~"ims-.*", status_code=~"5.."}[5m])) by (job)
+                / sum(rate(http_requests_total{job=~"ims-.*"}[5m])) by (job)
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [0.10]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical error rate on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} error rate > 10% for 2 minutes."
+
+  # ── Latency ──────────────────────────────────────────────────────────────────
+  - orgId: 1
+    name: ims-latency
+    folder: IMS Alerts
+    interval: 1m
+    rules:
+      - uid: ims-high-latency
+        title: HighLatency
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                histogram_quantile(0.95,
+                  sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le)
+                )
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [0.5]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} P95 latency > 500ms for 5 minutes."
+
+      - uid: ims-critical-latency
+        title: CriticalLatency
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                histogram_quantile(0.99,
+                  sum(rate(http_request_duration_seconds_bucket{job=~"ims-.*"}[5m])) by (job, le)
+                )
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [2]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical latency on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} P99 latency > 2s for 2 minutes."
+
+  # ── Resources ────────────────────────────────────────────────────────────────
+  - orgId: 1
+    name: ims-resources
+    folder: IMS Alerts
+    interval: 1m
+    rules:
+      - uid: ims-high-memory
+        title: HighMemoryUsage
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: process_resident_memory_bytes{job=~"ims-.*"} / 1024 / 1024
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [400]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} is using more than 400MB of memory."
+
+      - uid: ims-high-cpu
+        title: HighCPUUsage
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(process_cpu_seconds_total{job=~"ims-.*"}[5m]) * 100
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [80]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.job }}"
+          description: "Service {{ $labels.job }} CPU usage > 80% for 10 minutes."
+
+  # ── Security ─────────────────────────────────────────────────────────────────
+  - orgId: 1
+    name: ims-security
+    folder: IMS Alerts
+    interval: 1m
+    rules:
+      - uid: ims-auth-failures
+        title: HighAuthenticationFailures
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: sum(rate(auth_failures_total{job=~"ims-.*"}[5m]))
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [10]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High authentication failures"
+          description: "More than 10 auth failures per second detected."
+
+      - uid: ims-rate-limit
+        title: RateLimitBreached
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: sum(rate(rate_limit_exceeded_total{job=~"ims-.*"}[5m]))
+              intervalMs: 15000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            datasourceUid: __expr__
+            model:
+              type: threshold
+              refId: C
+              conditions:
+                - evaluator:
+                    params: [50]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+        noDataState: NoData
+        execErrState: Error
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Rate limit frequently exceeded"
+          description: "Rate limiting is being triggered > 50 times/sec for 2 minutes."

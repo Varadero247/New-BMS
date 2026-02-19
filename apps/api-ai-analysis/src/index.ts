@@ -1,4 +1,4 @@
-import { initSentry } from '@ims/sentry';
+import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import express from 'express';
 import type { Express } from 'express';
 import cors from 'cors';
@@ -81,6 +81,7 @@ app.use((_req: express.Request, res: express.Response) => {
     .json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
 });
 
+app.use(sentryErrorHandler());
 // Error handling
 app.use(
   (

@@ -1,0 +1,136 @@
+# =============================================================================
+# IMS Alertmanager Configuration
+# Routes Prometheus alerts to the appropriate notification channels.
+#
+# Required environment variables (set in .env or K8s secrets):
+#   ALERT_EMAIL             — email address for critical alerts
+#   SLACK_WEBHOOK_URL       — Slack incoming webhook URL
+#   ALERTMANAGER_WEBHOOK_URL — generic webhook (e.g. Teams, PagerDuty, custom)
+# =============================================================================
+
+global:
+  resolve_timeout: 5m
+  # SMTP — configure for email delivery
+  smtp_smarthost: '${GRAFANA_SMTP_HOST:-smtp.example.com:587}'
+  smtp_from: '${GRAFANA_SMTP_FROM:-alerts@ims.local}'
+  smtp_auth_username: '${GRAFANA_SMTP_USER:-}'
+  smtp_auth_password: '${GRAFANA_SMTP_PASSWORD:-}'
+  smtp_require_tls: true
+
+# ─── Inhibition Rules ─────────────────────────────────────────────────────────
+# Suppress warnings when a critical alert fires for the same service
+inhibit_rules:
+  - source_matchers:
+      - severity = "critical"
+    target_matchers:
+      - severity = "warning"
+    equal: ['alertname', 'job']
+
+# ─── Routing Tree ─────────────────────────────────────────────────────────────
+route:
+  receiver: 'ims-default'
+  group_by: ['alertname', 'job', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+  routes:
+    # Critical alerts → immediate notification on all channels
+    - matchers:
+        - severity = "critical"
+      receiver: 'ims-critical'
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: false
+
+    # Warning alerts → default channel
+    - matchers:
+        - severity = "warning"
+      receiver: 'ims-warning'
+      repeat_interval: 4h
+      continue: false
+
+    # Security alerts → dedicated receiver
+    - matchers:
+        - alertname =~ "HighAuthenticationFailures|RateLimitBreached"
+      receiver: 'ims-security'
+      group_wait: 10s
+      repeat_interval: 30m
+      continue: false
+
+# ─── Receivers ────────────────────────────────────────────────────────────────
+receivers:
+  # Default: webhook only
+  - name: 'ims-default'
+    webhook_configs:
+      - url: '${ALERTMANAGER_WEBHOOK_URL:-http://localhost:9999/alerts}'
+        send_resolved: true
+        max_alerts: 20
+
+  # Critical: email + Slack + webhook
+  - name: 'ims-critical'
+    email_configs:
+      - to: '${ALERT_EMAIL:-ops@example.com}'
+        send_resolved: true
+        headers:
+          Subject: '[CRITICAL] IMS Alert: {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>🚨 Critical Alert</h2>
+          {{ range .Alerts }}
+          <p><strong>Alert:</strong> {{ .Annotations.summary }}<br>
+          <strong>Service:</strong> {{ .Labels.job }}<br>
+          <strong>Description:</strong> {{ .Annotations.description }}<br>
+          <strong>Started:</strong> {{ .StartsAt }}</p>
+          {{ end }}
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL:-}'
+        channel: '#ims-alerts-critical'
+        send_resolved: true
+        title: '🚨 [CRITICAL] {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Service:* {{ .Labels.job }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+    webhook_configs:
+      - url: '${ALERTMANAGER_WEBHOOK_URL:-http://localhost:9999/alerts}'
+        send_resolved: true
+
+  # Warning: Slack + webhook
+  - name: 'ims-warning'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL:-}'
+        channel: '#ims-alerts'
+        send_resolved: true
+        title: '⚠️ [WARNING] {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Service:* {{ .Labels.job }}
+          *Summary:* {{ .Annotations.summary }}
+          {{ end }}
+        color: 'warning'
+    webhook_configs:
+      - url: '${ALERTMANAGER_WEBHOOK_URL:-http://localhost:9999/alerts}'
+        send_resolved: true
+
+  # Security: email + Slack
+  - name: 'ims-security'
+    email_configs:
+      - to: '${ALERT_EMAIL:-ops@example.com}'
+        send_resolved: true
+        headers:
+          Subject: '[SECURITY] IMS Alert: {{ .GroupLabels.alertname }}'
+    slack_configs:
+      - api_url: '${SLACK_WEBHOOK_URL:-}'
+        channel: '#ims-security-alerts'
+        send_resolved: true
+        title: '🔐 [SECURITY] {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *Service:* {{ .Labels.job }}
+          *Summary:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          {{ end }}
+        color: 'danger'

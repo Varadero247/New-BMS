@@ -13,6 +13,7 @@ resources:
   - ingress.yaml
   - network-policy.yaml
   - web-apps.yaml
+  - monitoring.yaml
 
 # Apply securityContext to all backend microservices
 patches:

@@ -1,4 +1,4 @@
-import { initSentry } from '@ims/sentry';
+import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-contracts');
@@ -65,6 +65,7 @@ app.use((_req: Request, res: Response) => {
     .status(404)
     .json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
 });
+app.use(sentryErrorHandler());
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   logger.error('Unhandled error', { error: err.message, stack: err.stack });
   res

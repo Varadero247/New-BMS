@@ -30,6 +30,20 @@ export const activeRequests = new client.Gauge({
   registers: [register],
 });
 
+export const authFailuresTotal = new client.Counter({
+  name: 'auth_failures_total',
+  help: 'Total number of authentication failures',
+  labelNames: ['reason', 'service'],
+  registers: [register],
+});
+
+export const rateLimitExceededTotal = new client.Counter({
+  name: 'rate_limit_exceeded_total',
+  help: 'Total number of rate limit exceeded events',
+  labelNames: ['limiter', 'service'],
+  registers: [register],
+});
+
 export const databaseQueryDuration = new client.Histogram({
   name: 'database_query_duration_seconds',
   help: 'Duration of database queries in seconds',

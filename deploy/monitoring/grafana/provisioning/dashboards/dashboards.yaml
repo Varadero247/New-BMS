@@ -1,0 +1,14 @@
+# Grafana Dashboard Provisioning
+# Auto-loads all dashboards from /var/lib/grafana/dashboards on container startup.
+apiVersion: 1
+
+providers:
+  - name: IMS Dashboards
+    orgId: 1
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

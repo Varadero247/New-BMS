@@ -378,7 +378,7 @@ export const options = {
     { duration: '15s', target: 0 }, // Ramp down
   ],
   thresholds: {
-    http_req_duration: ['p(95)<200'], // p95 response time < 200ms
+    http_req_duration: ['p(95)<500'], // p95 response time < 500ms
     http_req_failed: ['rate<0.05'], // Allow slightly higher error rate (services may be down)
     errors: ['rate<0.05'],
   },

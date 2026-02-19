@@ -1,0 +1,20 @@
+# Grafana Datasource Provisioning — Prometheus
+# Auto-configures Prometheus as the default datasource on container startup.
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    url: http://prometheus:9090
+    isDefault: true
+    access: proxy
+    editable: false
+    jsonData:
+      timeInterval: '15s'
+      queryTimeout: '60s'
+      httpMethod: POST
+      # Link to Alertmanager datasource for alert state correlation
+      alertmanagerUid: alertmanager
+      # Enable exemplar support
+      exemplarTraceIdDestinations: []

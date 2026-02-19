@@ -229,3 +229,104 @@ jobs:
         if: always()
         with:
           sarif_file: semgrep.sarif
+
+  dast:
+    name: DAST — OWASP ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    # Only run on push to main to avoid blocking PRs on startup delays
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ims_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test
+      CORE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: dast-test-jwt-secret-that-is-at-least-64-characters-long-for-testing
+      JWT_REFRESH_SECRET: dast-test-refresh-secret-at-least-64-characters-long-for-testing
+      NODE_ENV: test
+      PORT: '4000'
+      CSRF_ENABLED: 'false'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma clients
+        run: pnpm --filter @ims/database generate:all
+
+      - name: Build packages
+        run: pnpm build --filter='./packages/*'
+
+      - name: Start API gateway
+        run: |
+          pnpm --filter api-gateway dev &
+          # Wait up to 30s for gateway to be ready
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:4000/health > /dev/null 2>&1; then
+              echo "Gateway is ready after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+        env:
+          PORT: '4000'
+          JWT_SECRET: dast-test-jwt-secret-that-is-at-least-64-characters-long-for-testing
+          JWT_REFRESH_SECRET: dast-test-refresh-secret-at-least-64-characters-long-for-testing
+          REDIS_URL: redis://localhost:6379
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test
+          CORE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ims_test
+          CSRF_ENABLED: 'false'
+          NODE_ENV: test
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'http://localhost:4000'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-I'
+          fail_action: false
+
+      - name: Upload ZAP report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-baseline-report
+          path: |
+            report_html.html
+            report_json.json
+            report_md.md
+          retention-days: 30

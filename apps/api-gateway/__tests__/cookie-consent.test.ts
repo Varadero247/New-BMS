@@ -1,0 +1,210 @@
+import { Request, Response } from 'express';
+
+// Inline the handler logic to test it directly (mirrors the implementation in src/index.ts)
+function handleCookieConsent(req: Request, res: Response): void {
+  const body = req.body;
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    res.status(400).json({
+      success: false,
+      error: { code: 'VALIDATION_ERROR', message: 'Request body must be a JSON object' },
+    });
+    return;
+  }
+  const essential = typeof body.essential === 'boolean' ? body.essential : true;
+  const analytics = typeof body.analytics === 'boolean' ? body.analytics : false;
+  const functional = typeof body.functional === 'boolean' ? body.functional : false;
+
+  res.json({
+    success: true,
+    data: {
+      message: 'Cookie preferences saved',
+      essential,
+      analytics,
+      functional,
+      savedAt: new Date().toISOString(),
+    },
+  });
+}
+
+const mockRequest = (body: unknown = {}): Partial<Request> => ({ body } as Partial<Request>);
+
+const mockResponse = (): Partial<Response> => {
+  const res: Partial<Response> = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  return res;
+};
+
+describe('Cookie Consent Handler', () => {
+  describe('POST /api/cookie-consent — accept all cookies', () => {
+    it('returns success with all flags true when all are accepted', () => {
+      const req = mockRequest({ essential: true, analytics: true, functional: true });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.objectContaining({
+            essential: true,
+            analytics: true,
+            functional: true,
+          }),
+        })
+      );
+    });
+
+    it('includes savedAt timestamp in response', () => {
+      const req = mockRequest({ essential: true, analytics: true, functional: true });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      const call = (res.json as jest.Mock).mock.calls[0][0];
+      expect(call.data.savedAt).toBeDefined();
+      expect(new Date(call.data.savedAt).toISOString()).toBe(call.data.savedAt);
+    });
+  });
+
+  describe('POST /api/cookie-consent — reject non-essential', () => {
+    it('saves analytics=false, functional=false when only essential accepted', () => {
+      const req = mockRequest({ essential: true, analytics: false, functional: false });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: true,
+          data: expect.objectContaining({
+            essential: true,
+            analytics: false,
+            functional: false,
+          }),
+        })
+      );
+    });
+  });
+
+  describe('POST /api/cookie-consent — custom preferences', () => {
+    it('saves analytics=true, functional=false (partial consent)', () => {
+      const req = mockRequest({ essential: true, analytics: true, functional: false });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      const call = (res.json as jest.Mock).mock.calls[0][0];
+      expect(call.data.analytics).toBe(true);
+      expect(call.data.functional).toBe(false);
+    });
+
+    it('returns confirmation message', () => {
+      const req = mockRequest({ essential: true, analytics: true, functional: false });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      const call = (res.json as jest.Mock).mock.calls[0][0];
+      expect(call.data.message).toBe('Cookie preferences saved');
+    });
+  });
+
+  describe('GDPR compliance — defaults', () => {
+    it('defaults essential to true when not provided', () => {
+      const req = mockRequest({ analytics: true });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      const call = (res.json as jest.Mock).mock.calls[0][0];
+      expect(call.data.essential).toBe(true);
+    });
+
+    it('defaults analytics to false (blocked before consent) when not provided', () => {
+      const req = mockRequest({ essential: true });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      const call = (res.json as jest.Mock).mock.calls[0][0];
+      expect(call.data.analytics).toBe(false);
+    });
+
+    it('defaults functional to false when not provided', () => {
+      const req = mockRequest({});
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      const call = (res.json as jest.Mock).mock.calls[0][0];
+      expect(call.data.functional).toBe(false);
+    });
+
+    it('strips unknown/extra fields from body', () => {
+      const req = mockRequest({
+        essential: true,
+        analytics: false,
+        functional: false,
+        maliciousField: 'injected',
+        __proto__: { polluted: true },
+      });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      const call = (res.json as jest.Mock).mock.calls[0][0];
+      expect(call.data).not.toHaveProperty('maliciousField');
+      expect(Object.keys(call.data)).toEqual(
+        expect.arrayContaining(['essential', 'analytics', 'functional', 'message', 'savedAt'])
+      );
+      expect(Object.keys(call.data)).toHaveLength(5);
+    });
+  });
+
+  describe('Input validation', () => {
+    it('rejects null body with 400', () => {
+      const req = mockRequest(null);
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          error: expect.objectContaining({ code: 'VALIDATION_ERROR' }),
+        })
+      );
+    });
+
+    it('rejects array body with 400', () => {
+      const req = mockRequest([true, false, true]);
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('rejects string body with 400', () => {
+      const req = mockRequest('essential=true');
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('ignores non-boolean analytics value and defaults to false', () => {
+      const req = mockRequest({ essential: true, analytics: 'yes', functional: 1 });
+      const res = mockResponse();
+
+      handleCookieConsent(req as Request, res as Response);
+
+      const call = (res.json as jest.Mock).mock.calls[0][0];
+      expect(call.data.analytics).toBe(false);
+      expect(call.data.functional).toBe(false);
+    });
+  });
+});

@@ -1,0 +1,53 @@
+import { test, expect } from '@playwright/test';
+
+test.describe('Audits CRUD', () => {
+  test.beforeEach(async ({ page }) => {
+    const response = await page.request.post('http://localhost:4000/api/auth/login', {
+      data: { email: 'admin@ims.local', password: 'admin123' },
+    });
+    const body = await response.json();
+    const token = body.data?.accessToken;
+    await page.goto('http://localhost:3042');
+    await page.evaluate((t) => localStorage.setItem('token', t), token);
+    await page.reload();
+  });
+
+  test('should display Audits dashboard', async ({ page }) => {
+    await expect(
+      page.locator('text=/Audit|Finding|Programme|Checklist|Nonconformity/i').first()
+    ).toBeVisible({ timeout: 10000 });
+  });
+
+  test('should list audits via API', async ({ page }) => {
+    const response = await page.request.get('http://localhost:4000/api/audits/audits', {
+      headers: {
+        Authorization: `Bearer ${await page.evaluate(() => localStorage.getItem('token'))}`,
+      },
+    });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.json();
+    expect(body.success).toBe(true);
+  });
+
+  test('should list audit findings via API', async ({ page }) => {
+    const response = await page.request.get('http://localhost:4000/api/audits/findings', {
+      headers: {
+        Authorization: `Bearer ${await page.evaluate(() => localStorage.getItem('token'))}`,
+      },
+    });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.json();
+    expect(body.success).toBe(true);
+  });
+
+  test('should list audit programmes via API', async ({ page }) => {
+    const response = await page.request.get('http://localhost:4000/api/audits/programmes', {
+      headers: {
+        Authorization: `Bearer ${await page.evaluate(() => localStorage.getItem('token'))}`,
+      },
+    });
+    expect(response.ok()).toBeTruthy();
+    const body = await response.json();
+    expect(body.success).toBe(true);
+  });
+});

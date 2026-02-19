@@ -1,0 +1,16 @@
+# Grafana Datasource Provisioning — Alertmanager
+# Auto-configures Alertmanager as a datasource for alert state correlation.
+apiVersion: 1
+
+datasources:
+  - name: Alertmanager
+    type: alertmanager
+    uid: alertmanager
+    url: http://alertmanager:9093
+    isDefault: false
+    access: proxy
+    editable: false
+    jsonData:
+      # Use Alertmanager's native API (v2)
+      implementation: prometheus
+      handleGrafanaManagedAlerts: false

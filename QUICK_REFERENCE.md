@@ -274,7 +274,7 @@ curl http://localhost:4000/api/compliance/regulations      # Regulatory feed
 ## Run Tests
 
 ```bash
-pnpm test                                # All Jest tests (~12,326 across 578 suites)
+pnpm test                                # All Jest tests (~12,702 across 589 suites)
 ./scripts/test-all-modules.sh            # All integration tests (master runner, 9 modules)
 ./scripts/test-hs-modules.sh             # H&S integration tests (~70)
 ./scripts/test-env-modules.sh            # Environment integration tests (~60)
@@ -308,7 +308,7 @@ npx prisma generate --schema=prisma/schemas/<domain>.prisma
 npx prisma studio --schema=prisma/schemas/health-safety.prisma
 ```
 
-## Current Status (Feb 17, 2026)
+## Current Status (Feb 19, 2026)
 
 - 42 API services + 44 web apps + PostgreSQL + Redis + main API
 - **All 42 modules fully implemented** across Phases 0-14:
@@ -320,9 +320,13 @@ npx prisma studio --schema=prisma/schemas/health-safety.prisma
   - **Platform**: RBAC (39 roles), WebSocket notifications, visual workflow builder, PWA offline, performance baseline, i18n (4 locales), white-label theming, marketplace
   - **Differentiators**: Evidence pack generator, headstart tool, MSP mode, regulatory feed
 - 44 Prisma schemas, ~589 database models
-- 60 shared packages
-- Tests: ~12,326 Jest tests (578 suites) + 9 integration test scripts (~465+ assertions) -- all passing
+- 61 shared packages
+- Tests: ~12,702 Jest tests (589 suites) + 9 integration test scripts (~465+ assertions) -- all passing
 - CI/CD: GitHub Actions workflow (daily + push/PR), Lint PASS, Build PASS, Test PASS
 - Auth: JWT Bearer token + RBAC + account lockout + optional CSRF double-submit cookie
 - Login pages built for all 44 web apps
 - 192 built-in templates across 34 modules
+- **Launch Readiness**: Pre-launch check 70/111 PASSED, 0 failures (41 expected dev warnings)
+- **DB Connection Pool**: `connection_limit=1` set in all DATABASE_URL vars — all 42 services run under 100 connections total (lazy connect)
+- **Sentry**: `initSentry()` wired in all 42 API services — configure `SENTRY_DSN` in .env for error monitoring
+- **k6 Load Tests**: All thresholds pass — `errors: 0.71%`, `http_req_failed: 0.94%` (both < 5%)
