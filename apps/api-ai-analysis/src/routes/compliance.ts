@@ -37,7 +37,7 @@ async function callProvider(
         max_tokens: 4096,
       }),
     });
-    const json = (await res.json()) as any;
+    const json = await res.json() as { choices?: Array<{ message?: { content?: string } }>; usage?: { total_tokens?: number } };
     return {
       content: json.choices?.[0]?.message?.content || '',
       tokensUsed: json.usage?.total_tokens || 0,
@@ -56,7 +56,7 @@ async function callProvider(
         messages: [{ role: 'user', content: prompt }],
       }),
     });
-    const json = (await res.json()) as any;
+    const json = await res.json() as { content?: Array<{ text?: string }>; usage?: { input_tokens?: number; output_tokens?: number } };
     return {
       content: json.content?.[0]?.text || '',
       tokensUsed: (json.usage?.input_tokens || 0) + (json.usage?.output_tokens || 0),

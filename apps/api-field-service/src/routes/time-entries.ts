@@ -97,9 +97,10 @@ router.get('/summary', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
     if (technicianId) where.technicianId = String(technicianId);
     if (startDate || endDate) {
-      (where as any).startTime = {};
-      if (startDate) (where as any).startTime.gte = new Date(String(startDate));
-      if (endDate) (where as any).startTime.lte = new Date(String(endDate));
+      const startTimeFilter: { gte?: Date; lte?: Date } = {};
+      if (startDate) startTimeFilter.gte = new Date(String(startDate));
+      if (endDate) startTimeFilter.lte = new Date(String(endDate));
+      where.startTime = startTimeFilter;
     }
 
     const entries = await prisma.fsSvcTimeEntry.findMany({

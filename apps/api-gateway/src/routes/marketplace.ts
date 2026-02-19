@@ -102,8 +102,8 @@ router.get('/plugins', async (req: AuthRequest, res: Response) => {
       deletedAt: null,
       OR: [{ isPublic: true, status: 'PUBLISHED' }, { orgId: (req.user as { organisationId?: string; orgId?: string })?.organisationId }],
     };
-    if (category) (where as any).category = category;
-    if (search) (where as any).name = { contains: search, mode: 'insensitive' };
+    if (category) where.category = category;
+    if (search) where.name = { contains: search, mode: 'insensitive' };
 
     const [plugins, total] = await Promise.all([
       (prisma as any).mktPlugin.findMany({
@@ -157,7 +157,7 @@ router.get('/plugins/search', async (req: AuthRequest, res: Response) => {
         { author: { contains: q, mode: 'insensitive' } },
       ],
     };
-    if (category) (where as any).category = category;
+    if (category) where.category = category;
 
     const plugins = await (prisma as any).mktPlugin.findMany({
       where,

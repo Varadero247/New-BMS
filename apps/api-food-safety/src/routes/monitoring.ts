@@ -119,9 +119,10 @@ router.get('/', async (req: Request, res: Response) => {
     if (ccpId) where.ccpId = String(ccpId);
     if (withinLimits !== undefined) where.withinLimits = withinLimits === 'true';
     if (dateFrom || dateTo) {
-      (where as any).monitoredAt = {};
-      if (dateFrom) (where as any).monitoredAt.gte = new Date(String(dateFrom));
-      if (dateTo) (where as any).monitoredAt.lte = new Date(String(dateTo));
+      const monitoredAtFilter: { gte?: Date; lte?: Date } = {};
+      if (dateFrom) monitoredAtFilter.gte = new Date(String(dateFrom));
+      if (dateTo) monitoredAtFilter.lte = new Date(String(dateTo));
+      where.monitoredAt = monitoredAtFilter;
     }
 
     const [data, total] = await Promise.all([

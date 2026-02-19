@@ -124,7 +124,7 @@ router.post('/message', async (req: Request, res: Response) => {
         });
 
         if (response.ok) {
-          const data = (await response.json()) as any;
+          const data = await response.json() as { content?: Array<{ text?: string }> };
           assistantMessage = data.content?.[0]?.text || assistantMessage;
         }
       }

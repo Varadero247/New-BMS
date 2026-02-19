@@ -106,9 +106,10 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
 
     const where: Record<string, unknown> = { technicianId, deletedAt: null };
     if (startDate || endDate) {
-      (where as any).date = {};
-      if (startDate) (where as any).date.gte = new Date(String(startDate));
-      if (endDate) (where as any).date.lte = new Date(String(endDate));
+      const dateFilter: { gte?: Date; lte?: Date } = {};
+      if (startDate) dateFilter.gte = new Date(String(startDate));
+      if (endDate) dateFilter.lte = new Date(String(endDate));
+      where.date = dateFilter;
     }
 
     const schedules = await prisma.fsSvcSchedule.findMany({
