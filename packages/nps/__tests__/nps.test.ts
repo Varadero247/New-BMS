@@ -1,0 +1,184 @@
+/**
+ * Unit tests for @ims/nps package
+ * Covers NPS survey submission, analytics calculation, and listing.
+ */
+
+// Reset module between test files to clear in-memory state
+jest.isolateModules(() => {});
+
+// We need to reset the module-level arrays between tests.
+// Since there's no reset export, re-import after a reset via jest.resetModules.
+
+let submitResponse: typeof import('../src/index').submitResponse;
+let getAnalytics: typeof import('../src/index').getAnalytics;
+let listResponses: typeof import('../src/index').listResponses;
+
+beforeEach(() => {
+  jest.resetModules();
+  const mod = require('../src/index');
+  submitResponse = mod.submitResponse;
+  getAnalytics = mod.getAnalytics;
+  listResponses = mod.listResponses;
+});
+
+describe('submitResponse', () => {
+  it('creates a response with sequential ID', () => {
+    const r = submitResponse('user-1', 'org-1', 9, 'Great product!');
+    expect(r.id).toMatch(/^nps_\d+$/);
+    expect(r.userId).toBe('user-1');
+    expect(r.orgId).toBe('org-1');
+    expect(r.score).toBe(9);
+    expect(r.comment).toBe('Great product!');
+  });
+
+  it('clamps score to 0–10 range', () => {
+    const low = submitResponse('u', 'o', -5);
+    expect(low.score).toBe(0);
+
+    const high = submitResponse('u', 'o', 15);
+    expect(high.score).toBe(10);
+  });
+
+  it('rounds fractional score', () => {
+    const r = submitResponse('u', 'o', 7.9);
+    expect(r.score).toBe(8);
+  });
+
+  it('omits comment when empty string', () => {
+    const r = submitResponse('u', 'o', 8, '');
+    expect(r.comment).toBeUndefined();
+  });
+
+  it('omits comment when undefined', () => {
+    const r = submitResponse('u', 'o', 8);
+    expect(r.comment).toBeUndefined();
+  });
+
+  it('trims whitespace from comment', () => {
+    const r = submitResponse('u', 'o', 8, '  nice  ');
+    expect(r.comment).toBe('nice');
+  });
+
+  it('records createdAt as ISO timestamp', () => {
+    const r = submitResponse('u', 'o', 7);
+    expect(() => new Date(r.createdAt)).not.toThrow();
+    expect(new Date(r.createdAt).toISOString()).toBe(r.createdAt);
+  });
+});
+
+describe('getAnalytics', () => {
+  it('returns zero analytics for empty store', () => {
+    const analytics = getAnalytics('org-empty');
+    expect(analytics.totalResponses).toBe(0);
+    expect(analytics.npsScore).toBe(0);
+    expect(analytics.promoters).toBe(0);
+    expect(analytics.passives).toBe(0);
+    expect(analytics.detractors).toBe(0);
+    expect(analytics.averageScore).toBe(0);
+  });
+
+  it('categorises correctly: promoters (9-10), passives (7-8), detractors (0-6)', () => {
+    submitResponse('u1', 'org-1', 10); // promoter
+    submitResponse('u2', 'org-1', 9);  // promoter
+    submitResponse('u3', 'org-1', 8);  // passive
+    submitResponse('u4', 'org-1', 7);  // passive
+    submitResponse('u5', 'org-1', 6);  // detractor
+    submitResponse('u6', 'org-1', 0);  // detractor
+
+    const a = getAnalytics('org-1');
+    expect(a.promoters).toBe(2);
+    expect(a.passives).toBe(2);
+    expect(a.detractors).toBe(2);
+    expect(a.totalResponses).toBe(6);
+  });
+
+  it('calculates NPS score correctly', () => {
+    // 2 promoters, 1 detractor out of 3 total → (2-1)/3 × 100 = 33
+    submitResponse('u1', 'org-2', 10);
+    submitResponse('u2', 'org-2', 9);
+    submitResponse('u3', 'org-2', 2);
+
+    const a = getAnalytics('org-2');
+    expect(a.npsScore).toBe(33);
+  });
+
+  it('calculates average score', () => {
+    submitResponse('u1', 'org-3', 10);
+    submitResponse('u2', 'org-3', 8);
+    submitResponse('u3', 'org-3', 6);
+    // Average = (10+8+6)/3 = 8.0
+
+    const a = getAnalytics('org-3');
+    expect(a.averageScore).toBe(8.0);
+  });
+
+  it('filters by orgId', () => {
+    submitResponse('u1', 'org-A', 10);
+    submitResponse('u2', 'org-B', 0);
+
+    const a = getAnalytics('org-A');
+    expect(a.totalResponses).toBe(1);
+    expect(a.promoters).toBe(1);
+
+    const b = getAnalytics('org-B');
+    expect(b.totalResponses).toBe(1);
+    expect(b.detractors).toBe(1);
+  });
+
+  it('returns global analytics when no orgId given', () => {
+    submitResponse('u1', 'org-X', 10);
+    submitResponse('u2', 'org-Y', 10);
+
+    const a = getAnalytics();
+    expect(a.totalResponses).toBeGreaterThanOrEqual(2);
+  });
+
+  it('builds score breakdown object', () => {
+    submitResponse('u1', 'o', 10);
+    submitResponse('u2', 'o', 10);
+    submitResponse('u3', 'o', 8);
+
+    const a = getAnalytics('o');
+    expect(a.breakdown[10]).toBe(2);
+    expect(a.breakdown[8]).toBe(1);
+  });
+});
+
+describe('listResponses', () => {
+  it('returns empty when no responses', () => {
+    const { responses, total } = listResponses('org-empty');
+    expect(responses).toHaveLength(0);
+    expect(total).toBe(0);
+  });
+
+  it('returns responses for specified org', () => {
+    submitResponse('u1', 'org-list', 9);
+    submitResponse('u2', 'org-list', 7);
+    submitResponse('u3', 'org-other', 5);
+
+    const { responses, total } = listResponses('org-list');
+    expect(total).toBe(2);
+    expect(responses.every((r) => r.orgId === 'org-list')).toBe(true);
+  });
+
+  it('paginates with offset and limit', () => {
+    for (let i = 0; i < 5; i++) {
+      submitResponse(`u${i}`, 'org-page', i * 2);
+    }
+
+    const p1 = listResponses('org-page', 2, 0);
+    const p2 = listResponses('org-page', 2, 2);
+
+    expect(p1.responses).toHaveLength(2);
+    expect(p2.responses).toHaveLength(2);
+    expect(p1.total).toBe(5);
+  });
+
+  it('returns all when no orgId specified', () => {
+    submitResponse('u1', 'org-A', 9);
+    submitResponse('u2', 'org-B', 9);
+
+    const { total } = listResponses();
+    expect(total).toBeGreaterThanOrEqual(2);
+  });
+});

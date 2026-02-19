@@ -81,6 +81,15 @@ module.exports = {
     '<rootDir>/packages/i18n',
     '<rootDir>/packages/webhooks',
     '<rootDir>/packages/sentry',
+    // New packages with tests (added Feb 19, 2026)
+    '<rootDir>/packages/calculations',
+    '<rootDir>/packages/activity',
+    '<rootDir>/packages/tasks',
+    '<rootDir>/packages/nps',
+    '<rootDir>/packages/changelog',
+    '<rootDir>/packages/readiness',
+    '<rootDir>/packages/plan-guard',
+    '<rootDir>/packages/feature-flags',
   ],
 
   // Global settings

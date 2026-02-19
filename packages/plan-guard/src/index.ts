@@ -1,4 +1,12 @@
-import type { Request, Response, NextFunction } from 'express';
+// Minimal Express-compatible types (express not in devDeps)
+interface Request {
+  [key: string]: unknown;
+}
+interface Response {
+  status(code: number): this;
+  json(body: unknown): this;
+}
+type NextFunction = (...args: unknown[]) => void;
 
 interface PlanGuardRequest extends Request {
   user?: { id: string; orgId?: string; organisationId?: string };
