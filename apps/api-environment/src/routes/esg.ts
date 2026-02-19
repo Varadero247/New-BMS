@@ -193,7 +193,7 @@ router.get('/targets', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (category) where.category = category;
     if (search) {
@@ -566,7 +566,7 @@ router.get('/metrics', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 50), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (category) where.category = category;
     if (period) where.period = period as string;
     if (subcategory) where.subcategory = { contains: subcategory as string, mode: 'insensitive' };

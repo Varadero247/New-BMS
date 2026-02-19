@@ -20,7 +20,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { flat, isActive } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     const categories = await prisma.productCategory.findMany({

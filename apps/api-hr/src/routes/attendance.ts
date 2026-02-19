@@ -21,7 +21,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status;
     if (startDate || endDate) {
@@ -77,7 +77,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       ? new Date(startDate as string)
       : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       date: { gte: start, lte: end },
     };
 
@@ -394,7 +394,7 @@ router.put('/:id', checkOwnership(prisma.attendance), async (req: Request, res: 
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data } as Record<string, unknown>;
+    const updateData: Record<string, unknown> = { ...data } as Record<string, unknown>;
     if (data.clockIn) updateData.clockIn = new Date(data.clockIn);
     if (data.clockOut) updateData.clockOut = new Date(data.clockOut);
 

@@ -17,7 +17,7 @@ router.get('/cycles', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { year, status } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (year) {
       const n = parseInt(year as string, 10);
       if (!isNaN(n)) where.year = n;
@@ -108,7 +108,7 @@ router.get('/reviews', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (cycleId) where.cycleId = cycleId as string;
     if (employeeId) where.employeeId = employeeId as string;
     if (reviewerId) where.reviewerId = reviewerId as string;
@@ -314,7 +314,7 @@ router.get('/goals', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, cycleId, status, category } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (cycleId) where.cycleId = cycleId as string;
     if (status) where.status = status;

@@ -119,7 +119,7 @@ router.get('/characteristics', scopeToUser, async (req: AuthRequest, res: Respon
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (characteristicType) where.characteristicType = characteristicType;
     if (partNumber) where.partNumber = { contains: partNumber as string, mode: 'insensitive' };
     if (status) where.status = status;
@@ -307,7 +307,7 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (severity) where.severity = severity as string;
     if (product) where.product = { contains: product as string, mode: 'insensitive' };
@@ -464,7 +464,7 @@ router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (product) where.product = { contains: product as string, mode: 'insensitive' };
 
@@ -569,7 +569,7 @@ router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) =
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (regulation) where.regulation = regulation as string;
     if (status) where.status = status;
 

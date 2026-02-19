@@ -223,7 +223,7 @@ async function callOpenAIImpl(
     if (!response.ok) {
       let errorMessage = 'OpenAI API error';
       try {
-        const errBody: any = await response.json();
+        const errBody: unknown = await response.json();
         errorMessage = errBody.error?.message || errorMessage;
       } catch {
         /* non-JSON error response */
@@ -231,7 +231,7 @@ async function callOpenAIImpl(
       throw new Error(errorMessage);
     }
 
-    let data: any;
+    let data: Record<string, unknown>;
     try {
       data = await response.json();
     } catch {
@@ -273,7 +273,7 @@ async function callAnthropicImpl(
     if (!response.ok) {
       let errorMessage = 'Anthropic API error';
       try {
-        const errBody: any = await response.json();
+        const errBody: unknown = await response.json();
         errorMessage = errBody.error?.message || errorMessage;
       } catch {
         /* non-JSON error response */
@@ -281,7 +281,7 @@ async function callAnthropicImpl(
       throw new Error(errorMessage);
     }
 
-    let data: any;
+    let data: Record<string, unknown>;
     try {
       data = await response.json();
     } catch {
@@ -320,7 +320,7 @@ async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderR
     if (!response.ok) {
       let errorMessage = 'Grok API error';
       try {
-        const errBody: any = await response.json();
+        const errBody: unknown = await response.json();
         errorMessage = errBody.error?.message || errorMessage;
       } catch {
         /* non-JSON error response */
@@ -328,7 +328,7 @@ async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderR
       throw new Error(errorMessage);
     }
 
-    let data: any;
+    let data: Record<string, unknown>;
     try {
       data = await response.json();
     } catch {

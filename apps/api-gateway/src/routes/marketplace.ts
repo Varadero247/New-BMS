@@ -235,7 +235,7 @@ router.post(
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input',
-            fields: error.errors.map((e: any) => e.path.join('.')),
+            fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')),
           },
         });
       }
@@ -277,7 +277,7 @@ router.patch(
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input',
-            fields: error.errors.map((e: any) => e.path.join('.')),
+            fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')),
           },
         });
       }
@@ -320,7 +320,7 @@ router.post(
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input',
-            fields: error.errors.map((e: any) => e.path.join('.')),
+            fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')),
           },
         });
       }
@@ -463,7 +463,7 @@ router.post(
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input',
-            fields: error.errors.map((e: any) => e.path.join('.')),
+            fields: error.errors.map((e: z.ZodIssue) => e.path.join('.')),
           },
         });
       }

@@ -36,7 +36,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (definitionId) where.definitionId = definitionId as string;
     if (initiatedById) where.initiatedById = initiatedById as string;
@@ -247,7 +247,7 @@ router.put(
 
       const previousStepId = current.currentStepId;
 
-      const instance = await prisma.$transaction(async (tx: any) => {
+      const instance = await prisma.$transaction(async (tx) => {
         const updated = await tx.workflowInstance.update({
           where: { id: req.params.id },
           data: {
@@ -299,7 +299,7 @@ router.put(
 
       const data = schema.parse(req.body);
 
-      const instance = await prisma.$transaction(async (tx: any) => {
+      const instance = await prisma.$transaction(async (tx) => {
         const updated = await tx.workflowInstance.update({
           where: { id: req.params.id },
           data: {
@@ -351,7 +351,7 @@ router.put(
     try {
       const data = cancelInstanceSchema.parse(req.body);
 
-      const instance = await prisma.$transaction(async (tx: any) => {
+      const instance = await prisma.$transaction(async (tx) => {
         const updated = await tx.workflowInstance.update({
           where: { id: req.params.id },
           data: {

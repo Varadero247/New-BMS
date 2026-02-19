@@ -347,7 +347,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              const aiData: any = await aiRes.json();
+              const aiData: unknown = await aiRes.json();
               const content = aiData.choices?.[0]?.message?.content || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;
@@ -376,7 +376,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              const aiData: any = await aiRes.json();
+              const aiData: unknown = await aiRes.json();
               const content = aiData.content?.[0]?.text || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;
@@ -403,7 +403,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              const aiData: any = await aiRes.json();
+              const aiData: unknown = await aiRes.json();
               const content = aiData.choices?.[0]?.message?.content || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;

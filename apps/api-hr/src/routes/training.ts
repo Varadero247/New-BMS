@@ -17,7 +17,7 @@ router.get('/courses', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { category, deliveryMethod, isMandatory } = req.query;
 
-    const where: any = { isActive: true, deletedAt: null };
+    const where: Record<string, unknown> = { isActive: true, deletedAt: null };
     if (category) where.category = category;
     if (deliveryMethod) where.deliveryMethod = deliveryMethod;
     if (isMandatory === 'true') where.isMandatory = true;
@@ -133,7 +133,7 @@ router.get('/sessions', async (req: Request, res: Response) => {
   try {
     const { courseId, status, startDate, endDate } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (courseId) where.courseId = courseId as string;
     if (status) where.status = status;
     if (startDate || endDate) {
@@ -221,7 +221,7 @@ router.get('/enrollments', async (req: Request, res: Response) => {
   try {
     const { employeeId, courseId, sessionId, status } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (courseId) where.courseId = courseId as string;
     if (sessionId) where.sessionId = sessionId as string;
@@ -370,7 +370,7 @@ router.get('/certifications', async (req: Request, res: Response) => {
   try {
     const { employeeId, status, expiringWithin } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status;
     if (expiringWithin) {

@@ -68,7 +68,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (category) where.category = category;
     if (search) {
@@ -239,7 +239,7 @@ router.patch(
         where: { id: req.params.id },
         include: { milestones: true },
       });
-      if (!existing || (existing as any).deletedAt) {
+      if (!existing || existing.deletedAt) {
         return res
           .status(404)
           .json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
@@ -275,7 +275,7 @@ router.patch(
 
       const data = schema.parse(req.body);
 
-      const updateData: any = { ...data };
+      const updateData: Record<string, unknown> = { ...data };
       if (data.startDate) updateData.startDate = new Date(data.startDate);
       if (data.targetDate) updateData.targetDate = new Date(data.targetDate);
 
@@ -418,7 +418,7 @@ router.patch('/:id/milestones/:mid', async (req: AuthRequest, res: Response) => 
 
     const data = schema.parse(req.body);
 
-    const updateData: any = { ...data };
+    const updateData: Record<string, unknown> = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.completed === true) updateData.completedDate = new Date();
     if (data.completed === false) updateData.completedDate = null;

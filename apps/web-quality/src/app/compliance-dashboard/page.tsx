@@ -158,7 +158,7 @@ const clauseData: ClauseStatus[] = [
 
 const statusConfig: Record<
   string,
-  { label: string; color: string; darkColor: string; variant: string }
+  { label: string; color: string; darkColor: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info' }
 > = {
   compliant: {
     label: 'Compliant',
@@ -397,7 +397,7 @@ export default function ComplianceDashboardPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-semibold text-foreground">{clause.title}</h3>
-                    <Badge variant={sc.variant as any}>{sc.label}</Badge>
+                    <Badge variant={sc.variant}>{sc.label}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">{clause.description}</p>
                 </div>

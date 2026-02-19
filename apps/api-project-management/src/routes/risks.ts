@@ -38,7 +38,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { projectId: projectId as string, deletedAt: null };
+    const where: Record<string, unknown> = { projectId: projectId as string, deletedAt: null };
     if (riskLevel) where.riskLevel = riskLevel;
     if (status) where.status = status;
 

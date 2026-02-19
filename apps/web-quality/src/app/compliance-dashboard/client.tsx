@@ -156,7 +156,7 @@ const clauseData: ClauseStatus[] = [
   },
 ];
 
-const statusConfig: Record<string, { label: string; color: string; variant: string }> = {
+const statusConfig: Record<string, { label: string; color: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info' }> = {
   compliant: { label: 'Compliant', color: 'text-green-700 bg-green-100', variant: 'success' },
   partial: { label: 'Partial', color: 'text-yellow-700 bg-yellow-100', variant: 'warning' },
   'non-compliant': { label: 'Non-Compliant', color: 'text-red-700 bg-red-100', variant: 'danger' },
@@ -351,7 +351,7 @@ export default function ComplianceDashboardClient() {
                     <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {clause.title}
                     </h3>
-                    <Badge variant={sc.variant as any}>{sc.label}</Badge>
+                    <Badge variant={sc.variant}>{sc.label}</Badge>
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                     {clause.description}

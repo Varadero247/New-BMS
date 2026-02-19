@@ -17,7 +17,7 @@ router.get('/filings', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { taxYear, filingType, status } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (taxYear) {
       const n = parseInt(taxYear as string, 10);
       if (!isNaN(n)) where.taxYear = n;
@@ -175,7 +175,7 @@ router.get('/brackets', async (req: Request, res: Response) => {
   try {
     const { taxYear, country } = req.query;
 
-    const where: any = { isActive: true, deletedAt: null };
+    const where: Record<string, unknown> = { isActive: true, deletedAt: null };
     if (taxYear) {
       const n = parseInt(taxYear as string, 10);
       if (!isNaN(n)) where.taxYear = n;

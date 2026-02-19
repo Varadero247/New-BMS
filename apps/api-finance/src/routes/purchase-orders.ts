@@ -73,7 +73,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (supplierId && typeof supplierId === 'string') where.supplierId = supplierId;
     if (status && typeof status === 'string') where.status = status;
     if (dateFrom || dateTo) {

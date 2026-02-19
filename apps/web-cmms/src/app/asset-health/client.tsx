@@ -356,7 +356,7 @@ export default function AssetHealthClient() {
         <span className="text-xs text-gray-500 dark:text-gray-400">Sort:</span>
         <select
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as any)}
+          onChange={(e) => setSortBy(e.target.value as 'health' | 'oee' | 'mtbf' | 'failures')}
           className="text-xs border rounded px-2 py-1"
         >
           <option value="health">Health Score (Low first)</option>

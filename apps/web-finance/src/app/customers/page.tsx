@@ -559,7 +559,7 @@ export default function CustomersPage() {
             <input
               type="checkbox"
               id="e-isActive"
-              checked={formData.isActive as any}
+              checked={formData.isActive}
               onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
             />
             <Label htmlFor="e-isActive">Active</Label>

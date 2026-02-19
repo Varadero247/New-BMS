@@ -125,7 +125,7 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
 
     try {
       // Fetch the most recent score(s) for the user/org to use as baseline metrics
-      const where: any = {};
+      const where: Record<string, unknown> = {};
       if (userId) where.userId = userId;
       else if (orgId) where.orgId = orgId;
 

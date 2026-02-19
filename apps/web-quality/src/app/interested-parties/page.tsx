@@ -44,13 +44,13 @@ const REVIEW_FREQUENCIES = [
   'ON_CHANGE',
 ] as const;
 
-const statusColors: Record<string, string> = {
+const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info'> = {
   ACTIVE: 'success',
   INACTIVE: 'warning',
   ARCHIVED: 'default',
 };
 
-const typeColors: Record<string, string> = {
+const typeColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info'> = {
   INTERNAL: 'bg-blue-100 text-blue-700',
   EXTERNAL: 'bg-purple-100 text-purple-700',
 };
@@ -369,7 +369,7 @@ export default function InterestedPartiesPage() {
                         {item.reviewFrequency.replace(/_/g, ' ')}
                       </td>
                       <td className="p-3">
-                        <Badge variant={statusColors[item.status] as any}>{item.status}</Badge>
+                        <Badge variant={statusColors[item.status]}>{item.status}</Badge>
                       </td>
                       <td className="p-3 text-gray-600">{item._count?.issues ?? 0}</td>
                       <td className="p-3">

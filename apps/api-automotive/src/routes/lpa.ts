@@ -124,7 +124,7 @@ router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) =>
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (layer) {
       const n = parseInt(layer as string, 10);
       if (!isNaN(n)) where.layer = n;
@@ -242,7 +242,7 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status) where.status = status;
     if (layer) {
       const n = parseInt(layer as string, 10);

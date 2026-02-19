@@ -176,7 +176,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (status) where.status = status;
     if (severity) where.severity = severity;
@@ -316,7 +316,7 @@ router.get('/mdr-pending', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       deletedAt: null,
       mdrReportable: null,
       OR: [{ injuryOccurred: true }, { deathOccurred: true }, { malfunctionOccurred: true }],

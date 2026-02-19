@@ -46,7 +46,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (projectId) where.projectId = projectId;
     if (pass !== undefined) where.pass = pass === 'true';
     if (search) {

@@ -30,7 +30,7 @@ interface RaciEntry {
 }
 
 const RACI_TYPES = ['RESPONSIBLE', 'ACCOUNTABLE', 'CONSULTED', 'INFORMED'] as const;
-const raciColors: Record<string, string> = {
+const raciColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info'> = {
   RESPONSIBLE: 'info',
   ACCOUNTABLE: 'danger',
   CONSULTED: 'warning',
@@ -239,7 +239,7 @@ export default function RaciPage() {
                             return (
                               <td key={role} className="p-3 text-center">
                                 {match ? (
-                                  <Badge variant={raciColors[match.raciType] as any}>
+                                  <Badge variant={raciColors[match.raciType]}>
                                     {raciLetters[match.raciType]}
                                   </Badge>
                                 ) : (
@@ -331,7 +331,7 @@ export default function RaciPage() {
                           <td className="p-3 text-gray-600">{item.roleName}</td>
                           <td className="p-3 text-gray-600">{item.personName || '—'}</td>
                           <td className="p-3">
-                            <Badge variant={raciColors[item.raciType] as any}>
+                            <Badge variant={raciColors[item.raciType]}>
                               {item.raciType}
                             </Badge>
                           </td>

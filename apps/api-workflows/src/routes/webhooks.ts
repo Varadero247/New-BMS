@@ -89,7 +89,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (req.query.isActive !== undefined) {
       where.isActive = req.query.isActive === 'true';
@@ -352,7 +352,7 @@ router.get(
       const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));
       const skip = (page - 1) * limit;
 
-      const where: any = { webhookId: req.params.id };
+      const where: Record<string, unknown> = { webhookId: req.params.id };
 
       if (req.query.event) {
         where.event = req.query.event as string;

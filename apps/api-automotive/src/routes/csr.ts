@@ -48,7 +48,7 @@ router.get('/gaps', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       complianceStatus: {
         notIn: ['COMPLIANT', 'NOT_ASSESSED'],
       },
@@ -88,7 +88,7 @@ router.get('/oems/:oem', scopeToUser, async (req: AuthRequest, res: Response) =>
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       oem: { equals: oem, mode: 'insensitive' },
     };
     if (complianceStatus) where.complianceStatus = complianceStatus;

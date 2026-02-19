@@ -131,7 +131,7 @@ router.get('/suppliers', async (req: Request, res: Response) => {
       Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (search) {
       where.OR = [
@@ -368,7 +368,7 @@ router.get('/purchase-orders', async (req: Request, res: Response) => {
       Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (status) {
       where.status = String(status) as any;
@@ -763,7 +763,7 @@ router.get('/', async (req: Request, res: Response) => {
       Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (status) {
       where.status = String(status) as any;
@@ -1154,7 +1154,7 @@ router.get('/payments', async (req: Request, res: Response) => {
       Math.max(1, parseInt(limit as string, 10) || 20);
     const take = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (supplierId) {
       where.supplierId = String(supplierId);

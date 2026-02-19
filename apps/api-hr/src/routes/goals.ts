@@ -71,7 +71,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (employeeId && typeof employeeId === 'string') where.employeeId = employeeId;
     if (cycleId && typeof cycleId === 'string') where.cycleId = cycleId;
     if (status && typeof status === 'string') where.status = status;
@@ -152,7 +152,7 @@ router.get('/overdue', async (_req: Request, res: Response) => {
 router.get('/stats', async (req: Request, res: Response) => {
   try {
     const { cycleId } = req.query;
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (cycleId && typeof cycleId === 'string') where.cycleId = cycleId;
 
     const [total, byStatus, byCategory, avgProgress] = await Promise.all([

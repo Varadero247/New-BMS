@@ -159,7 +159,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(query.limit, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (query.status) where.status = query.status as any;
     if (query.partNumber) where.partNumber = { contains: query.partNumber, mode: 'insensitive' };

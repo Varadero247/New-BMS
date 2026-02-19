@@ -22,7 +22,7 @@ router.get('/chains', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { chainType, isActive } = req.query;
 
-    const where: any = { deletedAt: null } as any;
+    const where: Record<string, unknown> = { deletedAt: null };
     if (chainType) where.chainType = chainType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
@@ -192,7 +192,7 @@ router.get('/requests', scopeToUser, async (req: AuthRequest, res: Response) => 
   try {
     const { status, requestType, requesterId, entityType, limit = '50', offset = '0' } = req.query;
 
-    const where: any = { deletedAt: null } as any;
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status as string;
     if (requestType) where.requestType = requestType as string;
     if (requesterId) where.requesterId = requesterId as string;
@@ -626,7 +626,7 @@ router.get('/step', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { stepId, approverId, status, limit = '50', offset = '0' } = req.query;
 
-    const where: any = { deletedAt: null } as any;
+    const where: Record<string, unknown> = { deletedAt: null };
     if (stepId) where.stepId = stepId as string;
     if (approverId) where.approverId = approverId as string;
     if (status) where.status = status as string;

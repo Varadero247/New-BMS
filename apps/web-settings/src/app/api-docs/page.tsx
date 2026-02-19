@@ -39,8 +39,8 @@ export default function ApiDocsPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const pathCount = spec ? Object.keys((spec as any).paths || {}).length : 0;
-  const tagCount = spec ? ((spec as any).tags || []).length : 0;
+  const pathCount = spec ? Object.keys(spec.paths || {}).length : 0;
+  const tagCount = spec ? (spec.tags || []).length : 0;
 
   return (
     <div className="space-y-6">
@@ -89,13 +89,13 @@ export default function ApiDocsPage() {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">Version</p>
               <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {(spec as any).openapi}
+                {spec.openapi}
               </p>
             </div>
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
               <p className="text-sm text-gray-500 dark:text-gray-400">API Version</p>
               <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                {(spec as any).info?.version}
+                {spec.info?.version}
               </p>
             </div>
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
@@ -114,7 +114,7 @@ export default function ApiDocsPage() {
               Services
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {((spec as any).tags || []).map((tag: any) => (
+              {(spec.tags || []).map((tag: any) => (
                 <div key={tag.name} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{tag.name}</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">

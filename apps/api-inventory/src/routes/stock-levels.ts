@@ -75,7 +75,7 @@ router.get('/low-stock', async (req: AuthRequest, res: Response) => {
 router.get('/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { warehouseId } = req.query;
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (warehouseId) where.warehouseId = warehouseId;
 
     const [totalProducts, totalValue, stockCounts] = await Promise.all([
@@ -114,7 +114,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (warehouseId) where.warehouseId = warehouseId;
     if (productId) where.productId = productId;
 

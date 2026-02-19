@@ -3,7 +3,7 @@ import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { requirePermission } from '@ims/rbac';
+import { requirePermission, PermissionLevel } from '@ims/rbac';
 
 const logger = createLogger('api-quality');
 const router: Router = Router();
@@ -48,7 +48,7 @@ const updateSchema = z.object({
 // GET / — Get current Quality Policy
 router.get(
   '/',
-  requirePermission('quality', 'read' as any),
+  requirePermission('quality', PermissionLevel.VIEW),
   async (req: Request, res: Response) => {
     try {
       const doc = await prisma.qualDocument.findFirst({
@@ -123,7 +123,7 @@ router.get(
 // PUT / — Create or update Quality Policy
 router.put(
   '/',
-  requirePermission('quality', 'write' as any),
+  requirePermission('quality', PermissionLevel.EDIT),
   async (req: Request, res: Response) => {
     try {
       const parsed = updateSchema.safeParse(req.body);

@@ -472,7 +472,7 @@ export default function ScorecardDashboardClient() {
         <span className="text-xs text-gray-500 dark:text-gray-400">Sort:</span>
         <select
           value={sortBy}
-          onChange={(e) => setSortBy(e.target.value as any)}
+          onChange={(e) => setSortBy(e.target.value as 'score' | 'name' | 'risk')}
           className="text-xs border rounded px-2 py-1"
         >
           <option value="score">Score (High to Low)</option>

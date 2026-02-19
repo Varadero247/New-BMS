@@ -23,7 +23,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { status, category, createdById } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (category) where.category = category;
     if (createdById) where.createdById = createdById as string;

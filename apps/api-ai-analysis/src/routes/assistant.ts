@@ -288,7 +288,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         });
 
         if (response.ok) {
-          const data: any = await response.json();
+          const data: unknown = await response.json();
           if (provider === 'ANTHROPIC') {
             aiAnswer = data.content?.[0]?.text || null;
           } else {

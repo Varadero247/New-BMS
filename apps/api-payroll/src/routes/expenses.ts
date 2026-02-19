@@ -21,7 +21,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId;
     if (status) where.status = status;
     if (category) where.category = category;
@@ -257,7 +257,7 @@ router.get('/reports/all', async (req: Request, res: Response) => {
   try {
     const { employeeId, status } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId;
     if (status) where.status = status;
 

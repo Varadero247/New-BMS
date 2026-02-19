@@ -35,7 +35,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (accountId && typeof accountId === 'string') where.accountId = accountId;
     if (fiscalYear) {
       const n = parseInt(String(fiscalYear), 10);

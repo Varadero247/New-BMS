@@ -68,7 +68,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
     const status = req.query.status as string | undefined;
 
-    const where: any = status ? { status } : {};
+    const where: Record<string, unknown> = status ? { status } : {};
 
     const [items, total] = await Promise.all([
       prisma.featureRequest.findMany({

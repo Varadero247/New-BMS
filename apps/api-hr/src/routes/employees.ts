@@ -61,7 +61,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (department) where.departmentId = department;
     if (status) where.employmentStatus = status;

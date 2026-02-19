@@ -45,7 +45,7 @@ interface Calibration {
 
 const STATUSES = ['CURRENT', 'DUE', 'OVERDUE', 'OUT_OF_SERVICE', 'RETIRED'] as const;
 
-const statusColors: Record<string, string> = {
+const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info'> = {
   CURRENT: 'success',
   DUE: 'warning',
   OVERDUE: 'danger',
@@ -319,7 +319,7 @@ export default function CalibrationsPage() {
                       <td className="p-3 text-gray-600">{item.serialNumber || '—'}</td>
                       <td className="p-3 text-gray-600">{item.location || '—'}</td>
                       <td className="p-3">
-                        <Badge variant={statusColors[item.status] as any}>
+                        <Badge variant={statusColors[item.status]}>
                           {item.status.replace(/_/g, ' ')}
                         </Badge>
                       </td>

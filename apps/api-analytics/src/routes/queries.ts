@@ -174,7 +174,7 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
     const cappedSql = `SELECT * FROM (${trimmedSql}) _q LIMIT 1000`;
 
     const startTime = Date.now();
-    const rows = (await (prisma as any).$transaction(async (tx: any) => {
+    const rows = (await (prisma as any).$transaction(async (tx) => {
       await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '10s'`);
       return tx.$queryRawUnsafe(cappedSql);
     })) as Record<string, unknown>[];

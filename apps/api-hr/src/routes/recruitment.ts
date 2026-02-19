@@ -21,7 +21,7 @@ router.get('/jobs', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (departmentId) where.departmentId = departmentId as string;
     if (isRemote === 'true') where.isRemote = true;
@@ -213,7 +213,7 @@ router.get('/applicants', async (req: Request, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (jobPostingId) where.jobPostingId = jobPostingId as string;
     if (status) where.status = status;
     if (stage) where.stage = stage;

@@ -112,7 +112,7 @@ router.get('/devices', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (status) where.status = status;
     if (deviceClass) where.deviceClass = deviceClass;
@@ -311,7 +311,7 @@ router.get('/devices/:id/submissions', async (req: AuthRequest, res: Response) =
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deviceId: req.params.id };
+    const where: Record<string, unknown> = { deviceId: req.params.id };
 
     if (status) where.status = status;
     if (database) where.database = database;

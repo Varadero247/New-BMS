@@ -95,7 +95,7 @@ router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status;
     if (leaveTypeId) where.leaveTypeId = leaveTypeId as string;
@@ -532,7 +532,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
     const start = new Date(startDate as string);
     const end = new Date(endDate as string);
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       status: 'APPROVED',
       OR: [
         { startDate: { gte: start, lte: end } },

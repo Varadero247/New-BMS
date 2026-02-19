@@ -53,7 +53,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (country && typeof country === 'string') where.country = country;
     if (search && typeof search === 'string') {

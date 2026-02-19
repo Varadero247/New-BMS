@@ -57,7 +57,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (status && typeof status === 'string') where.status = status;
     if (periodId && typeof periodId === 'string') where.periodId = periodId;
     if (dateFrom || dateTo) {

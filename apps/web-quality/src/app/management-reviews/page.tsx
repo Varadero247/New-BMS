@@ -47,7 +47,7 @@ interface ManagementReview {
 }
 
 const STATUSES = ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const;
-const statusColors: Record<string, string> = {
+const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info'> = {
   PLANNED: 'info',
   IN_PROGRESS: 'warning',
   COMPLETED: 'success',
@@ -347,7 +347,7 @@ export default function ManagementReviewsPage() {
                       </td>
                       <td className="p-3 text-gray-600">{item.chairperson || '—'}</td>
                       <td className="p-3">
-                        <Badge variant={statusColors[item.status] as any}>
+                        <Badge variant={statusColors[item.status]}>
                           {item.status.replace(/_/g, ' ')}
                         </Badge>
                       </td>
@@ -602,7 +602,7 @@ export default function ManagementReviewsPage() {
               </div>
               <div>
                 <strong>Status:</strong>{' '}
-                <Badge variant={statusColors[detailItem.status] as any}>{detailItem.status}</Badge>
+                <Badge variant={statusColors[detailItem.status]}>{detailItem.status}</Badge>
               </div>
               <div>
                 <strong>Meeting Date:</strong>{' '}

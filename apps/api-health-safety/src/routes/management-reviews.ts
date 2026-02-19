@@ -47,7 +47,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;
     if (year) {
       const y = parseInt(year as string, 10);
@@ -200,7 +200,7 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-      if (!existing || (existing as any).deletedAt) {
+      if (!existing || existing.deletedAt) {
         return res.status(404).json({
           success: false,
           error: { code: 'NOT_FOUND', message: 'Management review not found' },
@@ -268,7 +268,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const existing = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-      if (!existing || (existing as any).deletedAt) {
+      if (!existing || existing.deletedAt) {
         return res.status(404).json({
           success: false,
           error: { code: 'NOT_FOUND', message: 'Management review not found' },

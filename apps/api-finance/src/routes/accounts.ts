@@ -156,7 +156,7 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (type && typeof type === 'string') {
       where.type = type;
@@ -601,7 +601,7 @@ router.get('/periods', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 20, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (fiscalYear) {
       const n = parseInt(String(fiscalYear), 10);
@@ -1027,7 +1027,7 @@ router.get('/entries', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (status && typeof status === 'string') {
       where.status = status;

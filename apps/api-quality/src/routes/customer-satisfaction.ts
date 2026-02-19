@@ -252,7 +252,7 @@ router.get('/surveys', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (type) where.type = type;
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (search) {
@@ -425,7 +425,7 @@ router.get('/responses', async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (surveyId) where.surveyId = surveyId as string;
     if (npsCategory) where.npsCategory = npsCategory;
     if (startDate || endDate) {
@@ -477,7 +477,7 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
     const sinceDate = new Date();
     sinceDate.setMonth(sinceDate.getMonth() - monthsNum);
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       submittedAt: { gte: sinceDate },
     };
     if (surveyId) where.surveyId = surveyId as string;

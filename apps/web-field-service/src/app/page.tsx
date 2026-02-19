@@ -161,7 +161,7 @@ export default function DashboardPage() {
                         <div>
                           <p className="text-sm text-gray-500 dark:text-gray-400">{kpi.label}</p>
                           <p className="text-2xl font-bold mt-1">
-                            {(stats as any)[kpi.key] ?? '-'}
+                            {(stats as Record<string, unknown>)[kpi.key] ?? '-'}
                           </p>
                         </div>
                         <div className={`p-3 rounded-lg ${kpi.bg}`}>

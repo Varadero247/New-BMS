@@ -36,7 +36,7 @@ interface Release {
 }
 
 const DECISIONS = ['APPROVED', 'REJECTED', 'CONDITIONAL', 'ON_HOLD'] as const;
-const decisionColors: Record<string, string> = {
+const decisionColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info'> = {
   APPROVED: 'success',
   REJECTED: 'danger',
   CONDITIONAL: 'warning',
@@ -299,7 +299,7 @@ export default function ReleasesPage() {
                       <td className="p-3 font-medium">{item.productName}</td>
                       <td className="p-3 text-gray-600">{item.batchNumber || '—'}</td>
                       <td className="p-3">
-                        <Badge variant={decisionColors[item.decision] as any}>
+                        <Badge variant={decisionColors[item.decision]}>
                           {item.decision.replace(/_/g, ' ')}
                         </Badge>
                       </td>

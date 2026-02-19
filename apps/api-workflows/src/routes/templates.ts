@@ -53,7 +53,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { category, industryType, isActive } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (category) where.category = category;
     if (industryType) where.industryType = industryType;
     if (isActive !== undefined) where.isActive = isActive === 'true';

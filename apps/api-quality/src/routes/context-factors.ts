@@ -3,7 +3,7 @@ import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { requirePermission } from '@ims/rbac';
+import { requirePermission, PermissionLevel } from '@ims/rbac';
 import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-quality');
@@ -47,7 +47,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 // GET / — List context factors
 router.get(
   '/',
-  requirePermission('quality', 'read' as any),
+  requirePermission('quality', PermissionLevel.VIEW),
   async (req: Request, res: Response) => {
     try {
       const { factorType, status, search } = req.query;
@@ -108,7 +108,7 @@ router.get(
 // POST / — Create context factor
 router.post(
   '/',
-  requirePermission('quality', 'write' as any),
+  requirePermission('quality', PermissionLevel.EDIT),
   async (req: Request, res: Response) => {
     try {
       const parsed = createSchema.safeParse(req.body);
@@ -171,7 +171,7 @@ router.post(
 // GET /:id — Get context factor by ID
 router.get(
   '/:id',
-  requirePermission('quality', 'read' as any),
+  requirePermission('quality', PermissionLevel.VIEW),
   async (req: Request, res: Response) => {
     try {
       const item = await prisma.qualIssue.findFirst({
@@ -218,7 +218,7 @@ router.get(
 // PUT /:id — Update context factor
 router.put(
   '/:id',
-  requirePermission('quality', 'write' as any),
+  requirePermission('quality', PermissionLevel.EDIT),
   async (req: Request, res: Response) => {
     try {
       const parsed = updateSchema.safeParse(req.body);
@@ -289,7 +289,7 @@ router.put(
 // DELETE /:id — Soft delete context factor
 router.delete(
   '/:id',
-  requirePermission('quality', 'delete' as any),
+  requirePermission('quality', PermissionLevel.DELETE),
   async (req: Request, res: Response) => {
     try {
       const existing = await prisma.qualIssue.findFirst({

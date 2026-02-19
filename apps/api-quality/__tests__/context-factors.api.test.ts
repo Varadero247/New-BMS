@@ -33,6 +33,7 @@ jest.mock('@ims/monitoring', () => ({
 
 jest.mock('@ims/rbac', () => ({
   requirePermission: () => (_req: any, _res: any, next: any) => next(),
+  PermissionLevel: { NONE: 0, VIEW: 1, CREATE: 2, EDIT: 3, DELETE: 4, APPROVE: 5, FULL: 6 },
 }));
 
 import contextFactorsRouter from '../src/routes/context-factors';

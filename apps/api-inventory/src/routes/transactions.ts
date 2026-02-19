@@ -33,7 +33,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
 
     if (productId) where.productId = productId;
     if (warehouseId) where.warehouseId = warehouseId;
@@ -82,7 +82,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
   try {
     const { startDate, endDate, warehouseId } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (warehouseId) where.warehouseId = warehouseId;
 
     // Default to last 30 days if no date range specified

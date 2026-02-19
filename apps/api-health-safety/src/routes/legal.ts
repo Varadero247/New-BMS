@@ -59,7 +59,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
     const skip = (pageNum - 1) * limitNum;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (complianceStatus) where.complianceStatus = complianceStatus;
     if (category) where.category = category;
     if (status) where.status = status;
@@ -212,7 +212,7 @@ router.patch(
   async (req: AuthRequest, res: Response) => {
     try {
       const existing = await prisma.legalRequirement.findUnique({ where: { id: req.params.id } });
-      if (!existing || (existing as any).deletedAt) {
+      if (!existing || existing.deletedAt) {
         return res.status(404).json({
           success: false,
           error: { code: 'NOT_FOUND', message: 'Legal requirement not found' },
@@ -249,7 +249,7 @@ router.patch(
 
       const data = schema.parse(req.body);
 
-      const updateData: any = { ...data };
+      const updateData: Record<string, unknown> = { ...data };
       if (data.effectiveDate) updateData.effectiveDate = new Date(data.effectiveDate);
       if (data.reviewDate) updateData.reviewDate = new Date(data.reviewDate);
       if (data.complianceStatus && data.complianceStatus !== existing.complianceStatus) {

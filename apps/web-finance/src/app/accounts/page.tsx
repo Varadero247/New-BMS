@@ -554,7 +554,7 @@ export default function AccountsPage() {
               type="checkbox"
               id="edit-isActive"
               name="isActive"
-              checked={formData.isActive as any}
+              checked={formData.isActive}
               onChange={(e) => setFormData((prev) => ({ ...prev, isActive: e.target.checked }))}
             />
             <Label htmlFor="edit-isActive">Active</Label>

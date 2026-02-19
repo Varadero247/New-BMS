@@ -18,7 +18,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, status, loanType } = req.query;
 
-    const where: any = { deletedAt: null };
+    const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId;
     if (status) where.status = status;
     if (loanType) where.loanType = loanType;

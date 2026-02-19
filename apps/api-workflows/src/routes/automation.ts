@@ -66,7 +66,7 @@ router.get('/rules', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const { triggerType, actionType, isActive, entityType } = req.query;
 
-    const where: any = { deletedAt: null } as any;
+    const where: Record<string, unknown> = { deletedAt: null };
     if (triggerType) where.triggerType = triggerType as string;
     if (actionType) where.actionType = actionType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
@@ -357,7 +357,7 @@ router.get('/executions', async (req: Request, res: Response) => {
   try {
     const { ruleId, status, entityType, limit = '50', offset = '0' } = req.query;
 
-    const where: any = { deletedAt: null } as any;
+    const where: Record<string, unknown> = { deletedAt: null };
     if (ruleId) where.ruleId = ruleId as string;
     if (status) where.status = status as string;
     if (entityType) where.entityType = entityType as string;

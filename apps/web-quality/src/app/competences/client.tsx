@@ -40,7 +40,7 @@ interface Competence {
 }
 
 const STATUSES = ['COMPETENT', 'IN_TRAINING', 'NOT_COMPETENT', 'EXPIRED'] as const;
-const statusColors: Record<string, string> = {
+const statusColors: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info'> = {
   COMPETENT: 'success',
   IN_TRAINING: 'info',
   NOT_COMPETENT: 'danger',
@@ -306,7 +306,7 @@ export default function CompetencesPage() {
                       <td className="p-3 text-gray-600">{item.department || '—'}</td>
                       <td className="p-3 text-gray-600">{item.competencyArea}</td>
                       <td className="p-3">
-                        <Badge variant={statusColors[item.status] as any}>
+                        <Badge variant={statusColors[item.status]}>
                           {item.status.replace(/_/g, ' ')}
                         </Badge>
                       </td>
