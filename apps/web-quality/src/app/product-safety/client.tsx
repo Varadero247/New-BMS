@@ -13,8 +13,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Shield,
   Plus,
@@ -24,9 +23,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  FileText,
-  Beaker,
-} from 'lucide-react';
+  Beaker } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -106,14 +103,12 @@ type TabType = 'characteristics' | 'incidents' | 'recalls' | 'compliance';
 const CHAR_TYPE_COLORS: Record<string, string> = {
   SC: 'bg-red-100 text-red-800',
   CC: 'bg-orange-100 text-orange-800',
-  KPC: 'bg-blue-100 text-blue-800',
-};
+  KPC: 'bg-blue-100 text-blue-800' };
 
 const CHAR_TYPE_LABELS: Record<string, string> = {
   SC: 'Safety Characteristic (AS9100)',
   CC: 'Critical Characteristic (IATF)',
-  KPC: 'Key Product Characteristic (IATF)',
-};
+  KPC: 'Key Product Characteristic (IATF)' };
 
 const STATUS_COLORS: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-800',
@@ -128,15 +123,13 @@ const STATUS_COLORS: Record<string, string> = {
   COMPLIANT: 'bg-green-100 text-green-800',
   NON_COMPLIANT: 'bg-red-100 text-red-800',
   PENDING: 'bg-yellow-100 text-yellow-800',
-  EXEMPT: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-};
+  EXEMPT: 'bg-gray-100 dark:bg-gray-800 text-gray-600' };
 
 const SEVERITY_COLORS: Record<string, string> = {
   LOW: 'bg-green-100 text-green-800',
   MEDIUM: 'bg-yellow-100 text-yellow-800',
   HIGH: 'bg-orange-100 text-orange-800',
-  CRITICAL: 'bg-red-100 text-red-800',
-};
+  CRITICAL: 'bg-red-100 text-red-800' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -161,8 +154,7 @@ export default function ProductSafetyPage() {
     description: '',
     controlMethod: '',
     measurementMethod: '',
-    tolerance: '',
-  });
+    tolerance: '' });
 
   // Incident modal
   const [showIncidentModal, setShowIncidentModal] = useState(false);
@@ -173,8 +165,7 @@ export default function ProductSafetyPage() {
     partNumber: '',
     severity: 'MEDIUM',
     source: 'INTERNAL',
-    immediateAction: '',
-  });
+    immediateAction: '' });
 
   // Recall modal
   const [showRecallModal, setShowRecallModal] = useState(false);
@@ -184,8 +175,7 @@ export default function ProductSafetyPage() {
     scope: '',
     affectedQuantity: '',
     regulatoryBody: '',
-    notes: '',
-  });
+    notes: '' });
 
   // Compliance modal
   const [showComplianceModal, setShowComplianceModal] = useState(false);
@@ -197,8 +187,7 @@ export default function ProductSafetyPage() {
     certificateRef: '',
     expiryDate: '',
     substances: '',
-    notes: '',
-  });
+    notes: '' });
 
   // Detail modals
   const [selectedChar, setSelectedChar] = useState<SafetyCharacteristic | null>(null);
@@ -275,8 +264,7 @@ export default function ProductSafetyPage() {
         description: '',
         controlMethod: '',
         measurementMethod: '',
-        tolerance: '',
-      });
+        tolerance: '' });
       fetchCharacteristics();
     } catch (err) {
       console.error('Failed to create characteristic', err);
@@ -294,8 +282,7 @@ export default function ProductSafetyPage() {
         partNumber: '',
         severity: 'MEDIUM',
         source: 'INTERNAL',
-        immediateAction: '',
-      });
+        immediateAction: '' });
       fetchIncidents();
     } catch (err) {
       console.error('Failed to create incident', err);
@@ -306,8 +293,7 @@ export default function ProductSafetyPage() {
     try {
       await api.post('/product-safety/recalls', {
         ...recallForm,
-        affectedQuantity: parseInt(recallForm.affectedQuantity, 10) || 0,
-      });
+        affectedQuantity: parseInt(recallForm.affectedQuantity, 10) || 0 });
       setShowRecallModal(false);
       setRecallForm({
         product: '',
@@ -315,8 +301,7 @@ export default function ProductSafetyPage() {
         scope: '',
         affectedQuantity: '',
         regulatoryBody: '',
-        notes: '',
-      });
+        notes: '' });
       fetchRecalls();
     } catch (err) {
       console.error('Failed to create recall', err);
@@ -335,8 +320,7 @@ export default function ProductSafetyPage() {
         certificateRef: '',
         expiryDate: '',
         substances: '',
-        notes: '',
-      });
+        notes: '' });
       fetchCompliance();
     } catch (err) {
       console.error('Failed to create compliance record', err);

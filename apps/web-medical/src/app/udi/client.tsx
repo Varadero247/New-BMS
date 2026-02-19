@@ -13,8 +13,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   Search,
@@ -23,11 +22,9 @@ import {
   Barcode,
   Box,
   CheckCircle2,
-  Clock,
   ChevronLeft,
   Send,
-  Tag,
-} from 'lucide-react';
+  Tag } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -133,20 +130,17 @@ const emptyDeviceForm = {
   modelNumber: '',
   manufacturer: '',
   deviceClass: 'CLASS_II' as string,
-  description: '',
-};
+  description: '' };
 
 const emptyDIForm = {
   diNumber: '',
-  issuingAgency: 'GS1',
-};
+  issuingAgency: 'GS1' };
 
 const emptyPIForm = {
   lotNumber: '',
   serialNumber: '',
   manufacturingDate: '',
-  expirationDate: '',
-};
+  expirationDate: '' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -315,8 +309,7 @@ export default function UDIClient() {
       active: devices.filter((d) => d.status === 'ACTIVE').length,
       classI: devices.filter((d) => d.deviceClass === 'CLASS_I').length,
       classII: devices.filter((d) => d.deviceClass === 'CLASS_II').length,
-      classIII: devices.filter((d) => d.deviceClass === 'CLASS_III').length,
-    };
+      classIII: devices.filter((d) => d.deviceClass === 'CLASS_III').length };
   }, [devices]);
 
   // ---------------------------------------------------------------------------

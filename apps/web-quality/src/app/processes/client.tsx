@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -14,22 +12,18 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   Workflow,
   Search,
   Loader2,
   Sparkles,
-  AlertCircle,
-  Clock,
   CheckCircle,
   Settings2,
   ChevronDown,
   ChevronUp,
-  Target,
-} from 'lucide-react';
+  Target } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -176,8 +170,7 @@ const emptyForm: FormData = {
   reviewFrequency: 'ANNUALLY',
   lastReviewed: '',
   nextReviewDate: '',
-  reviewNotes: '',
-};
+  reviewNotes: '' };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -263,8 +256,7 @@ export default function ProcessesClient() {
       reviewFrequency: r.reviewFrequency,
       lastReviewed: r.lastReviewed ? r.lastReviewed.split('T')[0] : '',
       nextReviewDate: r.nextReviewDate ? r.nextReviewDate.split('T')[0] : '',
-      reviewNotes: r.reviewNotes || '',
-    });
+      reviewNotes: r.reviewNotes || '' });
     setModalOpen(true);
   };
 
@@ -306,8 +298,7 @@ export default function ProcessesClient() {
     active: records.filter((r) => r.status === 'ACTIVE').length,
     management: records.filter((r) => r.processType === 'MANAGEMENT').length,
     core: records.filter((r) => r.processType === 'CORE').length,
-    support: records.filter((r) => r.processType === 'SUPPORT').length,
-  };
+    support: records.filter((r) => r.processType === 'SUPPORT').length };
 
   return (
     <div className="p-6 space-y-6">

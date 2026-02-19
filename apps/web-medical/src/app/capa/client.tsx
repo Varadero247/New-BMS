@@ -3,14 +3,9 @@
 import { useState, useMemo } from 'react';
 import {
   Search,
-  AlertTriangle,
   CheckCircle,
-  Clock,
-  XCircle,
   ChevronDown,
-  ChevronRight,
-  Shield,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 
 interface CAPA {
   id: string;
@@ -44,8 +39,7 @@ const capas: CAPA[] = [
     dateOpened: '2026-01-08',
     targetDate: '2026-03-08',
     daysOpen: 36,
-    effectivenessCheck: false,
-  },
+    effectivenessCheck: false },
   {
     id: '2',
     capaNumber: 'CAPA-2026-002',
@@ -60,8 +54,7 @@ const capas: CAPA[] = [
     dateOpened: '2026-01-15',
     targetDate: '2026-02-28',
     daysOpen: 29,
-    effectivenessCheck: true,
-  },
+    effectivenessCheck: true },
   {
     id: '3',
     capaNumber: 'CAPA-2026-003',
@@ -76,8 +69,7 @@ const capas: CAPA[] = [
     dateOpened: '2025-12-10',
     targetDate: '2026-01-31',
     daysOpen: 0,
-    effectivenessCheck: true,
-  },
+    effectivenessCheck: true },
   {
     id: '4',
     capaNumber: 'CAPA-2026-004',
@@ -92,8 +84,7 @@ const capas: CAPA[] = [
     dateOpened: '2026-02-05',
     targetDate: '2026-04-05',
     daysOpen: 8,
-    effectivenessCheck: false,
-  },
+    effectivenessCheck: false },
   {
     id: '5',
     capaNumber: 'CAPA-2026-005',
@@ -108,8 +99,7 @@ const capas: CAPA[] = [
     dateOpened: '2026-01-20',
     targetDate: '2026-03-20',
     daysOpen: 24,
-    effectivenessCheck: false,
-  },
+    effectivenessCheck: false },
   {
     id: '6',
     capaNumber: 'CAPA-2026-006',
@@ -124,8 +114,7 @@ const capas: CAPA[] = [
     dateOpened: '2026-02-10',
     targetDate: '2026-04-10',
     daysOpen: 3,
-    effectivenessCheck: false,
-  },
+    effectivenessCheck: false },
   {
     id: '7',
     capaNumber: 'CAPA-2025-042',
@@ -140,8 +129,7 @@ const capas: CAPA[] = [
     dateOpened: '2025-11-05',
     targetDate: '2026-01-15',
     daysOpen: 0,
-    effectivenessCheck: true,
-  },
+    effectivenessCheck: true },
 ];
 
 const statusConfig: Record<string, { label: string; color: string; step: number }> = {
@@ -150,14 +138,12 @@ const statusConfig: Record<string, { label: string; color: string; step: number 
   'action-plan': { label: 'Action Plan', color: 'bg-indigo-100 text-indigo-700', step: 3 },
   implementation: { label: 'Implementation', color: 'bg-amber-100 text-amber-700', step: 4 },
   verification: { label: 'Verification', color: 'bg-cyan-100 text-cyan-700', step: 5 },
-  closed: { label: 'Closed', color: 'bg-emerald-100 text-emerald-700', step: 6 },
-};
+  closed: { label: 'Closed', color: 'bg-emerald-100 text-emerald-700', step: 6 } };
 
 const severityConfig: Record<string, { color: string }> = {
   critical: { color: 'bg-red-100 text-red-700' },
   major: { color: 'bg-orange-100 text-orange-700' },
-  minor: { color: 'bg-yellow-100 text-yellow-700' },
-};
+  minor: { color: 'bg-yellow-100 text-yellow-700' } };
 
 const steps = ['Open', 'Investigation', 'Action Plan', 'Implementation', 'Verification', 'Closed'];
 

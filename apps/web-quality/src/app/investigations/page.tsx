@@ -3,15 +3,12 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@ims/ui';
 import {
-  Search,
   Plus,
-  Filter,
   AlertTriangle,
   Clock,
   CheckCircle,
   Users,
-  FileSearch,
-} from 'lucide-react';
+  FileSearch } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
@@ -38,16 +35,14 @@ const statusColors: Record<string, string> = {
   ACTIONS_ASSIGNED: 'bg-indigo-100 text-indigo-700',
   VERIFICATION_IN_PROGRESS: 'bg-cyan-100 text-cyan-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-};
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
 
 const severityColors: Record<string, string> = {
   MINOR: 'bg-green-100 text-green-700',
   MODERATE: 'bg-yellow-100 text-yellow-700',
   MAJOR: 'bg-orange-100 text-orange-700',
   CRITICAL: 'bg-red-100 text-red-700',
-  CATASTROPHIC: 'bg-red-200 text-red-800',
-};
+  CATASTROPHIC: 'bg-red-200 text-red-800' };
 
 const typeLabels: Record<string, string> = {
   INCIDENT: 'Incident',
@@ -57,8 +52,7 @@ const typeLabels: Record<string, string> = {
   AUDIT_FINDING: 'Audit Finding',
   REGULATORY_EVENT: 'Regulatory Event',
   PRODUCT_FAILURE: 'Product Failure',
-  PROCESS_DEVIATION: 'Process Deviation',
-};
+  PROCESS_DEVIATION: 'Process Deviation' };
 
 export default function InvestigationsPage() {
   const [investigations, setInvestigations] = useState<Investigation[]>([]);
@@ -93,8 +87,7 @@ export default function InvestigationsPage() {
       .length,
     critical: investigations.filter(
       (i) => i.severity === 'CRITICAL' || i.severity === 'CATASTROPHIC'
-    ).length,
-  };
+    ).length };
 
   if (loading) {
     return (

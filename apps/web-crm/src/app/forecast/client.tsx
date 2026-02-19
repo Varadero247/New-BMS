@@ -7,11 +7,9 @@ import {
   PieChart,
   DollarSign,
   Percent,
-  Filter,
   ArrowUpRight,
   Calendar,
-  User,
-} from 'lucide-react';
+  User } from 'lucide-react';
 
 interface Deal {
   id: string;
@@ -40,8 +38,7 @@ const mockDeals: Deal[] = [
     probability: 85,
     stage: 'Proposal',
     expectedClose: '2026-03-15',
-    owner: 'Sarah Chen',
-  },
+    owner: 'Sarah Chen' },
   {
     id: '2',
     name: 'Data Analytics Platform',
@@ -50,8 +47,7 @@ const mockDeals: Deal[] = [
     probability: 60,
     stage: 'Negotiation',
     expectedClose: '2026-02-28',
-    owner: 'James Wilson',
-  },
+    owner: 'James Wilson' },
   {
     id: '3',
     name: 'Digital Transformation',
@@ -60,8 +56,7 @@ const mockDeals: Deal[] = [
     probability: 45,
     stage: 'Proposal',
     expectedClose: '2026-04-10',
-    owner: 'Emma Rodriguez',
-  },
+    owner: 'Emma Rodriguez' },
   {
     id: '4',
     name: 'Security Infrastructure',
@@ -70,8 +65,7 @@ const mockDeals: Deal[] = [
     probability: 90,
     stage: 'Closing',
     expectedClose: '2026-02-20',
-    owner: 'Michael Zhang',
-  },
+    owner: 'Michael Zhang' },
   {
     id: '5',
     name: 'API Integration Suite',
@@ -80,8 +74,7 @@ const mockDeals: Deal[] = [
     probability: 70,
     stage: 'Qualified',
     expectedClose: '2026-03-20',
-    owner: 'Sarah Chen',
-  },
+    owner: 'Sarah Chen' },
   {
     id: '6',
     name: 'Marketing Automation',
@@ -90,8 +83,7 @@ const mockDeals: Deal[] = [
     probability: 50,
     stage: 'Proposal',
     expectedClose: '2026-03-25',
-    owner: 'David Kim',
-  },
+    owner: 'David Kim' },
   {
     id: '7',
     name: 'Customer Portal',
@@ -100,8 +92,7 @@ const mockDeals: Deal[] = [
     probability: 35,
     stage: 'Lead',
     expectedClose: '2026-04-30',
-    owner: 'Jessica Lee',
-  },
+    owner: 'Jessica Lee' },
   {
     id: '8',
     name: 'Warehouse Management',
@@ -110,8 +101,7 @@ const mockDeals: Deal[] = [
     probability: 55,
     stage: 'Proposal',
     expectedClose: '2026-04-05',
-    owner: 'Robert Brown',
-  },
+    owner: 'Robert Brown' },
   {
     id: '9',
     name: 'HR Management System',
@@ -120,8 +110,7 @@ const mockDeals: Deal[] = [
     probability: 75,
     stage: 'Qualified',
     expectedClose: '2026-03-10',
-    owner: 'Sarah Chen',
-  },
+    owner: 'Sarah Chen' },
   {
     id: '10',
     name: 'Mobile App Development',
@@ -130,8 +119,7 @@ const mockDeals: Deal[] = [
     probability: 40,
     stage: 'Lead',
     expectedClose: '2026-05-15',
-    owner: 'Amanda Foster',
-  },
+    owner: 'Amanda Foster' },
 ];
 
 const pipelineStages: PipelineStage[] = [
@@ -156,8 +144,7 @@ const stageColors = {
   Qualified: '#0EA5E9',
   Proposal: '#8B5CF6',
   Negotiation: '#F59E0B',
-  Closing: '#10B981',
-};
+  Closing: '#10B981' };
 
 export default function ForecastClient() {
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
@@ -342,8 +329,7 @@ export default function ForecastClient() {
                         style={{
                           width: `${width}%`,
                           backgroundColor:
-                            stageColors[stage.stage as keyof typeof stageColors] || '#64748b',
-                        }}
+                            stageColors[stage.stage as keyof typeof stageColors] || '#64748b' }}
                       >
                         {stage.deals}
                       </div>
@@ -374,8 +360,7 @@ export default function ForecastClient() {
                         style={{
                           width: `${percentage}%`,
                           backgroundColor:
-                            stageColors[stage.stage as keyof typeof stageColors] || '#64748b',
-                        }}
+                            stageColors[stage.stage as keyof typeof stageColors] || '#64748b' }}
                       ></div>
                     </div>
                   </div>
@@ -469,8 +454,7 @@ export default function ForecastClient() {
                           className="inline-block px-3 py-1 rounded-full text-xs font-semibold text-white"
                           style={{
                             backgroundColor:
-                              stageColors[deal.stage as keyof typeof stageColors] || '#64748b',
-                          }}
+                              stageColors[deal.stage as keyof typeof stageColors] || '#64748b' }}
                         >
                           {deal.stage}
                         </span>
@@ -479,8 +463,7 @@ export default function ForecastClient() {
                         <Calendar className="w-4 h-4 text-slate-400" />
                         {new Date(deal.expectedClose).toLocaleDateString('en-GB', {
                           month: 'short',
-                          day: 'numeric',
-                        })}
+                          day: 'numeric' })}
                       </td>
                       <td className="px-4 py-3 text-slate-700 flex items-center gap-2">
                         <User className="w-4 h-4 text-slate-400" />

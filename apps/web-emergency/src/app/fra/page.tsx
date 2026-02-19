@@ -5,14 +5,12 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import {
   FileSearch,
   Plus,
@@ -20,8 +18,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -47,8 +44,7 @@ const RISK_COLORS: Record<string, string> = {
   LOW: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   MEDIUM: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
   HIGH: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-  VERY_HIGH: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-};
+  VERY_HIGH: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' };
 
 function StatusIcon({ status }: { status: string }) {
   switch (status) {

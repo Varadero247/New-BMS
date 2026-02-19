@@ -4,14 +4,10 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import {
   BrainCircuit,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
   TrendingUp,
   TrendingDown,
   Minus,
-  Info,
-} from 'lucide-react';
+  Info } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------

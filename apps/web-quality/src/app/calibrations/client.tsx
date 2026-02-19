@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -13,8 +11,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import { Plus, Ruler, Search, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -50,8 +47,7 @@ const statusColors: Record<string, string> = {
   DUE: 'warning',
   OVERDUE: 'danger',
   OUT_OF_SERVICE: 'default',
-  RETIRED: 'default',
-};
+  RETIRED: 'default' };
 
 export default function CalibrationsPage() {
   const [items, setItems] = useState<Calibration[]>([]);
@@ -80,8 +76,7 @@ export default function CalibrationsPage() {
     results: '',
     deviation: '',
     adjustments: '',
-    notes: '',
-  });
+    notes: '' });
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -94,8 +89,7 @@ export default function CalibrationsPage() {
       setPagination((p) => ({
         ...p,
         total: res.data.pagination.total,
-        totalPages: res.data.pagination.totalPages,
-      }));
+        totalPages: res.data.pagination.totalPages }));
     } catch {
       /* empty */
     }
@@ -126,8 +120,7 @@ export default function CalibrationsPage() {
       results: '',
       deviation: '',
       adjustments: '',
-      notes: '',
-    });
+      notes: '' });
     setModalOpen(true);
   };
 
@@ -151,8 +144,7 @@ export default function CalibrationsPage() {
       results: item.results || '',
       deviation: item.deviation || '',
       adjustments: item.adjustments || '',
-      notes: item.notes || '',
-    });
+      notes: item.notes || '' });
     setModalOpen(true);
   };
 

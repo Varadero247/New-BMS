@@ -6,13 +6,10 @@ import {
   RefreshCw,
   Server,
   Clock,
-  Wifi,
-  WifiOff,
   AlertTriangle,
   CheckCircle,
   XCircle,
-  ArrowUpRight,
-} from 'lucide-react';
+  ArrowUpRight } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface ServiceHealth {
@@ -43,29 +40,24 @@ const STATUS_CONFIG: Record<
     bg: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
     icon: CheckCircle,
     label: 'All Systems Operational',
-    dot: 'bg-green-500',
-  },
+    dot: 'bg-green-500' },
   degraded: {
     color: 'text-yellow-700 dark:text-yellow-400',
     bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800',
     icon: AlertTriangle,
     label: 'Partial System Degradation',
-    dot: 'bg-yellow-500',
-  },
+    dot: 'bg-yellow-500' },
   down: {
     color: 'text-red-700 dark:text-red-400',
     bg: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
     icon: XCircle,
     label: 'System Outage Detected',
-    dot: 'bg-red-500',
-  },
-};
+    dot: 'bg-red-500' } };
 
 const SERVICE_DOT: Record<string, string> = {
   operational: 'bg-green-500',
   degraded: 'bg-yellow-500',
-  down: 'bg-red-500',
-};
+  down: 'bg-red-500' };
 
 export default function StatusPage() {
   const [data, setData] = useState<PlatformStatus | null>(null);

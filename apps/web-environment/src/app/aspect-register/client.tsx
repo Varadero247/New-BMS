@@ -3,19 +3,15 @@
 import { useState } from 'react';
 import {
   Leaf,
-  AlertTriangle,
   CheckCircle,
   Search,
   Filter,
-  ChevronDown,
-  ChevronRight,
   Droplets,
   Cloud,
   Trash2,
   Zap,
   Volume2,
-  TreePine,
-} from 'lucide-react';
+  TreePine } from 'lucide-react';
 
 type Significance = 'significant' | 'not-significant';
 type Condition = 'normal' | 'abnormal' | 'emergency';
@@ -67,8 +63,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['Environmental Permit EP/12345', 'Clean Air Act 1993'],
     department: 'Production',
     owner: 'Plant Manager',
-    lastReview: '2025-11-15',
-  },
+    lastReview: '2025-11-15' },
   {
     id: 'a2',
     refNumber: 'ENV-ASP-2025-002',
@@ -90,8 +85,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['Water Resources Act 1991', 'COSHH Regulations'],
     department: 'Warehouse',
     owner: 'Warehouse Manager',
-    lastReview: '2025-10-20',
-  },
+    lastReview: '2025-10-20' },
   {
     id: 'a3',
     refNumber: 'ENV-ASP-2025-003',
@@ -113,8 +107,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['SECR reporting', 'ESOS Phase 3'],
     department: 'Facilities',
     owner: 'Facilities Manager',
-    lastReview: '2025-12-01',
-  },
+    lastReview: '2025-12-01' },
   {
     id: 'a4',
     refNumber: 'ENV-ASP-2025-004',
@@ -136,8 +129,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['Duty of Care Regulations', 'Hazardous Waste Regs'],
     department: 'Production',
     owner: 'Production Manager',
-    lastReview: '2025-09-15',
-  },
+    lastReview: '2025-09-15' },
   {
     id: 'a5',
     refNumber: 'ENV-ASP-2025-005',
@@ -159,8 +151,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['SECR reporting'],
     department: 'Logistics',
     owner: 'Fleet Manager',
-    lastReview: '2025-11-01',
-  },
+    lastReview: '2025-11-01' },
   {
     id: 'a6',
     refNumber: 'ENV-ASP-2025-006',
@@ -182,8 +173,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['Packaging Waste Regs'],
     department: 'Packaging',
     owner: 'Packaging Supervisor',
-    lastReview: '2025-10-01',
-  },
+    lastReview: '2025-10-01' },
   {
     id: 'a7',
     refNumber: 'ENV-ASP-2025-007',
@@ -205,8 +195,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['Abstraction licence'],
     department: 'Production',
     owner: 'Plant Manager',
-    lastReview: '2025-08-20',
-  },
+    lastReview: '2025-08-20' },
   {
     id: 'a8',
     refNumber: 'ENV-ASP-2025-008',
@@ -228,8 +217,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['Solvent Emissions Directive', 'Environmental Permit'],
     department: 'Paint Shop',
     owner: 'Paint Shop Manager',
-    lastReview: '2025-07-15',
-  },
+    lastReview: '2025-07-15' },
   {
     id: 'a9',
     refNumber: 'ENV-ASP-2025-009',
@@ -251,8 +239,7 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: [],
     department: 'Administration',
     owner: 'Office Manager',
-    lastReview: '2025-06-01',
-  },
+    lastReview: '2025-06-01' },
   {
     id: 'a10',
     refNumber: 'ENV-ASP-2025-010',
@@ -274,47 +261,38 @@ const aspects: EnvironmentalAspect[] = [
     legalReqs: ['Environmental Protection Act — noise nuisance'],
     department: 'Engineering',
     owner: 'Engineering Manager',
-    lastReview: '2025-09-01',
-  },
+    lastReview: '2025-09-01' },
 ];
 
 const categoryConfig: Record<Category, { label: string; icon: React.ReactNode; color: string }> = {
   emissions: {
     label: 'Emissions',
     icon: <Cloud className="h-4 w-4" />,
-    color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-  },
+    color: 'bg-gray-100 dark:bg-gray-800 text-gray-700' },
   water: {
     label: 'Water',
     icon: <Droplets className="h-4 w-4" />,
-    color: 'bg-blue-100 text-blue-700',
-  },
+    color: 'bg-blue-100 text-blue-700' },
   waste: {
     label: 'Waste',
     icon: <Trash2 className="h-4 w-4" />,
-    color: 'bg-amber-100 text-amber-700',
-  },
+    color: 'bg-amber-100 text-amber-700' },
   energy: {
     label: 'Energy',
     icon: <Zap className="h-4 w-4" />,
-    color: 'bg-yellow-100 text-yellow-700',
-  },
+    color: 'bg-yellow-100 text-yellow-700' },
   noise: {
     label: 'Noise',
     icon: <Volume2 className="h-4 w-4" />,
-    color: 'bg-purple-100 text-purple-700',
-  },
+    color: 'bg-purple-100 text-purple-700' },
   'land-use': {
     label: 'Land Use',
     icon: <TreePine className="h-4 w-4" />,
-    color: 'bg-green-100 text-green-700',
-  },
+    color: 'bg-green-100 text-green-700' },
   biodiversity: {
     label: 'Biodiversity',
     icon: <Leaf className="h-4 w-4" />,
-    color: 'bg-emerald-100 text-emerald-700',
-  },
-};
+    color: 'bg-emerald-100 text-emerald-700' } };
 
 export default function AspectRegisterClient() {
   const [selectedAspect, setSelectedAspect] = useState<EnvironmentalAspect | null>(null);
@@ -537,38 +515,31 @@ export default function AspectRegisterClient() {
                   {
                     label: 'Severity (×1.5)',
                     value: selectedAspect.severity,
-                    weighted: selectedAspect.severity * 1.5,
-                  },
+                    weighted: selectedAspect.severity * 1.5 },
                   {
                     label: 'Probability (×1.5)',
                     value: selectedAspect.probability,
-                    weighted: selectedAspect.probability * 1.5,
-                  },
+                    weighted: selectedAspect.probability * 1.5 },
                   {
                     label: 'Duration',
                     value: selectedAspect.duration,
-                    weighted: selectedAspect.duration,
-                  },
+                    weighted: selectedAspect.duration },
                   {
                     label: 'Extent',
                     value: selectedAspect.extent,
-                    weighted: selectedAspect.extent,
-                  },
+                    weighted: selectedAspect.extent },
                   {
                     label: 'Reversibility',
                     value: selectedAspect.reversibility,
-                    weighted: selectedAspect.reversibility,
-                  },
+                    weighted: selectedAspect.reversibility },
                   {
                     label: 'Regulatory',
                     value: selectedAspect.regulatory,
-                    weighted: selectedAspect.regulatory,
-                  },
+                    weighted: selectedAspect.regulatory },
                   {
                     label: 'Stakeholder',
                     value: selectedAspect.stakeholder,
-                    weighted: selectedAspect.stakeholder,
-                  },
+                    weighted: selectedAspect.stakeholder },
                 ].map((s) => (
                   <div key={s.label} className="flex items-center justify-between">
                     <span className="text-gray-600">{s.label}</span>

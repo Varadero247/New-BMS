@@ -17,11 +17,9 @@ import {
   Calendar,
   Clock,
   ShieldCheck,
-  Database,
   ChevronDown,
   ChevronUp,
-  RotateCcw,
-} from 'lucide-react';
+  RotateCcw } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -188,22 +186,19 @@ const riskLevelColors: Record<string, string> = {
   LOW: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   MEDIUM: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   HIGH: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-  CRITICAL: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-};
+  CRITICAL: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' };
 
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   RETIRED: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-  PLANNED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-};
+  PLANNED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' };
 
 const oversightColors: Record<string, string> = {
   FULL_AUTONOMY: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   HUMAN_IN_THE_LOOP: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   HUMAN_ON_THE_LOOP: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  HUMAN_IN_COMMAND: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-};
+  HUMAN_IN_COMMAND: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400' };
 
 /* Pre-populated system entries */
 const prePopulatedSystems: Partial<FormData>[] = [
@@ -231,8 +226,7 @@ const prePopulatedSystems: Partial<FormData>[] = [
     trainingData:
       'Pre-trained foundation model. No organisation-specific fine-tuning. All analysis performed via prompting with context injection.',
     limitations:
-      'Cannot access real-time external data. May produce plausible but incorrect analysis (hallucination risk). Requires human review for all compliance-critical outputs. Context window limitations for very large documents.',
-  },
+      'Cannot access real-time external data. May produce plausible but incorrect analysis (hallucination risk). Requires human review for all compliance-critical outputs. Context window limitations for very large documents.' },
   {
     name: 'GPT-4o (OpenAI)',
     description:
@@ -256,8 +250,7 @@ const prePopulatedSystems: Partial<FormData>[] = [
     dataTypes: 'Text documents, customer communications, supplier documentation',
     trainingData: 'Pre-trained foundation model. No custom fine-tuning.',
     limitations:
-      'Data residency concerns (US-hosted). Token limits. Rate limiting under high load.',
-  },
+      'Data residency concerns (US-hosted). Token limits. Rate limiting under high load.' },
   {
     name: 'Grok (xAI)',
     description:
@@ -281,8 +274,7 @@ const prePopulatedSystems: Partial<FormData>[] = [
     dataTypes: 'Public regulatory feeds, news articles, social media (public)',
     trainingData: 'Pre-trained foundation model with real-time data access.',
     limitations:
-      'Newer model with less established track record. Real-time data may include unverified information. Limited enterprise governance tooling.',
-  },
+      'Newer model with less established track record. Real-time data may include unverified information. Limited enterprise governance tooling.' },
 ];
 
 const defaultForm: FormData = {
@@ -307,8 +299,7 @@ const defaultForm: FormData = {
   impactLevel: 'LOW',
   humanOversight: 'HUMAN_IN_THE_LOOP',
   dataRetention: '1_YEAR',
-  reviewFrequency: 'QUARTERLY',
-};
+  reviewFrequency: 'QUARTERLY' };
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -323,8 +314,7 @@ function formatDate(dateStr?: string) {
   return new Date(dateStr).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: 'short',
-    year: 'numeric',
-  });
+    year: 'numeric' });
 }
 
 function isReviewOverdue(nextReview?: string) {
@@ -423,8 +413,7 @@ export default function AISystemRegisterPage() {
       impactLevel: system.impactLevel || 'LOW',
       humanOversight: system.humanOversight || 'HUMAN_IN_THE_LOOP',
       dataRetention: system.dataRetention || '1_YEAR',
-      reviewFrequency: system.reviewFrequency || 'QUARTERLY',
-    });
+      reviewFrequency: system.reviewFrequency || 'QUARTERLY' });
     setFormStep(0);
     setAddEditOpen(true);
   }
@@ -452,8 +441,7 @@ export default function AISystemRegisterPage() {
         ...form,
         deploymentDate: form.deploymentDate || undefined,
         lastReviewDate: form.lastReviewDate || undefined,
-        nextReviewDate: form.nextReviewDate || undefined,
-      };
+        nextReviewDate: form.nextReviewDate || undefined };
       if (editingSystem) {
         await api.put(`/ai-systems/${editingSystem.id}`, payload);
       } else {

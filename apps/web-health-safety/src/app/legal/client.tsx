@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -20,8 +18,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import { Plus, Scale, Loader2, Search, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -46,8 +43,7 @@ const COMPLIANCE_STATUSES = [
   {
     value: 'NOT_ASSESSED',
     label: 'Not Assessed',
-    color: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-  },
+    color: 'bg-gray-100 dark:bg-gray-800 text-gray-800' },
 ] as const;
 
 const JURISDICTIONS = [
@@ -122,8 +118,7 @@ const emptyForm: LegalForm = {
   aiGapAnalysis: '',
   aiRequiredActions: '',
   aiEvidenceRequired: '',
-  aiPenaltyForNonCompliance: '',
-};
+  aiPenaltyForNonCompliance: '' };
 
 // ─── Component ────────────────────────────────────────────────────
 
@@ -179,9 +174,7 @@ export default function LegalRegisterClient() {
           requirementTitle: form.title,
           legislationRef: form.legislationRef,
           category: form.category,
-          jurisdiction: form.jurisdiction,
-        }),
-      });
+          jurisdiction: form.jurisdiction }) });
       if (res.ok) {
         const data = await res.json();
         setForm((prev) => ({
@@ -190,8 +183,7 @@ export default function LegalRegisterClient() {
           aiGapAnalysis: data.gapAnalysis || '',
           aiRequiredActions: data.requiredActions || '',
           aiEvidenceRequired: data.evidenceRequired || '',
-          aiPenaltyForNonCompliance: data.penaltyForNonCompliance || '',
-        }));
+          aiPenaltyForNonCompliance: data.penaltyForNonCompliance || '' }));
       }
     } catch (error) {
       console.error('AI analysis failed:', error);
@@ -208,8 +200,7 @@ export default function LegalRegisterClient() {
         ...form,
         effectiveDate: form.effectiveDate || undefined,
         reviewDate: form.reviewDate || undefined,
-        aiAssessmentGenerated: !!(form.aiKeyObligations || form.aiGapAnalysis),
-      });
+        aiAssessmentGenerated: !!(form.aiKeyObligations || form.aiGapAnalysis) });
       setModalOpen(false);
       loadRequirements();
     } catch (error) {
@@ -228,8 +219,7 @@ export default function LegalRegisterClient() {
     total: requirements.length,
     COMPLIANT: requirements.filter((r) => r.complianceStatus === 'COMPLIANT').length,
     PARTIAL: requirements.filter((r) => r.complianceStatus === 'PARTIAL').length,
-    NON_COMPLIANT: requirements.filter((r) => r.complianceStatus === 'NON_COMPLIANT').length,
-  };
+    NON_COMPLIANT: requirements.filter((r) => r.complianceStatus === 'NON_COMPLIANT').length };
 
   const sections = ['Requirement Details', 'AI Compliance Assessment'];
 

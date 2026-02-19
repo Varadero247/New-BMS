@@ -6,14 +6,7 @@ import {
   FileText,
   ShoppingCart,
   MessageSquare,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  Search,
-  Download,
-  Eye,
-  ChevronRight,
-} from 'lucide-react';
+  Download } from 'lucide-react';
 
 interface Ticket {
   id: string;
@@ -52,8 +45,7 @@ const tickets: Ticket[] = [
     priority: 'medium',
     created: '2026-02-10',
     lastUpdate: '2026-02-12',
-    category: 'Quality',
-  },
+    category: 'Quality' },
   {
     id: 't2',
     subject: 'Delivery delay on PO-2602-0045',
@@ -61,8 +53,7 @@ const tickets: Ticket[] = [
     priority: 'high',
     created: '2026-02-12',
     lastUpdate: '2026-02-12',
-    category: 'Logistics',
-  },
+    category: 'Logistics' },
   {
     id: 't3',
     subject: 'Request for updated MSDS — Product XR-450',
@@ -70,8 +61,7 @@ const tickets: Ticket[] = [
     priority: 'low',
     created: '2026-02-05',
     lastUpdate: '2026-02-08',
-    category: 'Technical',
-  },
+    category: 'Technical' },
   {
     id: 't4',
     subject: 'Invoice discrepancy — INV-2602-0234',
@@ -79,8 +69,7 @@ const tickets: Ticket[] = [
     priority: 'high',
     created: '2026-02-11',
     lastUpdate: '2026-02-13',
-    category: 'Finance',
-  },
+    category: 'Finance' },
   {
     id: 't5',
     subject: 'Annual contract renewal discussion',
@@ -88,8 +77,7 @@ const tickets: Ticket[] = [
     priority: 'medium',
     created: '2026-01-15',
     lastUpdate: '2026-01-30',
-    category: 'Commercial',
-  },
+    category: 'Commercial' },
 ];
 
 const orders: Order[] = [
@@ -101,8 +89,7 @@ const orders: Order[] = [
     total: 125000,
     orderDate: '2026-01-28',
     expectedDelivery: '2026-03-15',
-    items: 50,
-  },
+    items: 50 },
   {
     id: 'o2',
     orderNumber: 'PO-2602-0052',
@@ -111,8 +98,7 @@ const orders: Order[] = [
     total: 24000,
     orderDate: '2026-02-05',
     expectedDelivery: '2026-02-14',
-    items: 200,
-  },
+    items: 200 },
   {
     id: 'o3',
     orderNumber: 'PO-2602-0038',
@@ -121,8 +107,7 @@ const orders: Order[] = [
     total: 45000,
     orderDate: '2026-01-10',
     expectedDelivery: '2026-02-01',
-    items: 30,
-  },
+    items: 30 },
   {
     id: 'o4',
     orderNumber: 'PO-2602-0060',
@@ -131,8 +116,7 @@ const orders: Order[] = [
     total: 8500,
     orderDate: '2026-02-12',
     expectedDelivery: '2026-02-28',
-    items: 5,
-  },
+    items: 5 },
 ];
 
 const documents: Document[] = [
@@ -141,52 +125,45 @@ const documents: Document[] = [
     name: 'Quality Certificate — QC-2602-089',
     type: 'Certificate',
     size: '245 KB',
-    uploadDate: '2026-02-08',
-  },
+    uploadDate: '2026-02-08' },
   {
     id: 'doc2',
     name: 'Product Specification — CardioMonitor Pro X3',
     type: 'Specification',
     size: '1.2 MB',
-    uploadDate: '2026-01-15',
-  },
+    uploadDate: '2026-01-15' },
   {
     id: 'doc3',
     name: 'Statement of Account — January 2026',
     type: 'Financial',
     size: '89 KB',
-    uploadDate: '2026-02-01',
-  },
+    uploadDate: '2026-02-01' },
   {
     id: 'doc4',
     name: 'MSDS — Product XR-450',
     type: 'Safety',
     size: '156 KB',
-    uploadDate: '2026-02-08',
-  },
+    uploadDate: '2026-02-08' },
   {
     id: 'doc5',
     name: 'Terms & Conditions 2026',
     type: 'Legal',
     size: '320 KB',
-    uploadDate: '2025-12-20',
-  },
+    uploadDate: '2025-12-20' },
 ];
 
 const ticketStatus: Record<string, { label: string; color: string }> = {
   open: { label: 'Open', color: 'bg-blue-100 text-blue-700' },
   'in-progress': { label: 'In Progress', color: 'bg-amber-100 text-amber-700' },
   resolved: { label: 'Resolved', color: 'bg-green-100 text-green-700' },
-  closed: { label: 'Closed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
-};
+  closed: { label: 'Closed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' } };
 
 const orderStatus: Record<string, { label: string; color: string; step: number }> = {
   pending: { label: 'Pending', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600', step: 1 },
   confirmed: { label: 'Confirmed', color: 'bg-blue-100 text-blue-700', step: 2 },
   'in-production': { label: 'In Production', color: 'bg-amber-100 text-amber-700', step: 3 },
   shipped: { label: 'Shipped', color: 'bg-purple-100 text-purple-700', step: 4 },
-  delivered: { label: 'Delivered', color: 'bg-green-100 text-green-700', step: 5 },
-};
+  delivered: { label: 'Delivered', color: 'bg-green-100 text-green-700', step: 5 } };
 
 type Tab = 'overview' | 'tickets' | 'orders' | 'documents';
 

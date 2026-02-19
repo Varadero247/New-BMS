@@ -6,11 +6,9 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { Plus, Search, RotateCcw, Edit, Trash2, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -33,15 +31,13 @@ interface Recall {
 const classColors: Record<string, string> = {
   CLASS_I: 'bg-red-100 text-red-700',
   CLASS_II: 'bg-yellow-100 text-yellow-700',
-  CLASS_III: 'bg-green-100 text-green-700',
-};
+  CLASS_III: 'bg-green-100 text-green-700' };
 
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-red-100 text-red-700',
   MONITORING: 'bg-yellow-100 text-yellow-700',
   CLOSED: 'bg-green-100 text-green-700',
-  MOCK: 'bg-blue-100 text-blue-700',
-};
+  MOCK: 'bg-blue-100 text-blue-700' };
 
 const initialForm = {
   product: '',
@@ -53,8 +49,7 @@ const initialForm = {
   unit: 'kg',
   description: '',
   correctiveAction: '',
-  status: 'ACTIVE',
-};
+  status: 'ACTIVE' };
 
 export default function RecallsPage() {
   const [items, setItems] = useState<Recall[]>([]);
@@ -101,8 +96,7 @@ export default function RecallsPage() {
       unit: r.unit || 'kg',
       description: r.description || '',
       correctiveAction: r.correctiveAction || '',
-      status: r.status,
-    });
+      status: r.status });
     setFormError('');
     setModalOpen(true);
   }
@@ -123,8 +117,7 @@ export default function RecallsPage() {
         product: form.product,
         reason: form.reason,
         recallClass: form.recallClass,
-        status: form.status,
-      };
+        status: form.status };
       if (form.lotNumber) payload.lotNumber = form.lotNumber;
       if (form.initiatedBy) payload.initiatedBy = form.initiatedBy;
       if (form.affectedQuantity) payload.affectedQuantity = parseFloat(form.affectedQuantity);

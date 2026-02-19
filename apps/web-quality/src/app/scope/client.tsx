@@ -12,11 +12,8 @@ import {
   Building2,
   Link2,
   Printer,
-  ChevronDown,
-  ChevronUp,
   AlertCircle,
-  History,
-} from 'lucide-react';
+  History } from 'lucide-react';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -75,8 +72,7 @@ const defaultScope: ScopeVersion = {
   exclusions: [],
   sites: [],
   updatedAt: new Date().toISOString(),
-  approvedBy: '',
-};
+  approvedBy: '' };
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
@@ -113,8 +109,7 @@ export default function ScopePage() {
     const approved: ScopeVersion = {
       ...scope,
       status: 'APPROVED',
-      updatedAt: new Date().toISOString(),
-    };
+      updatedAt: new Date().toISOString() };
     const newVersions = [approved, ...versions];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(approved));
     localStorage.setItem(VERSIONS_KEY, JSON.stringify(newVersions));
@@ -134,8 +129,7 @@ export default function ScopePage() {
       version: newVersion,
       status: 'DRAFT',
       updatedAt: new Date().toISOString(),
-      approvedBy: '',
-    }));
+      approvedBy: '' }));
   }, [scope.version]);
 
   // ── Restore version ──────────────────────────────────────────────────────
@@ -191,43 +185,37 @@ export default function ScopePage() {
   const addInclusion = () =>
     setScope((p) => ({
       ...p,
-      inclusions: [...p.inclusions, { id: newId(), clause: '', description: '' }],
-    }));
+      inclusions: [...p.inclusions, { id: newId(), clause: '', description: '' }] }));
   const removeInclusion = (id: string) =>
     setScope((p) => ({ ...p, inclusions: p.inclusions.filter((i) => i.id !== id) }));
   const updateInclusion = (id: string, field: keyof ScopeInclusion, value: string) =>
     setScope((p) => ({
       ...p,
-      inclusions: p.inclusions.map((i) => (i.id === id ? { ...i, [field]: value } : i)),
-    }));
+      inclusions: p.inclusions.map((i) => (i.id === id ? { ...i, [field]: value } : i)) }));
 
   // ── Exclusion helpers ────────────────────────────────────────────────────
   const addExclusion = () =>
     setScope((p) => ({
       ...p,
-      exclusions: [...p.exclusions, { id: newId(), clause: '', justification: '' }],
-    }));
+      exclusions: [...p.exclusions, { id: newId(), clause: '', justification: '' }] }));
   const removeExclusion = (id: string) =>
     setScope((p) => ({ ...p, exclusions: p.exclusions.filter((e) => e.id !== id) }));
   const updateExclusion = (id: string, field: keyof ScopeExclusion, value: string) =>
     setScope((p) => ({
       ...p,
-      exclusions: p.exclusions.map((e) => (e.id === id ? { ...e, [field]: value } : e)),
-    }));
+      exclusions: p.exclusions.map((e) => (e.id === id ? { ...e, [field]: value } : e)) }));
 
   // ── Site helpers ─────────────────────────────────────────────────────────
   const addSite = () =>
     setScope((p) => ({
       ...p,
-      sites: [...p.sites, { id: newId(), name: '', address: '', inScope: true }],
-    }));
+      sites: [...p.sites, { id: newId(), name: '', address: '', inScope: true }] }));
   const removeSite = (id: string) =>
     setScope((p) => ({ ...p, sites: p.sites.filter((s) => s.id !== id) }));
   const updateSite = (id: string, field: string, value: string | boolean) =>
     setScope((p) => ({
       ...p,
-      sites: p.sites.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
-    }));
+      sites: p.sites.map((s) => (s.id === id ? { ...s, [field]: value } : s)) }));
 
   // ── Section nav ──────────────────────────────────────────────────────────
   const sections = [

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { QualityTrendChart, COPQChart } from '@ims/charts';
+import { QualityTrendChart } from '@ims/charts';
 import { DollarSign, AlertOctagon, TrendingUp, Award, Target, BarChart3 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -53,8 +53,7 @@ export default function MetricsPage() {
       prevention: 15000,
       appraisal: 25000,
       internalFailure: 45000,
-      externalFailure: 40000,
-    },
+      externalFailure: 40000 },
     dpmo: 3400,
     sigma: 4.2,
     fpy: 96.5,
@@ -67,8 +66,7 @@ export default function MetricsPage() {
       { month: 'Oct', copq: 128000, dpmo: 3500, fpy: 96.0 },
       { month: 'Nov', copq: 125000, dpmo: 3400, fpy: 96.3 },
       { month: 'Dec', copq: 125000, dpmo: 3400, fpy: 96.5 },
-    ],
-  };
+    ] };
 
   if (loading) {
     return (

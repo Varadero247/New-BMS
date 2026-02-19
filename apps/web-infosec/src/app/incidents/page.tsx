@@ -4,13 +4,10 @@ import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { AlertOctagon, Plus, Search, Shield } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -31,8 +28,7 @@ const severityColors: Record<string, string> = {
   LOW: 'bg-green-100 text-green-700',
   MEDIUM: 'bg-yellow-100 text-yellow-700',
   HIGH: 'bg-orange-100 text-orange-700',
-  CRITICAL: 'bg-red-100 text-red-700',
-};
+  CRITICAL: 'bg-red-100 text-red-700' };
 
 const incidentTypes = [
   'DATA_BREACH',
@@ -68,8 +64,7 @@ export default function IncidentsPage() {
     type: 'DATA_BREACH',
     severity: 'MEDIUM',
     description: '',
-    isGdprBreach: false,
-  });
+    isGdprBreach: false });
 
   useEffect(() => {
     loadIncidents();
@@ -94,8 +89,7 @@ export default function IncidentsPage() {
       type: 'DATA_BREACH',
       severity: 'MEDIUM',
       description: '',
-      isGdprBreach: false,
-    });
+      isGdprBreach: false });
     setModalOpen(true);
   }
 

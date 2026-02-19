@@ -6,11 +6,9 @@ import {
   Search,
   Truck,
   AlertCircle,
-  Clock,
   CheckCircle,
   PlayCircle,
-  Calendar,
-} from 'lucide-react';
+  Calendar } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
@@ -36,16 +34,14 @@ const priorityColors: Record<string, string> = {
   URGENT: 'bg-red-100 text-red-700',
   HIGH: 'bg-orange-100 text-orange-700',
   MEDIUM: 'bg-yellow-100 text-yellow-700',
-  LOW: 'bg-green-100 text-green-700',
-};
+  LOW: 'bg-green-100 text-green-700' };
 
 const statusColors: Record<string, string> = {
   COMPLETED: 'bg-green-100 text-green-700',
   IN_PROGRESS: 'bg-blue-100 text-blue-700',
   SCHEDULED: 'bg-purple-100 text-purple-700',
   PENDING: 'bg-yellow-100 text-yellow-700',
-  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-};
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-600' };
 
 const emptyForm = {
   title: '',
@@ -56,8 +52,7 @@ const emptyForm = {
   priority: 'MEDIUM',
   status: 'SCHEDULED',
   siteAddress: '',
-  estimatedHours: '',
-};
+  estimatedHours: '' };
 
 export default function JobsPage() {
   const [items, setItems] = useState<Job[]>([]);
@@ -100,8 +95,7 @@ export default function JobsPage() {
     scheduled: items.filter((i) => i.status === 'SCHEDULED').length,
     inProgress: items.filter((i) => i.status === 'IN_PROGRESS').length,
     completed: items.filter((i) => i.status === 'COMPLETED').length,
-    urgent: items.filter((i) => i.priority === 'URGENT').length,
-  };
+    urgent: items.filter((i) => i.priority === 'URGENT').length };
 
   const openCreate = () => {
     setEditItem(null);
@@ -120,8 +114,7 @@ export default function JobsPage() {
       priority: item.priority || 'MEDIUM',
       status: item.status || 'SCHEDULED',
       siteAddress: item.siteAddress || '',
-      estimatedHours: item.estimatedHours || '',
-    });
+      estimatedHours: item.estimatedHours || '' });
     setError('');
     setModalOpen(true);
   };
@@ -207,40 +200,35 @@ export default function JobsPage() {
                 icon: Truck,
                 bg: 'bg-sky-50',
                 color: 'text-sky-600',
-                border: 'border-sky-200',
-              },
+                border: 'border-sky-200' },
               {
                 label: 'Scheduled',
                 value: stats.scheduled,
                 icon: Calendar,
                 bg: 'bg-purple-50',
                 color: 'text-purple-600',
-                border: 'border-purple-200',
-              },
+                border: 'border-purple-200' },
               {
                 label: 'In Progress',
                 value: stats.inProgress,
                 icon: PlayCircle,
                 bg: 'bg-blue-50',
                 color: 'text-blue-600',
-                border: 'border-blue-200',
-              },
+                border: 'border-blue-200' },
               {
                 label: 'Completed',
                 value: stats.completed,
                 icon: CheckCircle,
                 bg: 'bg-green-50',
                 color: 'text-green-600',
-                border: 'border-green-200',
-              },
+                border: 'border-green-200' },
               {
                 label: 'Urgent',
                 value: stats.urgent,
                 icon: AlertCircle,
                 bg: 'bg-red-50',
                 color: 'text-red-600',
-                border: 'border-red-200',
-              },
+                border: 'border-red-200' },
             ].map((s) => {
               const Icon = s.icon;
               return (

@@ -14,15 +14,13 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   Lightbulb,
   Search,
   TrendingUp,
   Clock,
-  CheckCircle,
   ArrowRight,
   Brain,
   Loader2,
@@ -30,8 +28,7 @@ import {
   AlertTriangle,
   BarChart3,
   Target,
-  DollarSign,
-} from 'lucide-react';
+  DollarSign } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -130,8 +127,7 @@ const STATUS_ORDER: Record<string, number> = {
   APPROVED: 2,
   IN_PROGRESS: 3,
   IMPLEMENTED: 4,
-  BENEFITS_REALISED: 5,
-};
+  BENEFITS_REALISED: 5 };
 
 const PDCA_STAGES = ['PLAN', 'DO', 'CHECK', 'ACT'] as const;
 
@@ -143,8 +139,7 @@ const statusColors: Record<string, string> = {
   APPROVED: 'bg-indigo-100 text-indigo-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   IMPLEMENTED: 'bg-green-100 text-green-700',
-  BENEFITS_REALISED: 'bg-emerald-100 text-emerald-800',
-};
+  BENEFITS_REALISED: 'bg-emerald-100 text-emerald-800' };
 
 const statusBadgeVariant = (
   status: string
@@ -177,15 +172,13 @@ const categoryColors: Record<string, string> = {
   ENVIRONMENTAL: 'bg-teal-100 text-teal-700',
   INNOVATION: 'bg-indigo-100 text-indigo-700',
   WASTE_REDUCTION: 'bg-orange-100 text-orange-700',
-  TRAINING: 'bg-cyan-100 text-cyan-700',
-};
+  TRAINING: 'bg-cyan-100 text-cyan-700' };
 
 const pdcaColors: Record<string, string> = {
   PLAN: 'bg-blue-600 text-white',
   DO: 'bg-green-600 text-white',
   CHECK: 'bg-amber-500 text-white',
-  ACT: 'bg-red-600 text-white',
-};
+  ACT: 'bg-red-600 text-white' };
 
 function impactColor(level: string): string {
   switch (level) {
@@ -242,8 +235,7 @@ const emptyForm = {
   actualSaving: '' as string,
   qualityImprovement: '',
   lessonsLearned: '',
-  shareAcrossIms: false,
-};
+  shareAcrossIms: false };
 
 // ---------------------------------------------------------------------------
 // Priority Score Calculator
@@ -295,8 +287,7 @@ export default function ImprovementsClient() {
   const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis>({
     loading: false,
     result: null,
-    error: null,
-  });
+    error: null });
 
   // -------------------------------------------------------------------------
   // Data Loading
@@ -337,8 +328,7 @@ export default function ImprovementsClient() {
         priorityScore,
         dateSubmitted: form.dateSubmitted || undefined,
         approvalDate: form.approvalDate || undefined,
-        implementationDate: form.implementationDate || undefined,
-      });
+        implementationDate: form.implementationDate || undefined });
       setShowModal(false);
       setForm(emptyForm);
       setActiveSection('idea');
@@ -377,20 +367,17 @@ export default function ImprovementsClient() {
         estimatedSaving: improvement.estimatedSaving,
         qualityImpact: improvement.qualityImpact,
         customerImpact: improvement.customerImpact,
-        status: improvement.status,
-      });
+        status: improvement.status });
       setAiAnalysis({
         loading: false,
         result: response.data.data?.analysis || 'No analysis available.',
-        error: null,
-      });
+        error: null });
     } catch (err) {
       console.error('AI analysis failed:', err);
       setAiAnalysis({
         loading: false,
         result: null,
-        error: 'AI analysis failed. Please try again.',
-      });
+        error: 'AI analysis failed. Please try again.' });
     }
   }
 
@@ -417,8 +404,7 @@ export default function ImprovementsClient() {
       total: improvements.length,
       underEvaluation: improvements.filter((i) => i.status === 'UNDER_EVALUATION').length,
       inProgress: improvements.filter((i) => i.status === 'IN_PROGRESS').length,
-      benefitsRealised: improvements.filter((i) => i.status === 'BENEFITS_REALISED').length,
-    }),
+      benefitsRealised: improvements.filter((i) => i.status === 'BENEFITS_REALISED').length }),
     [improvements]
   );
 
@@ -432,8 +418,7 @@ export default function ImprovementsClient() {
       return new Date(dateStr).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
-        year: 'numeric',
-      });
+        year: 'numeric' });
     } catch {
       return '-';
     }
@@ -444,8 +429,7 @@ export default function ImprovementsClient() {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
       currency: 'GBP',
-      maximumFractionDigits: 0,
-    }).format(val);
+      maximumFractionDigits: 0 }).format(val);
   }
 
   // Priority score computed live

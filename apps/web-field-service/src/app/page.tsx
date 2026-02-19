@@ -10,10 +10,7 @@ import {
   FileText,
   ScrollText,
   Package,
-  Clock,
-  BarChart3,
-  ClipboardCheck,
-} from 'lucide-react';
+  Clock } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
@@ -35,64 +32,56 @@ const kpis = [
     icon: Truck,
     color: 'text-sky-600',
     bg: 'bg-sky-50 dark:bg-sky-900',
-    href: '/jobs',
-  },
+    href: '/jobs' },
   {
     key: 'activeTechnicians',
     label: 'Active Technicians',
     icon: Users,
     color: 'text-blue-600',
     bg: 'bg-blue-50 dark:bg-blue-900',
-    href: '/technicians',
-  },
+    href: '/technicians' },
   {
     key: 'openRoutes',
     label: 'Open Routes',
     icon: Route,
     color: 'text-indigo-600',
     bg: 'bg-indigo-50 dark:bg-indigo-900',
-    href: '/routes',
-  },
+    href: '/routes' },
   {
     key: 'scheduledToday',
     label: 'Scheduled Today',
     icon: Calendar,
     color: 'text-violet-600',
     bg: 'bg-violet-50 dark:bg-violet-900',
-    href: '/schedules',
-  },
+    href: '/schedules' },
   {
     key: 'pendingInvoices',
     label: 'Pending Invoices',
     icon: FileText,
     color: 'text-amber-600',
     bg: 'bg-amber-50 dark:bg-amber-900',
-    href: '/invoices',
-  },
+    href: '/invoices' },
   {
     key: 'activeContracts',
     label: 'Active Contracts',
     icon: ScrollText,
     color: 'text-emerald-600',
     bg: 'bg-emerald-50 dark:bg-emerald-900',
-    href: '/contracts',
-  },
+    href: '/contracts' },
   {
     key: 'partsUsed',
     label: 'Parts Used (MTD)',
     icon: Package,
     color: 'text-orange-600',
     bg: 'bg-orange-50 dark:bg-orange-900',
-    href: '/parts-used',
-  },
+    href: '/parts-used' },
   {
     key: 'hoursLogged',
     label: 'Hours Logged (MTD)',
     icon: Clock,
     color: 'text-rose-600',
     bg: 'bg-rose-50 dark:bg-rose-900',
-    href: '/time-entries',
-  },
+    href: '/time-entries' },
 ];
 
 export default function DashboardPage() {

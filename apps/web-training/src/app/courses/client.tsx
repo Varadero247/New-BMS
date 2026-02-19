@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   Modal,
   ModalFooter,
   Input,
@@ -17,8 +16,7 @@ import {
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import { Plus, BookOpen, Loader2, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -84,8 +82,7 @@ const emptyForm: CourseForm = {
   maxParticipants: '',
   prerequisites: '',
   objectives: '',
-  isActive: true,
-};
+  isActive: true };
 
 export default function CoursesClient() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -133,8 +130,7 @@ export default function CoursesClient() {
       maxParticipants: course.maxParticipants !== null ? String(course.maxParticipants) : '',
       prerequisites: course.prerequisites || '',
       objectives: course.objectives || '',
-      isActive: course.isActive !== false,
-    });
+      isActive: course.isActive !== false });
     setEditId(course.id);
     setModalOpen(true);
   }
@@ -148,8 +144,7 @@ export default function CoursesClient() {
         duration: form.duration ? parseInt(form.duration) : undefined,
         validityMonths: form.validityMonths ? parseInt(form.validityMonths) : undefined,
         cost: form.cost ? parseFloat(form.cost) : undefined,
-        maxParticipants: form.maxParticipants ? parseInt(form.maxParticipants) : undefined,
-      };
+        maxParticipants: form.maxParticipants ? parseInt(form.maxParticipants) : undefined };
       if (editId) {
         await api.put(`/courses/${editId}`, payload);
       } else {

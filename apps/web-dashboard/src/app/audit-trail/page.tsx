@@ -4,14 +4,12 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import {
   Search,
-  Filter,
   Download,
   ClipboardList,
   User,
   Clock,
   ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
 
@@ -39,8 +37,7 @@ const MODULE_COLORS: Record<string, string> = {
   Finance: 'bg-lime-100 text-lime-700',
   HR: 'bg-orange-100 text-orange-700',
   CRM: 'bg-pink-100 text-pink-700',
-  Gateway: 'bg-indigo-100 text-indigo-700',
-};
+  Gateway: 'bg-indigo-100 text-indigo-700' };
 
 const ACTION_COLORS: Record<string, string> = {
   CREATE: 'bg-green-100 text-green-700',
@@ -51,8 +48,7 @@ const ACTION_COLORS: Record<string, string> = {
   APPROVE: 'bg-emerald-100 text-emerald-700',
   REJECT: 'bg-red-100 text-red-700',
   EXPORT: 'bg-amber-100 text-amber-700',
-  VIEW: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
-};
+  VIEW: 'bg-gray-100 dark:bg-gray-800 text-gray-500' };
 
 const MOCK_ENTRIES: AuditEntry[] = [
   {
@@ -65,8 +61,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Alice Johnson',
     ipAddress: '192.168.1.14',
     module: 'Quality',
-    createdAt: new Date(Date.now() - 5 * 60000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 5 * 60000).toISOString() },
   {
     id: '2',
     action: 'UPDATE',
@@ -77,8 +72,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Bob Smith',
     ipAddress: '10.0.1.22',
     module: 'H&S',
-    createdAt: new Date(Date.now() - 22 * 60000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 22 * 60000).toISOString() },
   {
     id: '3',
     action: 'LOGIN',
@@ -89,8 +83,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Admin User',
     ipAddress: '127.0.0.1',
     module: 'Auth',
-    createdAt: new Date(Date.now() - 45 * 60000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 45 * 60000).toISOString() },
   {
     id: '4',
     action: 'APPROVE',
@@ -101,8 +94,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Carol Davis',
     ipAddress: '192.168.1.7',
     module: 'Quality',
-    createdAt: new Date(Date.now() - 90 * 60000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 90 * 60000).toISOString() },
   {
     id: '5',
     action: 'CREATE',
@@ -113,8 +105,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Eve Green',
     ipAddress: '192.168.1.9',
     module: 'Environmental',
-    createdAt: new Date(Date.now() - 2 * 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 2 * 3600000).toISOString() },
   {
     id: '6',
     action: 'UPDATE',
@@ -125,8 +116,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Frank Security',
     ipAddress: '10.0.2.5',
     module: 'InfoSec',
-    createdAt: new Date(Date.now() - 3 * 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 3 * 3600000).toISOString() },
   {
     id: '7',
     action: 'EXPORT',
@@ -137,8 +127,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Alice Johnson',
     ipAddress: '192.168.1.14',
     module: 'Quality',
-    createdAt: new Date(Date.now() - 5 * 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 5 * 3600000).toISOString() },
   {
     id: '8',
     action: 'DELETE',
@@ -149,8 +138,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'George Admin',
     ipAddress: '192.168.1.1',
     module: 'Gateway',
-    createdAt: new Date(Date.now() - 6 * 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 6 * 3600000).toISOString() },
   {
     id: '9',
     action: 'CREATE',
@@ -161,8 +149,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Heidi Maint',
     ipAddress: '10.0.3.12',
     module: 'CMMS',
-    createdAt: new Date(Date.now() - 8 * 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 8 * 3600000).toISOString() },
   {
     id: '10',
     action: 'UPDATE',
@@ -173,8 +160,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Ivan HR',
     ipAddress: '192.168.2.3',
     module: 'HR',
-    createdAt: new Date(Date.now() - 10 * 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 10 * 3600000).toISOString() },
   {
     id: '11',
     action: 'APPROVE',
@@ -185,8 +171,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Jane Finance',
     ipAddress: '10.0.1.50',
     module: 'Finance',
-    createdAt: new Date(Date.now() - 12 * 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 12 * 3600000).toISOString() },
   {
     id: '12',
     action: 'CREATE',
@@ -197,8 +182,7 @@ const MOCK_ENTRIES: AuditEntry[] = [
     userName: 'Karl Sales',
     ipAddress: '192.168.1.30',
     module: 'CRM',
-    createdAt: new Date(Date.now() - 14 * 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 14 * 3600000).toISOString() },
 ];
 
 function timeAgo(dateStr: string): string {
@@ -293,14 +277,12 @@ export default function AuditTrailPage() {
                 value: entries.filter(
                   (e) => new Date(e.createdAt).toDateString() === new Date().toDateString()
                 ).length,
-                color: 'bg-green-50 text-green-700',
-              },
+                color: 'bg-green-50 text-green-700' },
               { label: 'Modules', value: modules.length, color: 'bg-purple-50 text-purple-700' },
               {
                 label: 'Unique Users',
                 value: new Set(entries.map((e) => e.userId)).size,
-                color: 'bg-amber-50 text-amber-700',
-              },
+                color: 'bg-amber-50 text-amber-700' },
             ].map((stat) => (
               <div key={stat.label} className={`rounded-lg p-4 ${stat.color}`}>
                 <p className="text-2xl font-bold">{stat.value}</p>

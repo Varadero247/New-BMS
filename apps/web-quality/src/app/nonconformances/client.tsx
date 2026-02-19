@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -14,8 +12,7 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   AlertOctagon,
@@ -25,11 +22,8 @@ import {
   AlertCircle,
   Clock,
   CheckCircle,
-  Shield,
   ChevronDown,
-  ChevronUp,
-  XCircle,
-} from 'lucide-react';
+  ChevronUp } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -216,8 +210,7 @@ const emptyForm: FormData = {
   correctiveActions: '',
   preventiveActions: '',
   recurrencePrevention: '',
-  lessonsLearned: '',
-};
+  lessonsLearned: '' };
 
 function getBadge(
   value: string,
@@ -305,8 +298,7 @@ export default function NonConformancesClient() {
       correctiveActions: r.correctiveActions || '',
       preventiveActions: r.preventiveActions || '',
       recurrencePrevention: r.recurrencePrevention || '',
-      lessonsLearned: r.lessonsLearned || '',
-    });
+      lessonsLearned: r.lessonsLearned || '' });
     setModalOpen(true);
   };
 
@@ -315,8 +307,7 @@ export default function NonConformancesClient() {
       setSubmitting(true);
       const payload: any = {
         ...form,
-        quantityAffected: form.quantityAffected ? Number(form.quantityAffected) : undefined,
-      };
+        quantityAffected: form.quantityAffected ? Number(form.quantityAffected) : undefined };
       if (!payload.isoClause) delete payload.isoClause;
       if (!payload.rcaMethod) delete payload.rcaMethod;
       if (!payload.rootCauseCategory) delete payload.rootCauseCategory;
@@ -350,8 +341,7 @@ export default function NonConformancesClient() {
     total: records.length,
     open: records.filter((r) => r.status !== 'CLOSED').length,
     critical: records.filter((r) => r.severity === 'CRITICAL' || r.severity === 'MAJOR').length,
-    closed: records.filter((r) => r.status === 'CLOSED').length,
-  };
+    closed: records.filter((r) => r.status === 'CLOSED').length };
 
   return (
     <div className="p-6 space-y-6">

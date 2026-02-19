@@ -12,7 +12,6 @@ import {
   Send,
   CheckCircle2,
   BookOpen,
-  ChevronRight,
   Clock,
   Users,
   UserCheck,
@@ -22,9 +21,7 @@ import {
   Scale,
   Search,
   GitBranch,
-  History,
-  X,
-} from 'lucide-react';
+  History } from 'lucide-react';
 
 interface Policy {
   id: string;
@@ -76,8 +73,7 @@ const emptySections: PolicySections = {
   dataGovernance: '',
   oversightRules: '',
   incidentProcedure: '',
-  reviewSchedule: '',
-};
+  reviewSchedule: '' };
 
 const sectionMeta: {
   key: keyof PolicySections;
@@ -90,57 +86,49 @@ const sectionMeta: {
     label: 'Policy Statement',
     icon: FileText,
     placeholder:
-      "Define the organisation's commitment to responsible AI development and deployment in accordance with ISO 42001:2023...",
-  },
+      "Define the organisation's commitment to responsible AI development and deployment in accordance with ISO 42001:2023..." },
   {
     key: 'scope',
     label: 'Scope',
     icon: Search,
     placeholder:
-      'Define which AI systems, processes, and organisational units this policy covers...',
-  },
+      'Define which AI systems, processes, and organisational units this policy covers...' },
   {
     key: 'approvedUses',
     label: 'Approved Uses',
     icon: CheckCircle2,
     placeholder:
-      'List approved use cases: document classification, risk scoring, anomaly detection, predictive analytics...',
-  },
+      'List approved use cases: document classification, risk scoring, anomaly detection, predictive analytics...' },
   {
     key: 'prohibitedUses',
     label: 'Prohibited Uses',
     icon: AlertTriangle,
     placeholder:
-      'List prohibited applications: autonomous decision-making without human oversight, social scoring, mass surveillance...',
-  },
+      'List prohibited applications: autonomous decision-making without human oversight, social scoring, mass surveillance...' },
   {
     key: 'dataGovernance',
     label: 'Data Governance',
     icon: Lock,
     placeholder:
-      'Define data quality requirements, retention periods, consent management, anonymisation standards...',
-  },
+      'Define data quality requirements, retention periods, consent management, anonymisation standards...' },
   {
     key: 'oversightRules',
     label: 'Human Oversight Rules',
     icon: Users,
     placeholder:
-      'Specify human-in-the-loop requirements, escalation thresholds, review frequencies, override procedures...',
-  },
+      'Specify human-in-the-loop requirements, escalation thresholds, review frequencies, override procedures...' },
   {
     key: 'incidentProcedure',
     label: 'Incident Procedure',
     icon: Shield,
     placeholder:
-      'Define AI incident reporting process: detection, classification, investigation, remediation, communication...',
-  },
+      'Define AI incident reporting process: detection, classification, investigation, remediation, communication...' },
   {
     key: 'reviewSchedule',
     label: 'Review Schedule',
     icon: Clock,
     placeholder:
-      'Specify review frequency (e.g. quarterly), review board membership, criteria for ad-hoc reviews...',
-  },
+      'Specify review frequency (e.g. quarterly), review board membership, criteria for ad-hoc reviews...' },
 ];
 
 const policyTypeOptions = [
@@ -164,8 +152,7 @@ const policyTypeLabels: Record<string, string> = {
   RISK_MANAGEMENT: 'Risk Management',
   SECURITY: 'Security',
   PRIVACY: 'Privacy',
-  OTHER: 'Other',
-};
+  OTHER: 'Other' };
 
 const policyTypeColors: Record<
   string,
@@ -175,57 +162,47 @@ const policyTypeColors: Record<
     bg: 'bg-purple-100',
     text: 'text-purple-700',
     darkBg: 'dark:bg-purple-900/30',
-    darkText: 'dark:text-purple-300',
-  },
+    darkText: 'dark:text-purple-300' },
   AI_GOVERNANCE: {
     bg: 'bg-indigo-100',
     text: 'text-indigo-700',
     darkBg: 'dark:bg-indigo-900/30',
-    darkText: 'dark:text-indigo-300',
-  },
+    darkText: 'dark:text-indigo-300' },
   HUMAN_OVERSIGHT: {
     bg: 'bg-blue-100',
     text: 'text-blue-700',
     darkBg: 'dark:bg-blue-900/30',
-    darkText: 'dark:text-blue-300',
-  },
+    darkText: 'dark:text-blue-300' },
   DATA_GOVERNANCE: {
     bg: 'bg-emerald-100',
     text: 'text-emerald-700',
     darkBg: 'dark:bg-emerald-900/30',
-    darkText: 'dark:text-emerald-300',
-  },
+    darkText: 'dark:text-emerald-300' },
   TRANSPARENCY: {
     bg: 'bg-cyan-100',
     text: 'text-cyan-700',
     darkBg: 'dark:bg-cyan-900/30',
-    darkText: 'dark:text-cyan-300',
-  },
+    darkText: 'dark:text-cyan-300' },
   RISK_MANAGEMENT: {
     bg: 'bg-red-100',
     text: 'text-red-700',
     darkBg: 'dark:bg-red-900/30',
-    darkText: 'dark:text-red-300',
-  },
+    darkText: 'dark:text-red-300' },
   SECURITY: {
     bg: 'bg-orange-100',
     text: 'text-orange-700',
     darkBg: 'dark:bg-orange-900/30',
-    darkText: 'dark:text-orange-300',
-  },
+    darkText: 'dark:text-orange-300' },
   PRIVACY: {
     bg: 'bg-pink-100',
     text: 'text-pink-700',
     darkBg: 'dark:bg-pink-900/30',
-    darkText: 'dark:text-pink-300',
-  },
+    darkText: 'dark:text-pink-300' },
   OTHER: {
     bg: 'bg-gray-100 dark:bg-gray-800',
     text: 'text-gray-700 dark:text-gray-300',
     darkBg: 'dark:bg-gray-700',
-    darkText: 'dark:text-gray-300',
-  },
-};
+    darkText: 'dark:text-gray-300' } };
 
 const statusOptions = ['DRAFT', 'UNDER_REVIEW', 'APPROVED', 'PUBLISHED', 'ARCHIVED'];
 
@@ -235,16 +212,14 @@ const statusColors: Record<string, string> = {
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
   APPROVED: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   PUBLISHED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-  ARCHIVED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-};
+  ARCHIVED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' };
 
 const workflowSteps = [
   { status: 'DRAFT', label: 'Draft', description: 'Initial draft being prepared' },
   {
     status: 'UNDER_REVIEW',
     label: 'Under Review',
-    description: 'Submitted for stakeholder review',
-  },
+    description: 'Submitted for stakeholder review' },
   { status: 'APPROVED', label: 'Approved', description: 'Approved by designated authority' },
   { status: 'PUBLISHED', label: 'Published', description: 'Published and in effect' },
 ];
@@ -256,28 +231,24 @@ function mockAcknowledgements(): Acknowledgement[] {
       userId: '1',
       userName: 'Sarah Chen',
       role: 'AI Governance Lead',
-      acknowledgedAt: '2026-02-10T09:30:00Z',
-    },
+      acknowledgedAt: '2026-02-10T09:30:00Z' },
     {
       userId: '2',
       userName: 'James Mitchell',
       role: 'CTO',
-      acknowledgedAt: '2026-02-11T14:15:00Z',
-    },
+      acknowledgedAt: '2026-02-11T14:15:00Z' },
     {
       userId: '3',
       userName: 'Priya Patel',
       role: 'Data Protection Officer',
-      acknowledgedAt: '2026-02-12T11:00:00Z',
-    },
+      acknowledgedAt: '2026-02-12T11:00:00Z' },
     { userId: '4', userName: 'Marcus Johnson', role: 'ML Engineering Lead', acknowledgedAt: null },
     { userId: '5', userName: 'Elena Rodriguez', role: 'Legal Counsel', acknowledgedAt: null },
     {
       userId: '6',
       userName: 'David Kim',
       role: 'Risk Manager',
-      acknowledgedAt: '2026-02-13T08:45:00Z',
-    },
+      acknowledgedAt: '2026-02-13T08:45:00Z' },
   ];
 }
 
@@ -294,8 +265,7 @@ function mockVersionHistory(currentVersion: string): VersionEntry[] {
         summary:
           mn === 0
             ? `Major revision ${mj}.0 - restructured policy sections`
-            : `Minor update ${mj}.${mn} - clarifications and corrections`,
-      });
+            : `Minor update ${mj}.${mn} - clarifications and corrections` });
     }
   }
   return entries.reverse();
@@ -325,8 +295,7 @@ export default function PoliciesPage() {
     status: 'DRAFT',
     version: '1.0',
     content: '',
-    sections: { ...emptySections },
-  });
+    sections: { ...emptySections } });
 
   useEffect(() => {
     loadPolicies();
@@ -340,8 +309,7 @@ export default function PoliciesPage() {
         ...p,
         sections: p.sections || { ...emptySections },
         acknowledgements: mockAcknowledgements(),
-        versionHistory: mockVersionHistory(p.version || '1.0'),
-      }));
+        versionHistory: mockVersionHistory(p.version || '1.0') }));
       setPolicies(data);
     } catch (err) {
       console.error('Error loading policies:', err);
@@ -360,8 +328,7 @@ export default function PoliciesPage() {
       status: 'DRAFT',
       version: '1.0',
       content: '',
-      sections: { ...emptySections },
-    });
+      sections: { ...emptySections } });
     setActiveSection(0);
     setModalOpen(true);
   }
@@ -375,8 +342,7 @@ export default function PoliciesPage() {
       status: policy.status,
       version: policy.version,
       content: policy.content || '',
-      sections: policy.sections || { ...emptySections },
-    });
+      sections: policy.sections || { ...emptySections } });
     setActiveSection(0);
     setModalOpen(true);
   }
@@ -392,8 +358,7 @@ export default function PoliciesPage() {
     try {
       const payload = {
         ...form,
-        content: JSON.stringify(form.sections),
-      };
+        content: JSON.stringify(form.sections) };
       if (editingPolicy) {
         await api.put(`/policies/${editingPolicy.id}`, payload);
       } else {
@@ -896,8 +861,7 @@ export default function PoliciesPage() {
                           <div
                             className="h-full bg-green-500 rounded-full transition-all"
                             style={{
-                              width: `${acks.length > 0 ? (ackDone / acks.length) * 100 : 0}%`,
-                            }}
+                              width: `${acks.length > 0 ? (ackDone / acks.length) * 100 : 0}%` }}
                           />
                         </div>
                       </div>
@@ -1158,8 +1122,7 @@ export default function PoliciesPage() {
                   const key = sectionMeta[activeSection].key;
                   setForm({
                     ...form,
-                    sections: { ...form.sections, [key]: e.target.value },
-                  });
+                    sections: { ...form.sections, [key]: e.target.value } });
                 }}
                 className="w-full px-3 py-2 border border-border bg-card text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                 rows={6}

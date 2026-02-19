@@ -4,12 +4,10 @@ import { useState } from 'react';
 import {
   Search,
   CheckCircle,
-  Clock,
   AlertTriangle,
   Users,
   ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 
 interface ValidationActivity {
   id: string;
@@ -48,8 +46,7 @@ const activities: ValidationActivity[] = [
     findings: 2,
     owner: 'Dr. Sarah Chen',
     summary:
-      'Study completed with 120 patients across 4 clinical sites. Primary endpoint met. Two minor usability findings noted and addressed in labelling update.',
-  },
+      'Study completed with 120 patients across 4 clinical sites. Primary endpoint met. Two minor usability findings noted and addressed in labelling update.' },
   {
     id: '2',
     validationId: 'VAL-CMX3-002',
@@ -64,8 +61,7 @@ const activities: ValidationActivity[] = [
     findings: 1,
     owner: 'L. Park',
     summary:
-      'Summative usability test with 15 representative users (nurses, cardiologists). No use errors leading to harm. One close call identified — mitigated by label update.',
-  },
+      'Summative usability test with 15 representative users (nurses, cardiologists). No use errors leading to harm. One close call identified — mitigated by label update.' },
   {
     id: '3',
     validationId: 'VAL-NSV2-001',
@@ -80,8 +76,7 @@ const activities: ValidationActivity[] = [
     findings: 0,
     owner: 'L. Park',
     summary:
-      'Second round of formative testing focusing on revised programming interface. 8 of 12 sessions completed.',
-  },
+      'Second round of formative testing focusing on revised programming interface. 8 of 12 sessions completed.' },
   {
     id: '4',
     validationId: 'VAL-NSV2-002',
@@ -96,8 +91,7 @@ const activities: ValidationActivity[] = [
     findings: 0,
     owner: 'J. Wilson',
     summary:
-      'Full system-level software validation including fault injection, boundary conditions, and timing analysis. Protocol approved — execution pending.',
-  },
+      'Full system-level software validation including fault injection, boundary conditions, and timing analysis. Protocol approved — execution pending.' },
   {
     id: '5',
     validationId: 'VAL-OFK-001',
@@ -112,8 +106,7 @@ const activities: ValidationActivity[] = [
     findings: 0,
     owner: 'Dr. M. Zhang',
     summary:
-      'IQ/OQ/PQ completed for EtO sterilization cycle. Bioburden and sterility testing confirmed SAL of 10^-6. All acceptance criteria met.',
-  },
+      'IQ/OQ/PQ completed for EtO sterilization cycle. Bioburden and sterility testing confirmed SAL of 10^-6. All acceptance criteria met.' },
   {
     id: '6',
     validationId: 'VAL-SVE-001',
@@ -128,8 +121,7 @@ const activities: ValidationActivity[] = [
     findings: 1,
     owner: 'R. Kim',
     summary:
-      'Distribution simulation testing complete. One minor finding: inner tray dislodged during vibration test. Corrective action implemented, re-test passed.',
-  },
+      'Distribution simulation testing complete. One minor finding: inner tray dislodged during vibration test. Corrective action implemented, re-test passed.' },
   {
     id: '7',
     validationId: 'VAL-DSP-001',
@@ -144,8 +136,7 @@ const activities: ValidationActivity[] = [
     findings: 0,
     owner: 'E. Rodriguez',
     summary:
-      'Accelerated ageing study at 55°C/75% RH to demonstrate 3-year shelf life. Protocol in draft — awaiting review.',
-  },
+      'Accelerated ageing study at 55°C/75% RH to demonstrate 3-year shelf life. Protocol in draft — awaiting review.' },
 ];
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -153,8 +144,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   'protocol-approved': { label: 'Protocol Approved', color: 'bg-blue-100 text-blue-700' },
   'in-execution': { label: 'In Execution', color: 'bg-amber-100 text-amber-700' },
   'report-draft': { label: 'Report Draft', color: 'bg-purple-100 text-purple-700' },
-  completed: { label: 'Completed', color: 'bg-emerald-100 text-emerald-700' },
-};
+  completed: { label: 'Completed', color: 'bg-emerald-100 text-emerald-700' } };
 
 const typeLabels: Record<string, string> = {
   'clinical-evaluation': 'Clinical Evaluation',
@@ -162,8 +152,7 @@ const typeLabels: Record<string, string> = {
   'process-validation': 'Process Validation',
   'software-validation': 'Software Validation',
   packaging: 'Packaging',
-  'shelf-life': 'Shelf Life',
-};
+  'shelf-life': 'Shelf Life' };
 
 export default function ValidationClient() {
   const [search, setSearch] = useState('');

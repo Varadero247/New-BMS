@@ -22,13 +22,6 @@ const createSchema = z.object({
 });
 const updateSchema = createSchema.partial();
 
-async function generateRef(orgId: string): Promise<string> {
-  const y = new Date().getFullYear();
-  const c = await prisma.trainMatrix.count({
-    where: { orgId, referenceNumber: { startsWith: `MTX-${y}` } } as any,
-  });
-  return `MTX-${y}-${String(c + 1).padStart(4, '0')}`;
-}
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';

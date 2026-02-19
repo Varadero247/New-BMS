@@ -7,7 +7,7 @@ import { Channel, Notification, NotificationChannel } from './types';
 export class InAppChannel implements Channel {
   type: NotificationChannel = 'in_app';
 
-  async send(notification: Notification): Promise<boolean> {
+  async send(_notification: Notification): Promise<boolean> {
     // In production, this would write to the notifications table
     // For now, return success
     return true;
@@ -21,7 +21,7 @@ export class InAppChannel implements Channel {
 export class EmailChannel implements Channel {
   type: NotificationChannel = 'email';
 
-  async send(notification: Notification): Promise<boolean> {
+  async send(_notification: Notification): Promise<boolean> {
     // In production, this would use nodemailer, SendGrid, etc.
     // For now, return success
     return true;
@@ -35,7 +35,7 @@ export class EmailChannel implements Channel {
 export class PushChannel implements Channel {
   type: NotificationChannel = 'push';
 
-  async send(notification: Notification): Promise<boolean> {
+  async send(_notification: Notification): Promise<boolean> {
     // In production, this would use Firebase Cloud Messaging, APNs, etc.
     // For now, return success
     return true;
@@ -49,7 +49,7 @@ export class PushChannel implements Channel {
 export class SmsChannel implements Channel {
   type: NotificationChannel = 'sms';
 
-  async send(notification: Notification): Promise<boolean> {
+  async send(_notification: Notification): Promise<boolean> {
     // In production, this would use Twilio, AWS SNS, etc.
     // For now, return success
     return true;

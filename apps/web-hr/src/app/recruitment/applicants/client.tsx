@@ -9,11 +9,7 @@ import {
   Phone,
   Calendar,
   ChevronDown,
-  ChevronRight,
-  CheckCircle,
-  XCircle,
-  Clock,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 
 interface Applicant {
   id: string;
@@ -41,8 +37,7 @@ const applicants: Applicant[] = [
     appliedDate: '2026-01-22',
     source: 'LinkedIn',
     experience: '7 years in medical device quality, ISO 13485 Lead Auditor',
-    notes: 'Strong technical background. Second interview scheduled with Dr. Chen.',
-  },
+    notes: 'Strong technical background. Second interview scheduled with Dr. Chen.' },
   {
     id: '2',
     name: 'Priya Sharma',
@@ -54,8 +49,7 @@ const applicants: Applicant[] = [
     appliedDate: '2026-01-25',
     source: 'Referral',
     experience: '9 years quality engineering, CAPA expertise, Six Sigma Black Belt',
-    notes: 'Excellent candidate. Verbal offer accepted, written offer pending.',
-  },
+    notes: 'Excellent candidate. Verbal offer accepted, written offer pending.' },
   {
     id: '3',
     name: 'Marcus Johnson',
@@ -67,8 +61,7 @@ const applicants: Applicant[] = [
     appliedDate: '2026-02-06',
     source: 'Indeed',
     experience: '6 years full-stack, React/Next.js specialist, PostgreSQL',
-    notes: 'Portfolio review impressive. Technical test scores: 92%.',
-  },
+    notes: 'Portfolio review impressive. Technical test scores: 92%.' },
   {
     id: '4',
     name: "Emma O'Brien",
@@ -80,8 +73,7 @@ const applicants: Applicant[] = [
     appliedDate: '2026-02-03',
     source: 'Website',
     experience: '4 years EHS, NEBOSH General Certificate, ISO 14001 experience',
-    notes: 'Meets minimum requirements. Phone screen scheduled.',
-  },
+    notes: 'Meets minimum requirements. Phone screen scheduled.' },
   {
     id: '5',
     name: 'David Lee',
@@ -93,8 +85,7 @@ const applicants: Applicant[] = [
     appliedDate: '2026-02-07',
     source: 'LinkedIn',
     experience: '3 years frontend only, no backend experience',
-    notes: 'Insufficient backend experience for the role.',
-  },
+    notes: 'Insufficient backend experience for the role.' },
   {
     id: '6',
     name: 'Fatima Al-Hassan',
@@ -106,8 +97,7 @@ const applicants: Applicant[] = [
     appliedDate: '2026-02-11',
     source: 'Website',
     experience: 'CISSP certified, 5 years SOC analyst, ISO 27001 experience',
-    notes: 'New application — awaiting initial review.',
-  },
+    notes: 'New application — awaiting initial review.' },
   {
     id: '7',
     name: 'Tom Roberts',
@@ -119,8 +109,7 @@ const applicants: Applicant[] = [
     appliedDate: '2026-02-06',
     source: 'GitHub',
     experience: '8 years full-stack, contributed to open-source IMS tools, TypeScript expert',
-    notes: 'Outstanding technical skills. Culture fit interview with team lead.',
-  },
+    notes: 'Outstanding technical skills. Culture fit interview with team lead.' },
   {
     id: '8',
     name: 'Sarah Mitchell',
@@ -132,8 +121,7 @@ const applicants: Applicant[] = [
     appliedDate: '2026-02-10',
     source: 'University',
     experience: 'Final year Supply Chain BSc, placement at Medtronic',
-    notes: 'Start date: 2026-03-03. Induction scheduled.',
-  },
+    notes: 'Start date: 2026-03-03. Induction scheduled.' },
 ];
 
 const stageConfig: Record<string, { label: string; color: string; step: number }> = {
@@ -143,8 +131,7 @@ const stageConfig: Record<string, { label: string; color: string; step: number }
   'interview-2': { label: 'Interview 2', color: 'bg-purple-100 text-purple-700', step: 4 },
   offer: { label: 'Offer', color: 'bg-amber-100 text-amber-700', step: 5 },
   hired: { label: 'Hired', color: 'bg-emerald-100 text-emerald-700', step: 6 },
-  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-600', step: 0 },
-};
+  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-600', step: 0 } };
 
 const stages = ['Applied', 'Screening', 'Interview 1', 'Interview 2', 'Offer', 'Hired'];
 
@@ -217,7 +204,7 @@ export default function ApplicantsClient() {
           Pipeline Stages
         </p>
         <div className="flex items-center gap-1">
-          {stages.map((stage, i) => {
+          {stages.map((stage, _i) => {
             const stageKey =
               Object.keys(stageConfig).find((k) => stageConfig[k].label === stage) || '';
             const count = applicants.filter((a) => a.stage === stageKey).length;

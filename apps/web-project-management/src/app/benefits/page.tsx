@@ -6,11 +6,9 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { Plus, Search, TrendingUp, Edit, Trash2, DollarSign } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -37,16 +35,14 @@ const categoryColors: Record<string, string> = {
   STRATEGIC: 'bg-blue-100 text-blue-700',
   OPERATIONAL: 'bg-purple-100 text-purple-700',
   CUSTOMER: 'bg-orange-100 text-orange-700',
-  RISK_REDUCTION: 'bg-red-100 text-red-700',
-};
+  RISK_REDUCTION: 'bg-red-100 text-red-700' };
 
 const statusColors: Record<string, string> = {
   PLANNED: 'bg-blue-100 text-blue-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   REALISED: 'bg-green-100 text-green-700',
   NOT_REALISED: 'bg-red-100 text-red-700',
-  DEFERRED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-};
+  DEFERRED: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
 
 const initialForm = {
   title: '',
@@ -57,8 +53,7 @@ const initialForm = {
   currency: 'USD',
   realizationDate: '',
   responsible: '',
-  status: 'PLANNED',
-};
+  status: 'PLANNED' };
 
 export default function BenefitsPage() {
   const [items, setItems] = useState<Benefit[]>([]);
@@ -104,8 +99,7 @@ export default function BenefitsPage() {
       currency: b.currency || 'USD',
       realizationDate: b.realizationDate ? b.realizationDate.split('T')[0] : '',
       responsible: b.responsible || '',
-      status: b.status,
-    });
+      status: b.status });
     setFormError('');
     setModalOpen(true);
   }
@@ -167,8 +161,7 @@ export default function BenefitsPage() {
       return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency,
-        maximumFractionDigits: 0,
-      }).format(val);
+        maximumFractionDigits: 0 }).format(val);
     } catch {
       return `${currency} ${val.toLocaleString()}`;
     }

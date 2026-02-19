@@ -13,9 +13,8 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
-import { Leaf, Target, TrendingDown, Droplets, Trash2, Zap, Plus, BarChart3 } from 'lucide-react';
+  Textarea } from '@ims/ui';
+import { Target, TrendingDown, Droplets, Trash2, Zap, Plus, BarChart3 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ============================================
@@ -89,8 +88,7 @@ const STATUS_COLORS: Record<string, string> = {
   AT_RISK: 'bg-yellow-100 text-yellow-800',
   OFF_TRACK: 'bg-red-100 text-red-800',
   ACHIEVED: 'bg-blue-100 text-blue-800',
-  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-};
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-600' };
 
 const CATEGORY_COLORS: Record<string, string> = {
   GHG_SCOPE_1: 'bg-red-100 text-red-800',
@@ -101,8 +99,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   WASTE: 'bg-purple-100 text-purple-800',
   BIODIVERSITY: 'bg-green-100 text-green-800',
   SOCIAL: 'bg-pink-100 text-pink-800',
-  GOVERNANCE: 'bg-indigo-100 text-indigo-800',
-};
+  GOVERNANCE: 'bg-indigo-100 text-indigo-800' };
 
 // ============================================
 // Component
@@ -127,8 +124,7 @@ export default function ESGDashboardClient() {
     targetValue: '',
     targetYear: String(new Date().getFullYear() + 5),
     unit: 'tCO2e',
-    notes: '',
-  });
+    notes: '' });
 
   // Metric modal
   const [showMetricModal, setShowMetricModal] = useState(false);
@@ -139,8 +135,7 @@ export default function ESGDashboardClient() {
     value: '',
     unit: 'tCO2e',
     source: '',
-    notes: '',
-  });
+    notes: '' });
 
   // Filter state
   const [filterCategory, setFilterCategory] = useState('');
@@ -207,8 +202,7 @@ export default function ESGDashboardClient() {
         baselineValue: parseFloat(targetForm.baselineValue),
         baselineYear: parseInt(targetForm.baselineYear, 10),
         targetValue: parseFloat(targetForm.targetValue),
-        targetYear: parseInt(targetForm.targetYear, 10),
-      });
+        targetYear: parseInt(targetForm.targetYear, 10) });
       setShowTargetModal(false);
       setTargetForm({
         category: 'GHG_SCOPE_1',
@@ -219,8 +213,7 @@ export default function ESGDashboardClient() {
         targetValue: '',
         targetYear: String(new Date().getFullYear() + 5),
         unit: 'tCO2e',
-        notes: '',
-      });
+        notes: '' });
       fetchTargets();
       fetchSummary();
     } catch (err) {
@@ -232,8 +225,7 @@ export default function ESGDashboardClient() {
     try {
       await api.post('/esg/metrics', {
         ...metricForm,
-        value: parseFloat(metricForm.value),
-      });
+        value: parseFloat(metricForm.value) });
       setShowMetricModal(false);
       setMetricForm({
         category: 'GHG_SCOPE_1',
@@ -242,8 +234,7 @@ export default function ESGDashboardClient() {
         value: '',
         unit: 'tCO2e',
         source: '',
-        notes: '',
-      });
+        notes: '' });
       fetchMetrics();
       fetchSummary();
       fetchTrends();
@@ -373,8 +364,7 @@ export default function ESGDashboardClient() {
                   <div
                     className="bg-red-500 h-2 rounded-full"
                     style={{
-                      width: `${Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%`,
-                    }}
+                      width: `${Math.round((summary.ghg.scope1 / summary.ghg.total) * 100)}%` }}
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -391,8 +381,7 @@ export default function ESGDashboardClient() {
                   <div
                     className="bg-orange-500 h-2 rounded-full"
                     style={{
-                      width: `${Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%`,
-                    }}
+                      width: `${Math.round((summary.ghg.scope2 / summary.ghg.total) * 100)}%` }}
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -409,8 +398,7 @@ export default function ESGDashboardClient() {
                   <div
                     className="bg-amber-500 h-2 rounded-full"
                     style={{
-                      width: `${Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%`,
-                    }}
+                      width: `${Math.round((summary.ghg.scope3 / summary.ghg.total) * 100)}%` }}
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">

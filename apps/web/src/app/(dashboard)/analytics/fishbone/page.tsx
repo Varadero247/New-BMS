@@ -6,16 +6,13 @@ import {
   Plus,
   Save,
   Trash2,
-  CheckCircle,
-  Clock,
   Loader2,
   Users,
   Settings,
   Wrench,
   FileText,
   Leaf,
-  Ruler,
-} from 'lucide-react';
+  Ruler } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,8 +60,7 @@ export default function FishbonePage() {
     environment: [''],
     measurement: [''],
     rootCause: '',
-    sourceType: 'INCIDENT',
-  });
+    sourceType: 'INCIDENT' });
 
   useEffect(() => {
     fetchAnalyses();
@@ -92,8 +88,7 @@ export default function FishbonePage() {
         machine: formData.machine.filter((s) => s.trim()),
         material: formData.material.filter((s) => s.trim()),
         environment: formData.environment.filter((s) => s.trim()),
-        measurement: formData.measurement.filter((s) => s.trim()),
-      };
+        measurement: formData.measurement.filter((s) => s.trim()) };
       await api.post('/analytics/fishbone', payload);
       setShowForm(false);
       setFormData({
@@ -106,8 +101,7 @@ export default function FishbonePage() {
         environment: [''],
         measurement: [''],
         rootCause: '',
-        sourceType: 'INCIDENT',
-      });
+        sourceType: 'INCIDENT' });
       fetchAnalyses();
     } catch (error) {
       console.error('Failed to create analysis:', error);
@@ -120,8 +114,7 @@ export default function FishbonePage() {
     if (Array.isArray(formData[category])) {
       setFormData({
         ...formData,
-        [category]: [...(formData[category] as string[]), ''],
-      });
+        [category]: [...(formData[category] as string[]), ''] });
     }
   };
 
@@ -158,8 +151,7 @@ export default function FishbonePage() {
       orange: { bg: 'bg-orange-100', text: 'text-orange-600', border: 'border-orange-200' },
       purple: { bg: 'bg-purple-100', text: 'text-purple-600', border: 'border-purple-200' },
       teal: { bg: 'bg-teal-100', text: 'text-teal-600', border: 'border-teal-200' },
-      pink: { bg: 'bg-pink-100', text: 'text-pink-600', border: 'border-pink-200' },
-    };
+      pink: { bg: 'bg-pink-100', text: 'text-pink-600', border: 'border-pink-200' } };
     return colors[color] || colors.blue;
   };
 

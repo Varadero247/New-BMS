@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   Modal,
   ModalFooter,
   Input,
@@ -16,8 +15,7 @@ import {
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import { Plus, BookOpen, Loader2, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -49,8 +47,7 @@ const emptyForm: ReadReceiptForm = {
   userName: '',
   status: 'UNREAD',
   readAt: '',
-  acknowledgedAt: '',
-};
+  acknowledgedAt: '' };
 
 function getReceiptStatusColor(status: string) {
   switch (status) {
@@ -106,8 +103,7 @@ export default function ReadReceiptsClient() {
       userName: receipt.userName || '',
       status: receipt.status || 'UNREAD',
       readAt: receipt.readAt ? receipt.readAt.split('T')[0] : '',
-      acknowledgedAt: receipt.acknowledgedAt ? receipt.acknowledgedAt.split('T')[0] : '',
-    });
+      acknowledgedAt: receipt.acknowledgedAt ? receipt.acknowledgedAt.split('T')[0] : '' });
     setEditId(receipt.id);
     setModalOpen(true);
   }
@@ -121,8 +117,7 @@ export default function ReadReceiptsClient() {
         readAt: form.readAt ? new Date(form.readAt).toISOString() : undefined,
         acknowledgedAt: form.acknowledgedAt
           ? new Date(form.acknowledgedAt).toISOString()
-          : undefined,
-      };
+          : undefined };
       if (editId) {
         await api.put(`/read-receipts/${editId}`, payload);
       } else {

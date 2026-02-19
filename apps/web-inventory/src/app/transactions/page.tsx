@@ -8,23 +8,19 @@ import {
   CardTitle,
   Button,
   Input,
-  Badge,
   Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import {
   History,
   Search,
-  Filter,
   Download,
   ArrowUp,
   ArrowDown,
-  ArrowRightLeft,
-} from 'lucide-react';
+  ArrowRightLeft } from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 
 interface Transaction {
@@ -68,8 +64,7 @@ export default function TransactionsPage() {
       setLoading(true);
       const params: Record<string, any> = {
         page: meta.page,
-        limit: meta.limit,
-      };
+        limit: meta.limit };
       if (transactionType) params.transactionType = transactionType;
       if (dateRange.start) params.startDate = dateRange.start;
       if (dateRange.end) params.endDate = dateRange.end;
@@ -106,8 +101,7 @@ export default function TransactionsPage() {
       RETURN: 'bg-orange-100 text-orange-700',
       DAMAGE: 'bg-red-100 text-red-700',
       EXPIRED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-      INITIAL: 'bg-sky-100 text-sky-700',
-    };
+      INITIAL: 'bg-sky-100 text-sky-700' };
     return (
       <span
         className={`px-2 py-1 rounded-full text-xs font-medium ${colors[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'}`}

@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -20,8 +18,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   ClipboardList,
@@ -29,9 +26,7 @@ import {
   Search,
   Sparkles,
   AlertCircle,
-  Clock,
-  Trash2,
-} from 'lucide-react';
+  Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────
@@ -66,8 +61,7 @@ const CAPA_STATUSES = [
   {
     value: 'PENDING_VERIFICATION',
     label: 'Pending Verification',
-    color: 'bg-purple-100 text-purple-800',
-  },
+    color: 'bg-purple-100 text-purple-800' },
   { value: 'CLOSED', label: 'Closed', color: 'bg-green-100 text-green-800' },
   { value: 'OVERDUE', label: 'Overdue', color: 'bg-red-100 text-red-800' },
 ] as const;
@@ -145,8 +139,7 @@ const emptyForm: CapaForm = {
   containmentActions: '',
   successCriteria: '',
   verificationMethod: '',
-  actions: [],
-};
+  actions: [] };
 
 // ─── Component ────────────────────────────────────────────────────
 
@@ -199,15 +192,13 @@ export default function CapaClient() {
       actions: [
         ...prev.actions,
         { title: '', description: '', type: 'CORRECTIVE', owner: '', dueDate: '' },
-      ],
-    }));
+      ] }));
   }
 
   function updateAction(index: number, field: string, value: string) {
     setForm((prev) => ({
       ...prev,
-      actions: prev.actions.map((a, i) => (i === index ? { ...a, [field]: value } : a)),
-    }));
+      actions: prev.actions.map((a, i) => (i === index ? { ...a, [field]: value } : a)) }));
   }
 
   function removeAction(index: number) {
@@ -225,9 +216,7 @@ export default function CapaClient() {
           capaType: form.capaType,
           source: form.source,
           priority: form.priority,
-          problemStatement: form.problemStatement,
-        }),
-      });
+          problemStatement: form.problemStatement }) });
       if (res.ok) {
         const data = await res.json();
         const allActions: CapaForm['actions'] = [];
@@ -238,8 +227,7 @@ export default function CapaClient() {
               description: '',
               type: 'CORRECTIVE',
               owner: a.owner || '',
-              dueDate: '',
-            });
+              dueDate: '' });
           });
         }
         if (data.preventiveActions) {
@@ -249,8 +237,7 @@ export default function CapaClient() {
               description: '',
               type: 'PREVENTIVE',
               owner: a.owner || '',
-              dueDate: '',
-            });
+              dueDate: '' });
           });
         }
         setForm((prev) => ({
@@ -259,8 +246,7 @@ export default function CapaClient() {
           containmentActions: data.containmentActions || prev.containmentActions,
           successCriteria: data.successCriteria || prev.successCriteria,
           verificationMethod: data.verificationMethod || prev.verificationMethod,
-          actions: allActions.length > 0 ? allActions : prev.actions,
-        }));
+          actions: allActions.length > 0 ? allActions : prev.actions }));
       }
     } catch (error) {
       console.error('AI analysis failed:', error);
@@ -280,8 +266,7 @@ export default function CapaClient() {
           description: a.description || undefined,
           type: a.type as 'IMMEDIATE' | 'CORRECTIVE' | 'PREVENTIVE',
           owner: a.owner || undefined,
-          dueDate: a.dueDate || undefined,
-        }));
+          dueDate: a.dueDate || undefined }));
       await api.post('/capa', {
         title: form.title,
         capaType: form.capaType,
@@ -297,8 +282,7 @@ export default function CapaClient() {
         successCriteria: form.successCriteria || undefined,
         verificationMethod: form.verificationMethod || undefined,
         aiAnalysisGenerated: !!(form.rootCauseAnalysis || form.containmentActions),
-        actions: validActions.length > 0 ? validActions : undefined,
-      });
+        actions: validActions.length > 0 ? validActions : undefined });
       setModalOpen(false);
       loadCapas();
     } catch (error) {
@@ -328,8 +312,7 @@ export default function CapaClient() {
     OPEN: capas.filter((c) => c.status === 'OPEN').length,
     IN_PROGRESS: capas.filter((c) => c.status === 'IN_PROGRESS').length,
     OVERDUE: capas.filter((c) => isOverdue(c.targetCompletionDate, c.status)).length,
-    CLOSED: capas.filter((c) => c.status === 'CLOSED').length,
-  };
+    CLOSED: capas.filter((c) => c.status === 'CLOSED').length };
 
   const sections = ['CAPA Identification', 'Problem Analysis & Actions'];
 

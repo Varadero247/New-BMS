@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { CheckSquare, Clock, AlertTriangle, User, Play } from 'lucide-react';
+import { CheckSquare, Clock, AlertTriangle, Play } from 'lucide-react';
 import api from '@/lib/api';
 
 interface WorkflowTask {
@@ -62,8 +62,7 @@ export default function TasksPage() {
       IN_PROGRESS: 'bg-blue-100 text-blue-800',
       COMPLETED: 'bg-green-100 text-green-800',
       SKIPPED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-      CANCELLED: 'bg-red-100 text-red-800',
-    };
+      CANCELLED: 'bg-red-100 text-red-800' };
     return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
@@ -72,8 +71,7 @@ export default function TasksPage() {
       LOW: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       MEDIUM: 'bg-blue-100 text-blue-800',
       HIGH: 'bg-orange-100 text-orange-800',
-      URGENT: 'bg-red-100 text-red-800',
-    };
+      URGENT: 'bg-red-100 text-red-800' };
     return styles[priority] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 
@@ -84,8 +82,7 @@ export default function TasksPage() {
       ACTION: 'bg-green-100 text-green-800',
       DECISION: 'bg-orange-100 text-orange-800',
       NOTIFICATION: 'bg-blue-100 text-blue-800',
-      MANUAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-    };
+      MANUAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800' };
     return styles[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
   };
 

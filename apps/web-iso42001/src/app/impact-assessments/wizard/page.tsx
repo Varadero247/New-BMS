@@ -158,13 +158,13 @@ export default function ImpactAssessmentWizardPage() {
     try {
       const findings = impacts
         .map(
-          (imp, i) =>
+          (imp, _i) =>
             `[${imp.category}] ${imp.description} (Likelihood: ${imp.likelihood}, Severity: ${imp.severity})`
         )
         .join('\n');
       const recommendations = mitigations
         .map(
-          (m, i) =>
+          (m, _i) =>
             `Impact #${m.impactIndex + 1}: ${m.action} (Owner: ${m.owner}, Deadline: ${m.deadline}, Residual: ${m.residualRisk})`
         )
         .join('\n');

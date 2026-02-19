@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, Search, Plus, MoreVertical, Mail, Phone, Shield, Edit, Trash2 } from 'lucide-react';
+import { Users, Search, Plus, Mail, Phone, Shield, Edit, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,8 +16,7 @@ const users = [
     role: 'ADMIN',
     status: 'active',
     avatar: null,
-    lastActive: '2 min ago',
-  },
+    lastActive: '2 min ago' },
   {
     id: '2',
     firstName: 'Sarah',
@@ -27,8 +26,7 @@ const users = [
     role: 'MANAGER',
     status: 'active',
     avatar: null,
-    lastActive: '1 hour ago',
-  },
+    lastActive: '1 hour ago' },
   {
     id: '3',
     firstName: 'Mike',
@@ -38,8 +36,7 @@ const users = [
     role: 'TECHNICIAN',
     status: 'active',
     avatar: null,
-    lastActive: '3 hours ago',
-  },
+    lastActive: '3 hours ago' },
   {
     id: '4',
     firstName: 'Emily',
@@ -49,16 +46,14 @@ const users = [
     role: 'USER',
     status: 'inactive',
     avatar: null,
-    lastActive: '2 days ago',
-  },
+    lastActive: '2 days ago' },
 ];
 
 const roleColors: Record<string, string> = {
   ADMIN: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
   MANAGER: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
   TECHNICIAN: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  USER: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
-};
+  USER: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300' };
 
 export default function UsersPage() {
   const [searchQuery, setSearchQuery] = useState('');

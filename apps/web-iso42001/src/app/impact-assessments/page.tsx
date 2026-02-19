@@ -15,9 +15,7 @@ import {
   Wand2,
   ChevronLeft,
   ChevronRight,
-  UserCheck,
-  Shield,
-} from 'lucide-react';
+  UserCheck } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -65,8 +63,7 @@ const impactColors: Record<string, string> = {
   LOW: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   MODERATE: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   HIGH: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-  VERY_HIGH: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-};
+  VERY_HIGH: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' };
 
 const statusColors: Record<string, string> = {
   DRAFT:
@@ -74,40 +71,34 @@ const statusColors: Record<string, string> = {
   IN_PROGRESS: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   COMPLETED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   APPROVED: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400',
-  ARCHIVED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-};
+  ARCHIVED: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' };
 
 const dimensions = [
   {
     key: 'accuracyScore',
     label: 'Accuracy',
     description: 'Risk of incorrect or unreliable outputs',
-    color: '#6366F1',
-  },
+    color: '#6366F1' },
   {
     key: 'biasScore',
     label: 'Bias',
     description: 'Risk of discriminatory or unfair outcomes',
-    color: '#F59E0B',
-  },
+    color: '#F59E0B' },
   {
     key: 'privacyScore',
     label: 'Privacy',
     description: 'Risk to personal data and privacy rights',
-    color: '#8B5CF6',
-  },
+    color: '#8B5CF6' },
   {
     key: 'safetyScore',
     label: 'Safety',
     description: 'Risk to physical or psychological safety',
-    color: '#DC2626',
-  },
+    color: '#DC2626' },
   {
     key: 'autonomyScore',
     label: 'Autonomy',
     description: 'Risk to human autonomy and decision-making',
-    color: '#0EA5E9',
-  },
+    color: '#0EA5E9' },
 ] as const;
 
 type DimensionKey = (typeof dimensions)[number]['key'];
@@ -151,8 +142,7 @@ const defaultForm: FormData = {
   safetyNotes: '',
   privacyNotes: '',
   biasNotes: '',
-  transparencyNotes: '',
-};
+  transparencyNotes: '' };
 
 /* ------------------------------------------------------------------ */
 /*  Risk Heatmap                                                       */
@@ -160,8 +150,7 @@ const defaultForm: FormData = {
 
 function RiskHeatmap({
   assessments,
-  controlStatuses,
-}: {
+  controlStatuses }: {
   assessments: ImpactAssessment[];
   controlStatuses?: never;
 }) {
@@ -258,8 +247,7 @@ function ScoreSlider({
   description,
   value,
   onChange,
-  color,
-}: {
+  color }: {
   label: string;
   description: string;
   value: number;
@@ -393,8 +381,7 @@ export default function ImpactAssessmentsPage() {
       safetyNotes: assessment.safetyNotes || '',
       privacyNotes: assessment.privacyNotes || '',
       biasNotes: assessment.biasNotes || '',
-      transparencyNotes: assessment.transparencyNotes || '',
-    });
+      transparencyNotes: assessment.transparencyNotes || '' });
     setModalOpen(true);
   }
 
@@ -435,8 +422,7 @@ export default function ImpactAssessmentsPage() {
       await api.put(`/impact-assessments/${signOffAssessment.id}`, {
         status: 'APPROVED',
         approvedBy: signOffName,
-        signedOffBy: signOffName,
-      });
+        signedOffBy: signOffName });
       setSignOffOpen(false);
       loadAssessments();
     } catch {
@@ -631,8 +617,7 @@ export default function ImpactAssessmentsPage() {
                                 style={{
                                   background: `linear-gradient(to right, ${d.color}40, ${d.color})`,
                                   width: `${(score / 5) * 100}%`,
-                                  minWidth: '20%',
-                                }}
+                                  minWidth: '20%' }}
                               />
                               <p className="text-[9px] text-muted-foreground mt-0.5">
                                 {d.label}: {score}

@@ -13,8 +13,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   BarChart3,
@@ -24,9 +23,7 @@ import {
   AlertTriangle,
   RefreshCw,
   Eye,
-  XCircle,
-  Target,
-} from 'lucide-react';
+  XCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -85,8 +82,7 @@ const studyTypeLabels: Record<string, string> = {
   BIAS: 'Bias Study',
   LINEARITY: 'Linearity Study',
   STABILITY: 'Stability Study',
-  ATTRIBUTE: 'Attribute Study',
-};
+  ATTRIBUTE: 'Attribute Study' };
 
 const RESULT_VALUES = ['ACCEPTABLE', 'MARGINAL', 'UNACCEPTABLE'] as const;
 
@@ -94,14 +90,12 @@ const statusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   IN_PROGRESS: 'bg-orange-100 text-orange-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-red-100 text-red-700',
-};
+  CANCELLED: 'bg-red-100 text-red-700' };
 
 const resultColors: Record<string, string> = {
   ACCEPTABLE: 'bg-green-100 text-green-700',
   MARGINAL: 'bg-yellow-100 text-yellow-700',
-  UNACCEPTABLE: 'bg-red-100 text-red-700',
-};
+  UNACCEPTABLE: 'bg-red-100 text-red-700' };
 
 const emptyForm = {
   title: '',
@@ -114,15 +108,13 @@ const emptyForm = {
   operators: '',
   numParts: '10',
   numTrials: '3',
-  notes: '',
-};
+  notes: '' };
 
 const emptyDataForm = {
   operator: '',
   partNumber: '1',
   trialNumber: '1',
-  value: '',
-};
+  value: '' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -203,8 +195,7 @@ export default function MsaClient() {
         operators: form.operators,
         numParts: parseInt(form.numParts),
         numTrials: parseInt(form.numTrials),
-        notes: form.notes || undefined,
-      };
+        notes: form.notes || undefined };
       await api.post('/msa', payload);
       setShowModal(false);
       setForm(emptyForm);
@@ -258,8 +249,7 @@ export default function MsaClient() {
         operator: dataForm.operator,
         partNumber: parseInt(dataForm.partNumber),
         trialNumber: parseInt(dataForm.trialNumber),
-        value: parseFloat(dataForm.value),
-      });
+        value: parseFloat(dataForm.value) });
       // Increment trial, then part, then operator
       const numTrials = selectedStudy.numTrials || 3;
       const numParts = selectedStudy.numParts || 10;
@@ -284,8 +274,7 @@ export default function MsaClient() {
         operator: ops[nextOpIdx] || dataForm.operator,
         partNumber: String(nextPart),
         trialNumber: String(nextTrial),
-        value: '',
-      });
+        value: '' });
 
       // Reload detail and results
       const [detailRes, resultsRes] = await Promise.all([
@@ -324,8 +313,7 @@ export default function MsaClient() {
       total: studies.length,
       inProgress: studies.filter((s) => s.status === 'IN_PROGRESS').length,
       acceptable: studies.filter((s) => s.result === 'ACCEPTABLE').length,
-      unacceptable: studies.filter((s) => s.result === 'UNACCEPTABLE').length,
-    }),
+      unacceptable: studies.filter((s) => s.result === 'UNACCEPTABLE').length }),
     [studies]
   );
 
@@ -339,8 +327,7 @@ export default function MsaClient() {
       return new Date(dateStr).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
-        year: 'numeric',
-      });
+        year: 'numeric' });
     } catch {
       return '-';
     }

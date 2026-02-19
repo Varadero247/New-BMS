@@ -4,14 +4,12 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import {
   Users,
-  Building2,
   Clock,
   CalendarDays,
   Briefcase,
   GraduationCap,
   TrendingUp,
-  AlertCircle,
-} from 'lucide-react';
+  AlertCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
@@ -65,8 +63,7 @@ export default function HRDashboard() {
           total: employeeStats.data.data.totalEmployees || 0,
           active: employeeStats.data.data.activeEmployees || 0,
           onLeave: 0,
-          newHires: employeeStats.data.data.recentHires || 0,
-        },
+          newHires: employeeStats.data.data.recentHires || 0 },
         attendance: {
           presentToday:
             attendanceStats.data.data.byStatus?.find(
@@ -79,22 +76,17 @@ export default function HRDashboard() {
           absentToday:
             attendanceStats.data.data.byStatus?.find(
               (s: Record<string, any>) => s.status === 'ABSENT'
-            )?._count || 0,
-        },
+            )?._count || 0 },
         leave: {
           pendingRequests: 0,
-          onLeaveToday: 0,
-        },
+          onLeaveToday: 0 },
         recruitment: {
           activeJobs: recruitmentStats.data.data.activeJobs || 0,
           totalApplicants: recruitmentStats.data.data.totalApplicants || 0,
-          interviewsToday: 0,
-        },
+          interviewsToday: 0 },
         training: {
           upcomingSessions: trainingStats.data.data.upcomingSessions || 0,
-          expiringCertifications: trainingStats.data.data.expiringCertifications || 0,
-        },
-      });
+          expiringCertifications: trainingStats.data.data.expiringCertifications || 0 } });
     } catch (error) {
       console.error('Error loading dashboard:', error);
       setError('Unable to load data. Please check your connection and try again.');

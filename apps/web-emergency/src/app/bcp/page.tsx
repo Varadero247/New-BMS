@@ -5,24 +5,17 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import {
   BookOpen,
   Plus,
   Search,
-  CheckCircle,
-  AlertTriangle,
-  Clock,
-  ChevronRight,
-  RefreshCw,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -49,13 +42,11 @@ const STATUS_STYLES: Record<string, { style: string; label: string }> = {
   APPROVED: { style: 'bg-green-100 text-green-800', label: 'Approved' },
   ACTIVE: { style: 'bg-blue-100 text-blue-800', label: 'Active' },
   UNDER_REVIEW: { style: 'bg-amber-100 text-amber-800', label: 'Under Review' },
-  ARCHIVED: { style: 'bg-gray-100 text-gray-500', label: 'Archived' },
-};
+  ARCHIVED: { style: 'bg-gray-100 text-gray-500', label: 'Archived' } };
 
 function TestStatusBadge({
   lastTested,
-  nextDue,
-}: {
+  nextDue }: {
   lastTested: string | null;
   nextDue: string | null;
 }) {

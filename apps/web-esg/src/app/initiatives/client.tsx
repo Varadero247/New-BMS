@@ -2,18 +2,13 @@
 
 import { useState } from 'react';
 import {
-  Leaf,
   TrendingUp,
-  DollarSign,
   Clock,
   CheckCircle,
   AlertTriangle,
   ChevronDown,
   ChevronRight,
-  Search,
-  Filter,
-  Users,
-} from 'lucide-react';
+  Search } from 'lucide-react';
 
 type Status = 'planned' | 'in-progress' | 'completed' | 'on-hold';
 type Pillar = 'environmental' | 'social' | 'governance';
@@ -57,8 +52,7 @@ const initiatives: Initiative[] = [
       { label: 'Renewable %', value: '62', unit: '%' },
     ],
     sdgs: [7, 13],
-    tags: ['Net Zero', 'Science-Based Target'],
-  },
+    tags: ['Net Zero', 'Science-Based Target'] },
   {
     id: 'INI-002',
     name: 'Circular Economy Transition',
@@ -78,8 +72,7 @@ const initiatives: Initiative[] = [
       { label: 'Cost Saved', value: '£145k', unit: '' },
     ],
     sdgs: [12],
-    tags: ['Zero Waste', 'Recycling'],
-  },
+    tags: ['Zero Waste', 'Recycling'] },
   {
     id: 'INI-003',
     name: 'Water Stewardship',
@@ -96,8 +89,7 @@ const initiatives: Initiative[] = [
     progress: 0,
     impactMetrics: [{ label: 'Target Reduction', value: '30', unit: '%' }],
     sdgs: [6, 14],
-    tags: ['Water'],
-  },
+    tags: ['Water'] },
   {
     id: 'INI-004',
     name: 'Diversity & Inclusion Programme',
@@ -117,8 +109,7 @@ const initiatives: Initiative[] = [
       { label: 'Pay Gap', value: '3.2', unit: '%' },
     ],
     sdgs: [5, 10],
-    tags: ['DEI', 'Pay Equity'],
-  },
+    tags: ['DEI', 'Pay Equity'] },
   {
     id: 'INI-005',
     name: 'Community Investment Fund',
@@ -138,8 +129,7 @@ const initiatives: Initiative[] = [
       { label: 'People Reached', value: '4,500', unit: '' },
     ],
     sdgs: [4, 11],
-    tags: ['Community', 'Education'],
-  },
+    tags: ['Community', 'Education'] },
   {
     id: 'INI-006',
     name: 'Supply Chain Transparency',
@@ -158,8 +148,7 @@ const initiatives: Initiative[] = [
       { label: 'Tier 2 Mapped', value: '54', unit: '%' },
     ],
     sdgs: [8, 12],
-    tags: ['Supply Chain', 'Due Diligence'],
-  },
+    tags: ['Supply Chain', 'Due Diligence'] },
   {
     id: 'INI-007',
     name: 'Board ESG Competency',
@@ -179,8 +168,7 @@ const initiatives: Initiative[] = [
       { label: 'Exec KPIs Linked', value: '100', unit: '%' },
     ],
     sdgs: [16],
-    tags: ['Board', 'Compensation'],
-  },
+    tags: ['Board', 'Compensation'] },
   {
     id: 'INI-008',
     name: 'Renewable Energy Procurement',
@@ -199,8 +187,7 @@ const initiatives: Initiative[] = [
       { label: 'Solar Installed', value: '450', unit: 'kW' },
     ],
     sdgs: [7],
-    tags: ['Renewable', 'PPA', 'Solar'],
-  },
+    tags: ['Renewable', 'PPA', 'Solar'] },
   {
     id: 'INI-009',
     name: 'Employee Wellbeing Programme',
@@ -220,8 +207,7 @@ const initiatives: Initiative[] = [
       { label: 'Satisfaction', value: '4.2', unit: '/5' },
     ],
     sdgs: [3],
-    tags: ['Wellbeing', 'Mental Health'],
-  },
+    tags: ['Wellbeing', 'Mental Health'] },
   {
     id: 'INI-010',
     name: 'Anti-Corruption Framework',
@@ -240,45 +226,37 @@ const initiatives: Initiative[] = [
       { label: 'Certifications', value: '3', unit: 'sites' },
     ],
     sdgs: [16],
-    tags: ['ISO 37001', 'Anti-Bribery'],
-  },
+    tags: ['ISO 37001', 'Anti-Bribery'] },
 ];
 
 const statusConfig: Record<Status, { label: string; color: string; icon: React.ReactNode }> = {
   planned: {
     label: 'Planned',
     color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-    icon: <Clock className="h-3.5 w-3.5" />,
-  },
+    icon: <Clock className="h-3.5 w-3.5" /> },
   'in-progress': {
     label: 'In Progress',
     color: 'bg-blue-100 text-blue-700',
-    icon: <TrendingUp className="h-3.5 w-3.5" />,
-  },
+    icon: <TrendingUp className="h-3.5 w-3.5" /> },
   completed: {
     label: 'Completed',
     color: 'bg-green-100 text-green-700',
-    icon: <CheckCircle className="h-3.5 w-3.5" />,
-  },
+    icon: <CheckCircle className="h-3.5 w-3.5" /> },
   'on-hold': {
     label: 'On Hold',
     color: 'bg-amber-100 text-amber-700',
-    icon: <AlertTriangle className="h-3.5 w-3.5" />,
-  },
-};
+    icon: <AlertTriangle className="h-3.5 w-3.5" /> } };
 
 const pillarConfig: Record<Pillar, { label: string; color: string }> = {
   environmental: { label: 'Environmental', color: 'bg-green-100 text-green-700' },
   social: { label: 'Social', color: 'bg-blue-100 text-blue-700' },
-  governance: { label: 'Governance', color: 'bg-purple-100 text-purple-700' },
-};
+  governance: { label: 'Governance', color: 'bg-purple-100 text-purple-700' } };
 
 const priorityConfig: Record<Priority, { label: string; color: string }> = {
   critical: { label: 'Critical', color: 'bg-red-100 text-red-700' },
   high: { label: 'High', color: 'bg-orange-100 text-orange-700' },
   medium: { label: 'Medium', color: 'bg-yellow-100 text-yellow-700' },
-  low: { label: 'Low', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
-};
+  low: { label: 'Low', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' } };
 
 export default function InitiativesClient() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());

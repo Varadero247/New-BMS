@@ -5,12 +5,10 @@ import {
   Plus,
   ChevronDown,
   ChevronRight,
-  Users,
   Search,
   ClipboardList,
   CheckCircle2,
-  Clock,
-} from 'lucide-react';
+  Clock } from 'lucide-react';
 
 interface EightDReport {
   id: string;
@@ -54,8 +52,7 @@ const MOCK_8D: EightDReport[] = [
       'New supplier qualification completed 2026-02-01. Updated PPAP submitted to Volkswagen Group. Revised control plan CP-FR-4421-Rev4 approved. First articles passed at 2026-02-05.',
     d7Prevention:
       'Updated FMEA to address secondary supplier material non-conformance risk (RPN reduced from 200 to 48). Revised purchasing specification to mandate IATF 16949 for all seal suppliers. Added to annual internal audit scope.',
-    d8Congratulations: '',
-  },
+    d8Congratulations: '' },
   {
     id: '2',
     title: 'Transmission Housing Porosity — Warranty Claims',
@@ -76,8 +73,7 @@ const MOCK_8D: EightDReport[] = [
       'Die D-07 sent for refurbishment — cooling channels cleaned and re-drilled to OEM specification. Permanent corrective action: Add die temperature monitoring (thermocouple at gate zone) with process shutdown alarm.',
     d6Implementation: '',
     d7Prevention: '',
-    d8Congratulations: '',
-  },
+    d8Congratulations: '' },
   {
     id: '3',
     title: 'Brake Pad Thickness Variation — PPM Escalation',
@@ -101,8 +97,7 @@ const MOCK_8D: EightDReport[] = [
     d7Prevention:
       'FMEA updated: press die wear added as failure mode (SEV 7, OCC 2, DET 2 = RPN 28). Lessons learned shared across all press operations. Added to annual maintenance audit checklist.',
     d8Congratulations:
-      'Team recognition award presented at December Quality Review. Customer reported 0 ppm on subsequent 3 deliveries. 8D closed 2026-01-08.',
-  },
+      'Team recognition award presented at December Quality Review. Customer reported 0 ppm on subsequent 3 deliveries. 8D closed 2026-01-08.' },
   {
     id: '4',
     title: 'Engine Mount Cracking — Field Failure',
@@ -121,8 +116,7 @@ const MOCK_8D: EightDReport[] = [
     d5CorrectiveAction: '',
     d6Implementation: '',
     d7Prevention: '',
-    d8Congratulations: '',
-  },
+    d8Congratulations: '' },
   {
     id: '5',
     title: 'Infotainment Unit Boot Failure — Software OTA',
@@ -142,15 +136,13 @@ const MOCK_8D: EightDReport[] = [
     d5CorrectiveAction: '',
     d6Implementation: '',
     d7Prevention: '',
-    d8Congratulations: '',
-  },
+    d8Congratulations: '' },
 ];
 
 const STATUS_CONFIG = {
   open: { label: 'Open', bg: 'bg-red-100', text: 'text-red-700', icon: Clock },
   'in-progress': { label: 'In Progress', bg: 'bg-blue-100', text: 'text-blue-700', icon: Clock },
-  completed: { label: 'Completed', bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle2 },
-};
+  completed: { label: 'Completed', bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle2 } };
 
 const DISCIPLINES = [
   { num: 1, key: 'd1Team', label: 'D1 — Team Formation' },
@@ -181,8 +173,7 @@ export default function EightDClient() {
     open: MOCK_8D.filter((r) => r.status === 'open').length,
     inProgress: MOCK_8D.filter((r) => r.status === 'in-progress').length,
     completed: MOCK_8D.filter((r) => r.status === 'completed').length,
-    totalDefects: MOCK_8D.reduce((s, r) => s + r.defectQty, 0),
-  };
+    totalDefects: MOCK_8D.reduce((s, r) => s + r.defectQty, 0) };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-800">

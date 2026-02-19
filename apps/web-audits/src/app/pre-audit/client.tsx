@@ -6,15 +6,12 @@ import {
   CardContent,
   Button,
   Badge,
-  Input,
-  Label,
   Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import { FileSearch, Loader2, Search, FileText } from 'lucide-react';
 import { api } from '@/lib/api';
 

@@ -1,16 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Badge } from '@ims/ui';
 import {
   TrendingUp,
   TrendingDown,
   Minus,
   Award,
   Star,
-  AlertTriangle,
-  ArrowRight,
-} from 'lucide-react';
+  AlertTriangle } from 'lucide-react';
 
 interface ScorecardPeriod {
   period: string;
@@ -62,8 +59,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 90,
         compliance: 87,
         overall: 86,
-        grade: 'B',
-      },
+        grade: 'B' },
       {
         period: 'Q4 2025',
         quality: 88,
@@ -72,8 +68,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 88,
         compliance: 90,
         overall: 88,
-        grade: 'B',
-      },
+        grade: 'B' },
       {
         period: 'Q1 2026',
         quality: 93,
@@ -82,10 +77,8 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 90,
         compliance: 94,
         overall: 92,
-        grade: 'A',
-      },
-    ],
-  },
+        grade: 'A' },
+    ] },
   {
     id: 'SUP-002',
     name: 'FastShip Logistics',
@@ -108,8 +101,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 85,
         compliance: 86,
         overall: 86,
-        grade: 'B',
-      },
+        grade: 'B' },
       {
         period: 'Q4 2025',
         quality: 88,
@@ -118,8 +110,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 84,
         compliance: 88,
         overall: 87,
-        grade: 'B',
-      },
+        grade: 'B' },
       {
         period: 'Q1 2026',
         quality: 85,
@@ -128,10 +119,8 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 83,
         compliance: 85,
         overall: 85,
-        grade: 'B',
-      },
-    ],
-  },
+        grade: 'B' },
+    ] },
   {
     id: 'SUP-003',
     name: 'TechCoat Surfaces',
@@ -154,8 +143,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 78,
         compliance: 72,
         overall: 72,
-        grade: 'C',
-      },
+        grade: 'C' },
       {
         period: 'Q4 2025',
         quality: 70,
@@ -164,8 +152,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 76,
         compliance: 70,
         overall: 72,
-        grade: 'C',
-      },
+        grade: 'C' },
       {
         period: 'Q1 2026',
         quality: 78,
@@ -174,10 +161,8 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 78,
         compliance: 78,
         overall: 78,
-        grade: 'C',
-      },
-    ],
-  },
+        grade: 'C' },
+    ] },
   {
     id: 'SUP-004',
     name: 'Global Metals Inc',
@@ -200,8 +185,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 91,
         compliance: 93,
         overall: 92,
-        grade: 'A',
-      },
+        grade: 'A' },
       {
         period: 'Q4 2025',
         quality: 93,
@@ -210,8 +194,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 90,
         compliance: 94,
         overall: 93,
-        grade: 'A',
-      },
+        grade: 'A' },
       {
         period: 'Q1 2026',
         quality: 96,
@@ -220,10 +203,8 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 92,
         compliance: 95,
         overall: 95,
-        grade: 'A',
-      },
-    ],
-  },
+        grade: 'A' },
+    ] },
   {
     id: 'SUP-005',
     name: 'PackRight Solutions',
@@ -246,8 +227,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 82,
         compliance: 78,
         overall: 78,
-        grade: 'C',
-      },
+        grade: 'C' },
       {
         period: 'Q4 2025',
         quality: 76,
@@ -256,8 +236,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 80,
         compliance: 74,
         overall: 76,
-        grade: 'C',
-      },
+        grade: 'C' },
       {
         period: 'Q1 2026',
         quality: 70,
@@ -266,10 +245,8 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 78,
         compliance: 68,
         overall: 71,
-        grade: 'C',
-      },
-    ],
-  },
+        grade: 'C' },
+    ] },
   {
     id: 'SUP-006',
     name: 'ElectroComp Systems',
@@ -292,8 +269,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 83,
         compliance: 85,
         overall: 85,
-        grade: 'B',
-      },
+        grade: 'B' },
       {
         period: 'Q4 2025',
         quality: 86,
@@ -302,8 +278,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 84,
         compliance: 86,
         overall: 86,
-        grade: 'B',
-      },
+        grade: 'B' },
       {
         period: 'Q1 2026',
         quality: 90,
@@ -312,10 +287,8 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 86,
         compliance: 90,
         overall: 89,
-        grade: 'B',
-      },
-    ],
-  },
+        grade: 'B' },
+    ] },
   {
     id: 'SUP-007',
     name: 'QuickMold Tooling',
@@ -338,8 +311,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 65,
         compliance: 52,
         overall: 58,
-        grade: 'D',
-      },
+        grade: 'D' },
       {
         period: 'Q4 2025',
         quality: 56,
@@ -348,8 +320,7 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 62,
         compliance: 54,
         overall: 58,
-        grade: 'D',
-      },
+        grade: 'D' },
       {
         period: 'Q1 2026',
         quality: 62,
@@ -358,31 +329,26 @@ const MOCK_SUPPLIERS: SupplierScorecard[] = [
         cost: 64,
         compliance: 58,
         overall: 62,
-        grade: 'D',
-      },
-    ],
-  },
+        grade: 'D' },
+    ] },
 ];
 
 const gradeConfig: Record<string, { bg: string; text: string }> = {
   A: { bg: 'bg-green-100', text: 'text-green-700' },
   B: { bg: 'bg-blue-100', text: 'text-blue-700' },
   C: { bg: 'bg-yellow-100', text: 'text-yellow-700' },
-  D: { bg: 'bg-red-100', text: 'text-red-700' },
-};
+  D: { bg: 'bg-red-100', text: 'text-red-700' } };
 
 const tierConfig: Record<string, string> = {
   Strategic: 'bg-purple-100 text-purple-700',
   Preferred: 'bg-blue-100 text-blue-700',
   Approved: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-  Conditional: 'bg-red-100 text-red-700',
-};
+  Conditional: 'bg-red-100 text-red-700' };
 
 const riskConfig: Record<string, string> = {
   Low: 'bg-green-100 text-green-700',
   Medium: 'bg-yellow-100 text-yellow-700',
-  High: 'bg-red-100 text-red-700',
-};
+  High: 'bg-red-100 text-red-700' };
 
 function ScoreBar({ value, label }: { value: number; label: string }) {
   const color =

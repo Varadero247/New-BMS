@@ -6,19 +6,13 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   Modal,
   ModalFooter,
-  Input,
   Label,
-  Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
-  ArrowLeft,
   Flame,
   Clock,
-  MapPin,
   Users,
   Radio,
   BookOpen,
@@ -29,8 +23,7 @@ import {
   CheckCircle,
   Loader2,
   AlertTriangle,
-  ChevronLeft,
-} from 'lucide-react';
+  ChevronLeft } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
@@ -69,8 +62,7 @@ const SEVERITY_STYLES: Record<string, string> = {
   LOW: 'bg-green-500',
   MEDIUM: 'bg-amber-500',
   HIGH: 'bg-orange-500',
-  CRITICAL: 'bg-red-600',
-};
+  CRITICAL: 'bg-red-600' };
 
 const ENTRY_TYPE_ICONS: Record<string, React.ElementType> = {
   DECLARATION: Flame,
@@ -80,8 +72,7 @@ const ENTRY_TYPE_ICONS: Record<string, React.ElementType> = {
   STATUS_UPDATE: AlertTriangle,
   AGENCY_NOTIFICATION: Phone,
   BCP_ACTIVATION: BookOpen,
-  CLOSURE: XCircle,
-};
+  CLOSURE: XCircle };
 
 type LogModalType = 'DECISION' | 'RESOURCE' | 'COMMUNICATION' | 'AGENCY' | 'BCP' | 'CLOSE' | null;
 
@@ -233,8 +224,7 @@ export default function IncidentDetailPage() {
                   className="px-2 py-0.5 rounded-full text-xs font-bold text-white border border-white/30"
                   style={{
                     backgroundColor:
-                      `${SEVERITY_STYLES[incident.severity] || 'bg-red-600'}`.replace('bg-', ''),
-                  }}
+                      `${SEVERITY_STYLES[incident.severity] || 'bg-red-600'}`.replace('bg-', '') }}
                 >
                   {incident.severity}
                 </span>

@@ -6,11 +6,9 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { Plus, Search, FileText, Edit, Trash2, Download } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -39,16 +37,14 @@ const typeColors: Record<string, string> = {
   SPECIFICATION: 'bg-purple-100 text-purple-700',
   CHARTER: 'bg-orange-100 text-orange-700',
   MINUTES: 'bg-yellow-100 text-yellow-700',
-  RISK_LOG: 'bg-red-100 text-red-700',
-};
+  RISK_LOG: 'bg-red-100 text-red-700' };
 
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-yellow-100 text-yellow-700',
   UNDER_REVIEW: 'bg-blue-100 text-blue-700',
   APPROVED: 'bg-green-100 text-green-700',
   SUPERSEDED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
-};
+  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-500' };
 
 const initialForm = {
   title: '',
@@ -60,8 +56,7 @@ const initialForm = {
   author: '',
   approvedBy: '',
   tags: '',
-  status: 'DRAFT',
-};
+  status: 'DRAFT' };
 
 export default function DocumentsPage() {
   const [items, setItems] = useState<Document[]>([]);
@@ -109,8 +104,7 @@ export default function DocumentsPage() {
       author: d.author || '',
       approvedBy: d.approvedBy || '',
       tags: d.tags || '',
-      status: d.status,
-    });
+      status: d.status });
     setFormError('');
     setModalOpen(true);
   }

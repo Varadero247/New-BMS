@@ -7,9 +7,7 @@ import {
   ChevronRight,
   Package,
   Search,
-  Tags,
-  BarChart3,
-} from 'lucide-react';
+  Tags } from 'lucide-react';
 
 interface Category {
   id: string;
@@ -53,8 +51,7 @@ const categories: Category[] = [
             itemCount: 45,
             totalValue: 320000,
             status: 'active',
-            children: [],
-          },
+            children: [] },
           {
             id: 'cat-1a2',
             name: 'Aluminium',
@@ -64,8 +61,7 @@ const categories: Category[] = [
             itemCount: 38,
             totalValue: 210000,
             status: 'active',
-            children: [],
-          },
+            children: [] },
           {
             id: 'cat-1a3',
             name: 'Copper',
@@ -75,8 +71,7 @@ const categories: Category[] = [
             itemCount: 25,
             totalValue: 95000,
             status: 'active',
-            children: [],
-          },
+            children: [] },
           {
             id: 'cat-1a4',
             name: 'Titanium',
@@ -86,10 +81,8 @@ const categories: Category[] = [
             itemCount: 20,
             totalValue: 55000,
             status: 'active',
-            children: [],
-          },
-        ],
-      },
+            children: [] },
+        ] },
       {
         id: 'cat-1b',
         name: 'Polymers',
@@ -99,8 +92,7 @@ const categories: Category[] = [
         itemCount: 89,
         totalValue: 245000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-1c',
         name: 'Chemicals',
@@ -110,8 +102,7 @@ const categories: Category[] = [
         itemCount: 67,
         totalValue: 180000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-1d',
         name: 'Timber',
@@ -121,10 +112,8 @@ const categories: Category[] = [
         itemCount: 58,
         totalValue: 145000,
         status: 'active',
-        children: [],
-      },
-    ],
-  },
+        children: [] },
+    ] },
   {
     id: 'cat-2',
     name: 'Components',
@@ -144,8 +133,7 @@ const categories: Category[] = [
         itemCount: 234,
         totalValue: 450000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-2b',
         name: 'Mechanical',
@@ -155,8 +143,7 @@ const categories: Category[] = [
         itemCount: 198,
         totalValue: 280000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-2c',
         name: 'Hydraulics',
@@ -166,10 +153,8 @@ const categories: Category[] = [
         itemCount: 135,
         totalValue: 160000,
         status: 'active',
-        children: [],
-      },
-    ],
-  },
+        children: [] },
+    ] },
   {
     id: 'cat-3',
     name: 'Finished Goods',
@@ -189,8 +174,7 @@ const categories: Category[] = [
         itemCount: 98,
         totalValue: 1800000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-3b',
         name: 'Custom Products',
@@ -200,10 +184,8 @@ const categories: Category[] = [
         itemCount: 58,
         totalValue: 1400000,
         status: 'active',
-        children: [],
-      },
-    ],
-  },
+        children: [] },
+    ] },
   {
     id: 'cat-4',
     name: 'Consumables',
@@ -223,8 +205,7 @@ const categories: Category[] = [
         itemCount: 89,
         totalValue: 65000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-4b',
         name: 'PPE',
@@ -234,8 +215,7 @@ const categories: Category[] = [
         itemCount: 45,
         totalValue: 18000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-4c',
         name: 'Packaging',
@@ -245,8 +225,7 @@ const categories: Category[] = [
         itemCount: 56,
         totalValue: 22000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-4d',
         name: 'Lubricants',
@@ -256,10 +235,8 @@ const categories: Category[] = [
         itemCount: 44,
         totalValue: 15000,
         status: 'active',
-        children: [],
-      },
-    ],
-  },
+        children: [] },
+    ] },
   {
     id: 'cat-5',
     name: 'Spare Parts',
@@ -279,8 +256,7 @@ const categories: Category[] = [
         itemCount: 78,
         totalValue: 340000,
         status: 'active',
-        children: [],
-      },
+        children: [] },
       {
         id: 'cat-5b',
         name: 'General Spares',
@@ -290,10 +266,8 @@ const categories: Category[] = [
         itemCount: 334,
         totalValue: 220000,
         status: 'active',
-        children: [],
-      },
-    ],
-  },
+        children: [] },
+    ] },
   {
     id: 'cat-6',
     name: 'Legacy Parts',
@@ -303,15 +277,13 @@ const categories: Category[] = [
     itemCount: 89,
     totalValue: 45000,
     status: 'inactive',
-    children: [],
-  },
+    children: [] },
 ];
 
 function CategoryNode({
   category,
   depth,
-  searchTerm,
-}: {
+  searchTerm }: {
   category: Category;
   depth: number;
   searchTerm: string;

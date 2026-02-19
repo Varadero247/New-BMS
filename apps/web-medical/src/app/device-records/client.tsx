@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -13,8 +11,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   Search,
@@ -25,9 +22,7 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
-  Clipboard,
-  ArrowRight,
-} from 'lucide-react';
+  ArrowRight } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -145,23 +140,20 @@ const emptyDmrForm = {
   qualityProcedures: '',
   acceptanceCriteria: '',
   labellingSpecs: '',
-  packagingSpecs: '',
-};
+  packagingSpecs: '' };
 
 const emptyDhrForm = {
   dmrId: '',
   batchNumber: '',
   manufacturingDate: '',
-  quantityManufactured: 0,
-};
+  quantityManufactured: 0 };
 
 const emptyRecordForm = {
   recordType: 'MANUFACTURING' as string,
   description: '',
   result: '',
   performedBy: '',
-  performedDate: '',
-};
+  performedDate: '' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -300,8 +292,7 @@ export default function DeviceRecordsClient() {
       try {
         await api.post('/dhr', {
           ...dhrForm,
-          quantityManufactured: Number(dhrForm.quantityManufactured),
-        });
+          quantityManufactured: Number(dhrForm.quantityManufactured) });
         setShowCreateDhrModal(false);
         setDhrForm(emptyDhrForm);
         fetchDhrs();
@@ -394,8 +385,7 @@ export default function DeviceRecordsClient() {
       total: dmrs.length,
       draft: dmrs.filter((d) => d.status === 'DRAFT').length,
       approved: dmrs.filter((d) => d.status === 'APPROVED').length,
-      superseded: dmrs.filter((d) => d.status === 'SUPERSEDED').length,
-    }),
+      superseded: dmrs.filter((d) => d.status === 'SUPERSEDED').length }),
     [dmrs]
   );
 
@@ -408,8 +398,7 @@ export default function DeviceRecordsClient() {
       total: dhrs.length,
       inProduction: dhrs.filter((d) => d.status === 'IN_PRODUCTION').length,
       released: dhrs.filter((d) => d.status === 'RELEASED').length,
-      rejected: dhrs.filter((d) => d.status === 'REJECTED').length,
-    }),
+      rejected: dhrs.filter((d) => d.status === 'REJECTED').length }),
     [dhrs]
   );
 
@@ -1409,8 +1398,7 @@ export default function DeviceRecordsClient() {
                     onChange={(e) =>
                       setDhrForm({
                         ...dhrForm,
-                        quantityManufactured: parseInt(e.target.value) || 0,
-                      })
+                        quantityManufactured: parseInt(e.target.value) || 0 })
                     }
                     required
                     placeholder="e.g. 500"

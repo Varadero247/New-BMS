@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -13,8 +11,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   Search,
@@ -22,15 +19,10 @@ import {
   Pencil,
   Filter,
   ArrowRight,
-  ChevronDown,
-  ChevronUp,
   AlertTriangle,
-  CheckSquare,
   Shield,
-  FileText,
   Clock,
-  User,
-} from 'lucide-react';
+  User } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -88,8 +80,7 @@ const STAGE_DESCRIPTIONS: Record<string, string> = {
   Review: 'Systematic review of design results per 7.3.5',
   Verification: 'Confirm outputs meet inputs per 7.3.6',
   Validation: 'Confirm device meets user needs per 7.3.7',
-  Transfer: 'Transfer design to production per 7.3.8',
-};
+  Transfer: 'Transfer design to production per 7.3.8' };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -223,8 +214,7 @@ const emptyForm = {
   regulatoryPathway: '510(k)' as string,
   currentStage: 'Planning' as string,
   status: 'DRAFT' as string,
-  assignedTo: '',
-};
+  assignedTo: '' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -340,8 +330,7 @@ export default function DesignControlsClient() {
       regulatoryPathway: record.regulatoryPathway || '510(k)',
       currentStage: record.currentStage || 'Planning',
       status: record.status || 'DRAFT',
-      assignedTo: record.assignedTo || '',
-    });
+      assignedTo: record.assignedTo || '' });
     setError('');
     setShowEditModal(true);
   }, []);
@@ -396,8 +385,7 @@ export default function DesignControlsClient() {
           return acc;
         },
         {} as Record<string, number>
-      ),
-    }),
+      ) }),
     [designControls]
   );
 
@@ -418,8 +406,7 @@ export default function DesignControlsClient() {
 
   const DesignControlForm = ({
     onSubmit,
-    isEdit,
-  }: {
+    isEdit }: {
     onSubmit: (e: React.FormEvent) => Promise<void>;
     isEdit: boolean;
   }) => (

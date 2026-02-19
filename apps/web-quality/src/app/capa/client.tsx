@@ -13,8 +13,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   Target,
@@ -27,11 +26,8 @@ import {
   Shield,
   Trash2,
   Edit3,
-  ChevronDown,
-  ChevronUp,
   BarChart3,
-  AlertTriangle,
-} from 'lucide-react';
+  AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -48,8 +44,7 @@ const CAPA_STATUSES = [
   {
     value: 'ROOT_CAUSE_ANALYSIS',
     label: 'Root Cause Analysis',
-    color: 'bg-orange-100 text-orange-800',
-  },
+    color: 'bg-orange-100 text-orange-800' },
   { value: 'ACTION_PLANNING', label: 'Action Planning', color: 'bg-indigo-100 text-indigo-800' },
   { value: 'IMPLEMENTATION', label: 'Implementation', color: 'bg-purple-100 text-purple-800' },
   { value: 'VERIFICATION', label: 'Verification', color: 'bg-cyan-100 text-cyan-800' },
@@ -280,8 +275,7 @@ const emptyForm: CapaForm = {
   linkedFmea: '',
   linkedDocument: '',
   linkedHsCapa: '',
-  linkedEnvCapa: '',
-};
+  linkedEnvCapa: '' };
 
 const emptyAction: CapaAction = {
   action: '',
@@ -289,8 +283,7 @@ const emptyAction: CapaAction = {
   dueDate: '',
   priority: 'MEDIUM',
   status: 'OPEN',
-  notes: '',
-};
+  notes: '' };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -379,8 +372,7 @@ export default function CapaClient() {
         c.status === 'CLOSED' &&
         c.actualClosureDate &&
         new Date(c.actualClosureDate) >= startOfMonth
-    ).length,
-  };
+    ).length };
 
   // ─── Filtering ────────────────────────────────────────────────────
 
@@ -505,9 +497,7 @@ export default function CapaClient() {
             dueDate: a.dueDate || undefined,
             priority: a.priority,
             status: a.status,
-            notes: a.notes || undefined,
-          })),
-      };
+            notes: a.notes || undefined })) };
       await api.post('/capa', payload);
       setModalOpen(false);
       setForm({ ...emptyForm });
@@ -535,8 +525,7 @@ export default function CapaClient() {
         description: form.description,
         problemStatement: form.problemStatement,
         rcaMethod: form.rcaMethod,
-        rootCauseStatement: form.rootCauseStatement,
-      });
+        rootCauseStatement: form.rootCauseStatement });
       const data = response.data.data;
       if (data) {
         setAiAnalysis(data);

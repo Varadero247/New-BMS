@@ -9,11 +9,9 @@ import {
   Clock,
   PlayCircle,
   XCircle,
-  DollarSign,
   Zap,
   Edit2,
-  Trash2,
-} from 'lucide-react';
+  Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface EnergyProject {
@@ -53,16 +51,13 @@ const statusConfig: Record<string, { label: string; className: string; icon: Rea
     IN_PROGRESS: {
       label: 'In Progress',
       className: 'bg-yellow-100 text-yellow-700',
-      icon: PlayCircle,
-    },
+      icon: PlayCircle },
     COMPLETED: { label: 'Completed', className: 'bg-green-100 text-green-700', icon: CheckCircle },
     ON_HOLD: { label: 'On Hold', className: 'bg-orange-100 text-orange-700', icon: Clock },
     CANCELLED: {
       label: 'Cancelled',
       className: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
-      icon: XCircle,
-    },
-  };
+      icon: XCircle } };
 
 const empty: Partial<EnergyProject> = {
   name: '',
@@ -73,8 +68,7 @@ const empty: Partial<EnergyProject> = {
   estimatedCost: 0,
   unit: 'kWh/year',
   priority: 'MEDIUM',
-  responsible: '',
-};
+  responsible: '' };
 
 export default function ProjectsPage() {
   const [items, setItems] = useState<EnergyProject[]>([]);
@@ -115,8 +109,7 @@ export default function ProjectsPage() {
     total: items.length,
     inProgress: items.filter((i) => i.status === 'IN_PROGRESS').length,
     completed: items.filter((i) => i.status === 'COMPLETED').length,
-    totalSavings,
-  };
+    totalSavings };
 
   const openCreate = () => {
     setEditItem({ ...empty });
@@ -127,8 +120,7 @@ export default function ProjectsPage() {
     setEditItem({
       ...item,
       startDate: item.startDate ? new Date(item.startDate).toISOString().slice(0, 10) : '',
-      endDate: item.endDate ? new Date(item.endDate).toISOString().slice(0, 10) : '',
-    });
+      endDate: item.endDate ? new Date(item.endDate).toISOString().slice(0, 10) : '' });
     setIsEditing(true);
     setModalOpen(true);
   };
@@ -327,8 +319,7 @@ export default function ProjectsPage() {
                         LOW: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
                         MEDIUM: 'bg-blue-100 text-blue-700',
                         HIGH: 'bg-orange-100 text-orange-700',
-                        CRITICAL: 'bg-red-100 text-red-700',
-                      };
+                        CRITICAL: 'bg-red-100 text-red-700' };
                       return (
                         <tr key={item.id} className="border-b hover:bg-yellow-50 transition-colors">
                           <td className="py-3 px-4">

@@ -13,16 +13,12 @@ import {
   Menu,
   X,
   LogOut,
-  AlertTriangle,
-  FileText,
-  Target,
   ClipboardCheck,
   GraduationCap,
   Bot,
   TrendingUp,
   ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
@@ -47,8 +43,7 @@ const navigation: NavigationItem[] = [
       { name: 'Objectives', href: '/hs/objectives' },
       { name: 'Actions', href: '/hs/actions' },
       { name: 'Safety Metrics', href: '/hs/metrics' },
-    ],
-  },
+    ] },
   {
     name: 'Environment (ISO 14001)',
     href: '/environment',
@@ -60,8 +55,7 @@ const navigation: NavigationItem[] = [
       { name: 'Legal Requirements', href: '/environment/legal' },
       { name: 'Objectives', href: '/environment/objectives' },
       { name: 'Actions', href: '/environment/actions' },
-    ],
-  },
+    ] },
   {
     name: 'Quality (ISO 9001)',
     href: '/quality',
@@ -74,13 +68,11 @@ const navigation: NavigationItem[] = [
       { name: 'Objectives', href: '/quality/objectives' },
       { name: 'Actions', href: '/quality/actions' },
       { name: 'Quality Metrics', href: '/quality/metrics' },
-    ],
-  },
+    ] },
   {
     name: 'CAPA Tracker',
     href: '/actions',
-    icon: ClipboardCheck,
-  },
+    icon: ClipboardCheck },
   {
     name: 'Training',
     href: '/training',
@@ -89,8 +81,7 @@ const navigation: NavigationItem[] = [
       { name: 'Courses', href: '/training/courses' },
       { name: 'Matrix', href: '/training/matrix' },
       { name: 'Records', href: '/training/records' },
-    ],
-  },
+    ] },
   {
     name: 'Analytics',
     href: '/analytics',
@@ -102,8 +93,7 @@ const navigation: NavigationItem[] = [
       { name: 'Bow-Tie', href: '/analytics/bow-tie' },
       { name: 'Lean Wastes', href: '/analytics/lean-waste' },
       { name: 'Trends', href: '/analytics/trends' },
-    ],
-  },
+    ] },
   { name: 'Settings & AI', href: '/settings', icon: Settings },
 ];
 

@@ -14,8 +14,7 @@ import {
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import {
   Package,
   Plus,
@@ -24,9 +23,7 @@ import {
   Edit,
   Trash2,
   Eye,
-  Barcode,
-  AlertTriangle,
-} from 'lucide-react';
+  Barcode } from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 import Link from 'next/link';
 
@@ -63,8 +60,7 @@ export default function ProductsPage() {
       const res = await inventoryApi.getProducts({
         page: meta.page,
         limit: meta.limit,
-        search: search || undefined,
-      });
+        search: search || undefined });
       setProducts(res.data.data || []);
       setMeta(res.data.meta || meta);
     } catch (error) {
@@ -89,8 +85,7 @@ export default function ProductsPage() {
       ACTIVE: 'default',
       INACTIVE: 'secondary',
       DISCONTINUED: 'destructive',
-      OUT_OF_STOCK: 'outline',
-    };
+      OUT_OF_STOCK: 'outline' };
     return <Badge variant={variants[status] || 'default'}>{status}</Badge>;
   };
 
@@ -318,8 +313,7 @@ export default function ProductsPage() {
 function ProductModal({
   product,
   onClose,
-  onSave,
-}: {
+  onSave }: {
   product: Product | null;
   onClose: () => void;
   onSave: () => void;
@@ -332,8 +326,7 @@ function ProductModal({
     costPrice: product?.costPrice || 0,
     sellingPrice: product?.sellingPrice || 0,
     reorderPoint: product?.reorderPoint || 0,
-    reorderQuantity: 0,
-  });
+    reorderQuantity: 0 });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

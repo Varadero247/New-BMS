@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -14,8 +12,7 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import { Plus, Leaf, Loader2, Search, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -136,8 +133,7 @@ const emptyForm: AspectForm = {
   responsiblePerson: '',
   reviewFrequency: '',
   nextReviewDate: '',
-  status: 'ACTIVE',
-};
+  status: 'ACTIVE' };
 
 const ACTIVITY_CATEGORIES = [
   { value: 'ENERGY_USE', label: 'Energy Use' },
@@ -179,37 +175,29 @@ const ENVIRONMENTAL_MEDIA = [
 const SCORE_DESCRIPTORS = {
   scoreSeverity: {
     label: 'Severity',
-    tooltip: '1 = Negligible, 2 = Minor, 3 = Moderate, 4 = Major, 5 = Catastrophic',
-  },
+    tooltip: '1 = Negligible, 2 = Minor, 3 = Moderate, 4 = Major, 5 = Catastrophic' },
   scoreProbability: {
     label: 'Probability',
-    tooltip: '1 = Rare, 2 = Unlikely, 3 = Possible, 4 = Likely, 5 = Almost Certain',
-  },
+    tooltip: '1 = Rare, 2 = Unlikely, 3 = Possible, 4 = Likely, 5 = Almost Certain' },
   scoreDuration: {
     label: 'Duration',
-    tooltip: '1 = Momentary, 2 = Short-term, 3 = Medium-term, 4 = Long-term, 5 = Permanent',
-  },
+    tooltip: '1 = Momentary, 2 = Short-term, 3 = Medium-term, 4 = Long-term, 5 = Permanent' },
   scoreExtent: {
     label: 'Extent / Scale',
     tooltip:
-      '1 = On-site only, 2 = Immediate vicinity, 3 = Local area, 4 = Regional, 5 = Transboundary',
-  },
+      '1 = On-site only, 2 = Immediate vicinity, 3 = Local area, 4 = Regional, 5 = Transboundary' },
   scoreReversibility: {
     label: 'Reversibility',
     tooltip:
-      '1 = Fully reversible, 2 = Largely reversible, 3 = Partially reversible, 4 = Mostly irreversible, 5 = Irreversible',
-  },
+      '1 = Fully reversible, 2 = Largely reversible, 3 = Partially reversible, 4 = Mostly irreversible, 5 = Irreversible' },
   scoreRegulatory: {
     label: 'Regulatory',
     tooltip:
-      '1 = No regulation, 2 = Guidance only, 3 = Consent / permit, 4 = Legal limit, 5 = Prosecutable offence',
-  },
+      '1 = No regulation, 2 = Guidance only, 3 = Consent / permit, 4 = Legal limit, 5 = Prosecutable offence' },
   scoreStakeholder: {
     label: 'Stakeholder',
     tooltip:
-      '1 = No concern, 2 = Minor concern, 3 = Moderate concern, 4 = High concern, 5 = Major public concern',
-  },
-};
+      '1 = No concern, 2 = Minor concern, 3 = Moderate concern, 4 = High concern, 5 = Major public concern' } };
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -341,10 +329,8 @@ export default function AspectsClient() {
               aiBenchmarkComparison: aiResults.aiBenchmarkComparison || null,
               aiImprovementOpportunities: aiResults.aiImprovementOpportunities || null,
               aiClimateRelevance: aiResults.aiClimateRelevance || null,
-              aiGenerated: true,
-            }
-          : {}),
-      });
+              aiGenerated: true }
+          : {}) });
       setShowModal(false);
       setForm(emptyForm);
       setAiGenerated(false);
@@ -371,18 +357,14 @@ export default function AspectsClient() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
+          ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({
           type: 'ENVIRONMENTAL_ASPECT',
           context: {
             activity: form.activityProcess,
             aspect: form.aspect,
             impact: form.impact,
-            category: form.activityCategory,
-          },
-        }),
-      });
+            category: form.activityCategory } }) });
       if (response.ok) {
         const json = await response.json();
         const data = json.data || {};
@@ -419,8 +401,7 @@ export default function AspectsClient() {
             scoreExtent: data.scoring.extent,
             scoreReversibility: data.scoring.reversibility,
             scoreRegulatory: data.scoring.regulatory,
-            scoreStakeholder: data.scoring.stakeholder,
-          });
+            scoreStakeholder: data.scoring.stakeholder });
         }
         setAiResults(results);
         setAiGenerated(true);
@@ -443,8 +424,7 @@ export default function AspectsClient() {
       scoreExtent: aiSuggestedScores.scoreExtent || prev.scoreExtent,
       scoreReversibility: aiSuggestedScores.scoreReversibility || prev.scoreReversibility,
       scoreRegulatory: aiSuggestedScores.scoreRegulatory || prev.scoreRegulatory,
-      scoreStakeholder: aiSuggestedScores.scoreStakeholder || prev.scoreStakeholder,
-    }));
+      scoreStakeholder: aiSuggestedScores.scoreStakeholder || prev.scoreStakeholder }));
   }
 
   // ------------------------------------------
@@ -1243,18 +1223,15 @@ export default function AspectsClient() {
                       {[
                         {
                           key: 'aiSignificanceJustification',
-                          title: 'Significance Justification',
-                        },
+                          title: 'Significance Justification' },
                         {
                           key: 'aiControlRecommendations',
-                          title: 'Control Recommendations',
-                        },
+                          title: 'Control Recommendations' },
                         { key: 'aiLegalObligations', title: 'Legal Obligations' },
                         { key: 'aiBenchmarkComparison', title: 'Benchmark Comparison' },
                         {
                           key: 'aiImprovementOpportunities',
-                          title: 'ISO 14001 Clauses',
-                        },
+                          title: 'ISO 14001 Clauses' },
                         { key: 'aiClimateRelevance', title: 'Climate Relevance' },
                       ].map(
                         (item) =>

@@ -7,12 +7,10 @@ import {
   Plus,
   ChevronDown,
   ChevronRight,
-  AlertTriangle,
   Clock,
   CheckCircle2,
   XCircle,
-  FileEdit,
-} from 'lucide-react';
+  FileEdit } from 'lucide-react';
 
 interface ECR {
   id: string;
@@ -36,8 +34,7 @@ const MOCK_ECRS: ECR[] = [
     impactLevel: 3,
     requestor: 'J. Harrison',
     affectedParts: ['AS-1042-A', 'AS-1043-B', 'AS-1044-C'],
-    dateSubmitted: '2026-01-15',
-  },
+    dateSubmitted: '2026-01-15' },
   {
     id: '2',
     ecrNumber: 'ECR-2026-002',
@@ -47,8 +44,7 @@ const MOCK_ECRS: ECR[] = [
     impactLevel: 4,
     requestor: 'M. Chen',
     affectedParts: ['WS-2201-X', 'WS-2202-X'],
-    dateSubmitted: '2026-01-18',
-  },
+    dateSubmitted: '2026-01-18' },
   {
     id: '3',
     ecrNumber: 'ECR-2026-003',
@@ -58,8 +54,7 @@ const MOCK_ECRS: ECR[] = [
     impactLevel: 1,
     requestor: 'R. Patel',
     affectedParts: ['FP-3310-A'],
-    dateSubmitted: '2026-01-20',
-  },
+    dateSubmitted: '2026-01-20' },
   {
     id: '4',
     ecrNumber: 'ECR-2026-004',
@@ -69,8 +64,7 @@ const MOCK_ECRS: ECR[] = [
     impactLevel: 3,
     requestor: 'S. Williams',
     affectedParts: ['LG-4401-M', 'LG-4402-M', 'LG-4403-M', 'LG-4404-M'],
-    dateSubmitted: '2026-01-22',
-  },
+    dateSubmitted: '2026-01-22' },
   {
     id: '5',
     ecrNumber: 'ECR-2026-005',
@@ -80,8 +74,7 @@ const MOCK_ECRS: ECR[] = [
     impactLevel: 2,
     requestor: 'T. Brooks',
     affectedParts: ['EM-5501-W', 'EM-5502-W'],
-    dateSubmitted: '2026-01-25',
-  },
+    dateSubmitted: '2026-01-25' },
   {
     id: '6',
     ecrNumber: 'ECR-2026-006',
@@ -91,8 +84,7 @@ const MOCK_ECRS: ECR[] = [
     impactLevel: 2,
     requestor: 'A. Kumar',
     affectedParts: ['HM-6601-B'],
-    dateSubmitted: '2026-01-28',
-  },
+    dateSubmitted: '2026-01-28' },
   {
     id: '7',
     ecrNumber: 'ECR-2026-007',
@@ -102,8 +94,7 @@ const MOCK_ECRS: ECR[] = [
     impactLevel: 4,
     requestor: 'L. Morgan',
     affectedParts: ['OS-7701-V', 'OS-7702-V', 'OS-7703-V'],
-    dateSubmitted: '2026-02-01',
-  },
+    dateSubmitted: '2026-02-01' },
   {
     id: '8',
     ecrNumber: 'ECR-2026-008',
@@ -113,8 +104,7 @@ const MOCK_ECRS: ECR[] = [
     impactLevel: 1,
     requestor: 'D. Foster',
     affectedParts: ['RB-8801-A', 'RB-8802-A'],
-    dateSubmitted: '2026-02-05',
-  },
+    dateSubmitted: '2026-02-05' },
 ];
 
 const STATUS_CONFIG = {
@@ -122,31 +112,26 @@ const STATUS_CONFIG = {
     label: 'Draft',
     bg: 'bg-gray-100 dark:bg-gray-800',
     text: 'text-gray-700 dark:text-gray-300',
-    icon: FileEdit,
-  },
+    icon: FileEdit },
   review: { label: 'In Review', bg: 'bg-blue-100', text: 'text-blue-700', icon: Clock },
   approved: { label: 'Approved', bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle2 },
   implemented: {
     label: 'Implemented',
     bg: 'bg-purple-100',
     text: 'text-purple-700',
-    icon: CheckCircle2,
-  },
-  rejected: { label: 'Rejected', bg: 'bg-red-100', text: 'text-red-700', icon: XCircle },
-};
+    icon: CheckCircle2 },
+  rejected: { label: 'Rejected', bg: 'bg-red-100', text: 'text-red-700', icon: XCircle } };
 
 const TYPE_CONFIG = {
   major: { label: 'Major', bg: 'bg-orange-100', text: 'text-orange-700' },
   minor: { label: 'Minor', bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-600' },
-  emergency: { label: 'Emergency', bg: 'bg-red-100', text: 'text-red-700' },
-};
+  emergency: { label: 'Emergency', bg: 'bg-red-100', text: 'text-red-700' } };
 
 const IMPACT_CONFIG: Record<number, { label: string; color: string }> = {
   1: { label: 'Low', color: 'bg-green-500' },
   2: { label: 'Medium', color: 'bg-yellow-500' },
   3: { label: 'High', color: 'bg-orange-500' },
-  4: { label: 'Critical', color: 'bg-red-600' },
-};
+  4: { label: 'Critical', color: 'bg-red-600' } };
 
 export default function EngineeringChangesClient() {
   const [search, setSearch] = useState('');
@@ -171,8 +156,7 @@ export default function EngineeringChangesClient() {
       total: MOCK_ECRS.length,
       open: MOCK_ECRS.filter((e) => e.status === 'review' || e.status === 'draft').length,
       emergency: MOCK_ECRS.filter((e) => e.type === 'emergency').length,
-      implemented: MOCK_ECRS.filter((e) => e.status === 'implemented').length,
-    }),
+      implemented: MOCK_ECRS.filter((e) => e.status === 'implemented').length }),
     []
   );
 

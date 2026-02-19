@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { ComplianceGauge, COPQChart } from '@ims/charts';
+import { ComplianceGauge } from '@ims/charts';
 import { Award, AlertOctagon, Clock, Target, TrendingUp, DollarSign } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -49,23 +49,19 @@ export default function QualityDashboard() {
         compliance: 85,
         processes: {
           total: processes.length,
-          atRisk: processes.filter((p: any) => p.status === 'AT_RISK').length,
-        },
+          atRisk: processes.filter((p: any) => p.status === 'AT_RISK').length },
         nonconformances: {
           total: ncs.length,
           open: ncs.filter((nc: any) => nc.status === 'OPEN' || nc.status === 'INVESTIGATING')
-            .length,
-        },
+            .length },
         actions: { overdue: 4, dueThisWeek: 6 },
         metrics: metrics || {
           copq: 125000,
           dpmo: 3400,
           sigma: 4.2,
-          fpy: 96.5,
-        },
+          fpy: 96.5 },
         topNCs: ncs.slice(0, 5),
-        recentComplaints: ncs.filter((nc: any) => nc.ncType === 'CUSTOMER_COMPLAINT').slice(0, 5),
-      });
+        recentComplaints: ncs.filter((nc: any) => nc.ncType === 'CUSTOMER_COMPLAINT').slice(0, 5) });
     } catch (err) {
       console.error('Failed to load dashboard stats:', err);
       setError('Unable to load quality data. Please check your connection and try again.');

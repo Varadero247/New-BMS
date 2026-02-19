@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -14,21 +12,18 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   GitBranch,
   Search,
   Loader2,
   Sparkles,
-  AlertCircle,
   Clock,
   CheckCircle,
   Shield,
   ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+  ChevronUp } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -198,8 +193,7 @@ const emptyForm: FormData = {
   implementationPlan: '',
   targetDate: '',
   implementedBy: '',
-  lessonsLearned: '',
-};
+  lessonsLearned: '' };
 
 function getBadge(
   value: string,
@@ -288,8 +282,7 @@ export default function ChangesClient() {
       implementationPlan: r.implementationPlan || '',
       targetDate: r.targetDate ? r.targetDate.split('T')[0] : '',
       implementedBy: r.implementedBy || '',
-      lessonsLearned: r.lessonsLearned || '',
-    });
+      lessonsLearned: r.lessonsLearned || '' });
     setModalOpen(true);
   };
 
@@ -298,8 +291,7 @@ export default function ChangesClient() {
       setSubmitting(true);
       const payload: any = {
         ...form,
-        estimatedCost: form.estimatedCost ? Number(form.estimatedCost) : undefined,
-      };
+        estimatedCost: form.estimatedCost ? Number(form.estimatedCost) : undefined };
       // Clean empty optional fields
       [
         'isoClause',
@@ -345,8 +337,7 @@ export default function ChangesClient() {
     open: records.filter((r) => !['CLOSED', 'CANCELLED', 'REJECTED'].includes(r.status)).length,
     approved: records.filter((r) => r.status === 'APPROVED' || r.status === 'IMPLEMENTATION')
       .length,
-    closed: records.filter((r) => r.status === 'CLOSED').length,
-  };
+    closed: records.filter((r) => r.status === 'CLOSED').length };
 
   return (
     <div className="p-6 space-y-6">

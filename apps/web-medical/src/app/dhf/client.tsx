@@ -3,14 +3,9 @@
 import { useState, useMemo } from 'react';
 import {
   Search,
-  FileText,
   FolderOpen,
   ChevronDown,
-  ChevronRight,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 
 interface DHFDocument {
   id: string;
@@ -64,8 +59,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'CardioMonitor Pro X3',
         author: 'Dr. Chen',
         lastModified: '2025-08-15',
-        approver: 'Dr. Zhang',
-      },
+        approver: 'Dr. Zhang' },
       {
         id: 'd2',
         docNumber: 'DHF-CMX3-002',
@@ -76,8 +70,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'CardioMonitor Pro X3',
         author: 'J. Wilson',
         lastModified: '2025-09-20',
-        approver: 'Dr. Chen',
-      },
+        approver: 'Dr. Chen' },
       {
         id: 'd3',
         docNumber: 'DHF-CMX3-003',
@@ -88,8 +81,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'CardioMonitor Pro X3',
         author: 'E. Rodriguez',
         lastModified: '2025-10-10',
-        approver: 'Dr. Zhang',
-      },
+        approver: 'Dr. Zhang' },
       {
         id: 'd4',
         docNumber: 'DHF-CMX3-004',
@@ -100,8 +92,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'CardioMonitor Pro X3',
         author: 'Dr. Chen',
         lastModified: '2025-11-30',
-        approver: 'Regulatory',
-      },
+        approver: 'Regulatory' },
       {
         id: 'd5',
         docNumber: 'DHF-CMX3-005',
@@ -112,8 +103,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'CardioMonitor Pro X3',
         author: 'L. Park',
         lastModified: '2025-12-05',
-        approver: 'Dr. Chen',
-      },
+        approver: 'Dr. Chen' },
       {
         id: 'd6',
         docNumber: 'DHF-CMX3-006',
@@ -124,10 +114,8 @@ const dhfRecords: DHFRecord[] = [
         product: 'CardioMonitor Pro X3',
         author: 'R. Kim',
         lastModified: '2026-01-10',
-        approver: 'Quality',
-      },
-    ],
-  },
+        approver: 'Quality' },
+    ] },
   {
     id: '2',
     product: 'NeuroStim Controller V2',
@@ -144,8 +132,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'NeuroStim Controller V2',
         author: 'Dr. Zhang',
         lastModified: '2025-06-20',
-        approver: 'Dr. Chen',
-      },
+        approver: 'Dr. Chen' },
       {
         id: 'd8',
         docNumber: 'DHF-NSV2-002',
@@ -156,8 +143,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'NeuroStim Controller V2',
         author: 'J. Wilson',
         lastModified: '2025-07-15',
-        approver: 'Dr. Zhang',
-      },
+        approver: 'Dr. Zhang' },
       {
         id: 'd9',
         docNumber: 'DHF-NSV2-003',
@@ -168,8 +154,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'NeuroStim Controller V2',
         author: 'E. Rodriguez',
         lastModified: '2026-02-01',
-        approver: 'Pending',
-      },
+        approver: 'Pending' },
       {
         id: 'd10',
         docNumber: 'DHF-NSV2-004',
@@ -180,10 +165,8 @@ const dhfRecords: DHFRecord[] = [
         product: 'NeuroStim Controller V2',
         author: 'Dr. Chen',
         lastModified: '2026-02-10',
-        approver: 'Pending',
-      },
-    ],
-  },
+        approver: 'Pending' },
+    ] },
   {
     id: '3',
     product: 'DiagnosScan Portable',
@@ -200,8 +183,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'DiagnosScan Portable',
         author: 'Dr. Chen',
         lastModified: '2026-01-05',
-        approver: 'Dr. Zhang',
-      },
+        approver: 'Dr. Zhang' },
       {
         id: 'd12',
         docNumber: 'DHF-DSP-002',
@@ -212,10 +194,8 @@ const dhfRecords: DHFRecord[] = [
         product: 'DiagnosScan Portable',
         author: 'J. Wilson',
         lastModified: '2026-02-08',
-        approver: 'Pending',
-      },
-    ],
-  },
+        approver: 'Pending' },
+    ] },
   {
     id: '4',
     product: 'SurgiView Endoscope',
@@ -232,8 +212,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'SurgiView Endoscope',
         author: 'E. Rodriguez',
         lastModified: '2025-03-10',
-        approver: 'Dr. Chen',
-      },
+        approver: 'Dr. Chen' },
       {
         id: 'd14',
         docNumber: 'DHF-SVE-005',
@@ -244,8 +223,7 @@ const dhfRecords: DHFRecord[] = [
         product: 'SurgiView Endoscope',
         author: 'Dr. Zhang',
         lastModified: '2025-12-20',
-        approver: 'Regulatory',
-      },
+        approver: 'Regulatory' },
       {
         id: 'd15',
         docNumber: 'DHF-SVE-006',
@@ -256,10 +234,8 @@ const dhfRecords: DHFRecord[] = [
         product: 'SurgiView Endoscope',
         author: 'R. Kim',
         lastModified: '2026-01-28',
-        approver: 'Pending',
-      },
-    ],
-  },
+        approver: 'Pending' },
+    ] },
 ];
 
 const phaseLabels = [
@@ -275,8 +251,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   draft: { label: 'Draft', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   review: { label: 'In Review', color: 'bg-amber-100 text-amber-700' },
   approved: { label: 'Approved', color: 'bg-emerald-100 text-emerald-700' },
-  obsolete: { label: 'Obsolete', color: 'bg-red-100 text-red-600' },
-};
+  obsolete: { label: 'Obsolete', color: 'bg-red-100 text-red-600' } };
 const typeLabels: Record<string, string> = {
   'design-input': 'Design Input',
   'design-output': 'Design Output',
@@ -284,8 +259,7 @@ const typeLabels: Record<string, string> = {
   validation: 'Validation',
   review: 'Review',
   transfer: 'Transfer',
-  change: 'Change',
-};
+  change: 'Change' };
 
 export default function DHFClient() {
   const [search, setSearch] = useState('');

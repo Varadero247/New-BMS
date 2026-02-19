@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import {
-  BarChart3,
   TrendingUp,
   TrendingDown,
   Minus,
@@ -10,8 +9,7 @@ import {
   ArrowUpRight,
   Leaf,
   Users,
-  Shield,
-} from 'lucide-react';
+  Shield } from 'lucide-react';
 
 type Category = 'environmental' | 'social' | 'governance';
 type Trend = 'up' | 'down' | 'stable';
@@ -43,8 +41,7 @@ const metrics: Metric[] = [
     trend: 'down',
     framework: 'GRI',
     disclosure: '305-1',
-    status: 'at-risk',
-  },
+    status: 'at-risk' },
   {
     id: 'E2',
     name: 'Scope 2 Emissions',
@@ -56,8 +53,7 @@ const metrics: Metric[] = [
     trend: 'down',
     framework: 'GRI',
     disclosure: '305-2',
-    status: 'at-risk',
-  },
+    status: 'at-risk' },
   {
     id: 'E3',
     name: 'Renewable Energy %',
@@ -69,8 +65,7 @@ const metrics: Metric[] = [
     trend: 'up',
     framework: 'TCFD',
     disclosure: 'Strategy',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   {
     id: 'E4',
     name: 'Water Consumption',
@@ -82,8 +77,7 @@ const metrics: Metric[] = [
     trend: 'down',
     framework: 'GRI',
     disclosure: '303-5',
-    status: 'at-risk',
-  },
+    status: 'at-risk' },
   {
     id: 'E5',
     name: 'Waste Diverted from Landfill',
@@ -95,8 +89,7 @@ const metrics: Metric[] = [
     trend: 'up',
     framework: 'GRI',
     disclosure: '306-4',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   {
     id: 'E6',
     name: 'Energy Intensity',
@@ -108,8 +101,7 @@ const metrics: Metric[] = [
     trend: 'down',
     framework: 'GRI',
     disclosure: '302-3',
-    status: 'at-risk',
-  },
+    status: 'at-risk' },
   // Social
   {
     id: 'S1',
@@ -122,8 +114,7 @@ const metrics: Metric[] = [
     trend: 'up',
     framework: 'GRI',
     disclosure: '405-1',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   {
     id: 'S2',
     name: 'Gender Pay Gap',
@@ -135,8 +126,7 @@ const metrics: Metric[] = [
     trend: 'down',
     framework: 'GRI',
     disclosure: '405-2',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   {
     id: 'S3',
     name: 'Lost Time Injury Rate',
@@ -148,8 +138,7 @@ const metrics: Metric[] = [
     trend: 'down',
     framework: 'GRI',
     disclosure: '403-9',
-    status: 'at-risk',
-  },
+    status: 'at-risk' },
   {
     id: 'S4',
     name: 'Employee Turnover',
@@ -161,8 +150,7 @@ const metrics: Metric[] = [
     trend: 'down',
     framework: 'GRI',
     disclosure: '401-1',
-    status: 'at-risk',
-  },
+    status: 'at-risk' },
   {
     id: 'S5',
     name: 'Training Hours per Employee',
@@ -174,8 +162,7 @@ const metrics: Metric[] = [
     trend: 'up',
     framework: 'GRI',
     disclosure: '404-1',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   {
     id: 'S6',
     name: 'Employee Satisfaction',
@@ -187,8 +174,7 @@ const metrics: Metric[] = [
     trend: 'up',
     framework: 'SASB',
     disclosure: 'HC-01',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   // Governance
   {
     id: 'G1',
@@ -201,8 +187,7 @@ const metrics: Metric[] = [
     trend: 'up',
     framework: 'GRI',
     disclosure: '2-9',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   {
     id: 'G2',
     name: 'Anti-Corruption Training',
@@ -214,8 +199,7 @@ const metrics: Metric[] = [
     trend: 'up',
     framework: 'GRI',
     disclosure: '205-2',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   {
     id: 'G3',
     name: 'Data Breaches',
@@ -227,8 +211,7 @@ const metrics: Metric[] = [
     trend: 'down',
     framework: 'GRI',
     disclosure: '418-1',
-    status: 'on-track',
-  },
+    status: 'on-track' },
   {
     id: 'G4',
     name: 'Supplier ESG Audits',
@@ -240,8 +223,7 @@ const metrics: Metric[] = [
     trend: 'up',
     framework: 'GRI',
     disclosure: '414-2',
-    status: 'at-risk',
-  },
+    status: 'at-risk' },
   {
     id: 'G5',
     name: 'Whistleblower Cases Resolved',
@@ -253,8 +235,7 @@ const metrics: Metric[] = [
     trend: 'stable',
     framework: 'GRI',
     disclosure: '2-26',
-    status: 'on-track',
-  },
+    status: 'on-track' },
 ];
 
 const categoryConfig: Record<
@@ -265,21 +246,17 @@ const categoryConfig: Record<
     label: 'Environmental',
     icon: <Leaf className="h-5 w-5" />,
     color: 'text-green-700',
-    bgColor: 'bg-green-50 border-green-200',
-  },
+    bgColor: 'bg-green-50 border-green-200' },
   social: {
     label: 'Social',
     icon: <Users className="h-5 w-5" />,
     color: 'text-blue-700',
-    bgColor: 'bg-blue-50 border-blue-200',
-  },
+    bgColor: 'bg-blue-50 border-blue-200' },
   governance: {
     label: 'Governance',
     icon: <Shield className="h-5 w-5" />,
     color: 'text-purple-700',
-    bgColor: 'bg-purple-50 border-purple-200',
-  },
-};
+    bgColor: 'bg-purple-50 border-purple-200' } };
 
 export default function MetricsDashboardClient() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');

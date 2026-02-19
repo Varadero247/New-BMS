@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -14,22 +12,18 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   Target,
-  Search,
   Loader2,
   Sparkles,
   AlertCircle,
-  Clock,
   CheckCircle,
   TrendingUp,
   ChevronDown,
   ChevronUp,
-  Trash2,
-} from 'lucide-react';
+  Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -54,8 +48,7 @@ const OBJECTIVE_STATUSES = [
   {
     value: 'NOT_STARTED',
     label: 'Not Started',
-    color: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-  },
+    color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   { value: 'ON_TRACK', label: 'On Track', color: 'bg-green-100 text-green-800' },
   { value: 'AT_RISK', label: 'At Risk', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'BEHIND', label: 'Behind', color: 'bg-red-100 text-red-800' },
@@ -165,8 +158,7 @@ const emptyForm: FormData = {
   targetDate: '',
   resourcesRequired: '',
   progressNotes: '',
-  progressPercent: '0',
-};
+  progressPercent: '0' };
 
 const emptyMilestone: MilestoneForm = { title: '', targetDate: '', notes: '' };
 
@@ -241,8 +233,7 @@ export default function ObjectivesClient() {
       targetDate: r.targetDate ? r.targetDate.split('T')[0] : '',
       resourcesRequired: r.resourcesRequired || '',
       progressNotes: r.progressNotes || '',
-      progressPercent: r.progressPercent?.toString() || '0',
-    });
+      progressPercent: r.progressPercent?.toString() || '0' });
     setModalOpen(true);
   };
 
@@ -254,8 +245,7 @@ export default function ObjectivesClient() {
         baselineValue: Number(form.baselineValue),
         targetValue: Number(form.targetValue),
         currentValue: form.currentValue ? Number(form.currentValue) : undefined,
-        progressPercent: Number(form.progressPercent) || 0,
-      };
+        progressPercent: Number(form.progressPercent) || 0 };
       if (!payload.isoClause) delete payload.isoClause;
 
       if (editing) {
@@ -326,8 +316,7 @@ export default function ObjectivesClient() {
     total: records.length,
     onTrack: records.filter((r) => r.status === 'ON_TRACK').length,
     atRisk: records.filter((r) => r.status === 'AT_RISK' || r.status === 'BEHIND').length,
-    achieved: records.filter((r) => r.status === 'ACHIEVED').length,
-  };
+    achieved: records.filter((r) => r.status === 'ACHIEVED').length };
 
   // Calculate KPI progress percentage
   const getKpiProgress = (r: ObjectiveRecord) => {

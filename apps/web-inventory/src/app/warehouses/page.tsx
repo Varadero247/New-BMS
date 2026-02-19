@@ -9,24 +9,20 @@ import {
   Button,
   Input,
   Badge,
-  Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import {
   Warehouse,
   Plus,
   Search,
   Edit,
   Trash2,
-  Eye,
   MapPin,
   Package,
-  DollarSign,
-} from 'lucide-react';
+  DollarSign } from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 
 interface WarehouseItem {
@@ -272,8 +268,7 @@ export default function WarehousesPage() {
 function WarehouseModal({
   warehouse,
   onClose,
-  onSave,
-}: {
+  onSave }: {
   warehouse: WarehouseItem | null;
   onClose: () => void;
   onSave: () => void;
@@ -289,12 +284,10 @@ function WarehouseModal({
       city: warehouse?.address?.city || '',
       state: warehouse?.address?.state || '',
       country: warehouse?.address?.country || '',
-      postalCode: warehouse?.address?.postalCode || '',
-    },
+      postalCode: warehouse?.address?.postalCode || '' },
     totalCapacity: warehouse?.totalCapacity || 0,
     capacityUnit: warehouse?.capacityUnit || 'cubic_meters',
-    isDefault: warehouse?.isDefault || false,
-  });
+    isDefault: warehouse?.isDefault || false });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -307,8 +300,7 @@ function WarehouseModal({
       const data = {
         ...formData,
         address: Object.values(formData.address).some((v) => v) ? formData.address : undefined,
-        totalCapacity: formData.totalCapacity || undefined,
-      };
+        totalCapacity: formData.totalCapacity || undefined };
 
       if (warehouse) {
         await inventoryApi.updateWarehouse(warehouse.id, data);
@@ -394,8 +386,7 @@ function WarehouseModal({
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    address: { ...formData.address, street: e.target.value },
-                  })
+                    address: { ...formData.address, street: e.target.value } })
                 }
                 placeholder="Street address"
               />
@@ -405,8 +396,7 @@ function WarehouseModal({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      address: { ...formData.address, city: e.target.value },
-                    })
+                      address: { ...formData.address, city: e.target.value } })
                   }
                   placeholder="City"
                 />
@@ -415,8 +405,7 @@ function WarehouseModal({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      address: { ...formData.address, state: e.target.value },
-                    })
+                      address: { ...formData.address, state: e.target.value } })
                   }
                   placeholder="State/Province"
                 />
@@ -427,8 +416,7 @@ function WarehouseModal({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      address: { ...formData.address, country: e.target.value },
-                    })
+                      address: { ...formData.address, country: e.target.value } })
                   }
                   placeholder="Country"
                 />
@@ -437,8 +425,7 @@ function WarehouseModal({
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      address: { ...formData.address, postalCode: e.target.value },
-                    })
+                      address: { ...formData.address, postalCode: e.target.value } })
                   }
                   placeholder="Postal Code"
                 />

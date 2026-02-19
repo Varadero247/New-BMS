@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { createCircuitBreaker } from '@ims/resilience';
-import { scopeToUser } from '@ims/service-auth';
+import {  } from '@ims/service-auth';
 
 interface AIProviderResponse {
   content: string;
@@ -49,8 +49,7 @@ const openAIBreaker = createCircuitBreaker(
   {
     onOpen: (name) => logger.warn(`Circuit breaker ${name} opened`),
     onClose: (name) => logger.info(`Circuit breaker ${name} closed`),
-    onHalfOpen: (name) => logger.info(`Circuit breaker ${name} half-open`),
-  }
+    onHalfOpen: (name) => logger.info(`Circuit breaker ${name} half-open`) }
 );
 
 const anthropicBreaker = createCircuitBreaker(
@@ -58,8 +57,7 @@ const anthropicBreaker = createCircuitBreaker(
   { timeout: 30000, errorThresholdPercentage: 50, resetTimeout: 60000, name: 'anthropic' },
   {
     onOpen: (name) => logger.warn(`Circuit breaker ${name} opened`),
-    onClose: (name) => logger.info(`Circuit breaker ${name} closed`),
-  }
+    onClose: (name) => logger.info(`Circuit breaker ${name} closed`) }
 );
 
 const grokBreaker = createCircuitBreaker(
@@ -67,8 +65,7 @@ const grokBreaker = createCircuitBreaker(
   { timeout: 30000, errorThresholdPercentage: 50, resetTimeout: 60000, name: 'grok' },
   {
     onOpen: (name) => logger.warn(`Circuit breaker ${name} opened`),
-    onClose: (name) => logger.info(`Circuit breaker ${name} closed`),
-  }
+    onClose: (name) => logger.info(`Circuit breaker ${name} closed`) }
 );
 
 const router: IRouter = Router();
@@ -88,25 +85,21 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       sourceType: z.enum(['risk', 'incident', 'aspect', 'nonconformance']),
       sourceId: z.string().trim(),
       selectedText: z.string().trim().optional(),
-      customPrompt: z.string().trim().optional(),
-    });
+      customPrompt: z.string().trim().optional() });
 
     const data = schema.parse(req.body);
 
     // Get AI settings
     const settings = await prisma.aISettings.findFirst({
       where: { deletedAt: null } as any,
-      orderBy: { createdAt: 'desc' },
-    });
+      orderBy: { createdAt: 'desc' } });
 
     if (!settings?.apiKey) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'NO_AI_CONFIG',
-          message: 'AI provider not configured. Please set up API key in settings.',
-        },
-      });
+          message: 'AI provider not configured. Please set up API key in settings.' } });
     }
 
     // Get source data
@@ -121,8 +114,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     if (!sourceData) {
       return res.status(404).json({
         success: false,
-        error: { code: 'NOT_FOUND', message: 'Source data not found' },
-      });
+        error: { code: 'NOT_FOUND', message: 'Source data not found' } });
     }
 
     // Build prompt
@@ -155,8 +147,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       logger.error('AI provider error', { error: errorMessage, provider: settings.provider });
       return res.status(502).json({
         success: false,
-        error: { code: 'AI_ERROR', message: 'AI analysis failed. Please try again later.' },
-      });
+        error: { code: 'AI_ERROR', message: 'AI analysis failed. Please try again later.' } });
     }
 
     // Parse AI response and extract structured data
@@ -178,18 +169,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         suggestedActions: parsedResponse.actions as unknown as Prisma.InputJsonValue,
         complianceGaps: parsedResponse.gaps as unknown as Prisma.InputJsonValue,
         highlights: parsedResponse.highlights as unknown as Prisma.InputJsonValue,
-        status: 'COMPLETED',
-      },
-    });
+        status: 'COMPLETED' } });
 
     // Update token usage
     await prisma.aISettings.update({
       where: { id: settings.id },
       data: {
         totalTokensUsed: settings.totalTokensUsed + (aiResponse!.tokensUsed || 0),
-        lastUsedAt: new Date(),
-      },
-    });
+        lastUsedAt: new Date() } });
 
     res.status(201).json({ success: true, data: analysis });
   } catch (error) {
@@ -197,14 +184,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       const fields = error.errors.map((e) => e.path.join('.'));
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields },
-      });
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields } });
     }
     logger.error('AI analysis error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to perform AI analysis' },
-    });
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to perform AI analysis' } });
   }
 });
 
@@ -221,23 +206,19 @@ async function callOpenAIImpl(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
+        Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model,
         messages: [
           {
             role: 'system',
             content:
-              'You are an expert ISO management system consultant specializing in ISO 45001, ISO 14001, and ISO 9001. Provide structured analysis with clear root causes, corrective actions, and compliance gaps.',
-          },
+              'You are an expert ISO management system consultant specializing in ISO 45001, ISO 14001, and ISO 9001. Provide structured analysis with clear root causes, corrective actions, and compliance gaps.' },
           { role: 'user', content: prompt },
         ],
         temperature: 0.7,
-        max_tokens: 2000,
-      }),
-      signal: controller.signal,
-    });
+        max_tokens: 2000 }),
+      signal: controller.signal });
 
     if (!response.ok) {
       let errorMessage = 'OpenAI API error';
@@ -261,8 +242,7 @@ async function callOpenAIImpl(
     return {
       content: choices[0].message.content,
       tokensUsed: usage?.total_tokens || 0,
-      model: data.model as string,
-    };
+      model: data.model as string };
   } finally {
     clearTimeout(timeoutId);
   }
@@ -281,17 +261,14 @@ async function callAnthropicImpl(
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+        'anthropic-version': '2023-06-01' },
       body: JSON.stringify({
         model,
         max_tokens: 2000,
         system:
           'You are an expert ISO management system consultant specializing in ISO 45001, ISO 14001, and ISO 9001. Provide structured analysis with clear root causes, corrective actions, and compliance gaps.',
-        messages: [{ role: 'user', content: prompt }],
-      }),
-      signal: controller.signal,
-    });
+        messages: [{ role: 'user', content: prompt }] }),
+      signal: controller.signal });
 
     if (!response.ok) {
       let errorMessage = 'Anthropic API error';
@@ -315,8 +292,7 @@ async function callAnthropicImpl(
     return {
       content: content[0].text,
       tokensUsed: (usage?.input_tokens || 0) + (usage?.output_tokens || 0),
-      model: data.model as string,
-    };
+      model: data.model as string };
   } finally {
     clearTimeout(timeoutId);
   }
@@ -330,20 +306,16 @@ async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderR
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
+        Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: 'grok-beta',
         messages: [
           {
             role: 'system',
-            content: 'You are an expert ISO management system consultant.',
-          },
+            content: 'You are an expert ISO management system consultant.' },
           { role: 'user', content: prompt },
-        ],
-      }),
-      signal: controller.signal,
-    });
+        ] }),
+      signal: controller.signal });
 
     if (!response.ok) {
       let errorMessage = 'Grok API error';
@@ -367,8 +339,7 @@ async function callGrokImpl(apiKey: string, prompt: string): Promise<AIProviderR
     return {
       content: choices[0].message.content,
       tokensUsed: usage?.total_tokens || 0,
-      model: 'grok-beta',
-    };
+      model: 'grok-beta' };
   } finally {
     clearTimeout(timeoutId);
   }
@@ -393,8 +364,7 @@ function parseAIResponse(response: AIProviderResponse): ParsedAIResponse {
       title: match[1].trim().substring(0, 100),
       description: match[1].trim(),
       priority: 'MEDIUM',
-      type: 'CORRECTIVE',
-    });
+      type: 'CORRECTIVE' });
   }
 
   // Extract compliance gaps
@@ -404,8 +374,7 @@ function parseAIResponse(response: AIProviderResponse): ParsedAIResponse {
     gaps.push({
       clause: match[1],
       gap: match[2].trim(),
-      recommendation: '',
-    });
+      recommendation: '' });
   }
 
   // Extract highlights
@@ -415,8 +384,7 @@ function parseAIResponse(response: AIProviderResponse): ParsedAIResponse {
     highlights.push({
       text: match[1].trim(),
       reason: 'Identified by AI analysis',
-      type: 'warning',
-    });
+      type: 'warning' });
   }
 
   return { rootCause, actions, gaps, highlights };

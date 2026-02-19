@@ -5,12 +5,9 @@ import {
   Search,
   Briefcase,
   MapPin,
-  Clock,
   Users,
-  Eye,
   ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 
 interface Job {
   id: string;
@@ -48,8 +45,7 @@ const jobs: Job[] = [
       '5+ years quality experience in medical devices',
       'ISO 13485 / FDA 21 CFR 820 knowledge',
       'Lead Auditor qualification preferred',
-    ],
-  },
+    ] },
   {
     id: '2',
     title: 'EHS Coordinator',
@@ -69,8 +65,7 @@ const jobs: Job[] = [
       '3+ years EHS experience',
       'ISO 14001/45001 knowledge',
       'Strong communication skills',
-    ],
-  },
+    ] },
   {
     id: '3',
     title: 'Software Developer — IMS Platform',
@@ -90,8 +85,7 @@ const jobs: Job[] = [
       'React/Next.js proficiency',
       'Node.js/Express experience',
       'PostgreSQL/Prisma ORM',
-    ],
-  },
+    ] },
   {
     id: '4',
     title: 'Information Security Analyst',
@@ -111,8 +105,7 @@ const jobs: Job[] = [
       '3+ years infosec experience',
       'ISO 27001 framework knowledge',
       'SIEM and vulnerability management tools',
-    ],
-  },
+    ] },
   {
     id: '5',
     title: 'Supply Chain Intern',
@@ -132,8 +125,7 @@ const jobs: Job[] = [
       'Strong analytical skills',
       'Proficiency in Excel',
       'Interest in manufacturing',
-    ],
-  },
+    ] },
   {
     id: '6',
     title: 'Regulatory Affairs Manager',
@@ -153,23 +145,20 @@ const jobs: Job[] = [
       '8+ years regulatory affairs',
       'MDR/IVDR experience',
       'FDA submission experience',
-    ],
-  },
+    ] },
 ];
 
 const statusConfig: Record<string, { label: string; color: string }> = {
   open: { label: 'Open', color: 'bg-emerald-100 text-emerald-700' },
   closed: { label: 'Closed', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
   'on-hold': { label: 'On Hold', color: 'bg-amber-100 text-amber-700' },
-  draft: { label: 'Draft', color: 'bg-blue-100 text-blue-700' },
-};
+  draft: { label: 'Draft', color: 'bg-blue-100 text-blue-700' } };
 
 const typeConfig: Record<string, { label: string; color: string }> = {
   'full-time': { label: 'Full-time', color: 'bg-blue-50 text-blue-600' },
   'part-time': { label: 'Part-time', color: 'bg-purple-50 text-purple-600' },
   contract: { label: 'Contract', color: 'bg-orange-50 text-orange-600' },
-  internship: { label: 'Internship', color: 'bg-teal-50 text-teal-600' },
-};
+  internship: { label: 'Internship', color: 'bg-teal-50 text-teal-600' } };
 
 export default function JobPostingsClient() {
   const [search, setSearch] = useState('');

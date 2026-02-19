@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   Modal,
   ModalFooter,
   Input,
@@ -17,8 +16,7 @@ import {
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import { Plus, BookOpen, Loader2, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -69,8 +67,7 @@ const emptyForm: LegalForm = {
   responsiblePerson: '',
   reviewDate: '',
   lastReviewDate: '',
-  notes: '',
-};
+  notes: '' };
 
 function getComplianceColor(status: string) {
   switch (status) {
@@ -129,8 +126,7 @@ export default function LegalRegisterClient() {
       responsiblePerson: item.responsiblePerson || '',
       reviewDate: item.reviewDate ? item.reviewDate.split('T')[0] : '',
       lastReviewDate: item.lastReviewDate ? item.lastReviewDate.split('T')[0] : '',
-      notes: item.notes || '',
-    });
+      notes: item.notes || '' });
     setEditId(item.id);
     setModalOpen(true);
   }
@@ -151,8 +147,7 @@ export default function LegalRegisterClient() {
         lastReviewDate: form.lastReviewDate
           ? new Date(form.lastReviewDate).toISOString()
           : undefined,
-        notes: form.notes || undefined,
-      };
+        notes: form.notes || undefined };
       if (editId) {
         await api.put(`/legal-register/${editId}`, payload);
       } else {

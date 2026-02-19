@@ -4,13 +4,10 @@ import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { ClipboardCheck, Plus, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -37,8 +34,7 @@ const statusColors: Record<string, string> = {
   PLANNED: 'bg-blue-100 text-blue-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-};
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
 
 const auditStatuses = ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
 
@@ -55,8 +51,7 @@ export default function AuditsPage() {
   const [form, setForm] = useState({
     title: '',
     auditDate: '',
-    leadAuditor: '',
-  });
+    leadAuditor: '' });
 
   useEffect(() => {
     loadAudits();

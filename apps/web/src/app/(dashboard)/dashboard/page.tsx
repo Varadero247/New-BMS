@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  AlertTriangle,
   CheckCircle,
   Clock,
   ArrowRight,
@@ -12,8 +11,7 @@ import {
   HardHat,
   Leaf,
   Award,
-  ShieldCheck,
-} from 'lucide-react';
+  ShieldCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ComplianceGauge, RiskMatrix } from '@/components/charts';
 import api from '@/lib/api';

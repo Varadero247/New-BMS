@@ -5,15 +5,13 @@ import { Card, CardContent } from '@ims/ui';
 import {
   Plus,
   Search,
-  PieChart,
   LayoutDashboard,
   Lock,
   Globe,
   XCircle,
   Edit,
   Copy,
-  Star,
-} from 'lucide-react';
+  Star } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface DashboardItem {
@@ -40,8 +38,7 @@ const MOCK_DASHBOARDS: DashboardItem[] = [
     isFeatured: true,
     lastUpdated: '2026-02-14',
     viewCount: 284,
-    tags: ['Executive', 'KPIs', 'Compliance'],
-  },
+    tags: ['Executive', 'KPIs', 'Compliance'] },
   {
     id: '2',
     name: 'H&S Performance Monitor',
@@ -52,8 +49,7 @@ const MOCK_DASHBOARDS: DashboardItem[] = [
     isFeatured: false,
     lastUpdated: '2026-02-13',
     viewCount: 156,
-    tags: ['H&S', 'Safety', 'Incidents'],
-  },
+    tags: ['H&S', 'Safety', 'Incidents'] },
   {
     id: '3',
     name: 'Quality KPI Tracker',
@@ -64,8 +60,7 @@ const MOCK_DASHBOARDS: DashboardItem[] = [
     isFeatured: true,
     lastUpdated: '2026-02-12',
     viewCount: 198,
-    tags: ['Quality', 'NCR', 'CAPA'],
-  },
+    tags: ['Quality', 'NCR', 'CAPA'] },
   {
     id: '4',
     name: 'ESG Metrics Board',
@@ -76,8 +71,7 @@ const MOCK_DASHBOARDS: DashboardItem[] = [
     isFeatured: false,
     lastUpdated: '2026-02-10',
     viewCount: 112,
-    tags: ['ESG', 'Emissions', 'Sustainability'],
-  },
+    tags: ['ESG', 'Emissions', 'Sustainability'] },
   {
     id: '5',
     name: 'Supply Chain Scorecard',
@@ -88,8 +82,7 @@ const MOCK_DASHBOARDS: DashboardItem[] = [
     isFeatured: false,
     lastUpdated: '2026-02-08',
     viewCount: 43,
-    tags: ['Supply Chain', 'Suppliers'],
-  },
+    tags: ['Supply Chain', 'Suppliers'] },
   {
     id: '6',
     name: 'Finance BI Dashboard',
@@ -100,8 +93,7 @@ const MOCK_DASHBOARDS: DashboardItem[] = [
     isFeatured: false,
     lastUpdated: '2026-02-07',
     viewCount: 67,
-    tags: ['Finance', 'Budget', 'Revenue'],
-  },
+    tags: ['Finance', 'Budget', 'Revenue'] },
   {
     id: '7',
     name: 'ISO Compliance Radar',
@@ -112,8 +104,7 @@ const MOCK_DASHBOARDS: DashboardItem[] = [
     isFeatured: true,
     lastUpdated: '2026-02-14',
     viewCount: 321,
-    tags: ['Compliance', 'ISO', 'Audit'],
-  },
+    tags: ['Compliance', 'ISO', 'Audit'] },
   {
     id: '8',
     name: 'Workforce Analytics',
@@ -124,15 +115,13 @@ const MOCK_DASHBOARDS: DashboardItem[] = [
     isFeatured: false,
     lastUpdated: '2026-02-06',
     viewCount: 89,
-    tags: ['HR', 'Training', 'Workforce'],
-  },
+    tags: ['HR', 'Training', 'Workforce'] },
 ];
 
 const VISIBILITY_STYLES: Record<string, string> = {
   PUBLIC: 'bg-green-100 text-green-700',
   PRIVATE: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-  RESTRICTED: 'bg-orange-100 text-orange-700',
-};
+  RESTRICTED: 'bg-orange-100 text-orange-700' };
 
 function VisibilityIcon({ v }: { v: string }) {
   if (v === 'PUBLIC') return <Globe className="h-3.5 w-3.5" />;
@@ -221,14 +210,12 @@ export default function DashboardsPage() {
             {
               label: 'Total Dashboards',
               value: items.length,
-              color: 'bg-purple-50 text-purple-700',
-            },
+              color: 'bg-purple-50 text-purple-700' },
             { label: 'Featured', value: featured.length, color: 'bg-yellow-50 text-yellow-700' },
             {
               label: 'Total Views',
               value: totalViews.toLocaleString(),
-              color: 'bg-blue-50 text-blue-700',
-            },
+              color: 'bg-blue-50 text-blue-700' },
           ].map((s) => (
             <div key={s.label} className={`rounded-lg p-4 ${s.color}`}>
               <p className="text-2xl font-bold">{s.value}</p>

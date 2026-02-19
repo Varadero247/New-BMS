@@ -20,10 +20,7 @@ import {
   PenTool,
   Shield,
   XCircle,
-  ChevronRight,
-  Building2,
-  Globe,
-} from 'lucide-react';
+  Globe } from 'lucide-react';
 
 interface Declaration {
   id: string;
@@ -57,37 +54,31 @@ const statusConfig: Record<
     text: 'text-gray-700 dark:text-gray-300',
     icon: Edit3,
     label: 'Draft',
-    dotColor: 'bg-gray-400',
-  },
+    dotColor: 'bg-gray-400' },
   UNDER_REVIEW: {
     bg: 'bg-yellow-100 dark:bg-yellow-900/30',
     text: 'text-yellow-700 dark:text-yellow-300',
     icon: Clock,
     label: 'Under Review',
-    dotColor: 'bg-yellow-500',
-  },
+    dotColor: 'bg-yellow-500' },
   APPROVED: {
     bg: 'bg-blue-100 dark:bg-blue-900/30',
     text: 'text-blue-700 dark:text-blue-300',
     icon: CheckCircle2,
     label: 'Approved',
-    dotColor: 'bg-blue-500',
-  },
+    dotColor: 'bg-blue-500' },
   PUBLISHED: {
     bg: 'bg-green-100 dark:bg-green-900/30',
     text: 'text-green-700 dark:text-green-300',
     icon: Award,
     label: 'Published',
-    dotColor: 'bg-green-500',
-  },
+    dotColor: 'bg-green-500' },
   EXPIRED: {
     bg: 'bg-red-100 dark:bg-red-900/30',
     text: 'text-red-700 dark:text-red-300',
     icon: XCircle,
     label: 'Expired',
-    dotColor: 'bg-red-500',
-  },
-};
+    dotColor: 'bg-red-500' } };
 
 const workflowSteps = [
   { status: 'DRAFT', label: 'Draft' },
@@ -130,8 +121,7 @@ export default function SelfDeclarationsPage() {
     signatoryOrg: '',
     validFrom: '',
     validTo: '',
-    standardsCovered: ['ISO 42001:2023'] as string[],
-  });
+    standardsCovered: ['ISO 42001:2023'] as string[] });
 
   useEffect(() => {
     loadDeclarations();
@@ -145,8 +135,7 @@ export default function SelfDeclarationsPage() {
         ...d,
         standardsCovered: d.standardsCovered || ['ISO 42001:2023'],
         signatoryTitle: d.signatoryTitle || '',
-        signatoryOrg: d.signatoryOrg || '',
-      }));
+        signatoryOrg: d.signatoryOrg || '' }));
       setDeclarations(data);
     } catch (err) {
       console.error('Error loading declarations:', err);
@@ -171,8 +160,7 @@ export default function SelfDeclarationsPage() {
       signatoryOrg: '',
       validFrom: '',
       validTo: '',
-      standardsCovered: ['ISO 42001:2023'],
-    });
+      standardsCovered: ['ISO 42001:2023'] });
     setModalOpen(true);
   }
 
@@ -191,8 +179,7 @@ export default function SelfDeclarationsPage() {
       signatoryOrg: declaration.signatoryOrg || '',
       validFrom: declaration.validFrom ? declaration.validFrom.split('T')[0] : '',
       validTo: declaration.validTo ? declaration.validTo.split('T')[0] : '',
-      standardsCovered: declaration.standardsCovered || ['ISO 42001:2023'],
-    });
+      standardsCovered: declaration.standardsCovered || ['ISO 42001:2023'] });
     setModalOpen(true);
   }
 
@@ -256,8 +243,7 @@ export default function SelfDeclarationsPage() {
       ...prev,
       standardsCovered: prev.standardsCovered.includes(std)
         ? prev.standardsCovered.filter((s) => s !== std)
-        : [...prev.standardsCovered, std],
-    }));
+        : [...prev.standardsCovered, std] }));
   }
 
   function getWorkflowStepIndex(status: string) {

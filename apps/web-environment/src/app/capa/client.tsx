@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -14,8 +12,7 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import { Plus, RefreshCw, Loader2, Search, Sparkles, AlertTriangle, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -77,8 +74,7 @@ const STATUSES = [
   {
     value: 'ROOT_CAUSE_ANALYSIS',
     label: 'Root Cause Analysis',
-    color: 'bg-blue-100 text-blue-800',
-  },
+    color: 'bg-blue-100 text-blue-800' },
   { value: 'ACTIONS_DEFINED', label: 'Actions Defined', color: 'bg-indigo-100 text-indigo-800' },
   { value: 'IMPLEMENTATION', label: 'Implementation', color: 'bg-yellow-100 text-yellow-800' },
   { value: 'VERIFICATION', label: 'Verification', color: 'bg-purple-100 text-purple-800' },
@@ -108,8 +104,7 @@ const PIPELINE_LABELS: Record<string, string> = {
   ACTIONS_DEFINED: 'Actions',
   IMPLEMENTATION: 'Implementation',
   VERIFICATION: 'Verification',
-  CLOSED: 'Closed',
-};
+  CLOSED: 'Closed' };
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -266,8 +261,7 @@ const emptyForm: CapaForm = {
   targetClosureDate: '',
   lessonsLearned: '',
   sharedLessonsLearned: false,
-  capaActions: [],
-};
+  capaActions: [] };
 
 // ─── Helpers ────────────────────────────────────────────────────
 
@@ -364,22 +358,19 @@ export default function CAPAClient() {
       capaActions: [
         ...prev.capaActions,
         { description: '', assignedTo: '', dueDate: '', priority: 'MEDIUM' },
-      ],
-    }));
+      ] }));
   }
 
   function updateAction(index: number, field: keyof CapaActionItem, value: string) {
     setForm((prev) => ({
       ...prev,
-      capaActions: prev.capaActions.map((a, i) => (i === index ? { ...a, [field]: value } : a)),
-    }));
+      capaActions: prev.capaActions.map((a, i) => (i === index ? { ...a, [field]: value } : a)) }));
   }
 
   function removeAction(index: number) {
     setForm((prev) => ({
       ...prev,
-      capaActions: prev.capaActions.filter((_, i) => i !== index),
-    }));
+      capaActions: prev.capaActions.filter((_, i) => i !== index) }));
   }
 
   // ── AI functions ─────────────────────────────────────────────
@@ -395,8 +386,7 @@ export default function CAPAClient() {
         triggerSource: form.triggerSource,
         description: form.description,
         problemStatement: form.problemStatement,
-        rcaMethod: form.rcaMethod,
-      });
+        rcaMethod: form.rcaMethod });
       const data = res.data.data;
       if (data) {
         setAiGenerated(JSON.stringify(data, null, 2));
@@ -420,8 +410,7 @@ export default function CAPAClient() {
       const res = await api.post('/capa/ai-five-why', {
         title: form.title,
         description: form.description,
-        problemStatement: form.problemStatement || form.description,
-      });
+        problemStatement: form.problemStatement || form.description });
       const data = res.data.data;
       if (data) {
         setAiGenerated(JSON.stringify(data, null, 2));
@@ -447,8 +436,7 @@ export default function CAPAClient() {
       const res = await api.post('/capa/ai-fishbone', {
         title: form.title,
         description: form.description,
-        problemStatement: form.problemStatement || form.description,
-      });
+        problemStatement: form.problemStatement || form.description });
       const data = res.data.data;
       if (data) {
         setAiGenerated(JSON.stringify(data, null, 2));
@@ -489,8 +477,7 @@ export default function CAPAClient() {
           dueDate: a.dueDate
             ? new Date(a.dueDate).toISOString()
             : new Date(form.targetClosureDate).toISOString(),
-          priority: a.priority || 'MEDIUM',
-        }));
+          priority: a.priority || 'MEDIUM' }));
 
       await api.post('/capa', {
         capaType: form.capaType,
@@ -539,8 +526,7 @@ export default function CAPAClient() {
         targetClosureDate: new Date(form.targetClosureDate).toISOString(),
         lessonsLearned: form.lessonsLearned || undefined,
         sharedLessonsLearned: form.sharedLessonsLearned,
-        capaActions: validActions.length > 0 ? validActions : undefined,
-      });
+        capaActions: validActions.length > 0 ? validActions : undefined });
       setShowModal(false);
       loadCapas();
     } catch (error) {

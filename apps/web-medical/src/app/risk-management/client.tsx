@@ -13,8 +13,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   Search,
@@ -24,9 +23,7 @@ import {
   Shield,
   FileText,
   ChevronLeft,
-  Eye,
-  BarChart3,
-} from 'lucide-react';
+  BarChart3 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -197,8 +194,7 @@ const emptyRmfForm = {
   deviceName: '',
   deviceClass: 'I' as string,
   intendedUse: '',
-  riskPolicy: '',
-};
+  riskPolicy: '' };
 
 const emptyHazardForm = {
   category: 'ENERGY' as string,
@@ -206,20 +202,17 @@ const emptyHazardForm = {
   hazardousSituation: '',
   harm: '',
   severityBefore: 3,
-  probabilityBefore: 3,
-};
+  probabilityBefore: 3 };
 
 const emptyControlForm = {
   controlType: 'INHERENT_SAFETY' as string,
   description: '',
-  verificationMethod: '',
-};
+  verificationMethod: '' };
 
 const emptyBenefitRiskForm = {
   overallRiskAcceptable: false,
   benefitRiskAcceptable: false,
-  analysis: '',
-};
+  analysis: '' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -332,8 +325,7 @@ export default function RiskManagementClient() {
         await api.post(`/risk/${selectedRmf.id}/hazards`, {
           ...hazardForm,
           severityBefore: Number(hazardForm.severityBefore),
-          probabilityBefore: Number(hazardForm.probabilityBefore),
-        });
+          probabilityBefore: Number(hazardForm.probabilityBefore) });
         setShowAddHazardModal(false);
         setHazardForm(emptyHazardForm);
         fetchRmfDetail(selectedRmf.id);
@@ -354,8 +346,7 @@ export default function RiskManagementClient() {
       setError('');
       try {
         await api.put(`/risk/${selectedRmf.id}/hazards/${selectedHazard.id}`, {
-          addControl: controlForm,
-        });
+          addControl: controlForm });
         setShowAddControlModal(false);
         setControlForm(emptyControlForm);
         fetchRmfDetail(selectedRmf.id);
@@ -436,8 +427,7 @@ export default function RiskManagementClient() {
       active: riskFiles.filter((rf) => rf.status === 'ACTIVE' || rf.status === 'UNDER_REVIEW')
         .length,
       totalHazards: riskFiles.reduce((sum, rf) => sum + (rf.hazardCount || 0), 0),
-      highRiskCount: riskFiles.reduce((sum, rf) => sum + (rf.highRiskCount || 0), 0),
-    }),
+      highRiskCount: riskFiles.reduce((sum, rf) => sum + (rf.highRiskCount || 0), 0) }),
     [riskFiles]
   );
 
@@ -540,8 +530,7 @@ export default function RiskManagementClient() {
                           ? {
                               overallRiskAcceptable: selectedRmf.benefitRisk.overallRiskAcceptable,
                               benefitRiskAcceptable: selectedRmf.benefitRisk.benefitRiskAcceptable,
-                              analysis: selectedRmf.benefitRisk.analysis || '',
-                            }
+                              analysis: selectedRmf.benefitRisk.analysis || '' }
                           : emptyBenefitRiskForm
                       );
                       setError('');
@@ -1235,8 +1224,7 @@ export default function RiskManagementClient() {
                       onChange={(e) =>
                         setBenefitRiskForm({
                           ...benefitRiskForm,
-                          overallRiskAcceptable: e.target.checked,
-                        })
+                          overallRiskAcceptable: e.target.checked })
                       }
                       className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />
@@ -1252,8 +1240,7 @@ export default function RiskManagementClient() {
                       onChange={(e) =>
                         setBenefitRiskForm({
                           ...benefitRiskForm,
-                          benefitRiskAcceptable: e.target.checked,
-                        })
+                          benefitRiskAcceptable: e.target.checked })
                       }
                       className="h-4 w-4 rounded border-gray-300 text-teal-600 focus:ring-teal-500"
                     />

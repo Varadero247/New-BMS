@@ -11,8 +11,7 @@ import {
   ArrowRight,
   CheckCircle,
   AlertCircle,
-  XCircle,
-} from 'lucide-react';
+  XCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 
@@ -41,8 +40,7 @@ const MODULE_URLS: Record<string, string> = {
   iso42001: process.env.NEXT_PUBLIC_ISO42001_URL || 'http://localhost:3024',
   iso37001: process.env.NEXT_PUBLIC_ISO37001_URL || 'http://localhost:3025',
   foodsafety: process.env.NEXT_PUBLIC_FOOD_SAFETY_URL || 'http://localhost:3020',
-  energy: process.env.NEXT_PUBLIC_ENERGY_URL || 'http://localhost:3021',
-};
+  energy: process.env.NEXT_PUBLIC_ENERGY_URL || 'http://localhost:3021' };
 
 const MOCK_SCORES: ModuleScore[] = [
   {
@@ -58,8 +56,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-10-15',
     certificationExpiry: '2027-10-15',
     trend: 'UP',
-    href: MODULE_URLS.hs,
-  },
+    href: MODULE_URLS.hs },
   {
     id: '2',
     module: 'Environment',
@@ -73,8 +70,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-09-20',
     certificationExpiry: '2027-09-20',
     trend: 'UP',
-    href: MODULE_URLS.env,
-  },
+    href: MODULE_URLS.env },
   {
     id: '3',
     module: 'Quality',
@@ -88,8 +84,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-05-01',
     certificationExpiry: '2027-11-01',
     trend: 'DOWN',
-    href: MODULE_URLS.quality,
-  },
+    href: MODULE_URLS.quality },
   {
     id: '4',
     module: 'Information Security',
@@ -103,8 +98,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-08-15',
     certificationExpiry: '2027-08-15',
     trend: 'STABLE',
-    href: MODULE_URLS.infosec,
-  },
+    href: MODULE_URLS.infosec },
   {
     id: '5',
     module: 'ESG',
@@ -118,8 +112,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-06-01',
     certificationExpiry: null,
     trend: 'UP',
-    href: MODULE_URLS.esg,
-  },
+    href: MODULE_URLS.esg },
   {
     id: '6',
     module: 'AI Management',
@@ -133,8 +126,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-07-10',
     certificationExpiry: null,
     trend: 'UP',
-    href: MODULE_URLS.iso42001,
-  },
+    href: MODULE_URLS.iso42001 },
   {
     id: '7',
     module: 'Anti-Bribery',
@@ -148,8 +140,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-09-01',
     certificationExpiry: '2027-09-01',
     trend: 'UP',
-    href: MODULE_URLS.iso37001,
-  },
+    href: MODULE_URLS.iso37001 },
   {
     id: '8',
     module: 'Food Safety',
@@ -163,8 +154,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-11-15',
     certificationExpiry: '2027-11-15',
     trend: 'UP',
-    href: MODULE_URLS.foodsafety,
-  },
+    href: MODULE_URLS.foodsafety },
   {
     id: '9',
     module: 'Energy',
@@ -178,16 +168,14 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-10-01',
     certificationExpiry: '2027-10-01',
     trend: 'UP',
-    href: MODULE_URLS.energy,
-  },
+    href: MODULE_URLS.energy },
 ];
 
 const STATUS_STYLES: Record<string, string> = {
   CERTIFIED: 'bg-green-100 text-green-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   LAPSED: 'bg-red-100 text-red-700',
-  NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
-};
+  NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-500' };
 
 function TrendBadge({ trend, prev, current }: { trend: string; prev: number; current: number }) {
   const diff = current - prev;
@@ -296,26 +284,22 @@ export default function ComplianceScoresPage() {
               label: 'Modules Tracked',
               value: items.length,
               color: 'bg-blue-50 text-blue-700',
-              icon: Shield,
-            },
+              icon: Shield },
             {
               label: 'Certified',
               value: `${certified}/${items.length}`,
               color: 'bg-green-50 text-green-700',
-              icon: CheckCircle,
-            },
+              icon: CheckCircle },
             {
               label: 'Avg Score',
               value: `${avgScore}%`,
               color: `${avgScore >= 85 ? 'bg-green-50 text-green-700' : avgScore >= 70 ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'}`,
-              icon: TrendingUp,
-            },
+              icon: TrendingUp },
             {
               label: 'Open Findings',
               value: totalOpenFindings,
               color: totalCritical > 0 ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-orange-700',
-              icon: AlertCircle,
-            },
+              icon: AlertCircle },
           ].map((s) => {
             const Icon = s.icon;
             return (

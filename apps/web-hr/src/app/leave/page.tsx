@@ -14,19 +14,16 @@ import {
   Input,
   Textarea,
   Select,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   Calendar,
-  Clock,
   CheckCircle,
   XCircle,
   AlertCircle,
   ThumbsUp,
   ThumbsDown,
-  Sparkles,
-} from 'lucide-react';
+  Sparkles } from 'lucide-react';
 import { api, aiApi } from '@/lib/api';
 import Link from 'next/link';
 
@@ -68,8 +65,7 @@ const statusColors: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-700',
   APPROVED: 'bg-green-100 text-green-700',
   REJECTED: 'bg-red-100 text-red-700',
-  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-};
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
 
 export default function LeavePage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
@@ -165,8 +161,7 @@ export default function LeavePage() {
         endDate: formEndDate,
         reason: formReason || undefined,
         handoverToId: formHandoverToId || undefined,
-        isHalfDay: formIsHalfDay,
-      };
+        isHalfDay: formIsHalfDay };
 
       if (formIsHalfDay && formHalfDayType) {
         payload.halfDayPeriod = formHalfDayType;
@@ -202,8 +197,7 @@ export default function LeavePage() {
           : `/leave/requests/${actionRequestId}/reject`;
 
       await api.put(endpoint, {
-        comments: actionComments || undefined,
-      });
+        comments: actionComments || undefined });
       setActionModalOpen(false);
       loadRequests();
     } catch (error) {
@@ -239,9 +233,7 @@ export default function LeavePage() {
           totalLeaveDays,
           sickLeaveDays,
           leaveBreakdown,
-          unplannedAbsences: 0,
-        },
-      });
+          unplannedAbsences: 0 } });
       setAiAnalysis(res.data.data.result);
     } catch (error) {
       console.error('Error analyzing leave patterns:', error);
@@ -254,8 +246,7 @@ export default function LeavePage() {
     pending: requests.filter((r) => r.status === 'PENDING').length,
     approved: requests.filter((r) => r.status === 'APPROVED').length,
     rejected: requests.filter((r) => r.status === 'REJECTED').length,
-    total: requests.length,
-  };
+    total: requests.length };
 
   if (loading) {
     return (

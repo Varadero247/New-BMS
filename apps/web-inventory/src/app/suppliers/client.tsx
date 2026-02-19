@@ -2,20 +2,12 @@
 
 import { useState } from 'react';
 import {
-  Truck,
-  Star,
-  Clock,
-  AlertTriangle,
-  CheckCircle,
   Search,
-  Filter,
   ChevronDown,
   ChevronRight,
-  Globe,
   Mail,
   Phone,
-  MapPin,
-} from 'lucide-react';
+  MapPin } from 'lucide-react';
 
 type SupplierStatus = 'approved' | 'conditional' | 'under-review' | 'blocked';
 type Rating = 'A' | 'B' | 'C' | 'D';
@@ -66,8 +58,7 @@ const suppliers: Supplier[] = [
     paymentTerms: 'Net 30',
     lastAudit: '2025-11-15',
     certifications: ['ISO 9001', 'ISO 14001', 'AS9100D'],
-    notes: 'Primary metals supplier. Annual rebate agreement in place.',
-  },
+    notes: 'Primary metals supplier. Annual rebate agreement in place.' },
   {
     id: 'sup-2',
     name: 'ElectroCom GmbH',
@@ -89,8 +80,7 @@ const suppliers: Supplier[] = [
     paymentTerms: 'Net 45',
     lastAudit: '2025-09-20',
     certifications: ['ISO 9001', 'IATF 16949', 'ISO 14001'],
-    notes: 'Primary electronics supplier. JIT delivery for PCBs.',
-  },
+    notes: 'Primary electronics supplier. JIT delivery for PCBs.' },
   {
     id: 'sup-3',
     name: 'Pacific Polymers Ltd',
@@ -112,8 +102,7 @@ const suppliers: Supplier[] = [
     paymentTerms: 'Net 60',
     lastAudit: '2025-06-10',
     certifications: ['ISO 9001'],
-    notes: 'Backup polymer supplier. Quality improving after CAPA SUP-003-2025.',
-  },
+    notes: 'Backup polymer supplier. Quality improving after CAPA SUP-003-2025.' },
   {
     id: 'sup-4',
     name: 'PrecisionParts Inc',
@@ -135,8 +124,7 @@ const suppliers: Supplier[] = [
     paymentTerms: 'Net 30',
     lastAudit: '2025-12-01',
     certifications: ['ISO 9001'],
-    notes: 'On improvement plan. OTD and quality declining Q3-Q4 2025. Next audit March 2026.',
-  },
+    notes: 'On improvement plan. OTD and quality declining Q3-Q4 2025. Next audit March 2026.' },
   {
     id: 'sup-5',
     name: 'Nordic Chemicals AS',
@@ -158,8 +146,7 @@ const suppliers: Supplier[] = [
     paymentTerms: 'Net 30',
     lastAudit: '2026-01-10',
     certifications: ['ISO 9001', 'ISO 14001', 'REACH'],
-    notes: 'Excellent supplier. Zero non-conformances in 3 years.',
-  },
+    notes: 'Excellent supplier. Zero non-conformances in 3 years.' },
   {
     id: 'sup-6',
     name: 'QuickPack Solutions',
@@ -181,8 +168,7 @@ const suppliers: Supplier[] = [
     paymentTerms: 'Net 14',
     lastAudit: '2025-08-20',
     certifications: ['ISO 9001', 'FSC'],
-    notes: 'Local packaging supplier. Quick turnaround for custom packaging.',
-  },
+    notes: 'Local packaging supplier. Quick turnaround for custom packaging.' },
   {
     id: 'sup-7',
     name: 'SafetyFirst PPE',
@@ -204,8 +190,7 @@ const suppliers: Supplier[] = [
     paymentTerms: 'Net 30',
     lastAudit: '2024-12-15',
     certifications: ['ISO 9001'],
-    notes: 'Audit overdue. Scheduled for March 2026.',
-  },
+    notes: 'Audit overdue. Scheduled for March 2026.' },
   {
     id: 'sup-8',
     name: 'TitanForge Aerospace',
@@ -227,23 +212,20 @@ const suppliers: Supplier[] = [
     paymentTerms: 'Net 45',
     lastAudit: '2025-10-05',
     certifications: ['ISO 9001', 'AS9100D', 'NADCAP'],
-    notes: 'Aerospace-grade titanium specialist. NADCAP accredited special processes.',
-  },
+    notes: 'Aerospace-grade titanium specialist. NADCAP accredited special processes.' },
 ];
 
 const statusConfig: Record<SupplierStatus, { label: string; color: string }> = {
   approved: { label: 'Approved', color: 'bg-green-100 text-green-700' },
   conditional: { label: 'Conditional', color: 'bg-amber-100 text-amber-700' },
   'under-review': { label: 'Under Review', color: 'bg-blue-100 text-blue-700' },
-  blocked: { label: 'Blocked', color: 'bg-red-100 text-red-700' },
-};
+  blocked: { label: 'Blocked', color: 'bg-red-100 text-red-700' } };
 
 const ratingConfig: Record<Rating, { color: string; bgColor: string }> = {
   A: { color: 'text-green-700', bgColor: 'bg-green-100' },
   B: { color: 'text-blue-700', bgColor: 'bg-blue-100' },
   C: { color: 'text-amber-700', bgColor: 'bg-amber-100' },
-  D: { color: 'text-red-700', bgColor: 'bg-red-100' },
-};
+  D: { color: 'text-red-700', bgColor: 'bg-red-100' } };
 
 export default function SuppliersClient() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -509,8 +491,7 @@ export default function SuppliersClient() {
                             ? 'bg-green-500'
                             : sup.onTimeDelivery >= 85
                               ? 'bg-amber-500'
-                              : 'bg-red-500',
-                      },
+                              : 'bg-red-500' },
                       {
                         label: 'Quality Score',
                         value: sup.qualityScore,
@@ -519,8 +500,7 @@ export default function SuppliersClient() {
                             ? 'bg-green-500'
                             : sup.qualityScore >= 85
                               ? 'bg-amber-500'
-                              : 'bg-red-500',
-                      },
+                              : 'bg-red-500' },
                       {
                         label: 'Defect Rate',
                         value: Math.max(0, 100 - sup.defectRate * 20),
@@ -529,8 +509,7 @@ export default function SuppliersClient() {
                             ? 'bg-green-500'
                             : sup.defectRate <= 1.5
                               ? 'bg-amber-500'
-                              : 'bg-red-500',
-                      },
+                              : 'bg-red-500' },
                     ].map((bar) => (
                       <div key={bar.label}>
                         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">

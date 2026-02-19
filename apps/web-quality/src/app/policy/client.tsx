@@ -15,9 +15,7 @@ import {
   UserCheck,
   UserX,
   Plus,
-  X,
-  FileText,
-} from 'lucide-react';
+  X } from 'lucide-react';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -78,8 +76,7 @@ const defaultPolicy: PolicyVersion = {
   communicationPlan: [],
   signatories: [],
   acknowledgements: [],
-  updatedAt: new Date().toISOString(),
-};
+  updatedAt: new Date().toISOString() };
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
@@ -116,8 +113,7 @@ export default function PolicyPage() {
     const approved: PolicyVersion = {
       ...policy,
       status: 'APPROVED',
-      updatedAt: new Date().toISOString(),
-    };
+      updatedAt: new Date().toISOString() };
     const newVersions = [approved, ...versions];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(approved));
     localStorage.setItem(VERSIONS_KEY, JSON.stringify(newVersions));
@@ -135,8 +131,7 @@ export default function PolicyPage() {
       ...prev,
       version: `${major + 1}.0`,
       status: 'DRAFT',
-      updatedAt: new Date().toISOString(),
-    }));
+      updatedAt: new Date().toISOString() }));
   }, [policy.version]);
 
   // ── Restore ──────────────────────────────────────────────────────────────
@@ -199,22 +194,19 @@ export default function PolicyPage() {
   const addSignatory = () =>
     setPolicy((p) => ({
       ...p,
-      signatories: [...p.signatories, { id: newId(), name: '', role: '', signedAt: '' }],
-    }));
+      signatories: [...p.signatories, { id: newId(), name: '', role: '', signedAt: '' }] }));
   const removeSignatory = (id: string) =>
     setPolicy((p) => ({ ...p, signatories: p.signatories.filter((s) => s.id !== id) }));
   const updateSignatory = (id: string, field: keyof Signatory, value: string) =>
     setPolicy((p) => ({
       ...p,
-      signatories: p.signatories.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
-    }));
+      signatories: p.signatories.map((s) => (s.id === id ? { ...s, [field]: value } : s)) }));
   const markSigned = (id: string) =>
     setPolicy((p) => ({
       ...p,
       signatories: p.signatories.map((s) =>
         s.id === id ? { ...s, signedAt: new Date().toISOString() } : s
-      ),
-    }));
+      ) }));
 
   // ── Acknowledgement helpers ──────────────────────────────────────────────
   const addAcknowledgement = () =>
@@ -223,15 +215,13 @@ export default function PolicyPage() {
       acknowledgements: [
         ...p.acknowledgements,
         { id: newId(), name: '', department: '', acknowledged: false, acknowledgedAt: '' },
-      ],
-    }));
+      ] }));
   const removeAcknowledgement = (id: string) =>
     setPolicy((p) => ({ ...p, acknowledgements: p.acknowledgements.filter((a) => a.id !== id) }));
   const updateAcknowledgement = (id: string, field: string, value: string | boolean) =>
     setPolicy((p) => ({
       ...p,
-      acknowledgements: p.acknowledgements.map((a) => (a.id === id ? { ...a, [field]: value } : a)),
-    }));
+      acknowledgements: p.acknowledgements.map((a) => (a.id === id ? { ...a, [field]: value } : a)) }));
   const toggleAcknowledged = (id: string) =>
     setPolicy((p) => ({
       ...p,
@@ -240,11 +230,9 @@ export default function PolicyPage() {
           ? {
               ...a,
               acknowledged: !a.acknowledged,
-              acknowledgedAt: !a.acknowledged ? new Date().toISOString() : '',
-            }
+              acknowledgedAt: !a.acknowledged ? new Date().toISOString() : '' }
           : a
-      ),
-    }));
+      ) }));
 
   // ── Communication plan helpers ───────────────────────────────────────────
   const addCommEntry = () =>
@@ -253,8 +241,7 @@ export default function PolicyPage() {
       communicationPlan: [
         ...p.communicationPlan,
         { id: newId(), method: '', audience: '', frequency: '' },
-      ],
-    }));
+      ] }));
   const removeCommEntry = (id: string) =>
     setPolicy((p) => ({ ...p, communicationPlan: p.communicationPlan.filter((c) => c.id !== id) }));
   const updateCommEntry = (id: string, field: keyof CommunicationEntry, value: string) =>
@@ -262,8 +249,7 @@ export default function PolicyPage() {
       ...p,
       communicationPlan: p.communicationPlan.map((c) =>
         c.id === id ? { ...c, [field]: value } : c
-      ),
-    }));
+      ) }));
 
   // ── Derived stats ────────────────────────────────────────────────────────
   const ackedCount = policy.acknowledgements.filter((a) => a.acknowledged).length;

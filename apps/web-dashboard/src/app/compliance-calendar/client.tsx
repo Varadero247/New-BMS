@@ -4,16 +4,12 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
-  Badge,
   Input,
   Select,
   Label,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import {
   Calendar,
   List,
@@ -26,8 +22,7 @@ import {
   CheckCircle,
   Edit2,
   Trash2,
-  X,
-} from 'lucide-react';
+  X } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
 
@@ -147,8 +142,7 @@ function formatDate(d: string): string {
   return new Date(d).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
-    year: 'numeric',
-  });
+    year: 'numeric' });
 }
 
 // ---------------------------------------------------------------------------
@@ -175,8 +169,7 @@ export default function ComplianceCalendarClient() {
     assignee: '',
     location: '',
     notes: '',
-    recurrence: '',
-  });
+    recurrence: '' });
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
@@ -219,8 +212,7 @@ export default function ComplianceCalendarClient() {
       assignee: '',
       location: '',
       notes: '',
-      recurrence: '',
-    });
+      recurrence: '' });
     setModalOpen(true);
   }
 
@@ -235,8 +227,7 @@ export default function ComplianceCalendarClient() {
       assignee: event.assignee || '',
       location: event.location || '',
       notes: event.notes || '',
-      recurrence: event.recurrence || '',
-    });
+      recurrence: event.recurrence || '' });
     setModalOpen(true);
   }
 
@@ -246,8 +237,7 @@ export default function ComplianceCalendarClient() {
       const payload = {
         ...formData,
         dueDate: new Date(formData.dueDate).toISOString(),
-        recurrence: formData.recurrence || undefined,
-      };
+        recurrence: formData.recurrence || undefined };
 
       if (editingEvent) {
         await api.put(`/api/dashboard/compliance-calendar/events/${editingEvent.id}`, payload);
@@ -278,8 +268,7 @@ export default function ComplianceCalendarClient() {
     try {
       await api.put(`/api/dashboard/compliance-calendar/events/${event.id}`, {
         completedAt: new Date().toISOString(),
-        status: 'COMPLETED',
-      });
+        status: 'COMPLETED' });
       await loadEvents();
     } catch (error) {
       console.error('Failed to complete event:', error);

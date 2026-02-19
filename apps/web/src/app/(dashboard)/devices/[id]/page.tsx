@@ -10,12 +10,8 @@ import {
   Activity,
   Clock,
   MapPin,
-  Wifi,
-  WifiOff,
-  Thermometer,
   RefreshCw,
-  AlertTriangle,
-} from 'lucide-react';
+  AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -34,8 +30,7 @@ const deviceData = {
   warrantyEnd: '2028-06-15',
   lastSeen: '2 minutes ago',
   building: 'Main Office Building',
-  zone: 'Office Floor 3',
-};
+  zone: 'Office Floor 3' };
 
 const readings = [
   { label: 'Current Temperature', value: '72°F', target: '70°F', status: 'normal' },
@@ -50,8 +45,7 @@ const recentActivity = [
     action: 'Temperature adjusted',
     value: '72°F → 70°F',
     time: '10 min ago',
-    user: 'System',
-  },
+    user: 'System' },
   { id: 2, action: 'Mode changed', value: 'Cooling', time: '1 hour ago', user: 'John Smith' },
   { id: 3, action: 'Filter status check', value: 'OK', time: '6 hours ago', user: 'System' },
   {
@@ -59,8 +53,7 @@ const recentActivity = [
     action: 'Scheduled maintenance',
     value: 'Completed',
     time: '2 days ago',
-    user: 'Mike Tech',
-  },
+    user: 'Mike Tech' },
 ];
 
 const statusColors: Record<string, string> = {
@@ -68,8 +61,7 @@ const statusColors: Record<string, string> = {
   OFFLINE: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
   WARNING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
   ERROR: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-  MAINTENANCE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-};
+  MAINTENANCE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' };
 
 export default function DeviceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

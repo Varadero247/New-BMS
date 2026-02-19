@@ -19,10 +19,8 @@ import {
   RefreshCw,
   Zap,
   CheckCircle2,
-  Clock,
   TrendingUp,
-  TrendingDown,
-} from 'lucide-react';
+  TrendingDown } from 'lucide-react';
 import Link from 'next/link';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
@@ -166,44 +164,38 @@ const LEVEL_COLORS: Record<string, string> = {
   HIGH: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
   MEDIUM:
     'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800',
-  LOW: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800',
-};
+  LOW: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800' };
 
 const STATUS_COLORS: Record<string, string> = {
   IDENTIFIED: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
   ASSESSED: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
   TREATING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
   MONITORING: 'bg-teal-100 text-teal-800 dark:bg-teal-900/30 dark:text-teal-300',
-  CLOSED: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-};
+  CLOSED: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' };
 
 const APPETITE_COLORS: Record<string, string> = {
   WITHIN: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   APPROACHING: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-  EXCEEDS: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-};
+  EXCEEDS: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' };
 
 const KRI_STATUS_COLORS: Record<string, string> = {
   RED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-red-200 dark:border-red-800',
   AMBER:
     'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
   GREEN:
-    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800',
-};
+    'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-200 dark:border-green-800' };
 
 const EFFECTIVENESS_COLORS: Record<string, string> = {
   STRONG: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
   ADEQUATE: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
   WEAK: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-  NONE_EFFECTIVE: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-};
+  NONE_EFFECTIVE: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' };
 
 const ACTION_STATUS_COLORS: Record<string, string> = {
   OPEN: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
   COMPLETED: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-  OVERDUE: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-};
+  OVERDUE: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' };
 
 function MiniHeatmapCell({ l, c, highlight }: { l: number; c: number; highlight?: boolean }) {
   const score = l * c;
@@ -346,8 +338,7 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
     controls: risk.riskControls?.length || 0,
     kris: risk.keyRiskIndicators?.length || 0,
     actions: risk.treatmentActions?.length || 0,
-    reviews: risk.reviews?.length || 0,
-  };
+    reviews: risk.reviews?.length || 0 };
 
   return (
     <div className="flex min-h-screen">
@@ -1243,7 +1234,7 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                 <div className="relative">
                   <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700" />
                   <div className="space-y-4">
-                    {risk.reviews.map((review, idx) => (
+                    {risk.reviews.map((review, _idx) => (
                       <div key={review.id} className="relative pl-10">
                         <div
                           className={`absolute left-2.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-950 top-4 ${

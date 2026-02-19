@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   Modal,
   ModalFooter,
   Input,
@@ -17,8 +16,7 @@ import {
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import { Plus, CheckCircle2, Loader2, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -50,8 +48,7 @@ const emptyForm: ApprovalForm = {
   approverName: '',
   status: 'PENDING',
   comments: '',
-  decidedAt: '',
-};
+  decidedAt: '' };
 
 function getApprovalStatusColor(status: string) {
   switch (status) {
@@ -107,8 +104,7 @@ export default function ApprovalsClient() {
       approverName: approval.approverName || '',
       status: approval.status || 'PENDING',
       comments: approval.comments || '',
-      decidedAt: approval.decidedAt ? approval.decidedAt.split('T')[0] : '',
-    });
+      decidedAt: approval.decidedAt ? approval.decidedAt.split('T')[0] : '' });
     setEditId(approval.id);
     setModalOpen(true);
   }
@@ -119,8 +115,7 @@ export default function ApprovalsClient() {
     try {
       const payload = {
         ...form,
-        decidedAt: form.decidedAt ? new Date(form.decidedAt).toISOString() : undefined,
-      };
+        decidedAt: form.decidedAt ? new Date(form.decidedAt).toISOString() : undefined };
       if (editId) {
         await api.put(`/approvals/${editId}`, payload);
       } else {

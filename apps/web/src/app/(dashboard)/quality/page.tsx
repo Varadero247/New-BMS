@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Award,
-  AlertTriangle,
   FileText,
   Target,
   ClipboardCheck,
@@ -12,10 +11,8 @@ import {
   ArrowRight,
   Plus,
   XCircle,
-  CheckCircle,
   BarChart3,
-  Percent,
-} from 'lucide-react';
+  Percent } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { ComplianceGauge, TrendChart, COPQChart } from '@/components/charts';
@@ -26,8 +23,7 @@ import {
   exportQualityMetrics,
   exportQualityMetricsExcel,
   type IncidentExportData,
-  type QualityMetricsData,
-} from '@/lib/export';
+  type QualityMetricsData } from '@/lib/export';
 
 interface StandardSummary {
   standard: string;
@@ -104,14 +100,12 @@ export default function QualityOverviewPage() {
               appraisal: 25000,
               internalFailure: 35000,
               externalFailure: 45000,
-              total: 120000,
-            },
+              total: 120000 },
             dpmo: 3400,
             firstPassYield: 94.5,
             processSigma: 4.2,
             customerComplaints: 12,
-            ncCount: 45,
-          },
+            ncCount: 45 },
           monthlyTrend: [
             { month: 1, dpmo: 4200, fpy: 92 },
             { month: 2, dpmo: 3900, fpy: 93 },
@@ -119,8 +113,7 @@ export default function QualityOverviewPage() {
             { month: 4, dpmo: 3500, fpy: 94 },
             { month: 5, dpmo: 3400, fpy: 94.5 },
             { month: 6, dpmo: 3300, fpy: 95 },
-          ],
-        });
+          ] });
       } finally {
         setLoading(false);
       }
@@ -167,27 +160,23 @@ export default function QualityOverviewPage() {
       name: 'Processes',
       href: '/quality/processes',
       icon: BarChart3,
-      count: summary?.summary.risks.active,
-    },
+      count: summary?.summary.risks.active },
     {
       name: 'Non-Conformances',
       href: '/quality/ncs',
       icon: XCircle,
-      count: summary?.summary.incidents.open,
-    },
+      count: summary?.summary.incidents.open },
     { name: 'Legal', href: '/quality/legal', icon: FileText, count: summary?.summary.legal.total },
     {
       name: 'Objectives',
       href: '/quality/objectives',
       icon: Target,
-      count: summary?.summary.objectives.total,
-    },
+      count: summary?.summary.objectives.total },
     {
       name: 'Actions',
       href: '/quality/actions',
       icon: ClipboardCheck,
-      count: summary?.summary.actions.open,
-    },
+      count: summary?.summary.actions.open },
     { name: 'Metrics', href: '/quality/metrics', icon: TrendingUp },
   ];
 
@@ -199,8 +188,7 @@ export default function QualityOverviewPage() {
         type: nc.type,
         severity: nc.severity,
         status: nc.status,
-        dateOccurred: new Date(nc.dateOccurred).toLocaleDateString(),
-      }));
+        dateOccurred: new Date(nc.dateOccurred).toLocaleDateString() }));
       exportIncidents(exportData, 'ISO_9001', 'Quality Non-Conformances Report');
     }
   };
@@ -213,8 +201,7 @@ export default function QualityOverviewPage() {
         type: nc.type,
         severity: nc.severity,
         status: nc.status,
-        dateOccurred: new Date(nc.dateOccurred).toLocaleDateString(),
-      }));
+        dateOccurred: new Date(nc.dateOccurred).toLocaleDateString() }));
       exportIncidentsExcel(exportData, 'ISO_9001', 'Quality Non-Conformances Report');
     }
   };

@@ -13,20 +13,17 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   LineChart,
   Search,
-  Clock,
   CheckCircle,
   AlertTriangle,
   RefreshCw,
   Eye,
   XCircle,
-  TrendingUp,
-} from 'lucide-react';
+  TrendingUp } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -99,16 +96,14 @@ const chartTypeLabels: Record<string, string> = {
   P_CHART: 'p Chart',
   NP_CHART: 'np Chart',
   C_CHART: 'c Chart',
-  U_CHART: 'u Chart',
-};
+  U_CHART: 'u Chart' };
 
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-orange-100 text-orange-700',
   IN_CONTROL: 'bg-green-100 text-green-700',
   OUT_OF_CONTROL: 'bg-red-100 text-red-700',
   MONITORING: 'bg-blue-100 text-blue-700',
-  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-};
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
 
 const emptyForm = {
   title: '',
@@ -119,14 +114,12 @@ const emptyForm = {
   lsl: '',
   target: '',
   subgroupSize: '5',
-  notes: '',
-};
+  notes: '' };
 
 const emptyDataForm = {
   value: '',
   operator: '',
-  notes: '',
-};
+  notes: '' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -203,8 +196,7 @@ export default function SpcClient() {
         lsl: parseFloat(form.lsl),
         target: parseFloat(form.target),
         subgroupSize: parseInt(form.subgroupSize),
-        notes: form.notes || undefined,
-      };
+        notes: form.notes || undefined };
       await api.post('/spc', payload);
       setShowModal(false);
       setForm(emptyForm);
@@ -248,8 +240,7 @@ export default function SpcClient() {
       await api.post(`/spc/${selectedChart.id}/data`, {
         value: parseFloat(dataForm.value),
         operator: dataForm.operator || undefined,
-        notes: dataForm.notes || undefined,
-      });
+        notes: dataForm.notes || undefined });
       setDataForm(emptyDataForm);
       // Reload detail
       const [detailRes, capRes] = await Promise.all([
@@ -296,8 +287,7 @@ export default function SpcClient() {
         const created = new Date(c.createdAt);
         const now = new Date();
         return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
-      }).length,
-    };
+      }).length };
   }, [charts]);
 
   // -------------------------------------------------------------------------
@@ -310,8 +300,7 @@ export default function SpcClient() {
       return new Date(dateStr).toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
-        year: 'numeric',
-      });
+        year: 'numeric' });
     } catch {
       return '-';
     }
@@ -325,8 +314,7 @@ export default function SpcClient() {
         month: 'short',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit',
-      });
+        minute: '2-digit' });
     } catch {
       return '-';
     }

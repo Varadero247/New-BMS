@@ -11,9 +11,7 @@ import {
   AlertCircle,
   Clock,
   CheckCircle,
-  Ban,
-  PauseCircle,
-} from 'lucide-react';
+  Ban } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface WorkOrder {
@@ -39,15 +37,13 @@ const statusColors: Record<string, string> = {
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   COMPLETED: 'bg-green-100 text-green-700',
   ON_HOLD: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-  CANCELLED: 'bg-red-100 text-red-700',
-};
+  CANCELLED: 'bg-red-100 text-red-700' };
 
 const priorityColors: Record<string, string> = {
   CRITICAL: 'bg-red-100 text-red-700',
   HIGH: 'bg-orange-100 text-orange-700',
   MEDIUM: 'bg-yellow-100 text-yellow-700',
-  LOW: 'bg-green-100 text-green-700',
-};
+  LOW: 'bg-green-100 text-green-700' };
 
 const EMPTY_FORM = {
   title: '',
@@ -60,8 +56,7 @@ const EMPTY_FORM = {
   location: '',
   estimatedHours: '',
   actualHours: '',
-  dueDate: '',
-};
+  dueDate: '' };
 
 export default function WorkOrdersPage() {
   const [orders, setOrders] = useState<WorkOrder[]>([]);
@@ -111,8 +106,7 @@ export default function WorkOrdersPage() {
         o.status !== 'COMPLETED' &&
         o.status !== 'CANCELLED'
     ).length,
-    completed: orders.filter((o) => o.status === 'COMPLETED').length,
-  };
+    completed: orders.filter((o) => o.status === 'COMPLETED').length };
 
   function openCreate() {
     setForm({ ...EMPTY_FORM });
@@ -133,8 +127,7 @@ export default function WorkOrdersPage() {
       location: wo.location || '',
       estimatedHours: wo.estimatedHours?.toString() || '',
       actualHours: wo.actualHours?.toString() || '',
-      dueDate: wo.dueDate ? wo.dueDate.slice(0, 10) : '',
-    });
+      dueDate: wo.dueDate ? wo.dueDate.slice(0, 10) : '' });
     setError('');
     setEditOpen(true);
   }
@@ -155,8 +148,7 @@ export default function WorkOrdersPage() {
       await api.post('/work-orders', {
         ...form,
         estimatedHours: form.estimatedHours ? parseFloat(form.estimatedHours) : undefined,
-        actualHours: form.actualHours ? parseFloat(form.actualHours) : undefined,
-      });
+        actualHours: form.actualHours ? parseFloat(form.actualHours) : undefined });
       setCreateOpen(false);
       await loadOrders();
     } catch (e) {
@@ -177,8 +169,7 @@ export default function WorkOrdersPage() {
       await api.put(`/work-orders/${selected!.id}`, {
         ...form,
         estimatedHours: form.estimatedHours ? parseFloat(form.estimatedHours) : undefined,
-        actualHours: form.actualHours ? parseFloat(form.actualHours) : undefined,
-      });
+        actualHours: form.actualHours ? parseFloat(form.actualHours) : undefined });
       setEditOpen(false);
       await loadOrders();
     } catch (e) {
@@ -394,29 +385,25 @@ export default function WorkOrdersPage() {
               value: stats.open,
               icon: Wrench,
               color: 'text-blue-600',
-              bg: 'bg-blue-50',
-            },
+              bg: 'bg-blue-50' },
             {
               label: 'In Progress',
               value: stats.inProgress,
               icon: Clock,
               color: 'text-yellow-600',
-              bg: 'bg-yellow-50',
-            },
+              bg: 'bg-yellow-50' },
             {
               label: 'Overdue',
               value: stats.overdue,
               icon: AlertCircle,
               color: 'text-red-600',
-              bg: 'bg-red-50',
-            },
+              bg: 'bg-red-50' },
             {
               label: 'Completed',
               value: stats.completed,
               icon: CheckCircle,
               color: 'text-green-600',
-              bg: 'bg-green-50',
-            },
+              bg: 'bg-green-50' },
           ].map((card) => {
             const Icon = card.icon;
             return (

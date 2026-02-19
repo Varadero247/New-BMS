@@ -5,13 +5,10 @@ import { useSearchParams } from 'next/navigation';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { FileText, Eye, UserCheck, Clock, Shield, Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -72,15 +69,13 @@ const dpiaStatusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   IN_REVIEW: 'bg-yellow-100 text-yellow-700',
   APPROVED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-700',
-};
+  REJECTED: 'bg-red-100 text-red-700' };
 
 const dsarStatusColors: Record<string, string> = {
   RECEIVED: 'bg-blue-100 text-blue-700',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-700',
   COMPLETED: 'bg-green-100 text-green-700',
-  REJECTED: 'bg-red-100 text-red-700',
-};
+  REJECTED: 'bg-red-100 text-red-700' };
 
 function getDaysUntilDeadline(deadline: string): number {
   const diff = new Date(deadline).getTime() - Date.now();
@@ -115,14 +110,12 @@ export default function PrivacyPage() {
     dataCategories: '',
     dataSubjects: '',
     recipients: '',
-    retentionPeriod: '',
-  });
+    retentionPeriod: '' });
   const [dpiaForm, setDpiaForm] = useState({ title: '', description: '' });
   const [dsarForm, setDsarForm] = useState({
     requesterName: '',
     requesterEmail: '',
-    requestType: 'ACCESS',
-  });
+    requestType: 'ACCESS' });
 
   useEffect(() => {
     loadData();
@@ -288,8 +281,7 @@ export default function PrivacyPage() {
                         dataCategories: '',
                         dataSubjects: '',
                         recipients: '',
-                        retentionPeriod: '',
-                      });
+                        retentionPeriod: '' });
                       setRopaModalOpen(true);
                     }}
                     className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700"

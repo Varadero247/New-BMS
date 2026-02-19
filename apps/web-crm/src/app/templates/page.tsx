@@ -4,13 +4,10 @@ import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { FileText, Download, Eye, Copy, Search } from 'lucide-react';
 import { gatewayApi } from '@/lib/gateway';
 
@@ -38,8 +35,7 @@ interface Template {
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-green-100 text-green-700',
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-  ARCHIVED: 'bg-orange-100 text-orange-700',
-};
+  ARCHIVED: 'bg-orange-100 text-orange-700' };
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);

@@ -4,8 +4,6 @@ import { useEffect, useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -14,8 +12,7 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import { Plus, ClipboardList, Loader2, Search, Sparkles, Clock, CheckCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -127,8 +124,7 @@ const EMPTY_FORM: ActionForm = {
   verifiedBy: '',
   verificationDate: '',
   verificationNotes: '',
-  effective: '',
-};
+  effective: '' };
 
 const ACTION_TYPES = [
   'CORRECTIVE',
@@ -382,16 +378,14 @@ export default function ActionsClient() {
         description: form.description,
         actionType: form.actionType,
         priority: form.priority,
-        source: form.source,
-      });
+        source: form.source });
       setAiGenerated(response.data.data || response.data);
       setAiExpanded(true);
     } catch (error) {
       console.error('AI analysis failed:', error);
       setAiGenerated({
         actionPlan:
-          'AI analysis is currently unavailable. Please fill in the action details manually.',
-      });
+          'AI analysis is currently unavailable. Please fill in the action details manually.' });
       setAiExpanded(true);
     } finally {
       setAiLoading(false);
@@ -415,8 +409,7 @@ export default function ActionsClient() {
       IN_PROGRESS: 'bg-yellow-500',
       OVERDUE: 'bg-red-500',
       COMPLETED: 'bg-green-500',
-      VERIFIED: 'bg-emerald-600',
-    };
+      VERIFIED: 'bg-emerald-600' };
     return (
       <div className="flex items-center gap-2 mb-3">
         <span className={`w-3 h-3 rounded-full ${colorMap[col] || 'bg-gray-400'}`} />

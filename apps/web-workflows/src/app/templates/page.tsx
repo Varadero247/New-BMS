@@ -9,14 +9,12 @@ import {
   Star,
   Download,
   Play,
-  Filter,
   Shield,
   Award,
   Leaf,
   Users,
   GitBranch,
-  Briefcase,
-} from 'lucide-react';
+  Briefcase } from 'lucide-react';
 import api from '@/lib/api';
 
 interface WorkflowTemplate {
@@ -38,8 +36,7 @@ const CATEGORY_ICONS: Record<string, any> = {
   ENVIRONMENTAL: Leaf,
   HR: Users,
   GENERAL: GitBranch,
-  PROCUREMENT: Briefcase,
-};
+  PROCUREMENT: Briefcase };
 
 const CATEGORY_COLORS: Record<string, string> = {
   ISO_COMPLIANCE: 'bg-red-100 text-red-700',
@@ -49,8 +46,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   GENERAL: 'bg-indigo-100 text-indigo-700',
   PROCUREMENT: 'bg-amber-100 text-amber-700',
   APPROVAL: 'bg-purple-100 text-purple-700',
-  CHANGE_MANAGEMENT: 'bg-cyan-100 text-cyan-700',
-};
+  CHANGE_MANAGEMENT: 'bg-cyan-100 text-cyan-700' };
 
 const MOCK_TEMPLATES: WorkflowTemplate[] = [
   {
@@ -64,8 +60,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 14,
     usageCount: 47,
     isBuiltIn: true,
-    tags: ['ISO 9001', 'NCR', 'CAPA'],
-  },
+    tags: ['ISO 9001', 'NCR', 'CAPA'] },
   {
     id: '2',
     code: 'WF-CAPA-001',
@@ -77,8 +72,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 30,
     usageCount: 89,
     isBuiltIn: true,
-    tags: ['ISO 9001', 'CAPA'],
-  },
+    tags: ['ISO 9001', 'CAPA'] },
   {
     id: '3',
     code: 'WF-INC-001',
@@ -90,8 +84,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 7,
     usageCount: 34,
     isBuiltIn: true,
-    tags: ['ISO 45001', 'H&S', 'Incident'],
-  },
+    tags: ['ISO 45001', 'H&S', 'Incident'] },
   {
     id: '4',
     code: 'WF-CHG-001',
@@ -103,8 +96,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 21,
     usageCount: 28,
     isBuiltIn: true,
-    tags: ['Change Control', 'ISO 9001'],
-  },
+    tags: ['Change Control', 'ISO 9001'] },
   {
     id: '5',
     code: 'WF-AUD-001',
@@ -116,8 +108,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 14,
     usageCount: 22,
     isBuiltIn: true,
-    tags: ['Audit', 'ISO 9001', 'ISO 45001'],
-  },
+    tags: ['Audit', 'ISO 9001', 'ISO 45001'] },
   {
     id: '6',
     code: 'WF-ONB-001',
@@ -129,8 +120,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 5,
     usageCount: 15,
     isBuiltIn: true,
-    tags: ['HR', 'Onboarding'],
-  },
+    tags: ['HR', 'Onboarding'] },
   {
     id: '7',
     code: 'WF-SUPP-001',
@@ -142,8 +132,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 28,
     usageCount: 11,
     isBuiltIn: true,
-    tags: ['Supplier', 'ISO 9001'],
-  },
+    tags: ['Supplier', 'ISO 9001'] },
   {
     id: '8',
     code: 'WF-ENV-001',
@@ -154,8 +143,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 7,
     usageCount: 8,
     isBuiltIn: true,
-    tags: ['ISO 14001', 'Environmental'],
-  },
+    tags: ['ISO 14001', 'Environmental'] },
   {
     id: '9',
     code: 'WF-DOC-001',
@@ -166,8 +154,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 5,
     usageCount: 65,
     isBuiltIn: true,
-    tags: ['Document Control', 'ISO 9001'],
-  },
+    tags: ['Document Control', 'ISO 9001'] },
   {
     id: '10',
     code: 'WF-AI-001',
@@ -178,8 +165,7 @@ const MOCK_TEMPLATES: WorkflowTemplate[] = [
     estimatedDuration: 10,
     usageCount: 3,
     isBuiltIn: true,
-    tags: ['ISO 42001', 'AI Governance'],
-  },
+    tags: ['ISO 42001', 'AI Governance'] },
 ];
 
 export default function TemplatesPage() {

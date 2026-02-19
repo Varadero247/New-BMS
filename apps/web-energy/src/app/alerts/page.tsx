@@ -10,9 +10,7 @@ import {
   Trash2,
   Plus,
   Zap,
-  Gauge,
-  TrendingUp,
-} from 'lucide-react';
+  Gauge } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Alert {
@@ -49,23 +47,20 @@ const severityConfig: Record<string, string> = {
   LOW: 'bg-blue-100 text-blue-700',
   MEDIUM: 'bg-yellow-100 text-yellow-700',
   HIGH: 'bg-orange-100 text-orange-700',
-  CRITICAL: 'bg-red-100 text-red-700',
-};
+  CRITICAL: 'bg-red-100 text-red-700' };
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   OPEN: { label: 'Open', className: 'bg-red-100 text-red-700' },
   ACKNOWLEDGED: { label: 'Acknowledged', className: 'bg-blue-100 text-blue-700' },
   RESOLVED: { label: 'Resolved', className: 'bg-green-100 text-green-700' },
-  DISMISSED: { label: 'Dismissed', className: 'bg-gray-100 dark:bg-gray-800 text-gray-500' },
-};
+  DISMISSED: { label: 'Dismissed', className: 'bg-gray-100 dark:bg-gray-800 text-gray-500' } };
 
 const empty: Partial<Alert> = {
   title: '',
   type: 'THRESHOLD',
   severity: 'MEDIUM',
   status: 'OPEN',
-  notes: '',
-};
+  notes: '' };
 
 export default function AlertsPage() {
   const [items, setItems] = useState<Alert[]>([]);
@@ -104,8 +99,7 @@ export default function AlertsPage() {
     total: items.length,
     open: items.filter((i) => i.status === 'OPEN').length,
     critical: items.filter((i) => i.severity === 'CRITICAL' && i.status === 'OPEN').length,
-    resolved: items.filter((i) => i.status === 'RESOLVED').length,
-  };
+    resolved: items.filter((i) => i.status === 'RESOLVED').length };
 
   const acknowledge = async (id: string) => {
     try {

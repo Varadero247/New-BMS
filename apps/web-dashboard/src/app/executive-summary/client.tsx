@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import {
-  LayoutDashboard,
   Shield,
   Leaf,
   Award,
@@ -11,10 +10,7 @@ import {
   TrendingUp,
   TrendingDown,
   AlertTriangle,
-  CheckCircle,
-  BarChart3,
-  Activity,
-} from 'lucide-react';
+  Activity } from 'lucide-react';
 
 interface ModuleKPI {
   module: string;
@@ -37,8 +33,7 @@ const modules: ModuleKPI[] = [
       { label: 'Open Incidents', value: '12', trend: 'down', good: true },
       { label: 'Near Misses (MTD)', value: '28', trend: 'up', good: false },
       { label: 'Training Compliance', value: '94%', trend: 'up', good: true },
-    ],
-  },
+    ] },
   {
     module: 'Quality',
     icon: <Award className="h-5 w-5" />,
@@ -50,8 +45,7 @@ const modules: ModuleKPI[] = [
       { label: 'CAPA On-Time', value: '92%', trend: 'up', good: true },
       { label: 'Customer Complaints', value: '3', trend: 'down', good: true },
       { label: 'Audit Conformance', value: '98%', trend: 'stable', good: true },
-    ],
-  },
+    ] },
   {
     module: 'Environment & ESG',
     icon: <Leaf className="h-5 w-5" />,
@@ -63,8 +57,7 @@ const modules: ModuleKPI[] = [
       { label: 'Waste Diverted', value: '89%', trend: 'up', good: true },
       { label: 'Energy Intensity', value: '42 MWh/£M', trend: 'down', good: true },
       { label: 'Water (m³ MTD)', value: '8,500', trend: 'up', good: false },
-    ],
-  },
+    ] },
   {
     module: 'Finance',
     icon: <DollarSign className="h-5 w-5" />,
@@ -76,8 +69,7 @@ const modules: ModuleKPI[] = [
       { label: 'Gross Margin', value: '42.5%', trend: 'up', good: true },
       { label: 'Cash Position', value: '£8.1M', trend: 'up', good: true },
       { label: 'AR Days', value: '38', trend: 'down', good: true },
-    ],
-  },
+    ] },
   {
     module: 'Human Resources',
     icon: <Users className="h-5 w-5" />,
@@ -89,8 +81,7 @@ const modules: ModuleKPI[] = [
       { label: 'Turnover (YTD)', value: '12.5%', trend: 'down', good: true },
       { label: 'Open Vacancies', value: '8', trend: 'stable', good: true },
       { label: 'Engagement Score', value: '4.2/5', trend: 'up', good: true },
-    ],
-  },
+    ] },
   {
     module: 'Operations (CMMS)',
     icon: <Activity className="h-5 w-5" />,
@@ -102,8 +93,7 @@ const modules: ModuleKPI[] = [
       { label: 'MTBF (hrs)', value: '420', trend: 'down', good: false },
       { label: 'PM Compliance', value: '88%', trend: 'down', good: false },
       { label: 'Open WOs', value: '45', trend: 'up', good: false },
-    ],
-  },
+    ] },
 ];
 
 const recentAlerts = [
@@ -112,43 +102,37 @@ const recentAlerts = [
     severity: 'critical',
     module: 'CMMS',
     message: 'CNC Mill #3 unplanned downtime — bearing failure',
-    time: '2 hours ago',
-  },
+    time: '2 hours ago' },
   {
     id: 2,
     severity: 'warning',
     module: 'H&S',
     message: 'Near-miss rate increased 15% vs. last month',
-    time: '4 hours ago',
-  },
+    time: '4 hours ago' },
   {
     id: 3,
     severity: 'critical',
     module: 'CMMS',
     message: 'Compressor #1 oil pressure alarm — maintenance dispatched',
-    time: '6 hours ago',
-  },
+    time: '6 hours ago' },
   {
     id: 4,
     severity: 'warning',
     module: 'ESG',
     message: 'Water consumption 12% above monthly target',
-    time: '8 hours ago',
-  },
+    time: '8 hours ago' },
   {
     id: 5,
     severity: 'info',
     module: 'Quality',
     message: 'ISO 9001 surveillance audit scheduled for March 15',
-    time: '1 day ago',
-  },
+    time: '1 day ago' },
   {
     id: 6,
     severity: 'critical',
     module: 'CMMS',
     message: 'Packaging line conveyor belt replacement overdue',
-    time: '1 day ago',
-  },
+    time: '1 day ago' },
 ];
 
 export default function ExecutiveSummaryClient() {
@@ -170,8 +154,7 @@ export default function ExecutiveSummaryClient() {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
-              day: 'numeric',
-            })}
+              day: 'numeric' })}
           </p>
         </div>
         <div className="flex items-center gap-3">

@@ -10,9 +10,7 @@ import {
   Shield,
   FileCheck,
   AlertOctagon,
-  Zap,
-  Loader2,
-} from 'lucide-react';
+  Zap } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface DashboardStats {
@@ -54,20 +52,17 @@ export default function AerospaceDashboard() {
         configurationItems: {
           total: configItems.length,
           active: configItems.filter((ci: any) => ci.status === 'ACTIVE').length,
-          underReview: configItems.filter((ci: any) => ci.status === 'UNDER_REVIEW').length,
-        },
+          underReview: configItems.filter((ci: any) => ci.status === 'UNDER_REVIEW').length },
         engineeringChanges: {
           total: changes.length,
           open: changes.filter((c: any) => c.status === 'OPEN' || c.status === 'IN_REVIEW').length,
-          pending: changes.filter((c: any) => c.status === 'PENDING_APPROVAL').length,
-        },
+          pending: changes.filter((c: any) => c.status === 'PENDING_APPROVAL').length },
         baselines: { total: 0, active: 0 },
         audits: { total: 0, pending: 0, overdue: 0 },
         productSafety: { total: 0, openIssues: 0 },
         firstArticle: { total: 0, pending: 0 },
         specialProcesses: { total: 0, dueForReview: 0 },
-        counterfeitParts: { total: 0, alerts: 0 },
-      });
+        counterfeitParts: { total: 0, alerts: 0 } });
     } catch (error) {
       console.error('Failed to load dashboard stats:', error);
       setError('Unable to load data. Please check your connection and try again.');

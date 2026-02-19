@@ -5,15 +5,13 @@ import { usePathname } from 'next/navigation';
 import React from 'react';
 import {
   LayoutDashboard,
-  AlertOctagon,
-  Search as SearchIcon,
+  AlertOctagon as SearchIcon,
   FileWarning,
   Clock,
   Home,
   Settings,
   ChevronDown,
-  LogOut,
-} from 'lucide-react';
+  LogOut } from 'lucide-react';
 
 interface NavItem {
   name: string;
@@ -32,8 +30,7 @@ interface NavGroup {
 const navGroups: NavGroup[] = [
   {
     title: 'Overview',
-    items: [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }],
-  },
+    items: [{ name: 'Dashboard', href: '/', icon: LayoutDashboard }] },
   {
     title: 'Incident Management',
     clause: '1',
@@ -41,8 +38,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: 'Incidents', href: '/incidents', icon: AlertOctagon },
       { name: 'Investigation', href: '/investigation', icon: SearchIcon },
-    ],
-  },
+    ] },
   {
     title: 'Reporting & Compliance',
     clause: '2',
@@ -50,8 +46,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: 'RIDDOR Reports', href: '/riddor', icon: FileWarning },
       { name: 'Timeline', href: '/timeline', icon: Clock },
-    ],
-  },
+    ] },
 ];
 
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';

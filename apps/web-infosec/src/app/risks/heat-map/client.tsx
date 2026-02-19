@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Shield, X } from 'lucide-react';
+import { useState } from 'react';
+import { X } from 'lucide-react';
 
 interface Risk {
   id: string;
@@ -29,8 +29,7 @@ const risks: Risk[] = [
     residualLikelihood: 2,
     residualImpact: 4,
     controls: ['EDR', 'Email filtering', 'Backup strategy', 'Incident response plan'],
-    treatmentPlan: 'Implement immutable backups, quarterly DR drills',
-  },
+    treatmentPlan: 'Implement immutable backups, quarterly DR drills' },
   {
     id: 'R-002',
     title: 'Data breach — customer PII',
@@ -42,8 +41,7 @@ const risks: Risk[] = [
     residualLikelihood: 2,
     residualImpact: 4,
     controls: ['Access controls', 'DLP', 'Encryption at rest', 'Audit logging'],
-    treatmentPlan: 'Deploy advanced DLP, data classification rollout Q2',
-  },
+    treatmentPlan: 'Deploy advanced DLP, data classification rollout Q2' },
   {
     id: 'R-003',
     title: 'Third-party supply chain compromise',
@@ -55,8 +53,7 @@ const risks: Risk[] = [
     residualLikelihood: 2,
     residualImpact: 3,
     controls: ['Vendor risk assessments', 'SCA scanning', 'SBOM tracking'],
-    treatmentPlan: 'Expand vendor assessment coverage to Tier 2 suppliers',
-  },
+    treatmentPlan: 'Expand vendor assessment coverage to Tier 2 suppliers' },
   {
     id: 'R-004',
     title: 'Insider threat — data exfiltration',
@@ -68,8 +65,7 @@ const risks: Risk[] = [
     residualLikelihood: 1,
     residualImpact: 3,
     controls: ['DLP', 'USB restrictions', 'Privileged access monitoring'],
-    treatmentPlan: 'Implement UEBA, annual insider threat training',
-  },
+    treatmentPlan: 'Implement UEBA, annual insider threat training' },
   {
     id: 'R-005',
     title: 'Cloud misconfiguration',
@@ -81,8 +77,7 @@ const risks: Risk[] = [
     residualLikelihood: 2,
     residualImpact: 3,
     controls: ['CSPM tool', 'IaC scanning', 'Least privilege reviews'],
-    treatmentPlan: 'Monthly CSPM reviews, automated remediation',
-  },
+    treatmentPlan: 'Monthly CSPM reviews, automated remediation' },
   {
     id: 'R-006',
     title: 'Phishing — credential compromise',
@@ -94,8 +89,7 @@ const risks: Risk[] = [
     residualLikelihood: 3,
     residualImpact: 2,
     controls: ['MFA', 'Security awareness training', 'Email filtering', 'Phishing simulations'],
-    treatmentPlan: 'Increase phishing simulation frequency, conditional access policies',
-  },
+    treatmentPlan: 'Increase phishing simulation frequency, conditional access policies' },
   {
     id: 'R-007',
     title: 'DDoS attack on public services',
@@ -107,8 +101,7 @@ const risks: Risk[] = [
     residualLikelihood: 2,
     residualImpact: 2,
     controls: ['CDN/WAF', 'Rate limiting', 'DDoS mitigation service'],
-    treatmentPlan: 'Annual DDoS readiness test',
-  },
+    treatmentPlan: 'Annual DDoS readiness test' },
   {
     id: 'R-008',
     title: 'Loss of key personnel',
@@ -120,8 +113,7 @@ const risks: Risk[] = [
     residualLikelihood: 2,
     residualImpact: 2,
     controls: ['Cross-training', 'Documentation', 'Succession planning'],
-    treatmentPlan: 'Update succession plan, ensure 2-deep coverage',
-  },
+    treatmentPlan: 'Update succession plan, ensure 2-deep coverage' },
   {
     id: 'R-009',
     title: 'Regulatory non-compliance — GDPR',
@@ -133,8 +125,7 @@ const risks: Risk[] = [
     residualLikelihood: 1,
     residualImpact: 4,
     controls: ['DPIA process', 'Data retention policy', 'Subject access request procedure'],
-    treatmentPlan: 'Quarterly compliance reviews',
-  },
+    treatmentPlan: 'Quarterly compliance reviews' },
   {
     id: 'R-010',
     title: 'Physical security breach',
@@ -146,8 +137,7 @@ const risks: Risk[] = [
     residualLikelihood: 1,
     residualImpact: 3,
     controls: ['Biometric access', 'CCTV', '24/7 security guard'],
-    treatmentPlan: 'Upgrade to man-trap entry system',
-  },
+    treatmentPlan: 'Upgrade to man-trap entry system' },
   {
     id: 'R-011',
     title: 'API vulnerability exploitation',
@@ -159,8 +149,7 @@ const risks: Risk[] = [
     residualLikelihood: 2,
     residualImpact: 2,
     controls: ['API gateway', 'Rate limiting', 'OWASP testing', 'Input validation'],
-    treatmentPlan: 'Implement API security testing in CI/CD',
-  },
+    treatmentPlan: 'Implement API security testing in CI/CD' },
   {
     id: 'R-012',
     title: 'Backup failure',
@@ -172,8 +161,7 @@ const risks: Risk[] = [
     residualLikelihood: 1,
     residualImpact: 3,
     controls: ['Backup monitoring', 'Quarterly restore tests', 'Geo-redundant storage'],
-    treatmentPlan: 'Automated backup verification, monthly restore test',
-  },
+    treatmentPlan: 'Automated backup verification, monthly restore test' },
 ];
 
 const likelihoodLabels = ['', 'Rare', 'Unlikely', 'Possible', 'Likely', 'Almost Certain'];

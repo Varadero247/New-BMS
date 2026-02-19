@@ -13,8 +13,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   ClipboardList,
@@ -25,10 +24,7 @@ import {
   Clock,
   CheckCircle,
   Target,
-  ChevronDown,
-  ChevronUp,
-  CalendarDays,
-} from 'lucide-react';
+  CalendarDays } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -57,8 +53,7 @@ const ACTION_STATUSES = [
   {
     value: 'PENDING_VERIFICATION',
     label: 'Pending Verification',
-    color: 'bg-purple-100 text-purple-800',
-  },
+    color: 'bg-purple-100 text-purple-800' },
   { value: 'VERIFIED', label: 'Verified', color: 'bg-cyan-100 text-cyan-800' },
   { value: 'COMPLETED', label: 'Completed', color: 'bg-green-100 text-green-800' },
   { value: 'CANCELLED', label: 'Cancelled', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
@@ -172,8 +167,7 @@ const emptyForm: ActionForm = {
   linkedNc: '',
   linkedCapa: '',
   linkedProcess: '',
-  linkedFmea: '',
-};
+  linkedFmea: '' };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -265,8 +259,7 @@ export default function ActionsClient() {
         (a.status === 'COMPLETED' || a.status === 'VERIFIED') &&
         a.completionDate &&
         new Date(a.completionDate) >= startOfMonth
-    ).length,
-  };
+    ).length };
 
   // ─── Filtering ────────────────────────────────────────────────────
 
@@ -335,8 +328,7 @@ export default function ActionsClient() {
         linkedNc: form.linkedNc || undefined,
         linkedCapa: form.linkedCapa || undefined,
         linkedProcess: form.linkedProcess || undefined,
-        linkedFmea: form.linkedFmea || undefined,
-      };
+        linkedFmea: form.linkedFmea || undefined };
       await api.post('/actions', payload);
       setModalOpen(false);
       setForm({ ...emptyForm });
@@ -361,8 +353,7 @@ export default function ActionsClient() {
         priority: form.priority,
         source: form.source,
         description: form.description,
-        expectedOutcome: form.expectedOutcome,
-      });
+        expectedOutcome: form.expectedOutcome });
       const data = response.data.data;
       if (data) {
         setAiAnalysis(data);

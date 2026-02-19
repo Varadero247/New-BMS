@@ -6,13 +6,11 @@ import {
   Search,
   Shield,
   CheckCircle,
-  AlertTriangle,
   Clock,
   XCircle,
   Edit2,
   Trash2,
-  Calendar,
-} from 'lucide-react';
+  Calendar } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface ComplianceItem {
@@ -51,9 +49,7 @@ const statusConfig: Record<string, { label: string; className: string; icon: Rea
     EXEMPT: {
       label: 'Exempt',
       className: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
-      icon: Shield,
-    },
-  };
+      icon: Shield } };
 
 const empty: Partial<ComplianceItem> = {
   requirement: '',
@@ -64,8 +60,7 @@ const empty: Partial<ComplianceItem> = {
   priority: 'MEDIUM',
   responsible: '',
   description: '',
-  evidence: '',
-};
+  evidence: '' };
 
 export default function CompliancePage() {
   const [items, setItems] = useState<ComplianceItem[]>([]);
@@ -105,8 +100,7 @@ export default function CompliancePage() {
     total: items.length,
     compliant: items.filter((i) => i.status === 'COMPLIANT').length,
     nonCompliant: items.filter((i) => i.status === 'NON_COMPLIANT').length,
-    pending: items.filter((i) => i.status === 'PENDING' || i.status === 'IN_PROGRESS').length,
-  };
+    pending: items.filter((i) => i.status === 'PENDING' || i.status === 'IN_PROGRESS').length };
   const complianceRate = stats.total > 0 ? Math.round((stats.compliant / stats.total) * 100) : 0;
 
   const openCreate = () => {
@@ -120,8 +114,7 @@ export default function CompliancePage() {
       dueDate: item.dueDate ? new Date(item.dueDate).toISOString().slice(0, 10) : '',
       lastReviewDate: item.lastReviewDate
         ? new Date(item.lastReviewDate).toISOString().slice(0, 10)
-        : '',
-    });
+        : '' });
     setIsEditing(true);
     setModalOpen(true);
   };
@@ -365,8 +358,7 @@ export default function CompliancePage() {
                         LOW: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
                         MEDIUM: 'bg-blue-100 text-blue-700',
                         HIGH: 'bg-orange-100 text-orange-700',
-                        CRITICAL: 'bg-red-100 text-red-700',
-                      };
+                        CRITICAL: 'bg-red-100 text-red-700' };
                       return (
                         <tr key={item.id} className="border-b hover:bg-yellow-50 transition-colors">
                           <td className="py-3 px-4">

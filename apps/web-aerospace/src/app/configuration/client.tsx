@@ -13,15 +13,13 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   Settings,
   Search,
   Loader2,
   Shield,
-  Database,
   GitPullRequest,
   FileText,
   Cpu,
@@ -32,8 +30,7 @@ import {
   Sparkles,
   Edit,
   Trash2,
-  Eye,
-} from 'lucide-react';
+  Eye } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -178,8 +175,7 @@ const emptyForm = {
   location: '',
   documentRef: '',
   effectivityStart: '',
-  effectivityEnd: '',
-};
+  effectivityEnd: '' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -260,8 +256,7 @@ export default function ConfigurationClient() {
           ...form,
           baselineId: form.baselineId || undefined,
           effectivityStart: form.effectivityStart || undefined,
-          effectivityEnd: form.effectivityEnd || undefined,
-        });
+          effectivityEnd: form.effectivityEnd || undefined });
         setShowCreateModal(false);
         setForm(emptyForm);
         setAiAnalysis('');
@@ -288,8 +283,7 @@ export default function ConfigurationClient() {
           ...form,
           baselineId: form.baselineId || undefined,
           effectivityStart: form.effectivityStart || undefined,
-          effectivityEnd: form.effectivityEnd || undefined,
-        });
+          effectivityEnd: form.effectivityEnd || undefined });
         setShowEditModal(false);
         setForm(emptyForm);
         setSelectedItem(null);
@@ -341,8 +335,7 @@ export default function ConfigurationClient() {
       location: item.location || '',
       documentRef: item.documentRef || '',
       effectivityStart: item.effectivityStart ? item.effectivityStart.split('T')[0] : '',
-      effectivityEnd: item.effectivityEnd ? item.effectivityEnd.split('T')[0] : '',
-    });
+      effectivityEnd: item.effectivityEnd ? item.effectivityEnd.split('T')[0] : '' });
     setError('');
     setShowEditModal(true);
   }, []);
@@ -364,8 +357,7 @@ export default function ConfigurationClient() {
         description: form.description,
         type: form.type,
         classification: form.classification,
-        revision: form.revision,
-      });
+        revision: form.revision });
       setAiAnalysis(response.data.data?.analysis || 'No analysis available.');
     } catch (err) {
       setAiAnalysis('AI analysis is currently unavailable. Please try again later.');
@@ -417,8 +409,7 @@ export default function ConfigurationClient() {
       draft: items.filter((i) => i.status === 'DRAFT').length,
       underReview: items.filter((i) => i.status === 'UNDER_REVIEW').length,
       critical: items.filter((i) => i.classification === 'CRITICAL').length,
-      major: items.filter((i) => i.classification === 'MAJOR').length,
-    }),
+      major: items.filter((i) => i.classification === 'MAJOR').length }),
     [items]
   );
 

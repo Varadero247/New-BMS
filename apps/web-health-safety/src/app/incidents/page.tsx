@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -20,8 +18,7 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import { Plus, FileWarning, Loader2, Search, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -160,8 +157,7 @@ const emptyForm: IncidentForm = {
   aiUnderlyingCause: '',
   aiRootCause: '',
   aiContributingFactors: '',
-  aiRecurrencePrevention: '',
-};
+  aiRecurrencePrevention: '' };
 
 export default function IncidentsPage() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -224,9 +220,7 @@ export default function IncidentsPage() {
           severity: form.severity,
           description: form.description,
           location: form.location,
-          injuryType: form.injuryType,
-        }),
-      });
+          injuryType: form.injuryType }) });
       if (res.ok) {
         const data = await res.json();
         setForm((prev) => ({
@@ -235,8 +229,7 @@ export default function IncidentsPage() {
           aiUnderlyingCause: data.underlyingCause || '',
           aiRootCause: data.rootCause || '',
           aiContributingFactors: data.contributingFactors || '',
-          aiRecurrencePrevention: data.recurrencePrevention || '',
-        }));
+          aiRecurrencePrevention: data.recurrencePrevention || '' }));
       }
     } catch (err) {
       console.error('AI analysis failed:', err);
@@ -254,8 +247,7 @@ export default function IncidentsPage() {
         daysLost: form.daysLost || undefined,
         reportedToAuthorityDate: form.reportedToAuthorityDate || undefined,
         investigationDueDate: form.investigationDueDate || undefined,
-        aiAnalysisGenerated: !!(form.aiImmediateCause || form.aiRootCause),
-      });
+        aiAnalysisGenerated: !!(form.aiImmediateCause || form.aiRootCause) });
       setModalOpen(false);
       loadIncidents();
     } catch (err) {
@@ -274,8 +266,7 @@ export default function IncidentsPage() {
     total: incidents.length,
     OPEN: incidents.filter((i) => i.status === 'OPEN').length,
     UNDER_INVESTIGATION: incidents.filter((i) => i.status === 'UNDER_INVESTIGATION').length,
-    CLOSED: incidents.filter((i) => i.status === 'CLOSED').length,
-  };
+    CLOSED: incidents.filter((i) => i.status === 'CLOSED').length };
 
   const sections = [
     'Incident Details',

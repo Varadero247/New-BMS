@@ -9,12 +9,10 @@ import {
   X,
   MessageSquare,
   FileText,
-  Package,
   CheckCircle,
   Clock,
   AlertCircle,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface SupportTicket {
@@ -79,23 +77,20 @@ const KB_ARTICLES: KBArticle[] = [
     title: 'Updating your billing information',
     category: 'Billing',
     views: 650,
-    helpful: 91,
-  },
+    helpful: 91 },
   { id: '4', title: 'Product documentation library', category: 'Product', views: 540, helpful: 88 },
   {
     id: '5',
     title: 'Shipping timelines and carriers',
     category: 'Shipping',
     views: 480,
-    helpful: 86,
-  },
+    helpful: 86 },
   {
     id: '6',
     title: 'Setting up your portal account',
     category: 'General',
     views: 390,
-    helpful: 95,
-  },
+    helpful: 95 },
 ];
 
 const emptyForm = { subject: '', category: 'GENERAL', priority: 'MEDIUM', message: '' };
@@ -156,8 +151,7 @@ export default function SelfServicePage() {
     open: tickets.filter((t) => t.status === 'OPEN' || t.status === 'IN_PROGRESS').length,
     waiting: tickets.filter((t) => t.status === 'WAITING_CUSTOMER').length,
     resolved: tickets.filter((t) => t.status === 'RESOLVED' || t.status === 'CLOSED').length,
-    total: tickets.length,
-  };
+    total: tickets.length };
 
   if (loading)
     return (
@@ -201,29 +195,25 @@ export default function SelfServicePage() {
               value: stats.total,
               color: 'text-gray-900 dark:text-gray-100',
               bg: 'bg-gray-100 dark:bg-gray-800',
-              Icon: MessageSquare,
-            },
+              Icon: MessageSquare },
             {
               label: 'Open / In Progress',
               value: stats.open,
               color: 'text-cyan-700',
               bg: 'bg-cyan-100',
-              Icon: Clock,
-            },
+              Icon: Clock },
             {
               label: 'Awaiting Your Reply',
               value: stats.waiting,
               color: 'text-orange-700',
               bg: 'bg-orange-100',
-              Icon: AlertCircle,
-            },
+              Icon: AlertCircle },
             {
               label: 'Resolved',
               value: stats.resolved,
               color: 'text-green-700',
               bg: 'bg-green-100',
-              Icon: CheckCircle,
-            },
+              Icon: CheckCircle },
           ].map((s) => (
             <Card key={s.label}>
               <CardContent className="pt-4">

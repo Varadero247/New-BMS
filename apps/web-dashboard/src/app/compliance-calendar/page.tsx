@@ -9,9 +9,7 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle,
-  Plus,
-  Filter,
-} from 'lucide-react';
+  Plus } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
 
@@ -32,15 +30,13 @@ const TYPE_COLORS: Record<string, string> = {
   TRAINING: 'bg-green-100 text-green-700 border-green-200',
   INSPECTION: 'bg-orange-100 text-orange-700 border-orange-200',
   DEADLINE: 'bg-red-100 text-red-700 border-red-200',
-  RECERTIFICATION: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-};
+  RECERTIFICATION: 'bg-indigo-100 text-indigo-700 border-indigo-200' };
 
 const STATUS_COLORS: Record<string, string> = {
   UPCOMING: 'bg-blue-50 text-blue-600',
   OVERDUE: 'bg-red-50 text-red-600',
   COMPLETED: 'bg-green-50 text-green-600',
-  IN_PROGRESS: 'bg-yellow-50 text-yellow-600',
-};
+  IN_PROGRESS: 'bg-yellow-50 text-yellow-600' };
 
 const MONTHS = [
   'January',
@@ -66,8 +62,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-02-18',
     status: 'UPCOMING',
     assignee: 'Alice Johnson',
-    description: 'Annual internal quality audit covering all clauses',
-  },
+    description: 'Annual internal quality audit covering all clauses' },
   {
     id: '2',
     title: 'H&S Management Review',
@@ -76,8 +71,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-02-20',
     status: 'UPCOMING',
     assignee: 'Bob Smith',
-    description: 'Quarterly management review of H&S performance',
-  },
+    description: 'Quarterly management review of H&S performance' },
   {
     id: '3',
     title: 'Fire Safety Inspection',
@@ -86,8 +80,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-02-15',
     status: 'OVERDUE',
     assignee: 'Carol Davis',
-    description: 'Monthly fire suppression equipment check',
-  },
+    description: 'Monthly fire suppression equipment check' },
   {
     id: '4',
     title: 'ISO 14001 Recertification',
@@ -96,8 +89,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-03-01',
     status: 'UPCOMING',
     assignee: 'Eve Green',
-    description: 'Three-year ISO 14001 recertification surveillance audit',
-  },
+    description: 'Three-year ISO 14001 recertification surveillance audit' },
   {
     id: '5',
     title: 'GDPR Training Refresh',
@@ -106,8 +98,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-02-28',
     status: 'UPCOMING',
     assignee: 'Frank Security',
-    description: 'Annual data protection refresher for all staff',
-  },
+    description: 'Annual data protection refresher for all staff' },
   {
     id: '6',
     title: 'Legal Register Review',
@@ -116,8 +107,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-02-10',
     status: 'COMPLETED',
     assignee: 'Alice Johnson',
-    description: 'Quarterly review of applicable legal requirements',
-  },
+    description: 'Quarterly review of applicable legal requirements' },
   {
     id: '7',
     title: 'Supplier Audit — Acme Parts',
@@ -126,8 +116,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-03-15',
     status: 'UPCOMING',
     assignee: 'George Quality',
-    description: 'Second-party supplier qualification audit',
-  },
+    description: 'Second-party supplier qualification audit' },
   {
     id: '8',
     title: 'Energy Performance Review',
@@ -136,8 +125,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-02-25',
     status: 'UPCOMING',
     assignee: 'Heidi Energy',
-    description: 'ISO 50001 energy performance review meeting',
-  },
+    description: 'ISO 50001 energy performance review meeting' },
   {
     id: '9',
     title: 'CAPA Closure Deadline',
@@ -146,8 +134,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-02-14',
     status: 'OVERDUE',
     assignee: 'Ivan Quality',
-    description: 'NCR-2026-0031 CAPA must be closed',
-  },
+    description: 'NCR-2026-0031 CAPA must be closed' },
   {
     id: '10',
     title: 'Electrical Safety Inspection',
@@ -156,8 +143,7 @@ const MOCK_EVENTS: CalendarEvent[] = [
     dueDate: '2026-03-05',
     status: 'UPCOMING',
     assignee: 'Jane Safety',
-    description: 'Annual PAT testing and switchgear inspection',
-  },
+    description: 'Annual PAT testing and switchgear inspection' },
 ];
 
 function getDaysInMonth(year: number, month: number): number {
@@ -276,8 +262,7 @@ export default function ComplianceCalendarPage() {
                 label: 'Completed',
                 value: events.filter((e) => e.status === 'COMPLETED').length,
                 icon: CheckCircle,
-                color: 'green',
-              },
+                color: 'green' },
             ].map((stat) => {
               const Icon = stat.icon;
               return (
@@ -401,8 +386,7 @@ export default function ComplianceCalendarPage() {
                       {new Date(selectedDate!).toLocaleDateString('en-GB', {
                         day: 'numeric',
                         month: 'long',
-                        year: 'numeric',
-                      })}
+                        year: 'numeric' })}
                     </p>
                     <div className="space-y-2">
                       {selectedEvents.map((ev) => (
@@ -497,8 +481,7 @@ export default function ComplianceCalendarPage() {
                           <span className="text-xs text-gray-500 dark:text-gray-400">
                             {new Date(ev.dueDate).toLocaleDateString('en-GB', {
                               day: 'numeric',
-                              month: 'short',
-                            })}
+                              month: 'short' })}
                           </span>
                         </div>
                       </div>

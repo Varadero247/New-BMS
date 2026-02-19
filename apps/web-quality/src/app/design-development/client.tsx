@@ -13,8 +13,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Layers,
   Plus,
@@ -23,9 +22,7 @@ import {
   Clock,
   ArrowRight,
   ChevronRight,
-  XCircle,
-  Pause,
-} from 'lucide-react';
+  Pause } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -84,30 +81,26 @@ const STAGE_LABELS: Record<string, string> = {
   REVIEW: 'Design Review',
   VERIFICATION: 'Verification',
   VALIDATION: 'Validation',
-  TRANSFER: 'Transfer',
-};
+  TRANSFER: 'Transfer' };
 
 const STATUS_COLORS: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   ACTIVE: 'bg-blue-100 text-blue-800',
   ON_HOLD: 'bg-yellow-100 text-yellow-800',
   COMPLETED: 'bg-green-100 text-green-800',
-  CANCELLED: 'bg-red-100 text-red-800',
-};
+  CANCELLED: 'bg-red-100 text-red-800' };
 
 const STAGE_STATUS_COLORS: Record<string, string> = {
   NOT_STARTED: 'bg-gray-200 text-gray-600',
   IN_PROGRESS: 'bg-blue-200 text-blue-800',
   SUBMITTED: 'bg-yellow-200 text-yellow-800',
-  APPROVED: 'bg-green-200 text-green-800',
-};
+  APPROVED: 'bg-green-200 text-green-800' };
 
 const PRIORITY_COLORS: Record<string, string> = {
   LOW: 'bg-green-100 text-green-800',
   MEDIUM: 'bg-yellow-100 text-yellow-800',
   HIGH: 'bg-orange-100 text-orange-800',
-  CRITICAL: 'bg-red-100 text-red-800',
-};
+  CRITICAL: 'bg-red-100 text-red-800' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -130,8 +123,7 @@ export default function DesignDevelopmentPage() {
     priority: 'MEDIUM',
     plannedStartDate: '',
     plannedEndDate: '',
-    requirements: '',
-  });
+    requirements: '' });
 
   // Detail modal
   const [selectedProject, setSelectedProject] = useState<DesignProject | null>(null);
@@ -167,8 +159,7 @@ export default function DesignDevelopmentPage() {
         priority: 'MEDIUM',
         plannedStartDate: '',
         plannedEndDate: '',
-        requirements: '',
-      });
+        requirements: '' });
       fetchProjects();
     } catch (err) {
       console.error('Failed to create project', err);
@@ -189,8 +180,7 @@ export default function DesignDevelopmentPage() {
   const handleSubmitStage = async (projectId: string, stage: string) => {
     try {
       await api.post(`/design-development/${projectId}/stages/${stage}/submit`, {
-        deliverables: 'Stage deliverables submitted',
-      });
+        deliverables: 'Stage deliverables submitted' });
       // Refresh detail
       const res = await api.get(`/design-development/${projectId}`);
       setSelectedProject(res.data.data);
@@ -203,8 +193,7 @@ export default function DesignDevelopmentPage() {
   const handleApproveStage = async (projectId: string, stage: string) => {
     try {
       await api.post(`/design-development/${projectId}/stages/${stage}/approve`, {
-        approvalNotes: 'Gate review approved',
-      });
+        approvalNotes: 'Gate review approved' });
       const res = await api.get(`/design-development/${projectId}`);
       setSelectedProject(res.data.data);
       fetchProjects();

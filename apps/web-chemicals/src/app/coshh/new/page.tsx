@@ -160,7 +160,7 @@ export default function NewCoshhPage() {
         <div className="flex-1">
           <div className="grid grid-cols-6 gap-1">
             <div />
-            {LIKELIHOOD_LABELS.map((label, i) => (
+            {LIKELIHOOD_LABELS.map((label, _i) => (
               <div
                 key={label}
                 className="text-center text-[10px] text-gray-500 dark:text-gray-400 font-medium pb-1"

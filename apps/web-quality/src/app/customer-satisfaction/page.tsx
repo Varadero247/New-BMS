@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal } from '@ims/ui';
 import {
   Star,
@@ -19,8 +19,7 @@ import {
   MessageSquare,
   ThumbsUp,
   ThumbsDown,
-  Minus,
-} from 'lucide-react';
+  Minus } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -76,18 +75,15 @@ const SEED_SURVEYS: Survey[] = [
       {
         question: 'How satisfied are you with our product quality?',
         score: 5,
-        comment: 'Excellent quality, zero defects in last 6 months.',
-      },
+        comment: 'Excellent quality, zero defects in last 6 months.' },
       { question: 'How would you rate our delivery performance?', score: 4 },
       {
         question: 'How satisfied are you with our customer service?',
         score: 5,
-        comment: 'Very responsive team.',
-      },
+        comment: 'Very responsive team.' },
       { question: 'How do you rate our pricing?', score: 4 },
       { question: 'How would you rate our communication?', score: 5 },
-    ],
-  },
+    ] },
   {
     id: 'CS-2024-002',
     customer: 'Global Tech Solutions',
@@ -103,17 +99,14 @@ const SEED_SURVEYS: Survey[] = [
       {
         question: 'How would you rate our delivery performance?',
         score: 1,
-        comment: 'Multiple late deliveries this quarter, causing production delays.',
-      },
+        comment: 'Multiple late deliveries this quarter, causing production delays.' },
       { question: 'How satisfied are you with our customer service?', score: 3 },
       { question: 'How do you rate our pricing?', score: 3 },
       {
         question: 'How would you rate our communication?',
         score: 2,
-        comment: 'Poor updates on order status.',
-      },
-    ],
-  },
+        comment: 'Poor updates on order status.' },
+    ] },
   {
     id: 'CS-2024-003',
     customer: 'Precision Parts Inc',
@@ -128,14 +121,12 @@ const SEED_SURVEYS: Survey[] = [
       {
         question: 'How satisfied are you with our product quality?',
         score: 4,
-        comment: 'Consistent quality, minor variations in tolerances.',
-      },
+        comment: 'Consistent quality, minor variations in tolerances.' },
       { question: 'How would you rate our delivery performance?', score: 5 },
       { question: 'How satisfied are you with our customer service?', score: 4 },
       { question: 'How do you rate our pricing?', score: 3 },
       { question: 'How would you rate our communication?', score: 4 },
-    ],
-  },
+    ] },
   {
     id: 'CS-2024-004',
     customer: 'Euro Components GmbH',
@@ -152,12 +143,10 @@ const SEED_SURVEYS: Survey[] = [
       {
         question: 'How satisfied are you with our customer service?',
         score: 2,
-        comment: 'Long wait times on support tickets.',
-      },
+        comment: 'Long wait times on support tickets.' },
       { question: 'How do you rate our pricing?', score: 4 },
       { question: 'How would you rate our communication?', score: 3 },
-    ],
-  },
+    ] },
   {
     id: 'CS-2024-005',
     customer: 'Atlantic Aerospace Corp',
@@ -172,14 +161,12 @@ const SEED_SURVEYS: Survey[] = [
       {
         question: 'How satisfied are you with our product quality?',
         score: 5,
-        comment: 'World-class quality management. AS9100 compliance is evident.',
-      },
+        comment: 'World-class quality management. AS9100 compliance is evident.' },
       { question: 'How would you rate our delivery performance?', score: 5 },
       { question: 'How satisfied are you with our customer service?', score: 5 },
       { question: 'How do you rate our pricing?', score: 4 },
       { question: 'How would you rate our communication?', score: 5 },
-    ],
-  },
+    ] },
   {
     id: 'CS-2024-006',
     customer: 'Midwest Automotive LLC',
@@ -195,13 +182,11 @@ const SEED_SURVEYS: Survey[] = [
       {
         question: 'How would you rate our delivery performance?',
         score: 4,
-        comment: 'On time, well packaged.',
-      },
+        comment: 'On time, well packaged.' },
       { question: 'How satisfied are you with our customer service?', score: 4 },
       { question: 'How do you rate our pricing?', score: 3 },
       { question: 'How would you rate our communication?', score: 5 },
-    ],
-  },
+    ] },
   {
     id: 'CS-2024-007',
     customer: 'Northern Medical Devices',
@@ -216,18 +201,15 @@ const SEED_SURVEYS: Survey[] = [
       {
         question: 'How satisfied are you with our product quality?',
         score: 1,
-        comment: 'Three batches with out-of-spec dimensions. NCR raised.',
-      },
+        comment: 'Three batches with out-of-spec dimensions. NCR raised.' },
       { question: 'How would you rate our delivery performance?', score: 2 },
       { question: 'How satisfied are you with our customer service?', score: 2 },
       { question: 'How do you rate our pricing?', score: 3 },
       {
         question: 'How would you rate our communication?',
         score: 1,
-        comment: 'No proactive communication about quality issues.',
-      },
-    ],
-  },
+        comment: 'No proactive communication about quality issues.' },
+    ] },
   {
     id: 'CS-2024-008',
     customer: 'Pacific Electronics Co',
@@ -244,8 +226,7 @@ const SEED_SURVEYS: Survey[] = [
       { question: 'How satisfied are you with our customer service?', score: 3 },
       { question: 'How do you rate our pricing?', score: 4 },
       { question: 'How would you rate our communication?', score: 4 },
-    ],
-  },
+    ] },
   {
     id: 'CS-2024-009',
     customer: 'Apex Fabrication Ltd',
@@ -256,8 +237,7 @@ const SEED_SURVEYS: Survey[] = [
     category: 'Price',
     isPromoter: false,
     isDetractor: false,
-    responses: [],
-  },
+    responses: [] },
   {
     id: 'CS-2024-010',
     customer: 'Southern Steel Works',
@@ -274,12 +254,10 @@ const SEED_SURVEYS: Survey[] = [
       {
         question: 'How satisfied are you with our customer service?',
         score: 5,
-        comment: 'Account manager is very proactive and knowledgeable.',
-      },
+        comment: 'Account manager is very proactive and knowledgeable.' },
       { question: 'How do you rate our pricing?', score: 3 },
       { question: 'How would you rate our communication?', score: 4 },
-    ],
-  },
+    ] },
 ];
 
 const SEED_ACTIONS: ActionItem[] = [
@@ -292,8 +270,7 @@ const SEED_ACTIONS: ActionItem[] = [
     owner: 'Logistics Manager',
     dueDate: '2024-04-30',
     description:
-      'Implement real-time delivery tracking and automated customer notifications to address late delivery complaints.',
-  },
+      'Implement real-time delivery tracking and automated customer notifications to address late delivery complaints.' },
   {
     id: 'CA-002',
     title: 'Root cause analysis — dimensional non-conformances',
@@ -303,8 +280,7 @@ const SEED_ACTIONS: ActionItem[] = [
     owner: 'Quality Engineer',
     dueDate: '2024-04-15',
     description:
-      'Investigate and resolve root cause of three batches with out-of-spec dimensions reported by Northern Medical Devices.',
-  },
+      'Investigate and resolve root cause of three batches with out-of-spec dimensions reported by Northern Medical Devices.' },
   {
     id: 'CA-003',
     title: 'Reduce support ticket response time',
@@ -314,8 +290,7 @@ const SEED_ACTIONS: ActionItem[] = [
     owner: 'Customer Service Lead',
     dueDate: '2024-05-01',
     description:
-      'Target <4 hour first response time on all support tickets. Current average is 48+ hours.',
-  },
+      'Target <4 hour first response time on all support tickets. Current average is 48+ hours.' },
   {
     id: 'CA-004',
     title: 'Customer communication protocol for quality events',
@@ -325,8 +300,7 @@ const SEED_ACTIONS: ActionItem[] = [
     owner: 'Quality Manager',
     dueDate: '2024-04-20',
     description:
-      'Establish mandatory communication procedure within 24h of identifying any out-of-spec product dispatched to customers.',
-  },
+      'Establish mandatory communication procedure within 24h of identifying any out-of-spec product dispatched to customers.' },
   {
     id: 'CA-005',
     title: 'Review pricing strategy for competitive alignment',
@@ -336,8 +310,7 @@ const SEED_ACTIONS: ActionItem[] = [
     owner: 'Sales Director',
     dueDate: '2024-06-30',
     description:
-      'Multiple customers rated pricing below 4/5. Conduct market analysis and review pricing tiers.',
-  },
+      'Multiple customers rated pricing below 4/5. Conduct market analysis and review pricing tiers.' },
   {
     id: 'CA-006',
     title: 'Customer satisfaction survey process improvement',
@@ -347,8 +320,7 @@ const SEED_ACTIONS: ActionItem[] = [
     owner: 'Quality Coordinator',
     dueDate: '2024-03-01',
     description:
-      'Increase survey response rate by introducing digital survey format and follow-up reminders.',
-  },
+      'Increase survey response rate by introducing digital survey format and follow-up reminders.' },
 ];
 
 const MONTHLY_SCORES = [
@@ -379,8 +351,7 @@ const CATEGORY_COLORS: Record<Category, string> = {
   Delivery: 'bg-purple-500',
   'Customer Service': 'bg-green-500',
   Price: 'bg-amber-500',
-  Communication: 'bg-pink-500',
-};
+  Communication: 'bg-pink-500' };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -457,17 +428,13 @@ function StatusBadge({ status }: { status: ResponseStatus }) {
   const map: Record<ResponseStatus, { cls: string; label: string }> = {
     Responded: {
       cls: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-      label: 'Responded',
-    },
+      label: 'Responded' },
     Pending: {
       cls: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-      label: 'Pending',
-    },
+      label: 'Pending' },
     'No Response': {
       cls: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400',
-      label: 'No Response',
-    },
-  };
+      label: 'No Response' } };
   const { cls, label } = map[status];
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
@@ -480,17 +447,13 @@ function ActionStatusBadge({ status }: { status: ActionStatus }) {
   const map: Record<ActionStatus, { cls: string; icon: React.ReactNode }> = {
     Open: {
       cls: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-      icon: <AlertCircle className="h-3 w-3" />,
-    },
+      icon: <AlertCircle className="h-3 w-3" /> },
     'In Progress': {
       cls: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-      icon: <Clock className="h-3 w-3" />,
-    },
+      icon: <Clock className="h-3 w-3" /> },
     Completed: {
       cls: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-      icon: <CheckCircle className="h-3 w-3" />,
-    },
-  };
+      icon: <CheckCircle className="h-3 w-3" /> } };
   const { cls, icon } = map[status];
   return (
     <span
@@ -506,8 +469,7 @@ function PriorityBadge({ priority }: { priority: ActionPriority }) {
   const map: Record<ActionPriority, string> = {
     High: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
     Medium: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-    Low: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400',
-  };
+    Low: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:bg-gray-800 dark:text-gray-400' };
   return (
     <span
       className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${map[priority]}`}
@@ -587,8 +549,7 @@ export default function CustomerSatisfactionPage() {
     c2: '',
     c3: '',
     c4: '',
-    c5: '',
-  });
+    c5: '' });
 
   useEffect(() => {
     setSurveys(loadSurveys());
@@ -614,8 +575,7 @@ export default function CustomerSatisfactionPage() {
     Delivery: { total: 0, scoreSum: 0, count: 0 },
     'Customer Service': { total: 0, scoreSum: 0, count: 0 },
     Price: { total: 0, scoreSum: 0, count: 0 },
-    Communication: { total: 0, scoreSum: 0, count: 0 },
-  };
+    Communication: { total: 0, scoreSum: 0, count: 0 } };
   surveys.forEach((s) => {
     categoryStats[s.category].total += 1;
     if (s.status === 'Responded') {
@@ -687,26 +647,21 @@ export default function CustomerSatisfactionPage() {
         {
           question: 'How satisfied are you with our product quality?',
           score: form.q1,
-          comment: form.c1 || undefined,
-        },
+          comment: form.c1 || undefined },
         {
           question: 'How would you rate our delivery performance?',
           score: form.q2,
-          comment: form.c2 || undefined,
-        },
+          comment: form.c2 || undefined },
         {
           question: 'How satisfied are you with our customer service?',
           score: form.q3,
-          comment: form.c3 || undefined,
-        },
+          comment: form.c3 || undefined },
         { question: 'How do you rate our pricing?', score: form.q4, comment: form.c4 || undefined },
         {
           question: 'How would you rate our communication?',
           score: form.q5,
-          comment: form.c5 || undefined,
-        },
-      ],
-    };
+          comment: form.c5 || undefined },
+      ] };
 
     const updated = [newSurvey, ...surveys];
     setSurveys(updated);
@@ -725,8 +680,7 @@ export default function CustomerSatisfactionPage() {
       c2: '',
       c3: '',
       c4: '',
-      c5: '',
-    });
+      c5: '' });
   }
 
   function handleViewSurvey(survey: Survey) {
@@ -1056,8 +1010,7 @@ export default function CustomerSatisfactionPage() {
                   const colors: Record<ActionStatus, string> = {
                     Open: 'text-red-600 dark:text-red-400',
                     'In Progress': 'text-blue-600 dark:text-blue-400',
-                    Completed: 'text-green-600 dark:text-green-400',
-                  };
+                    Completed: 'text-green-600 dark:text-green-400' };
                   return (
                     <div key={s} className="bg-muted/50 rounded-lg p-2">
                       <p className={`text-xl font-bold ${colors[s]}`}>{count}</p>
@@ -1208,8 +1161,7 @@ export default function CustomerSatisfactionPage() {
                           {new Date(survey.date).toLocaleDateString('en-GB', {
                             day: 'numeric',
                             month: 'short',
-                            year: 'numeric',
-                          })}
+                            year: 'numeric' })}
                         </td>
                         <td className="px-4 py-3">
                           {survey.status === 'No Response' ? (
@@ -1394,24 +1346,20 @@ export default function CustomerSatisfactionPage() {
               {
                 key: 'q1' as const,
                 ck: 'c1' as const,
-                label: 'How satisfied are you with our product quality?',
-              },
+                label: 'How satisfied are you with our product quality?' },
               {
                 key: 'q2' as const,
                 ck: 'c2' as const,
-                label: 'How would you rate our delivery performance?',
-              },
+                label: 'How would you rate our delivery performance?' },
               {
                 key: 'q3' as const,
                 ck: 'c3' as const,
-                label: 'How satisfied are you with our customer service?',
-              },
+                label: 'How satisfied are you with our customer service?' },
               { key: 'q4' as const, ck: 'c4' as const, label: 'How do you rate our pricing?' },
               {
                 key: 'q5' as const,
                 ck: 'c5' as const,
-                label: 'How would you rate our communication?',
-              },
+                label: 'How would you rate our communication?' },
             ].map(({ key, ck, label }) => (
               <div key={key} className="p-3 rounded-lg bg-muted/40 space-y-2">
                 <div className="flex items-center justify-between gap-4">

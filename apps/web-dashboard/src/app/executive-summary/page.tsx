@@ -13,11 +13,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  Users,
   BarChart3,
-  Target,
-  Activity,
-} from 'lucide-react';
+  Target } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
 
@@ -51,8 +48,7 @@ const MOCK_SCORES: ModuleScore[] = [
     color: 'red',
     icon: Shield,
     openItems: 12,
-    criticalItems: 2,
-  },
+    criticalItems: 2 },
   {
     module: 'iso14001',
     label: 'Environmental',
@@ -62,8 +58,7 @@ const MOCK_SCORES: ModuleScore[] = [
     color: 'green',
     icon: Leaf,
     openItems: 5,
-    criticalItems: 0,
-  },
+    criticalItems: 0 },
   {
     module: 'iso9001',
     label: 'Quality',
@@ -73,8 +68,7 @@ const MOCK_SCORES: ModuleScore[] = [
     color: 'blue',
     icon: Award,
     openItems: 18,
-    criticalItems: 3,
-  },
+    criticalItems: 3 },
   {
     module: 'iso27001',
     label: 'InfoSec',
@@ -84,8 +78,7 @@ const MOCK_SCORES: ModuleScore[] = [
     color: 'cyan',
     icon: ShieldCheck,
     openItems: 9,
-    criticalItems: 1,
-  },
+    criticalItems: 1 },
 ];
 
 function ScoreBar({ value, color }: { value: number; color: string }) {
@@ -93,8 +86,7 @@ function ScoreBar({ value, color }: { value: number; color: string }) {
     red: 'bg-red-500',
     green: 'bg-green-500',
     blue: 'bg-blue-500',
-    cyan: 'bg-cyan-500',
-  };
+    cyan: 'bg-cyan-500' };
   return (
     <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2 mt-2">
       <div
@@ -138,23 +130,20 @@ export default function ExecutiveSummaryPage() {
       value: `${overallScore}%`,
       sub: 'Across all modules',
       trend: 'up',
-      color: 'purple',
-    },
+      color: 'purple' },
     {
       label: 'Open Corrective Actions',
       value: 44,
       sub: '8 overdue',
       trend: 'down',
-      color: 'orange',
-    },
+      color: 'orange' },
     { label: 'Audit Findings', value: 7, sub: 'This quarter', trend: 'stable', color: 'blue' },
     {
       label: 'Regulatory Compliance',
       value: '96%',
       sub: 'All jurisdictions',
       trend: 'up',
-      color: 'green',
-    },
+      color: 'green' },
   ];
 
   if (loading) {
@@ -308,29 +297,25 @@ export default function ExecutiveSummaryPage() {
                       title: 'Unpatched endpoint vulnerabilities',
                       module: 'InfoSec',
                       level: 'CRITICAL',
-                      score: 24,
-                    },
+                      score: 24 },
                     {
                       ref: 'HSR-2026-014',
                       title: 'Fall hazard at elevated workstation C3',
                       module: 'H&S',
                       level: 'HIGH',
-                      score: 20,
-                    },
+                      score: 20 },
                     {
                       ref: 'QR-2026-005',
                       title: 'Supplier qualification gap — Component X',
                       module: 'Quality',
                       level: 'HIGH',
-                      score: 18,
-                    },
+                      score: 18 },
                     {
                       ref: 'ENV-ASP-2026-003',
                       title: 'Cooling tower discharge exceeding limits',
                       module: 'Environmental',
                       level: 'MEDIUM',
-                      score: 15,
-                    },
+                      score: 15 },
                   ].map((risk) => (
                     <div
                       key={risk.ref}
@@ -439,40 +424,35 @@ export default function ExecutiveSummaryPage() {
                         capaOpen: 12,
                         overdue: 3,
                         lastAudit: 'Jan 2026',
-                        trend: 'up' as const,
-                      },
+                        trend: 'up' as const },
                       {
                         module: 'Environmental',
                         compliance: 92,
                         capaOpen: 5,
                         overdue: 0,
                         lastAudit: 'Feb 2026',
-                        trend: 'up' as const,
-                      },
+                        trend: 'up' as const },
                       {
                         module: 'Quality',
                         compliance: 84,
                         capaOpen: 18,
                         overdue: 5,
                         lastAudit: 'Jan 2026',
-                        trend: 'down' as const,
-                      },
+                        trend: 'down' as const },
                       {
                         module: 'InfoSec',
                         compliance: 78,
                         capaOpen: 9,
                         overdue: 2,
                         lastAudit: 'Dec 2025',
-                        trend: 'up' as const,
-                      },
+                        trend: 'up' as const },
                       {
                         module: 'ESG',
                         compliance: 71,
                         capaOpen: 4,
                         overdue: 1,
                         lastAudit: 'Nov 2025',
-                        trend: 'stable' as const,
-                      },
+                        trend: 'stable' as const },
                     ].map((row) => (
                       <tr
                         key={row.module}

@@ -10,8 +10,7 @@ import {
   Button,
   Modal,
   ModalFooter,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   TrendingUp,
@@ -20,9 +19,7 @@ import {
   Star,
   ClipboardList,
   RefreshCw,
-  Search,
-  Sparkles,
-} from 'lucide-react';
+  Sparkles } from 'lucide-react';
 import { api, aiApi } from '@/lib/api';
 
 interface PerformanceCycle {
@@ -76,15 +73,13 @@ const cycleTypeLabels: Record<string, string> = {
   ANNUAL: 'Annual',
   SEMI_ANNUAL: 'Semi-Annual',
   QUARTERLY: 'Quarterly',
-  CONTINUOUS: 'Continuous',
-};
+  CONTINUOUS: 'Continuous' };
 
 const cycleTypeColors: Record<string, string> = {
   ANNUAL: 'bg-blue-100 text-blue-700',
   SEMI_ANNUAL: 'bg-purple-100 text-purple-700',
   QUARTERLY: 'bg-orange-100 text-orange-700',
-  CONTINUOUS: 'bg-green-100 text-green-700',
-};
+  CONTINUOUS: 'bg-green-100 text-green-700' };
 
 const reviewStatusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
@@ -92,8 +87,7 @@ const reviewStatusColors: Record<string, string> = {
   MANAGER_REVIEW: 'bg-yellow-100 text-yellow-700',
   CALIBRATION: 'bg-purple-100 text-purple-700',
   ACKNOWLEDGED: 'bg-indigo-100 text-indigo-700',
-  COMPLETED: 'bg-green-100 text-green-700',
-};
+  COMPLETED: 'bg-green-100 text-green-700' };
 
 const reviewTypeLabels: Record<string, string> = {
   ANNUAL: 'Annual',
@@ -101,8 +95,7 @@ const reviewTypeLabels: Record<string, string> = {
   QUARTERLY: 'Quarterly',
   PROBATION: 'Probation',
   PROJECT_END: 'Project End',
-  AD_HOC: 'Ad Hoc',
-};
+  AD_HOC: 'Ad Hoc' };
 
 export default function PerformancePage() {
   const [cycles, setCycles] = useState<PerformanceCycle[]>([]);
@@ -202,8 +195,7 @@ export default function PerformancePage() {
         cycleType,
         startDate: cycleStartDate,
         endDate: cycleEndDate,
-        ratingScale: cycleRatingScale,
-      });
+        ratingScale: cycleRatingScale });
       setCycleModalOpen(false);
       resetCycleForm();
       loadData();
@@ -231,8 +223,7 @@ export default function PerformancePage() {
         reviewerId: reviewReviewerId,
         reviewType: reviewType,
         periodStart: reviewPeriodStart,
-        periodEnd: reviewPeriodEnd,
-      });
+        periodEnd: reviewPeriodEnd });
       setReviewModalOpen(false);
       resetReviewForm();
       loadData();
@@ -254,9 +245,7 @@ export default function PerformancePage() {
           department: 'All Departments',
           reviewPeriod: 'Current Cycle',
           goalsCompleted: reviews.filter((r) => r.status === 'COMPLETED').length,
-          totalGoals: reviews.length,
-        },
-      });
+          totalGoals: reviews.length } });
       setAiInsights(res.data.data.result);
     } catch (error) {
       console.error('Error getting AI insights:', error);

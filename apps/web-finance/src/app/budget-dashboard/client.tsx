@@ -7,9 +7,7 @@ import {
   TrendingDown,
   DollarSign,
   AlertTriangle,
-  CheckCircle,
-  BarChart3,
-} from 'lucide-react';
+  CheckCircle } from 'lucide-react';
 
 interface BudgetLine {
   id: string;
@@ -50,8 +48,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 465000,
     forecast: 705000,
     variance: 15000,
-    variancePct: 3.1,
-  },
+    variancePct: 3.1 },
   {
     id: '2',
     department: 'Production',
@@ -61,8 +58,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 672000,
     forecast: 1008000,
     variance: -32000,
-    variancePct: -5.0,
-  },
+    variancePct: -5.0 },
   {
     id: '3',
     department: 'Production',
@@ -72,8 +68,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 115000,
     forecast: 172000,
     variance: 5000,
-    variancePct: 4.2,
-  },
+    variancePct: 4.2 },
   {
     id: '4',
     department: 'Quality',
@@ -83,8 +78,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 58000,
     forecast: 87000,
     variance: 6000,
-    variancePct: 9.4,
-  },
+    variancePct: 9.4 },
   {
     id: '5',
     department: 'Quality',
@@ -94,8 +88,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 26500,
     forecast: 39750,
     variance: -2500,
-    variancePct: -10.4,
-  },
+    variancePct: -10.4 },
   {
     id: '6',
     department: 'Engineering',
@@ -105,8 +98,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 152000,
     forecast: 228000,
     variance: 8000,
-    variancePct: 5.0,
-  },
+    variancePct: 5.0 },
   {
     id: '7',
     department: 'Engineering',
@@ -116,8 +108,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 95000,
     forecast: 142500,
     variance: -15000,
-    variancePct: -18.8,
-  },
+    variancePct: -18.8 },
   {
     id: '8',
     department: 'Administration',
@@ -127,8 +118,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 88000,
     forecast: 132000,
     variance: 8000,
-    variancePct: 8.3,
-  },
+    variancePct: 8.3 },
   {
     id: '9',
     department: 'Administration',
@@ -138,8 +128,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 118000,
     forecast: 177000,
     variance: 2000,
-    variancePct: 1.7,
-  },
+    variancePct: 1.7 },
   {
     id: '10',
     department: 'Sales',
@@ -149,8 +138,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 71000,
     forecast: 106500,
     variance: -7000,
-    variancePct: -10.9,
-  },
+    variancePct: -10.9 },
   {
     id: '11',
     department: 'Sales',
@@ -160,8 +148,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 28000,
     forecast: 42000,
     variance: 4000,
-    variancePct: 12.5,
-  },
+    variancePct: 12.5 },
   {
     id: '12',
     department: 'HR',
@@ -171,8 +158,7 @@ const BUDGET_LINES: BudgetLine[] = [
     ytdActual: 42000,
     forecast: 63000,
     variance: 6000,
-    variancePct: 12.5,
-  },
+    variancePct: 12.5 },
 ];
 
 function formatCurrency(val: number): string {

@@ -4,7 +4,7 @@ import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
-import { scopeToUser } from '@ims/service-auth';
+import {  } from '@ims/service-auth';
 
 interface AIProviderResponse {
   content: string;
@@ -55,16 +55,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         'AUTOMOTIVE_APQP_RISK_ASSESSMENT',
         'AUTOMOTIVE_PPAP_READINESS',
       ]),
-      context: z.record(z.unknown()),
-    });
+      context: z.record(z.unknown()) });
 
     const data = schema.parse(req.body);
 
     // Get AI settings
     const settings = await prisma.aISettings.findFirst({
       where: { deletedAt: null } as any,
-      orderBy: { createdAt: 'desc' },
-    });
+      orderBy: { createdAt: 'desc' } });
 
     if (!settings?.apiKey) {
       return res.status(400).json({
@@ -72,9 +70,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         error: {
           code: 'NO_AI_CONFIG',
           message:
-            'AI provider not configured. Please set up an API key in Settings > AI Configuration.',
-        },
-      });
+            'AI provider not configured. Please set up an API key in Settings > AI Configuration.' } });
     }
 
     let prompt = '';
@@ -1123,8 +1119,7 @@ Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
       const errorMessage = aiError instanceof Error ? aiError.message : 'Unknown AI error';
       return res.status(502).json({
         success: false,
-        error: { code: 'AI_ERROR', message: `AI provider error: ${errorMessage}` },
-      });
+        error: { code: 'AI_ERROR', message: `AI provider error: ${errorMessage}` } });
     }
 
     // Parse JSON from AI response
@@ -1137,8 +1132,7 @@ Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
     } catch {
       return res.status(502).json({
         success: false,
-        error: { code: 'PARSE_ERROR', message: 'Failed to parse AI response as JSON' },
-      });
+        error: { code: 'PARSE_ERROR', message: 'Failed to parse AI response as JSON' } });
     }
 
     // Update token usage
@@ -1146,16 +1140,13 @@ Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
       where: { id: settings.id },
       data: {
         totalTokensUsed: settings.totalTokensUsed + (aiResponse!.tokensUsed || 0),
-        lastUsedAt: new Date(),
-      },
-    });
+        lastUsedAt: new Date() } });
 
     // Return structured result
     if (data.type === 'LEGAL_REFERENCES') {
       res.json({
         success: true,
-        data: { suggestions: Array.isArray(parsedResult) ? parsedResult : [] },
-      });
+        data: { suggestions: Array.isArray(parsedResult) ? parsedResult : [] } });
     } else {
       res.json({ success: true, data: { type: data.type, result: parsedResult } });
     }
@@ -1164,14 +1155,12 @@ Provide a comprehensive PPAP readiness assessment. Respond with ONLY valid JSON:
       const fields = error.errors.map((e) => e.path.join('.'));
       return res.status(400).json({
         success: false,
-        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields },
-      });
+        error: { code: 'VALIDATION_ERROR', message: 'Invalid input', fields } });
     }
     logger.error('Quick analyze error', { error: (error as Error).message });
     res.status(500).json({
       success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to perform AI analysis' },
-    });
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to perform AI analysis' } });
   }
 });
 
@@ -1181,22 +1170,18 @@ async function callOpenAI(apiKey: string, model: string, prompt: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
+      Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
       model,
       messages: [
         {
           role: 'system',
           content:
-            'You are an expert management system consultant specializing in ISO 45001, ISO 14001, ISO 9001, ISO 30414 (HR), SHRM, and CIPD frameworks. Always respond with valid JSON only.',
-        },
+            'You are an expert management system consultant specializing in ISO 45001, ISO 14001, ISO 9001, ISO 30414 (HR), SHRM, and CIPD frameworks. Always respond with valid JSON only.' },
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
-      max_tokens: 2000,
-    }),
-  });
+      max_tokens: 2000 }) });
 
   if (!response.ok) {
     const error = (await response.json()) as Record<string, unknown>;
@@ -1209,8 +1194,7 @@ async function callOpenAI(apiKey: string, model: string, prompt: string) {
   const usage = data.usage as { total_tokens?: number } | undefined;
   return {
     content: choices[0].message.content,
-    tokensUsed: usage?.total_tokens || 0,
-  };
+    tokensUsed: usage?.total_tokens || 0 };
 }
 
 async function callAnthropic(apiKey: string, model: string, prompt: string) {
@@ -1219,16 +1203,13 @@ async function callAnthropic(apiKey: string, model: string, prompt: string) {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
+      'anthropic-version': '2023-06-01' },
     body: JSON.stringify({
       model,
       max_tokens: 2000,
       system:
         'You are an expert management system consultant specializing in ISO 45001, ISO 14001, ISO 9001, ISO 30414 (HR), SHRM, and CIPD frameworks. Always respond with valid JSON only.',
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
+      messages: [{ role: 'user', content: prompt }] }) });
 
   if (!response.ok) {
     const error = (await response.json()) as Record<string, unknown>;
@@ -1241,8 +1222,7 @@ async function callAnthropic(apiKey: string, model: string, prompt: string) {
   const usage = data.usage as { input_tokens?: number; output_tokens?: number } | undefined;
   return {
     content: content[0].text,
-    tokensUsed: (usage?.input_tokens || 0) + (usage?.output_tokens || 0),
-  };
+    tokensUsed: (usage?.input_tokens || 0) + (usage?.output_tokens || 0) };
 }
 
 async function callGrok(apiKey: string, prompt: string) {
@@ -1250,20 +1230,16 @@ async function callGrok(apiKey: string, prompt: string) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
+      Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
       model: 'grok-beta',
       messages: [
         {
           role: 'system',
           content:
-            'You are an expert ISO management system consultant. Always respond with valid JSON only.',
-        },
+            'You are an expert ISO management system consultant. Always respond with valid JSON only.' },
         { role: 'user', content: prompt },
-      ],
-    }),
-  });
+      ] }) });
 
   if (!response.ok) {
     const error = (await response.json()) as Record<string, unknown>;
@@ -1276,8 +1252,7 @@ async function callGrok(apiKey: string, prompt: string) {
   const usage = data.usage as { total_tokens?: number } | undefined;
   return {
     content: choices[0].message.content,
-    tokensUsed: usage?.total_tokens || 0,
-  };
+    tokensUsed: usage?.total_tokens || 0 };
 }
 
 export default router;

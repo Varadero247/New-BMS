@@ -6,13 +6,10 @@ import {
   HelpCircle,
   Plus,
   ArrowRight,
-  ChevronDown,
   Save,
-  Trash2,
   CheckCircle,
   Clock,
-  Loader2,
-} from 'lucide-react';
+  Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,8 +49,7 @@ export default function FiveWhysPage() {
     why5: '',
     rootCause: '',
     sourceType: 'INCIDENT',
-    sourceId: '',
-  });
+    sourceId: '' });
 
   useEffect(() => {
     fetchAnalyses();
@@ -85,8 +81,7 @@ export default function FiveWhysPage() {
         why5: '',
         rootCause: '',
         sourceType: 'INCIDENT',
-        sourceId: '',
-      });
+        sourceId: '' });
       fetchAnalyses();
     } catch (error) {
       console.error('Failed to create analysis:', error);

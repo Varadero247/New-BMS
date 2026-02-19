@@ -11,19 +11,15 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   Search,
   Loader2,
-  Users,
   AlertTriangle,
   Brain,
   BarChart3,
-  Clock,
-  Activity,
-} from 'lucide-react';
+  Activity } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -165,15 +161,13 @@ const emptyIncidentForm = {
   description: '',
   category: DIRTY_DOZEN[0] as string,
   severity: 'MEDIUM' as string,
-  incidentDate: new Date().toISOString().split('T')[0],
-};
+  incidentDate: new Date().toISOString().split('T')[0] };
 
 const emptyFatigueForm = {
   personnelName: '',
   hoursWorked: '',
   restHours: '',
-  fatigueScore: '5',
-};
+  fatigueScore: '5' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -290,8 +284,7 @@ export default function HumanFactorsClient() {
           personnelName: fatigueForm.personnelName,
           hoursWorked: Number(fatigueForm.hoursWorked),
           restHours: Number(fatigueForm.restHours),
-          fatigueScore: Number(fatigueForm.fatigueScore),
-        });
+          fatigueScore: Number(fatigueForm.fatigueScore) });
         setShowFatigueModal(false);
         setFatigueForm(emptyFatigueForm);
         fetchFatigue();

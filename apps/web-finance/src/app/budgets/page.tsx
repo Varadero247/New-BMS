@@ -6,13 +6,11 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Badge,
   Button,
   Modal,
   ModalFooter,
   Input,
-  Label,
-} from '@ims/ui';
+  Label } from '@ims/ui';
 import { Plus, Search, PiggyBank, TrendingUp, TrendingDown } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -35,8 +33,7 @@ function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount);
+    minimumFractionDigits: 2 }).format(amount);
 }
 
 const months = [
@@ -72,8 +69,7 @@ export default function BudgetsPage() {
     fiscalYear: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
     budgetAmount: '',
-    notes: '',
-  });
+    notes: '' });
 
   useEffect(() => {
     loadBudgets();
@@ -119,8 +115,7 @@ export default function BudgetsPage() {
     try {
       await api.post('/budgets', {
         ...formData,
-        budgetAmount: parseFloat(formData.budgetAmount),
-      });
+        budgetAmount: parseFloat(formData.budgetAmount) });
       setCreateModalOpen(false);
       loadBudgets();
     } catch (err) {
@@ -175,8 +170,7 @@ export default function BudgetsPage() {
                 fiscalYear: yearFilter,
                 month: new Date().getMonth() + 1,
                 budgetAmount: '',
-                notes: '',
-              });
+                notes: '' });
               setFormError('');
               setCreateModalOpen(true);
             }}

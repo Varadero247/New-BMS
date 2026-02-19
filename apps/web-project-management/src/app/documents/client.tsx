@@ -3,18 +3,12 @@
 import { useState } from 'react';
 import {
   FileText,
-  FolderOpen,
-  Upload,
-  Download,
-  Clock,
   CheckCircle,
-  AlertTriangle,
   Search,
   Filter,
   Eye,
   Lock,
-  Edit3,
-} from 'lucide-react';
+  Edit3 } from 'lucide-react';
 
 type DocStatus = 'draft' | 'under-review' | 'approved' | 'archived';
 type DocType =
@@ -62,17 +56,14 @@ const documents: Document[] = [
         version: '2.1',
         date: '2025-09-15',
         author: 'Emma Clarke',
-        changes: 'Updated budget section and stakeholder matrix',
-      },
+        changes: 'Updated budget section and stakeholder matrix' },
       {
         version: '2.0',
         date: '2025-07-01',
         author: 'Emma Clarke',
-        changes: 'Major revision — expanded scope to include HR module',
-      },
+        changes: 'Major revision — expanded scope to include HR module' },
       { version: '1.0', date: '2025-03-10', author: 'Emma Clarke', changes: 'Initial release' },
-    ],
-  },
+    ] },
   {
     id: 'd2',
     name: 'Risk Register — New Factory Build',
@@ -91,16 +82,13 @@ const documents: Document[] = [
         version: '3.4',
         date: '2026-01-20',
         author: 'Tom Parker',
-        changes: 'Added 3 new supply chain risks post-review',
-      },
+        changes: 'Added 3 new supply chain risks post-review' },
       {
         version: '3.3',
         date: '2025-12-01',
         author: 'Tom Parker',
-        changes: 'Monthly update — closed 2 risks',
-      },
-    ],
-  },
+        changes: 'Monthly update — closed 2 risks' },
+    ] },
   {
     id: 'd3',
     name: 'Phase 2 Specification — Mobile App',
@@ -119,17 +107,14 @@ const documents: Document[] = [
         version: '1.2',
         date: '2026-02-05',
         author: 'Liam Chen',
-        changes: 'Addressed reviewer comments on API endpoints',
-      },
+        changes: 'Addressed reviewer comments on API endpoints' },
       {
         version: '1.1',
         date: '2026-01-28',
         author: 'Liam Chen',
-        changes: 'Added offline sync specifications',
-      },
+        changes: 'Added offline sync specifications' },
       { version: '1.0', date: '2026-01-15', author: 'Liam Chen', changes: 'Initial draft' },
-    ],
-  },
+    ] },
   {
     id: 'd4',
     name: 'Monthly Status Report — January 2026',
@@ -148,10 +133,8 @@ const documents: Document[] = [
         version: '1.0',
         date: '2026-02-01',
         author: 'Emma Clarke',
-        changes: 'January 2026 status report',
-      },
-    ],
-  },
+        changes: 'January 2026 status report' },
+    ] },
   {
     id: 'd5',
     name: 'Project Management Plan — ISO 27001',
@@ -170,17 +153,14 @@ const documents: Document[] = [
         version: '0.3',
         date: '2026-02-10',
         author: 'Alex Kim',
-        changes: 'Added resource plan and RACI matrix',
-      },
+        changes: 'Added resource plan and RACI matrix' },
       {
         version: '0.2',
         date: '2026-01-25',
         author: 'Alex Kim',
-        changes: 'WBS and schedule baseline',
-      },
+        changes: 'WBS and schedule baseline' },
       { version: '0.1', date: '2026-01-10', author: 'Alex Kim', changes: 'Initial outline' },
-    ],
-  },
+    ] },
   {
     id: 'd6',
     name: 'Steering Committee Minutes — Feb 2026',
@@ -199,10 +179,8 @@ const documents: Document[] = [
         version: '1.0',
         date: '2026-02-08',
         author: 'Priya Patel',
-        changes: 'Meeting minutes from Feb 6th steering committee',
-      },
-    ],
-  },
+        changes: 'Meeting minutes from Feb 6th steering committee' },
+    ] },
   {
     id: 'd7',
     name: 'Change Request CR-042 — Scope Extension',
@@ -221,10 +199,8 @@ const documents: Document[] = [
         version: '1.0',
         date: '2026-02-11',
         author: 'Liam Chen',
-        changes: 'Request to add biometric login feature',
-      },
-    ],
-  },
+        changes: 'Request to add biometric login feature' },
+    ] },
   {
     id: 'd8',
     name: 'Lessons Learned — Phase 1',
@@ -243,34 +219,27 @@ const documents: Document[] = [
         version: '1.0',
         date: '2025-12-20',
         author: 'Emma Clarke',
-        changes: 'Phase 1 lessons learned compilation',
-      },
-    ],
-  },
+        changes: 'Phase 1 lessons learned compilation' },
+    ] },
 ];
 
 const statusConfig: Record<DocStatus, { label: string; color: string; icon: React.ReactNode }> = {
   draft: {
     label: 'Draft',
     color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-    icon: <Edit3 className="h-3.5 w-3.5" />,
-  },
+    icon: <Edit3 className="h-3.5 w-3.5" /> },
   'under-review': {
     label: 'Under Review',
     color: 'bg-blue-100 text-blue-700',
-    icon: <Eye className="h-3.5 w-3.5" />,
-  },
+    icon: <Eye className="h-3.5 w-3.5" /> },
   approved: {
     label: 'Approved',
     color: 'bg-green-100 text-green-700',
-    icon: <CheckCircle className="h-3.5 w-3.5" />,
-  },
+    icon: <CheckCircle className="h-3.5 w-3.5" /> },
   archived: {
     label: 'Archived',
     color: 'bg-amber-100 text-amber-700',
-    icon: <Lock className="h-3.5 w-3.5" />,
-  },
-};
+    icon: <Lock className="h-3.5 w-3.5" /> } };
 
 const typeLabels: Record<DocType, string> = {
   charter: 'Charter',
@@ -280,8 +249,7 @@ const typeLabels: Record<DocType, string> = {
   'meeting-minutes': 'Meeting Minutes',
   'change-request': 'Change Request',
   'risk-register': 'Risk Register',
-  other: 'Other',
-};
+  other: 'Other' };
 
 export default function DocumentsClient() {
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);

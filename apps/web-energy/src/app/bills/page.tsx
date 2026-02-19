@@ -9,10 +9,8 @@ import {
   Clock,
   AlertTriangle,
   DollarSign,
-  Zap,
   Edit2,
-  Trash2,
-} from 'lucide-react';
+  Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Bill {
@@ -42,14 +40,11 @@ const statusConfig: Record<string, { label: string; className: string; icon: Rea
     DISPUTED: {
       label: 'Disputed',
       className: 'bg-orange-100 text-orange-700',
-      icon: AlertTriangle,
-    },
+      icon: AlertTriangle },
     CANCELLED: {
       label: 'Cancelled',
       className: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
-      icon: Clock,
-    },
-  };
+      icon: Clock } };
 
 const empty: Partial<Bill> = {
   provider: '',
@@ -60,8 +55,7 @@ const empty: Partial<Bill> = {
   unit: 'kWh',
   status: 'UNPAID',
   invoiceNumber: '',
-  notes: '',
-};
+  notes: '' };
 
 export default function BillsPage() {
   const [items, setItems] = useState<Bill[]>([]);
@@ -108,8 +102,7 @@ export default function BillsPage() {
     paid: items.filter((i) => i.status === 'PAID').length,
     overdue: items.filter((i) => i.status === 'OVERDUE').length,
     totalPaid,
-    totalUnpaid,
-  };
+    totalUnpaid };
 
   const openCreate = () => {
     setEditItem({ ...empty });
@@ -125,8 +118,7 @@ export default function BillsPage() {
       billingPeriodEnd: item.billingPeriodEnd
         ? new Date(item.billingPeriodEnd).toISOString().slice(0, 10)
         : '',
-      dueDate: item.dueDate ? new Date(item.dueDate).toISOString().slice(0, 10) : '',
-    });
+      dueDate: item.dueDate ? new Date(item.dueDate).toISOString().slice(0, 10) : '' });
     setIsEditing(true);
     setModalOpen(true);
   };

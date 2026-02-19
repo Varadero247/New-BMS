@@ -17,8 +17,7 @@ import {
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import {
   CalendarCheck,
   Plus,
@@ -26,12 +25,10 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-  Clock,
   Loader2,
   Timer,
   Users,
-  TrendingUp,
-} from 'lucide-react';
+  TrendingUp } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
@@ -98,8 +95,7 @@ const emptyForm: DrillForm = {
   findings: '',
   recommendations: '',
   conductedBy: '',
-  nextDrillDate: '',
-};
+  nextDrillDate: '' };
 
 export default function DrillsPage() {
   const [analytics, setAnalytics] = useState<DrillAnalytics | null>(null);
@@ -159,8 +155,7 @@ export default function DrillsPage() {
       findings: drill.findings || '',
       recommendations: drill.recommendations || '',
       conductedBy: drill.conductedBy || '',
-      nextDrillDate: drill.nextDrillDate ? drill.nextDrillDate.split('T')[0] : '',
-    });
+      nextDrillDate: drill.nextDrillDate ? drill.nextDrillDate.split('T')[0] : '' });
     setEditId(drill.id);
     setModalOpen(true);
   }
@@ -172,8 +167,7 @@ export default function DrillsPage() {
       const payload = {
         ...form,
         drillDate: new Date(form.drillDate).toISOString(),
-        nextDrillDate: form.nextDrillDate ? new Date(form.nextDrillDate).toISOString() : null,
-      };
+        nextDrillDate: form.nextDrillDate ? new Date(form.nextDrillDate).toISOString() : null };
       if (editId) {
         await api.put(`/drills/${editId}`, payload);
       } else {
@@ -300,8 +294,7 @@ export default function DrillsPage() {
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center"
                       style={{
-                        backgroundColor: analytics.overdueCount > 0 ? '#FEE2E4' : '#ECFDF5',
-                      }}
+                        backgroundColor: analytics.overdueCount > 0 ? '#FEE2E4' : '#ECFDF5' }}
                     >
                       <AlertTriangle
                         className="h-5 w-5"
@@ -573,8 +566,7 @@ export default function DrillsPage() {
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
-                      evacuationTime: e.target.value ? parseFloat(e.target.value) : null,
-                    }))
+                      evacuationTime: e.target.value ? parseFloat(e.target.value) : null }))
                   }
                   placeholder="Minutes to complete"
                 />
@@ -588,8 +580,7 @@ export default function DrillsPage() {
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
-                      targetEvacuationTime: e.target.value ? parseFloat(e.target.value) : null,
-                    }))
+                      targetEvacuationTime: e.target.value ? parseFloat(e.target.value) : null }))
                   }
                   placeholder="Target in minutes"
                 />

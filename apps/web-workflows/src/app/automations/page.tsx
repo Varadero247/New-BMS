@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@ims/ui';
+import {  } from '@ims/ui';
 import {
   Zap,
   Plus,
@@ -9,11 +9,9 @@ import {
   CheckCircle,
   AlertTriangle,
   Play,
-  Clock,
   ToggleLeft,
   ToggleRight,
-  XCircle,
-} from 'lucide-react';
+  XCircle } from 'lucide-react';
 import api from '@/lib/api';
 
 interface AutomationRule {
@@ -37,8 +35,7 @@ const TRIGGER_COLORS: Record<string, string> = {
   ON_FIELD_CHANGE: 'bg-orange-100 text-orange-800',
   SCHEDULED: 'bg-yellow-100 text-yellow-800',
   MANUAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-  WEBHOOK: 'bg-cyan-100 text-cyan-800',
-};
+  WEBHOOK: 'bg-cyan-100 text-cyan-800' };
 
 const MOCK_RULES: AutomationRule[] = [
   {
@@ -52,8 +49,7 @@ const MOCK_RULES: AutomationRule[] = [
     executionCount: 47,
     successCount: 46,
     failureCount: 1,
-    definition: { name: 'NCR Workflow' },
-  },
+    definition: { name: 'NCR Workflow' } },
   {
     id: '2',
     name: 'Escalate overdue CAPA',
@@ -65,8 +61,7 @@ const MOCK_RULES: AutomationRule[] = [
     executionCount: 120,
     successCount: 120,
     failureCount: 0,
-    definition: null,
-  },
+    definition: null },
   {
     id: '3',
     name: 'Auto-close incident on CAPA closure',
@@ -78,8 +73,7 @@ const MOCK_RULES: AutomationRule[] = [
     executionCount: 34,
     successCount: 33,
     failureCount: 1,
-    definition: { name: 'Incident Workflow' },
-  },
+    definition: { name: 'Incident Workflow' } },
   {
     id: '4',
     name: 'Notify manager on high-risk assessment',
@@ -91,8 +85,7 @@ const MOCK_RULES: AutomationRule[] = [
     executionCount: 0,
     successCount: 0,
     failureCount: 0,
-    definition: null,
-  },
+    definition: null },
   {
     id: '5',
     name: 'Weekly compliance summary',
@@ -104,8 +97,7 @@ const MOCK_RULES: AutomationRule[] = [
     executionCount: 52,
     successCount: 52,
     failureCount: 0,
-    definition: null,
-  },
+    definition: null },
   {
     id: '6',
     name: 'Webhook: Jira issue → CAPA',
@@ -117,8 +109,7 @@ const MOCK_RULES: AutomationRule[] = [
     executionCount: 8,
     successCount: 7,
     failureCount: 1,
-    definition: { name: 'CAPA Workflow' },
-  },
+    definition: { name: 'CAPA Workflow' } },
 ];
 
 function SuccessRate({ success, total }: { success: number; total: number }) {

@@ -4,13 +4,10 @@ import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { Shield, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -30,8 +27,7 @@ const statusColors: Record<string, string> = {
   NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   PARTIAL: 'bg-yellow-100 text-yellow-700',
   IMPLEMENTED: 'bg-green-100 text-green-700',
-  NOT_APPLICABLE: 'bg-blue-100 text-blue-700',
-};
+  NOT_APPLICABLE: 'bg-blue-100 text-blue-700' };
 
 const domains = [
   'Organizational controls',
@@ -56,8 +52,7 @@ export default function ControlsPage() {
     implementationStatus: 'NOT_STARTED',
     owner: '',
     notes: '',
-    evidence: '',
-  });
+    evidence: '' });
 
   useEffect(() => {
     loadControls();
@@ -82,8 +77,7 @@ export default function ControlsPage() {
       implementationStatus: control.implementationStatus,
       owner: control.owner || '',
       notes: control.notes || '',
-      evidence: control.evidence || '',
-    });
+      evidence: control.evidence || '' });
     setEditModalOpen(true);
   }
 

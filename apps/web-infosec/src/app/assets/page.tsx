@@ -4,13 +4,10 @@ import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { Server, Plus, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -31,8 +28,7 @@ const classificationColors: Record<string, string> = {
   CRITICAL: 'bg-red-100 text-red-700',
   HIGH: 'bg-orange-100 text-orange-700',
   MEDIUM: 'bg-yellow-100 text-yellow-700',
-  LOW: 'bg-green-100 text-green-700',
-};
+  LOW: 'bg-green-100 text-green-700' };
 
 const assetTypes = ['HARDWARE', 'SOFTWARE', 'DATA', 'NETWORK', 'PERSONNEL', 'FACILITY', 'SERVICE'];
 const classifications = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
@@ -53,8 +49,7 @@ export default function AssetsPage() {
     classification: 'MEDIUM',
     owner: '',
     format: '',
-    encryptionRequired: false,
-  });
+    encryptionRequired: false });
 
   useEffect(() => {
     loadAssets();
@@ -81,8 +76,7 @@ export default function AssetsPage() {
       classification: 'MEDIUM',
       owner: '',
       format: '',
-      encryptionRequired: false,
-    });
+      encryptionRequired: false });
     setModalOpen(true);
   }
 
@@ -94,8 +88,7 @@ export default function AssetsPage() {
       classification: asset.classification,
       owner: asset.owner,
       format: asset.format,
-      encryptionRequired: asset.encryptionRequired,
-    });
+      encryptionRequired: asset.encryptionRequired });
     setModalOpen(true);
   }
 

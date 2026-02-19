@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -11,8 +11,7 @@ import {
   Modal,
   ModalFooter,
   Input,
-  Label,
-} from '@ims/ui';
+  Label } from '@ims/ui';
 import { Plus, Search, Users, Building2, Mail, Phone } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -46,15 +45,13 @@ const statusColors: Record<string, string> = {
   PROBATION: 'bg-blue-100 text-blue-700',
   NOTICE_PERIOD: 'bg-orange-100 text-orange-700',
   SUSPENDED: 'bg-red-100 text-red-700',
-  TERMINATED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-};
+  TERMINATED: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
 
 const typeColors: Record<string, string> = {
   FULL_TIME: 'bg-emerald-100 text-emerald-700',
   PART_TIME: 'bg-blue-100 text-blue-700',
   CONTRACT: 'bg-purple-100 text-purple-700',
-  INTERN: 'bg-pink-100 text-pink-700',
-};
+  INTERN: 'bg-pink-100 text-pink-700' };
 
 const initialFormState = {
   employeeNumber: '',
@@ -73,8 +70,7 @@ const initialFormState = {
   managerId: '',
   hireDate: '',
   employmentType: 'FULL_TIME',
-  employmentStatus: 'ACTIVE',
-};
+  employmentStatus: 'ACTIVE' };
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -216,8 +212,7 @@ export default function EmployeesPage() {
         jobTitle: formData.jobTitle,
         departmentId: formData.departmentId,
         hireDate: formData.hireDate,
-        employmentType: formData.employmentType,
-      };
+        employmentType: formData.employmentType };
 
       if (formData.personalEmail) payload.personalEmail = formData.personalEmail;
       if (formData.phone) payload.phone = formData.phone;

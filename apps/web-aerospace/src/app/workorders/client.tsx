@@ -11,8 +11,7 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   Plus,
   Search,
@@ -21,14 +20,12 @@ import {
   ClipboardList,
   CheckCircle2,
   Clock,
-  AlertTriangle,
   ArrowLeft,
   Play,
   Eye,
   Send,
   PauseCircle,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -142,13 +139,11 @@ const emptyWOForm = {
   aircraftReg: '',
   description: '',
   priority: 'ROUTINE' as string,
-  dueDate: '',
-};
+  dueDate: '' };
 
 const emptyTaskForm = {
   title: '',
-  description: '',
-};
+  description: '' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -222,8 +217,7 @@ export default function WorkOrdersClient() {
       try {
         await api.post('/workorders', {
           ...form,
-          dueDate: form.dueDate || undefined,
-        });
+          dueDate: form.dueDate || undefined });
         setShowCreateModal(false);
         setForm(emptyWOForm);
         fetchItems();
@@ -345,8 +339,7 @@ export default function WorkOrdersClient() {
       total: items.length,
       open: items.filter((i) => i.status === 'OPEN').length,
       inProgress: items.filter((i) => i.status === 'IN_PROGRESS').length,
-      released: items.filter((i) => i.status === 'RELEASED').length,
-    }),
+      released: items.filter((i) => i.status === 'RELEASED').length }),
     [items]
   );
 

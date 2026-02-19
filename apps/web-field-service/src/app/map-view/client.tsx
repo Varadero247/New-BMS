@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Badge } from '@ims/ui';
-import { MapPin, User, Wrench, Navigation } from 'lucide-react';
+import { MapPin, User, Wrench } from 'lucide-react';
 
 type JobStatus = 'Scheduled' | 'En Route' | 'On Site' | 'Completed' | 'Cancelled';
 type JobPriority = 'Emergency' | 'High' | 'Medium' | 'Low';
@@ -47,8 +46,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 3,
     x: 25,
     y: 30,
-    region: 'North',
-  },
+    region: 'North' },
   {
     id: 'JOB-002',
     title: 'Emergency Generator Repair',
@@ -61,8 +59,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 4,
     x: 55,
     y: 20,
-    region: 'Central',
-  },
+    region: 'Central' },
   {
     id: 'JOB-003',
     title: 'Fire Alarm Annual Inspection',
@@ -75,8 +72,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 2,
     x: 70,
     y: 45,
-    region: 'East',
-  },
+    region: 'East' },
   {
     id: 'JOB-004',
     title: 'Lift Maintenance Service',
@@ -89,8 +85,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 2,
     x: 45,
     y: 55,
-    region: 'Central',
-  },
+    region: 'Central' },
   {
     id: 'JOB-005',
     title: 'Plumbing Emergency',
@@ -103,8 +98,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 2,
     x: 15,
     y: 65,
-    region: 'West',
-  },
+    region: 'West' },
   {
     id: 'JOB-006',
     title: 'Electrical Panel Upgrade',
@@ -117,8 +111,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 6,
     x: 80,
     y: 25,
-    region: 'East',
-  },
+    region: 'East' },
   {
     id: 'JOB-007',
     title: 'AC Unit Replacement',
@@ -131,8 +124,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 5,
     x: 35,
     y: 80,
-    region: 'South',
-  },
+    region: 'South' },
   {
     id: 'JOB-008',
     title: 'Security System Check',
@@ -145,8 +137,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 1.5,
     x: 50,
     y: 40,
-    region: 'Central',
-  },
+    region: 'Central' },
   {
     id: 'JOB-009',
     title: 'Boiler Service',
@@ -159,8 +150,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 3,
     x: 60,
     y: 70,
-    region: 'South',
-  },
+    region: 'South' },
   {
     id: 'JOB-010',
     title: 'Compressor Rebuild',
@@ -173,8 +163,7 @@ const MOCK_JOBS: Job[] = [
     estimatedHours: 8,
     x: 30,
     y: 15,
-    region: 'North',
-  },
+    region: 'North' },
 ];
 
 const MOCK_TECHS: Technician[] = [
@@ -186,8 +175,7 @@ const MOCK_TECHS: Technician[] = [
     x: 25,
     y: 30,
     jobsCompleted: 3,
-    hoursWorked: 6.5,
-  },
+    hoursWorked: 6.5 },
   {
     id: 'T2',
     name: 'M. Chen',
@@ -196,8 +184,7 @@ const MOCK_TECHS: Technician[] = [
     x: 48,
     y: 25,
     jobsCompleted: 2,
-    hoursWorked: 4.0,
-  },
+    hoursWorked: 4.0 },
   {
     id: 'T3',
     name: 'S. Patel',
@@ -205,8 +192,7 @@ const MOCK_TECHS: Technician[] = [
     x: 65,
     y: 50,
     jobsCompleted: 1,
-    hoursWorked: 2.0,
-  },
+    hoursWorked: 2.0 },
   {
     id: 'T4',
     name: 'A. Williams',
@@ -214,8 +200,7 @@ const MOCK_TECHS: Technician[] = [
     x: 20,
     y: 60,
     jobsCompleted: 2,
-    hoursWorked: 5.0,
-  },
+    hoursWorked: 5.0 },
   {
     id: 'T5',
     name: 'R. Brown',
@@ -224,8 +209,7 @@ const MOCK_TECHS: Technician[] = [
     x: 80,
     y: 25,
     jobsCompleted: 4,
-    hoursWorked: 7.5,
-  },
+    hoursWorked: 7.5 },
 ];
 
 const statusColors: Record<JobStatus, string> = {
@@ -233,30 +217,26 @@ const statusColors: Record<JobStatus, string> = {
   'En Route': 'bg-yellow-500',
   'On Site': 'bg-purple-500',
   Completed: 'bg-green-500',
-  Cancelled: 'bg-gray-400',
-};
+  Cancelled: 'bg-gray-400' };
 
 const statusBadgeColors: Record<JobStatus, string> = {
   Scheduled: 'bg-blue-100 text-blue-700',
   'En Route': 'bg-yellow-100 text-yellow-700',
   'On Site': 'bg-purple-100 text-purple-700',
   Completed: 'bg-green-100 text-green-700',
-  Cancelled: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-};
+  Cancelled: 'bg-gray-100 dark:bg-gray-800 text-gray-600' };
 
 const priorityColors: Record<JobPriority, string> = {
   Emergency: 'bg-red-100 text-red-700',
   High: 'bg-orange-100 text-orange-700',
   Medium: 'bg-yellow-100 text-yellow-700',
-  Low: 'bg-green-100 text-green-700',
-};
+  Low: 'bg-green-100 text-green-700' };
 
 const techStatusColors: Record<string, string> = {
   Available: 'bg-green-500',
   'On Job': 'bg-purple-500',
   'En Route': 'bg-yellow-500',
-  'Off Duty': 'bg-gray-400',
-};
+  'Off Duty': 'bg-gray-400' };
 
 export default function MapViewClient() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
@@ -375,8 +355,7 @@ export default function MapViewClient() {
               style={{
                 backgroundImage:
                   'linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px)',
-                backgroundSize: '10% 10%',
-              }}
+                backgroundSize: '10% 10%' }}
             />
 
             {/* Region labels */}

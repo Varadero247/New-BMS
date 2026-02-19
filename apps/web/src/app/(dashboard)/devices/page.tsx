@@ -4,14 +4,12 @@ import { useState } from 'react';
 import {
   Cpu,
   Search,
-  Filter,
   Thermometer,
   Lightbulb,
   Wind,
   Shield,
   Zap,
-  MoreVertical,
-} from 'lucide-react';
+  MoreVertical } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,8 +23,7 @@ const devices = [
     zone: 'Floor 2',
     status: 'online',
     lastReading: '72°F',
-    icon: Wind,
-  },
+    icon: Wind },
   {
     id: '2',
     name: 'Lobby Thermostat',
@@ -35,8 +32,7 @@ const devices = [
     zone: 'Lobby',
     status: 'online',
     lastReading: '71°F',
-    icon: Thermometer,
-  },
+    icon: Thermometer },
   {
     id: '3',
     name: 'Conference Room Lights',
@@ -45,8 +41,7 @@ const devices = [
     zone: 'Conference A',
     status: 'online',
     lastReading: '80%',
-    icon: Lightbulb,
-  },
+    icon: Lightbulb },
   {
     id: '4',
     name: 'Server Room AC',
@@ -55,8 +50,7 @@ const devices = [
     zone: 'Server Room',
     status: 'warning',
     lastReading: '68°F',
-    icon: Wind,
-  },
+    icon: Wind },
   {
     id: '5',
     name: 'Main Entry Access',
@@ -65,8 +59,7 @@ const devices = [
     zone: 'Lobby',
     status: 'online',
     lastReading: 'Locked',
-    icon: Shield,
-  },
+    icon: Shield },
   {
     id: '6',
     name: 'Energy Meter',
@@ -75,16 +68,14 @@ const devices = [
     zone: 'Utility',
     status: 'online',
     lastReading: '45 kW',
-    icon: Zap,
-  },
+    icon: Zap },
 ];
 
 const statusColors = {
   online: 'bg-green-500',
   offline: 'bg-gray-400',
   warning: 'bg-yellow-500',
-  error: 'bg-red-500',
-};
+  error: 'bg-red-500' };
 
 export default function DevicesPage() {
   const [searchQuery, setSearchQuery] = useState('');

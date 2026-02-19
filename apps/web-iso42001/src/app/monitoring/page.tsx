@@ -7,23 +7,17 @@ import {
   Activity,
   AlertTriangle,
   Bell,
-  BellOff,
   CheckCircle2,
-  Clock,
-  Cpu,
   Filter,
   Gauge,
   RefreshCw,
   Settings,
-  TrendingDown,
-  TrendingUp,
   Zap,
   XCircle,
   Eye,
   BarChart3,
   Timer,
-  ShieldAlert,
-} from 'lucide-react';
+  ShieldAlert } from 'lucide-react';
 
 interface SystemMetric {
   id: string;
@@ -86,8 +80,7 @@ function generateTimeSeries(systemName: string): TimeSeriesPoint[] {
       driftScore: Math.max(0, 0.05 + jitter(2) * 0.08 + Math.random() * 0.03),
       biasScore: Math.max(0, 0.03 + jitter(3) * 0.05 + Math.random() * 0.02),
       errorRate: Math.max(0, 2 + jitter(4) * 1.5 + Math.random() * 0.5),
-      latency: Math.max(50, 120 + jitter(5) * 40 + Math.random() * 20),
-    });
+      latency: Math.max(50, 120 + jitter(5) * 40 + Math.random() * 20) });
   }
   return points;
 }
@@ -106,8 +99,7 @@ const mockMetrics: SystemMetric[] = [
     requestsToday: 3420,
     pendingReviews: 2,
     lastChecked: new Date().toISOString(),
-    status: 'NORMAL',
-  },
+    status: 'NORMAL' },
   {
     id: '2',
     systemName: 'Risk Scorer',
@@ -121,8 +113,7 @@ const mockMetrics: SystemMetric[] = [
     requestsToday: 8750,
     pendingReviews: 5,
     lastChecked: new Date().toISOString(),
-    status: 'WARNING',
-  },
+    status: 'WARNING' },
   {
     id: '3',
     systemName: 'Anomaly Detector',
@@ -136,8 +127,7 @@ const mockMetrics: SystemMetric[] = [
     requestsToday: 1200,
     pendingReviews: 12,
     lastChecked: new Date().toISOString(),
-    status: 'CRITICAL',
-  },
+    status: 'CRITICAL' },
   {
     id: '4',
     systemName: 'NLP Summariser',
@@ -151,8 +141,7 @@ const mockMetrics: SystemMetric[] = [
     requestsToday: 920,
     pendingReviews: 0,
     lastChecked: new Date().toISOString(),
-    status: 'NORMAL',
-  },
+    status: 'NORMAL' },
   {
     id: '5',
     systemName: 'Predictive Maintenance',
@@ -166,8 +155,7 @@ const mockMetrics: SystemMetric[] = [
     requestsToday: 5100,
     pendingReviews: 3,
     lastChecked: new Date().toISOString(),
-    status: 'NORMAL',
-  },
+    status: 'NORMAL' },
   {
     id: '6',
     systemName: 'Sentiment Analyzer',
@@ -181,8 +169,7 @@ const mockMetrics: SystemMetric[] = [
     requestsToday: 11200,
     pendingReviews: 7,
     lastChecked: new Date().toISOString(),
-    status: 'ALERT',
-  },
+    status: 'ALERT' },
 ];
 
 const mockAlerts: Alert[] = [
@@ -193,8 +180,7 @@ const mockAlerts: Alert[] = [
     message: 'Data drift detected: feature distribution shifted >20% from baseline',
     severity: 'critical',
     acknowledged: false,
-    createdAt: new Date(Date.now() - 3600000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 3600000).toISOString() },
   {
     id: '2',
     systemName: 'Risk Scorer',
@@ -202,8 +188,7 @@ const mockAlerts: Alert[] = [
     message: 'Bias metric exceeded threshold for demographic group A (0.08 > 0.05)',
     severity: 'high',
     acknowledged: false,
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 7200000).toISOString() },
   {
     id: '3',
     systemName: 'Sentiment Analyzer',
@@ -211,8 +196,7 @@ const mockAlerts: Alert[] = [
     message: 'Bias score approaching threshold (0.09), monitor closely',
     severity: 'medium',
     acknowledged: false,
-    createdAt: new Date(Date.now() - 14400000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 14400000).toISOString() },
   {
     id: '4',
     systemName: 'Risk Scorer',
@@ -220,8 +204,7 @@ const mockAlerts: Alert[] = [
     message: 'Model accuracy degraded by 3.2% over past 7 days',
     severity: 'medium',
     acknowledged: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 86400000).toISOString() },
   {
     id: '5',
     systemName: 'Document Classifier',
@@ -229,8 +212,7 @@ const mockAlerts: Alert[] = [
     message: 'Latency spike detected: p99 reached 450ms',
     severity: 'low',
     acknowledged: true,
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-  },
+    createdAt: new Date(Date.now() - 172800000).toISOString() },
 ];
 
 const defaultThresholds: ThresholdConfig = {
@@ -242,8 +224,7 @@ const defaultThresholds: ThresholdConfig = {
   errorCritical: 5,
   latencyWarning: 200,
   latencyCritical: 400,
-  accuracyMinimum: 85,
-};
+  accuracyMinimum: 85 };
 
 const statusConfig: Record<
   string,
@@ -262,40 +243,34 @@ const statusConfig: Record<
     chipBg: 'bg-green-100 dark:bg-green-900/30',
     chipText: 'text-green-700 dark:text-green-300',
     label: 'Normal',
-    icon: CheckCircle2,
-  },
+    icon: CheckCircle2 },
   WARNING: {
     bg: 'bg-amber-50 dark:bg-amber-900/10',
     dot: 'bg-amber-500',
     chipBg: 'bg-amber-100 dark:bg-amber-900/30',
     chipText: 'text-amber-700 dark:text-amber-300',
     label: 'Warning',
-    icon: AlertTriangle,
-  },
+    icon: AlertTriangle },
   ALERT: {
     bg: 'bg-orange-50 dark:bg-orange-900/10',
     dot: 'bg-orange-500',
     chipBg: 'bg-orange-100 dark:bg-orange-900/30',
     chipText: 'text-orange-700 dark:text-orange-300',
     label: 'Alert',
-    icon: Bell,
-  },
+    icon: Bell },
   CRITICAL: {
     bg: 'bg-red-50 dark:bg-red-900/10',
     dot: 'bg-red-500',
     chipBg: 'bg-red-100 dark:bg-red-900/30',
     chipText: 'text-red-700 dark:text-red-300',
     label: 'Critical',
-    icon: XCircle,
-  },
-};
+    icon: XCircle } };
 
 const severityColors: Record<string, string> = {
   low: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   medium: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
   high: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
-  critical: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-};
+  critical: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' };
 
 const dateRangeOptions = [
   { label: 'Last 24h', value: '24h' },
@@ -310,8 +285,7 @@ function MetricBar({
   value,
   max,
   thresholds,
-  unit,
-}: {
+  unit }: {
   value: number;
   max: number;
   thresholds: { warning: number; critical: number };
@@ -693,8 +667,7 @@ export default function MonitoringDashboardPage() {
                         max={50}
                         thresholds={{
                           warning: thresholds.driftWarning,
-                          critical: thresholds.driftCritical,
-                        }}
+                          critical: thresholds.driftCritical }}
                         unit="%"
                       />
                     </td>
@@ -704,8 +677,7 @@ export default function MonitoringDashboardPage() {
                         max={50}
                         thresholds={{
                           warning: thresholds.biasWarning,
-                          critical: thresholds.biasCritical,
-                        }}
+                          critical: thresholds.biasCritical }}
                         unit="%"
                       />
                     </td>
@@ -715,8 +687,7 @@ export default function MonitoringDashboardPage() {
                         max={10}
                         thresholds={{
                           warning: thresholds.errorWarning,
-                          critical: thresholds.errorCritical,
-                        }}
+                          critical: thresholds.errorCritical }}
                         unit="%"
                       />
                     </td>
@@ -760,32 +731,28 @@ export default function MonitoringDashboardPage() {
                   key: 'accuracy' as const,
                   base: 80,
                   range: 20,
-                  color: 'bg-indigo-400 dark:bg-indigo-500',
-                },
+                  color: 'bg-indigo-400 dark:bg-indigo-500' },
                 {
                   label: 'Drift Score',
                   key: 'driftScore' as const,
                   base: 0,
                   range: 0.3,
                   color: '',
-                  thresholdBased: true,
-                },
+                  thresholdBased: true },
                 {
                   label: 'Bias Score',
                   key: 'biasScore' as const,
                   base: 0,
                   range: 0.2,
                   color: '',
-                  thresholdBased: true,
-                },
+                  thresholdBased: true },
                 {
                   label: 'Latency (ms)',
                   key: 'latency' as const,
                   base: 0,
                   range: 400,
                   color: '',
-                  latencyBased: true,
-                },
+                  latencyBased: true },
               ].map((chart) => (
                 <div key={chart.key} className="border border-border rounded-lg p-3">
                   <h4 className="text-xs font-medium text-muted-foreground mb-2">{chart.label}</h4>
@@ -833,8 +800,7 @@ export default function MonitoringDashboardPage() {
                     <span>
                       {new Date(selectedTimeSeries[0].timestamp).toLocaleTimeString([], {
                         hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                        minute: '2-digit' })}
                     </span>
                     <span>Now</span>
                   </div>
@@ -966,26 +932,22 @@ export default function MonitoringDashboardPage() {
               label: 'Data Drift',
               wKey: 'driftWarning' as const,
               cKey: 'driftCritical' as const,
-              unit: '%',
-            },
+              unit: '%' },
             {
               label: 'Bias Score',
               wKey: 'biasWarning' as const,
               cKey: 'biasCritical' as const,
-              unit: '%',
-            },
+              unit: '%' },
             {
               label: 'Error Rate',
               wKey: 'errorWarning' as const,
               cKey: 'errorCritical' as const,
-              unit: '%',
-            },
+              unit: '%' },
             {
               label: 'Latency',
               wKey: 'latencyWarning' as const,
               cKey: 'latencyCritical' as const,
-              unit: 'ms',
-            },
+              unit: 'ms' },
           ].map((item) => (
             <div key={item.label} className="space-y-2">
               <label className="text-sm font-medium text-foreground">{item.label}</label>

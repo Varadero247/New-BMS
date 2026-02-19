@@ -12,12 +12,9 @@ import {
   CalendarCheck,
   Phone,
   AlertTriangle,
-  CheckCircle,
-  Clock,
   MapPin,
   User,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 import Link from 'next/link';
@@ -67,8 +64,7 @@ function FraStatusBadge({ status }: { status: string }) {
     CURRENT: 'bg-green-100 text-green-800',
     ACTION_REQUIRED: 'bg-amber-100 text-amber-800',
     OVERDUE: 'bg-red-100 text-red-800',
-    NOT_COMPLETED: 'bg-gray-100 text-gray-600',
-  };
+    NOT_COMPLETED: 'bg-gray-100 text-gray-600' };
   return (
     <span
       className={`px-2 py-0.5 rounded-full text-xs font-medium ${colors[status] || colors.NOT_COMPLETED}`}

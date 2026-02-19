@@ -9,8 +9,7 @@ import {
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import {
   Plus,
   Target,
@@ -18,9 +17,7 @@ import {
   AlertTriangle,
   CheckCircle,
   Calendar,
-  Edit,
-  Users,
-} from 'lucide-react';
+  Edit } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface PerformanceGoal {
@@ -74,8 +71,7 @@ const statusLabels: Record<string, string> = {
   AT_RISK: 'At Risk',
   COMPLETED: 'Completed',
   EXCEEDED: 'Exceeded',
-  CANCELLED: 'Cancelled',
-};
+  CANCELLED: 'Cancelled' };
 
 const statusColors: Record<string, string> = {
   NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
@@ -83,24 +79,21 @@ const statusColors: Record<string, string> = {
   AT_RISK: 'bg-red-100 text-red-700',
   COMPLETED: 'bg-green-100 text-green-700',
   EXCEEDED: 'bg-emerald-100 text-emerald-700',
-  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-500',
-};
+  CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-500' };
 
 const categoryLabels: Record<string, string> = {
   PERFORMANCE: 'Performance',
   DEVELOPMENT: 'Development',
   BEHAVIORAL: 'Behavioral',
   STRATEGIC: 'Strategic',
-  OPERATIONAL: 'Operational',
-};
+  OPERATIONAL: 'Operational' };
 
 const categoryColors: Record<string, string> = {
   PERFORMANCE: 'bg-blue-100 text-blue-700',
   DEVELOPMENT: 'bg-purple-100 text-purple-700',
   BEHAVIORAL: 'bg-pink-100 text-pink-700',
   STRATEGIC: 'bg-amber-100 text-amber-700',
-  OPERATIONAL: 'bg-teal-100 text-teal-700',
-};
+  OPERATIONAL: 'bg-teal-100 text-teal-700' };
 
 function getProgressColor(progress: number): string {
   if (progress >= 75) return 'bg-green-500';
@@ -223,8 +216,7 @@ export default function GoalsPage() {
         category: formCategory,
         weight: formWeight,
         measurementCriteria: formMeasurementCriteria,
-        dueDate: formDueDate,
-      };
+        dueDate: formDueDate };
       if (formTargetValue) payload.targetValue = formTargetValue;
       if (formUnit) payload.unit = formUnit;
       if (formStartDate) payload.startDate = formStartDate;
@@ -249,8 +241,7 @@ export default function GoalsPage() {
         description: editDescription,
         progress: editProgress,
         actualValue: editActualValue || undefined,
-        status: editStatus,
-      });
+        status: editStatus });
       setEditModalOpen(false);
       setEditGoal(null);
       loadGoals();
@@ -280,8 +271,7 @@ export default function GoalsPage() {
     total: goals.length,
     onTrack: goals.filter((g) => g.status === 'IN_PROGRESS' && g.progress >= 50).length,
     atRisk: goals.filter((g) => g.status === 'AT_RISK').length,
-    completed: goals.filter((g) => g.status === 'COMPLETED' || g.status === 'EXCEEDED').length,
-  };
+    completed: goals.filter((g) => g.status === 'COMPLETED' || g.status === 'EXCEEDED').length };
 
   return (
     <div className="p-8">

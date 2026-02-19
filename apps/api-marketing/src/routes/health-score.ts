@@ -3,15 +3,14 @@ import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
-import { AutomationConfig } from '../config';
+import {  } from '../config';
 
 const logger = createLogger('api-marketing:health-score');
 const router = Router();
 
 const recalculateSchema = z.object({
   userId: z.string().trim().optional(),
-  orgId: z.string().trim().optional(),
-});
+  orgId: z.string().trim().optional() });
 
 export function calculateHealthScore(metrics: {
   loginsLast7Days: number;
@@ -60,14 +59,12 @@ router.get('/user/:userId', authenticate, async (req: Request, res: Response) =>
   try {
     const latest = await prisma.mktHealthScore.findFirst({
       where: { userId: req.params.userId },
-      orderBy: { createdAt: 'desc' },
-    });
+      orderBy: { createdAt: 'desc' } });
 
     if (!latest) {
       return res.status(404).json({
         success: false,
-        error: { code: 'NOT_FOUND', message: 'No health score found for user' },
-      });
+        error: { code: 'NOT_FOUND', message: 'No health score found for user' } });
     }
 
     res.json({ success: true, data: latest });
@@ -75,8 +72,7 @@ router.get('/user/:userId', authenticate, async (req: Request, res: Response) =>
     logger.error('Failed to fetch user health score', { error: String(error) });
     res.status(500).json({
       success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch health score' },
-    });
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch health score' } });
   }
 });
 
@@ -87,8 +83,7 @@ router.get('/org/:orgId', authenticate, async (req: Request, res: Response) => {
       where: { orgId: req.params.orgId },
       orderBy: { createdAt: 'desc' },
       distinct: ['userId'],
-      take: 1000,
-    });
+      take: 1000 });
 
     const total = scores.length;
     const avgScore =
@@ -104,15 +99,12 @@ router.get('/org/:orgId', authenticate, async (req: Request, res: Response) => {
         totalUsers: total,
         averageScore: avgScore,
         distribution: { healthy, atRisk, critical },
-        scores,
-      },
-    });
+        scores } });
   } catch (error) {
     logger.error('Failed to fetch org health scores', { error: String(error) });
     res.status(500).json({
       success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org health' },
-    });
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch org health' } });
   }
 });
 
@@ -125,9 +117,7 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: parsed.error.errors[0]?.message || 'Invalid input',
-        },
-      });
+          message: parsed.error.errors[0]?.message || 'Invalid input' } });
     }
 
     const { userId, orgId } = parsed.data;
@@ -142,8 +132,7 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
       const existingScores = await prisma.mktHealthScore.findMany({
         where,
         orderBy: { createdAt: 'desc' },
-        take: userId ? 1 : 100,
-      });
+        take: userId ? 1 : 100 });
 
       // Re-compute score from stored metrics and persist a new snapshot
       for (const prev of existingScores || []) {
@@ -151,8 +140,7 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
           loginsLast7Days: (prev as any).loginsLast7Days ?? 0,
           recordsCreated: (prev as any).recordsCreated ?? 0,
           modulesVisited: (prev as any).modulesVisited ?? 0,
-          teamMembersInvited: (prev as any).teamMembersInvited ?? 0,
-        });
+          teamMembersInvited: (prev as any).teamMembersInvited ?? 0 });
         const trend = determineTrend(newScore, prev.score);
         await (prisma as any).mktHealthScore.create({
           data: {
@@ -163,9 +151,7 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
             loginsLast7Days: (prev as any).loginsLast7Days ?? 0,
             recordsCreated: (prev as any).recordsCreated ?? 0,
             modulesVisited: (prev as any).modulesVisited ?? 0,
-            teamMembersInvited: (prev as any).teamMembersInvited ?? 0,
-          },
-        });
+            teamMembersInvited: (prev as any).teamMembersInvited ?? 0 } });
         updatedCount++;
       }
     } catch {
@@ -174,14 +160,12 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
 
     res.json({
       success: true,
-      data: { message: 'Health score recalculation triggered', updatedCount },
-    });
+      data: { message: 'Health score recalculation triggered', updatedCount } });
   } catch (error) {
     logger.error('Health score recalculation failed', { error: String(error) });
     res.status(500).json({
       success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Failed to trigger recalculation' },
-    });
+      error: { code: 'INTERNAL_ERROR', message: 'Failed to trigger recalculation' } });
   }
 });
 

@@ -4,12 +4,10 @@ import { useState, useMemo } from 'react';
 import {
   Search,
   Package,
-  ArrowRight,
   MapPin,
   Calendar,
   ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 
 interface TraceabilityRecord {
   id: string;
@@ -40,34 +38,28 @@ const records: TraceabilityRecord[] = [
         date: '2026-01-15',
         event: 'Manufacturing complete',
         location: 'Plant A, Line 3',
-        by: 'System',
-      },
+        by: 'System' },
       {
         date: '2026-01-18',
         event: 'QC release — all tests passed',
         location: 'QC Lab',
-        by: 'Dr. Chen',
-      },
+        by: 'Dr. Chen' },
       {
         date: '2026-01-20',
         event: 'Packaging & labelling',
         location: 'Pack Line 1',
-        by: 'J. Wilson',
-      },
+        by: 'J. Wilson' },
       {
         date: '2026-01-25',
         event: 'Shipped to distributor',
         location: 'Warehouse A',
-        by: 'Logistics',
-      },
+        by: 'Logistics' },
       {
         date: '2026-02-02',
         event: 'Delivered to customer',
         location: 'St. James Hospital',
-        by: 'MedSupply UK',
-      },
-    ],
-  },
+        by: 'MedSupply UK' },
+    ] },
   {
     id: '2',
     udiNumber: '(01)00884838000025(21)SN20260120002',
@@ -83,23 +75,19 @@ const records: TraceabilityRecord[] = [
         date: '2026-01-20',
         event: 'Manufacturing complete',
         location: 'Plant B, Line 1',
-        by: 'System',
-      },
+        by: 'System' },
       { date: '2026-01-23', event: 'QC release', location: 'QC Lab', by: 'Dr. Zhang' },
       {
         date: '2026-01-25',
         event: 'Sterilization — EtO cycle 45',
         location: 'Sterilization Suite',
-        by: 'System',
-      },
+        by: 'System' },
       {
         date: '2026-01-28',
         event: 'Moved to finished goods',
         location: 'Warehouse B',
-        by: 'Logistics',
-      },
-    ],
-  },
+        by: 'Logistics' },
+    ] },
   {
     id: '3',
     udiNumber: '(01)00884838000032(21)SN20260201003',
@@ -116,10 +104,8 @@ const records: TraceabilityRecord[] = [
         date: '2026-02-05',
         event: 'Sub-assembly complete',
         location: 'Plant A, Line 5',
-        by: 'R. Kim',
-      },
-    ],
-  },
+        by: 'R. Kim' },
+    ] },
   {
     id: '4',
     udiNumber: '(01)00884838000049(21)SN20251005004',
@@ -135,24 +121,20 @@ const records: TraceabilityRecord[] = [
         date: '2025-10-05',
         event: 'Manufacturing complete',
         location: 'Plant C, Line 2',
-        by: 'System',
-      },
+        by: 'System' },
       { date: '2025-10-08', event: 'QC release', location: 'QC Lab', by: 'Dr. Chen' },
       {
         date: '2025-10-12',
         event: 'Sterilization — Gamma',
         location: 'External Sterilizer',
-        by: 'SterilCo',
-      },
+        by: 'SterilCo' },
       { date: '2025-10-20', event: 'Shipped', location: 'Warehouse A', by: 'Logistics' },
       {
         date: '2025-11-15',
         event: 'Implanted — Patient P-8823',
         location: 'Royal London Hospital',
-        by: 'Dr. Patel',
-      },
-    ],
-  },
+        by: 'Dr. Patel' },
+    ] },
   {
     id: '5',
     udiNumber: '(01)00884838000056(21)SN20260115005',
@@ -168,24 +150,20 @@ const records: TraceabilityRecord[] = [
         date: '2026-01-15',
         event: 'Manufacturing complete',
         location: 'Plant A, Line 2',
-        by: 'System',
-      },
+        by: 'System' },
       { date: '2026-01-18', event: 'QC release', location: 'QC Lab', by: 'J. Wilson' },
       { date: '2026-01-22', event: 'Distributed', location: 'NHS Trust Midlands', by: 'Logistics' },
       {
         date: '2026-02-08',
         event: 'Field Safety Notice issued',
         location: 'All',
-        by: 'Regulatory',
-      },
+        by: 'Regulatory' },
       {
         date: '2026-02-10',
         event: 'Recalled — returned to warehouse',
         location: 'Recall Processing',
-        by: 'Quality',
-      },
-    ],
-  },
+        by: 'Quality' },
+    ] },
 ];
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -193,8 +171,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   released: { label: 'Released', color: 'bg-emerald-100 text-emerald-700' },
   distributed: { label: 'Distributed', color: 'bg-purple-100 text-purple-700' },
   implanted: { label: 'Implanted', color: 'bg-cyan-100 text-cyan-700' },
-  recalled: { label: 'Recalled', color: 'bg-red-100 text-red-700' },
-};
+  recalled: { label: 'Recalled', color: 'bg-red-100 text-red-700' } };
 
 export default function TraceabilityClient() {
   const [search, setSearch] = useState('');

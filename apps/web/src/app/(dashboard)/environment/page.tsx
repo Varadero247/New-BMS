@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   Leaf,
-  AlertTriangle,
   FileText,
   Target,
   ClipboardCheck,
@@ -14,8 +13,7 @@ import {
   Droplets,
   Wind,
   Trash2,
-  Zap,
-} from 'lucide-react';
+  Zap } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { ComplianceGauge, TrendChart } from '@/components/charts';
@@ -85,8 +83,7 @@ export default function EnvironmentOverviewPage() {
             waterConsumption: 45000,
             wasteGenerated: 2500,
             carbonEmissions: 850,
-            recyclingRate: 72,
-          },
+            recyclingRate: 72 },
           monthlyTrend: [
             { month: 1, energy: 12000, water: 4200, waste: 220 },
             { month: 2, energy: 11500, water: 4000, waste: 210 },
@@ -94,8 +91,7 @@ export default function EnvironmentOverviewPage() {
             { month: 4, energy: 10200, water: 3600, waste: 195 },
             { month: 5, energy: 9800, water: 3500, waste: 190 },
             { month: 6, energy: 10500, water: 3900, waste: 205 },
-          ],
-        });
+          ] });
       } catch (error) {
         console.error('Failed to fetch Environment data:', error);
       } finally {
@@ -146,32 +142,27 @@ export default function EnvironmentOverviewPage() {
       name: 'Aspects',
       href: '/environment/aspects',
       icon: Leaf,
-      count: summary?.summary.risks.active,
-    },
+      count: summary?.summary.risks.active },
     {
       name: 'Events',
       href: '/environment/events',
       icon: FileText,
-      count: summary?.summary.incidents.open,
-    },
+      count: summary?.summary.incidents.open },
     {
       name: 'Legal',
       href: '/environment/legal',
       icon: FileText,
-      count: summary?.summary.legal.total,
-    },
+      count: summary?.summary.legal.total },
     {
       name: 'Objectives',
       href: '/environment/objectives',
       icon: Target,
-      count: summary?.summary.objectives.total,
-    },
+      count: summary?.summary.objectives.total },
     {
       name: 'Actions',
       href: '/environment/actions',
       icon: ClipboardCheck,
-      count: summary?.summary.actions.open,
-    },
+      count: summary?.summary.actions.open },
     { name: 'Metrics', href: '/environment/metrics', icon: TrendingUp },
   ];
 
@@ -183,8 +174,7 @@ export default function EnvironmentOverviewPage() {
         type: event.type,
         severity: event.severity,
         status: event.status,
-        dateOccurred: new Date(event.dateOccurred).toLocaleDateString(),
-      }));
+        dateOccurred: new Date(event.dateOccurred).toLocaleDateString() }));
       exportIncidents(exportData, 'ISO_14001', 'Environmental Events Report');
     }
   };
@@ -197,8 +187,7 @@ export default function EnvironmentOverviewPage() {
         type: event.type,
         severity: event.severity,
         status: event.status,
-        dateOccurred: new Date(event.dateOccurred).toLocaleDateString(),
-      }));
+        dateOccurred: new Date(event.dateOccurred).toLocaleDateString() }));
       exportIncidentsExcel(exportData, 'ISO_14001', 'Environmental Events Report');
     }
   };
@@ -210,32 +199,28 @@ export default function EnvironmentOverviewPage() {
       unit: 'kWh',
       icon: Zap,
       color: 'text-yellow-500',
-      bgColor: 'bg-yellow-100',
-    },
+      bgColor: 'bg-yellow-100' },
     {
       name: 'Water',
       value: metrics?.ytd.waterConsumption || 0,
       unit: 'm³',
       icon: Droplets,
       color: 'text-blue-500',
-      bgColor: 'bg-blue-100',
-    },
+      bgColor: 'bg-blue-100' },
     {
       name: 'Waste',
       value: metrics?.ytd.wasteGenerated || 0,
       unit: 'kg',
       icon: Trash2,
       color: 'text-orange-500',
-      bgColor: 'bg-orange-100',
-    },
+      bgColor: 'bg-orange-100' },
     {
       name: 'CO₂',
       value: metrics?.ytd.carbonEmissions || 0,
       unit: 'tonnes',
       icon: Wind,
       color: 'text-gray-500',
-      bgColor: 'bg-gray-100',
-    },
+      bgColor: 'bg-gray-100' },
   ];
 
   return (

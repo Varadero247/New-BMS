@@ -9,9 +9,7 @@ import {
   Package,
   Warehouse,
   DollarSign,
-  Download,
-  Calendar,
-} from 'lucide-react';
+  Download } from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
@@ -24,8 +22,7 @@ import {
   ArcElement,
   Title,
   Tooltip,
-  Legend,
-} from 'chart.js';
+  Legend } from 'chart.js';
 
 ChartJS.register(
   CategoryScale,
@@ -101,8 +98,7 @@ export default function ReportsPage() {
       const [summaryRes, transactionsRes, warehousesRes, lowStockRes] = await Promise.all([
         inventoryApi.getInventorySummary(),
         inventoryApi.getTransactionSummary({
-          startDate: new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString(),
-        }),
+          startDate: new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString() }),
         inventoryApi.getWarehouses({ limit: 10 }),
         inventoryApi.getLowStockProducts(),
       ]);
@@ -111,8 +107,7 @@ export default function ReportsPage() {
         summary: summaryRes.data?.data || {},
         transactionSummary: transactionsRes.data?.data || {},
         warehouseBreakdown: warehousesRes.data?.data || [],
-        lowStockProducts: (lowStockRes.data?.data || []).slice(0, 10),
-      });
+        lowStockProducts: (lowStockRes.data?.data || []).slice(0, 10) });
     } catch (error) {
       console.error('Failed to load report data:', error);
     } finally {
@@ -156,10 +151,8 @@ export default function ReportsPage() {
           '#6366F1',
           '#10B981',
           '#0EA5E9',
-        ],
-      },
-    ],
-  };
+        ] },
+    ] };
 
   const dailyTrendData = {
     labels:
@@ -179,8 +172,7 @@ export default function ReportsPage() {
             .map((d) => Number(d.total_in)) || [],
         borderColor: '#10B981',
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        fill: true,
-      },
+        fill: true },
       {
         label: 'Stock Out',
         data:
@@ -190,10 +182,8 @@ export default function ReportsPage() {
             .map((d) => Number(d.total_out)) || [],
         borderColor: '#DC2626',
         backgroundColor: 'rgba(220, 38, 38, 0.1)',
-        fill: true,
-      },
-    ],
-  };
+        fill: true },
+    ] };
 
   const warehouseData = {
     labels: reportData?.warehouseBreakdown?.map((w) => w.name) || [],
@@ -201,10 +191,8 @@ export default function ReportsPage() {
       {
         label: 'Inventory Value ($)',
         data: reportData?.warehouseBreakdown?.map((w) => w.stats?.totalValue || 0) || [],
-        backgroundColor: '#0EA5E9',
-      },
-    ],
-  };
+        backgroundColor: '#0EA5E9' },
+    ] };
 
   return (
     <div className="p-8">
@@ -382,12 +370,9 @@ export default function ReportsPage() {
                   options={{
                     responsive: true,
                     plugins: {
-                      legend: { position: 'bottom' },
-                    },
+                      legend: { position: 'bottom' } },
                     scales: {
-                      y: { beginAtZero: true },
-                    },
-                  }}
+                      y: { beginAtZero: true } } }}
                 />
               ) : (
                 <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">
@@ -411,9 +396,7 @@ export default function ReportsPage() {
                       responsive: true,
                       maintainAspectRatio: false,
                       plugins: {
-                        legend: { position: 'right' },
-                      },
-                    }}
+                        legend: { position: 'right' } } }}
                   />
                 </div>
               ) : (
@@ -439,17 +422,12 @@ export default function ReportsPage() {
                   options={{
                     responsive: true,
                     plugins: {
-                      legend: { display: false },
-                    },
+                      legend: { display: false } },
                     scales: {
                       y: {
                         beginAtZero: true,
                         ticks: {
-                          callback: (value) => '$' + Number(value).toLocaleString(),
-                        },
-                      },
-                    },
-                  }}
+                          callback: (value) => '$' + Number(value).toLocaleString() } } } }}
                 />
               ) : (
                 <div className="h-64 flex items-center justify-center text-gray-500 dark:text-gray-400">

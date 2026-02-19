@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { ComplianceGauge, RiskMatrix, SafetyTrendChart } from '@ims/charts';
+import { ComplianceGauge, SafetyTrendChart } from '@ims/charts';
 import {
   AlertTriangle,
   FileWarning,
@@ -11,8 +11,7 @@ import {
   Users,
   Activity,
   Scale,
-  Target,
-} from 'lucide-react';
+  Target } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface DashboardStats {
@@ -88,8 +87,7 @@ export default function HealthSafetyDashboard() {
         risks: {
           total: risks.length,
           high: risks.filter((r: Record<string, any>) => r.riskLevel === 'HIGH').length,
-          critical: risks.filter((r: Record<string, any>) => r.riskLevel === 'CRITICAL').length,
-        },
+          critical: risks.filter((r: Record<string, any>) => r.riskLevel === 'CRITICAL').length },
         incidents: {
           total: incidents.length,
           open: incidents.filter(
@@ -99,13 +97,11 @@ export default function HealthSafetyDashboard() {
           thisMonth: incidents.filter((i: Record<string, any>) => {
             const date = new Date(i.createdAt);
             return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
-          }).length,
-        },
+          }).length },
         actions: {
           total: capas.length,
           overdue: overdueCapas,
-          dueThisWeek,
-        },
+          dueThisWeek },
         legal: {
           total: legalTotal,
           compliant: legalCompliant,
@@ -113,8 +109,7 @@ export default function HealthSafetyDashboard() {
             .length,
           nonCompliant: legal.filter(
             (l: Record<string, any>) => l.complianceStatus === 'NON_COMPLIANT'
-          ).length,
-        },
+          ).length },
         objectives: {
           total: objectives.length,
           achieved: objectives.filter((o: Record<string, any>) => o.status === 'ACHIEVED')
@@ -124,12 +119,10 @@ export default function HealthSafetyDashboard() {
           ).length,
           atRisk: objectives.filter(
             (o: Record<string, any>) => o.status === 'AT_RISK' || o.status === 'BEHIND'
-          ).length,
-        },
+          ).length },
         metrics: metrics || { ltifr: 0, trir: 0, severityRate: 0 },
         topRisks: risks.slice(0, 5),
-        recentIncidents: incidents.slice(0, 5),
-      });
+        recentIncidents: incidents.slice(0, 5) });
     } catch (error) {
       console.error('Failed to load dashboard stats:', error);
       setError('Unable to load data. Please check your connection and try again.');

@@ -6,12 +6,10 @@ import {
   Send,
   BarChart3,
   Table,
-  PieChart,
   TrendingUp,
   Clock,
   Sparkles,
-  Lightbulb,
-} from 'lucide-react';
+  Lightbulb } from 'lucide-react';
 
 interface QueryResult {
   id: string;
@@ -38,9 +36,7 @@ const sampleResults: QueryResult[] = [
         ['MODERATE', 28, '32.6%'],
         ['MAJOR', 10, '11.6%'],
         ['CRITICAL', 3, '3.5%'],
-      ],
-    },
-  },
+      ] } },
   {
     id: 'q2',
     query: 'Show me revenue trend by month for 2025',
@@ -50,9 +46,7 @@ const sampleResults: QueryResult[] = [
     sql: "SELECT DATE_TRUNC('month', invoice_date) as month, SUM(total) as revenue FROM fin_invoices WHERE invoice_date >= '2025-01-01' GROUP BY month ORDER BY month",
     data: {
       months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      values: [420, 385, 510, 475, 520, 490, 560, 530, 580, 610, 595, 640],
-    },
-  },
+      values: [420, 385, 510, 475, 520, 490, 560, 530, 580, 610, 595, 640] } },
   {
     id: 'q3',
     query: 'How many open CAPAs are overdue?',
@@ -60,8 +54,7 @@ const sampleResults: QueryResult[] = [
     resultType: 'metric',
     duration: 0.5,
     sql: "SELECT COUNT(*) FROM quality_capa WHERE status = 'OPEN' AND due_date < CURRENT_DATE",
-    data: { value: 7, label: 'Overdue CAPAs', trend: 'down', previousValue: 12 },
-  },
+    data: { value: 7, label: 'Overdue CAPAs', trend: 'down', previousValue: 12 } },
   {
     id: 'q4',
     query: 'Which departments have the highest employee turnover?',
@@ -77,9 +70,7 @@ const sampleResults: QueryResult[] = [
         ['Warehouse', 5, '12.5%'],
         ['Production', 4, '8.0%'],
         ['Engineering', 2, '4.5%'],
-      ],
-    },
-  },
+      ] } },
 ];
 
 const suggestedQueries = [
@@ -110,9 +101,7 @@ export default function NlqClient() {
         resultType: 'text',
         duration: Math.random() * 2 + 0.3,
         data: {
-          text: `Query processed successfully. In production, this would return real data from across all 25 IMS modules using the @ims/nlq natural language query engine.`,
-        },
-      };
+          text: `Query processed successfully. In production, this would return real data from across all 25 IMS modules using the @ims/nlq natural language query engine.` } };
       setResults([newResult, ...results]);
       setQuery('');
       setIsLoading(false);

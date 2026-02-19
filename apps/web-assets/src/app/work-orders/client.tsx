@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   Button,
-  Badge,
   Modal,
   ModalFooter,
   Input,
@@ -17,8 +16,7 @@ import {
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import { Plus, Wrench, Loader2, Search } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -76,8 +74,7 @@ const emptyForm: WorkOrderForm = {
   estimatedHours: '',
   actualHours: '',
   cost: '',
-  notes: '',
-};
+  notes: '' };
 
 export default function WorkOrdersClient() {
   const [items, setItems] = useState<WorkOrder[]>([]);
@@ -127,8 +124,7 @@ export default function WorkOrdersClient() {
       estimatedHours: item.estimatedHours?.toString() || '',
       actualHours: item.actualHours?.toString() || '',
       cost: item.cost?.toString() || '',
-      notes: item.notes || '',
-    });
+      notes: item.notes || '' });
     setEditId(item.id);
     setModalOpen(true);
   }
@@ -143,8 +139,7 @@ export default function WorkOrdersClient() {
         actualHours: form.actualHours ? parseFloat(form.actualHours) : undefined,
         cost: form.cost ? parseFloat(form.cost) : undefined,
         scheduledDate: form.scheduledDate || undefined,
-        completedDate: form.completedDate || undefined,
-      };
+        completedDate: form.completedDate || undefined };
       if (editId) {
         await api.put(`/work-orders/${editId}`, payload);
       } else {

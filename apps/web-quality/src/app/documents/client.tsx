@@ -14,8 +14,7 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import {
   Plus,
   FileText,
@@ -31,10 +30,7 @@ import {
   File,
   FolderOpen,
   Shield,
-  ChevronDown,
-  ChevronUp,
-  Calendar,
-} from 'lucide-react';
+  Calendar } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -184,8 +180,7 @@ const emptyForm: DocumentForm = {
   supersedesDocument: '',
   relatedProcedures: '',
   relatedForms: '',
-  relatedRecords: '',
-};
+  relatedRecords: '' };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -266,8 +261,7 @@ export default function DocumentsClient() {
     underReview: documents.filter((d) => d.status === 'UNDER_REVIEW').length,
     expiringSoon: documents.filter(
       (d) => isExpiringSoon(d.nextReviewDate) || isExpired(d.nextReviewDate)
-    ).length,
-  };
+    ).length };
 
   // ─── Filtering ────────────────────────────────────────────────────
 
@@ -334,8 +328,7 @@ export default function DocumentsClient() {
         supersedesDocument: form.supersedesDocument || undefined,
         relatedProcedures: form.relatedProcedures || undefined,
         relatedForms: form.relatedForms || undefined,
-        relatedRecords: form.relatedRecords || undefined,
-      };
+        relatedRecords: form.relatedRecords || undefined };
       await api.post('/documents', payload);
       setModalOpen(false);
       setForm({ ...emptyForm });
@@ -361,8 +354,7 @@ export default function DocumentsClient() {
         scope: form.scope,
         summary: form.summary,
         isoClause: form.isoClause,
-        keyChanges: form.keyChanges,
-      });
+        keyChanges: form.keyChanges });
       const data = response.data.data;
       if (data) {
         setAiReview(data);

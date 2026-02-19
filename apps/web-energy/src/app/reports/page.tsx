@@ -16,9 +16,7 @@ import {
   RefreshCw,
   BarChart2,
   TrendingDown,
-  Zap,
-  Calendar,
-} from 'lucide-react';
+  Calendar } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface EnergyReport {
@@ -47,11 +45,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
   UNDER_REVIEW: {
     label: 'Under Review',
     color: 'bg-yellow-100 text-yellow-700',
-    icon: AlertCircle,
-  },
+    icon: AlertCircle },
   ARCHIVED: { label: 'Archived', color: 'bg-purple-100 text-purple-700', icon: XCircle },
-  FAILED: { label: 'Failed', color: 'bg-red-100 text-red-700', icon: XCircle },
-};
+  FAILED: { label: 'Failed', color: 'bg-red-100 text-red-700', icon: XCircle } };
 
 const REPORT_TYPES = [
   'ENERGY_PERFORMANCE',
@@ -97,8 +93,7 @@ const empty: Omit<EnergyReport, 'id'> = {
   scope: '',
   energySources: 'ALL',
   findings: '',
-  recommendations: '',
-};
+  recommendations: '' };
 
 export default function ReportsPage() {
   const [items, setItems] = useState<EnergyReport[]>([]);
@@ -157,8 +152,7 @@ export default function ReportsPage() {
     setEditItem({
       ...item,
       periodStart: item.periodStart ? item.periodStart.slice(0, 10) : '',
-      periodEnd: item.periodEnd ? item.periodEnd.slice(0, 10) : '',
-    });
+      periodEnd: item.periodEnd ? item.periodEnd.slice(0, 10) : '' });
     setIsEditing(true);
     setModalOpen(true);
   };

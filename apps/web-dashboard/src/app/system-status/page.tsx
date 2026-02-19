@@ -7,15 +7,7 @@ import {
   XCircle,
   AlertTriangle,
   RefreshCw,
-  Clock,
-  Server,
-  Globe,
-  Database,
-  Activity,
-  Cpu,
-  HardDrive,
-  Wifi,
-} from 'lucide-react';
+  Server } from 'lucide-react';
 import { Sidebar } from '@/components/sidebar';
 
 interface ServiceStatus {
@@ -71,30 +63,26 @@ const SERVICES: Omit<ServiceStatus, 'status' | 'latency' | 'lastChecked'>[] = [
     name: 'Permit to Work API',
     url: `${API_BASE}:4034`,
     port: 4034,
-    category: 'Risk & Governance',
-  },
+    category: 'Risk & Governance' },
   {
     name: 'Regulatory Monitor API',
     url: `${API_BASE}:4035`,
     port: 4035,
-    category: 'Risk & Governance',
-  },
+    category: 'Risk & Governance' },
   { name: 'Incidents API', url: `${API_BASE}:4036`, port: 4036, category: 'Risk & Governance' },
   { name: 'Audits API', url: `${API_BASE}:4037`, port: 4037, category: 'Risk & Governance' },
   {
     name: 'Management Review API',
     url: `${API_BASE}:4038`,
     port: 4038,
-    category: 'Risk & Governance',
-  },
+    category: 'Risk & Governance' },
 ];
 
 const statColorMap: Record<string, { bg: string; icon: string }> = {
   green: { bg: 'bg-green-100', icon: 'text-green-600' },
   yellow: { bg: 'bg-yellow-100', icon: 'text-yellow-600' },
   red: { bg: 'bg-red-100', icon: 'text-red-600' },
-  blue: { bg: 'bg-blue-100', icon: 'text-blue-600' },
-};
+  blue: { bg: 'bg-blue-100', icon: 'text-blue-600' } };
 
 function StatusBadge({ status }: { status: ServiceStatus['status'] }) {
   if (status === 'healthy')

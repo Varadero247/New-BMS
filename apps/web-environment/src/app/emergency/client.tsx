@@ -13,17 +13,13 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   ShieldAlert,
   Plus,
-  Search,
   AlertTriangle,
   CheckCircle,
-  Clock,
-  FileText,
-} from 'lucide-react';
+  FileText } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface EmergencyPlan {
@@ -69,14 +65,12 @@ const STATUS_COLORS: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   ACTIVE: 'bg-green-100 text-green-800',
   UNDER_REVIEW: 'bg-yellow-100 text-yellow-800',
-  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-};
+  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-600' };
 
 const OUTCOME_COLORS: Record<string, string> = {
   SATISFACTORY: 'bg-green-100 text-green-800',
   NEEDS_IMPROVEMENT: 'bg-yellow-100 text-yellow-800',
-  UNSATISFACTORY: 'bg-red-100 text-red-800',
-};
+  UNSATISFACTORY: 'bg-red-100 text-red-800' };
 
 export default function EmergencyPreparednessPage() {
   const [activeTab, setActiveTab] = useState<'plans' | 'drills' | 'dashboard'>('plans');
@@ -94,8 +88,7 @@ export default function EmergencyPreparednessPage() {
     notificationReqs: '',
     containmentProcs: '',
     impactMitigation: '',
-    recoveryActions: '',
-  });
+    recoveryActions: '' });
 
   const [showDrillModal, setShowDrillModal] = useState(false);
   const [drillForm, setDrillForm] = useState({
@@ -107,8 +100,7 @@ export default function EmergencyPreparednessPage() {
     outcome: 'SATISFACTORY',
     lessonsLearned: '',
     actionsRequired: '',
-    conductedBy: '',
-  });
+    conductedBy: '' });
 
   const fetchPlans = useCallback(async () => {
     try {
@@ -154,8 +146,7 @@ export default function EmergencyPreparednessPage() {
         notificationReqs: '',
         containmentProcs: '',
         impactMitigation: '',
-        recoveryActions: '',
-      });
+        recoveryActions: '' });
       fetchPlans();
       fetchDashboard();
     } catch (err) {
@@ -170,8 +161,7 @@ export default function EmergencyPreparednessPage() {
         participants: drillForm.participants
           .split(',')
           .map((s) => s.trim())
-          .filter(Boolean),
-      });
+          .filter(Boolean) });
       setShowDrillModal(false);
       setDrillForm({
         planId: '',
@@ -182,8 +172,7 @@ export default function EmergencyPreparednessPage() {
         outcome: 'SATISFACTORY',
         lessonsLearned: '',
         actionsRequired: '',
-        conductedBy: '',
-      });
+        conductedBy: '' });
       fetchDrills();
       fetchDashboard();
     } catch (err) {

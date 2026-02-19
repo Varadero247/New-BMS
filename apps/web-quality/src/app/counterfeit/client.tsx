@@ -13,18 +13,14 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
+  Textarea } from '@ims/ui';
 import {
   ShieldAlert,
   Plus,
   Search,
-  AlertTriangle,
-  Package,
   CheckCircle,
   XCircle,
-  Clock,
-} from 'lucide-react';
+  Clock } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------
@@ -75,15 +71,13 @@ const STATUS_COLORS: Record<string, string> = {
   CONFIRMED_COUNTERFEIT: 'bg-red-100 text-red-800',
   CONFIRMED_AUTHENTIC: 'bg-green-100 text-green-800',
   INCONCLUSIVE: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-};
+  CLOSED: 'bg-gray-100 dark:bg-gray-800 text-gray-600' };
 
 const RISK_COLORS: Record<string, string> = {
   LOW: 'bg-green-100 text-green-800',
   MEDIUM: 'bg-yellow-100 text-yellow-800',
   HIGH: 'bg-orange-100 text-orange-800',
-  CRITICAL: 'bg-red-100 text-red-800',
-};
+  CRITICAL: 'bg-red-100 text-red-800' };
 
 // ---------------------------------------------------------------------------
 // Component
@@ -107,8 +101,7 @@ export default function CounterfeitPreventionPage() {
     lotNumber: '',
     serialNumber: '',
     suspicionReason: '',
-    evidence: '',
-  });
+    evidence: '' });
 
   // Source modal
   const [showSourceModal, setShowSourceModal] = useState(false);
@@ -120,8 +113,7 @@ export default function CounterfeitPreventionPage() {
     approvalDate: '',
     expiryDate: '',
     notes: '',
-    riskRating: 'LOW',
-  });
+    riskRating: 'LOW' });
 
   // Detail modal
   const [selectedReport, setSelectedReport] = useState<CounterfeitReport | null>(null);
@@ -165,8 +157,7 @@ export default function CounterfeitPreventionPage() {
         lotNumber: '',
         serialNumber: '',
         suspicionReason: '',
-        evidence: '',
-      });
+        evidence: '' });
       fetchReports();
     } catch (err) {
       console.error('Failed to create report', err);
@@ -184,8 +175,7 @@ export default function CounterfeitPreventionPage() {
         certifications: sourceForm.certifications
           .split(',')
           .map((s) => s.trim())
-          .filter(Boolean),
-      });
+          .filter(Boolean) });
       setShowSourceModal(false);
       setSourceForm({
         companyName: '',
@@ -195,8 +185,7 @@ export default function CounterfeitPreventionPage() {
         approvalDate: '',
         expiryDate: '',
         notes: '',
-        riskRating: 'LOW',
-      });
+        riskRating: 'LOW' });
       fetchSources();
     } catch (err) {
       console.error('Failed to create source', err);
@@ -210,8 +199,7 @@ export default function CounterfeitPreventionPage() {
     try {
       await api.post(`/counterfeit/reports/${reportId}/quarantine`, {
         location,
-        quantity: parseInt(qty, 10),
-      });
+        quantity: parseInt(qty, 10) });
       fetchReports();
     } catch (err) {
       console.error('Failed to quarantine', err);

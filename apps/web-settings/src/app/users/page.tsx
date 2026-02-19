@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal } from '@ims/ui';
-import { Users, Search, MoreVertical, Mail, Shield, Check, UserPlus } from 'lucide-react';
+import { Users, Search, Mail, Shield, Check, UserPlus } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface User {
@@ -40,8 +40,7 @@ export default function UsersPage() {
     firstName: '',
     lastName: '',
     password: '',
-    role: 'USER',
-  });
+    role: 'USER' });
 
   useEffect(() => {
     loadUsers();
@@ -62,8 +61,7 @@ export default function UsersPage() {
           lastName: 'User',
           role: 'ADMIN',
           isActive: true,
-          createdAt: new Date().toISOString(),
-        },
+          createdAt: new Date().toISOString() },
       ]);
     } finally {
       setLoading(false);

@@ -5,10 +5,7 @@ import {
   Shield,
   Search,
   Filter,
-  Clock,
   User,
-  Globe,
-  Monitor,
   FileText,
   Edit3,
   Trash2,
@@ -16,8 +13,7 @@ import {
   Eye,
   LogIn,
   LogOut,
-  Key,
-} from 'lucide-react';
+  Key } from 'lucide-react';
 
 type ActionType =
   | 'create'
@@ -57,8 +53,7 @@ const entries: AuditEntry[] = [
     details: 'Updated status from OPEN to IN_INVESTIGATION',
     ipAddress: '192.168.1.45',
     userAgent: 'Chrome 121 / Windows',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-2',
     timestamp: '2026-02-13 14:30:08',
@@ -71,8 +66,7 @@ const entries: AuditEntry[] = [
     details: 'Created corrective action linked to NCR-2602-0045',
     ipAddress: '192.168.1.52',
     userAgent: 'Chrome 121 / macOS',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-3',
     timestamp: '2026-02-13 14:28:55',
@@ -85,8 +79,7 @@ const entries: AuditEntry[] = [
     details: 'Reported near-miss incident in Warehouse B',
     ipAddress: '192.168.1.78',
     userAgent: 'Safari / iPhone',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-4',
     timestamp: '2026-02-13 14:25:12',
@@ -99,8 +92,7 @@ const entries: AuditEntry[] = [
     details: 'Exported P&L report January 2026 as PDF',
     ipAddress: '192.168.1.30',
     userAgent: 'Chrome 121 / Windows',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-5',
     timestamp: '2026-02-13 14:22:00',
@@ -113,8 +105,7 @@ const entries: AuditEntry[] = [
     details: 'Attempted to view invoice — access denied (no Finance permission)',
     ipAddress: '192.168.1.90',
     userAgent: 'Chrome 121 / Windows',
-    status: 'denied',
-  },
+    status: 'denied' },
   {
     id: 'al-6',
     timestamp: '2026-02-13 14:18:30',
@@ -127,8 +118,7 @@ const entries: AuditEntry[] = [
     details: 'Granted AUDITOR role to lisa.chang@ims.local',
     ipAddress: '192.168.1.45',
     userAgent: 'Chrome 121 / Windows',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-7',
     timestamp: '2026-02-13 14:15:00',
@@ -141,8 +131,7 @@ const entries: AuditEntry[] = [
     details: 'Updated risk score from MEDIUM to HIGH for supply chain risk',
     ipAddress: '192.168.1.55',
     userAgent: 'Firefox 122 / Linux',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-8',
     timestamp: '2026-02-13 14:10:22',
@@ -155,8 +144,7 @@ const entries: AuditEntry[] = [
     details: 'Cancelled approved leave request (employee request)',
     ipAddress: '192.168.1.40',
     userAgent: 'Chrome 121 / macOS',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-9',
     timestamp: '2026-02-13 14:05:00',
@@ -169,8 +157,7 @@ const entries: AuditEntry[] = [
     details: 'Auto-escalated NCR-2602-0042 (overdue 48hrs)',
     ipAddress: '127.0.0.1',
     userAgent: 'IMS Automation Engine',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-10',
     timestamp: '2026-02-13 14:00:00',
@@ -183,8 +170,7 @@ const entries: AuditEntry[] = [
     details: 'Logged in from new device',
     ipAddress: '82.45.120.5',
     userAgent: 'Chrome 121 / iPad',
-    status: 'success',
-  },
+    status: 'success' },
   {
     id: 'al-11',
     timestamp: '2026-02-13 13:55:00',
@@ -197,8 +183,7 @@ const entries: AuditEntry[] = [
     details: 'Failed login attempt — invalid credentials (admin@ims.local)',
     ipAddress: '203.0.113.45',
     userAgent: 'Python-requests/2.31',
-    status: 'error',
-  },
+    status: 'error' },
   {
     id: 'al-12',
     timestamp: '2026-02-13 13:50:30',
@@ -211,58 +196,47 @@ const entries: AuditEntry[] = [
     details: 'Uploaded design verification test report',
     ipAddress: '192.168.1.67',
     userAgent: 'Chrome 121 / Windows',
-    status: 'success',
-  },
+    status: 'success' },
 ];
 
 const actionConfig: Record<ActionType, { label: string; color: string; icon: React.ReactNode }> = {
   create: {
     label: 'Create',
     color: 'bg-green-100 text-green-700',
-    icon: <Plus className="h-3.5 w-3.5" />,
-  },
+    icon: <Plus className="h-3.5 w-3.5" /> },
   update: {
     label: 'Update',
     color: 'bg-blue-100 text-blue-700',
-    icon: <Edit3 className="h-3.5 w-3.5" />,
-  },
+    icon: <Edit3 className="h-3.5 w-3.5" /> },
   delete: {
     label: 'Delete',
     color: 'bg-red-100 text-red-700',
-    icon: <Trash2 className="h-3.5 w-3.5" />,
-  },
+    icon: <Trash2 className="h-3.5 w-3.5" /> },
   read: {
     label: 'Read',
     color: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-    icon: <Eye className="h-3.5 w-3.5" />,
-  },
+    icon: <Eye className="h-3.5 w-3.5" /> },
   login: {
     label: 'Login',
     color: 'bg-indigo-100 text-indigo-700',
-    icon: <LogIn className="h-3.5 w-3.5" />,
-  },
+    icon: <LogIn className="h-3.5 w-3.5" /> },
   logout: {
     label: 'Logout',
     color: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-    icon: <LogOut className="h-3.5 w-3.5" />,
-  },
+    icon: <LogOut className="h-3.5 w-3.5" /> },
   export: {
     label: 'Export',
     color: 'bg-purple-100 text-purple-700',
-    icon: <FileText className="h-3.5 w-3.5" />,
-  },
+    icon: <FileText className="h-3.5 w-3.5" /> },
   'permission-change': {
     label: 'Permission',
     color: 'bg-amber-100 text-amber-700',
-    icon: <Key className="h-3.5 w-3.5" />,
-  },
-};
+    icon: <Key className="h-3.5 w-3.5" /> } };
 
 const statusColors = {
   success: 'bg-green-500',
   denied: 'bg-red-500',
-  error: 'bg-amber-500',
-};
+  error: 'bg-amber-500' };
 
 export default function AuditLogClient() {
   const [actionFilter, setActionFilter] = useState<string>('all');

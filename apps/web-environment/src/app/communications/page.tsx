@@ -6,11 +6,9 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import {
   Plus,
   Search,
@@ -22,9 +20,7 @@ import {
   Edit2,
   Trash2,
   Send,
-  Inbox,
-  ChevronDown,
-} from 'lucide-react';
+  Inbox } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Communication {
@@ -67,23 +63,20 @@ const TYPE_LABELS: Record<string, string> = {
   NOTIFICATION: 'Notification',
   CONSULTATION: 'Consultation',
   DISCLOSURE: 'Disclosure',
-  OTHER: 'Other',
-};
+  OTHER: 'Other' };
 
 const STATUS_COLORS: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
   SENT: 'bg-blue-100 text-blue-700',
   RECEIVED: 'bg-purple-100 text-purple-700',
   ACKNOWLEDGED: 'bg-yellow-100 text-yellow-700',
-  CLOSED: 'bg-green-100 text-green-700',
-};
+  CLOSED: 'bg-green-100 text-green-700' };
 
 const PRIORITY_COLORS: Record<string, string> = {
   LOW: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
   MEDIUM: 'bg-blue-100 text-blue-600',
   HIGH: 'bg-orange-100 text-orange-600',
-  URGENT: 'bg-red-100 text-red-600',
-};
+  URGENT: 'bg-red-100 text-red-600' };
 
 const EMPTY_FORM = {
   subject: '',
@@ -103,8 +96,7 @@ const EMPTY_FORM = {
   assignedTo: '',
   aspectRef: '',
   legalRef: '',
-  notes: '',
-};
+  notes: '' };
 
 export default function CommunicationsPage() {
   const [records, setRecords] = useState<Communication[]>([]);
@@ -164,8 +156,7 @@ export default function CommunicationsPage() {
       assignedTo: rec.assignedTo || '',
       aspectRef: rec.aspectRef || '',
       legalRef: rec.legalRef || '',
-      notes: rec.notes || '',
-    });
+      notes: rec.notes || '' });
     setFormTab(0);
     setModalOpen(true);
   }

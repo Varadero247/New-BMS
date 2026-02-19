@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, Modal } from '@ims/ui';
+import { Modal } from '@ims/ui';
 import {
   BarChart3,
   TrendingUp,
@@ -13,8 +13,7 @@ import {
   Shield,
   Plus,
   Pencil,
-  Trash2,
-} from 'lucide-react';
+  Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Metric {
@@ -43,33 +42,27 @@ const categoryConfig: Record<
     label: 'Environmental',
     color: 'text-green-700',
     bgColor: 'bg-green-50 border-green-200',
-    icon: <Leaf className="h-5 w-5" />,
-  },
+    icon: <Leaf className="h-5 w-5" /> },
   SOCIAL: {
     label: 'Social',
     color: 'text-blue-700',
     bgColor: 'bg-blue-50 border-blue-200',
-    icon: <Users className="h-5 w-5" />,
-  },
+    icon: <Users className="h-5 w-5" /> },
   GOVERNANCE: {
     label: 'Governance',
     color: 'text-purple-700',
     bgColor: 'bg-purple-50 border-purple-200',
-    icon: <Shield className="h-5 w-5" />,
-  },
-};
+    icon: <Shield className="h-5 w-5" /> } };
 
 const categoryBadge: Record<string, string> = {
   ENVIRONMENTAL: 'bg-green-100 text-green-700',
   SOCIAL: 'bg-blue-100 text-blue-700',
-  GOVERNANCE: 'bg-purple-100 text-purple-700',
-};
+  GOVERNANCE: 'bg-purple-100 text-purple-700' };
 
 const statusColors: Record<string, string> = {
   ON_TRACK: 'bg-green-100 text-green-700',
   AT_RISK: 'bg-amber-100 text-amber-700',
-  OFF_TRACK: 'bg-red-100 text-red-700',
-};
+  OFF_TRACK: 'bg-red-100 text-red-700' };
 
 const empty: FormData = {
   name: '',
@@ -83,8 +76,7 @@ const empty: FormData = {
   disclosure: '',
   status: 'ON_TRACK',
   period: '',
-  description: '',
-};
+  description: '' };
 
 export default function MetricsDashboardPage() {
   const [metrics, setMetrics] = useState<Metric[]>([]);
@@ -131,8 +123,7 @@ export default function MetricsDashboardPage() {
       disclosure: m.disclosure || '',
       status: m.status,
       period: m.period || '',
-      description: m.description || '',
-    });
+      description: m.description || '' });
     setModalOpen(true);
   }
 

@@ -10,11 +10,8 @@ import {
   ChevronDown,
   ChevronRight,
   Search,
-  Filter,
   Upload,
-  Globe,
-  Calendar,
-} from 'lucide-react';
+  Globe } from 'lucide-react';
 
 type SubmissionType = '510(k)' | 'PMA' | 'De Novo' | 'CE Mark' | 'UKCA' | 'TGA';
 type Status =
@@ -63,8 +60,7 @@ const submissions: Submission[] = [
       { name: 'Substantive review', date: '2025-11-15', completed: false },
       { name: 'Decision', date: '2026-02-15', completed: false },
     ],
-    notes: 'Predicate device: K192345. FDA requested additional biocompatibility data.',
-  },
+    notes: 'Predicate device: K192345. FDA requested additional biocompatibility data.' },
   {
     id: 's2',
     refNumber: 'SUB-2025-002',
@@ -88,8 +84,7 @@ const submissions: Submission[] = [
       { name: 'Decision', date: '2026-06-30', completed: false },
     ],
     notes:
-      'Major deficiency: additional 2-year clinical follow-up data required. Amendment in preparation.',
-  },
+      'Major deficiency: additional 2-year clinical follow-up data required. Amendment in preparation.' },
   {
     id: 's3',
     refNumber: 'SUB-2025-003',
@@ -110,8 +105,7 @@ const submissions: Submission[] = [
       { name: 'Substantive review', date: '2026-03-01', completed: false },
       { name: 'Decision', date: '2026-06-01', completed: false },
     ],
-    notes: 'First-of-kind novel TENS device with AI-driven stimulation patterns.',
-  },
+    notes: 'First-of-kind novel TENS device with AI-driven stimulation patterns.' },
   {
     id: 's4',
     refNumber: 'SUB-2025-004',
@@ -131,8 +125,7 @@ const submissions: Submission[] = [
       { name: 'On-site audit', date: '2025-07-20', completed: true },
       { name: 'Certificate issued', date: '2025-11-15', completed: true },
     ],
-    notes: 'EU MDR CE marking obtained. Valid until 2030-11-15.',
-  },
+    notes: 'EU MDR CE marking obtained. Valid until 2030-11-15.' },
   {
     id: 's5',
     refNumber: 'SUB-2025-005',
@@ -152,8 +145,7 @@ const submissions: Submission[] = [
       { name: 'Submission', date: '2026-05-01', completed: false },
       { name: 'Decision', date: '2026-09-30', completed: false },
     ],
-    notes: 'Awaiting UKCA transition guidance clarification from MHRA.',
-  },
+    notes: 'Awaiting UKCA transition guidance clarification from MHRA.' },
   {
     id: 's6',
     refNumber: 'SUB-2025-006',
@@ -172,42 +164,34 @@ const submissions: Submission[] = [
       { name: 'TGA assessment', date: '2025-02-15', completed: true },
       { name: 'ARTG inclusion', date: '2025-07-20', completed: true },
     ],
-    notes: 'ARTG #372541. Post-market conditions apply.',
-  },
+    notes: 'ARTG #372541. Post-market conditions apply.' },
 ];
 
 const statusConfig: Record<Status, { label: string; color: string; icon: React.ReactNode }> = {
   drafting: {
     label: 'Drafting',
     color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-    icon: <Clock className="h-3.5 w-3.5" />,
-  },
+    icon: <Clock className="h-3.5 w-3.5" /> },
   submitted: {
     label: 'Submitted',
     color: 'bg-blue-100 text-blue-700',
-    icon: <Upload className="h-3.5 w-3.5" />,
-  },
+    icon: <Upload className="h-3.5 w-3.5" /> },
   'under-review': {
     label: 'Under Review',
     color: 'bg-purple-100 text-purple-700',
-    icon: <FileCheck className="h-3.5 w-3.5" />,
-  },
+    icon: <FileCheck className="h-3.5 w-3.5" /> },
   'additional-info': {
     label: 'Additional Info Requested',
     color: 'bg-amber-100 text-amber-700',
-    icon: <AlertTriangle className="h-3.5 w-3.5" />,
-  },
+    icon: <AlertTriangle className="h-3.5 w-3.5" /> },
   approved: {
     label: 'Approved',
     color: 'bg-green-100 text-green-700',
-    icon: <CheckCircle className="h-3.5 w-3.5" />,
-  },
+    icon: <CheckCircle className="h-3.5 w-3.5" /> },
   rejected: {
     label: 'Rejected',
     color: 'bg-red-100 text-red-700',
-    icon: <XCircle className="h-3.5 w-3.5" />,
-  },
-};
+    icon: <XCircle className="h-3.5 w-3.5" /> } };
 
 export default function SubmissionsClient() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set(['s1']));

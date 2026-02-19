@@ -8,17 +8,13 @@ import {
   Badge,
   Modal,
   ModalFooter,
-  Input,
-  Label,
-  Select,
   Textarea,
   Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
-  TableCell,
-} from '@ims/ui';
+  TableCell } from '@ims/ui';
 import { ListChecks, Loader2, Search, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api';
 

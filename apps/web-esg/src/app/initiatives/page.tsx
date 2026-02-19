@@ -1,21 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, Modal } from '@ims/ui';
+import { Modal } from '@ims/ui';
 import {
   Leaf,
-  TrendingUp,
-  DollarSign,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
   ChevronDown,
   ChevronRight,
   Search,
   Plus,
   Pencil,
-  Trash2,
-} from 'lucide-react';
+  Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Initiative {
@@ -41,29 +35,24 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   PLANNED: { label: 'Planned', color: 'bg-gray-100 dark:bg-gray-800 text-gray-700' },
   IN_PROGRESS: { label: 'In Progress', color: 'bg-blue-100 text-blue-700' },
   COMPLETED: { label: 'Completed', color: 'bg-green-100 text-green-700' },
-  ON_HOLD: { label: 'On Hold', color: 'bg-amber-100 text-amber-700' },
-};
+  ON_HOLD: { label: 'On Hold', color: 'bg-amber-100 text-amber-700' } };
 
 const pillarConfig: Record<string, { label: string; color: string; prog: string }> = {
   ENVIRONMENTAL: {
     label: 'Environmental',
     color: 'bg-green-100 text-green-700',
-    prog: 'bg-green-500',
-  },
+    prog: 'bg-green-500' },
   SOCIAL: { label: 'Social', color: 'bg-blue-100 text-blue-700', prog: 'bg-blue-500' },
   GOVERNANCE: {
     label: 'Governance',
     color: 'bg-purple-100 text-purple-700',
-    prog: 'bg-purple-500',
-  },
-};
+    prog: 'bg-purple-500' } };
 
 const priorityConfig: Record<string, { label: string; color: string }> = {
   CRITICAL: { label: 'Critical', color: 'bg-red-100 text-red-700' },
   HIGH: { label: 'High', color: 'bg-orange-100 text-orange-700' },
   MEDIUM: { label: 'Medium', color: 'bg-yellow-100 text-yellow-700' },
-  LOW: { label: 'Low', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' },
-};
+  LOW: { label: 'Low', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' } };
 
 const empty: FormData = {
   name: '',
@@ -78,8 +67,7 @@ const empty: FormData = {
   spent: 0,
   progress: 0,
   sdgList: '',
-  tagList: '',
-};
+  tagList: '' };
 
 export default function InitiativesPage() {
   const [initiatives, setInitiatives] = useState<Initiative[]>([]);
@@ -130,8 +118,7 @@ export default function InitiativesPage() {
       spent: ini.spent || 0,
       progress: ini.progress || 0,
       sdgList: (ini.sdgs || []).join(', '),
-      tagList: (ini.tags || []).join(', '),
-    });
+      tagList: (ini.tags || []).join(', ') });
     setModalOpen(true);
   }
 
@@ -151,8 +138,7 @@ export default function InitiativesPage() {
               .split(',')
               .map((s) => s.trim())
               .filter(Boolean)
-          : [],
-      };
+          : [] };
       if (editing) {
         const res = await api.put(`/initiatives/${editing.id}`, payload);
         setInitiatives((prev) => prev.map((i) => (i.id === editing.id ? res.data.data : i)));
@@ -296,8 +282,7 @@ export default function InitiativesPage() {
             const cfg = pillarConfig[p] || {
               label: p,
               color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-              prog: 'bg-gray-500',
-            };
+              prog: 'bg-gray-500' };
             return (
               <button
                 key={p}
@@ -373,16 +358,13 @@ export default function InitiativesPage() {
             const cfg = pillarConfig[ini.pillar] || {
               label: ini.pillar,
               color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-              prog: 'bg-gray-500',
-            };
+              prog: 'bg-gray-500' };
             const priCfg = priorityConfig[ini.priority] || {
               label: ini.priority,
-              color: 'bg-gray-100 dark:bg-gray-800 text-gray-600',
-            };
+              color: 'bg-gray-100 dark:bg-gray-800 text-gray-600' };
             const stCfg = statusConfig[ini.status] || {
               label: ini.status,
-              color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-            };
+              color: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
             return (
               <div
                 key={ini.id}

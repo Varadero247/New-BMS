@@ -6,8 +6,6 @@ import {
   Plus,
   Trash2,
   Send,
-  ChevronDown,
-  ChevronUp,
   CheckCircle,
   XCircle,
   Clock,
@@ -15,9 +13,7 @@ import {
   Eye,
   EyeOff,
   ToggleLeft,
-  ToggleRight,
-  ExternalLink,
-} from 'lucide-react';
+  ToggleRight } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface WebhookEndpoint {
@@ -72,8 +68,7 @@ const WEBHOOK_EVENTS = [
 const STATUS_COLORS: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
   SUCCESS: 'bg-green-100 text-green-800',
-  FAILED: 'bg-red-100 text-red-800',
-};
+  FAILED: 'bg-red-100 text-red-800' };
 
 export default function WebhooksPage() {
   const [endpoints, setEndpoints] = useState<WebhookEndpoint[]>([]);
@@ -110,8 +105,7 @@ export default function WebhooksPage() {
       const res = await api.post('/api/admin/webhooks', {
         name: formName,
         url: formUrl,
-        events: formEvents,
-      });
+        events: formEvents });
       const created = res.data.data;
       setNewSecret(created.secret);
       setEndpoints((prev) => [created, ...prev]);

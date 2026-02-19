@@ -11,9 +11,8 @@ import {
   Input,
   Label,
   Select,
-  Textarea,
-} from '@ims/ui';
-import { Plus, Search, RefreshCw, ClipboardList, CheckCircle } from 'lucide-react';
+  Textarea } from '@ims/ui';
+import { Plus, Search, RefreshCw, CheckCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface ManagementReview {
@@ -49,8 +48,7 @@ const statusColors: Record<string, string> = {
   PLANNED: 'info',
   IN_PROGRESS: 'warning',
   COMPLETED: 'success',
-  CANCELLED: 'default',
-};
+  CANCELLED: 'default' };
 
 export default function ManagementReviewsPage() {
   const [items, setItems] = useState<ManagementReview[]>([]);
@@ -84,8 +82,7 @@ export default function ManagementReviewsPage() {
     actionItems: '',
     nextReviewDate: '',
     minutes: '',
-    notes: '',
-  });
+    notes: '' });
 
   const fetchItems = useCallback(async () => {
     setLoading(true);
@@ -98,8 +95,7 @@ export default function ManagementReviewsPage() {
       setPagination((p) => ({
         ...p,
         total: res.data.pagination.total,
-        totalPages: res.data.pagination.totalPages,
-      }));
+        totalPages: res.data.pagination.totalPages }));
     } catch {
       /* empty */
     }
@@ -133,8 +129,7 @@ export default function ManagementReviewsPage() {
       actionItems: '',
       nextReviewDate: '',
       minutes: '',
-      notes: '',
-    });
+      notes: '' });
     setModalOpen(true);
   };
 
@@ -161,8 +156,7 @@ export default function ManagementReviewsPage() {
       actionItems: item.actionItems || '',
       nextReviewDate: item.nextReviewDate?.slice(0, 10) || '',
       minutes: item.minutes || '',
-      notes: item.notes || '',
-    });
+      notes: item.notes || '' });
     setModalOpen(true);
   };
 

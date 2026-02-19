@@ -4,13 +4,10 @@ import { useEffect, useState, type ElementType } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import { Link as Link, RefreshCw, CheckCircle, XCircle, Clock, ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -30,41 +27,33 @@ const providerInfo: Record<string, { color: string; bgColor: string; description
   xero: {
     color: 'text-blue-700',
     bgColor: 'bg-blue-50 border-blue-200',
-    description: 'Cloud-based accounting software for small and medium businesses.',
-  },
+    description: 'Cloud-based accounting software for small and medium businesses.' },
   quickbooks: {
     color: 'text-green-700',
     bgColor: 'bg-green-50 border-green-200',
-    description: 'Popular accounting and bookkeeping software by Intuit.',
-  },
+    description: 'Popular accounting and bookkeeping software by Intuit.' },
   stripe: {
     color: 'text-purple-700',
     bgColor: 'bg-purple-50 border-purple-200',
-    description: 'Payment processing platform for online and in-person payments.',
-  },
+    description: 'Payment processing platform for online and in-person payments.' },
   sage: {
     color: 'text-emerald-700',
     bgColor: 'bg-emerald-50 border-emerald-200',
-    description: 'Business management software for accounting and finance.',
-  },
+    description: 'Business management software for accounting and finance.' },
   paypal: {
     color: 'text-blue-800',
     bgColor: 'bg-blue-50 border-blue-300',
-    description: 'Online payment system for receiving and sending money.',
-  },
-};
+    description: 'Online payment system for receiving and sending money.' } };
 
 const statusConfig: Record<string, { label: string; color: string; icon: ElementType }> = {
   CONNECTED: { label: 'Connected', color: 'bg-green-100 text-green-700', icon: CheckCircle },
   DISCONNECTED: {
     label: 'Disconnected',
     color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-    icon: XCircle,
-  },
+    icon: XCircle },
   SYNCING: { label: 'Syncing', color: 'bg-blue-100 text-blue-700', icon: RefreshCw },
   ERROR: { label: 'Error', color: 'bg-red-100 text-red-700', icon: XCircle },
-  PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700', icon: Clock },
-};
+  PENDING: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700', icon: Clock } };
 
 const defaultIntegrations: Integration[] = [
   {
@@ -72,36 +61,31 @@ const defaultIntegrations: Integration[] = [
     provider: 'xero',
     name: 'Xero',
     description: 'Cloud accounting platform',
-    status: 'DISCONNECTED',
-  },
+    status: 'DISCONNECTED' },
   {
     id: 'quickbooks',
     provider: 'quickbooks',
     name: 'QuickBooks',
     description: 'Accounting & bookkeeping',
-    status: 'DISCONNECTED',
-  },
+    status: 'DISCONNECTED' },
   {
     id: 'stripe',
     provider: 'stripe',
     name: 'Stripe',
     description: 'Payment processing',
-    status: 'DISCONNECTED',
-  },
+    status: 'DISCONNECTED' },
   {
     id: 'sage',
     provider: 'sage',
     name: 'Sage',
     description: 'Business accounting',
-    status: 'DISCONNECTED',
-  },
+    status: 'DISCONNECTED' },
   {
     id: 'paypal',
     provider: 'paypal',
     name: 'PayPal',
     description: 'Online payments',
-    status: 'DISCONNECTED',
-  },
+    status: 'DISCONNECTED' },
 ];
 
 export default function IntegrationsPage() {
@@ -259,8 +243,7 @@ export default function IntegrationsPage() {
             const info = providerInfo[integration.provider] || {
               color: 'text-gray-700 dark:text-gray-300',
               bgColor: 'bg-gray-50 dark:bg-gray-800 border-gray-200',
-              description: '',
-            };
+              description: '' };
             const status = statusConfig[integration.status] || statusConfig.DISCONNECTED;
             const StatusIcon = status.icon;
             const isConnected = integration.status === 'CONNECTED';

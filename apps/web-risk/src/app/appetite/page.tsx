@@ -9,11 +9,9 @@ import {
   CheckCircle,
   AlertTriangle,
   ShieldAlert,
-  TrendingUp,
   ChevronDown,
   ChevronUp,
-  RefreshCw,
-} from 'lucide-react';
+  RefreshCw } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
@@ -51,16 +49,14 @@ const APPETITE_COLORS: Record<AppetiteLevel, string> = {
   LOW: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
   MODERATE_APPETITE: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
   HIGH_APPETITE: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-  VERY_HIGH: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
-};
+  VERY_HIGH: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' };
 
 const APPETITE_DOTS: Record<AppetiteLevel, string> = {
   VERY_LOW: 'bg-green-500',
   LOW: 'bg-blue-500',
   MODERATE_APPETITE: 'bg-yellow-500',
   HIGH_APPETITE: 'bg-orange-500',
-  VERY_HIGH: 'bg-red-500',
-};
+  VERY_HIGH: 'bg-red-500' };
 
 const ALL_CATEGORIES = [
   'STRATEGIC',
@@ -126,8 +122,7 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
     escalationThreshold: stmt.escalationThreshold,
     maximumTolerableScore: stmt.maximumTolerableScore,
     approvedBy: stmt.approvedBy || '',
-    reviewDate: stmt.reviewDate ? stmt.reviewDate.split('T')[0] : '',
-  });
+    reviewDate: stmt.reviewDate ? stmt.reviewDate.split('T')[0] : '' });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -149,8 +144,7 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
         approvedBy: form.approvedBy || undefined,
         reviewDate: form.reviewDate
           ? new Date(form.reviewDate).toISOString()
-          : new Date().toISOString(),
-      });
+          : new Date().toISOString() });
       onSave();
       onClose();
     } catch (e) {
@@ -349,8 +343,7 @@ export default function AppetitePage() {
         escalationThreshold: 12,
         maximumTolerableScore: 16,
         reviewDate: '',
-        approvedBy: '',
-      }
+        approvedBy: '' }
   );
 
   return (

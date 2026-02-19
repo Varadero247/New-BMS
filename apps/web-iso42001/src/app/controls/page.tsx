@@ -10,12 +10,10 @@ import {
   MinusCircle,
   Ban,
   Filter,
-  FileText,
   Calendar,
   User,
   ExternalLink,
-  ChevronRight,
-} from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -51,20 +49,16 @@ const annexAControls = [
         code: 'A.2.2',
         title: 'AI Policy',
         description:
-          "Establish and maintain an AI policy aligned with the organisation's objectives",
-      },
+          "Establish and maintain an AI policy aligned with the organisation's objectives" },
       {
         code: 'A.2.3',
         title: 'Roles and Responsibilities',
-        description: 'Define and communicate AI-related roles, responsibilities and authorities',
-      },
+        description: 'Define and communicate AI-related roles, responsibilities and authorities' },
       {
         code: 'A.2.4',
         title: 'Internal Audit',
-        description: 'Plan and conduct internal audits of the AI management system',
-      },
-    ],
-  },
+        description: 'Plan and conduct internal audits of the AI management system' },
+    ] },
   {
     code: 'A.3',
     domain: 'AI_GOVERNANCE',
@@ -73,25 +67,20 @@ const annexAControls = [
       {
         code: 'A.3.2',
         title: 'AI System Life Cycle',
-        description: 'Establish processes for each stage of the AI system life cycle',
-      },
+        description: 'Establish processes for each stage of the AI system life cycle' },
       {
         code: 'A.3.3',
         title: 'Third-party and Customer Relationships',
-        description: 'Manage third-party and customer interactions involving AI systems',
-      },
+        description: 'Manage third-party and customer interactions involving AI systems' },
       {
         code: 'A.3.4',
         title: 'AI System Inventory',
-        description: 'Maintain an inventory of AI systems including their risk classifications',
-      },
+        description: 'Maintain an inventory of AI systems including their risk classifications' },
       {
         code: 'A.3.5',
         title: 'Management Review of AI',
-        description: 'Conduct management reviews of AI management system performance',
-      },
-    ],
-  },
+        description: 'Conduct management reviews of AI management system performance' },
+    ] },
   {
     code: 'A.4',
     domain: 'AI_RESOURCES',
@@ -100,30 +89,24 @@ const annexAControls = [
       {
         code: 'A.4.2',
         title: 'Data Resources',
-        description: 'Identify and manage data resources needed for AI systems',
-      },
+        description: 'Identify and manage data resources needed for AI systems' },
       {
         code: 'A.4.3',
         title: 'Tooling',
-        description: 'Determine and provide tools for AI system development and operation',
-      },
+        description: 'Determine and provide tools for AI system development and operation' },
       {
         code: 'A.4.4',
         title: 'System and Computing Resources',
-        description: 'Provide computing infrastructure for AI systems',
-      },
+        description: 'Provide computing infrastructure for AI systems' },
       {
         code: 'A.4.5',
         title: 'Human Resources',
-        description: 'Ensure competence of personnel involved in AI systems',
-      },
+        description: 'Ensure competence of personnel involved in AI systems' },
       {
         code: 'A.4.6',
         title: 'Awareness and Training',
-        description: 'Ensure AI-specific awareness and training programmes',
-      },
-    ],
-  },
+        description: 'Ensure AI-specific awareness and training programmes' },
+    ] },
   {
     code: 'A.5',
     domain: 'AI_RISK',
@@ -132,25 +115,20 @@ const annexAControls = [
       {
         code: 'A.5.2',
         title: 'AI Impact Assessment Process',
-        description: 'Establish a process for conducting AI impact assessments',
-      },
+        description: 'Establish a process for conducting AI impact assessments' },
       {
         code: 'A.5.3',
         title: 'Documentation of AI Impact Assessment',
-        description: 'Document and maintain records of AI impact assessments',
-      },
+        description: 'Document and maintain records of AI impact assessments' },
       {
         code: 'A.5.4',
         title: 'AI Risk Assessment',
-        description: 'Assess risks associated with AI systems systematically',
-      },
+        description: 'Assess risks associated with AI systems systematically' },
       {
         code: 'A.5.5',
         title: 'AI Risk Treatment',
-        description: 'Determine and implement AI risk treatment options',
-      },
-    ],
-  },
+        description: 'Determine and implement AI risk treatment options' },
+    ] },
   {
     code: 'A.6',
     domain: 'AI_DEVELOPMENT',
@@ -159,40 +137,32 @@ const annexAControls = [
       {
         code: 'A.6.2.2',
         title: 'AI System Design and Development',
-        description: 'Implement controls for AI system design and development activities',
-      },
+        description: 'Implement controls for AI system design and development activities' },
       {
         code: 'A.6.2.3',
         title: 'AI System Data',
-        description: 'Manage data used in AI system development ensuring quality and governance',
-      },
+        description: 'Manage data used in AI system development ensuring quality and governance' },
       {
         code: 'A.6.2.4',
         title: 'AI System Testing',
-        description: 'Test and validate AI systems before deployment',
-      },
+        description: 'Test and validate AI systems before deployment' },
       {
         code: 'A.6.2.5',
         title: 'AI System Operation',
-        description: 'Implement operational controls for deployed AI systems',
-      },
+        description: 'Implement operational controls for deployed AI systems' },
       {
         code: 'A.6.2.6',
         title: 'AI System Retirement',
-        description: 'Plan and manage the retirement and decommissioning of AI systems',
-      },
+        description: 'Plan and manage the retirement and decommissioning of AI systems' },
       {
         code: 'A.6.2.7',
         title: 'AI System Documentation',
-        description: 'Maintain comprehensive documentation for AI systems',
-      },
+        description: 'Maintain comprehensive documentation for AI systems' },
       {
         code: 'A.6.2.8',
         title: 'AI Model Performance',
-        description: 'Monitor and evaluate AI model performance continuously',
-      },
-    ],
-  },
+        description: 'Monitor and evaluate AI model performance continuously' },
+    ] },
   {
     code: 'A.7',
     domain: 'AI_DATA',
@@ -201,25 +171,20 @@ const annexAControls = [
       {
         code: 'A.7.2',
         title: 'Data Provenance',
-        description: 'Track and maintain records of data origin, lineage and transformations',
-      },
+        description: 'Track and maintain records of data origin, lineage and transformations' },
       {
         code: 'A.7.3',
         title: 'Data Quality for AI',
-        description: 'Ensure data quality standards for training, testing and inference data',
-      },
+        description: 'Ensure data quality standards for training, testing and inference data' },
       {
         code: 'A.7.4',
         title: 'Data Preparation',
-        description: 'Control data preprocessing, transformation and augmentation processes',
-      },
+        description: 'Control data preprocessing, transformation and augmentation processes' },
       {
         code: 'A.7.5',
         title: 'Data Privacy and Protection',
-        description: 'Implement privacy controls for data used in AI systems',
-      },
-    ],
-  },
+        description: 'Implement privacy controls for data used in AI systems' },
+    ] },
   {
     code: 'A.8',
     domain: 'AI_RESPONSIBLE',
@@ -229,30 +194,24 @@ const annexAControls = [
         code: 'A.8.2',
         title: 'Transparency',
         description:
-          'Provide appropriate transparency about AI system capabilities and limitations',
-      },
+          'Provide appropriate transparency about AI system capabilities and limitations' },
       {
         code: 'A.8.3',
         title: 'Explainability',
-        description: 'Enable explanation of AI decisions to relevant stakeholders',
-      },
+        description: 'Enable explanation of AI decisions to relevant stakeholders' },
       {
         code: 'A.8.4',
         title: 'Bias and Fairness',
-        description: 'Detect, measure and mitigate bias in AI systems',
-      },
+        description: 'Detect, measure and mitigate bias in AI systems' },
       {
         code: 'A.8.5',
         title: 'Human Oversight',
-        description: 'Implement human oversight mechanisms for AI decisions',
-      },
+        description: 'Implement human oversight mechanisms for AI decisions' },
       {
         code: 'A.8.6',
         title: 'Accountability',
-        description: 'Establish accountability mechanisms for AI system outcomes',
-      },
-    ],
-  },
+        description: 'Establish accountability mechanisms for AI system outcomes' },
+    ] },
   {
     code: 'A.9',
     domain: 'AI_THIRD_PARTY',
@@ -261,20 +220,16 @@ const annexAControls = [
       {
         code: 'A.9.2',
         title: 'AI Use Guidance',
-        description: "Provide guidance to third parties using the organisation's AI systems",
-      },
+        description: "Provide guidance to third parties using the organisation's AI systems" },
       {
         code: 'A.9.3',
         title: 'Monitoring of Third-Party Use',
-        description: "Monitor how third parties use the organisation's AI systems",
-      },
+        description: "Monitor how third parties use the organisation's AI systems" },
       {
         code: 'A.9.4',
         title: 'Supply Chain AI Governance',
-        description: 'Govern AI components and services in the supply chain',
-      },
-    ],
-  },
+        description: 'Govern AI components and services in the supply chain' },
+    ] },
   {
     code: 'A.10',
     domain: 'AI_IMPROVEMENT',
@@ -283,25 +238,20 @@ const annexAControls = [
       {
         code: 'A.10.2',
         title: 'AI Event and Incident Response',
-        description: 'Establish procedures to respond to AI events and incidents',
-      },
+        description: 'Establish procedures to respond to AI events and incidents' },
       {
         code: 'A.10.3',
         title: 'Learning from AI Events',
-        description: 'Analyze AI events to improve systems and prevent recurrence',
-      },
+        description: 'Analyze AI events to improve systems and prevent recurrence' },
       {
         code: 'A.10.4',
         title: 'AI Incident Communication',
-        description: 'Communicate AI incidents to relevant stakeholders promptly',
-      },
+        description: 'Communicate AI incidents to relevant stakeholders promptly' },
       {
         code: 'A.10.5',
         title: 'Continual Improvement',
-        description: 'Implement processes for continual improvement of AI management system',
-      },
-    ],
-  },
+        description: 'Implement processes for continual improvement of AI management system' },
+    ] },
 ];
 
 const domainLabels: Record<string, string> = {
@@ -312,8 +262,7 @@ const domainLabels: Record<string, string> = {
   AI_DATA: 'AI Data',
   AI_RESPONSIBLE: 'Responsible AI',
   AI_THIRD_PARTY: 'Third-party',
-  AI_IMPROVEMENT: 'Improvement',
-};
+  AI_IMPROVEMENT: 'Improvement' };
 
 const domainColors: Record<
   string,
@@ -324,58 +273,49 @@ const domainColors: Record<
     text: 'text-indigo-700',
     border: 'border-indigo-200',
     darkBg: 'dark:bg-indigo-900/20',
-    darkText: 'dark:text-indigo-400',
-  },
+    darkText: 'dark:text-indigo-400' },
   AI_RESOURCES: {
     bg: 'bg-violet-50',
     text: 'text-violet-700',
     border: 'border-violet-200',
     darkBg: 'dark:bg-violet-900/20',
-    darkText: 'dark:text-violet-400',
-  },
+    darkText: 'dark:text-violet-400' },
   AI_RISK: {
     bg: 'bg-red-50',
     text: 'text-red-700',
     border: 'border-red-200',
     darkBg: 'dark:bg-red-900/20',
-    darkText: 'dark:text-red-400',
-  },
+    darkText: 'dark:text-red-400' },
   AI_DEVELOPMENT: {
     bg: 'bg-blue-50',
     text: 'text-blue-700',
     border: 'border-blue-200',
     darkBg: 'dark:bg-blue-900/20',
-    darkText: 'dark:text-blue-400',
-  },
+    darkText: 'dark:text-blue-400' },
   AI_DATA: {
     bg: 'bg-emerald-50',
     text: 'text-emerald-700',
     border: 'border-emerald-200',
     darkBg: 'dark:bg-emerald-900/20',
-    darkText: 'dark:text-emerald-400',
-  },
+    darkText: 'dark:text-emerald-400' },
   AI_RESPONSIBLE: {
     bg: 'bg-purple-50',
     text: 'text-purple-700',
     border: 'border-purple-200',
     darkBg: 'dark:bg-purple-900/20',
-    darkText: 'dark:text-purple-400',
-  },
+    darkText: 'dark:text-purple-400' },
   AI_THIRD_PARTY: {
     bg: 'bg-amber-50',
     text: 'text-amber-700',
     border: 'border-amber-200',
     darkBg: 'dark:bg-amber-900/20',
-    darkText: 'dark:text-amber-400',
-  },
+    darkText: 'dark:text-amber-400' },
   AI_IMPROVEMENT: {
     bg: 'bg-cyan-50',
     text: 'text-cyan-700',
     border: 'border-cyan-200',
     darkBg: 'dark:bg-cyan-900/20',
-    darkText: 'dark:text-cyan-400',
-  },
-};
+    darkText: 'dark:text-cyan-400' } };
 
 const statusOptions = ['NOT_STARTED', 'IN_PROGRESS', 'IMPLEMENTED', 'NOT_APPLICABLE'];
 
@@ -387,27 +327,22 @@ const statusConfig: Record<
     color: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
     darkColor: 'dark:bg-gray-800 dark:text-gray-400',
     icon: MinusCircle,
-    label: 'Not Started',
-  },
+    label: 'Not Started' },
   IN_PROGRESS: {
     color: 'bg-yellow-100 text-yellow-700',
     darkColor: 'dark:bg-yellow-900/30 dark:text-yellow-400',
     icon: Clock,
-    label: 'In Progress',
-  },
+    label: 'In Progress' },
   IMPLEMENTED: {
     color: 'bg-green-100 text-green-700',
     darkColor: 'dark:bg-green-900/30 dark:text-green-400',
     icon: CheckCircle2,
-    label: 'Implemented',
-  },
+    label: 'Implemented' },
   NOT_APPLICABLE: {
     color: 'bg-blue-100 text-blue-700',
     darkColor: 'dark:bg-blue-900/30 dark:text-blue-400',
     icon: Ban,
-    label: 'N/A',
-  },
-};
+    label: 'N/A' } };
 
 /* ------------------------------------------------------------------ */
 /*  Compliance Score Ring                                              */
@@ -493,8 +428,7 @@ export default function ControlsPage() {
     evidence: '',
     owner: '',
     targetDate: '',
-    reviewDate: '',
-  });
+    reviewDate: '' });
 
   useEffect(() => {
     loadControls();
@@ -524,8 +458,7 @@ export default function ControlsPage() {
           evidence: c.evidence || '',
           owner: c.owner || '',
           targetDate: c.targetDate ? c.targetDate.split('T')[0] : '',
-          reviewDate: c.reviewDate ? c.reviewDate.split('T')[0] : '',
-        };
+          reviewDate: c.reviewDate ? c.reviewDate.split('T')[0] : '' };
       });
       setControlStatuses(statuses);
     } catch {
@@ -549,8 +482,7 @@ export default function ControlsPage() {
       evidence: existing?.evidence || '',
       owner: existing?.owner || '',
       targetDate: existing?.targetDate || '',
-      reviewDate: existing?.reviewDate || '',
-    });
+      reviewDate: existing?.reviewDate || '' });
     setModalOpen(true);
   }
 
@@ -564,8 +496,7 @@ export default function ControlsPage() {
         title: editingControl.title,
         domain: editingControl.domain,
         description: editingControl.description,
-        ...form,
-      });
+        ...form });
       setControlStatuses({
         ...controlStatuses,
         [editingControl.code]: {
@@ -574,9 +505,7 @@ export default function ControlsPage() {
           evidence: form.evidence,
           owner: form.owner,
           targetDate: form.targetDate,
-          reviewDate: form.reviewDate,
-        },
-      });
+          reviewDate: form.reviewDate } });
       setModalOpen(false);
       loadControls();
     } catch {
@@ -613,8 +542,7 @@ export default function ControlsPage() {
         const cs = controlStatuses[c.code];
         const status = cs?.status || 'NOT_STARTED';
         return status === filterStatus;
-      }),
-    }))
+      }) }))
     .filter((d) => d.controls.length > 0);
 
   const inputClass =
@@ -671,20 +599,17 @@ export default function ControlsPage() {
                   <div
                     className="bg-green-500 transition-all duration-500"
                     style={{
-                      width: `${applicableTotal > 0 ? (implementedCount / totalControls) * 100 : 0}%`,
-                    }}
+                      width: `${applicableTotal > 0 ? (implementedCount / totalControls) * 100 : 0}%` }}
                   />
                   <div
                     className="bg-yellow-500 transition-all duration-500"
                     style={{
-                      width: `${applicableTotal > 0 ? (inProgressCount / totalControls) * 100 : 0}%`,
-                    }}
+                      width: `${applicableTotal > 0 ? (inProgressCount / totalControls) * 100 : 0}%` }}
                   />
                   <div
                     className="bg-blue-400 transition-all duration-500"
                     style={{
-                      width: `${applicableTotal > 0 ? (naCount / totalControls) * 100 : 0}%`,
-                    }}
+                      width: `${applicableTotal > 0 ? (naCount / totalControls) * 100 : 0}%` }}
                   />
                 </div>
               </div>
@@ -869,8 +794,7 @@ export default function ControlsPage() {
                                 <span className="text-xs text-muted-foreground">
                                   {new Date(cs.reviewDate).toLocaleDateString('en-GB', {
                                     day: '2-digit',
-                                    month: 'short',
-                                  })}
+                                    month: 'short' })}
                                 </span>
                               </>
                             ) : (

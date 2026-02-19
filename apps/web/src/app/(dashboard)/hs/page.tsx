@@ -10,9 +10,7 @@ import {
   ClipboardCheck,
   TrendingUp,
   ArrowRight,
-  Plus,
-  Users,
-} from 'lucide-react';
+  Plus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { ComplianceGauge, TrendChart } from '@/components/charts';
@@ -23,8 +21,7 @@ import {
   exportSafetyMetrics,
   exportSafetyMetricsExcel,
   type IncidentExportData,
-  type SafetyMetricsData,
-} from '@/lib/export';
+  type SafetyMetricsData } from '@/lib/export';
 
 interface StandardSummary {
   standard: string;
@@ -123,21 +120,18 @@ export default function HSOverviewPage() {
       name: 'Incidents',
       href: '/hs/incidents',
       icon: FileText,
-      count: summary?.summary.incidents.open,
-    },
+      count: summary?.summary.incidents.open },
     { name: 'Legal', href: '/hs/legal', icon: FileText, count: summary?.summary.legal.total },
     {
       name: 'Objectives',
       href: '/hs/objectives',
       icon: Target,
-      count: summary?.summary.objectives.total,
-    },
+      count: summary?.summary.objectives.total },
     {
       name: 'Actions',
       href: '/hs/actions',
       icon: ClipboardCheck,
-      count: summary?.summary.actions.open,
-    },
+      count: summary?.summary.actions.open },
     { name: 'Metrics', href: '/hs/metrics', icon: TrendingUp },
   ];
 
@@ -149,8 +143,7 @@ export default function HSOverviewPage() {
         type: inc.type,
         severity: inc.severity,
         status: inc.status,
-        dateOccurred: new Date(inc.dateOccurred).toLocaleDateString(),
-      }));
+        dateOccurred: new Date(inc.dateOccurred).toLocaleDateString() }));
       exportIncidents(exportData, 'ISO_45001', 'Health & Safety Incidents Report');
     }
   };
@@ -163,8 +156,7 @@ export default function HSOverviewPage() {
         type: inc.type,
         severity: inc.severity,
         status: inc.status,
-        dateOccurred: new Date(inc.dateOccurred).toLocaleDateString(),
-      }));
+        dateOccurred: new Date(inc.dateOccurred).toLocaleDateString() }));
       exportIncidentsExcel(exportData, 'ISO_45001', 'Health & Safety Incidents Report');
     }
   };

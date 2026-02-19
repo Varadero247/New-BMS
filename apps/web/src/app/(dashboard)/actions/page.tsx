@@ -5,20 +5,16 @@ import Link from 'next/link';
 import {
   ClipboardCheck,
   Plus,
-  Filter,
   Search,
-  Clock,
-  CheckCircle,
   AlertTriangle,
   ArrowRight,
   Calendar,
   User,
   HardHat,
   Leaf,
-  Award,
-} from 'lucide-react';
+  Award } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import {  } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { PieChart } from '@/components/charts';
@@ -158,8 +154,7 @@ export default function ActionsPage() {
         status: action.status.replace('_', ' '),
         dueDate: new Date(action.dueDate).toLocaleDateString(),
         owner: `${action.owner.firstName} ${action.owner.lastName}`,
-        standard: action.standard.replace('_', ' '),
-      }));
+        standard: action.standard.replace('_', ' ') }));
       exportActions(exportData, 'CAPA Actions Report');
     }
   };
@@ -174,8 +169,7 @@ export default function ActionsPage() {
         status: action.status.replace('_', ' '),
         dueDate: new Date(action.dueDate).toLocaleDateString(),
         owner: `${action.owner.firstName} ${action.owner.lastName}`,
-        standard: action.standard.replace('_', ' '),
-      }));
+        standard: action.standard.replace('_', ' ') }));
       exportActionsExcel(exportData, 'CAPA Actions Report');
     }
   };

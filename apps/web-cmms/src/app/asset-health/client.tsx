@@ -5,12 +5,8 @@ import { Gauge } from '@ims/ui';
 import {
   Server,
   AlertTriangle,
-  CheckCircle,
   Clock,
-  TrendingUp,
-  TrendingDown,
-  Wrench,
-} from 'lucide-react';
+  Wrench } from 'lucide-react';
 
 type Criticality = 'Critical' | 'High' | 'Medium' | 'Low';
 type HealthStatus = 'Good' | 'Fair' | 'Poor' | 'Critical';
@@ -55,8 +51,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-02-01',
     nextPM: '2026-03-01',
     age: 3,
-    expectedLife: 15,
-  },
+    expectedLife: 15 },
   {
     id: 'A002',
     name: 'Hydraulic Press #2',
@@ -75,8 +70,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-01-15',
     nextPM: '2026-02-15',
     age: 8,
-    expectedLife: 20,
-  },
+    expectedLife: 20 },
   {
     id: 'A003',
     name: 'Conveyor System Main',
@@ -95,8 +89,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-02-05',
     nextPM: '2026-03-05',
     age: 2,
-    expectedLife: 12,
-  },
+    expectedLife: 12 },
   {
     id: 'A004',
     name: 'Air Compressor #1',
@@ -115,8 +108,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2025-12-20',
     nextPM: '2026-02-20',
     age: 12,
-    expectedLife: 15,
-  },
+    expectedLife: 15 },
   {
     id: 'A005',
     name: 'Injection Moulder #3',
@@ -135,8 +127,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-01-28',
     nextPM: '2026-02-28',
     age: 5,
-    expectedLife: 18,
-  },
+    expectedLife: 18 },
   {
     id: 'A006',
     name: 'HVAC Unit — Production Floor',
@@ -155,8 +146,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-01-10',
     nextPM: '2026-04-10',
     age: 4,
-    expectedLife: 20,
-  },
+    expectedLife: 20 },
   {
     id: 'A007',
     name: 'Robotic Welding Cell',
@@ -175,8 +165,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-02-10',
     nextPM: '2026-02-17',
     age: 10,
-    expectedLife: 12,
-  },
+    expectedLife: 12 },
   {
     id: 'A008',
     name: 'Forklift — Warehouse',
@@ -195,8 +184,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-01-20',
     nextPM: '2026-02-20',
     age: 6,
-    expectedLife: 10,
-  },
+    expectedLife: 10 },
   {
     id: 'A009',
     name: 'Surface Grinder',
@@ -215,8 +203,7 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-02-08',
     nextPM: '2026-03-08',
     age: 4,
-    expectedLife: 20,
-  },
+    expectedLife: 20 },
   {
     id: 'A010',
     name: 'Backup Generator',
@@ -235,23 +222,20 @@ const MOCK_ASSETS: Asset[] = [
     lastPM: '2026-01-05',
     nextPM: '2026-07-05',
     age: 2,
-    expectedLife: 25,
-  },
+    expectedLife: 25 },
 ];
 
 const criticalityColors: Record<Criticality, string> = {
   Critical: 'bg-red-100 text-red-700',
   High: 'bg-orange-100 text-orange-700',
   Medium: 'bg-yellow-100 text-yellow-700',
-  Low: 'bg-green-100 text-green-700',
-};
+  Low: 'bg-green-100 text-green-700' };
 
 const healthColors: Record<HealthStatus, string> = {
   Good: 'bg-green-100 text-green-700',
   Fair: 'bg-yellow-100 text-yellow-700',
   Poor: 'bg-orange-100 text-orange-700',
-  Critical: 'bg-red-100 text-red-700',
-};
+  Critical: 'bg-red-100 text-red-700' };
 
 export default function AssetHealthClient() {
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);

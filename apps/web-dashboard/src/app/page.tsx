@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, TourManager, useTour } from '@ims/ui';
-import { ComplianceGauge, RiskMatrix } from '@ims/charts';
+import { ComplianceGauge } from '@ims/charts';
 import { useRBACContext } from '@ims/rbac/react';
 import { PermissionLevel } from '@ims/rbac';
 import { useWelcomeWizard } from '@/hooks/use-welcome-wizard';
@@ -39,8 +39,7 @@ import {
   Brain,
   Scale,
   Briefcase,
-  SlidersHorizontal,
-} from 'lucide-react';
+  SlidersHorizontal } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
 import { QuickAddMenu } from '@/components/quick-add-menu';
@@ -102,8 +101,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900',
     textColor: 'text-red-900 dark:text-red-100',
     subtitleColor: 'text-red-600 dark:text-red-400',
-    iconBg: 'bg-red-100 dark:bg-red-900',
-  },
+    iconBg: 'bg-red-100 dark:bg-red-900' },
   {
     name: 'Environmental',
     subtitle: 'ISO 14001',
@@ -115,8 +113,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-green-100 dark:hover:bg-green-900',
     textColor: 'text-green-900 dark:text-green-100',
     subtitleColor: 'text-green-600 dark:text-green-400',
-    iconBg: 'bg-green-100 dark:bg-green-900',
-  },
+    iconBg: 'bg-green-100 dark:bg-green-900' },
   {
     name: 'Quality',
     subtitle: 'ISO 9001',
@@ -128,8 +125,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900',
     textColor: 'text-blue-900 dark:text-blue-100',
     subtitleColor: 'text-blue-600 dark:text-blue-400',
-    iconBg: 'bg-blue-100 dark:bg-blue-900',
-  },
+    iconBg: 'bg-blue-100 dark:bg-blue-900' },
   {
     name: 'ESG',
     subtitle: 'Sustainability',
@@ -141,8 +137,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-teal-100 dark:hover:bg-teal-900',
     textColor: 'text-teal-900 dark:text-teal-100',
     subtitleColor: 'text-teal-600 dark:text-teal-400',
-    iconBg: 'bg-teal-100 dark:bg-teal-900',
-  },
+    iconBg: 'bg-teal-100 dark:bg-teal-900' },
   {
     name: 'Food Safety',
     subtitle: 'HACCP / ISO 22000',
@@ -154,8 +149,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-amber-100 dark:hover:bg-amber-900',
     textColor: 'text-amber-900 dark:text-amber-100',
     subtitleColor: 'text-amber-600 dark:text-amber-400',
-    iconBg: 'bg-amber-100 dark:bg-amber-900',
-  },
+    iconBg: 'bg-amber-100 dark:bg-amber-900' },
   {
     name: 'Energy',
     subtitle: 'ISO 50001',
@@ -167,8 +161,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-yellow-100 dark:hover:bg-yellow-900',
     textColor: 'text-yellow-900 dark:text-yellow-100',
     subtitleColor: 'text-yellow-600 dark:text-yellow-400',
-    iconBg: 'bg-yellow-100 dark:bg-yellow-900',
-  },
+    iconBg: 'bg-yellow-100 dark:bg-yellow-900' },
   {
     name: 'ISO 42001 (AI)',
     subtitle: 'AI Management',
@@ -180,8 +173,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900',
     textColor: 'text-fuchsia-900 dark:text-fuchsia-100',
     subtitleColor: 'text-fuchsia-600 dark:text-fuchsia-400',
-    iconBg: 'bg-fuchsia-100 dark:bg-fuchsia-900',
-  },
+    iconBg: 'bg-fuchsia-100 dark:bg-fuchsia-900' },
   {
     name: 'ISO 37001',
     subtitle: 'Anti-Bribery',
@@ -193,8 +185,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-rose-100 dark:hover:bg-rose-900',
     textColor: 'text-rose-900 dark:text-rose-100',
     subtitleColor: 'text-rose-600 dark:text-rose-400',
-    iconBg: 'bg-rose-100 dark:bg-rose-900',
-  },
+    iconBg: 'bg-rose-100 dark:bg-rose-900' },
   {
     name: 'InfoSec',
     subtitle: 'ISO 27001',
@@ -206,8 +197,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-cyan-100 dark:hover:bg-cyan-900',
     textColor: 'text-cyan-900 dark:text-cyan-100',
     subtitleColor: 'text-cyan-600 dark:text-cyan-400',
-    iconBg: 'bg-cyan-100 dark:bg-cyan-900',
-  },
+    iconBg: 'bg-cyan-100 dark:bg-cyan-900' },
   {
     name: 'Aerospace',
     subtitle: 'AS9100',
@@ -219,8 +209,7 @@ const isoModules: ModuleCard[] = [
     hoverBg: 'hover:bg-slate-100 dark:hover:bg-slate-900',
     textColor: 'text-slate-900 dark:text-slate-100',
     subtitleColor: 'text-slate-600 dark:text-slate-400',
-    iconBg: 'bg-slate-100 dark:bg-slate-900',
-  },
+    iconBg: 'bg-slate-100 dark:bg-slate-900' },
 ];
 
 const operationsModules: ModuleCard[] = [
@@ -235,8 +224,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-sky-100 dark:hover:bg-sky-900',
     textColor: 'text-sky-900 dark:text-sky-100',
     subtitleColor: 'text-sky-600 dark:text-sky-400',
-    iconBg: 'bg-sky-100 dark:bg-sky-900',
-  },
+    iconBg: 'bg-sky-100 dark:bg-sky-900' },
   {
     name: 'HR Management',
     subtitle: 'Employee & Performance',
@@ -248,8 +236,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-orange-100 dark:hover:bg-orange-900',
     textColor: 'text-orange-900 dark:text-orange-100',
     subtitleColor: 'text-orange-600 dark:text-orange-400',
-    iconBg: 'bg-orange-100 dark:bg-orange-900',
-  },
+    iconBg: 'bg-orange-100 dark:bg-orange-900' },
   {
     name: 'Payroll',
     subtitle: 'Compensation & Benefits',
@@ -261,8 +248,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-emerald-100 dark:hover:bg-emerald-900',
     textColor: 'text-emerald-900 dark:text-emerald-100',
     subtitleColor: 'text-emerald-600 dark:text-emerald-400',
-    iconBg: 'bg-emerald-100 dark:bg-emerald-900',
-  },
+    iconBg: 'bg-emerald-100 dark:bg-emerald-900' },
   {
     name: 'Workflows',
     subtitle: 'Process Automation',
@@ -274,8 +260,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-indigo-100 dark:hover:bg-indigo-900',
     textColor: 'text-indigo-900 dark:text-indigo-100',
     subtitleColor: 'text-indigo-600 dark:text-indigo-400',
-    iconBg: 'bg-indigo-100 dark:bg-indigo-900',
-  },
+    iconBg: 'bg-indigo-100 dark:bg-indigo-900' },
   {
     name: 'Project Management',
     subtitle: 'Tasks & Milestones',
@@ -287,8 +272,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-violet-100 dark:hover:bg-violet-900',
     textColor: 'text-violet-900 dark:text-violet-100',
     subtitleColor: 'text-violet-600 dark:text-violet-400',
-    iconBg: 'bg-violet-100 dark:bg-violet-900',
-  },
+    iconBg: 'bg-violet-100 dark:bg-violet-900' },
   {
     name: 'Finance',
     subtitle: 'Accounts & Budgets',
@@ -300,8 +284,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-lime-100 dark:hover:bg-lime-900',
     textColor: 'text-lime-900 dark:text-lime-100',
     subtitleColor: 'text-lime-600 dark:text-lime-400',
-    iconBg: 'bg-lime-100 dark:bg-lime-900',
-  },
+    iconBg: 'bg-lime-100 dark:bg-lime-900' },
   {
     name: 'CRM',
     subtitle: 'Customer Relations',
@@ -313,8 +296,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-pink-100 dark:hover:bg-pink-900',
     textColor: 'text-pink-900 dark:text-pink-100',
     subtitleColor: 'text-pink-600 dark:text-pink-400',
-    iconBg: 'bg-pink-100 dark:bg-pink-900',
-  },
+    iconBg: 'bg-pink-100 dark:bg-pink-900' },
   {
     name: 'CMMS',
     subtitle: 'Maintenance',
@@ -326,8 +308,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-stone-100 dark:hover:bg-stone-900',
     textColor: 'text-stone-900 dark:text-stone-100',
     subtitleColor: 'text-stone-600 dark:text-stone-400',
-    iconBg: 'bg-stone-100 dark:bg-stone-900',
-  },
+    iconBg: 'bg-stone-100 dark:bg-stone-900' },
   {
     name: 'Field Service',
     subtitle: 'Job Dispatch',
@@ -339,8 +320,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900',
     textColor: 'text-blue-900 dark:text-blue-100',
     subtitleColor: 'text-blue-600 dark:text-blue-400',
-    iconBg: 'bg-blue-100 dark:bg-blue-900',
-  },
+    iconBg: 'bg-blue-100 dark:bg-blue-900' },
   {
     name: 'Analytics',
     subtitle: 'Reports & Dashboards',
@@ -352,8 +332,7 @@ const operationsModules: ModuleCard[] = [
     hoverBg: 'hover:bg-purple-100 dark:hover:bg-purple-900',
     textColor: 'text-purple-900 dark:text-purple-100',
     subtitleColor: 'text-purple-600 dark:text-purple-400',
-    iconBg: 'bg-purple-100 dark:bg-purple-900',
-  },
+    iconBg: 'bg-purple-100 dark:bg-purple-900' },
 ];
 
 const portalModules: ModuleCard[] = [
@@ -368,8 +347,7 @@ const portalModules: ModuleCard[] = [
     hoverBg: 'hover:bg-blue-100 dark:hover:bg-blue-900',
     textColor: 'text-blue-900 dark:text-blue-100',
     subtitleColor: 'text-blue-600 dark:text-blue-400',
-    iconBg: 'bg-blue-100 dark:bg-blue-900',
-  },
+    iconBg: 'bg-blue-100 dark:bg-blue-900' },
   {
     name: 'Supplier Portal',
     subtitle: 'Vendor Access',
@@ -381,8 +359,7 @@ const portalModules: ModuleCard[] = [
     hoverBg: 'hover:bg-amber-100 dark:hover:bg-amber-900',
     textColor: 'text-amber-900 dark:text-amber-100',
     subtitleColor: 'text-amber-600 dark:text-amber-400',
-    iconBg: 'bg-amber-100 dark:bg-amber-900',
-  },
+    iconBg: 'bg-amber-100 dark:bg-amber-900' },
   {
     name: 'Medical Devices',
     subtitle: 'ISO 13485',
@@ -394,8 +371,7 @@ const portalModules: ModuleCard[] = [
     hoverBg: 'hover:bg-red-100 dark:hover:bg-red-900',
     textColor: 'text-red-900 dark:text-red-100',
     subtitleColor: 'text-red-600 dark:text-red-400',
-    iconBg: 'bg-red-100 dark:bg-red-900',
-  },
+    iconBg: 'bg-red-100 dark:bg-red-900' },
   {
     name: 'Automotive',
     subtitle: 'IATF 16949',
@@ -407,21 +383,18 @@ const portalModules: ModuleCard[] = [
     hoverBg: 'hover:bg-gray-100 dark:hover:bg-gray-900',
     textColor: 'text-gray-900 dark:text-gray-100',
     subtitleColor: 'text-gray-600 dark:text-gray-400',
-    iconBg: 'bg-gray-100 dark:bg-gray-800',
-  },
+    iconBg: 'bg-gray-100 dark:bg-gray-800' },
 ];
 
 const SECTION_MODULE_MAP: Record<SectionId, ModuleCard[]> = {
   'iso-compliance': isoModules,
   operations: operationsModules,
-  'portals-specialist': portalModules,
-};
+  'portals-specialist': portalModules };
 
 const SECTION_LABELS: Record<SectionId, string> = {
   'iso-compliance': 'ISO Compliance',
   operations: 'Operations',
-  'portals-specialist': 'Portals & Specialist',
-};
+  'portals-specialist': 'Portals & Specialist' };
 
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
 
@@ -762,38 +735,32 @@ export default function DashboardPage() {
                         label: 'Report Incident',
                         href: `${APP_BASE}:3001/incidents`,
                         color:
-                          'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900 border-red-200 dark:border-red-800',
-                      },
+                          'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900 border-red-200 dark:border-red-800' },
                       {
                         label: 'Raise NCR',
                         href: `${APP_BASE}:3003/nonconformances`,
                         color:
-                          'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border-blue-200 dark:border-blue-800',
-                      },
+                          'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border-blue-200 dark:border-blue-800' },
                       {
                         label: 'New CAPA',
                         href: `${APP_BASE}:3003/capa`,
                         color:
-                          'bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900 border-orange-200 dark:border-orange-800',
-                      },
+                          'bg-orange-50 dark:bg-orange-950 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900 border-orange-200 dark:border-orange-800' },
                       {
                         label: 'Log Environmental Event',
                         href: `${APP_BASE}:3002/events`,
                         color:
-                          'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900 border-green-200 dark:border-green-800',
-                      },
+                          'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900 border-green-200 dark:border-green-800' },
                       {
                         label: 'Create Work Order',
                         href: `${APP_BASE}:3017/work-orders`,
                         color:
-                          'bg-stone-50 dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-900 border-stone-200 dark:border-stone-800',
-                      },
+                          'bg-stone-50 dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-900 border-stone-200 dark:border-stone-800' },
                       {
                         label: 'New Risk Assessment',
                         href: `${APP_BASE}:3001/risks`,
                         color:
-                          'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-yellow-900 border-yellow-200 dark:border-yellow-800',
-                      },
+                          'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-100 dark:hover:bg-yellow-900 border-yellow-200 dark:border-yellow-800' },
                     ].map((action) => (
                       <a
                         key={action.label}
@@ -826,57 +793,49 @@ export default function DashboardPage() {
                           action: 'NCR created',
                           detail: 'NCR-2026-0042 — Supplier material out of spec',
                           time: '5m ago',
-                          color: 'bg-blue-500',
-                        },
+                          color: 'bg-blue-500' },
                         {
                           module: 'H&S',
                           action: 'Incident resolved',
                           detail: 'INC-2026-0118 — Slip hazard in warehouse',
                           time: '22m ago',
-                          color: 'bg-red-500',
-                        },
+                          color: 'bg-red-500' },
                         {
                           module: 'CMMS',
                           action: 'PM completed',
                           detail: 'WO-2026-0315 — HVAC quarterly maintenance',
                           time: '45m ago',
-                          color: 'bg-stone-500',
-                        },
+                          color: 'bg-stone-500' },
                         {
                           module: 'Environment',
                           action: 'Aspect reviewed',
                           detail: 'ENV-ASP-2026-012 — Water discharge monitoring',
                           time: '1h ago',
-                          color: 'bg-green-500',
-                        },
+                          color: 'bg-green-500' },
                         {
                           module: 'CRM',
                           action: 'Deal closed',
                           detail: 'Enterprise license — Acme Corp ($48,000)',
                           time: '2h ago',
-                          color: 'bg-pink-500',
-                        },
+                          color: 'bg-pink-500' },
                         {
                           module: 'InfoSec',
                           action: 'Risk mitigated',
                           detail: 'ISR-2026-008 — Endpoint encryption deployed',
                           time: '3h ago',
-                          color: 'bg-cyan-500',
-                        },
+                          color: 'bg-cyan-500' },
                         {
                           module: 'Field Service',
                           action: 'Job dispatched',
                           detail: 'FSJ-2026-0089 — Emergency repair at Site 7',
                           time: '4h ago',
-                          color: 'bg-blue-500',
-                        },
+                          color: 'bg-blue-500' },
                         {
                           module: 'Finance',
                           action: 'Invoice approved',
                           detail: 'INV-2026-0401 — Q1 supplier payment batch',
                           time: '5h ago',
-                          color: 'bg-lime-500',
-                        },
+                          color: 'bg-lime-500' },
                       ].map((item, i) => (
                         <div key={i} className="flex items-start gap-3">
                           <div className="mt-1 flex flex-col items-center">

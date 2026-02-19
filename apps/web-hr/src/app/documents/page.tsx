@@ -9,8 +9,7 @@ import {
   Badge,
   Button,
   Modal,
-  ModalFooter,
-} from '@ims/ui';
+  ModalFooter } from '@ims/ui';
 import {
   Plus,
   FileText,
@@ -18,12 +17,10 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  Clock,
   Edit2,
   File,
   Lock,
-  ExternalLink,
-} from 'lucide-react';
+  ExternalLink } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Employee {
@@ -67,8 +64,7 @@ const statusColors: Record<string, string> = {
   PENDING_VERIFICATION: 'bg-yellow-100 text-yellow-700',
   VERIFIED: 'bg-blue-100 text-blue-700',
   REJECTED: 'bg-red-100 text-red-800',
-  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-};
+  ARCHIVED: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
 
 const statusLabels: Record<string, string> = {
   ACTIVE: 'Active',
@@ -76,8 +72,7 @@ const statusLabels: Record<string, string> = {
   PENDING_VERIFICATION: 'Pending Verification',
   VERIFIED: 'Verified',
   REJECTED: 'Rejected',
-  ARCHIVED: 'Archived',
-};
+  ARCHIVED: 'Archived' };
 
 const typeColors: Record<string, string> = {
   CONTRACT: 'bg-blue-100 text-blue-700',
@@ -95,8 +90,7 @@ const typeColors: Record<string, string> = {
   PERFORMANCE_LETTER: 'bg-green-100 text-green-700',
   WARNING_LETTER: 'bg-red-100 text-red-700',
   TERMINATION_LETTER: 'bg-red-100 text-red-800',
-  OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-700',
-};
+  OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-700' };
 
 const DOCUMENT_TYPES = [
   'CONTRACT',
@@ -214,8 +208,7 @@ export default function DocumentsPage() {
         title: formTitle,
         fileName: formFileName,
         fileUrl: formFileUrl,
-        isConfidential: formIsConfidential,
-      };
+        isConfidential: formIsConfidential };
       if (formDescription) payload.description = formDescription;
       if (formFileSize) payload.fileSize = parseInt(formFileSize, 10);
       if (formIssueDate) payload.issueDate = formIssueDate;
@@ -247,8 +240,7 @@ export default function DocumentsPage() {
     setEditing(true);
     try {
       const payload: Record<string, any> = {
-        status: editStatus,
-      };
+        status: editStatus };
       if (editTitle !== editDoc.title) payload.title = editTitle;
       if (editDescription !== (editDoc.description || '')) payload.description = editDescription;
       if (editExpiryDate) payload.expiryDate = editExpiryDate;

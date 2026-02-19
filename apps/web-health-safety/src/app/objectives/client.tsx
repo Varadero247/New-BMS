@@ -4,8 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   Button,
   Badge,
   Modal,
@@ -14,8 +12,7 @@ import {
   Label,
   Select,
   Textarea,
-  AIDisclosure,
-} from '@ims/ui';
+  AIDisclosure } from '@ims/ui';
 import { Plus, Target, Loader2, Search, Sparkles, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
@@ -115,8 +112,7 @@ const emptyForm: ObjectiveForm = {
   resourcesRequired: '',
   progressNotes: '',
   status: 'ACTIVE',
-  milestones: [],
-};
+  milestones: [] };
 
 // ─── Component ────────────────────────────────────────────────────
 
@@ -164,22 +160,19 @@ export default function ObjectivesClient() {
   function addMilestone() {
     setForm((prev) => ({
       ...prev,
-      milestones: [...prev.milestones, { title: '', dueDate: '' }],
-    }));
+      milestones: [...prev.milestones, { title: '', dueDate: '' }] }));
   }
 
   function updateMilestone(index: number, field: 'title' | 'dueDate', value: string) {
     setForm((prev) => ({
       ...prev,
-      milestones: prev.milestones.map((m, i) => (i === index ? { ...m, [field]: value } : m)),
-    }));
+      milestones: prev.milestones.map((m, i) => (i === index ? { ...m, [field]: value } : m)) }));
   }
 
   function removeMilestone(index: number) {
     setForm((prev) => ({
       ...prev,
-      milestones: prev.milestones.filter((_, i) => i !== index),
-    }));
+      milestones: prev.milestones.filter((_, i) => i !== index) }));
   }
 
   async function generateAiAssist() {
@@ -193,9 +186,7 @@ export default function ObjectivesClient() {
           objectiveTitle: form.title,
           category: form.category,
           department: form.department,
-          targetDate: form.targetDate,
-        }),
-      });
+          targetDate: form.targetDate }) });
       if (res.ok) {
         const data = await res.json();
         setForm((prev) => ({
@@ -213,8 +204,7 @@ export default function ObjectivesClient() {
                   );
                   return { title: m.title, dueDate: dueDate.toISOString().split('T')[0] };
                 })
-              : prev.milestones,
-        }));
+              : prev.milestones }));
       }
     } catch (error) {
       console.error('AI assist failed:', error);
@@ -247,8 +237,7 @@ export default function ObjectivesClient() {
         progressNotes: form.progressNotes || undefined,
         aiGenerated: !!(form.objectiveStatement || form.kpiDescription),
         status: form.status,
-        milestones: validMilestones.length > 0 ? validMilestones : undefined,
-      });
+        milestones: validMilestones.length > 0 ? validMilestones : undefined });
       setModalOpen(false);
       loadObjectives();
     } catch (error) {
@@ -272,8 +261,7 @@ export default function ObjectivesClient() {
     total: objectives.length,
     ACHIEVED: objectives.filter((o) => o.status === 'ACHIEVED').length,
     ON_TRACK: objectives.filter((o) => o.status === 'ON_TRACK' || o.status === 'ACTIVE').length,
-    AT_RISK: objectives.filter((o) => o.status === 'AT_RISK' || o.status === 'BEHIND').length,
-  };
+    AT_RISK: objectives.filter((o) => o.status === 'AT_RISK' || o.status === 'BEHIND').length };
 
   const sections = ['Objective Definition', 'Measurement & Milestones'];
 

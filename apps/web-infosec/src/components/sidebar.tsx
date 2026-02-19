@@ -16,12 +16,10 @@ import {
   FileText,
   Eye,
   UserCheck,
-  Clock,
   Home,
   Settings,
   Map,
-  BarChart3,
-} from 'lucide-react';
+  BarChart3 } from 'lucide-react';
 
 const ismsNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -68,8 +66,7 @@ const quickLinks = [
 function NavSection({
   title,
   items,
-  pathname,
-}: {
+  pathname }: {
   title?: string;
   items: typeof ismsNavigation;
   pathname: string;
