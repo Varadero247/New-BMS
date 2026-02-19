@@ -77,8 +77,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = { deletedAt: null };
     if (customer) where.customer = { contains: customer as string, mode: 'insensitive' };
-    if (category) where.category = category as any;
-    if (complianceStatus) where.complianceStatus = complianceStatus as any;
+    if (category) where.category = category;
+    if (complianceStatus) where.complianceStatus = complianceStatus;
     if (search) {
       where.OR = [
         { requirementTitle: { contains: search as string, mode: 'insensitive' } },

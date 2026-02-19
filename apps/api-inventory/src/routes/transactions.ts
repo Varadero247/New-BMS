@@ -35,11 +35,11 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = { deletedAt: null };
 
-    if (productId) where.productId = productId as any;
-    if (warehouseId) where.warehouseId = warehouseId as any;
-    if (transactionType) where.transactionType = transactionType as any;
-    if (referenceType) where.referenceType = referenceType as any;
-    if (performedById) where.performedById = performedById as any;
+    if (productId) where.productId = productId;
+    if (warehouseId) where.warehouseId = warehouseId;
+    if (transactionType) where.transactionType = transactionType;
+    if (referenceType) where.referenceType = referenceType;
+    if (performedById) where.performedById = performedById;
 
     // Date range filter
     if (startDate || endDate) {
@@ -83,7 +83,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
     const { startDate, endDate, warehouseId } = req.query;
 
     const where: any = { deletedAt: null };
-    if (warehouseId) where.warehouseId = warehouseId as any;
+    if (warehouseId) where.warehouseId = warehouseId;
 
     // Default to last 30 days if no date range specified
     const start = startDate

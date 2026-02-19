@@ -33,8 +33,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (processType) where.processType = processType as any;
-    if (status) where.status = status as any;
+    if (processType) where.processType = processType;
+    if (status) where.status = status;
     if (search) {
       where.processName = { contains: search as string, mode: 'insensitive' };
     }

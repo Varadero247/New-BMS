@@ -33,8 +33,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (projectId) where.projectId = projectId as any;
-    if (employeeId) where.employeeId = employeeId as any;
+    if (projectId) where.projectId = projectId;
+    if (employeeId) where.employeeId = employeeId;
 
     const [timesheets, total] = await Promise.all([
       prisma.projectTimesheet.findMany({

@@ -60,9 +60,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (complianceStatus) where.complianceStatus = complianceStatus as any;
-    if (category) where.category = category as any;
-    if (status) where.status = status as any;
+    if (complianceStatus) where.complianceStatus = complianceStatus;
+    if (category) where.category = category;
+    if (status) where.status = status;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },

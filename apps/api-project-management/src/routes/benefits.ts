@@ -126,9 +126,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (type) where.type = type as any;
-    if (projectId) where.projectId = projectId as any;
+    if (status) where.status = status;
+    if (type) where.type = type;
+    if (projectId) where.projectId = projectId;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },

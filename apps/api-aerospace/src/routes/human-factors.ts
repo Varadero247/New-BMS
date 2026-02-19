@@ -157,9 +157,9 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (category) where.category = category as any;
-    if (severity) where.severity = severity as any;
-    if (status) where.status = status as any;
+    if (category) where.category = category;
+    if (severity) where.severity = severity;
+    if (status) where.status = status;
     if (dateFrom || dateTo) {
       where.incidentDate = {};
       if (dateFrom) where.incidentDate.gte = new Date(dateFrom as string);

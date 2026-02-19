@@ -40,9 +40,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (priority) where.priority = priority as any;
-    if (methodology) where.methodology = methodology as any;
+    if (status) where.status = status;
+    if (priority) where.priority = priority;
+    if (methodology) where.methodology = methodology;
     if (search) {
       where.OR = [
         { projectName: { contains: search as string, mode: 'insensitive' } },

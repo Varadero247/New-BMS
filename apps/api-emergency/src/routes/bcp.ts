@@ -84,7 +84,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { status, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     const skip =
       (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
     const [data, total] = await Promise.all([

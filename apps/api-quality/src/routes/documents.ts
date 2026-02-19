@@ -33,9 +33,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (documentType) where.documentType = documentType as any;
-    if (status) where.status = status as any;
-    if (accessLevel) where.accessLevel = accessLevel as any;
+    if (documentType) where.documentType = documentType;
+    if (status) where.status = status;
+    if (accessLevel) where.accessLevel = accessLevel;
     if (search) {
       where.title = { contains: search as string, mode: 'insensitive' };
     }

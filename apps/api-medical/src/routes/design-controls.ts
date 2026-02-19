@@ -53,9 +53,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (deviceClass) where.deviceClass = deviceClass as any;
-    if (stage) where.currentStage = stage as any;
+    if (status) where.status = status;
+    if (deviceClass) where.deviceClass = deviceClass;
+    if (stage) where.currentStage = stage;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },

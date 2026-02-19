@@ -18,8 +18,8 @@ router.get('/courses', scopeToUser, async (req: Request, res: Response) => {
     const { category, deliveryMethod, isMandatory } = req.query;
 
     const where: any = { isActive: true, deletedAt: null };
-    if (category) where.category = category as any;
-    if (deliveryMethod) where.deliveryMethod = deliveryMethod as any;
+    if (category) where.category = category;
+    if (deliveryMethod) where.deliveryMethod = deliveryMethod;
     if (isMandatory === 'true') where.isMandatory = true;
 
     const courses = await prisma.hRTrainingCourse.findMany({
@@ -135,7 +135,7 @@ router.get('/sessions', async (req: Request, res: Response) => {
 
     const where: any = { deletedAt: null };
     if (courseId) where.courseId = courseId as string;
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (startDate || endDate) {
       where.startDate = {};
       if (startDate) where.startDate.gte = new Date(startDate as string);
@@ -225,7 +225,7 @@ router.get('/enrollments', async (req: Request, res: Response) => {
     if (employeeId) where.employeeId = employeeId as string;
     if (courseId) where.courseId = courseId as string;
     if (sessionId) where.sessionId = sessionId as string;
-    if (status) where.status = status as any;
+    if (status) where.status = status;
 
     const enrollments = await prisma.hRTrainingEnrollment.findMany({
       where,
@@ -372,7 +372,7 @@ router.get('/certifications', async (req: Request, res: Response) => {
 
     const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (expiringWithin) {
       const daysAhead = parseInt(expiringWithin as string, 10);
       const futureDate = new Date();

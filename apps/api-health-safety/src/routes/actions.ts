@@ -146,9 +146,9 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (type) where.type = type as any;
-    if (priority) where.priority = priority as any;
+    if (status) where.status = status;
+    if (type) where.type = type;
+    if (priority) where.priority = priority;
     if (search && typeof search === 'string') {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },

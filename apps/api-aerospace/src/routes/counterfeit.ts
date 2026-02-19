@@ -103,8 +103,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (disposition) where.disposition = disposition as any;
+    if (status) where.status = status;
+    if (disposition) where.disposition = disposition;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -148,7 +148,7 @@ router.get('/suspect-parts', scopeToUser, async (req: AuthRequest, res: Response
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (riskLevel) where.riskLevel = riskLevel as any;
+    if (riskLevel) where.riskLevel = riskLevel;
     if (search) {
       where.OR = [
         { partNumber: { contains: search as string, mode: 'insensitive' } },

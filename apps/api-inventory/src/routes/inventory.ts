@@ -26,8 +26,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (warehouseId) where.warehouseId = warehouseId as any;
-    if (productId) where.productId = productId as any;
+    if (warehouseId) where.warehouseId = warehouseId;
+    if (productId) where.productId = productId;
 
     // Low stock filter
     if (lowStock === 'true') {

@@ -131,9 +131,9 @@ router.get('/projects', scopeToUser, async (req: AuthRequest, res: Response) => 
 
     const where: any = { deletedAt: null };
 
-    if (status) where.status = status as any;
-    if (safetyClass) where.safetyClass = safetyClass as any;
-    if (currentPhase) where.currentPhase = currentPhase as any;
+    if (status) where.status = status;
+    if (safetyClass) where.safetyClass = safetyClass;
+    if (currentPhase) where.currentPhase = currentPhase;
 
     const [projects, total] = await Promise.all([
       prisma.softwareProject.findMany({
@@ -411,8 +411,8 @@ router.get('/projects/:id/anomalies', async (req: AuthRequest, res: Response) =>
 
     const where: any = { projectId: req.params.id };
 
-    if (severity) where.severity = severity as any;
-    if (status) where.status = status as any;
+    if (severity) where.severity = severity;
+    if (status) where.status = status;
 
     const [anomalies, total] = await Promise.all([
       prisma.softwareAnomaly.findMany({

@@ -33,8 +33,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (partyType) where.partyType = partyType as any;
-    if (status) where.status = status as any;
+    if (partyType) where.partyType = partyType;
+    if (status) where.status = status;
     if (search) {
       where.partyName = { contains: search as string, mode: 'insensitive' };
     }

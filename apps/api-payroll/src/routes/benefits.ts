@@ -19,7 +19,7 @@ router.get('/plans', scopeToUser, async (req: Request, res: Response) => {
     const { category } = req.query;
 
     const where: any = { isActive: true, deletedAt: null };
-    if (category) where.category = category as any;
+    if (category) where.category = category;
 
     const plans = await prisma.benefitPlan.findMany({
       where,

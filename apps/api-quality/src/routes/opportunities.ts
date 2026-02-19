@@ -64,9 +64,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (priorityLevel) where.priorityLevel = priorityLevel as any;
-    if (status) where.status = status as any;
-    if (process) where.process = process as any;
+    if (priorityLevel) where.priorityLevel = priorityLevel;
+    if (status) where.status = status;
+    if (process) where.process = process;
     if (search) {
       where.opportunityDescription = { contains: search as string, mode: 'insensitive' };
     }

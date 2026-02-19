@@ -178,8 +178,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = { deletedAt: null };
 
-    if (status) where.status = status as any;
-    if (severity) where.severity = severity as any;
+    if (status) where.status = status;
+    if (severity) where.severity = severity;
     if (deviceName) {
       where.deviceName = { contains: deviceName as string, mode: 'insensitive' };
     }

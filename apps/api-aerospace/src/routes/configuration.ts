@@ -54,7 +54,7 @@ router.get('/baselines', scopeToUser, async (req: AuthRequest, res: Response) =>
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -448,8 +448,8 @@ router.get('/changes', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (urgency) where.urgency = urgency as any;
+    if (status) where.status = status;
+    if (urgency) where.urgency = urgency;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -686,8 +686,8 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (type) where.type = type as any;
-    if (status) where.status = status as any;
+    if (type) where.type = type;
+    if (status) where.status = status;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },

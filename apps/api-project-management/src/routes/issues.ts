@@ -30,8 +30,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { projectId: projectId as string, deletedAt: null };
-    if (status) where.status = status as any;
-    if (severity) where.severity = severity as any;
+    if (status) where.status = status;
+    if (severity) where.severity = severity;
 
     const [issues, total] = await Promise.all([
       prisma.projectIssue.findMany({

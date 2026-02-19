@@ -129,7 +129,7 @@ router.get('/schedules', scopeToUser, async (req: AuthRequest, res: Response) =>
       const n = parseInt(layer as string, 10);
       if (!isNaN(n)) where.layer = n;
     }
-    if (frequency) where.frequency = frequency as any;
+    if (frequency) where.frequency = frequency;
     if (active !== undefined) where.active = active === 'true';
 
     const [schedules, total] = await Promise.all([
@@ -243,7 +243,7 @@ router.get('/audits', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (layer) {
       const n = parseInt(layer as string, 10);
       if (!isNaN(n)) where.layer = n;

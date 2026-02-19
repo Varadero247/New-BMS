@@ -91,7 +91,7 @@ router.get('/oems/:oem', scopeToUser, async (req: AuthRequest, res: Response) =>
     const where: any = {
       oem: { equals: oem, mode: 'insensitive' },
     };
-    if (complianceStatus) where.complianceStatus = complianceStatus as any;
+    if (complianceStatus) where.complianceStatus = complianceStatus;
     if (iatfClause) where.iatfClause = { contains: iatfClause as string, mode: 'insensitive' };
 
     const [requirements, total] = await Promise.all([

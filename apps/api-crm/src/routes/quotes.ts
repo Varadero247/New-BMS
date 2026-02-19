@@ -141,9 +141,9 @@ router.get('/', async (req: Request, res: Response) => {
     const accountId = req.query.accountId as string;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (dealId) where.dealId = dealId as any;
-    if (accountId) where.accountId = accountId as any;
+    if (status) where.status = status;
+    if (dealId) where.dealId = dealId;
+    if (accountId) where.accountId = accountId;
 
     const [quotes, total] = await Promise.all([
       prisma.crmQuote.findMany({

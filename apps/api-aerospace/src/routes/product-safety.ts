@@ -150,9 +150,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (category) where.category = category as any;
-    if (riskLevel) where.riskLevel = riskLevel as any;
-    if (complianceStatus) where.complianceStatus = complianceStatus as any;
+    if (category) where.category = category;
+    if (riskLevel) where.riskLevel = riskLevel;
+    if (complianceStatus) where.complianceStatus = complianceStatus;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -195,8 +195,8 @@ router.get('/reviews', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (reviewType) where.reviewType = reviewType as any;
-    if (result) where.result = result as any;
+    if (reviewType) where.reviewType = reviewType;
+    if (result) where.result = result;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },

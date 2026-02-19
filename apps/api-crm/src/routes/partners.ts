@@ -101,8 +101,8 @@ router.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (tier) where.tier = tier as any;
-    if (status) where.status = status as any;
+    if (tier) where.tier = tier;
+    if (status) where.status = status;
 
     const [partners, total] = await Promise.all([
       prisma.crmPartner.findMany({

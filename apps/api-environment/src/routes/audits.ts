@@ -34,8 +34,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (type) where.type = type as any;
-    if (status) where.status = status as any;
+    if (type) where.type = type;
+    if (status) where.status = status;
     if (dateFrom || dateTo) {
       where.auditDate = {};
       if (dateFrom) where.auditDate.gte = new Date(dateFrom as string);

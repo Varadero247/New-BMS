@@ -24,8 +24,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (sourceType) where.sourceType = sourceType as any;
-    if (status) where.status = status as any;
+    if (sourceType) where.sourceType = sourceType;
+    if (status) where.status = status;
 
     const [analyses, total] = await Promise.all([
       prisma.aIAnalysis.findMany({

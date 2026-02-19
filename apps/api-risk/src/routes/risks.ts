@@ -247,9 +247,9 @@ router.get('/heatmap', authenticate, async (req: Request, res: Response) => {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { category, owner, sourceModule: sm } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null, status: { not: 'CLOSED' } };
-    if (category) where.category = category as any;
-    if (owner) where.owner = owner as any;
-    if (sm) where.sourceModule = sm as any;
+    if (category) where.category = category;
+    if (owner) where.owner = owner;
+    if (sm) where.sourceModule = sm;
     const risks = await prisma.riskRegister.findMany({
       where,
       select: {
@@ -583,11 +583,11 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       order = 'desc',
     } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
-    if (status) where.status = status as any;
-    if (category) where.category = category as any;
-    if (level) where.residualRiskLevel = level as any;
-    if (ownerFilter) where.owner = ownerFilter as any;
-    if (smFilter) where.sourceModule = smFilter as any;
+    if (status) where.status = status;
+    if (category) where.category = category;
+    if (level) where.residualRiskLevel = level;
+    if (ownerFilter) where.owner = ownerFilter;
+    if (smFilter) where.sourceModule = smFilter;
     if (search)
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },

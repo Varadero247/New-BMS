@@ -125,7 +125,7 @@ router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = { deletedAt: null };
 
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (deviceName) {
       where.deviceName = { contains: deviceName as string, mode: 'insensitive' };
     }

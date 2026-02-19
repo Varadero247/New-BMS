@@ -339,7 +339,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 
     const where: any = {};
 
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (customerId) where.customerId = customerId as string;
 
     if (dateFrom || dateTo) {

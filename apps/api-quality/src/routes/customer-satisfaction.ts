@@ -253,7 +253,7 @@ router.get('/surveys', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (type) where.type = type as any;
+    if (type) where.type = type;
     if (isActive !== undefined) where.isActive = isActive === 'true';
     if (search) {
       where.title = { contains: search as string, mode: 'insensitive' };
@@ -427,7 +427,7 @@ router.get('/responses', async (req: AuthRequest, res: Response) => {
 
     const where: any = {};
     if (surveyId) where.surveyId = surveyId as string;
-    if (npsCategory) where.npsCategory = npsCategory as any;
+    if (npsCategory) where.npsCategory = npsCategory;
     if (startDate || endDate) {
       where.submittedAt = {};
       if (startDate) where.submittedAt.gte = new Date(startDate as string);

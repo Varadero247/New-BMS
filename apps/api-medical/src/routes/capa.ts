@@ -119,10 +119,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (capaType) where.capaType = capaType as any;
-    if (source) where.source = source as any;
-    if (severity) where.severity = severity as any;
+    if (status) where.status = status;
+    if (capaType) where.capaType = capaType;
+    if (source) where.source = source;
+    if (severity) where.severity = severity;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },

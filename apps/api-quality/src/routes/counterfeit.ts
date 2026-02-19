@@ -106,7 +106,7 @@ router.get('/reports', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (partNumber) where.partNumber = { contains: partNumber as string, mode: 'insensitive' };
     if (manufacturer)
       where.manufacturer = { contains: manufacturer as string, mode: 'insensitive' };
@@ -422,10 +422,10 @@ router.get('/approved-sources', scopeToUser, async (req: AuthRequest, res: Respo
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (cageCode) where.cageCode = { contains: cageCode as string, mode: 'insensitive' };
     if (companyName) where.companyName = { contains: companyName as string, mode: 'insensitive' };
-    if (riskRating) where.riskRating = riskRating as any;
+    if (riskRating) where.riskRating = riskRating;
 
     const [items, total] = await Promise.all([
       prisma.approvedSource.findMany({

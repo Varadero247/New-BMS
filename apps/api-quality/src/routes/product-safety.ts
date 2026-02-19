@@ -120,9 +120,9 @@ router.get('/characteristics', scopeToUser, async (req: AuthRequest, res: Respon
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (characteristicType) where.characteristicType = characteristicType as any;
+    if (characteristicType) where.characteristicType = characteristicType;
     if (partNumber) where.partNumber = { contains: partNumber as string, mode: 'insensitive' };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
 
     const [items, total] = await Promise.all([
       prisma.safetyCharacteristic.findMany({
@@ -308,7 +308,7 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (severity) where.severity = severity as string;
     if (product) where.product = { contains: product as string, mode: 'insensitive' };
 
@@ -465,7 +465,7 @@ router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (product) where.product = { contains: product as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([
@@ -571,7 +571,7 @@ router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) =
 
     const where: any = {};
     if (regulation) where.regulation = regulation as string;
-    if (status) where.status = status as any;
+    if (status) where.status = status;
 
     const [items, total] = await Promise.all([
       (prisma as any).complianceRecord.findMany({

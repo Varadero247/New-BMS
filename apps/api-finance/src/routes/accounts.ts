@@ -159,7 +159,7 @@ router.get('/', async (req: Request, res: Response) => {
     const where: any = { deletedAt: null };
 
     if (type && typeof type === 'string') {
-      where.type = type as any;
+      where.type = type;
     }
     if (isActive !== undefined) {
       where.isActive = isActive === 'true';
@@ -608,7 +608,7 @@ router.get('/periods', async (req: Request, res: Response) => {
       if (!isNaN(n)) where.fiscalYear = n;
     }
     if (status && typeof status === 'string') {
-      where.status = status as any;
+      where.status = status;
     }
 
     const [periods, total] = await Promise.all([
@@ -1030,7 +1030,7 @@ router.get('/entries', async (req: Request, res: Response) => {
     const where: any = {};
 
     if (status && typeof status === 'string') {
-      where.status = status as any;
+      where.status = status;
     }
     if (periodId && typeof periodId === 'string') {
       where.periodId = periodId;

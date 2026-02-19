@@ -114,7 +114,7 @@ router.get('/plans', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -301,7 +301,7 @@ router.get('/drills', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = {};
     if (planId) where.planId = planId as string;
-    if (outcome) where.outcome = outcome as any;
+    if (outcome) where.outcome = outcome;
     if (drillType) where.drillType = drillType as string;
     if (search) {
       where.OR = [

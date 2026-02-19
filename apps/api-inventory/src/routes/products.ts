@@ -34,9 +34,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = { deletedAt: null };
 
-    if (status) where.status = status as any;
-    if (categoryId) where.categoryId = categoryId as any;
-    if (supplierId) where.supplierId = supplierId as any;
+    if (status) where.status = status;
+    if (categoryId) where.categoryId = categoryId;
+    if (supplierId) where.supplierId = supplierId;
 
     // Search by SKU, barcode, or name
     if (search) {

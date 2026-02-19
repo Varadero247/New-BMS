@@ -179,10 +179,10 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         { casNumber: { contains: search, mode: 'insensitive' } },
       ];
     }
-    if (riskLevel) where.riskLevel = riskLevel as any;
+    if (riskLevel) where.riskLevel = riskLevel;
     if (pictogram) where.pictograms = { has: pictogram };
     if (cmr === 'true') where.isCmr = true;
-    if (sc) where.storageClass = sc as any;
+    if (sc) where.storageClass = sc;
 
     const skip =
       (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);

@@ -22,7 +22,7 @@ router.get('/jobs', scopeToUser, async (req: Request, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (departmentId) where.departmentId = departmentId as string;
     if (isRemote === 'true') where.isRemote = true;
 
@@ -215,8 +215,8 @@ router.get('/applicants', async (req: Request, res: Response) => {
 
     const where: any = { deletedAt: null };
     if (jobPostingId) where.jobPostingId = jobPostingId as string;
-    if (status) where.status = status as any;
-    if (stage) where.stage = stage as any;
+    if (status) where.status = status;
+    if (stage) where.stage = stage;
 
     const [applicants, total] = await Promise.all([
       prisma.applicant.findMany({

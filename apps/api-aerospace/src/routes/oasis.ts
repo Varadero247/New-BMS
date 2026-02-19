@@ -202,7 +202,7 @@ router.get('/monitor', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
-    if (certStatus) where.certStatus = certStatus as any;
+    if (certStatus) where.certStatus = certStatus;
     if (search) {
       where.OR = [
         { cageCode: { contains: search as string, mode: 'insensitive' } },

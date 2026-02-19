@@ -99,8 +99,8 @@ router.get('/', async (req: Request, res: Response) => {
     const search = req.query.search as string;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (source) where.source = source as any;
+    if (status) where.status = status;
+    if (source) where.source = source;
     if (search) {
       where.OR = [
         { firstName: { contains: search, mode: 'insensitive' } },

@@ -101,9 +101,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (studyType) where.studyType = studyType as any;
-    if (result) where.result = result as any;
+    if (status) where.status = status;
+    if (studyType) where.studyType = studyType;
+    if (result) where.result = result;
 
     const [studies, total] = await Promise.all([
       prisma.msaStudy.findMany({

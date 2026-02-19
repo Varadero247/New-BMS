@@ -74,8 +74,8 @@ router.get('/', async (req: Request, res: Response) => {
     const where: any = {};
     if (employeeId && typeof employeeId === 'string') where.employeeId = employeeId;
     if (cycleId && typeof cycleId === 'string') where.cycleId = cycleId;
-    if (status && typeof status === 'string') where.status = status as any;
-    if (category && typeof category === 'string') where.category = category as any;
+    if (status && typeof status === 'string') where.status = status;
+    if (category && typeof category === 'string') where.category = category;
 
     const [goals, total] = await Promise.all([
       prisma.performanceGoal.findMany({

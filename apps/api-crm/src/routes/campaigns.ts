@@ -80,7 +80,7 @@ campaignRouter.get('/', async (req: Request, res: Response) => {
     const status = req.query.status as string;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
 
     const [campaigns, total] = await Promise.all([
       prisma.crmCampaign.findMany({

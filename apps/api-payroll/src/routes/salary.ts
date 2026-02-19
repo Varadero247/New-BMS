@@ -19,8 +19,8 @@ router.get('/component-types', scopeToUser, async (req: Request, res: Response) 
     const { type, category } = req.query;
 
     const where: any = { isActive: true, deletedAt: null };
-    if (type) where.type = type as any;
-    if (category) where.category = category as any;
+    if (type) where.type = type;
+    if (category) where.category = category;
 
     const componentTypes = await prisma.salaryComponentType.findMany({
       where,

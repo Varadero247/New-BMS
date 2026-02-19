@@ -125,9 +125,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (severity) where.severity = severity as any;
-    if (fodType) where.fodType = fodType as any;
+    if (status) where.status = status;
+    if (severity) where.severity = severity;
+    if (fodType) where.fodType = fodType;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -170,8 +170,8 @@ router.get('/inspections', scopeToUser, async (req: AuthRequest, res: Response) 
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (result) where.result = result as any;
-    if (inspectionType) where.inspectionType = inspectionType as any;
+    if (result) where.result = result;
+    if (inspectionType) where.inspectionType = inspectionType;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },

@@ -58,7 +58,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const where: any = {};
-    if (status && typeof status === 'string') where.status = status as any;
+    if (status && typeof status === 'string') where.status = status;
     if (periodId && typeof periodId === 'string') where.periodId = periodId;
     if (dateFrom || dateTo) {
       where.date = {};

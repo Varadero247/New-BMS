@@ -22,9 +22,9 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (employeeId) where.employeeId = employeeId as any;
-    if (status) where.status = status as any;
-    if (category) where.category = category as any;
+    if (employeeId) where.employeeId = employeeId;
+    if (status) where.status = status;
+    if (category) where.category = category;
 
     const [expenses, total] = await Promise.all([
       prisma.expense.findMany({
@@ -258,8 +258,8 @@ router.get('/reports/all', async (req: Request, res: Response) => {
     const { employeeId, status } = req.query;
 
     const where: any = { deletedAt: null };
-    if (employeeId) where.employeeId = employeeId as any;
-    if (status) where.status = status as any;
+    if (employeeId) where.employeeId = employeeId;
+    if (status) where.status = status;
 
     const reports = await prisma.expenseReport.findMany({
       where,

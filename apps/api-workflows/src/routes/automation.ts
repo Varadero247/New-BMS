@@ -70,7 +70,7 @@ router.get('/rules', scopeToUser, async (req: AuthRequest, res: Response) => {
     if (triggerType) where.triggerType = triggerType as string;
     if (actionType) where.actionType = actionType as string;
     if (isActive !== undefined) where.isActive = isActive === 'true';
-    if (entityType) where.entityType = entityType as any;
+    if (entityType) where.entityType = entityType;
 
     const rules = await prisma.automationRule.findMany({
       where,

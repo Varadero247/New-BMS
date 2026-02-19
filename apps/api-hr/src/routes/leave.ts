@@ -97,7 +97,7 @@ router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
 
     const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (leaveTypeId) where.leaveTypeId = leaveTypeId as string;
     if (startDate || endDate) {
       where.startDate = {};

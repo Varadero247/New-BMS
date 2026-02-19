@@ -132,9 +132,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (direction) where.direction = direction as any;
-    if (type) where.type = type as any;
-    if (status) where.status = status as any;
+    if (direction) where.direction = direction;
+    if (type) where.type = type;
+    if (status) where.status = status;
     if (dateFrom || dateTo) {
       where.createdAt = {};
       if (dateFrom) (where.createdAt as any).gte = new Date(dateFrom as string);

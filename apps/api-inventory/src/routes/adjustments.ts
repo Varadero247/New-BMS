@@ -61,8 +61,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     if (adjustmentType && typeof adjustmentType === 'string') {
       where.transactionType = adjustmentType;
     }
-    if (productId) where.productId = productId as any;
-    if (warehouseId) where.warehouseId = warehouseId as any;
+    if (productId) where.productId = productId;
+    if (warehouseId) where.warehouseId = warehouseId;
     if (startDate || endDate) {
       where.transactionDate = {};
       if (startDate) (where.transactionDate as any).gte = new Date(startDate as string);

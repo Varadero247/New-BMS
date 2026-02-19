@@ -121,8 +121,8 @@ router.get('/dmr', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (deviceClass) where.deviceClass = deviceClass as any;
+    if (status) where.status = status;
+    if (deviceClass) where.deviceClass = deviceClass;
     if (deviceName) {
       where.deviceName = { contains: deviceName as string, mode: 'insensitive' };
     }
@@ -373,8 +373,8 @@ router.get('/dhr', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (dmrId) where.dmrId = dmrId as any;
+    if (status) where.status = status;
+    if (dmrId) where.dmrId = dmrId;
     if (batchNumber) {
       where.batchNumber = { contains: batchNumber as string, mode: 'insensitive' };
     }

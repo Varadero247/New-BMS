@@ -37,7 +37,7 @@ router.get('/', async (req: Request, res: Response) => {
     const { type } = req.query;
 
     const where: Record<string, unknown> = { accessTier: { in: allowedTiers } };
-    if (type) where.type = type as any;
+    if (type) where.type = type;
 
     const collateral = await portalPrisma.mktPartnerCollateral.findMany({
       where,

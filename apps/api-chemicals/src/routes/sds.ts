@@ -103,7 +103,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (search) {
       where.chemical = {
         ...((where.chemical as any) || {}),

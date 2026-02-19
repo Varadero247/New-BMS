@@ -33,9 +33,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (ncType) where.ncType = ncType as any;
-    if (status) where.status = status as any;
-    if (severity) where.severity = severity as any;
+    if (ncType) where.ncType = ncType;
+    if (status) where.status = status;
+    if (severity) where.severity = severity;
     if (search) {
       where.title = { contains: search as string, mode: 'insensitive' };
     }

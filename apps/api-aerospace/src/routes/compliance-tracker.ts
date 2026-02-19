@@ -136,8 +136,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (status) where.complianceStatus = status as any;
-    if (standard) where.standard = standard as any;
+    if (status) where.complianceStatus = status;
+    if (standard) where.standard = standard;
     if (search) {
       where.OR = [
         { clause: { contains: search as string, mode: 'insensitive' } },

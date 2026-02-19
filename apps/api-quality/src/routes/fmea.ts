@@ -44,9 +44,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (fmeaType) where.fmeaType = fmeaType as any;
-    if (fmeaFormat) where.fmeaFormat = fmeaFormat as any;
+    if (status) where.status = status;
+    if (fmeaType) where.fmeaType = fmeaType;
+    if (fmeaFormat) where.fmeaFormat = fmeaFormat;
 
     const [items, total] = await Promise.all([
       prisma.qualFmea.findMany({

@@ -55,7 +55,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: any = {};
     if (employeeId && typeof employeeId === 'string') where.employeeId = employeeId;
-    if (status && typeof status === 'string') where.status = status as any;
+    if (status && typeof status === 'string') where.status = status;
     if (expiringWithin) {
       const days = parseInt(String(expiringWithin), 10);
       const future = new Date();

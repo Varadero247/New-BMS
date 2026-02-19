@@ -194,8 +194,8 @@ router.get('/targets', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
-    if (category) where.category = category as any;
+    if (status) where.status = status;
+    if (category) where.category = category;
     if (search) {
       where.OR = [
         { description: { contains: search as string, mode: 'insensitive' } },
@@ -567,7 +567,7 @@ router.get('/metrics', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = {};
-    if (category) where.category = category as any;
+    if (category) where.category = category;
     if (period) where.period = period as string;
     if (subcategory) where.subcategory = { contains: subcategory as string, mode: 'insensitive' };
     if (verified === 'true') where.verified = true;

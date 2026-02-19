@@ -131,8 +131,8 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       limit = '20',
     } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
-    if (status) where.status = status as any;
-    if (riskLevel) where.residualRiskLevel = riskLevel as any;
+    if (status) where.status = status;
+    if (riskLevel) where.residualRiskLevel = riskLevel;
     if (search) {
       where.OR = [
         { referenceNumber: { contains: search, mode: 'insensitive' } },

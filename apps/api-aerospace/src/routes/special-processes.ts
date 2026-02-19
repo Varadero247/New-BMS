@@ -152,9 +152,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (processType) where.processType = processType as any;
-    if (status) where.status = status as any;
-    if (approvalBody) where.approvalBody = approvalBody as any;
+    if (processType) where.processType = processType;
+    if (status) where.status = status;
+    if (approvalBody) where.approvalBody = approvalBody;
     if (search) {
       where.OR = [
         { title: { contains: search as string, mode: 'insensitive' } },
@@ -202,7 +202,7 @@ router.get('/nadcap', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: Record<string, unknown> = { deletedAt: null };
-    if (approvalStatus) where.approvalStatus = approvalStatus as any;
+    if (approvalStatus) where.approvalStatus = approvalStatus;
     if (search) {
       where.OR = [
         { supplier: { contains: search as string, mode: 'insensitive' } },

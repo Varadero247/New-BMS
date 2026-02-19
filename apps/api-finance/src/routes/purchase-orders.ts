@@ -75,7 +75,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: any = { deletedAt: null };
     if (supplierId && typeof supplierId === 'string') where.supplierId = supplierId;
-    if (status && typeof status === 'string') where.status = status as any;
+    if (status && typeof status === 'string') where.status = status;
     if (dateFrom || dateTo) {
       where.orderDate = {};
       if (dateFrom) (where.orderDate as any).gte = new Date(String(dateFrom));

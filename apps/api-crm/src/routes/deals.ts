@@ -313,10 +313,10 @@ router.get('/', async (req: Request, res: Response) => {
 
     const where: Record<string, unknown> = { deletedAt: null };
 
-    if (pipelineId) where.pipelineId = pipelineId as any;
-    if (stageId) where.stageId = stageId as any;
-    if (assignedTo) where.assignedTo = assignedTo as any;
-    if (status) where.status = status as any;
+    if (pipelineId) where.pipelineId = pipelineId;
+    if (stageId) where.stageId = stageId;
+    if (assignedTo) where.assignedTo = assignedTo;
+    if (status) where.status = status;
 
     const [deals, total] = await Promise.all([
       prisma.crmDeal.findMany({

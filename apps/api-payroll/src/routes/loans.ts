@@ -19,9 +19,9 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const { employeeId, status, loanType } = req.query;
 
     const where: any = { deletedAt: null };
-    if (employeeId) where.employeeId = employeeId as any;
-    if (status) where.status = status as any;
-    if (loanType) where.loanType = loanType as any;
+    if (employeeId) where.employeeId = employeeId;
+    if (status) where.status = status;
+    if (loanType) where.loanType = loanType;
 
     const loans = await prisma.employeeLoan.findMany({
       where,

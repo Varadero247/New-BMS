@@ -41,9 +41,9 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
     const { userId, courseId, status } = req.query;
 
     const where: Record<string, unknown> = {};
-    if (userId) where.userId = userId as any;
-    if (courseId) where.courseId = courseId as any;
-    if (status) where.status = status as any;
+    if (userId) where.userId = userId;
+    if (courseId) where.courseId = courseId;
+    if (status) where.status = status;
 
     const records = await (prisma as any).trainingRecord.findMany({
       where,

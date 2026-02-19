@@ -34,10 +34,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (capaType) where.capaType = capaType as any;
-    if (status) where.status = status as any;
-    if (severity) where.severity = severity as any;
-    if (triggerSource) where.triggerSource = triggerSource as any;
+    if (capaType) where.capaType = capaType;
+    if (status) where.status = status;
+    if (severity) where.severity = severity;
+    if (triggerSource) where.triggerSource = triggerSource;
 
     const [items, total] = await Promise.all([
       prisma.qualCapa.findMany({

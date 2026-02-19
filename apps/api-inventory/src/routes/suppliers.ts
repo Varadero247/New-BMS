@@ -25,7 +25,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
     if (isActive !== undefined) where.isActive = isActive === 'true';
 
     if (search) {

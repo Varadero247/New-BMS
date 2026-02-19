@@ -54,8 +54,8 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       limit = '20',
     } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
-    if (type) where.incidentType = type as any;
-    if (severity) where.severity = severity as any;
+    if (type) where.incidentType = type;
+    if (severity) where.severity = severity;
     if (search) {
       where.OR = [
         { description: { contains: search, mode: 'insensitive' } },

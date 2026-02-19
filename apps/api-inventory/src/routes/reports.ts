@@ -14,7 +14,7 @@ router.get('/valuation', async (req: AuthRequest, res: Response) => {
     const { warehouseId } = req.query;
 
     const where: Record<string, unknown> = {};
-    if (warehouseId) where.warehouseId = warehouseId as any;
+    if (warehouseId) where.warehouseId = warehouseId;
 
     const [totals, byWarehouse, topValueItems] = await Promise.all([
       prisma.inventory.aggregate({
@@ -72,7 +72,7 @@ router.get('/movement', async (req: AuthRequest, res: Response) => {
     const where: Record<string, unknown> = {
       transactionDate: { gte: start, lte: end },
     };
-    if (warehouseId) where.warehouseId = warehouseId as any;
+    if (warehouseId) where.warehouseId = warehouseId;
 
     const [byType, dailyMovement, topMovingProducts] = await Promise.all([
       prisma.inventoryTransaction.groupBy({
@@ -132,7 +132,7 @@ router.get('/ageing', async (req: AuthRequest, res: Response) => {
     const now = new Date();
 
     const where: Record<string, unknown> = {};
-    if (warehouseId) where.warehouseId = warehouseId as any;
+    if (warehouseId) where.warehouseId = warehouseId;
 
     const items = await prisma.inventory.findMany({
       where,

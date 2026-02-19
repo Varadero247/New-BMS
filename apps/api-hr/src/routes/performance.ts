@@ -22,7 +22,7 @@ router.get('/cycles', scopeToUser, async (req: Request, res: Response) => {
       const n = parseInt(year as string, 10);
       if (!isNaN(n)) where.year = n;
     }
-    if (status) where.status = status as any;
+    if (status) where.status = status;
 
     const cycles = await prisma.performanceCycle.findMany({
       where,
@@ -112,7 +112,7 @@ router.get('/reviews', scopeToUser, async (req: Request, res: Response) => {
     if (cycleId) where.cycleId = cycleId as string;
     if (employeeId) where.employeeId = employeeId as string;
     if (reviewerId) where.reviewerId = reviewerId as string;
-    if (status) where.status = status as any;
+    if (status) where.status = status;
 
     const [reviews, total] = await Promise.all([
       prisma.performanceReview.findMany({
@@ -317,8 +317,8 @@ router.get('/goals', scopeToUser, async (req: Request, res: Response) => {
     const where: any = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
     if (cycleId) where.cycleId = cycleId as string;
-    if (status) where.status = status as any;
-    if (category) where.category = category as any;
+    if (status) where.status = status;
+    if (category) where.category = category;
 
     const goals = await prisma.performanceGoal.findMany({
       where,

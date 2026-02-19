@@ -57,10 +57,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (category) where.category = category as any;
-    if (status) where.status = status as any;
-    if (pdcaStage) where.pdcaStage = pdcaStage as any;
-    if (source) where.source = source as any;
+    if (category) where.category = category;
+    if (status) where.status = status;
+    if (pdcaStage) where.pdcaStage = pdcaStage;
+    if (source) where.source = source;
     if (search) where.title = { contains: search as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([

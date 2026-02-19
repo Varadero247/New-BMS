@@ -65,9 +65,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const skip = (pageNum - 1) * limitNum;
 
     const where: any = { deletedAt: null };
-    if (approvedStatus) where.approvedStatus = approvedStatus as any;
-    if (category) where.category = category as any;
-    if (overallRating) where.overallRating = overallRating as any;
+    if (approvedStatus) where.approvedStatus = approvedStatus;
+    if (category) where.category = category;
+    if (overallRating) where.overallRating = overallRating;
     if (search) where.supplierName = { contains: search as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([

@@ -114,8 +114,8 @@ router.get('/devices', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: any = { deletedAt: null };
 
-    if (status) where.status = status as any;
-    if (deviceClass) where.deviceClass = deviceClass as any;
+    if (status) where.status = status;
+    if (deviceClass) where.deviceClass = deviceClass;
     if (deviceName) {
       where.deviceName = { contains: deviceName as string, mode: 'insensitive' };
     }
@@ -313,8 +313,8 @@ router.get('/devices/:id/submissions', async (req: AuthRequest, res: Response) =
 
     const where: any = { deviceId: req.params.id };
 
-    if (status) where.status = status as any;
-    if (database) where.database = database as any;
+    if (status) where.status = status;
+    if (database) where.database = database;
 
     const [submissions, total] = await Promise.all([
       prisma.udiSubmission.findMany({

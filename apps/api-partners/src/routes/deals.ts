@@ -92,7 +92,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     const { status } = req.query;
     const where: Record<string, unknown> = { partnerId };
-    if (status) where.status = status as any;
+    if (status) where.status = status;
 
     const deals = await prisma.mktPartnerDeal.findMany({
       where,
