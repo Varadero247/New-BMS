@@ -5,8 +5,7 @@ import { Plus, Receipt, DollarSign, Clock, CheckCircle, XCircle, Sparkles } from
 import { Modal, AIDisclosure } from '@ims/ui';
 import api, { aiApi } from '@/lib/api';
 
-interface Expense {
-  id: string;
+interface Expense { id: string;
   expenseNumber: string;
   category: string;
   description: string;
@@ -17,15 +16,11 @@ interface Expense {
   status: string;
   hasReceipt: boolean;
   isBillable?: boolean;
-  employee: {
-    firstName: string;
+  employee: { firstName: string;
     lastName: string;
-    employeeNumber: string;
-  };
-}
+    employeeNumber: string; }; }
 
-export default function ExpensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+export default function ExpensesPage() { const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -33,8 +28,7 @@ export default function ExpensesPage() {
   const [showModal, setShowModal] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<any | null>(null);
-  const [formData, setFormData] = useState({
-    employeeId: '',
+  const [formData, setFormData] = useState({ employeeId: '',
     category: 'TRAVEL',
     description: '',
     merchant: '',
@@ -44,16 +38,11 @@ export default function ExpensesPage() {
     projectCode: '',
     costCenter: '',
     isBillable: false,
-    notes: '',
-  });
+    notes: '' });
 
-  useEffect(() => {
-    fetchExpenses();
-  }, [statusFilter, categoryFilter]);
+  useEffect(() => { fetchExpenses(); }, [statusFilter, categoryFilter]);
 
-  const fetchExpenses = async () => {
-    try {
-      const params = new URLSearchParams();
+  const fetchExpenses = async () => { try { const params = new URLSearchParams();
       if (statusFilter) params.append('status', statusFilter);
       if (categoryFilter) params.append('category', categoryFilter);
       params.append('page', '1');
@@ -61,28 +50,17 @@ export default function ExpensesPage() {
 
       const response = await api.get(`/expenses?${params.toString()}`);
       setExpenses(response.data.data || []);
-      setMeta(response.data.meta || { page: 1, limit: 20, total: 0, totalPages: 0 });
-    } catch (error) {
-      console.error('Error fetching expenses:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setMeta(response.data.meta || { page: 1, limit: 20, total: 0, totalPages: 0 }); } catch (error) { console.error('Error fetching expenses:', error); } finally { setLoading(false); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.post('/expenses', {
-        ...formData,
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
+    try { await api.post('/expenses', { ...formData,
         amount: parseFloat(formData.amount),
         merchant: formData.merchant || undefined,
         projectCode: formData.projectCode || undefined,
         costCenter: formData.costCenter || undefined,
-        notes: formData.notes || undefined,
-      });
+        notes: formData.notes || undefined });
       setShowModal(false);
-      setFormData({
-        employeeId: '',
+      setFormData({ employeeId: '',
         category: 'TRAVEL',
         description: '',
         merchant: '',
@@ -92,48 +70,21 @@ export default function ExpensesPage() {
         projectCode: '',
         costCenter: '',
         isBillable: false,
-        notes: '',
-      });
-      fetchExpenses();
-    } catch (error) {
-      console.error('Error creating expense:', error);
-    }
-  };
+        notes: '' });
+      fetchExpenses(); } catch (error) { console.error('Error creating expense:', error); } };
 
-  const handleApprove = async (id: string) => {
-    try {
-      await api.put(`/expenses/${id}/approve`, {
-        approvedById: 'system',
-        approvalNotes: 'Approved via web interface',
-      });
-      fetchExpenses();
-    } catch (error) {
-      console.error('Error approving expense:', error);
-    }
-  };
+  const handleApprove = async (id: string) => { try { await api.put(`/expenses/${id}/approve`, { approvedById: 'system',
+        approvalNotes: 'Approved via web interface' });
+      fetchExpenses(); } catch (error) { console.error('Error approving expense:', error); } };
 
-  const handleReject = async (id: string) => {
-    try {
-      await api.put(`/expenses/${id}/reject`, {
-        approvedById: 'system',
-        approvalNotes: 'Rejected via web interface',
-      });
-      fetchExpenses();
-    } catch (error) {
-      console.error('Error rejecting expense:', error);
-    }
-  };
+  const handleReject = async (id: string) => { try { await api.put(`/expenses/${id}/reject`, { approvedById: 'system',
+        approvalNotes: 'Rejected via web interface' });
+      fetchExpenses(); } catch (error) { console.error('Error rejecting expense:', error); } };
 
-  const formatCurrency = (amount: number, currency: string = 'USD') => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency,
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number, currency: string = 'USD') => { return new Intl.NumberFormat('en-US', { style: 'currency',
+      currency }).format(amount); };
 
-  const getCategoryBadge = (category: string) => {
-    const styles: Record<string, string> = {
-      TRAVEL: 'bg-blue-100 text-blue-800',
+  const getCategoryBadge = (category: string) => { const styles: Record<string, string> = { TRAVEL: 'bg-blue-100 text-blue-800',
       MEALS: 'bg-orange-100 text-orange-800',
       ACCOMMODATION: 'bg-purple-100 text-purple-800',
       TRANSPORTATION: 'bg-teal-100 text-teal-800',
@@ -143,29 +94,21 @@ export default function ExpensesPage() {
       TRAINING: 'bg-green-100 text-green-800',
       COMMUNICATION: 'bg-yellow-100 text-yellow-800',
       CLIENT_ENTERTAINMENT: 'bg-pink-100 text-pink-800',
-      MISCELLANEOUS: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-    };
-    return styles[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      MISCELLANEOUS: 'bg-gray-100 dark:bg-gray-800 text-gray-800' };
+    return styles[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
+  const getStatusBadge = (status: string) => { const styles: Record<string, string> = { DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       SUBMITTED: 'bg-yellow-100 text-yellow-800',
       APPROVED: 'bg-green-100 text-green-800',
       REJECTED: 'bg-red-100 text-red-800',
-      REIMBURSED: 'bg-blue-100 text-blue-800',
-    };
-    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      REIMBURSED: 'bg-blue-100 text-blue-800' };
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400">Loading expenses...</div>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="space-y-6">
@@ -173,14 +116,10 @@ export default function ExpensesPage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Expense Management</h1>
         <div className="flex items-center space-x-3">
           <button
-            onClick={async () => {
-              setAiLoading(true);
+            onClick={async () => { setAiLoading(true);
               setAiResult(null);
-              try {
-                const res = await aiApi.post('/analyze', {
-                  type: 'EXPENSE_VALIDATION',
-                  context: {
-                    category: expenses[0]?.category || 'TRAVEL',
+              try { const res = await aiApi.post('/analyze', { type: 'EXPENSE_VALIDATION',
+                  context: { category: expenses[0]?.category || 'TRAVEL',
                     amount: expenses[0]?.amount || 0,
                     currency: 'USD',
                     description: expenses[0]?.description || '',
@@ -188,16 +127,8 @@ export default function ExpensesPage() {
                     isBillable: expenses[0]?.isBillable || false,
                     recentClaims: expenses
                       .slice(0, 5)
-                      .map((e) => ({ amount: e.amount, category: e.category })),
-                  },
-                });
-                setAiResult(res.data.data.result);
-              } catch (error) {
-                console.error('AI analysis error:', error);
-              } finally {
-                setAiLoading(false);
-              }
-            }}
+                      .map((e) => ({ amount: e.amount, category: e.category })) } });
+                setAiResult(res.data.data.result); } catch (error) { console.error('AI analysis error:', error); } finally { setAiLoading(false); } }}
             disabled={aiLoading}
             className="flex items-center space-x-2 rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700 disabled:opacity-50"
           >
@@ -238,20 +169,16 @@ export default function ExpensesPage() {
           <div className="space-y-3 mt-3">
             <div className="flex items-center space-x-3">
               <span
-                className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                  aiResult.isReasonable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}
+                className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${ aiResult.isReasonable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }`}
               >
                 {aiResult.isReasonable ? 'Reasonable' : 'Unreasonable'}
               </span>
               <span
-                className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                  aiResult.riskLevel === 'LOW'
+                className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${ aiResult.riskLevel === 'LOW'
                     ? 'bg-green-100 text-green-800'
                     : aiResult.riskLevel === 'MEDIUM'
                       ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                }`}
+                      : 'bg-red-100 text-red-800' }`}
               >
                 Risk: {aiResult.riskLevel}
               </span>
@@ -660,5 +587,4 @@ export default function ExpensesPage() {
         </form>
       </Modal>
     </div>
-  );
-}
+  ); }

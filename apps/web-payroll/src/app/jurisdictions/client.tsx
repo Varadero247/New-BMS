@@ -1,17 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Globe, ChevronDown, ChevronRight, CheckCircle, Search, MapPin } from 'lucide-react';
+import { Globe, ChevronDown, ChevronRight, Search } from 'lucide-react';
 
-interface TaxBand {
-  name: string;
+interface TaxBand { name: string;
   from: number;
   to: number | null;
-  rate: number;
-}
+  rate: number; }
 
-interface Jurisdiction {
-  id: string;
+interface Jurisdiction { id: string;
   name: string;
   code: string;
   region: string;
@@ -25,12 +22,10 @@ interface Jurisdiction {
   pension: { mandatoryRate: number; employerMin: number };
   payFrequencies: string[];
   minimumWage: number;
-  lastUpdated: string;
-}
+  lastUpdated: string; }
 
 const jurisdictions: Jurisdiction[] = [
-  {
-    id: 'uk',
+  { id: 'uk',
     name: 'United Kingdom',
     code: 'GB',
     region: 'Europe',
@@ -48,10 +43,8 @@ const jurisdictions: Jurisdiction[] = [
     pension: { mandatoryRate: 5, employerMin: 3 },
     payFrequencies: ['Weekly', 'Fortnightly', 'Monthly'],
     minimumWage: 11.44,
-    lastUpdated: '2025-04-06',
-  },
-  {
-    id: 'us',
+    lastUpdated: '2025-04-06' },
+  { id: 'us',
     name: 'United States (Federal)',
     code: 'US',
     region: 'North America',
@@ -73,10 +66,8 @@ const jurisdictions: Jurisdiction[] = [
     pension: { mandatoryRate: 0, employerMin: 0 },
     payFrequencies: ['Weekly', 'Bi-weekly', 'Semi-monthly', 'Monthly'],
     minimumWage: 7.25,
-    lastUpdated: '2025-01-01',
-  },
-  {
-    id: 'ie',
+    lastUpdated: '2025-01-01' },
+  { id: 'ie',
     name: 'Ireland',
     code: 'IE',
     region: 'Europe',
@@ -93,10 +84,8 @@ const jurisdictions: Jurisdiction[] = [
     pension: { mandatoryRate: 0, employerMin: 0 },
     payFrequencies: ['Weekly', 'Fortnightly', 'Monthly'],
     minimumWage: 12.7,
-    lastUpdated: '2025-01-01',
-  },
-  {
-    id: 'de',
+    lastUpdated: '2025-01-01' },
+  { id: 'de',
     name: 'Germany',
     code: 'DE',
     region: 'Europe',
@@ -115,10 +104,8 @@ const jurisdictions: Jurisdiction[] = [
     pension: { mandatoryRate: 3.05, employerMin: 3.05 },
     payFrequencies: ['Monthly'],
     minimumWage: 12.41,
-    lastUpdated: '2025-01-01',
-  },
-  {
-    id: 'fr',
+    lastUpdated: '2025-01-01' },
+  { id: 'fr',
     name: 'France',
     code: 'FR',
     region: 'Europe',
@@ -137,10 +124,8 @@ const jurisdictions: Jurisdiction[] = [
     pension: { mandatoryRate: 6.9, employerMin: 8.55 },
     payFrequencies: ['Monthly'],
     minimumWage: 11.65,
-    lastUpdated: '2025-01-01',
-  },
-  {
-    id: 'au',
+    lastUpdated: '2025-01-01' },
+  { id: 'au',
     name: 'Australia',
     code: 'AU',
     region: 'Asia Pacific',
@@ -159,10 +144,8 @@ const jurisdictions: Jurisdiction[] = [
     pension: { mandatoryRate: 0, employerMin: 11.5 },
     payFrequencies: ['Weekly', 'Fortnightly', 'Monthly'],
     minimumWage: 23.23,
-    lastUpdated: '2025-07-01',
-  },
-  {
-    id: 'ca',
+    lastUpdated: '2025-07-01' },
+  { id: 'ca',
     name: 'Canada (Federal)',
     code: 'CA',
     region: 'North America',
@@ -182,10 +165,8 @@ const jurisdictions: Jurisdiction[] = [
     pension: { mandatoryRate: 0, employerMin: 0 },
     payFrequencies: ['Weekly', 'Bi-weekly', 'Semi-monthly', 'Monthly'],
     minimumWage: 17.2,
-    lastUpdated: '2025-01-01',
-  },
-  {
-    id: 'sg',
+    lastUpdated: '2025-01-01' },
+  { id: 'sg',
     name: 'Singapore',
     code: 'SG',
     region: 'Asia Pacific',
@@ -210,35 +191,27 @@ const jurisdictions: Jurisdiction[] = [
     pension: { mandatoryRate: 0, employerMin: 0 },
     payFrequencies: ['Monthly'],
     minimumWage: 0,
-    lastUpdated: '2025-01-01',
-  },
+    lastUpdated: '2025-01-01' },
 ];
 
-export default function JurisdictionsClient() {
-  const [expanded, setExpanded] = useState<Set<string>>(new Set(['uk']));
+export default function JurisdictionsClient() { const [expanded, setExpanded] = useState<Set<string>>(new Set(['uk']));
   const [searchTerm, setSearchTerm] = useState('');
   const [regionFilter, setRegionFilter] = useState('all');
 
   const regions = [...new Set(jurisdictions.map((j) => j.region))];
   const activeCount = jurisdictions.filter((j) => j.status === 'active').length;
 
-  const filtered = jurisdictions.filter((j) => {
-    const matchesSearch =
+  const filtered = jurisdictions.filter((j) => { const matchesSearch =
       !searchTerm ||
       j.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       j.code.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRegion = regionFilter === 'all' || j.region === regionFilter;
-    return matchesSearch && matchesRegion;
-  });
+    return matchesSearch && matchesRegion; });
 
-  const toggleExpand = (id: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
+  const toggleExpand = (id: string) => { setExpanded((prev) => { const next = new Set(prev);
       if (next.has(id)) next.delete(id);
       else next.add(id);
-      return next;
-    });
-  };
+      return next; }); };
 
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -311,8 +284,7 @@ export default function JurisdictionsClient() {
 
       {/* Jurisdiction Cards */}
       <div className="space-y-3">
-        {filtered.map((j) => {
-          const isExpanded = expanded.has(j.id);
+        {filtered.map((j) => { const isExpanded = expanded.has(j.id);
           return (
             <div
               key={j.id}
@@ -446,9 +418,7 @@ export default function JurisdictionsClient() {
                 </div>
               )}
             </div>
-          );
-        })}
+          ); })}
       </div>
     </div>
-  );
-}
+  ); }

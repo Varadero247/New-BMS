@@ -18,7 +18,7 @@ async function fetchUrl(url: string): Promise<{ status: number; responseMs: numb
     const response = await fetch(url, { signal: controller.signal, method: 'GET' });
     clearTimeout(timeout);
     return { status: response.status, responseMs: Date.now() - start };
-  } catch (err) {
+  } catch {
     return { status: 0, responseMs: Date.now() - start };
   }
 }

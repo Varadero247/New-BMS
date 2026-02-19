@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Plus, CreditCard, DollarSign, Clock, CheckCircle, Users, Sparkles } from 'lucide-react';
+import { Plus, CreditCard, DollarSign, Clock, CheckCircle, Sparkles } from 'lucide-react';
 import api, { aiApi } from '@/lib/api';
 import { Modal, AIDisclosure } from '@ims/ui';
 
-interface Loan {
-  id: string;
+interface Loan { id: string;
   loanNumber: string;
   loanType: string;
   principalAmount: number;
@@ -20,135 +19,83 @@ interface Loan {
   status: string;
   startDate: string;
   endDate: string;
-  employee: {
-    firstName: string;
+  employee: { firstName: string;
     lastName: string;
-    employeeNumber: string;
-  };
-}
+    employeeNumber: string; }; }
 
-export default function LoansPage() {
-  const [loans, setLoans] = useState<Loan[]>([]);
+export default function LoansPage() { const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<any | null>(null);
-  const [formData, setFormData] = useState({
-    employeeId: '',
+  const [formData, setFormData] = useState({ employeeId: '',
     loanType: 'PERSONAL_LOAN',
     principalAmount: '',
     interestRate: '0',
     termMonths: '',
     startDate: '',
     paymentFrequency: 'MONTHLY',
-    purpose: '',
-  });
+    purpose: '' });
 
-  useEffect(() => {
-    fetchLoans();
-  }, [statusFilter, typeFilter]);
+  useEffect(() => { fetchLoans(); }, [statusFilter, typeFilter]);
 
-  const fetchLoans = async () => {
-    try {
-      const params = new URLSearchParams();
+  const fetchLoans = async () => { try { const params = new URLSearchParams();
       if (statusFilter) params.append('status', statusFilter);
       if (typeFilter) params.append('loanType', typeFilter);
 
       const response = await api.get(`/loans?${params.toString()}`);
-      setLoans(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching loans:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setLoans(response.data.data || []); } catch (error) { console.error('Error fetching loans:', error); } finally { setLoading(false); } };
 
-  const handleApprove = async (id: string) => {
-    try {
-      await api.put(`/loans/${id}/approve`, { approvedById: 'system' });
-      fetchLoans();
-    } catch (error) {
-      console.error('Error approving loan:', error);
-    }
-  };
+  const handleApprove = async (id: string) => { try { await api.put(`/loans/${id}/approve`, { approvedById: 'system' });
+      fetchLoans(); } catch (error) { console.error('Error approving loan:', error); } };
 
-  const handleDisburse = async (id: string) => {
-    try {
-      await api.put(`/loans/${id}/disburse`);
-      fetchLoans();
-    } catch (error) {
-      console.error('Error disbursing loan:', error);
-    }
-  };
+  const handleDisburse = async (id: string) => { try { await api.put(`/loans/${id}/disburse`);
+      fetchLoans(); } catch (error) { console.error('Error disbursing loan:', error); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.post('/loans', {
-        ...formData,
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
+    try { await api.post('/loans', { ...formData,
         principalAmount: parseFloat(formData.principalAmount),
         interestRate: parseFloat(formData.interestRate),
         termMonths: parseInt(formData.termMonths, 10),
-        purpose: formData.purpose || undefined,
-      });
+        purpose: formData.purpose || undefined });
       setShowModal(false);
-      setFormData({
-        employeeId: '',
+      setFormData({ employeeId: '',
         loanType: 'PERSONAL_LOAN',
         principalAmount: '',
         interestRate: '0',
         termMonths: '',
         startDate: '',
         paymentFrequency: 'MONTHLY',
-        purpose: '',
-      });
-      fetchLoans();
-    } catch (error) {
-      console.error('Error creating loan:', error);
-    }
-  };
+        purpose: '' });
+      fetchLoans(); } catch (error) { console.error('Error creating loan:', error); } };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => { return new Intl.NumberFormat('en-US', { style: 'currency',
+      currency: 'USD' }).format(amount); };
 
-  const getTypeBadge = (type: string) => {
-    const styles: Record<string, string> = {
-      SALARY_ADVANCE: 'bg-blue-100 text-blue-800',
+  const getTypeBadge = (type: string) => { const styles: Record<string, string> = { SALARY_ADVANCE: 'bg-blue-100 text-blue-800',
       PERSONAL_LOAN: 'bg-purple-100 text-purple-800',
       EMERGENCY_LOAN: 'bg-red-100 text-red-800',
       HOUSING_LOAN: 'bg-green-100 text-green-800',
       VEHICLE_LOAN: 'bg-orange-100 text-orange-800',
       EDUCATION_LOAN: 'bg-teal-100 text-teal-800',
-      OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-    };
-    return styles[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-800' };
+    return styles[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      PENDING: 'bg-yellow-100 text-yellow-800',
+  const getStatusBadge = (status: string) => { const styles: Record<string, string> = { PENDING: 'bg-yellow-100 text-yellow-800',
       APPROVED: 'bg-blue-100 text-blue-800',
       ACTIVE: 'bg-green-100 text-green-800',
       COMPLETED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       REJECTED: 'bg-red-100 text-red-800',
-      CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-    };
-    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      CANCELLED: 'bg-gray-100 dark:bg-gray-800 text-gray-800' };
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400">Loading loans...</div>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="space-y-6">
@@ -156,27 +103,15 @@ export default function LoansPage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Loan Management</h1>
         <div className="flex items-center space-x-3">
           <button
-            onClick={async () => {
-              setAiLoading(true);
+            onClick={async () => { setAiLoading(true);
               setAiResult(null);
-              try {
-                const res = await aiApi.post('/analyze', {
-                  type: 'LOAN_CALCULATOR',
-                  context: {
-                    amount: loans[0]?.principalAmount || 10000,
+              try { const res = await aiApi.post('/analyze', { type: 'LOAN_CALCULATOR',
+                  context: { amount: loans[0]?.principalAmount || 10000,
                     interestRate: loans[0]?.interestRate || 5,
                     termMonths: loans[0]?.termMonths || 12,
                     currency: 'USD',
-                    loanType: loans[0]?.loanType || 'PERSONAL',
-                  },
-                });
-                setAiResult(res.data.data.result);
-              } catch (error) {
-                console.error('AI analysis error:', error);
-              } finally {
-                setAiLoading(false);
-              }
-            }}
+                    loanType: loans[0]?.loanType || 'PERSONAL' } });
+                setAiResult(res.data.data.result); } catch (error) { console.error('AI analysis error:', error); } finally { setAiLoading(false); } }}
             disabled={aiLoading}
             className="flex items-center space-x-2 rounded-lg bg-purple-600 px-4 py-2 text-white hover:bg-purple-700 disabled:opacity-50"
           >
@@ -294,34 +229,26 @@ export default function LoansPage() {
                         <td className="pr-4">{row.month || i + 1}</td>
                         <td className="pr-4">
                           {row.payment !== null
-                            ? new Intl.NumberFormat('en-US', {
-                                style: 'currency',
-                                currency: 'USD',
-                              }).format(row.payment)
+                            ? new Intl.NumberFormat('en-US', { style: 'currency',
+                                currency: 'USD' }).format(row.payment)
                             : 'N/A'}
                         </td>
                         <td className="pr-4">
                           {row.principal !== null
-                            ? new Intl.NumberFormat('en-US', {
-                                style: 'currency',
-                                currency: 'USD',
-                              }).format(row.principal)
+                            ? new Intl.NumberFormat('en-US', { style: 'currency',
+                                currency: 'USD' }).format(row.principal)
                             : 'N/A'}
                         </td>
                         <td className="pr-4">
                           {row.interest !== null
-                            ? new Intl.NumberFormat('en-US', {
-                                style: 'currency',
-                                currency: 'USD',
-                              }).format(row.interest)
+                            ? new Intl.NumberFormat('en-US', { style: 'currency',
+                                currency: 'USD' }).format(row.interest)
                             : 'N/A'}
                         </td>
                         <td>
                           {row.balance !== null
-                            ? new Intl.NumberFormat('en-US', {
-                                style: 'currency',
-                                currency: 'USD',
-                              }).format(row.balance)
+                            ? new Intl.NumberFormat('en-US', { style: 'currency',
+                                currency: 'USD' }).format(row.balance)
                             : 'N/A'}
                         </td>
                       </tr>
@@ -671,5 +598,4 @@ export default function LoansPage() {
         </form>
       </Modal>
     </div>
-  );
-}
+  ); }

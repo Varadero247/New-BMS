@@ -5,85 +5,58 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
-interface Payout {
-  id: string;
+interface Payout { id: string;
   amount: number;
   status: string;
   method: string;
   reference: string;
   requestedAt: string;
-  paidAt: string | null;
-}
+  paidAt: string | null; }
 
-export default function PayoutsPage() {
-  const router = useRouter();
+export default function PayoutsPage() { const router = useRouter();
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [availableBalance, setAvailableBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
   const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    const token = localStorage.getItem('partner_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    fetchPayouts();
-  }, [router]);
+  useEffect(() => { const token = localStorage.getItem('partner_token');
+    if (!token) { router.push('/login');
+      return; }
+    fetchPayouts(); }, [router]);
 
-  const fetchPayouts = async () => {
-    try {
-      const response = await api.get('/api/payouts');
+  const fetchPayouts = async () => { try { const response = await api.get('/api/payouts');
       const data = response.data.data || {};
       setPayouts(data.payouts || []);
-      setAvailableBalance(data.availablePayout || data.availableBalance || 0);
-    } catch {
-      // Handle error silently
-    } finally {
-      setLoading(false);
-    }
-  };
+      setAvailableBalance(data.availablePayout || data.availableBalance || 0); } catch { /* Handle error silently */ } finally { setLoading(false); } };
 
-  const handleRequestPayout = async () => {
-    setRequesting(true);
+  const handleRequestPayout = async () => { setRequesting(true);
     setSuccess('');
 
-    try {
-      await api.post('/api/payouts/request', { amount: availableBalance });
+    try { await api.post('/api/payouts/request', { amount: availableBalance });
       setSuccess(
         'Payout request submitted successfully. You will receive payment within 5-10 business days.'
       );
-      fetchPayouts();
-    } catch {
-      // Handle error silently
-    } finally {
-      setRequesting(false);
-    }
-  };
+      fetchPayouts(); } catch { /* Handle error silently */ } finally { setRequesting(false); } };
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(value);
 
-  const statusColor: Record<string, string> = {
-    PENDING: 'bg-yellow-500/20 text-yellow-400',
+  const statusColor: Record<string, string> = { PENDING: 'bg-yellow-500/20 text-yellow-400',
     PROCESSING: 'bg-blue-500/20 text-blue-400',
     PAID: 'bg-green-500/20 text-green-400',
-    REJECTED: 'bg-red-500/20 text-red-400',
-  };
+    REJECTED: 'bg-red-500/20 text-red-400' };
 
   const canRequestPayout = availableBalance >= 100;
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
           <div className="text-gray-400 dark:text-gray-500">Loading...</div>
         </main>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="flex min-h-screen">
@@ -113,11 +86,9 @@ export default function PayoutsPage() {
               <button
                 onClick={handleRequestPayout}
                 disabled={!canRequestPayout || requesting}
-                className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors ${
-                  canRequestPayout
+                className={`px-6 py-3 text-sm font-medium rounded-lg transition-colors ${ canRequestPayout
                     ? 'bg-[#1B3A6B] hover:bg-[#244d8a] text-white'
-                    : 'bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                } disabled:opacity-50`}
+                    : 'bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed' } disabled:opacity-50`}
               >
                 {requesting ? 'Requesting...' : 'Request Payout'}
               </button>
@@ -202,5 +173,4 @@ export default function PayoutsPage() {
         </div>
       </main>
     </div>
-  );
-}
+  ); }

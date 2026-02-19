@@ -5,33 +5,20 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/api';
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function LoginPage() { const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
     setError('');
     setLoading(true);
 
-    try {
-      const response = await api.post('/api/auth/login', { email, password });
+    try { const response = await api.post('/api/auth/login', { email, password });
       const token = response.data.data?.accessToken || response.data.data?.token;
-      if (token) {
-        localStorage.setItem('partner_token', token);
-        router.push('/');
-      } else {
-        setError('Invalid response from server');
-      }
-    } catch (err) {
-      setError((err as any).response?.data?.message || 'Invalid email or password');
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (token) { localStorage.setItem('partner_token', token);
+        router.push('/'); } else { setError('Invalid response from server'); } } catch (err) { setError((err as any).response?.data?.message || 'Invalid email or password'); } finally { setLoading(false); } };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
@@ -93,5 +80,4 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  );
-}
+  ); }

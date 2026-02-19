@@ -1,5 +1,4 @@
-export default function Loading() {
-  return (
+export default function Loading() { return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
       <div className="text-center">
         <div
@@ -11,5 +10,4 @@ export default function Loading() {
         <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Loading...</p>
       </div>
     </div>
-  );
-}
+  ); }

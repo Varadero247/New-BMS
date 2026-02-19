@@ -5,46 +5,33 @@ import { Card, CardContent, CardHeader, CardTitle, Button } from '@ims/ui';
 import { BarChart3, Download, FileText, Calendar, DollarSign, Users } from 'lucide-react';
 
 const reports = [
-  {
-    id: 'payroll-summary',
+  { id: 'payroll-summary',
     name: 'Payroll Summary Report',
     description: 'Overview of payroll costs by department and period',
-    icon: DollarSign,
-  },
-  {
-    id: 'tax-report',
+    icon: DollarSign },
+  { id: 'tax-report',
     name: 'Tax Compliance Report',
     description: 'Tax deductions and employer contributions by jurisdiction',
-    icon: FileText,
-  },
-  {
-    id: 'headcount-cost',
+    icon: FileText },
+  { id: 'headcount-cost',
     name: 'Headcount & Cost Report',
     description: 'Employee count and total compensation by department',
-    icon: Users,
-  },
-  {
-    id: 'year-end',
+    icon: Users },
+  { id: 'year-end',
     name: 'Year-End Report',
     description: 'Annual payroll summary for tax filing (P60/W-2/T4)',
-    icon: Calendar,
-  },
-  {
-    id: 'variance',
+    icon: Calendar },
+  { id: 'variance',
     name: 'Payroll Variance Report',
     description: 'Month-on-month changes in payroll costs',
-    icon: BarChart3,
-  },
-  {
-    id: 'benefits',
+    icon: BarChart3 },
+  { id: 'benefits',
     name: 'Benefits Summary',
     description: 'Cost of benefits by type and department',
-    icon: DollarSign,
-  },
+    icon: DollarSign },
 ];
 
-export default function ReportsPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState('2026-01');
+export default function ReportsPage() { const [selectedPeriod, setSelectedPeriod] = useState('2026-01');
 
   return (
     <div className="p-8">
@@ -67,8 +54,7 @@ export default function ReportsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reports.map((report) => {
-            const Icon = report.icon;
+          {reports.map((report) => { const Icon = report.icon;
             return (
               <Card key={report.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
@@ -91,10 +77,8 @@ export default function ReportsPage() {
                   </div>
                 </CardContent>
               </Card>
-            );
-          })}
+            ); })}
         </div>
       </div>
     </div>
-  );
-}
+  ); }

@@ -5,34 +5,27 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
-interface Ticket {
-  id: string;
+interface Ticket { id: string;
   subject: string;
   description: string;
   status: string;
   priority: string;
   slaTarget: string | null;
   createdAt: string;
-  messages: { id: string; body: string; createdAt: string }[];
-}
+  messages: { id: string; body: string; createdAt: string }[]; }
 
-const priorityColor: Record<string, string> = {
-  LOW: 'bg-gray-500/20 text-gray-400',
+const priorityColor: Record<string, string> = { LOW: 'bg-gray-500/20 text-gray-400',
   MEDIUM: 'bg-blue-500/20 text-blue-400',
   HIGH: 'bg-orange-500/20 text-orange-400',
-  URGENT: 'bg-red-500/20 text-red-400',
-};
+  URGENT: 'bg-red-500/20 text-red-400' };
 
-const statusColor: Record<string, string> = {
-  OPEN: 'bg-blue-500/20 text-blue-400',
+const statusColor: Record<string, string> = { OPEN: 'bg-blue-500/20 text-blue-400',
   IN_PROGRESS: 'bg-yellow-500/20 text-yellow-400',
   WAITING_ON_PARTNER: 'bg-purple-500/20 text-purple-400',
   RESOLVED: 'bg-green-500/20 text-green-400',
-  CLOSED: 'bg-gray-500/20 text-gray-400',
-};
+  CLOSED: 'bg-gray-500/20 text-gray-400' };
 
-export default function SupportPage() {
-  const router = useRouter();
+export default function SupportPage() { const router = useRouter();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -42,61 +35,37 @@ export default function SupportPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const token = localStorage.getItem('partner_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    fetchTickets();
-  }, []);
+  useEffect(() => { const token = localStorage.getItem('partner_token');
+    if (!token) { router.push('/login');
+      return; }
+    fetchTickets(); }, []);
 
-  const fetchTickets = async () => {
-    setError('');
-    try {
-      const res = await api.get('/api/support');
-      setTickets(res.data.data || []);
-    } catch (err) {
-      console.error('Failed to load tickets', err);
-      setError('Failed to load support tickets. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchTickets = async () => { setError('');
+    try { const res = await api.get('/api/support');
+      setTickets(res.data.data || []); } catch (err) { console.error('Failed to load tickets', err);
+      setError('Failed to load support tickets. Please try again.'); } finally { setLoading(false); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
     setSubmitting(true);
     setError('');
-    try {
-      await api.post('/api/support', {
-        subject: formSubject,
+    try { await api.post('/api/support', { subject: formSubject,
         description: formDesc,
-        priority: formPriority,
-      });
+        priority: formPriority });
       setFormSubject('');
       setFormDesc('');
       setFormPriority('MEDIUM');
       setShowForm(false);
-      fetchTickets();
-    } catch (err) {
-      console.error('Failed to create ticket', err);
-      setError('Failed to create ticket. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      fetchTickets(); } catch (err) { console.error('Failed to create ticket', err);
+      setError('Failed to create ticket. Please try again.'); } finally { setSubmitting(false); } };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
           <div className="text-gray-400">Loading...</div>
         </main>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="flex min-h-screen">
@@ -224,5 +193,4 @@ export default function SupportPage() {
         </div>
       </main>
     </div>
-  );
-}
+  ); }

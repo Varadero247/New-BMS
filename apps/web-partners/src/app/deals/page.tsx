@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
-interface Deal {
-  id: string;
+interface Deal { id: string;
   companyName: string;
   contactName: string;
   contactEmail: string;
@@ -14,102 +13,62 @@ interface Deal {
   commission: number;
   status: string;
   notes: string;
-  createdAt: string;
-}
+  createdAt: string; }
 
 type SortField = 'companyName' | 'value' | 'commission' | 'status' | 'createdAt';
 type SortDir = 'asc' | 'desc';
 
-export default function DealsPage() {
-  const router = useRouter();
+export default function DealsPage() { const router = useRouter();
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [sortField, setSortField] = useState<SortField>('createdAt');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
-  const [form, setForm] = useState({
-    companyName: '',
+  const [form, setForm] = useState({ companyName: '',
     contactName: '',
     contactEmail: '',
     value: '',
-    notes: '',
-  });
+    notes: '' });
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const token = localStorage.getItem('partner_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    fetchDeals();
-  }, [router]);
+  useEffect(() => { const token = localStorage.getItem('partner_token');
+    if (!token) { router.push('/login');
+      return; }
+    fetchDeals(); }, [router]);
 
-  const fetchDeals = async () => {
-    try {
-      const response = await api.get('/api/deals');
-      setDeals(response.data.data || []);
-    } catch {
-      // Handle error silently
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchDeals = async () => { try { const response = await api.get('/api/deals');
+      setDeals(response.data.data || []); } catch { /* Handle error silently */ } finally { setLoading(false); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
     setError('');
     setSubmitting(true);
 
-    try {
-      await api.post('/api/deals', {
-        companyName: form.companyName,
+    try { await api.post('/api/deals', { companyName: form.companyName,
         contactName: form.contactName,
         contactEmail: form.contactEmail,
         value: parseFloat(form.value),
-        notes: form.notes,
-      });
+        notes: form.notes });
       setShowForm(false);
       setForm({ companyName: '', contactName: '', contactEmail: '', value: '', notes: '' });
-      fetchDeals();
-    } catch (err) {
-      setError((err as any).response?.data?.message || 'Failed to submit deal');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      fetchDeals(); } catch (err) { setError((err as any).response?.data?.message || 'Failed to submit deal'); } finally { setSubmitting(false); } };
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDir('asc');
-    }
-  };
+  const handleSort = (field: SortField) => { if (sortField === field) { setSortDir(sortDir === 'asc' ? 'desc' : 'asc'); } else { setSortField(field);
+      setSortDir('asc'); } };
 
-  const sortedDeals = [...deals].sort((a, b) => {
-    const dir = sortDir === 'asc' ? 1 : -1;
-    if (sortField === 'value' || sortField === 'commission') {
-      return (a[sortField] - b[sortField]) * dir;
-    }
-    if (sortField === 'createdAt') {
-      return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * dir;
-    }
-    return a[sortField].localeCompare(b[sortField]) * dir;
-  });
+  const sortedDeals = [...deals].sort((a, b) => { const dir = sortDir === 'asc' ? 1 : -1;
+    if (sortField === 'value' || sortField === 'commission') { return (a[sortField] - b[sortField]) * dir; }
+    if (sortField === 'createdAt') { return (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) * dir; }
+    return a[sortField].localeCompare(b[sortField]) * dir; });
 
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(value);
 
-  const statusColor: Record<string, string> = {
-    NEW: 'bg-blue-500/20 text-blue-400',
+  const statusColor: Record<string, string> = { NEW: 'bg-blue-500/20 text-blue-400',
     IN_PROGRESS: 'bg-yellow-500/20 text-yellow-400',
     NEGOTIATION: 'bg-purple-500/20 text-purple-400',
     CLOSED_WON: 'bg-green-500/20 text-green-400',
-    CLOSED_LOST: 'bg-red-500/20 text-red-400',
-  };
+    CLOSED_LOST: 'bg-red-500/20 text-red-400' };
 
   const SortIcon = ({ field }: { field: SortField }) => (
     <span className="ml-1 inline-block">
@@ -117,16 +76,14 @@ export default function DealsPage() {
     </span>
   );
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
           <div className="text-gray-400 dark:text-gray-500">Loading...</div>
         </main>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="flex min-h-screen">
@@ -321,5 +278,4 @@ export default function DealsPage() {
         </div>
       </main>
     </div>
-  );
-}
+  ); }

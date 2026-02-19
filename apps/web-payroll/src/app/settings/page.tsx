@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@ims/ui';
-import { Settings, Globe, Calendar, DollarSign, Bell, Shield } from 'lucide-react';
+import { Settings, Globe, DollarSign, Bell, Shield } from 'lucide-react';
 
-export default function PayrollSettingsPage() {
-  const [baseCurrency, setBaseCurrency] = useState('GBP');
+export default function PayrollSettingsPage() { const [baseCurrency, setBaseCurrency] = useState('GBP');
   const [payFrequency, setPayFrequency] = useState('MONTHLY');
   const [payDay, setPayDay] = useState('25');
 
@@ -137,5 +136,4 @@ export default function PayrollSettingsPage() {
         </div>
       </div>
     </div>
-  );
-}
+  ); }

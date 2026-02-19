@@ -5,8 +5,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
-interface CollateralItem {
-  id: string;
+interface CollateralItem { id: string;
   title: string;
   description: string | null;
   type: string;
@@ -14,11 +13,9 @@ interface CollateralItem {
   fileUrl: string;
   thumbnailUrl: string | null;
   downloadCount: number;
-  createdAt: string;
-}
+  createdAt: string; }
 
-const typeIcons: Record<string, string> = {
-  CASE_STUDY:
+const typeIcons: Record<string, string> = { CASE_STUDY:
     'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
   WHITEPAPER:
     'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
@@ -30,72 +27,48 @@ const typeIcons: Record<string, string> = {
   EMAIL_TEMPLATE:
     'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
   SOCIAL_KIT:
-    'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z',
-};
+    'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z' };
 
-const typeLabels: Record<string, string> = {
-  CASE_STUDY: 'Case Study',
+const typeLabels: Record<string, string> = { CASE_STUDY: 'Case Study',
   WHITEPAPER: 'Whitepaper',
   BROCHURE: 'Brochure',
   PRESENTATION: 'Presentation',
   VIDEO: 'Video',
   EMAIL_TEMPLATE: 'Email Template',
-  SOCIAL_KIT: 'Social Kit',
-};
+  SOCIAL_KIT: 'Social Kit' };
 
-export default function CollateralPage() {
-  const router = useRouter();
+export default function CollateralPage() { const router = useRouter();
   const [items, setItems] = useState<CollateralItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const token = localStorage.getItem('partner_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    fetchCollateral();
-  }, []);
+  useEffect(() => { const token = localStorage.getItem('partner_token');
+    if (!token) { router.push('/login');
+      return; }
+    fetchCollateral(); }, []);
 
-  const fetchCollateral = async () => {
-    setError('');
-    try {
-      const res = await api.get('/api/collateral');
-      setItems(res.data.data || []);
-    } catch (err) {
-      console.error('Failed to load collateral', err);
-      setError('Failed to load collateral. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchCollateral = async () => { setError('');
+    try { const res = await api.get('/api/collateral');
+      setItems(res.data.data || []); } catch (err) { console.error('Failed to load collateral', err);
+      setError('Failed to load collateral. Please try again.'); } finally { setLoading(false); } };
 
-  const handleDownload = async (item: CollateralItem) => {
-    try {
-      const res = await api.get(`/api/collateral/${item.id}/download`);
+  const handleDownload = async (item: CollateralItem) => { try { const res = await api.get(`/api/collateral/${item.id}/download`);
       window.open(res.data.data.fileUrl, '_blank');
-      fetchCollateral();
-    } catch (err) {
-      console.error('Failed to download collateral', err);
-      setError('Failed to download file. Please try again.');
-    }
-  };
+      fetchCollateral(); } catch (err) { console.error('Failed to download collateral', err);
+      setError('Failed to download file. Please try again.'); } };
 
   const filteredItems = filter ? items.filter((i) => i.type === filter) : items;
   const types = [...new Set(items.map((i) => i.type))];
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
           <div className="text-gray-400">Loading...</div>
         </main>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="flex min-h-screen">
@@ -120,9 +93,7 @@ export default function CollateralPage() {
           <div className="flex items-center gap-2 mb-6">
             <button
               onClick={() => setFilter('')}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                !filter ? 'bg-[#1B3A6B] text-white' : 'bg-gray-800 text-gray-400 hover:text-white'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${ !filter ? 'bg-[#1B3A6B] text-white' : 'bg-gray-800 text-gray-400 hover:text-white' }`}
             >
               All
             </button>
@@ -130,11 +101,9 @@ export default function CollateralPage() {
               <button
                 key={t}
                 onClick={() => setFilter(t)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  filter === t
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${ filter === t
                     ? 'bg-[#1B3A6B] text-white'
-                    : 'bg-gray-800 text-gray-400 hover:text-white'
-                }`}
+                    : 'bg-gray-800 text-gray-400 hover:text-white' }`}
               >
                 {typeLabels[t] || t}
               </button>
@@ -196,5 +165,4 @@ export default function CollateralPage() {
         </div>
       </main>
     </div>
-  );
-}
+  ); }

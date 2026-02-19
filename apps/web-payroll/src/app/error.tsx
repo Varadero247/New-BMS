@@ -1,13 +1,8 @@
 'use client';
 
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  return (
+export default function Error({ error,
+  reset }: { error: Error & { digest?: string };
+  reset: () => void; }) { return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-800">
       <div className="text-center p-8">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -24,5 +19,4 @@ export default function Error({
         </button>
       </div>
     </div>
-  );
-}
+  ); }

@@ -2,24 +2,21 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { gateway } from '@/lib/gateway';
-import { Card, CardContent, Button, Badge, Input, Select, Modal, ModalFooter } from '@ims/ui';
-import { FileText, Search, Download, Copy, Eye, X } from 'lucide-react';
+import { Card, CardContent, Button, Badge, Select, Modal, ModalFooter } from '@ims/ui';
+import { FileText, Search, Download, Copy, Eye } from 'lucide-react';
 
 const GATEWAY_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const MODULE_FILTER = 'PAYROLL';
 
-interface FieldDefinition {
-  name: string;
+interface FieldDefinition { name: string;
   label: string;
   type: 'text' | 'textarea' | 'select' | 'number' | 'date' | 'checkbox' | 'section';
   required?: boolean;
   options?: string[];
   placeholder?: string;
-  description?: string;
-}
+  description?: string; }
 
-interface Template {
-  id: string;
+interface Template { id: string;
   code: string;
   name: string;
   description: string | null;
@@ -29,11 +26,9 @@ interface Template {
   fieldDefinitions: FieldDefinition[];
   usageCount: number;
   createdAt: string;
-  updatedAt: string;
-}
+  updatedAt: string; }
 
-export default function TemplatesClient() {
-  const [templates, setTemplates] = useState<Template[]>([]);
+export default function TemplatesClient() { const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -41,74 +36,38 @@ export default function TemplatesClient() {
   const [showUseModal, setShowUseModal] = useState(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
 
-  const fetchTemplates = useCallback(async () => {
-    try {
-      setLoading(true);
+  const fetchTemplates = useCallback(async () => { try { setLoading(true);
       const params: Record<string, any> = { module: MODULE_FILTER, limit: 50 };
       if (search) params.search = search;
       if (categoryFilter) params.category = categoryFilter;
 
       const response = await gateway.get('/templates', { params });
-      setTemplates(response.data.data || []);
-    } catch (error) {
-      console.error('Failed to fetch templates:', error);
-      setTemplates([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [search, categoryFilter]);
+      setTemplates(response.data.data || []); } catch (error) { console.error('Failed to fetch templates:', error);
+      setTemplates([]); } finally { setLoading(false); } }, [search, categoryFilter]);
 
-  useEffect(() => {
-    fetchTemplates();
-  }, [fetchTemplates]);
+  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
-  const handlePreview = (template: Template) => {
-    setSelectedTemplate(template);
-  };
+  const handlePreview = (template: Template) => { setSelectedTemplate(template); };
 
-  const handleUseTemplate = (template: Template) => {
-    setSelectedTemplate(template);
+  const handleUseTemplate = (template: Template) => { setSelectedTemplate(template);
     setShowUseModal(true);
     const initialData: Record<string, any> = {};
-    template.fieldDefinitions?.forEach((field) => {
-      if (field.type === 'checkbox') {
-        initialData[field.name] = false;
-      } else {
-        initialData[field.name] = '';
-      }
-    });
-    setFormData(initialData);
-  };
+    template.fieldDefinitions?.forEach((field) => { if (field.type === 'checkbox') { initialData[field.name] = false; } else { initialData[field.name] = ''; } });
+    setFormData(initialData); };
 
-  const handleSubmitUse = async () => {
-    if (!selectedTemplate) return;
-    try {
-      await gateway.post(`/templates/${selectedTemplate.id}/use`, { filledData: formData });
+  const handleSubmitUse = async () => { if (!selectedTemplate) return;
+    try { await gateway.post(`/templates/${selectedTemplate.id}/use`, { filledData: formData });
       setShowUseModal(false);
       setSelectedTemplate(null);
       setFormData({});
-      fetchTemplates();
-    } catch (error) {
-      console.error('Failed to use template:', error);
-    }
-  };
+      fetchTemplates(); } catch (error) { console.error('Failed to use template:', error); } };
 
-  const handleClone = async (template: Template) => {
-    try {
-      await gateway.post(`/templates/${template.id}/clone`);
-      fetchTemplates();
-    } catch (error) {
-      console.error('Failed to clone template:', error);
-    }
-  };
+  const handleClone = async (template: Template) => { try { await gateway.post(`/templates/${template.id}/clone`);
+      fetchTemplates(); } catch (error) { console.error('Failed to clone template:', error); } };
 
-  const handleExport = (template: Template) => {
-    window.open(`${GATEWAY_URL}/api/v1/templates/${template.id}/export?format=html`, '_blank');
-  };
+  const handleExport = (template: Template) => { window.open(`${GATEWAY_URL}/api/v1/templates/${template.id}/export?format=html`, '_blank'); };
 
-  const renderFieldInput = (field: FieldDefinition) => {
-    switch (field.type) {
-      case 'section':
+  const renderFieldInput = (field: FieldDefinition) => { switch (field.type) { case 'section':
         return (
           <div key={field.name} className="col-span-2 mt-4 mb-2">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">
@@ -215,29 +174,21 @@ export default function TemplatesClient() {
               onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
             />
           </div>
-        );
-    }
-  };
+        ); } };
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      FORM: 'bg-blue-100 text-blue-700',
+  const getCategoryColor = (category: string) => { const colors: Record<string, string> = { FORM: 'bg-blue-100 text-blue-700',
       CHECKLIST: 'bg-green-100 text-green-700',
       REPORT: 'bg-purple-100 text-purple-700',
       ASSESSMENT: 'bg-orange-100 text-orange-700',
       PROCEDURE: 'bg-cyan-100 text-cyan-700',
-      POLICY: 'bg-red-100 text-red-700',
-    };
-    return colors[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700';
-  };
+      POLICY: 'bg-red-100 text-red-700' };
+    return colors[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-700'; };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="space-y-6">
@@ -433,9 +384,7 @@ export default function TemplatesClient() {
           </Button>
           <Button
             className="bg-amber-600 hover:bg-amber-700 text-white"
-            onClick={() => {
-              if (selectedTemplate) handleUseTemplate(selectedTemplate);
-            }}
+            onClick={() => { if (selectedTemplate) handleUseTemplate(selectedTemplate); }}
           >
             Use Template
           </Button>
@@ -445,11 +394,9 @@ export default function TemplatesClient() {
       {/* Use Template Modal */}
       <Modal
         isOpen={showUseModal}
-        onClose={() => {
-          setShowUseModal(false);
+        onClose={() => { setShowUseModal(false);
           setSelectedTemplate(null);
-          setFormData({});
-        }}
+          setFormData({}); }}
         title={`Use Template: ${selectedTemplate?.name || ''}`}
         size="lg"
       >
@@ -466,11 +413,9 @@ export default function TemplatesClient() {
         <ModalFooter>
           <Button
             variant="outline"
-            onClick={() => {
-              setShowUseModal(false);
+            onClick={() => { setShowUseModal(false);
               setSelectedTemplate(null);
-              setFormData({});
-            }}
+              setFormData({}); }}
           >
             Cancel
           </Button>
@@ -480,5 +425,4 @@ export default function TemplatesClient() {
         </ModalFooter>
       </Modal>
     </div>
-  );
-}
+  ); }

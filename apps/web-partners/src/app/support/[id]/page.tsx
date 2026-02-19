@@ -5,16 +5,13 @@ import { useRouter, useParams } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
-interface Message {
-  id: string;
+interface Message { id: string;
   senderId: string;
   senderType: 'PARTNER' | 'SUPPORT';
   body: string;
-  createdAt: string;
-}
+  createdAt: string; }
 
-interface TicketDetail {
-  id: string;
+interface TicketDetail { id: string;
   subject: string;
   description: string;
   status: string;
@@ -22,11 +19,9 @@ interface TicketDetail {
   slaTarget: string | null;
   resolvedAt: string | null;
   createdAt: string;
-  messages: Message[];
-}
+  messages: Message[]; }
 
-export default function TicketDetailPage() {
-  const router = useRouter();
+export default function TicketDetailPage() { const router = useRouter();
   const params = useParams();
   const ticketId = params.id as string;
 
@@ -36,64 +31,36 @@ export default function TicketDetailPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const token = localStorage.getItem('partner_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    fetchTicket();
-  }, [ticketId]);
+  useEffect(() => { const token = localStorage.getItem('partner_token');
+    if (!token) { router.push('/login');
+      return; }
+    fetchTicket(); }, [ticketId]);
 
-  const fetchTicket = async () => {
-    try {
-      const res = await api.get(`/api/support/${ticketId}`);
-      setTicket(res.data.data);
-    } catch {
-      router.push('/support');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchTicket = async () => { try { const res = await api.get(`/api/support/${ticketId}`);
+      setTicket(res.data.data); } catch { router.push('/support'); } finally { setLoading(false); } };
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSend = async (e: React.FormEvent) => { e.preventDefault();
     if (!newMessage.trim()) return;
     setSending(true);
     setError('');
-    try {
-      await api.post(`/api/support/${ticketId}/messages`, { body: newMessage });
+    try { await api.post(`/api/support/${ticketId}/messages`, { body: newMessage });
       setNewMessage('');
-      fetchTicket();
-    } catch (err) {
-      console.error('Failed to send message', err);
-      setError('Failed to send message. Please try again.');
-    } finally {
-      setSending(false);
-    }
-  };
+      fetchTicket(); } catch (err) { console.error('Failed to send message', err);
+      setError('Failed to send message. Please try again.'); } finally { setSending(false); } };
 
-  const handleClose = async () => {
-    setError('');
-    try {
-      await api.patch(`/api/support/${ticketId}/close`);
-      fetchTicket();
-    } catch (err) {
-      console.error('Failed to close ticket', err);
-      setError('Failed to close ticket. Please try again.');
-    }
-  };
+  const handleClose = async () => { setError('');
+    try { await api.patch(`/api/support/${ticketId}/close`);
+      fetchTicket(); } catch (err) { console.error('Failed to close ticket', err);
+      setError('Failed to close ticket. Please try again.'); } };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
           <div className="text-gray-400">Loading...</div>
         </main>
       </div>
-    );
-  }
+    ); }
 
   if (!ticket) return null;
 
@@ -122,22 +89,18 @@ export default function TicketDetailPage() {
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                    ticket.priority === 'URGENT'
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium ${ ticket.priority === 'URGENT'
                       ? 'bg-red-500/20 text-red-400'
                       : ticket.priority === 'HIGH'
                         ? 'bg-orange-500/20 text-orange-400'
                         : ticket.priority === 'MEDIUM'
                           ? 'bg-blue-500/20 text-blue-400'
-                          : 'bg-gray-500/20 text-gray-400'
-                  }`}
+                          : 'bg-gray-500/20 text-gray-400' }`}
                 >
                   {ticket.priority}
                 </span>
                 <span
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                    isClosed ? 'bg-gray-500/20 text-gray-400' : 'bg-green-500/20 text-green-400'
-                  }`}
+                  className={`px-2.5 py-1 rounded-full text-xs font-medium ${ isClosed ? 'bg-gray-500/20 text-gray-400' : 'bg-green-500/20 text-green-400' }`}
                 >
                   {ticket.status.replace(/_/g, ' ')}
                 </span>
@@ -162,11 +125,9 @@ export default function TicketDetailPage() {
             {ticket.messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`rounded-xl p-4 ${
-                  msg.senderType === 'PARTNER'
+                className={`rounded-xl p-4 ${ msg.senderType === 'PARTNER'
                     ? 'bg-[#1B3A6B]/30 border border-[#1B3A6B]/50 ml-8'
-                    : 'bg-gray-900 border border-gray-800 mr-8'
-                }`}
+                    : 'bg-gray-900 border border-gray-800 mr-8' }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-gray-400">
@@ -218,5 +179,4 @@ export default function TicketDetailPage() {
         </div>
       </main>
     </div>
-  );
-}
+  ); }

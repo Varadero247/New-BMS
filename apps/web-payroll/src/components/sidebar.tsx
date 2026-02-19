@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  LayoutDashboard,
+import { LayoutDashboard,
   Wallet,
   DollarSign,
   Heart,
@@ -12,8 +11,7 @@ import {
   FileText,
   BarChart3,
   Settings,
-  Calculator,
-} from 'lucide-react';
+  Calculator } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -41,8 +39,7 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
-export default function Sidebar() {
-  const pathname = usePathname();
+export default function Sidebar() { const pathname = usePathname();
 
   return (
     <div className="flex h-screen w-64 flex-col bg-gray-900 dark:bg-gray-950">
@@ -55,26 +52,22 @@ export default function Sidebar() {
 
       <nav className="flex-1 overflow-y-auto p-4" aria-label="Module navigation">
         <ul className="space-y-1">
-          {navigation.map((item) => {
-            const isActive =
+          {navigation.map((item) => { const isActive =
               pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
 
             return (
               <li key={item.name}>
                 <Link
                   href={item.href}
-                  className={`flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive
+                  className={`flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${ isActive
                       ? 'bg-brand-600 text-white'
-                      : 'text-gray-300 dark:text-gray-600 hover:bg-gray-800 hover:text-white'
-                  }`}
+                      : 'text-gray-300 dark:text-gray-600 hover:bg-gray-800 hover:text-white' }`}
                 >
                   <item.icon className="h-5 w-5" />
                   <span>{item.name}</span>
                 </Link>
               </li>
-            );
-          })}
+            ); })}
         </ul>
       </nav>
 
@@ -82,5 +75,4 @@ export default function Sidebar() {
         <div className="text-xs text-gray-500 dark:text-gray-400">IMS Payroll Module v0.1.0</div>
       </div>
     </div>
-  );
-}
+  ); }

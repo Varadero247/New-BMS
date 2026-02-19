@@ -1,7 +1,6 @@
 import Link from 'next/link';
 
-export default function NotFound() {
-  return (
+export default function NotFound() { return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-800">
       <div className="text-center p-8">
         <h1 className="text-6xl font-bold text-gray-300 dark:text-gray-600 mb-4">404</h1>
@@ -17,5 +16,4 @@ export default function NotFound() {
         </Link>
       </div>
     </div>
-  );
-}
+  ); }

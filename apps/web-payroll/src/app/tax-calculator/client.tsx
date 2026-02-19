@@ -3,16 +3,13 @@
 import { useState } from 'react';
 import { Calculator, ArrowRight, DollarSign, TrendingDown, Building2, Globe } from 'lucide-react';
 
-interface TaxBand {
-  name: string;
+interface TaxBand { name: string;
   from: number;
   to: number | null;
   rate: number;
-  color: string;
-}
+  color: string; }
 
-interface JurisdictionConfig {
-  id: string;
+interface JurisdictionConfig { id: string;
   name: string;
   currency: string;
   symbol: string;
@@ -22,12 +19,10 @@ interface JurisdictionConfig {
   niThreshold: number;
   pensionRate: number;
   studentLoanRate: number;
-  studentLoanThreshold: number;
-}
+  studentLoanThreshold: number; }
 
 const jurisdictions: JurisdictionConfig[] = [
-  {
-    id: 'uk',
+  { id: 'uk',
     name: 'United Kingdom',
     currency: 'GBP',
     symbol: '£',
@@ -42,10 +37,8 @@ const jurisdictions: JurisdictionConfig[] = [
     niThreshold: 12570,
     pensionRate: 5,
     studentLoanRate: 9,
-    studentLoanThreshold: 27295,
-  },
-  {
-    id: 'us-federal',
+    studentLoanThreshold: 27295 },
+  { id: 'us-federal',
     name: 'United States (Federal)',
     currency: 'USD',
     symbol: '$',
@@ -63,10 +56,8 @@ const jurisdictions: JurisdictionConfig[] = [
     niThreshold: 0,
     pensionRate: 6,
     studentLoanRate: 0,
-    studentLoanThreshold: 0,
-  },
-  {
-    id: 'ie',
+    studentLoanThreshold: 0 },
+  { id: 'ie',
     name: 'Ireland',
     currency: 'EUR',
     symbol: '€',
@@ -79,10 +70,8 @@ const jurisdictions: JurisdictionConfig[] = [
     niThreshold: 18304,
     pensionRate: 5,
     studentLoanRate: 0,
-    studentLoanThreshold: 0,
-  },
-  {
-    id: 'de',
+    studentLoanThreshold: 0 },
+  { id: 'de',
     name: 'Germany',
     currency: 'EUR',
     symbol: '€',
@@ -98,23 +87,17 @@ const jurisdictions: JurisdictionConfig[] = [
     niThreshold: 0,
     pensionRate: 3.05,
     studentLoanRate: 0,
-    studentLoanThreshold: 0,
-  },
+    studentLoanThreshold: 0 },
 ];
 
-function calculateTax(salary: number, jurisdiction: JurisdictionConfig) {
-  let totalTax = 0;
+function calculateTax(salary: number, jurisdiction: JurisdictionConfig) { let totalTax = 0;
   const bandBreakdown: { band: TaxBand; taxable: number; tax: number }[] = [];
 
-  for (const band of jurisdiction.taxBands) {
-    const bandMax = band.to ?? Infinity;
-    if (salary > band.from) {
-      const taxable = Math.min(salary, bandMax) - band.from;
+  for (const band of jurisdiction.taxBands) { const bandMax = band.to ?? Infinity;
+    if (salary > band.from) { const taxable = Math.min(salary, bandMax) - band.from;
       const tax = (taxable * band.rate) / 100;
       totalTax += tax;
-      bandBreakdown.push({ band, taxable, tax });
-    }
-  }
+      bandBreakdown.push({ band, taxable, tax }); } }
 
   const niContribution =
     salary > jurisdiction.niThreshold
@@ -130,24 +113,18 @@ function calculateTax(salary: number, jurisdiction: JurisdictionConfig) {
   const netPay = salary - totalDeductions;
   const effectiveRate = salary > 0 ? (totalTax / salary) * 100 : 0;
 
-  return {
-    totalTax,
+  return { totalTax,
     bandBreakdown,
     niContribution,
     pension,
     studentLoan,
     totalDeductions,
     netPay,
-    effectiveRate,
-  };
-}
+    effectiveRate }; }
 
-function formatMoney(amount: number, symbol: string) {
-  return `${symbol}${amount.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
+function formatMoney(amount: number, symbol: string) { return `${symbol}${amount.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`; }
 
-export default function TaxCalculatorClient() {
-  const [salary, setSalary] = useState(55000);
+export default function TaxCalculatorClient() { const [salary, setSalary] = useState(55000);
   const [selectedJurisdiction, setSelectedJurisdiction] = useState('uk');
   const [compareJurisdiction, setCompareJurisdiction] = useState<string | null>(null);
   const [includeStudentLoan, setIncludeStudentLoan] = useState(false);
@@ -315,8 +292,7 @@ export default function TaxCalculatorClient() {
               Tax Band Breakdown
             </h4>
             <div className="w-full h-8 flex rounded-lg overflow-hidden mb-3">
-              {result.bandBreakdown.map((b, i) => {
-                const width = (b.taxable / salary) * 100;
+              {result.bandBreakdown.map((b, i) => { const width = (b.taxable / salary) * 100;
                 return (
                   <div
                     key={i}
@@ -330,8 +306,7 @@ export default function TaxCalculatorClient() {
                       </span>
                     )}
                   </div>
-                );
-              })}
+                ); })}
             </div>
             <div className="space-y-2">
               {result.bandBreakdown.map((b, i) => (
@@ -449,8 +424,7 @@ export default function TaxCalculatorClient() {
                 Tax Band Breakdown
               </h4>
               <div className="w-full h-8 flex rounded-lg overflow-hidden mb-3">
-                {compareResult.bandBreakdown.map((b, i) => {
-                  const width = (b.taxable / salary) * 100;
+                {compareResult.bandBreakdown.map((b, i) => { const width = (b.taxable / salary) * 100;
                   return (
                     <div
                       key={i}
@@ -463,8 +437,7 @@ export default function TaxCalculatorClient() {
                         </span>
                       )}
                     </div>
-                  );
-                })}
+                  ); })}
               </div>
               <div className="space-y-2">
                 {compareResult.bandBreakdown.map((b, i) => (
@@ -530,11 +503,9 @@ export default function TaxCalculatorClient() {
             <button
               key={s}
               onClick={() => setSalary(s)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                salary === s
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${ salary === s
                   ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200'
-              }`}
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 hover:bg-gray-200' }`}
             >
               {jurisdiction.symbol}
               {(s / 1000).toFixed(0)}k
@@ -543,5 +514,4 @@ export default function TaxCalculatorClient() {
         </div>
       </div>
     </div>
-  );
-}
+  ); }

@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Heart, Users, Shield, Building } from 'lucide-react';
 import api from '@/lib/api';
 
-interface BenefitPlan {
-  id: string;
+interface BenefitPlan { id: string;
   code: string;
   name: string;
   description: string | null;
@@ -17,16 +16,13 @@ interface BenefitPlan {
   employerContribution: number | null;
   waitingPeriodDays: number;
   isActive: boolean;
-  _count: { employeeBenefits: number };
-}
+  _count: { employeeBenefits: number }; }
 
-export default function BenefitsPage() {
-  const [plans, setPlans] = useState<BenefitPlan[]>([]);
+export default function BenefitsPage() { const [plans, setPlans] = useState<BenefitPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    code: '',
+  const [formData, setFormData] = useState({ code: '',
     name: '',
     description: '',
     category: 'HEALTH_INSURANCE',
@@ -36,43 +32,27 @@ export default function BenefitsPage() {
     employeeContribution: '',
     employerContribution: '',
     waitingPeriodDays: '0',
-    effectiveFrom: new Date().toISOString().split('T')[0],
-  });
+    effectiveFrom: new Date().toISOString().split('T')[0] });
 
-  useEffect(() => {
-    fetchPlans();
-  }, [categoryFilter]);
+  useEffect(() => { fetchPlans(); }, [categoryFilter]);
 
-  const fetchPlans = async () => {
-    try {
-      const params = new URLSearchParams();
+  const fetchPlans = async () => { try { const params = new URLSearchParams();
       if (categoryFilter) params.append('category', categoryFilter);
 
       const response = await api.get(`/benefits/plans?${params.toString()}`);
-      setPlans(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching benefit plans:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setPlans(response.data.data || []); } catch (error) { console.error('Error fetching benefit plans:', error); } finally { setLoading(false); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.post('/benefits/plans', {
-        ...formData,
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
+    try { await api.post('/benefits/plans', { ...formData,
         employeeContribution: formData.employeeContribution
           ? parseFloat(formData.employeeContribution)
           : undefined,
         employerContribution: formData.employerContribution
           ? parseFloat(formData.employerContribution)
           : undefined,
-        waitingPeriodDays: parseInt(formData.waitingPeriodDays),
-      });
+        waitingPeriodDays: parseInt(formData.waitingPeriodDays) });
       setShowModal(false);
-      setFormData({
-        code: '',
+      setFormData({ code: '',
         name: '',
         description: '',
         category: 'HEALTH_INSURANCE',
@@ -82,17 +62,10 @@ export default function BenefitsPage() {
         employeeContribution: '',
         employerContribution: '',
         waitingPeriodDays: '0',
-        effectiveFrom: new Date().toISOString().split('T')[0],
-      });
-      fetchPlans();
-    } catch (error) {
-      console.error('Error creating plan:', error);
-    }
-  };
+        effectiveFrom: new Date().toISOString().split('T')[0] });
+      fetchPlans(); } catch (error) { console.error('Error creating plan:', error); } };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'HEALTH_INSURANCE':
+  const getCategoryIcon = (category: string) => { switch (category) { case 'HEALTH_INSURANCE':
       case 'LIFE_INSURANCE':
         return <Shield className="h-5 w-5 text-blue-500" />;
       case 'DENTAL':
@@ -102,13 +75,9 @@ export default function BenefitsPage() {
       case 'PENSION':
         return <Building className="h-5 w-5 text-purple-500" />;
       default:
-        return <Heart className="h-5 w-5 text-green-500" />;
-    }
-  };
+        return <Heart className="h-5 w-5 text-green-500" />; } };
 
-  const getCategoryBadge = (category: string) => {
-    const styles: Record<string, string> = {
-      HEALTH_INSURANCE: 'bg-blue-100 text-blue-800',
+  const getCategoryBadge = (category: string) => { const styles: Record<string, string> = { HEALTH_INSURANCE: 'bg-blue-100 text-blue-800',
       LIFE_INSURANCE: 'bg-indigo-100 text-indigo-800',
       DENTAL: 'bg-pink-100 text-pink-800',
       VISION: 'bg-cyan-100 text-cyan-800',
@@ -118,26 +87,18 @@ export default function BenefitsPage() {
       FSA: 'bg-teal-100 text-teal-800',
       TRANSPORTATION: 'bg-orange-100 text-orange-800',
       WELLNESS: 'bg-lime-100 text-lime-800',
-      OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-    };
-    return styles[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-800' };
+    return styles[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  const formatCurrency = (amount: number | null) => {
-    if (!amount) return '-';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number | null) => { if (!amount) return '-';
+    return new Intl.NumberFormat('en-US', { style: 'currency',
+      currency: 'USD' }).format(amount); };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400">Loading benefit plans...</div>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="space-y-6">
@@ -203,10 +164,8 @@ export default function BenefitsPage() {
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Retirement Plans</p>
               <p className="text-xl font-semibold">
-                {
-                  plans.filter((p) => p.category === 'RETIREMENT' || p.category === 'PENSION')
-                    .length
-                }
+                { plans.filter((p) => p.category === 'RETIREMENT' || p.category === 'PENSION')
+                    .length }
               </p>
             </div>
           </div>
@@ -294,11 +253,9 @@ export default function BenefitsPage() {
                   </span>
                 </div>
                 <span
-                  className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                    plan.isActive
+                  className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${ plan.isActive
                       ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
-                  }`}
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-800' }`}
                 >
                   {plan.isActive ? 'Active' : 'Inactive'}
                 </span>
@@ -397,8 +354,7 @@ export default function BenefitsPage() {
                     step="0.01"
                     value={formData.employeeContribution}
                     onChange={(e) =>
-                      setFormData({ ...formData, employeeContribution: e.target.value })
-                    }
+                      setFormData({ ...formData, employeeContribution: e.target.value }) }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   />
                 </div>
@@ -411,8 +367,7 @@ export default function BenefitsPage() {
                     step="0.01"
                     value={formData.employerContribution}
                     onChange={(e) =>
-                      setFormData({ ...formData, employerContribution: e.target.value })
-                    }
+                      setFormData({ ...formData, employerContribution: e.target.value }) }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   />
                 </div>
@@ -426,8 +381,7 @@ export default function BenefitsPage() {
                     type="number"
                     value={formData.waitingPeriodDays}
                     onChange={(e) =>
-                      setFormData({ ...formData, waitingPeriodDays: e.target.value })
-                    }
+                      setFormData({ ...formData, waitingPeriodDays: e.target.value }) }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   />
                 </div>
@@ -450,8 +404,7 @@ export default function BenefitsPage() {
                     type="checkbox"
                     checked={formData.dependentsCoverage}
                     onChange={(e) =>
-                      setFormData({ ...formData, dependentsCoverage: e.target.checked })
-                    }
+                      setFormData({ ...formData, dependentsCoverage: e.target.checked }) }
                     className="rounded border-gray-300"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
@@ -479,5 +432,4 @@ export default function BenefitsPage() {
         </div>
       )}
     </div>
-  );
-}
+  ); }

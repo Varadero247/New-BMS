@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { FileText, CheckCircle, DollarSign, Clock, Search } from 'lucide-react';
 import api from '@/lib/api';
 
-interface Payslip {
-  id: string;
+interface Payslip { id: string;
   payslipNumber: string;
   employeeName: string;
   employeeNumber: string;
@@ -16,60 +15,38 @@ interface Payslip {
   grossEarnings: number;
   netPay: number;
   status: string;
-  currency: string;
-}
+  currency: string; }
 
-export default function PayslipsPage() {
-  const [payslips, setPayslips] = useState<Payslip[]>([]);
+export default function PayslipsPage() { const [payslips, setPayslips] = useState<Payslip[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [employeeIdFilter, setEmployeeIdFilter] = useState('');
 
-  useEffect(() => {
-    fetchPayslips();
-  }, [statusFilter, employeeIdFilter]);
+  useEffect(() => { fetchPayslips(); }, [statusFilter, employeeIdFilter]);
 
-  const fetchPayslips = async () => {
-    try {
-      const params: Record<string, string> = {};
+  const fetchPayslips = async () => { try { const params: Record<string, string> = {};
       if (statusFilter) params.status = statusFilter;
       if (employeeIdFilter) params.employeeId = employeeIdFilter;
 
       const response = await api.get('/payslips', { params });
-      setPayslips(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching payslips:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setPayslips(response.data.data || []); } catch (error) { console.error('Error fetching payslips:', error); } finally { setLoading(false); } };
 
-  const formatCurrency = (amount: number, currency?: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency || 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number, currency?: string) => { return new Intl.NumberFormat('en-US', { style: 'currency',
+      currency: currency || 'USD' }).format(amount); };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
+  const getStatusBadge = (status: string) => { const styles: Record<string, string> = { DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       GENERATED: 'bg-yellow-100 text-yellow-800',
       CALCULATED: 'bg-blue-100 text-blue-800',
       APPROVED: 'bg-indigo-100 text-indigo-800',
       PUBLISHED: 'bg-purple-100 text-purple-800',
-      PAID: 'bg-green-100 text-green-800',
-    };
-    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      PAID: 'bg-green-100 text-green-800' };
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400">Loading payslips...</div>
       </div>
-    );
-  }
+    ); }
 
   const publishedCount = payslips.filter((p) => p.status === 'PUBLISHED').length;
   const paidCount = payslips.filter((p) => p.status === 'PAID').length;
@@ -240,5 +217,4 @@ export default function PayslipsPage() {
         </table>
       </div>
     </div>
-  );
-}
+  ); }

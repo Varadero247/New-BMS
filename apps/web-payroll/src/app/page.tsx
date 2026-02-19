@@ -2,44 +2,33 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  Wallet,
+import { Wallet,
   DollarSign,
   Users,
   Calendar,
   TrendingUp,
   AlertCircle,
   CheckCircle,
-  Clock,
-} from 'lucide-react';
+  Clock } from 'lucide-react';
 import api from '@/lib/api';
 
-interface DashboardStats {
-  totalEmployees: number;
-  currentPayroll: {
-    runNumber: string;
+interface DashboardStats { totalEmployees: number;
+  currentPayroll: { runNumber: string;
     status: string;
     totalGross: number;
-    totalNet: number;
-  } | null;
+    totalNet: number; } | null;
   pendingExpenses: number;
   pendingLoans: number;
-  upcomingTaxDeadlines: number;
-}
+  upcomingTaxDeadlines: number; }
 
-export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+export default function DashboardPage() { const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentRuns, setRecentRuns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  useEffect(() => { fetchDashboardData(); }, []);
 
-  const fetchDashboardData = async () => {
-    try {
-      const [runsRes] = await Promise.all([api.get('/runs')]);
+  const fetchDashboardData = async () => { try { const [runsRes] = await Promise.all([api.get('/runs')]);
 
       setRecentRuns(runsRes.data.data?.slice(0, 5) || []);
 
@@ -47,42 +36,26 @@ export default function DashboardPage() {
       const runs = runsRes.data.data || [];
       const currentRun = runs.find((r: any) => r.status === 'PROCESSING' || r.status === 'DRAFT');
 
-      setStats({
-        totalEmployees: runs[0]?.employeeCount || 0,
+      setStats({ totalEmployees: runs[0]?.employeeCount || 0,
         currentPayroll: currentRun
-          ? {
-              runNumber: currentRun.runNumber,
+          ? { runNumber: currentRun.runNumber,
               status: currentRun.status,
               totalGross: currentRun.totalGross,
-              totalNet: currentRun.totalNet,
-            }
+              totalNet: currentRun.totalNet }
           : null,
         pendingExpenses: 0,
         pendingLoans: 0,
-        upcomingTaxDeadlines: 0,
-      });
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-      setError('Unable to load data. Please check your connection and try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+        upcomingTaxDeadlines: 0 }); } catch (error) { console.error('Error fetching dashboard data:', error);
+      setError('Unable to load data. Please check your connection and try again.'); } finally { setLoading(false); } };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => { return new Intl.NumberFormat('en-US', { style: 'currency',
+      currency: 'USD' }).format(amount); };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400">Loading dashboard...</div>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="space-y-6">
@@ -100,11 +73,9 @@ export default function DashboardPage() {
         <div className="mb-6 p-4 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
           <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
           <button
-            onClick={() => {
-              setError('');
+            onClick={() => { setError('');
               setLoading(true);
-              fetchDashboardData();
-            }}
+              fetchDashboardData(); }}
             className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline ml-4 shrink-0"
           >
             Retry
@@ -244,13 +215,11 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <div
-                      className={`rounded-full p-2 ${
-                        run.status === 'COMPLETED'
+                      className={`rounded-full p-2 ${ run.status === 'COMPLETED'
                           ? 'bg-green-100 dark:bg-green-900'
                           : run.status === 'PROCESSING'
                             ? 'bg-yellow-100 dark:bg-yellow-900'
-                            : 'bg-gray-100 dark:bg-gray-800'
-                      }`}
+                            : 'bg-gray-100 dark:bg-gray-800' }`}
                     >
                       {run.status === 'COMPLETED' ? (
                         <CheckCircle className="h-4 w-4 text-green-600" />
@@ -275,15 +244,13 @@ export default function DashboardPage() {
                       {formatCurrency(run.totalNet)}
                     </p>
                     <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                        run.status === 'COMPLETED'
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${ run.status === 'COMPLETED'
                           ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300'
                           : run.status === 'PROCESSING'
                             ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300'
                             : run.status === 'APPROVED'
                               ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300'
-                      }`}
+                              : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300' }`}
                     >
                       {run.status}
                     </span>
@@ -295,5 +262,4 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  );
-}
+  ); }

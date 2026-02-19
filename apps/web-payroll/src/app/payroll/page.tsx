@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  Plus,
+import { Plus,
   Calendar,
   DollarSign,
   Users,
@@ -13,13 +12,11 @@ import {
   Play,
   Sparkles,
   ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+  ChevronUp } from 'lucide-react';
 import api, { aiApi } from '@/lib/api';
 import { Modal, AIDisclosure } from '@ims/ui';
 
-interface PayrollRun {
-  id: string;
+interface PayrollRun { id: string;
   runNumber: string;
   payPeriodType: string;
   periodStart: string;
@@ -30,124 +27,76 @@ interface PayrollRun {
   totalGross: number;
   totalDeductions: number;
   totalNet: number;
-  createdAt: string;
-}
+  createdAt: string; }
 
-export default function PayrollPage() {
-  const [runs, setRuns] = useState<PayrollRun[]>([]);
+export default function PayrollPage() { const [runs, setRuns] = useState<PayrollRun[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState<any | null>(null);
   const [aiExpanded, setAiExpanded] = useState(true);
-  const [formData, setFormData] = useState({
-    periodStart: '',
+  const [formData, setFormData] = useState({ periodStart: '',
     periodEnd: '',
     payDate: '',
-    payFrequency: 'MONTHLY',
-  });
+    payFrequency: 'MONTHLY' });
 
-  useEffect(() => {
-    fetchPayrollRuns();
-  }, [statusFilter]);
+  useEffect(() => { fetchPayrollRuns(); }, [statusFilter]);
 
-  const fetchPayrollRuns = async () => {
-    try {
-      const params = new URLSearchParams();
+  const fetchPayrollRuns = async () => { try { const params = new URLSearchParams();
       if (statusFilter) params.append('status', statusFilter);
 
       const response = await api.get(`/runs?${params.toString()}`);
-      setRuns(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching payroll runs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setRuns(response.data.data || []); } catch (error) { console.error('Error fetching payroll runs:', error); } finally { setLoading(false); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.post('/runs', formData);
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
+    try { await api.post('/runs', formData);
       setShowModal(false);
-      setFormData({
-        periodStart: '',
+      setFormData({ periodStart: '',
         periodEnd: '',
         payDate: '',
-        payFrequency: 'MONTHLY',
-      });
-      fetchPayrollRuns();
-    } catch (error) {
-      console.error('Error creating payroll run:', error);
-    }
-  };
+        payFrequency: 'MONTHLY' });
+      fetchPayrollRuns(); } catch (error) { console.error('Error creating payroll run:', error); } };
 
-  const handleAiValidate = async () => {
-    setAiLoading(true);
-    try {
-      const latestRun = runs.length > 0 ? runs[0] : null;
-      const res = await aiApi.post('/analyze', {
-        type: 'PAYROLL_VALIDATION',
-        context: {
-          runNumber: latestRun?.runNumber,
+  const handleAiValidate = async () => { setAiLoading(true);
+    try { const latestRun = runs.length > 0 ? runs[0] : null;
+      const res = await aiApi.post('/analyze', { type: 'PAYROLL_VALIDATION',
+        context: { runNumber: latestRun?.runNumber,
           periodStart: latestRun?.periodStart,
           periodEnd: latestRun?.periodEnd,
           totalEmployees: runs.reduce((s, r) => s + r.employeeCount, 0),
           totalGross: runs.reduce((s, r) => s + r.totalGross, 0),
           totalNet: runs.reduce((s, r) => s + r.totalNet, 0),
           totalDeductions: runs.reduce((s, r) => s + (r.totalGross - r.totalNet), 0),
-          currency: 'USD',
-        },
-      });
+          currency: 'USD' } });
       setAiResult(res.data.data.result);
-      setAiExpanded(true);
-    } catch (error) {
-      console.error('Error running AI validation:', error);
-    } finally {
-      setAiLoading(false);
-    }
-  };
+      setAiExpanded(true); } catch (error) { console.error('Error running AI validation:', error); } finally { setAiLoading(false); } };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => { return new Intl.NumberFormat('en-US', { style: 'currency',
+      currency: 'USD' }).format(amount); };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'COMPLETED':
+  const getStatusIcon = (status: string) => { switch (status) { case 'COMPLETED':
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'PROCESSING':
         return <Clock className="h-5 w-5 text-yellow-600" />;
       case 'APPROVED':
         return <CheckCircle className="h-5 w-5 text-blue-600" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-600" />;
-    }
-  };
+        return <AlertCircle className="h-5 w-5 text-gray-600" />; } };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
+  const getStatusBadge = (status: string) => { const styles: Record<string, string> = { DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
       PROCESSING: 'bg-yellow-100 text-yellow-800',
       CALCULATED: 'bg-blue-100 text-blue-800',
       APPROVED: 'bg-indigo-100 text-indigo-800',
       COMPLETED: 'bg-green-100 text-green-800',
-      CANCELLED: 'bg-red-100 text-red-800',
-    };
-    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      CANCELLED: 'bg-red-100 text-red-800' };
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400">Loading payroll runs...</div>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="space-y-6">
@@ -249,9 +198,7 @@ export default function PayrollPage() {
               </h3>
               {aiResult.isValid !== undefined && (
                 <span
-                  className={`ml-2 inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                    aiResult.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}
+                  className={`ml-2 inline-flex rounded-full px-2 py-1 text-xs font-medium ${ aiResult.isValid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }`}
                 >
                   {aiResult.isValid ? 'Valid' : 'Issues Found'}
                 </span>
@@ -480,5 +427,4 @@ export default function PayrollPage() {
         </form>
       </Modal>
     </div>
-  );
-}
+  ); }

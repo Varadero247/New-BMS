@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Calculator, Calendar, DollarSign, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Plus, Calculator, Calendar, DollarSign, AlertTriangle } from 'lucide-react';
 import { Modal } from '@ims/ui';
 import api from '@/lib/api';
 
-interface TaxFiling {
-  id: string;
+interface TaxFiling { id: string;
   filingType: string;
   taxPeriod: string;
   taxYear: number;
@@ -19,30 +18,23 @@ interface TaxFiling {
   filingDeadline: string;
   filedAt: string | null;
   paymentStatus: string | null;
-  payrollRun?: {
-    runNumber: string;
+  payrollRun?: { runNumber: string;
     periodStart: string;
-    periodEnd: string;
-  } | null;
-}
+    periodEnd: string; } | null; }
 
-interface TaxSummary {
-  byStatus: Array<{ status: string; _count: number }>;
+interface TaxSummary { byStatus: Array<{ status: string; _count: number }>;
   totalTax: number;
   totalDue: number;
-  upcomingDeadlines: TaxFiling[];
-}
+  upcomingDeadlines: TaxFiling[]; }
 
-export default function TaxPage() {
-  const [filings, setFilings] = useState<TaxFiling[]>([]);
+export default function TaxPage() { const [filings, setFilings] = useState<TaxFiling[]>([]);
   const [summary, setSummary] = useState<TaxSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [yearFilter, setYearFilter] = useState(new Date().getFullYear().toString());
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    filingType: 'WITHHOLDING',
+  const [formData, setFormData] = useState({ filingType: 'WITHHOLDING',
     taxPeriod: '',
     taxYear: new Date().getFullYear().toString(),
     grossWages: '',
@@ -50,16 +42,11 @@ export default function TaxPage() {
     taxWithheld: '',
     employerTax: '0',
     filingDeadline: '',
-    payrollRunId: '',
-  });
+    payrollRunId: '' });
 
-  useEffect(() => {
-    fetchData();
-  }, [statusFilter, typeFilter, yearFilter]);
+  useEffect(() => { fetchData(); }, [statusFilter, typeFilter, yearFilter]);
 
-  const fetchData = async () => {
-    try {
-      const params = new URLSearchParams();
+  const fetchData = async () => { try { const params = new URLSearchParams();
       if (statusFilter) params.append('status', statusFilter);
       if (typeFilter) params.append('filingType', typeFilter);
       if (yearFilter) params.append('taxYear', yearFilter);
@@ -70,29 +57,18 @@ export default function TaxPage() {
       ]);
 
       setFilings(filingsRes.data.data || []);
-      setSummary(summaryRes.data.data);
-    } catch (error) {
-      console.error('Error fetching tax data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setSummary(summaryRes.data.data); } catch (error) { console.error('Error fetching tax data:', error); } finally { setLoading(false); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.post('/tax/filings', {
-        ...formData,
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
+    try { await api.post('/tax/filings', { ...formData,
         taxYear: parseInt(formData.taxYear),
         grossWages: parseFloat(formData.grossWages),
         taxableWages: parseFloat(formData.taxableWages),
         taxWithheld: parseFloat(formData.taxWithheld),
         employerTax: parseFloat(formData.employerTax),
-        payrollRunId: formData.payrollRunId || undefined,
-      });
+        payrollRunId: formData.payrollRunId || undefined });
       setShowModal(false);
-      setFormData({
-        filingType: 'WITHHOLDING',
+      setFormData({ filingType: 'WITHHOLDING',
         taxPeriod: '',
         taxYear: new Date().getFullYear().toString(),
         grossWages: '',
@@ -100,66 +76,43 @@ export default function TaxPage() {
         taxWithheld: '',
         employerTax: '0',
         filingDeadline: '',
-        payrollRunId: '',
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Error creating tax filing:', error);
-    }
-  };
+        payrollRunId: '' });
+      fetchData(); } catch (error) { console.error('Error creating tax filing:', error); } };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => { return new Intl.NumberFormat('en-US', { style: 'currency',
+      currency: 'USD' }).format(amount); };
 
-  const getTypeBadge = (type: string) => {
-    const styles: Record<string, string> = {
-      WITHHOLDING: 'bg-blue-100 text-blue-800',
+  const getTypeBadge = (type: string) => { const styles: Record<string, string> = { WITHHOLDING: 'bg-blue-100 text-blue-800',
       QUARTERLY: 'bg-purple-100 text-purple-800',
       ANNUAL: 'bg-green-100 text-green-800',
       AMENDMENT: 'bg-orange-100 text-orange-800',
       SOCIAL_SECURITY: 'bg-teal-100 text-teal-800',
       MEDICARE: 'bg-cyan-100 text-cyan-800',
       STATE: 'bg-indigo-100 text-indigo-800',
-      LOCAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-    };
-    return styles[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      LOCAL: 'bg-gray-100 dark:bg-gray-800 text-gray-800' };
+    return styles[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  const getStatusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      PENDING: 'bg-yellow-100 text-yellow-800',
+  const getStatusBadge = (status: string) => { const styles: Record<string, string> = { PENDING: 'bg-yellow-100 text-yellow-800',
       PREPARED: 'bg-blue-100 text-blue-800',
       FILED: 'bg-green-100 text-green-800',
       PAID: 'bg-green-100 text-green-800',
-      OVERDUE: 'bg-red-100 text-red-800',
-    };
-    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      OVERDUE: 'bg-red-100 text-red-800' };
+    return styles[status] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  const isDeadlineNear = (deadline: string) => {
-    const deadlineDate = new Date(deadline);
+  const isDeadlineNear = (deadline: string) => { const deadlineDate = new Date(deadline);
     const now = new Date();
     const daysUntil = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return daysUntil <= 7 && daysUntil > 0;
-  };
+    return daysUntil <= 7 && daysUntil > 0; };
 
-  const isOverdue = (deadline: string, status: string) => {
-    if (status === 'FILED' || status === 'PAID') return false;
+  const isOverdue = (deadline: string, status: string) => { if (status === 'FILED' || status === 'PAID') return false;
     const deadlineDate = new Date(deadline);
-    return deadlineDate < new Date();
-  };
+    return deadlineDate < new Date(); };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400">Loading tax data...</div>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="space-y-6">
@@ -317,9 +270,7 @@ export default function TaxPage() {
               filings.map((filing) => (
                 <tr
                   key={filing.id}
-                  className={`hover:bg-gray-50 dark:bg-gray-800 ${
-                    isOverdue(filing.filingDeadline, filing.status) ? 'bg-red-50' : ''
-                  }`}
+                  className={`hover:bg-gray-50 dark:bg-gray-800 ${ isOverdue(filing.filingDeadline, filing.status) ? 'bg-red-50' : '' }`}
                 >
                   <td className="whitespace-nowrap px-6 py-4">
                     <span
@@ -354,13 +305,11 @@ export default function TaxPage() {
                         <AlertTriangle className="h-4 w-4 text-red-500" />
                       )}
                       <span
-                        className={`text-sm ${
-                          isOverdue(filing.filingDeadline, filing.status)
+                        className={`text-sm ${ isOverdue(filing.filingDeadline, filing.status)
                             ? 'text-red-600 font-medium'
                             : isDeadlineNear(filing.filingDeadline)
                               ? 'text-yellow-600'
-                              : 'text-gray-500 dark:text-gray-400'
-                        }`}
+                              : 'text-gray-500 dark:text-gray-400' }`}
                       >
                         {new Date(filing.filingDeadline).toLocaleDateString()}
                       </span>
@@ -368,11 +317,9 @@ export default function TaxPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                        isOverdue(filing.filingDeadline, filing.status)
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${ isOverdue(filing.filingDeadline, filing.status)
                           ? 'bg-red-100 text-red-800'
-                          : getStatusBadge(filing.status)
-                      }`}
+                          : getStatusBadge(filing.status) }`}
                     >
                       {isOverdue(filing.filingDeadline, filing.status) ? 'OVERDUE' : filing.status}
                     </span>
@@ -559,5 +506,4 @@ export default function TaxPage() {
         </form>
       </Modal>
     </div>
-  );
-}
+  ); }

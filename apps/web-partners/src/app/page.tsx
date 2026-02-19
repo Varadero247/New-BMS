@@ -5,78 +5,51 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
-interface Deal {
-  id: string;
+interface Deal { id: string;
   companyName: string;
   contactName: string;
   value: number;
   commission: number;
   status: string;
-  createdAt: string;
-}
+  createdAt: string; }
 
-interface PayoutSummary {
-  totalCommission: number;
+interface PayoutSummary { totalCommission: number;
   pendingCommission: number;
-  availablePayout: number;
-}
+  availablePayout: number; }
 
-export default function DashboardPage() {
-  const router = useRouter();
+export default function DashboardPage() { const router = useRouter();
   const [deals, setDeals] = useState<Deal[]>([]);
-  const [payoutSummary, setPayoutSummary] = useState<PayoutSummary>({
-    totalCommission: 0,
+  const [payoutSummary, setPayoutSummary] = useState<PayoutSummary>({ totalCommission: 0,
     pendingCommission: 0,
-    availablePayout: 0,
-  });
+    availablePayout: 0 });
   const [referralLink, setReferralLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem('partner_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+  useEffect(() => { const token = localStorage.getItem('partner_token');
+    if (!token) { router.push('/login');
+      return; }
 
-    const fetchData = async () => {
-      try {
-        const [dealsRes, payoutsRes] = await Promise.allSettled([
+    const fetchData = async () => { try { const [dealsRes, payoutsRes] = await Promise.allSettled([
           api.get('/api/deals'),
           api.get('/api/payouts'),
         ]);
 
-        if (dealsRes.status === 'fulfilled') {
-          const dealsData = dealsRes.value.data.data || [];
-          setDeals(dealsData);
-        }
+        if (dealsRes.status === 'fulfilled') { const dealsData = dealsRes.value.data.data || [];
+          setDeals(dealsData); }
 
-        if (payoutsRes.status === 'fulfilled') {
-          const payoutData = payoutsRes.value.data.data || {};
-          setPayoutSummary({
-            totalCommission: payoutData.totalCommission || 0,
+        if (payoutsRes.status === 'fulfilled') { const payoutData = payoutsRes.value.data.data || {};
+          setPayoutSummary({ totalCommission: payoutData.totalCommission || 0,
             pendingCommission: payoutData.pendingCommission || 0,
-            availablePayout: payoutData.availablePayout || 0,
-          });
-        }
+            availablePayout: payoutData.availablePayout || 0 }); }
 
-        setReferralLink(`${window.location.origin}/register?ref=${token.slice(-8)}`);
-      } catch {
-        // Silently handle errors
-      } finally {
-        setLoading(false);
-      }
-    };
+        setReferralLink(`${window.location.origin}/register?ref=${token.slice(-8)}`); } catch { /* Silently handle errors */ } finally { setLoading(false); } };
 
-    fetchData();
-  }, [router]);
+    fetchData(); }, [router]);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(referralLink);
+  const handleCopyLink = () => { navigator.clipboard.writeText(referralLink);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    setTimeout(() => setCopied(false), 2000); };
 
   const totalDeals = deals.length;
   const inProgress = deals.filter(
@@ -87,24 +60,20 @@ export default function DashboardPage() {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(value);
 
-  const statusColor: Record<string, string> = {
-    NEW: 'bg-blue-500/20 text-blue-400',
+  const statusColor: Record<string, string> = { NEW: 'bg-blue-500/20 text-blue-400',
     IN_PROGRESS: 'bg-yellow-500/20 text-yellow-400',
     NEGOTIATION: 'bg-purple-500/20 text-purple-400',
     CLOSED_WON: 'bg-green-500/20 text-green-400',
-    CLOSED_LOST: 'bg-red-500/20 text-red-400',
-  };
+    CLOSED_LOST: 'bg-red-500/20 text-red-400' };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
           <div className="text-gray-400 dark:text-gray-500">Loading...</div>
         </main>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="flex min-h-screen">
@@ -237,5 +206,4 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
-  );
-}
+  ); }

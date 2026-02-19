@@ -5,59 +5,46 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
-interface CommissionSummary {
-  totalEarned: number;
+interface CommissionSummary { totalEarned: number;
   totalPaid: number;
   pendingPayout: number;
   dealsWon: number;
   dealsInPipeline: number;
-  pipelineValue: number;
-}
+  pipelineValue: number; }
 
-interface CommissionDeal {
-  id: string;
+interface CommissionDeal { id: string;
   companyName: string;
   actualACV: number | null;
   commissionRate: number;
   commissionValue: number | null;
   commissionPaid: boolean;
-  closedAt: string | null;
-}
+  closedAt: string | null; }
 
 const fmt = (v: number) =>
   new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' }).format(v);
 
-export default function CommissionPage() {
-  const router = useRouter();
+export default function CommissionPage() { const router = useRouter();
   const [summary, setSummary] = useState<CommissionSummary | null>(null);
   const [history, setHistory] = useState<CommissionDeal[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem('partner_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
+  useEffect(() => { const token = localStorage.getItem('partner_token');
+    if (!token) { router.push('/login');
+      return; }
 
     Promise.allSettled([api.get('/api/commission/summary'), api.get('/api/commission/history')])
-      .then(([sumRes, histRes]) => {
-        if (sumRes.status === 'fulfilled') setSummary(sumRes.value.data.data);
-        if (histRes.status === 'fulfilled') setHistory(histRes.value.data.data || []);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+      .then(([sumRes, histRes]) => { if (sumRes.status === 'fulfilled') setSummary(sumRes.value.data.data);
+        if (histRes.status === 'fulfilled') setHistory(histRes.value.data.data || []); })
+      .finally(() => setLoading(false)); }, []);
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
           <div className="text-gray-400">Loading...</div>
         </main>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="flex min-h-screen">
@@ -163,5 +150,4 @@ export default function CommissionPage() {
         </div>
       </main>
     </div>
-  );
-}
+  ); }

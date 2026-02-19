@@ -5,27 +5,22 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 
-interface Referral {
-  id: string;
+interface Referral { id: string;
   referralCode: string;
   prospectEmail: string;
   prospectName: string | null;
   clickedAt: string | null;
   signedUpAt: string | null;
   convertedAt: string | null;
-  createdAt: string;
-}
+  createdAt: string; }
 
-interface ReferralStats {
-  total: number;
+interface ReferralStats { total: number;
   clicked: number;
   signedUp: number;
   converted: number;
-  conversionRate: number;
-}
+  conversionRate: number; }
 
-export default function ReferralsPage() {
-  const router = useRouter();
+export default function ReferralsPage() { const router = useRouter();
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,55 +30,32 @@ export default function ReferralsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const token = localStorage.getItem('partner_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-    fetchData();
-  }, []);
+  useEffect(() => { const token = localStorage.getItem('partner_token');
+    if (!token) { router.push('/login');
+      return; }
+    fetchData(); }, []);
 
-  const fetchData = async () => {
-    setError('');
-    try {
-      const [refRes, statsRes] = await Promise.allSettled([
+  const fetchData = async () => { setError('');
+    try { const [refRes, statsRes] = await Promise.allSettled([
         api.get('/api/referrals'),
         api.get('/api/referrals/stats'),
       ]);
       if (refRes.status === 'fulfilled') setReferrals(refRes.value.data.data || []);
-      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data.data);
-    } catch (err) {
-      console.error('Failed to load referrals', err);
-      setError('Failed to load referrals. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data.data); } catch (err) { console.error('Failed to load referrals', err);
+      setError('Failed to load referrals. Please try again.'); } finally { setLoading(false); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
     setSubmitting(true);
     setError('');
-    try {
-      await api.post('/api/referrals/track', {
-        prospectEmail: formEmail,
-        prospectName: formName || undefined,
-      });
+    try { await api.post('/api/referrals/track', { prospectEmail: formEmail,
+        prospectName: formName || undefined });
       setFormEmail('');
       setFormName('');
       setShowForm(false);
-      fetchData();
-    } catch (err) {
-      console.error('Failed to track referral', err);
-      setError('Failed to submit referral. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+      fetchData(); } catch (err) { console.error('Failed to track referral', err);
+      setError('Failed to submit referral. Please try again.'); } finally { setSubmitting(false); } };
 
-  const statusBadge = (r: Referral) => {
-    if (r.convertedAt)
+  const statusBadge = (r: Referral) => { if (r.convertedAt)
       return (
         <span className="px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-400">
           Converted
@@ -103,19 +75,16 @@ export default function ReferralsPage() {
       );
     return (
       <span className="px-2 py-0.5 rounded-full text-xs bg-gray-500/20 text-gray-400">Sent</span>
-    );
-  };
+    ); };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex min-h-screen">
         <Sidebar />
         <main className="flex-1 p-8 flex items-center justify-center">
           <div className="text-gray-400">Loading...</div>
         </main>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="flex min-h-screen">
@@ -254,5 +223,4 @@ export default function ReferralsPage() {
         </div>
       </main>
     </div>
-  );
-}
+  ); }

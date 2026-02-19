@@ -1,20 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  Plus,
+import { Plus,
   DollarSign,
   Percent,
   Settings,
   Sparkles,
   ChevronDown,
-  ChevronUp,
-} from 'lucide-react';
+  ChevronUp } from 'lucide-react';
 import { AIDisclosure } from '@ims/ui';
 import api, { aiApi } from '@/lib/api';
 
-interface ComponentType {
-  id: string;
+interface ComponentType { id: string;
   code: string;
   name: string;
   description: string | null;
@@ -25,11 +22,9 @@ interface ComponentType {
   isStatutory: boolean;
   defaultCalculationType: string;
   defaultPercentage: number | null;
-  isActive: boolean;
-}
+  isActive: boolean; }
 
-export default function SalaryPage() {
-  const [componentTypes, setComponentTypes] = useState<ComponentType[]>([]);
+export default function SalaryPage() { const [componentTypes, setComponentTypes] = useState<ComponentType[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -37,8 +32,7 @@ export default function SalaryPage() {
   const [aiResult, setAiResult] = useState<any | null>(null);
   const [aiExpanded, setAiExpanded] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    code: '',
+  const [formData, setFormData] = useState({ code: '',
     name: '',
     description: '',
     category: 'BASIC',
@@ -47,40 +41,24 @@ export default function SalaryPage() {
     isRecurring: true,
     isStatutory: false,
     defaultCalculationType: 'FIXED',
-    defaultPercentage: '',
-  });
+    defaultPercentage: '' });
 
-  useEffect(() => {
-    fetchComponentTypes();
-  }, [typeFilter, categoryFilter]);
+  useEffect(() => { fetchComponentTypes(); }, [typeFilter, categoryFilter]);
 
-  const fetchComponentTypes = async () => {
-    try {
-      const params = new URLSearchParams();
+  const fetchComponentTypes = async () => { try { const params = new URLSearchParams();
       if (typeFilter) params.append('type', typeFilter);
       if (categoryFilter) params.append('category', categoryFilter);
 
       const response = await api.get(`/salary/component-types?${params.toString()}`);
-      setComponentTypes(response.data.data || []);
-    } catch (error) {
-      console.error('Error fetching component types:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setComponentTypes(response.data.data || []); } catch (error) { console.error('Error fetching component types:', error); } finally { setLoading(false); } };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await api.post('/salary/component-types', {
-        ...formData,
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
+    try { await api.post('/salary/component-types', { ...formData,
         defaultPercentage: formData.defaultPercentage
           ? parseFloat(formData.defaultPercentage)
-          : undefined,
-      });
+          : undefined });
       setShowModal(false);
-      setFormData({
-        code: '',
+      setFormData({ code: '',
         name: '',
         description: '',
         category: 'BASIC',
@@ -89,40 +67,21 @@ export default function SalaryPage() {
         isRecurring: true,
         isStatutory: false,
         defaultCalculationType: 'FIXED',
-        defaultPercentage: '',
-      });
-      fetchComponentTypes();
-    } catch (error) {
-      console.error('Error creating component type:', error);
-    }
-  };
+        defaultPercentage: '' });
+      fetchComponentTypes(); } catch (error) { console.error('Error creating component type:', error); } };
 
-  const handleAiBenchmark = async () => {
-    setAiLoading(true);
-    try {
-      const res = await aiApi.post('/analyze', {
-        type: 'SALARY_BENCHMARK',
-        context: {
-          jobTitle: 'General Staff',
+  const handleAiBenchmark = async () => { setAiLoading(true);
+    try { const res = await aiApi.post('/analyze', { type: 'SALARY_BENCHMARK',
+        context: { jobTitle: 'General Staff',
           department: 'All Departments',
           location: 'United Kingdom',
           experienceLevel: 'Mid-level',
           industry: 'General',
-          currency: 'GBP',
-        },
-      });
+          currency: 'GBP' } });
       setAiResult(res.data.data.result);
-      setAiExpanded(true);
-    } catch (error) {
-      console.error('Error running AI benchmark:', error);
-    } finally {
-      setAiLoading(false);
-    }
-  };
+      setAiExpanded(true); } catch (error) { console.error('Error running AI benchmark:', error); } finally { setAiLoading(false); } };
 
-  const getCategoryBadge = (category: string) => {
-    const styles: Record<string, string> = {
-      BASIC: 'bg-blue-100 text-blue-800',
+  const getCategoryBadge = (category: string) => { const styles: Record<string, string> = { BASIC: 'bg-blue-100 text-blue-800',
       ALLOWANCE: 'bg-green-100 text-green-800',
       BONUS: 'bg-purple-100 text-purple-800',
       COMMISSION: 'bg-yellow-100 text-yellow-800',
@@ -130,18 +89,14 @@ export default function SalaryPage() {
       REIMBURSEMENT: 'bg-teal-100 text-teal-800',
       STATUTORY: 'bg-red-100 text-red-800',
       DEDUCTION: 'bg-pink-100 text-pink-800',
-      OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
-    };
-    return styles[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800';
-  };
+      OTHER: 'bg-gray-100 dark:bg-gray-800 text-gray-800' };
+    return styles[category] || 'bg-gray-100 dark:bg-gray-800 text-gray-800'; };
 
-  if (loading) {
-    return (
+  if (loading) { return (
       <div className="flex h-64 items-center justify-center">
         <div className="text-gray-500 dark:text-gray-400">Loading salary components...</div>
       </div>
-    );
-  }
+    ); }
 
   return (
     <div className="space-y-6">
@@ -370,11 +325,9 @@ export default function SalaryPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                        component.type === 'EARNING'
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${ component.type === 'EARNING'
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
+                          : 'bg-red-100 text-red-800' }`}
                     >
                       {component.type}
                     </span>
@@ -399,11 +352,9 @@ export default function SalaryPage() {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span
-                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                        component.isActive
+                      className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${ component.isActive
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-800'
-                      }`}
+                          : 'bg-gray-100 dark:bg-gray-800 text-gray-800' }`}
                     >
                       {component.isActive ? 'Active' : 'Inactive'}
                     </span>
@@ -502,8 +453,7 @@ export default function SalaryPage() {
                   <select
                     value={formData.defaultCalculationType}
                     onChange={(e) =>
-                      setFormData({ ...formData, defaultCalculationType: e.target.value })
-                    }
+                      setFormData({ ...formData, defaultCalculationType: e.target.value }) }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   >
                     <option value="FIXED">Fixed Amount</option>
@@ -522,8 +472,7 @@ export default function SalaryPage() {
                     step="0.01"
                     value={formData.defaultPercentage}
                     onChange={(e) =>
-                      setFormData({ ...formData, defaultPercentage: e.target.value })
-                    }
+                      setFormData({ ...formData, defaultPercentage: e.target.value }) }
                     className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none"
                   />
                 </div>
@@ -577,5 +526,4 @@ export default function SalaryPage() {
         </div>
       )}
     </div>
-  );
-}
+  ); }

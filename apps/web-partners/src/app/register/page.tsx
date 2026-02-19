@@ -19,59 +19,38 @@ const ISO_SPECIALISMS = [
   'AS9100 - Aerospace',
 ];
 
-export default function RegisterPage() {
-  const router = useRouter();
-  const [form, setForm] = useState({
-    name: '',
+export default function RegisterPage() { const router = useRouter();
+  const [form, setForm] = useState({ name: '',
     email: '',
     company: '',
     password: '',
     confirmPassword: '',
-    specialisms: [] as string[],
-  });
+    specialisms: [] as string[] });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const toggleSpecialism = (specialism: string) => {
-    setForm((prev) => ({
-      ...prev,
+  const toggleSpecialism = (specialism: string) => { setForm((prev) => ({ ...prev,
       specialisms: prev.specialisms.includes(specialism)
         ? prev.specialisms.filter((s) => s !== specialism)
-        : [...prev.specialisms, specialism],
-    }));
-  };
+        : [...prev.specialisms, specialism] })); };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => { e.preventDefault();
     setError('');
 
-    if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+    if (form.password !== form.confirmPassword) { setError('Passwords do not match');
+      return; }
 
-    if (form.password.length < 8) {
-      setError('Password must be at least 8 characters');
-      return;
-    }
+    if (form.password.length < 8) { setError('Password must be at least 8 characters');
+      return; }
 
     setLoading(true);
 
-    try {
-      await api.post('/api/auth/register', {
-        name: form.name,
+    try { await api.post('/api/auth/register', { name: form.name,
         email: form.email,
         company: form.company,
         password: form.password,
-        specialisms: form.specialisms,
-      });
-      router.push('/login?registered=true');
-    } catch (err) {
-      setError((err as any).response?.data?.message || 'Registration failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+        specialisms: form.specialisms });
+      router.push('/login?registered=true'); } catch (err) { setError((err as any).response?.data?.message || 'Registration failed. Please try again.'); } finally { setLoading(false); } };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4 py-12">
@@ -161,11 +140,9 @@ export default function RegisterPage() {
                 {ISO_SPECIALISMS.map((specialism) => (
                   <label
                     key={specialism}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors ${
-                      form.specialisms.includes(specialism)
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors ${ form.specialisms.includes(specialism)
                         ? 'border-[#1B3A6B] bg-[#1B3A6B]/20 text-white'
-                        : 'border-gray-700 bg-gray-800 text-gray-400 dark:text-gray-500 hover:border-gray-600'
-                    }`}
+                        : 'border-gray-700 bg-gray-800 text-gray-400 dark:text-gray-500 hover:border-gray-600' }`}
                   >
                     <input
                       type="checkbox"
@@ -174,11 +151,9 @@ export default function RegisterPage() {
                       className="sr-only"
                     />
                     <div
-                      className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
-                        form.specialisms.includes(specialism)
+                      className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${ form.specialisms.includes(specialism)
                           ? 'bg-[#1B3A6B] border-[#1B3A6B]'
-                          : 'border-gray-600'
-                      }`}
+                          : 'border-gray-600' }`}
                     >
                       {form.specialisms.includes(specialism) && (
                         <svg
@@ -216,5 +191,4 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
-  );
-}
+  ); }

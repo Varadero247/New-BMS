@@ -7,29 +7,18 @@ import { ThemeSwitch } from '@ims/ui';
 import { ThemingProvider } from '@ims/theming';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-body' });
-const syne = Syne({
-  subsets: ['latin'],
+const syne = Syne({ subsets: ['latin'],
   variable: '--font-display',
-  weight: ['400', '600', '700', '800'],
-});
-const dmMono = DM_Mono({
-  subsets: ['latin'],
+  weight: ['400', '600', '700', '800'] });
+const dmMono = DM_Mono({ subsets: ['latin'],
   variable: '--font-mono',
-  weight: ['300', '400', '500'],
-});
+  weight: ['300', '400', '500'] });
 
-export const metadata: Metadata = {
-  title: 'Payroll — Nexara IMS',
+export const metadata: Metadata = { title: 'Payroll — Nexara IMS',
   description: 'Payroll and Compensation Management System',
-  themeColor: '#080B12',
-};
+  themeColor: '#080B12' };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) { return (
     <html
       lang="en"
       data-theme="dark"
@@ -39,9 +28,7 @@ export default function RootLayout({
     >
       <head>
         <script
-          dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('nexara-theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.removeAttribute('data-theme')}else{document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark')}}catch(e){}`,
-          }}
+          dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('nexara-theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.removeAttribute('data-theme')}else{document.documentElement.classList.add('dark');document.documentElement.setAttribute('data-theme','dark')}}catch(e){}` }}
         />
       </head>
       <body
@@ -58,5 +45,4 @@ export default function RootLayout({
         <ThemeSwitch />
       </body>
     </html>
-  );
-}
+  ); }
