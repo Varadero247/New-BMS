@@ -231,6 +231,7 @@ model ChemRegister {
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
   createdBy             String?
+  updatedBy             String?
   orgId                 String?
 
   // Relations
@@ -366,6 +367,8 @@ model ChemSds {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
 
   @@map("chem_sds")
   @@index([chemicalId])
@@ -477,6 +480,7 @@ model ChemCoshh {
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
   createdBy             String?
+  updatedBy             String?
   orgId                 String?
 
   exposureMonitoring    ChemMonitoring[]
@@ -515,6 +519,9 @@ model ChemInventory {
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  createdBy         String?
+  updatedBy         String?
+  deletedAt         DateTime?
 
   usageRecords      ChemUsage[]
 
@@ -544,7 +551,10 @@ model ChemUsage {
   notes                 String?
 
   createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
   createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
 
   @@map("chem_usage")
   @@index([chemicalId])
@@ -581,6 +591,9 @@ model ChemMonitoring {
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
 
   @@map("chem_monitoring")
   @@index([chemicalId])
@@ -611,7 +624,10 @@ model ChemDisposal {
   approvedBy            String?
 
   createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
   createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
 
   @@map("chem_disposal")
   @@index([chemicalId])
@@ -648,6 +664,8 @@ model ChemIncident {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
   orgId                 String?
 
   @@map("chem_incidents")
@@ -675,6 +693,10 @@ model ChemIncompatAlert {
   resolvedBy        String?
 
   createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdBy         String?
+  updatedBy         String?
+  deletedAt         DateTime?
 
   @@map("chem_incompat_alerts")
   @@index([chemicalId])

@@ -156,6 +156,9 @@ model FemPremises {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   organisationId        String?
+  createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
 
   fireRiskAssessments   FemFireRiskAssessment[]
   assemblyPoints        FemAssemblyPoint[]
@@ -224,6 +227,7 @@ model FemFireRiskAssessment {
   approvedAt            DateTime?
   deletedAt             DateTime?
   createdBy             String?
+  updatedBy             String?
   organisationId        String?
 
   linkedRiskId          String?
@@ -254,6 +258,9 @@ model FemAssemblyPoint {
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  createdBy         String?
+  updatedBy         String?
+  deletedAt         DateTime?
 
   @@map("fem_assembly_points")
 }
@@ -277,6 +284,9 @@ model FemEvacuationRoute {
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  createdBy         String?
+  updatedBy         String?
+  deletedAt         DateTime?
 
   @@map("fem_evacuation_routes")
 }
@@ -317,6 +327,8 @@ model FemPeep {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
 
   @@map("fem_peeps")
   @@index([premisesId])
@@ -349,6 +361,9 @@ model FemFireWarden {
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  createdBy         String?
+  updatedBy         String?
+  deletedAt         DateTime?
 
   @@map("fem_fire_wardens")
   @@index([premisesId])
@@ -374,6 +389,9 @@ model FemEmergencyContact {
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  createdBy         String?
+  updatedBy         String?
+  deletedAt         DateTime?
 
   @@map("fem_emergency_contacts")
 }
@@ -408,6 +426,9 @@ model FemEmergencyEquipment {
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
 
   @@map("fem_emergency_equipment")
   @@index([premisesId])
@@ -480,6 +501,8 @@ model FemEmergencyIncident {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
   organisationId        String?
 
   decisions             FemIncidentDecisionLog[]
@@ -509,6 +532,11 @@ model FemIncidentDecisionLog {
   decisionMade        String
   rationaleForDecision String?
   resourcesAllocated  String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  createdBy           String?
+  updatedBy           String?
+  deletedAt           DateTime?
 
   @@map("fem_incident_decision_log")
   @@index([incidentId])
@@ -528,6 +556,10 @@ model FemIncidentResourceLog {
   location            String?
   releasedAt          DateTime?
   notes               String?
+  updatedAt           DateTime  @updatedAt
+  createdBy           String?
+  updatedBy           String?
+  deletedAt           DateTime?
 
   @@map("fem_incident_resource_log")
   @@index([incidentId])
@@ -548,6 +580,10 @@ model FemIncidentCommunicationLog {
   acknowledgement     Boolean   @default(false)
   acknowledgedAt      DateTime?
   sentBy              String?
+  updatedAt           DateTime  @updatedAt
+  createdBy           String?
+  updatedBy           String?
+  deletedAt           DateTime?
 
   @@map("fem_incident_communication_log")
   @@index([incidentId])
@@ -564,6 +600,10 @@ model FemIncidentTimelineEvent {
   eventType           String
   description         String
   recordedBy          String?
+  updatedAt           DateTime  @updatedAt
+  createdBy           String?
+  updatedBy           String?
+  deletedAt           DateTime?
 
   @@map("fem_incident_timeline_events")
   @@index([incidentId])
@@ -602,6 +642,8 @@ model FemEvacuationDrill {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
 
   @@map("fem_evacuation_drills")
   @@index([premisesId])
@@ -654,6 +696,8 @@ model FemBusinessContinuityPlan {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   createdBy             String?
+  updatedBy             String?
+  deletedAt             DateTime?
   organisationId        String?
 
   exercises             FemBcpExercise[]
@@ -696,6 +740,8 @@ model FemBcpExercise {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   createdBy           String?
+  updatedBy           String?
+  deletedAt           DateTime?
 
   @@map("fem_bcp_exercises")
   @@index([bcpId])
