@@ -71,7 +71,7 @@ router.get('/stats', authenticate, async (req: Request, res: Response) => {
       },
     });
   } catch (error: unknown) {
-    logger.error('Failed to fetch stats', { error: (error as any).message });
+    logger.error('Failed to fetch stats', { error: (error instanceof Error ? error.message : String(error)) });
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch stats' },

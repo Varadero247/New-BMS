@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -127,7 +128,7 @@ export default function TaxPage() {
       setCreateRateOpen(false);
       loadData();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create tax rate.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create tax rate.');
     } finally {
       setSubmitting(false);
     }
@@ -162,7 +163,7 @@ export default function TaxPage() {
       setCreateReturnOpen(false);
       loadData();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create tax return.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create tax return.');
     } finally {
       setSubmitting(false);
     }

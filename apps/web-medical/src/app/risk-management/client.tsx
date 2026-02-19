@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -307,7 +308,7 @@ export default function RiskManagementClient() {
         setRmfForm(emptyRmfForm);
         fetchRiskFiles();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create risk management file');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create risk management file');
       } finally {
         setSubmitting(false);
       }
@@ -330,7 +331,7 @@ export default function RiskManagementClient() {
         setHazardForm(emptyHazardForm);
         fetchRmfDetail(selectedRmf.id);
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to add hazard');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to add hazard');
       } finally {
         setSubmitting(false);
       }
@@ -357,7 +358,7 @@ export default function RiskManagementClient() {
         );
         if (updatedHazard) setSelectedHazard(updatedHazard);
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to add control');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to add control');
       } finally {
         setSubmitting(false);
       }
@@ -376,7 +377,7 @@ export default function RiskManagementClient() {
         setShowBenefitRiskModal(false);
         fetchRmfDetail(selectedRmf.id);
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to save benefit-risk analysis');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to save benefit-risk analysis');
       } finally {
         setSubmitting(false);
       }

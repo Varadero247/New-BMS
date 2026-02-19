@@ -11,7 +11,7 @@ api.interceptors.request.use((config) => { const token = localStorage.getItem('p
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => { if ((error as any).response?.status === 401 && typeof window !== 'undefined') { localStorage.removeItem('partner_token');
+  (error) => { if (axios.isAxiosError(error) && error.response?.status === 401 && typeof window !== 'undefined') { localStorage.removeItem('partner_token');
       window.location.href = '/login'; }
     return Promise.reject(error); }
 );

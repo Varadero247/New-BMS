@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -146,7 +147,7 @@ export default function AccountsPage() {
       setCreateModalOpen(false);
       loadAccounts();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create account.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create account.');
     } finally {
       setSubmitting(false);
     }
@@ -169,7 +170,7 @@ export default function AccountsPage() {
       setEditModalOpen(false);
       loadAccounts();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to update account.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to update account.');
     } finally {
       setSubmitting(false);
     }

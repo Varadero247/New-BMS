@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -265,7 +266,7 @@ export default function HumanFactorsClient() {
         fetchIncidents();
         fetchDashboard();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create incident');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create incident');
         console.error('Failed to create HF incident:', err);
       } finally {
         setSubmitting(false);
@@ -289,7 +290,7 @@ export default function HumanFactorsClient() {
         setFatigueForm(emptyFatigueForm);
         fetchFatigue();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create fatigue assessment');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create fatigue assessment');
         console.error('Failed to create fatigue assessment:', err);
       } finally {
         setSubmitting(false);

@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -281,7 +282,7 @@ export default function DesignControlsClient() {
         setForm(emptyForm);
         fetchDesignControls();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create design control record');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create design control record');
         console.error('Failed to create design control:', err);
       } finally {
         setSubmitting(false);
@@ -307,7 +308,7 @@ export default function DesignControlsClient() {
         setForm(emptyForm);
         fetchDesignControls();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to update design control record');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to update design control record');
         console.error('Failed to update design control:', err);
       } finally {
         setSubmitting(false);

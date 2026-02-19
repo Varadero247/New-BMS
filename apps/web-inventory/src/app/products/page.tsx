@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -76,7 +77,7 @@ export default function ProductsPage() {
       await inventoryApi.deleteProduct(id);
       loadProducts();
     } catch (error) {
-      alert((error as any).response?.data?.error?.message || 'Failed to delete product');
+      alert((axios.isAxiosError(error) && error.response?.data?.error)?.message || 'Failed to delete product');
     }
   }
 
@@ -343,7 +344,7 @@ function ProductModal({
       }
       onSave();
     } catch (err) {
-      setError((err as any).response?.data?.error?.message || 'Failed to save product');
+      setError((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Failed to save product');
     } finally {
       setLoading(false);
     }

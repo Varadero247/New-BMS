@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -182,7 +183,7 @@ export default function InvoicesPage() {
       setCreateModalOpen(false);
       loadInvoices();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create invoice.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create invoice.');
     } finally {
       setSubmitting(false);
     }

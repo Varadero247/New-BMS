@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -186,7 +187,7 @@ export default function TrainingPage() {
       setCourseModalOpen(false);
       loadData();
     } catch (error) {
-      const msg = (error as any).response?.data?.error?.message;
+      const msg = (axios.isAxiosError(error) && error.response?.data?.error)?.message;
       setCourseError(typeof msg === 'string' ? msg : 'Failed to create course.');
     } finally {
       setCreatingCourse(false);
@@ -227,7 +228,7 @@ export default function TrainingPage() {
       setSessionModalOpen(false);
       loadData();
     } catch (error) {
-      const msg = (error as any).response?.data?.error?.message;
+      const msg = (axios.isAxiosError(error) && error.response?.data?.error)?.message;
       setSessionError(typeof msg === 'string' ? msg : 'Failed to create session.');
     } finally {
       setCreatingSession(false);

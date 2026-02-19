@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -170,7 +171,7 @@ export default function LeavePage() {
       setCreateModalOpen(false);
       loadRequests();
     } catch (error) {
-      const msg = (error as any).response?.data?.error?.message;
+      const msg = (axios.isAxiosError(error) && error.response?.data?.error)?.message;
       setCreateError(typeof msg === 'string' ? msg : 'Failed to create leave request.');
     } finally {
       setCreating(false);
@@ -200,7 +201,7 @@ export default function LeavePage() {
       setActionModalOpen(false);
       loadRequests();
     } catch (error) {
-      const msg = (error as any).response?.data?.error?.message;
+      const msg = (axios.isAxiosError(error) && error.response?.data?.error)?.message;
       setActionError(
         typeof msg === 'string'
           ? msg

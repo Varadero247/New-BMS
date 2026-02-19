@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
@@ -75,7 +76,7 @@ export default function ProspectResearchPage() {
       setEditedEmail(data.generatedEmail || '');
       fetchHistory();
     } catch (err) {
-      setError((err as any).response?.data?.message || 'Research failed. Please try again.');
+      setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Research failed. Please try again.');
     } finally {
       setLoading(false);
     }

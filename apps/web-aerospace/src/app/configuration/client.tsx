@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -263,7 +264,7 @@ export default function ConfigurationClient() {
         setAiExpanded(false);
         fetchItems();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create configuration item');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create configuration item');
         console.error('Failed to create configuration item:', err);
       } finally {
         setSubmitting(false);
@@ -289,7 +290,7 @@ export default function ConfigurationClient() {
         setSelectedItem(null);
         fetchItems();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to update configuration item');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to update configuration item');
         console.error('Failed to update configuration item:', err);
       } finally {
         setSubmitting(false);
@@ -311,7 +312,7 @@ export default function ConfigurationClient() {
         fetchItems();
       } catch (err) {
         console.error('Failed to delete configuration item:', err);
-        alert((err as any).response?.data?.message || 'Failed to delete configuration item');
+        alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to delete configuration item');
       }
     },
     [fetchItems]

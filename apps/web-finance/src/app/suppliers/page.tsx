@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -125,7 +126,7 @@ export default function SuppliersPage() {
       setCreateModalOpen(false);
       loadSuppliers();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create supplier.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create supplier.');
     } finally {
       setSubmitting(false);
     }
@@ -148,7 +149,7 @@ export default function SuppliersPage() {
       setEditModalOpen(false);
       loadSuppliers();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to update supplier.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to update supplier.');
     } finally {
       setSubmitting(false);
     }

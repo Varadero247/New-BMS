@@ -113,7 +113,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: location });
   } catch (error: unknown) {
-    if ((error as any)?.code === 'P2002') {
+    if ((error as { code?: string })?.code === 'P2002') {
       return res.status(409).json({
         success: false,
         error: { code: 'CONFLICT', message: 'Location code already exists' },

@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useState, useEffect, type ElementType } from 'react';
 import { api } from '@/lib/api';
 import { Sidebar } from '@/components/sidebar';
@@ -153,7 +154,7 @@ export default function LinkedInTrackerPage() {
       setCompany('');
       setCustomContext('');
     } catch (err) {
-      setError((err as any).response?.data?.message || 'Failed to create outreach');
+      setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create outreach');
     } finally {
       setSubmitting(false);
     }

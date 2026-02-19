@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar';
@@ -51,7 +52,7 @@ export default function DealsPage() { const router = useRouter();
         notes: form.notes });
       setShowForm(false);
       setForm({ companyName: '', contactName: '', contactEmail: '', value: '', notes: '' });
-      fetchDeals(); } catch (err) { setError((err as any).response?.data?.message || 'Failed to submit deal'); } finally { setSubmitting(false); } };
+      fetchDeals(); } catch (err) { setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to submit deal'); } finally { setSubmitting(false); } };
 
   const handleSort = (field: SortField) => { if (sortField === field) { setSortDir(sortDir === 'asc' ? 'desc' : 'asc'); } else { setSortField(field);
       setSortDir('asc'); } };

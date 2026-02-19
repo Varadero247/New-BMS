@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -50,7 +51,7 @@ export default function RegisterPage() { const router = useRouter();
         company: form.company,
         password: form.password,
         specialisms: form.specialisms });
-      router.push('/login?registered=true'); } catch (err) { setError((err as any).response?.data?.message || 'Registration failed. Please try again.'); } finally { setLoading(false); } };
+      router.push('/login?registered=true'); } catch (err) { setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Registration failed. Please try again.'); } finally { setLoading(false); } };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4 py-12">

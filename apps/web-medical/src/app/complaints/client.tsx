@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -325,7 +326,7 @@ export default function ComplaintsClient() {
         fetchComplaints();
         fetchMdrPending();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create complaint');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create complaint');
       } finally {
         setSubmitting(false);
       }
@@ -342,7 +343,7 @@ export default function ComplaintsClient() {
       fetchComplaintDetail(selectedComplaint.id);
       fetchComplaints();
     } catch (err) {
-      setError((err as any).response?.data?.message || 'Failed to update investigation');
+      setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to update investigation');
     } finally {
       setSubmitting(false);
     }
@@ -358,7 +359,7 @@ export default function ComplaintsClient() {
       fetchComplaints();
       fetchMdrPending();
     } catch (err) {
-      setError((err as any).response?.data?.message || 'Failed to submit MDR decision');
+      setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to submit MDR decision');
     } finally {
       setSubmitting(false);
     }
@@ -373,7 +374,7 @@ export default function ComplaintsClient() {
       fetchComplaintDetail(selectedComplaint.id);
       fetchComplaints();
     } catch (err) {
-      setError((err as any).response?.data?.message || 'Failed to close complaint');
+      setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to close complaint');
     } finally {
       setSubmitting(false);
     }

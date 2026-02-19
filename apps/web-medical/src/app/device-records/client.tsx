@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -256,7 +257,7 @@ export default function DeviceRecordsClient() {
         setDmrForm(emptyDmrForm);
         fetchDmrs();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create DMR');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create DMR');
       } finally {
         setSubmitting(false);
       }
@@ -272,7 +273,7 @@ export default function DeviceRecordsClient() {
         fetchDmrDetail(id);
         fetchDmrs();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to approve DMR');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to approve DMR');
       } finally {
         setSubmitting(false);
       }
@@ -297,7 +298,7 @@ export default function DeviceRecordsClient() {
         setDhrForm(emptyDhrForm);
         fetchDhrs();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create DHR');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create DHR');
       } finally {
         setSubmitting(false);
       }
@@ -317,7 +318,7 @@ export default function DeviceRecordsClient() {
         setRecordForm(emptyRecordForm);
         fetchDhrDetail(selectedDhr.id);
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to add production record');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to add production record');
       } finally {
         setSubmitting(false);
       }
@@ -333,7 +334,7 @@ export default function DeviceRecordsClient() {
         fetchDhrDetail(id);
         fetchDhrs();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to release DHR');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to release DHR');
       } finally {
         setSubmitting(false);
       }

@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, Badge } from '@ims/ui';
 import { AlertTriangle, CheckCircle, MapPin } from 'lucide-react';
@@ -32,7 +33,7 @@ export default function ConflictsClient() {
       setConflicts(response.data.data || []);
     } catch (err) {
       setError(
-        (err as any).response?.status === 401
+        axios.isAxiosError(err) && err.response?.status === 401
           ? 'Session expired. Please log in again.'
           : 'Failed to load conflicts.'
       );

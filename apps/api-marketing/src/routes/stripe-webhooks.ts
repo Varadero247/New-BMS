@@ -138,7 +138,7 @@ router.post('/stripe', async (req: Request, res: Response) => {
             });
             logger.info('Win-back sequence created', { orgId });
           } catch (err: unknown) {
-            if ((err as any)?.code !== 'P2002') {
+            if ((err as { code?: string })?.code !== 'P2002') {
               // Ignore unique constraint (already exists)
               logger.error('Failed to create win-back sequence', { error: String(err) });
             }

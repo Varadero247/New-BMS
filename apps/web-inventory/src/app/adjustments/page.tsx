@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '@ims/ui';
 import { ArrowRightLeft, Plus, Minus, RefreshCw, Search, Package } from 'lucide-react';
@@ -158,7 +159,7 @@ export default function AdjustmentsPage() {
         unitCost: 0,
       });
     } catch (err) {
-      setError((err as any).response?.data?.error?.message || 'Operation failed');
+      setError((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Operation failed');
     } finally {
       setLoading(false);
     }

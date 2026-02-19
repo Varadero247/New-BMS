@@ -25,6 +25,7 @@ export default function TrendsPage() {
 
   useEffect(() => {
     fetchTrends();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedYear, selectedStandard]);
 
   async function fetchTrends() {

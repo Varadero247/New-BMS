@@ -176,7 +176,7 @@ router.post('/monitor', async (req: AuthRequest, res: Response) => {
         },
       });
     }
-    if ((error as any)?.code === 'P2002') {
+    if ((error as { code?: string })?.code === 'P2002') {
       return res.status(409).json({
         success: false,
         error: {

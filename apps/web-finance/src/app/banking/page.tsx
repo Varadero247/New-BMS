@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -155,7 +156,7 @@ export default function BankingPage() {
       setCreateAccountOpen(false);
       loadAccounts();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create bank account.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create bank account.');
     } finally {
       setSubmitting(false);
     }
@@ -191,7 +192,7 @@ export default function BankingPage() {
       else loadAllTransactions();
       loadAccounts();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create transaction.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create transaction.');
     } finally {
       setSubmitting(false);
     }

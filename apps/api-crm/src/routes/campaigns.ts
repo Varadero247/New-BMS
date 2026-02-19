@@ -236,7 +236,7 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
           err !== null &&
           typeof err === 'object' &&
           'code' in err &&
-          (err as any).code === 'P2002'
+          (err as { code?: string }).code === 'P2002'
         ) {
           logger.warn('Contact already in campaign', { campaignId: req.params.id, contactId });
         } else {
@@ -437,7 +437,7 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
           err !== null &&
           typeof err === 'object' &&
           'code' in err &&
-          (err as any).code === 'P2002'
+          (err as { code?: string }).code === 'P2002'
         ) {
           logger.warn('Contact already enrolled in sequence', {
             sequenceId: req.params.id,

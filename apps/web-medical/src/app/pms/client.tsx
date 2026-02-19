@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -221,7 +222,7 @@ export default function PMSClient() {
         fetchPlans();
         fetchDashboard();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create plan');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create plan');
       } finally {
         setSubmitting(false);
       }
@@ -242,7 +243,7 @@ export default function PMSClient() {
         setReportForm(emptyReportForm);
         fetchDashboard();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create report');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create report');
       } finally {
         setSubmitting(false);
       }

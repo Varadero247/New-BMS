@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -134,7 +135,7 @@ export default function DealsPage() {
       setCreateModalOpen(false);
       loadDeals();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create deal.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create deal.');
     } finally {
       setSubmitting(false);
     }

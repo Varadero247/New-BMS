@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useMemo } from 'react';
 import {
   Card,
@@ -211,7 +212,7 @@ export default function ForecastPage() {
       setCreateModalOpen(false);
       loadAll();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create forecast entry.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create forecast entry.');
     } finally {
       setSubmitting(false);
     }
@@ -238,7 +239,7 @@ export default function ForecastPage() {
       setEditModalOpen(false);
       loadAll();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to update forecast entry.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to update forecast entry.');
     } finally {
       setSubmitting(false);
     }

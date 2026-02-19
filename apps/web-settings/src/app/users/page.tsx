@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal } from '@ims/ui';
 import { Users, Search, Mail, Shield, Check, UserPlus } from 'lucide-react';
@@ -114,7 +115,7 @@ export default function UsersPage() {
       setInviteForm({ email: '', firstName: '', lastName: '', password: '', role: 'USER' });
       loadUsers();
     } catch (err) {
-      alert((err as any).response?.data?.error?.message || 'Failed to create user');
+      alert((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Failed to create user');
     }
   }
 

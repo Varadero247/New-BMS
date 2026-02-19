@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -183,7 +184,7 @@ export default function JournalPage() {
       setCreateModalOpen(false);
       loadEntries();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create journal entry.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create journal entry.');
     } finally {
       setSubmitting(false);
     }

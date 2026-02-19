@@ -27,7 +27,7 @@ export default function LoginPage() {
         setError('No token received');
       }
     } catch (err) {
-      setError((err as any).response?.data?.message || 'Login failed');
+      setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Login failed');
     } finally {
       setLoading(false);
     }

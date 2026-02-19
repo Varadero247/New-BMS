@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -220,7 +221,7 @@ export default function UDIClient() {
         setForm(emptyDeviceForm);
         fetchDevices();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create device');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create device');
       } finally {
         setSubmitting(false);
       }
@@ -240,7 +241,7 @@ export default function UDIClient() {
         setDIForm(emptyDIForm);
         fetchDeviceDetail(selectedDevice.id);
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to add DI record');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to add DI record');
       } finally {
         setSubmitting(false);
       }
@@ -260,7 +261,7 @@ export default function UDIClient() {
         setPIForm(emptyPIForm);
         fetchDeviceDetail(selectedDevice.id);
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to add PI record');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to add PI record');
       } finally {
         setSubmitting(false);
       }

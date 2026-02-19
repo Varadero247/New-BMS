@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -119,7 +120,7 @@ export default function BudgetsPage() {
       setCreateModalOpen(false);
       loadBudgets();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create budget entry.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create budget entry.');
     } finally {
       setSubmitting(false);
     }

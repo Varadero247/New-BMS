@@ -19,7 +19,7 @@ export default function LoginPage() {
       localStorage.setItem('token', res.data.data.accessToken);
       window.location.href = '/';
     } catch (err) {
-      setError((err as any).response?.data?.message || 'Login failed');
+      setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Login failed');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -109,7 +110,7 @@ export default function PartnersPage() {
       setCreateModalOpen(false);
       loadPartners();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to register partner.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to register partner.');
     } finally {
       setSubmitting(false);
     }

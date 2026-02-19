@@ -33,7 +33,7 @@ export const aiApi = axios.create({
   instance.interceptors.response.use(
     (response) => response,
     (error) => {
-      if ((error as any).response?.status === 401) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
         localStorage.removeItem('token');
         window.location.href = '/login';
       }

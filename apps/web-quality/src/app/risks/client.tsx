@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -408,7 +409,7 @@ export default function RisksClient() {
         setPartyForm(emptyPartyForm);
         fetchParties();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create interested party');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create interested party');
         console.error('Failed to create party:', err);
       } finally {
         setSubmittingParty(false);
@@ -428,7 +429,7 @@ export default function RisksClient() {
         setIssueForm(emptyIssueForm);
         fetchIssues();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create issue');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create issue');
         console.error('Failed to create issue:', err);
       } finally {
         setSubmittingIssue(false);
@@ -467,7 +468,7 @@ export default function RisksClient() {
         setRiskAiExpanded(false);
         fetchRisks();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create risk');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create risk');
         console.error('Failed to create risk:', err);
       } finally {
         setSubmittingRisk(false);
@@ -503,7 +504,7 @@ export default function RisksClient() {
         setOpportunityAiExpanded(false);
         fetchOpportunities();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create opportunity');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create opportunity');
         console.error('Failed to create opportunity:', err);
       } finally {
         setSubmittingOpportunity(false);

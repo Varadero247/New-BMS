@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -18,7 +19,7 @@ export default function LoginPage() { const router = useRouter();
     try { const response = await api.post('/api/auth/login', { email, password });
       const token = response.data.data?.accessToken || response.data.data?.token;
       if (token) { localStorage.setItem('partner_token', token);
-        router.push('/'); } else { setError('Invalid response from server'); } } catch (err) { setError((err as any).response?.data?.message || 'Invalid email or password'); } finally { setLoading(false); } };
+        router.push('/'); } else { setError('Invalid response from server'); } } catch (err) { setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Invalid email or password'); } finally { setLoading(false); } };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">

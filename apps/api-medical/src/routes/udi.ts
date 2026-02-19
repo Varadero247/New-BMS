@@ -222,7 +222,7 @@ router.post('/devices/:id/di', async (req: AuthRequest, res: Response) => {
         },
       });
     }
-    if ((error as any)?.code === 'P2002') {
+    if ((error as { code?: string })?.code === 'P2002') {
       return res.status(409).json({
         success: false,
         error: { code: 'DUPLICATE_DI_CODE', message: 'DI code already exists' },

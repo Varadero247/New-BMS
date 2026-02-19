@@ -61,6 +61,7 @@ export default function ActionsPage() {
 
   useEffect(() => {
     fetchActions();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, standardFilter, priorityFilter]);
 
   async function fetchActions() {

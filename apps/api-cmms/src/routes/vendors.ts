@@ -162,7 +162,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: vendor });
   } catch (error: unknown) {
-    if ((error as any)?.code === 'P2002') {
+    if ((error as { code?: string })?.code === 'P2002') {
       return res.status(409).json({
         success: false,
         error: { code: 'CONFLICT', message: 'Vendor code already exists' },
@@ -347,7 +347,7 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
 
     res.status(201).json({ success: true, data: contract });
   } catch (error: unknown) {
-    if ((error as any)?.code === 'P2002') {
+    if ((error as { code?: string })?.code === 'P2002') {
       return res.status(409).json({
         success: false,
         error: { code: 'CONFLICT', message: 'Contract number already exists' },

@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -131,7 +132,7 @@ export default function CustomersPage() {
       setCreateModalOpen(false);
       loadCustomers();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create customer.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create customer.');
     } finally {
       setSubmitting(false);
     }
@@ -157,7 +158,7 @@ export default function CustomersPage() {
       setEditModalOpen(false);
       loadCustomers();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to update customer.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to update customer.');
     } finally {
       setSubmitting(false);
     }

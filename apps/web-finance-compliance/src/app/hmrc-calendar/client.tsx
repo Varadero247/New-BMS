@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Plus,
@@ -117,7 +118,7 @@ export default function HmrcCalendarClient() {
       setModalOpen(false);
       fetchData();
     } catch (err) {
-      alert((err as any).response?.data?.error?.message || 'Save failed');
+      alert((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Save failed');
     } finally {
       setSaving(false);
     }

@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useState } from 'react';
 import { Card, CardContent, Button, Badge, Label, Textarea } from '@ims/ui';
 import { Sparkles, Loader2, FileText, Calendar, DollarSign, Tag } from 'lucide-react';
@@ -30,7 +31,7 @@ export default function ExtractionClient() {
       const response = await api.post('/extraction/analyze', { text });
       setResult(response.data.data);
     } catch (err) {
-      setError((err as any).response?.data?.error?.message || 'Failed to analyze text');
+      setError((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Failed to analyze text');
     } finally {
       setLoading(false);
     }

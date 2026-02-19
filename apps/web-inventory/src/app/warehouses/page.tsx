@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -70,7 +71,7 @@ export default function WarehousesPage() {
       await inventoryApi.deleteWarehouse(id);
       loadWarehouses();
     } catch (error: any) {
-      alert((error as any).response?.data?.error?.message || 'Failed to delete warehouse');
+      alert((axios.isAxiosError(error) && error.response?.data?.error)?.message || 'Failed to delete warehouse');
     }
   }
 
@@ -304,7 +305,7 @@ function WarehouseModal({
       }
       onSave();
     } catch (err: any) {
-      setError((err as any).response?.data?.error?.message || 'Failed to save warehouse');
+      setError((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Failed to save warehouse');
     } finally {
       setLoading(false);
     }

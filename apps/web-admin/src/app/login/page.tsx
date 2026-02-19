@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
@@ -32,7 +33,7 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/growth-dashboard');
     } catch (err) {
-      setError((err as any).response?.data?.message || 'Invalid credentials');
+      setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Invalid credentials');
     } finally {
       setLoading(false);
     }

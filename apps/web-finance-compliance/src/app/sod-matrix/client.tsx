@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Plus, Search, Grid3X3, AlertTriangle, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Modal } from '@ims/ui';
@@ -102,7 +103,7 @@ export default function SodMatrixClient() {
       setModalOpen(false);
       fetchData();
     } catch (err) {
-      alert((err as any).response?.data?.error?.message || 'Save failed');
+      alert((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Save failed');
     } finally {
       setSaving(false);
     }

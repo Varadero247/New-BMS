@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -124,7 +125,7 @@ export default function CampaignsPage() {
       setCreateModalOpen(false);
       loadCampaigns();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create campaign.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create campaign.');
     } finally {
       setSubmitting(false);
     }

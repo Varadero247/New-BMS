@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -277,7 +278,7 @@ export default function FAIClient() {
         setForm(emptyForm);
         fetchItems();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create FAI');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create FAI');
         console.error('Failed to create FAI:', err);
       } finally {
         setSubmitting(false);
@@ -294,7 +295,7 @@ export default function FAIClient() {
       await fetchDetail(selectedItem.id);
     } catch (err) {
       console.error('Failed to save Part 1:', err);
-      alert((err as any).response?.data?.message || 'Failed to save Part 1 data');
+      alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to save Part 1 data');
     } finally {
       setPartSaving(false);
     }
@@ -308,7 +309,7 @@ export default function FAIClient() {
       await fetchDetail(selectedItem.id);
     } catch (err) {
       console.error('Failed to save Part 2:', err);
-      alert((err as any).response?.data?.message || 'Failed to save Part 2 data');
+      alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to save Part 2 data');
     } finally {
       setPartSaving(false);
     }
@@ -322,7 +323,7 @@ export default function FAIClient() {
       await fetchDetail(selectedItem.id);
     } catch (err) {
       console.error('Failed to save Part 3:', err);
-      alert((err as any).response?.data?.message || 'Failed to save Part 3 data');
+      alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to save Part 3 data');
     } finally {
       setPartSaving(false);
     }
@@ -337,7 +338,7 @@ export default function FAIClient() {
       fetchItems();
     } catch (err) {
       console.error('Failed to approve FAI:', err);
-      alert((err as any).response?.data?.message || 'Failed to approve FAI');
+      alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to approve FAI');
     }
   }, [selectedItem, fetchDetail, fetchItems]);
 
@@ -351,7 +352,7 @@ export default function FAIClient() {
       fetchItems();
     } catch (err) {
       console.error('Failed to mark partial approval:', err);
-      alert((err as any).response?.data?.message || 'Failed to mark partial approval');
+      alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to mark partial approval');
     }
   }, [selectedItem, partialOpenItems, fetchDetail, fetchItems]);
 

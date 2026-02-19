@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -222,7 +223,7 @@ export default function WorkOrdersClient() {
         setForm(emptyWOForm);
         fetchItems();
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to create work order');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to create work order');
         console.error('Failed to create work order:', err);
       } finally {
         setSubmitting(false);
@@ -243,7 +244,7 @@ export default function WorkOrdersClient() {
         setTaskForm(emptyTaskForm);
         await fetchDetail(selectedItem.id);
       } catch (err) {
-        setError((err as any).response?.data?.message || 'Failed to add task');
+        setError((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to add task');
         console.error('Failed to add task:', err);
       } finally {
         setSubmitting(false);
@@ -260,7 +261,7 @@ export default function WorkOrdersClient() {
         await fetchDetail(selectedItem.id);
       } catch (err) {
         console.error('Failed to complete task:', err);
-        alert((err as any).response?.data?.message || 'Failed to complete task');
+        alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to complete task');
       }
     },
     [selectedItem, fetchDetail]
@@ -275,7 +276,7 @@ export default function WorkOrdersClient() {
       fetchItems();
     } catch (err) {
       console.error('Failed to inspect work order:', err);
-      alert((err as any).response?.data?.message || 'Failed to inspect work order');
+      alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to inspect work order');
     }
   }, [selectedItem, fetchDetail, fetchItems]);
 
@@ -288,7 +289,7 @@ export default function WorkOrdersClient() {
       fetchItems();
     } catch (err) {
       console.error('Failed to release work order:', err);
-      alert((err as any).response?.data?.message || 'Failed to release work order');
+      alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to release work order');
     }
   }, [selectedItem, fetchDetail, fetchItems]);
 
@@ -301,7 +302,7 @@ export default function WorkOrdersClient() {
       fetchItems();
     } catch (err) {
       console.error('Failed to defer work order:', err);
-      alert((err as any).response?.data?.message || 'Failed to defer work order');
+      alert((axios.isAxiosError(err) && err.response?.data?.message) || 'Failed to defer work order');
     }
   }, [selectedItem, fetchDetail, fetchItems]);
 

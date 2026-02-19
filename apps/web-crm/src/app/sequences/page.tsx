@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -215,7 +216,7 @@ export default function SequencesPage() {
       setCreateModalOpen(false);
       loadSequences();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create sequence.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to create sequence.');
     } finally {
       setSubmitting(false);
     }
@@ -244,7 +245,7 @@ export default function SequencesPage() {
       setEditModalOpen(false);
       loadSequences();
     } catch (err) {
-      setFormError((err as any)?.response?.data?.error?.message || 'Failed to update sequence.');
+      setFormError((axios.isAxiosError(err) && err.response?.data?.error?.message) || 'Failed to update sequence.');
     } finally {
       setSubmitting(false);
     }

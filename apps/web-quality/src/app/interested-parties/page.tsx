@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -146,7 +147,7 @@ export default function InterestedPartiesPage() {
       setModalOpen(false);
       fetchItems();
     } catch (err) {
-      setError((err as any).response?.data?.error?.message || 'Failed to save');
+      setError((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Failed to save');
     }
     setSaving(false);
   };

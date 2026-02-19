@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import {
   Card,
@@ -149,7 +150,7 @@ export default function AttendancePage() {
       loadAttendance();
       loadSummary();
     } catch (error) {
-      const msg = (error as any)?.response?.data?.error?.message;
+      const msg = (axios.isAxiosError(error) && error.response?.data?.error)?.message;
       if (Array.isArray(msg)) {
         setFormError(msg.map((e: Record<string, any>) => e.message).join(', '));
       } else if (typeof msg === 'string') {
