@@ -48,6 +48,7 @@ import scheduledReportsRouter from './routes/scheduled-reports';
 import dsarRouter from './routes/dsar';
 import dpaRouter from './routes/dpa';
 import marketplaceRouter from './routes/marketplace';
+import esignatureRouter from './routes/esignature';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { errorHandler } from './middleware/error-handler';
 import { apiKeyAuth } from './middleware/apiKeyAuth';
@@ -402,6 +403,8 @@ app.use('/api/admin/dpa', dpaRouter);
 app.use('/api/v1/admin/dpa', addVersionHeader('v1'), dpaRouter);
 app.use('/api/marketplace', marketplaceRouter);
 app.use('/api/v1/marketplace', addVersionHeader('v1'), marketplaceRouter);
+app.use('/api/esignatures', esignatureRouter);
+app.use('/api/v1/esignatures', addVersionHeader('v1'), esignatureRouter);
 
 // ─── Cookie Consent Persistence ──────────────────────────────────────────
 // Shared handler with input validation — only accepts boolean fields
