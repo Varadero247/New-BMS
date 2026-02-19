@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
 import { SafetyTrendChart } from '@ims/charts';
-import { Activity, TrendingUp, TrendingDown, Users, Clock, AlertTriangle } from 'lucide-react';
+import { Activity, TrendingUp, TrendingDown, Clock, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface SafetyMetrics {

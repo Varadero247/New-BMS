@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Modal } from '@ims/ui';
-import { Plus, Users, Search, MoreVertical, Mail, Shield, X, Check, UserPlus } from 'lucide-react';
+import { Users, Search, MoreVertical, Mail, Shield, Check, UserPlus } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface User {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal } from '@ims/ui';
-import { Plus, Search, UserCheck, Pencil, Trash2, Users, TrendingUp } from 'lucide-react';
+import { Plus, Search, UserCheck, Pencil, Trash2, Users } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Stakeholder {

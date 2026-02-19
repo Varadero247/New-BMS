@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { AlertTriangle, Shield, X, ChevronRight } from 'lucide-react';
+import { Shield, X } from 'lucide-react';
 
 interface Risk {
   id: string;

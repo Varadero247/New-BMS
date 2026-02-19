@@ -11,7 +11,7 @@ import {
   Modal,
   ModalFooter,
 } from '@ims/ui';
-import { Plus, Search, Activity, Edit, Trash2, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Activity, Trash2, AlertTriangle } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface MonitoringRecord {

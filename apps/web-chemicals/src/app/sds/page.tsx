@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, Modal } from '@ims/ui';
-import { FileText, Search, Plus, Download, ExternalLink } from 'lucide-react';
+import { FileText, Search, Plus, Download } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';
 

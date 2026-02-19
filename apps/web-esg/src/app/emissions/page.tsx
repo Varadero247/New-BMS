@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal } from '@ims/ui';
-import { Plus, Search, Cloud, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Search, Cloud, Pencil, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Emission {

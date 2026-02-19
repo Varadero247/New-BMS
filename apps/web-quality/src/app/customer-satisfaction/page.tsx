@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Modal, Badge } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Modal } from '@ims/ui';
 import {
   Star,
   TrendingUp,

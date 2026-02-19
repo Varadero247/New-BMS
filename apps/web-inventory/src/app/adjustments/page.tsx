@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, Badge } from '@ims/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '@ims/ui';
 import { ArrowRightLeft, Plus, Minus, RefreshCw, Warehouse, Search, Package } from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 

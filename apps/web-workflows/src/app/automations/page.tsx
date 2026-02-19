@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
+import { Card, CardContent } from '@ims/ui';
 import {
   Zap,
   Plus,

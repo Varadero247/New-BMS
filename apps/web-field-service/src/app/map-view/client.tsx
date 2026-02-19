@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Badge } from '@ims/ui';
-import { MapPin, User, Clock, Wrench, CheckCircle, AlertTriangle, Navigation } from 'lucide-react';
+import { MapPin, User, Wrench, Navigation } from 'lucide-react';
 
 type JobStatus = 'Scheduled' | 'En Route' | 'On Site' | 'Completed' | 'Cancelled';
 type JobPriority = 'Emergency' | 'High' | 'Medium' | 'Low';

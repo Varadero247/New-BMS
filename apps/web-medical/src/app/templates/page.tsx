@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
+import { Card, CardContent } from '@ims/ui';
 import { Search, FileText, Download, ExternalLink } from 'lucide-react';
 
 interface Template {

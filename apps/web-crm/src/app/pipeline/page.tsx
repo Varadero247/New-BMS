@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@ims/ui';
+import { Card, CardContent, Badge, Button } from '@ims/ui';
 import { Kanban, DollarSign, ChevronRight, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { Plus, Search, GitCompare, TrendingUp, TrendingDown, Minus, XCircle } from 'lucide-react';
+import { Plus, Search, GitCompare, TrendingUp, TrendingDown, XCircle } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface BenchmarkItem {

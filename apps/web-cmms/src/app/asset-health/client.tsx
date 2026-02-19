@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Gauge, Badge } from '@ims/ui';
+import { Gauge } from '@ims/ui';
 import {
   Server,
   AlertTriangle,

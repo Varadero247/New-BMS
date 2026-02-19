@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Gauge, Badge } from '@ims/ui';
-import { Shield, CheckCircle, Clock, AlertTriangle, XCircle } from 'lucide-react';
+import { Gauge } from '@ims/ui';
+import { Shield, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 type ControlStatus = 'Implemented' | 'Partially Implemented' | 'Planned' | 'Not Applicable';
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Badge } from '@ims/ui';
-import { AlertTriangle, ThermometerSun, Eye, ArrowDown, Shield } from 'lucide-react';
+import { ThermometerSun, ArrowDown, Shield } from 'lucide-react';
 
 type StepType =
   | 'receive'

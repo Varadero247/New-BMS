@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge } from '@ims/ui';
-import { Activity, Search, Filter, Download, Clock, User, Shield, Globe } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
+import { Activity, Search, Download, Clock, User, Shield } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface AuditEntry {

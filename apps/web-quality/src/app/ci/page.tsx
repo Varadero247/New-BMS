@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@ims/ui';
-import { Plus, Lightbulb, Zap, TrendingUp, CheckSquare, Target, Users } from 'lucide-react';
+import { Lightbulb, Zap, TrendingUp, CheckSquare, Target } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 

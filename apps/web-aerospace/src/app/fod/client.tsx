@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Plus, AlertTriangle, CheckCircle2, Clock, Eye, Zap } from 'lucide-react';
+import { Search, Plus, AlertTriangle, CheckCircle2, Clock, Eye } from 'lucide-react';
 
 interface FODEvent {
   id: string;

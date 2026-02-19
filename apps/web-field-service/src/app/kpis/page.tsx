@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
+import { Card, CardContent, Modal, ModalFooter } from '@ims/ui';
 import { Plus, Search, BarChart3, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 import { api } from '@/lib/api';

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { Plus, Search, Code, Play, Clock, XCircle, Copy, Star } from 'lucide-react';
+import { Plus, Search, Code, Play, XCircle, Copy, Star } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';
 

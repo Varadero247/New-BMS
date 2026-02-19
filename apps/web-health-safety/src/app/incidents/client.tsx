@@ -22,7 +22,7 @@ import {
   TableCell,
   AIDisclosure,
 } from '@ims/ui';
-import { Plus, FileWarning, Loader2, Search, Sparkles, X } from 'lucide-react';
+import { Plus, FileWarning, Loader2, Search, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────

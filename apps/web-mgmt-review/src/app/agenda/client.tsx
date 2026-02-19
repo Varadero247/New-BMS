@@ -19,7 +19,7 @@ import {
   TableHead,
   TableCell,
 } from '@ims/ui';
-import { Plus, ListChecks, Loader2, Search, Sparkles } from 'lucide-react';
+import { ListChecks, Loader2, Search, Sparkles } from 'lucide-react';
 import { api } from '@/lib/api';
 
 const STATUSES = ['DRAFT', 'SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'] as const;

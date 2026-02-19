@@ -13,7 +13,7 @@ import {
   Input,
   Label,
 } from '@ims/ui';
-import { Plus, Search, Briefcase } from 'lucide-react';
+import { Plus, Briefcase } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Partner {

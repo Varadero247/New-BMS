@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { Plus, Search, Layers, X, Pencil, Trash2, CheckCircle } from 'lucide-react';
+import { Plus, Search, Layers, X, Pencil, Trash2 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface APQPProject {

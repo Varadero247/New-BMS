@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { Pencil, FolderOpen, CheckSquare, AlertTriangle, ArrowRight, Loader2 } from 'lucide-react';
+import { Pencil, FolderOpen, CheckSquare, AlertTriangle, ArrowRight } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface DashboardStats {

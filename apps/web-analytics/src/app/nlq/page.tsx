@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { Search, Sparkles, Clock, BarChart3, Table, Send, RefreshCw, X } from 'lucide-react';
+import { Sparkles, Clock, BarChart3, Table, Send, RefreshCw, X } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface NlqResult {

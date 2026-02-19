@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, Search, Check, X, AlertTriangle, Info, AlertCircle } from 'lucide-react';
+import { Search, Check, X, AlertTriangle, Info, AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

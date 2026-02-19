@@ -15,7 +15,7 @@ import {
   Select,
   Textarea,
 } from '@ims/ui';
-import { Plus, Ruler, Search, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Plus, Ruler, Search, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Calibration {

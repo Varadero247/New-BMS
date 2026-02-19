@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, Button, Badge, Input, Label, Select } from '@ims/ui';
+import { Card, CardContent, Button, Badge, Label, Select } from '@ims/ui';
 import { Clock, Search, AlertOctagon, ChevronRight, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
 

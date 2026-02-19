@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
+import { Card, CardContent } from '@ims/ui';
 import { Zap, Gauge, Target, TrendingDown, BarChart3, Bell, Receipt, Activity } from 'lucide-react';
 import { api } from '@/lib/api';
 import Link from 'next/link';

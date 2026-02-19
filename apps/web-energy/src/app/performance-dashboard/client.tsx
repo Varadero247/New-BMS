@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Gauge, Badge } from '@ims/ui';
-import { TrendingUp, TrendingDown, Zap, Flame, Droplets, Sun, Wind, BarChart3 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Zap, Flame, Droplets, Sun, Wind } from 'lucide-react';
 
 interface EnPI {
   id: string;
