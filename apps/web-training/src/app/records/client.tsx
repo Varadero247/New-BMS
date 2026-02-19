@@ -123,7 +123,7 @@ export default function RecordsClient() {
       scheduledDate: rec.scheduledDate ? rec.scheduledDate.split('T')[0] : '',
       completedDate: rec.completedDate ? rec.completedDate.split('T')[0] : '',
       expiryDate: rec.expiryDate ? rec.expiryDate.split('T')[0] : '',
-      score: rec.score != null ? String(rec.score) : '',
+      score: rec.score !== null ? String(rec.score) : '',
       passed: rec.passed || false,
       trainer: rec.trainer || '',
       trainerName: rec.trainerName || '',
@@ -291,7 +291,7 @@ export default function RecordsClient() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-sm">
-                          {rec.score != null ? `${rec.score}%` : '-'}
+                          {rec.score !== null ? `${rec.score}%` : '-'}
                         </TableCell>
                         <TableCell className="text-sm">
                           {rec.scheduledDate

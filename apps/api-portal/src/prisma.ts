@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/portal';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var portalPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

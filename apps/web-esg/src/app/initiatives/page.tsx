@@ -182,7 +182,7 @@ export default function InitiativesPage() {
   function toggleExpand(id: string) {
     setExpanded((prev) => {
       const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
+      if (n.has(id)) { n.delete(id); } else { n.add(id); }
       return n;
     });
   }
@@ -456,7 +456,7 @@ export default function InitiativesPage() {
                   <div className="border-t border-gray-100 dark:border-gray-700 p-4 space-y-4">
                     {ini.description && <p className="text-sm text-gray-600">{ini.description}</p>}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {ini.budget != null && ini.budget > 0 && (
+                      {ini.budget !== null && ini.budget !== undefined && ini.budget > 0 && (
                         <div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 uppercase mb-1">
                             Budget

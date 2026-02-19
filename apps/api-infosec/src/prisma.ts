@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/infosec';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var infosecPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

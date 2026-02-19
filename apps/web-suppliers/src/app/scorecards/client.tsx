@@ -117,12 +117,12 @@ export default function ScorecardsClient() {
     setForm({
       supplierId: item.supplierId || '',
       period: item.period || '',
-      quality: item.quality != null ? String(item.quality) : '',
-      delivery: item.delivery != null ? String(item.delivery) : '',
-      cost: item.cost != null ? String(item.cost) : '',
-      responsiveness: item.responsiveness != null ? String(item.responsiveness) : '',
-      compliance: item.compliance != null ? String(item.compliance) : '',
-      overallScore: item.overallScore != null ? String(item.overallScore) : '',
+      quality: item.quality !== null ? String(item.quality) : '',
+      delivery: item.delivery !== null ? String(item.delivery) : '',
+      cost: item.cost !== null ? String(item.cost) : '',
+      responsiveness: item.responsiveness !== null ? String(item.responsiveness) : '',
+      compliance: item.compliance !== null ? String(item.compliance) : '',
+      overallScore: item.overallScore !== null ? String(item.overallScore) : '',
       status: item.status || 'DRAFT',
       assessor: item.assessor || '',
       comments: item.comments || '',
@@ -309,19 +309,19 @@ export default function ScorecardsClient() {
                         </TableCell>
                         <TableCell className="text-sm">{item.period || '-'}</TableCell>
                         <TableCell className="text-sm">
-                          {item.quality != null ? `${item.quality}%` : '-'}
+                          {item.quality !== null ? `${item.quality}%` : '-'}
                         </TableCell>
                         <TableCell className="text-sm">
-                          {item.delivery != null ? `${item.delivery}%` : '-'}
+                          {item.delivery !== null ? `${item.delivery}%` : '-'}
                         </TableCell>
                         <TableCell className="text-sm">
-                          {item.cost != null ? `${item.cost}%` : '-'}
+                          {item.cost !== null ? `${item.cost}%` : '-'}
                         </TableCell>
                         <TableCell>
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium ${getScoreColor(item.overallScore || 0)}`}
                           >
-                            {item.overallScore != null ? `${item.overallScore}%` : '-'}
+                            {item.overallScore !== null ? `${item.overallScore}%` : '-'}
                           </span>
                         </TableCell>
                         <TableCell>

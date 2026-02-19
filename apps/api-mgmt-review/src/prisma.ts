@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from '@ims/database/mgmt-review';
 export { Prisma };
 declare global {
+  // eslint-disable-next-line no-var
   var mgmtReviewPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 export const prisma =

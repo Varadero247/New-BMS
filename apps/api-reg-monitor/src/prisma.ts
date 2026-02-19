@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from '@ims/database/reg-monitor';
 export { Prisma };
 declare global {
+  // eslint-disable-next-line no-var
   var regMonitorPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 export const prisma =

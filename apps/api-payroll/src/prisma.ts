@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/payroll';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var payrollPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

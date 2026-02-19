@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/workflows';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var workflowsPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

@@ -25,7 +25,7 @@ function readConfig(): DashboardConfig {
     // corrupted or unavailable — clear bad data
     try {
       localStorage.removeItem(STORAGE_KEY);
-    } catch {}
+    } catch (_) { /* ignore cleanup error */ }
   }
   return DEFAULT_CONFIG;
 }

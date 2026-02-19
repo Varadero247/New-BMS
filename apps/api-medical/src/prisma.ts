@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/medical';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var medicalPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

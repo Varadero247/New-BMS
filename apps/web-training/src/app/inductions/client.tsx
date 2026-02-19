@@ -199,10 +199,10 @@ export default function InductionsClient() {
                             : '-'}
                         </TableCell>
                         <TableCell className="text-sm">
-                          {ind.score != null ? `${ind.score}%` : '-'}
+                          {ind.score !== null ? `${ind.score}%` : '-'}
                         </TableCell>
                         <TableCell>
-                          {ind.passed != null ? (
+                          {ind.passed !== null ? (
                             <Badge variant={ind.passed ? 'secondary' : 'outline'}>
                               {ind.passed ? 'Yes' : 'No'}
                             </Badge>

@@ -219,7 +219,7 @@ export default function LoansPage() {
               <div className="rounded-lg bg-white dark:bg-gray-900 p-3 shadow-sm">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Monthly Payment</p>
                 <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                  {aiResult.monthlyPayment != null
+                  {aiResult.monthlyPayment !== null
                     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
                         aiResult.monthlyPayment
                       )
@@ -229,7 +229,7 @@ export default function LoansPage() {
               <div className="rounded-lg bg-white dark:bg-gray-900 p-3 shadow-sm">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Total Interest</p>
                 <p className="text-lg font-bold text-red-600">
-                  {aiResult.totalInterest != null
+                  {aiResult.totalInterest !== null
                     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
                         aiResult.totalInterest
                       )
@@ -239,7 +239,7 @@ export default function LoansPage() {
               <div className="rounded-lg bg-white dark:bg-gray-900 p-3 shadow-sm">
                 <p className="text-xs text-gray-500 dark:text-gray-400">Total Repayment</p>
                 <p className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                  {aiResult.totalRepayment != null
+                  {aiResult.totalRepayment !== null
                     ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(
                         aiResult.totalRepayment
                       )
@@ -293,7 +293,7 @@ export default function LoansPage() {
                       <tr key={i} className="text-gray-600">
                         <td className="pr-4">{row.month || i + 1}</td>
                         <td className="pr-4">
-                          {row.payment != null
+                          {row.payment !== null
                             ? new Intl.NumberFormat('en-US', {
                                 style: 'currency',
                                 currency: 'USD',
@@ -301,7 +301,7 @@ export default function LoansPage() {
                             : 'N/A'}
                         </td>
                         <td className="pr-4">
-                          {row.principal != null
+                          {row.principal !== null
                             ? new Intl.NumberFormat('en-US', {
                                 style: 'currency',
                                 currency: 'USD',
@@ -309,7 +309,7 @@ export default function LoansPage() {
                             : 'N/A'}
                         </td>
                         <td className="pr-4">
-                          {row.interest != null
+                          {row.interest !== null
                             ? new Intl.NumberFormat('en-US', {
                                 style: 'currency',
                                 currency: 'USD',
@@ -317,7 +317,7 @@ export default function LoansPage() {
                             : 'N/A'}
                         </td>
                         <td>
-                          {row.balance != null
+                          {row.balance !== null
                             ? new Intl.NumberFormat('en-US', {
                                 style: 'currency',
                                 currency: 'USD',

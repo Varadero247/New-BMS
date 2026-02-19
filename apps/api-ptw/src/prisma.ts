@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from '@ims/database/ptw';
 export { Prisma };
 declare global {
+  // eslint-disable-next-line no-var
   var ptwPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 export const prisma =

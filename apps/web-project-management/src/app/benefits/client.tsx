@@ -221,7 +221,7 @@ export default function BenefitsPage() {
     }
   };
 
-  const formatCurrency = (v?: number) => (v != null ? `$${v.toLocaleString()}` : '-');
+  const formatCurrency = (v?: number) => (v !== null ? `$${v.toLocaleString()}` : '-');
   const getProgress = (b: Benefit) => {
     if (!b.baselineValue || !b.targetValue || !b.currentValue) return 0;
     const total = Math.abs(b.targetValue - b.baselineValue);
@@ -415,12 +415,12 @@ export default function BenefitsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {benefit.targetValue != null
+                      {benefit.targetValue !== null
                         ? `${benefit.targetValue} ${benefit.unit || ''}`
                         : '-'}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                      {benefit.currentValue != null
+                      {benefit.currentValue !== null
                         ? `${benefit.currentValue} ${benefit.unit || ''}`
                         : '-'}
                     </td>

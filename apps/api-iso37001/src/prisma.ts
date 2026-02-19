@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/iso37001';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var iso37001Prisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

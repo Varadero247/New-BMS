@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/automotive';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var automotivePrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

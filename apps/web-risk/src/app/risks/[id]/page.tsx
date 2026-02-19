@@ -823,7 +823,7 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-500 dark:text-gray-400">Current value</span>
                             <span className="font-bold text-gray-900 dark:text-gray-100">
-                              {kri.currentValue != null
+                              {kri.currentValue !== null
                                 ? `${kri.currentValue}${kri.unit ? ` ${kri.unit}` : ''}`
                                 : '—'}
                             </span>
@@ -1076,7 +1076,7 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                             <p className="text-xs text-red-800 dark:text-red-200">
                               {t.description}
                             </p>
-                            {t.likelihood != null && (
+                            {t.likelihood !== null && (
                               <p className="text-xs text-red-400 mt-0.5">L={t.likelihood}</p>
                             )}
                           </div>
@@ -1157,7 +1157,7 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                             <p className="text-xs text-purple-800 dark:text-purple-200">
                               {c.description}
                             </p>
-                            {c.severity != null && (
+                            {c.severity !== null && (
                               <p className="text-xs text-purple-400 mt-0.5">
                                 Severity={c.severity}
                               </p>
@@ -1294,26 +1294,26 @@ export default function RiskDetailPage({ params }: { params: Promise<{ id: strin
                             </div>
 
                             {/* Score change */}
-                            {(review.previousScore != null || review.newScore != null) && (
+                            {(review.previousScore !== null || review.newScore !== null) && (
                               <div className="flex items-center gap-2 my-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                {review.previousScore != null && (
+                                {review.previousScore !== null && (
                                   <span
                                     className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.previousScore)}`}
                                   >
                                     {review.previousScore}
                                   </span>
                                 )}
-                                {review.previousScore != null && review.newScore != null && (
+                                {review.previousScore !== null && review.newScore !== null && (
                                   <ChevronRight className="h-4 w-4 text-gray-400" />
                                 )}
-                                {review.newScore != null && (
+                                {review.newScore !== null && (
                                   <span
                                     className={`px-2 py-0.5 rounded text-xs font-bold ${getRiskLevelColor(review.newScore)}`}
                                   >
                                     {review.newScore}
                                   </span>
                                 )}
-                                {review.previousScore != null && review.newScore != null && (
+                                {review.previousScore !== null && review.newScore !== null && (
                                   <span
                                     className={`text-xs font-medium ${review.newScore < review.previousScore ? 'text-green-600 dark:text-green-400' : review.newScore > review.previousScore ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}
                                   >

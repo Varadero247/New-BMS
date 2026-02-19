@@ -411,7 +411,7 @@ export default function ScorecardDashboardClient() {
   const [sortBy, setSortBy] = useState<'score' | 'name' | 'risk'>('score');
 
   const suppliers = useMemo(() => {
-    let filtered = MOCK_SUPPLIERS.filter((s) => {
+    const filtered = MOCK_SUPPLIERS.filter((s) => {
       if (filterTier && s.tier !== filterTier) return false;
       if (filterRisk && s.riskLevel !== filterRisk) return false;
       return true;

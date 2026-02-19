@@ -121,7 +121,7 @@ export default function TnaClient() {
       status: tna.status || 'SCHEDULED',
       assignee: tna.assignee || '',
       assigneeName: tna.assigneeName || '',
-      budget: tna.budget != null ? String(tna.budget) : '',
+      budget: tna.budget !== null ? String(tna.budget) : '',
       approvedBy: tna.approvedBy || '',
       notes: tna.notes || '',
     });

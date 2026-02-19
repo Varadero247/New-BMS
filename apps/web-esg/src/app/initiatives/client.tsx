@@ -436,7 +436,7 @@ export default function InitiativesClient() {
                 onClick={() =>
                   setExpanded((prev) => {
                     const n = new Set(prev);
-                    n.has(ini.id) ? n.delete(ini.id) : n.add(ini.id);
+                    if (n.has(ini.id)) { n.delete(ini.id); } else { n.add(ini.id); }
                     return n;
                   })
                 }

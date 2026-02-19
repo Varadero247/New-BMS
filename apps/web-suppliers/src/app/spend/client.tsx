@@ -101,7 +101,7 @@ export default function SpendClient() {
     setForm({
       supplierId: item.supplierId || '',
       period: item.period || '',
-      amount: item.amount != null ? String(item.amount) : '',
+      amount: item.amount !== null ? String(item.amount) : '',
       currency: item.currency || 'USD',
       category: item.category || '',
       poNumber: item.poNumber || '',

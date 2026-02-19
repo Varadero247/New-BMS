@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/health-safety';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var hsPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

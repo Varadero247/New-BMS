@@ -53,23 +53,25 @@ function renderSection(section: PDFSection): string {
     case 'paragraph':
       return `<p style="${styleToString(section.style)}">${section.content || ''}</p>`;
 
-    case 'table':
+    case 'table': {
       if (!section.headers || !section.rows) return '';
       const headerRow = section.headers.map((h) => `<th>${h}</th>`).join('');
       const bodyRows = section.rows
         .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join('')}</tr>`)
         .join('');
       return `<table><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table>`;
+    }
 
-    case 'list':
+    case 'list': {
       if (!section.items) return '';
       const listItems = section.items.map((item) => `<li>${item}</li>`).join('');
       return `<ul style="${styleToString(section.style)}">${listItems}</ul>`;
+    }
 
     case 'divider':
       return '<hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />';
 
-    case 'key-value':
+    case 'key-value': {
       if (!section.pairs) return '';
       const kvRows = section.pairs
         .map(
@@ -78,6 +80,7 @@ function renderSection(section: PDFSection): string {
         )
         .join('');
       return `<div>${kvRows}</div>`;
+    }
 
     case 'signature':
       return `<div class="signature-line">${section.content || 'Signature'}</div>`;
@@ -106,7 +109,7 @@ function styleToString(style?: Record<string, string>): string {
  */
 export function generatePDF(
   template: PDFTemplate,
-  data: Record<string, any>,
+  data: Record<string, unknown>,
   options: PDFOptions = {}
 ): Buffer {
   const watermarkHtml = options.watermark
@@ -207,12 +210,12 @@ export function generateEvidencePackPDF(evidence: EvidencePackData): Buffer {
   return Buffer.from(html, 'utf-8');
 }
 
-function interpolateString(str: string, data: Record<string, any>): string {
+function interpolateString(str: string, data: Record<string, unknown>): string {
   return str.replace(/\{\{(\w+(?:\.\w+)*)\}\}/g, (_, key) => {
     const keys = key.split('.');
     let value: unknown = data;
     for (const k of keys) {
-      value = value?.[k];
+      value = (value as Record<string, unknown>)?.[k];
     }
     return value !== undefined ? String(value) : '';
   });

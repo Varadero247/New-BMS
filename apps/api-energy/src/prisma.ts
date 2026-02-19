@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/energy';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var energyPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

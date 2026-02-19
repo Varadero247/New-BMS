@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/field-service';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var fieldServicePrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

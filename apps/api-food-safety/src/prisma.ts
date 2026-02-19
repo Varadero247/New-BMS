@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/food-safety';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var foodSafetyPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

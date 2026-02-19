@@ -400,7 +400,7 @@ export default function AutomationsClient() {
                 onClick={() =>
                   setExpanded((prev) => {
                     const n = new Set(prev);
-                    n.has(rule.id) ? n.delete(rule.id) : n.add(rule.id);
+                    if (n.has(rule.id)) { n.delete(rule.id); } else { n.add(rule.id); }
                     return n;
                   })
                 }

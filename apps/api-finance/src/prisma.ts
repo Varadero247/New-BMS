@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/finance';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var financePrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

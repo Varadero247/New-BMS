@@ -209,7 +209,7 @@ export default function NlqClient() {
                       onClick={() =>
                         setShowSql((prev) => {
                           const n = new Set(prev);
-                          n.has(r.id) ? n.delete(r.id) : n.add(r.id);
+                          if (n.has(r.id)) { n.delete(r.id); } else { n.add(r.id); }
                           return n;
                         })
                       }

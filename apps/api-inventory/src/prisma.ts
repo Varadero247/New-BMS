@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/inventory';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var inventoryPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 

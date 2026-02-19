@@ -294,7 +294,7 @@ export default function KriPage() {
                             </td>
                             <td className="px-4 py-3 text-right">
                               <span className="font-bold text-gray-900 dark:text-gray-100">
-                                {kri.currentValue != null ? kri.currentValue : '—'}
+                                {kri.currentValue !== null ? kri.currentValue : '—'}
                                 {kri.unit && (
                                   <span className="text-xs text-gray-400 dark:text-gray-500 ml-1">
                                     {kri.unit}
@@ -304,10 +304,10 @@ export default function KriPage() {
                             </td>
                             <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
                               {kri.currentStatus === 'RED'
-                                ? kri.redThreshold != null
+                                ? kri.redThreshold !== null
                                   ? kri.redThreshold
                                   : '—'
-                                : kri.amberThreshold != null
+                                : kri.amberThreshold !== null
                                   ? kri.amberThreshold
                                   : '—'}
                               {kri.unit && (

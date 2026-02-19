@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from '@ims/database/quality';
 export { Prisma };
 
 declare global {
+  // eslint-disable-next-line no-var
   var qualPrisma: InstanceType<typeof PrismaClient> | undefined;
 }
 
