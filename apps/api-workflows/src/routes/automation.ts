@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -155,9 +155,9 @@ router.post('/rules', async (req: Request, res: Response) => {
         triggerType: data.triggerType,
         triggerEvent: data.triggerEvent,
         triggerSchedule: data.triggerSchedule,
-        triggerCondition: data.triggerCondition as any,
+        triggerCondition: data.triggerCondition as Prisma.InputJsonValue,
         actionType: data.actionType,
-        actionConfig: data.actionConfig as any,
+        actionConfig: data.actionConfig as Prisma.InputJsonValue,
         entityType: data.entityType,
         workflowCategory: data.workflowCategory,
         priority: data.priority,
@@ -194,7 +194,7 @@ router.put(
 
       const rule = await prisma.automationRule.update({
         where: { id: req.params.id },
-        data: data as any,
+        data: data as Record<string, unknown>,
       });
 
       res.json({ success: true, data: rule });
@@ -271,7 +271,7 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
         ruleId: rule.id,
         triggeredBy: (req as AuthRequest).user?.id || 'MANUAL',
         triggerType: 'API',
-        triggerData: (triggerData || {}) as any,
+        triggerData: (triggerData || {}) as Prisma.InputJsonValue,
         entityType: entityType || rule.entityType,
         entityId,
         status: 'PENDING',

@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -136,9 +136,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       data: {
         referenceNumber,
         title: data.title,
-        actionType: data.actionType as any,
-        priority: data.priority as any,
-        source: data.source as any,
+        actionType: data.actionType as Prisma.EnvActionType,
+        priority: data.priority as Prisma.EnvPriority,
+        source: data.source as Prisma.EnvActionSource,
         sourceReference: data.sourceReference,
         description: data.description,
         expectedOutcome: data.expectedOutcome,
@@ -157,11 +157,11 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         completionDate: data.completionDate ? new Date(data.completionDate) : null,
         percentComplete: data.percentComplete ?? 0,
         evidenceRefs: data.evidenceRefs,
-        verificationMethod: data.verificationMethod as any,
+        verificationMethod: data.verificationMethod as Prisma.EnvVerificationMethod,
         verifiedBy: data.verifiedBy,
         verificationDate: data.verificationDate ? new Date(data.verificationDate) : null,
         verificationNotes: data.verificationNotes,
-        effective: data.effective as any,
+        effective: data.effective as Prisma.EnvEffectiveness,
         aiActionPlan: data.aiActionPlan,
         aiPriorityJustification: data.aiPriorityJustification,
         aiResourceEstimate: data.aiResourceEstimate,

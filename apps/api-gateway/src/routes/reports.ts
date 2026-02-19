@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma, Prisma } from '@ims/database';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
@@ -243,13 +243,13 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
     const htmlTemplate = generateHtmlTemplate(reportTitle, reportContent);
 
     // Save to database
-    const report = await (prisma as any).generatedReport.create({
+    const report = await prisma.generatedReport.create({
       data: {
         title: reportTitle,
         type: 'MANAGEMENT_REVIEW',
         module,
-        parameters: data as any,
-        content: reportContent as any,
+        parameters: data as Prisma.InputJsonValue,
+        content: reportContent as Prisma.InputJsonValue,
         htmlTemplate,
         format: 'JSON',
         generatedBy: req.user!.id,
@@ -353,12 +353,12 @@ router.post('/audit/:auditId', async (req: AuthRequest, res: Response) => {
 
     const htmlTemplate = generateHtmlTemplate(title, reportContent);
 
-    const report = await (prisma as any).generatedReport.create({
+    const report = await prisma.generatedReport.create({
       data: {
         title,
         type: 'AUDIT',
-        parameters: { auditId } as any,
-        content: reportContent as any,
+        parameters: { auditId } as Prisma.InputJsonValue,
+        content: reportContent as Prisma.InputJsonValue,
         htmlTemplate,
         format: 'JSON',
         generatedBy: req.user!.id,
@@ -489,12 +489,12 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
 
     const htmlTemplate = generateHtmlTemplate(reportTitle, reportContent);
 
-    const report = await (prisma as any).generatedReport.create({
+    const report = await prisma.generatedReport.create({
       data: {
         title: reportTitle,
         type: 'KPI_PACK',
-        parameters: data as any,
-        content: reportContent as any,
+        parameters: data as Prisma.InputJsonValue,
+        content: reportContent as Prisma.InputJsonValue,
         htmlTemplate,
         format: 'JSON',
         generatedBy: req.user!.id,
@@ -551,7 +551,7 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
     // Fetch compliance scores for requested standards
     const complianceScores = await prisma.complianceScore.findMany({
       where: {
-        standard: { in: data.standards as any[] },
+        standard: { in: data.standards as string[] },
       },
       take: 1000,
     });
@@ -609,10 +609,10 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
       if (standardEnums.length > 0) {
         const openActions = await prisma.action.findMany({
           where: {
-            standard: { in: standardEnums as any[] },
+            standard: { in: standardEnums as string[] },
             status: { in: ['OPEN', 'IN_PROGRESS', 'OVERDUE'] },
             deletedAt: null,
-          } as any,
+          },
           orderBy: { dueDate: 'asc' },
           take: 50,
           select: {
@@ -635,12 +635,12 @@ router.post('/compliance-summary', async (req: AuthRequest, res: Response) => {
 
     const htmlTemplate = generateHtmlTemplate(reportTitle, reportContent);
 
-    const report = await (prisma as any).generatedReport.create({
+    const report = await prisma.generatedReport.create({
       data: {
         title: reportTitle,
         type: 'COMPLIANCE_SUMMARY',
-        parameters: data as any,
-        content: reportContent as any,
+        parameters: data as Prisma.InputJsonValue,
+        content: reportContent as Prisma.InputJsonValue,
         htmlTemplate,
         format: 'JSON',
         generatedBy: req.user!.id,
@@ -702,7 +702,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     if (module) where.module = module;
 
     const [reports, total] = await Promise.all([
-      (prisma as any).generatedReport.findMany({
+      prisma.generatedReport.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip,
@@ -717,7 +717,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
           createdAt: true,
         },
       }),
-      (prisma as any).generatedReport.count({ where }),
+      prisma.generatedReport.count({ where }),
     ]);
 
     res.json({
@@ -748,7 +748,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    const report = await (prisma as any).generatedReport.findUnique({
+    const report = await prisma.generatedReport.findUnique({
       where: { id },
     });
 

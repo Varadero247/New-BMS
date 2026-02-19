@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -182,17 +182,17 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       data: {
         referenceNumber,
         activityProcess: data.activityProcess,
-        activityCategory: data.activityCategory as any,
+        activityCategory: data.activityCategory as Prisma.EnvActivityCategory,
         department: data.department,
         location: data.location,
         lifecyclePhases: data.lifecyclePhases,
-        operatingCondition: data.operatingCondition as any,
+        operatingCondition: data.operatingCondition as Prisma.EnvOperatingCondition,
         description: data.description,
         aspect: data.aspect,
         impact: data.impact,
-        impactDirection: data.impactDirection as any,
+        impactDirection: data.impactDirection as Prisma.EnvImpactDirection,
         environmentalMedia: data.environmentalMedia,
-        scaleOfImpact: data.scaleOfImpact as any,
+        scaleOfImpact: data.scaleOfImpact as Prisma.EnvScale,
         scoreSeverity: data.scoreSeverity,
         scoreProbability: data.scoreProbability,
         scoreDuration: data.scoreDuration,
@@ -210,14 +210,14 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         significanceOverride: data.significanceOverride ?? false,
         overrideReason: data.overrideReason,
         existingControls: data.existingControls,
-        controlHierarchy: data.controlHierarchy as any,
+        controlHierarchy: data.controlHierarchy as Prisma.EnvControlHierarchy,
         residualScore: data.residualScore,
         targetScore: data.targetScore,
         legalReferences: data.legalReferences,
         permitReference: data.permitReference,
         applicableStandards: data.applicableStandards,
         responsiblePerson: data.responsiblePerson,
-        reviewFrequency: data.reviewFrequency as any,
+        reviewFrequency: data.reviewFrequency as Prisma.EnvReviewFrequency,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : null,
         status: data.status || 'ACTIVE',
         aiSignificanceJustification: data.aiSignificanceJustification,

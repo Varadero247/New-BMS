@@ -125,8 +125,8 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         skills: parsed.data.skills as Prisma.InputJsonValue,
-        certifications: parsed.data.certifications as any,
-        currentLocation: parsed.data.currentLocation as any,
+        certifications: parsed.data.certifications as Prisma.InputJsonValue,
+        currentLocation: parsed.data.currentLocation as Prisma.InputJsonValue,
         createdBy: authReq.user!.id,
       },
     });
@@ -256,8 +256,8 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         skills: parsed.data.skills as Prisma.InputJsonValue,
-        certifications: parsed.data.certifications as any,
-        currentLocation: parsed.data.currentLocation as any,
+        certifications: parsed.data.certifications as Prisma.InputJsonValue,
+        currentLocation: parsed.data.currentLocation as Prisma.InputJsonValue,
       },
     });
 

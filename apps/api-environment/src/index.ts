@@ -60,7 +60,7 @@ app.use(optionalServiceAuth);
 app.use(attachPermissions());
 
 // Health check, readiness, and metrics
-app.get('/health', createHealthCheck('api-environment', prisma as any, '1.0.0'));
+app.get('/health', createHealthCheck('api-environment', prisma as unknown as Parameters<typeof createHealthCheck>[1], '1.0.0'));
 app.get('/ready', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;

@@ -178,7 +178,7 @@ const planUpdateSchema = z.object({
 
 router.put(
   '/plans/:id',
-  checkOwnership(prisma.envEmergencyPlan as any),
+  checkOwnership(prisma.envEmergencyPlan as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
       const existing = await prisma.envEmergencyPlan.findUnique({ where: { id: req.params.id } });

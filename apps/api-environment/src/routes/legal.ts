@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -153,9 +153,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const obligation = await prisma.envLegal.create({
       data: {
         referenceNumber,
-        obligationType: data.obligationType as any,
+        obligationType: data.obligationType as Prisma.EnvObligationType,
         title: data.title,
-        jurisdiction: data.jurisdiction as any,
+        jurisdiction: data.jurisdiction as Prisma.EnvJurisdiction,
         regulatoryBody: data.regulatoryBody,
         legislationReference: data.legislationReference,
         description: data.description,
@@ -168,20 +168,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         applicableSites: data.applicableSites,
         linkedAspects: data.linkedAspects,
         penalties: data.penalties,
-        complianceStatus: (data.complianceStatus as any) || 'NOT_ASSESSED',
+        complianceStatus: data.complianceStatus || 'NOT_ASSESSED',
         complianceEvidence: data.complianceEvidence,
         evidenceReference: data.evidenceReference,
         lastAssessedDate: data.lastAssessedDate ? new Date(data.lastAssessedDate) : null,
         assessedBy: data.assessedBy,
-        assessmentMethod: data.assessmentMethod as any,
+        assessmentMethod: data.assessmentMethod as Prisma.EnvAssessmentMethod,
         complianceGaps: data.complianceGaps,
         requiredActions: data.requiredActions,
-        actionPriority: data.actionPriority as any,
+        actionPriority: data.actionPriority as Prisma.EnvPriority,
         actionsDueDate: data.actionsDueDate ? new Date(data.actionsDueDate) : null,
         capaRequired: data.capaRequired,
         monitoringRequirements: data.monitoringRequirements,
         reportingRequirements: data.reportingRequirements,
-        reportingFrequency: data.reportingFrequency as any,
+        reportingFrequency: data.reportingFrequency as Prisma.EnvReportingFrequency,
         nextReportingDue: data.nextReportingDue ? new Date(data.nextReportingDue) : null,
         permitConditions: data.permitConditions,
         aiKeyObligations: data.aiKeyObligations,

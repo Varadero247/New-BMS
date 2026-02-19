@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -161,7 +161,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         referenceNumber,
         title: data.title,
         objectiveStatement: data.objectiveStatement,
-        category: data.category as any,
+        category: data.category as Prisma.EnvObjectiveCategory,
         targetDate: new Date(data.targetDate),
         owner: data.owner,
         status: data.status || 'NOT_STARTED',
@@ -184,7 +184,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         resourcesRequired: data.resourcesRequired,
         estimatedCost: data.estimatedCost,
         actionsRequired: data.actionsRequired ?? false,
-        reviewFrequency: data.reviewFrequency as any,
+        reviewFrequency: data.reviewFrequency as Prisma.EnvReviewFrequency,
         progressNotes: data.progressNotes,
         progressPercent: data.progressPercent ?? 0,
         aiSmartAnalysis: data.aiSmartAnalysis,

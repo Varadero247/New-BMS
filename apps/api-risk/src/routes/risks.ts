@@ -162,7 +162,7 @@ async function generateRef(orgId: string): Promise<string> {
 }
 
 function autoCalculateFields(data: unknown): Record<string, unknown> {
-  const result = { ...(data as any) } as Record<string, any>;
+  const result = { ...(data as Record<string, unknown>) } as Record<string, unknown>;
   // Auto-calculate inherent score from numeric or enum values
   if (result.inherentLikelihood && result.inherentConsequence) {
     result.inherentScore = calculateScore(result.inherentLikelihood, result.inherentConsequence);
@@ -393,7 +393,7 @@ router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
     const validFields = ['category', 'department', 'sourceModule', 'aggregationGroup', 'status'];
     const field = validFields.includes(groupBy) ? groupBy : 'category';
     const raw = await prisma.riskRegister.groupBy({
-      by: [field] as any,
+      by: [field] as string[],
       where: { orgId, deletedAt: null },
       _count: true,
     });
@@ -724,8 +724,8 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'risk not found' } });
     const calculated = autoCalculateFields(parsed.data);
-    const resScore = (calculated.residualScore ?? existing.residualScore) as any;
-    const cat = (calculated.category ?? existing.category) as any;
+    const resScore = calculated.residualScore ?? existing.residualScore;
+    const cat = calculated.category ?? existing.category;
     if (resScore && cat) {
       try {
         const appetite = await prisma.riskAppetiteStatement.findFirst({

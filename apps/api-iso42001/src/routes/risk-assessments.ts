@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -229,13 +229,13 @@ router.post('/', async (req: Request, res: Response) => {
 
     const risk = await prisma.aiRiskAssessment.create({
       data: {
-        reference: reference as any,
+        reference: reference as string,
         systemId: parsed.data.systemId,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
-        category: parsed.data.category as any,
-        likelihood: parsed.data.likelihood as any,
-        impact: parsed.data.impact as any,
+        category: parsed.data.category as Prisma.AiRiskCategory,
+        likelihood: parsed.data.likelihood as Prisma.AiRiskLikelihood,
+        impact: parsed.data.impact as Prisma.AiRiskImpact,
         riskScore,
         riskLevel,
         status: 'IDENTIFIED',
@@ -245,7 +245,7 @@ router.post('/', async (req: Request, res: Response) => {
         reviewDate: parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null,
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },
@@ -344,7 +344,7 @@ router.put('/:id', async (req: Request, res: Response) => {
             : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },

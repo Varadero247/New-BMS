@@ -1,11 +1,21 @@
 import { Router, Response } from 'express';
 import { prisma } from '@ims/database';
+import { Prisma as MktPrisma } from '@ims/database/marketplace';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 const logger = createLogger('api-gateway');
+
+// Marketplace models live in a separate schema; use a typed cast
+type PrismaWithMarketplace = typeof prisma & {
+  mktPlugin: MktPrisma.MktPluginDelegate<object>;
+  mktPluginVersion: MktPrisma.MktPluginVersionDelegate<object>;
+  mktPluginInstall: MktPrisma.MktPluginInstallDelegate<object>;
+  mktWebhookSubscription: MktPrisma.MktWebhookSubscriptionDelegate<object>;
+};
+const mp = prisma as unknown as PrismaWithMarketplace;
 
 const router = Router();
 router.use(authenticate);
@@ -106,14 +116,14 @@ router.get('/plugins', async (req: AuthRequest, res: Response) => {
     if (search) where.name = { contains: search, mode: 'insensitive' };
 
     const [plugins, total] = await Promise.all([
-      (prisma as any).mktPlugin.findMany({
+      mp.mktPlugin.findMany({
         where,
         skip,
         take,
         orderBy: { downloads: 'desc' },
         include: { versions: { where: { isLatest: true }, take: 1 } },
       }),
-      (prisma as any).mktPlugin.count({ where }),
+      mp.mktPlugin.count({ where }),
     ]);
 
     res.json({
@@ -159,7 +169,7 @@ router.get('/plugins/search', async (req: AuthRequest, res: Response) => {
     };
     if (category) where.category = category;
 
-    const plugins = await (prisma as any).mktPlugin.findMany({
+    const plugins = await mp.mktPlugin.findMany({
       where,
       take: 50,
       orderBy: { downloads: 'desc' },
@@ -180,7 +190,7 @@ router.get('/plugins/search', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/plugins/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const plugin = await (prisma as any).mktPlugin.findUnique({
+    const plugin = await mp.mktPlugin.findUnique({
       where: { id: req.params.id },
       include: {
         versions: { orderBy: { publishedAt: 'desc' }, take: 10 },
@@ -215,7 +225,7 @@ router.post(
     try {
       const data = registerPluginSchema.parse(req.body);
 
-      const existing = await (prisma as any).mktPlugin.findUnique({ where: { slug: data.slug } });
+      const existing = await mp.mktPlugin.findUnique({ where: { slug: data.slug } });
       if (existing) {
         return res.status(409).json({
           success: false,
@@ -223,7 +233,7 @@ router.post(
         });
       }
 
-      const plugin = await (prisma as any).mktPlugin.create({
+      const plugin = await mp.mktPlugin.create({
         data: { ...data, orgId: (req.user as { organisationId?: string; orgId?: string })?.organisationId },
       });
 
@@ -258,14 +268,14 @@ router.patch(
   requireRole('ADMIN', 'SUPER_ADMIN'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const existing = await (prisma as any).mktPlugin.findUnique({ where: { id: req.params.id } });
+      const existing = await mp.mktPlugin.findUnique({ where: { id: req.params.id } });
       if (!existing || existing.deletedAt) {
         return res
           .status(404)
           .json({ success: false, error: { code: 'NOT_FOUND', message: 'Plugin not found' } });
       }
       const data = updatePluginSchema.parse(req.body);
-      const plugin = await (prisma as any).mktPlugin.update({
+      const plugin = await mp.mktPlugin.update({
         where: { id: req.params.id },
         data: { ...data, updatedAt: new Date() },
       });
@@ -303,12 +313,12 @@ router.post(
       const data = publishVersionSchema.parse(req.body);
 
       // Mark all previous versions as not latest
-      await (prisma as any).mktPluginVersion.updateMany({
+      await mp.mktPluginVersion.updateMany({
         where: { pluginId: req.params.id, isLatest: true },
         data: { isLatest: false },
       });
 
-      const version = await (prisma as any).mktPluginVersion.create({
+      const version = await mp.mktPluginVersion.create({
         data: { ...data, pluginId: req.params.id, isLatest: true },
       });
 
@@ -340,7 +350,7 @@ router.post(
 // ---------------------------------------------------------------------------
 router.get('/plugins/:id/versions', async (req: AuthRequest, res: Response) => {
   try {
-    const versions = await (prisma as any).mktPluginVersion.findMany({
+    const versions = await mp.mktPluginVersion.findMany({
       where: { pluginId: req.params.id },
       orderBy: { publishedAt: 'desc' },
       take: 1000,
@@ -375,21 +385,21 @@ router.post(
       const data = parsedInstall.data;
       const orgId = (req.user as { organisationId?: string; orgId?: string })?.organisationId;
 
-      const plugin = await (prisma as any).mktPlugin.findUnique({ where: { id: req.params.id } });
+      const plugin = await mp.mktPlugin.findUnique({ where: { id: req.params.id } });
       if (!plugin || plugin.deletedAt) {
         return res
           .status(404)
           .json({ success: false, error: { code: 'NOT_FOUND', message: 'Plugin not found' } });
       }
 
-      const install = await (prisma as any).mktPluginInstall.upsert({
+      const install = await mp.mktPluginInstall.upsert({
         where: { pluginId_orgId: { pluginId: req.params.id, orgId } },
         create: { pluginId: req.params.id, orgId, installedBy: req.user?.id, config: data.config },
         update: { status: 'ACTIVE', config: data.config, uninstalledAt: null },
       });
 
       // Increment download count
-      await (prisma as any).mktPlugin.update({
+      await mp.mktPlugin.update({
         where: { id: req.params.id },
         data: { downloads: { increment: 1 } },
       });
@@ -416,7 +426,7 @@ router.delete(
   async (req: AuthRequest, res: Response) => {
     try {
       const orgId = (req.user as { organisationId?: string; orgId?: string })?.organisationId;
-      await (prisma as any).mktPluginInstall.update({
+      await mp.mktPluginInstall.update({
         where: { pluginId_orgId: { pluginId: req.params.id, orgId } },
         data: { status: 'UNINSTALLED', uninstalledAt: new Date() },
       });
@@ -445,7 +455,7 @@ router.post(
       const orgId = (req.user as { organisationId?: string; orgId?: string })?.organisationId;
       const secret = 'whsec_' + crypto.randomBytes(32).toString('hex');
 
-      const subscription = await (prisma as any).mktWebhookSubscription.create({
+      const subscription = await mp.mktWebhookSubscription.create({
         data: {
           pluginId: req.params.id,
           orgId,
@@ -484,10 +494,10 @@ router.post(
 router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [totalPlugins, publishedPlugins, totalInstalls, totalDownloads] = await Promise.all([
-      (prisma as any).mktPlugin.count({ where: { deletedAt: null } }),
-      (prisma as any).mktPlugin.count({ where: { deletedAt: null, status: 'PUBLISHED' } }),
-      (prisma as any).mktPluginInstall.count({ where: { status: 'ACTIVE' } }),
-      (prisma as any).mktPlugin.aggregate({
+      mp.mktPlugin.count({ where: { deletedAt: null } }),
+      mp.mktPlugin.count({ where: { deletedAt: null, status: 'PUBLISHED' } }),
+      mp.mktPluginInstall.count({ where: { status: 'ACTIVE' } }),
+      mp.mktPlugin.aggregate({
         _sum: { downloads: true },
         where: { deletedAt: null },
       }),

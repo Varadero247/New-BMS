@@ -102,9 +102,9 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         address: parsed.data.address as Prisma.InputJsonValue,
-        coordinates: parsed.data.coordinates as any,
-        specialRequirements: parsed.data.specialRequirements as any,
-        equipment: parsed.data.equipment as any,
+        coordinates: parsed.data.coordinates as Prisma.InputJsonValue,
+        specialRequirements: parsed.data.specialRequirements as Prisma.InputJsonValue,
+        equipment: parsed.data.equipment as Prisma.InputJsonValue,
         createdBy: authReq.user!.id,
       },
     });
@@ -174,9 +174,9 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         address: parsed.data.address as Prisma.InputJsonValue,
-        coordinates: parsed.data.coordinates as any,
-        specialRequirements: parsed.data.specialRequirements as any,
-        equipment: parsed.data.equipment as any,
+        coordinates: parsed.data.coordinates as Prisma.InputJsonValue,
+        specialRequirements: parsed.data.specialRequirements as Prisma.InputJsonValue,
+        equipment: parsed.data.equipment as Prisma.InputJsonValue,
       },
     });
 

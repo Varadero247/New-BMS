@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -157,8 +157,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const event = await prisma.envEvent.create({
       data: {
         referenceNumber,
-        eventType: data.eventType as any,
-        severity: data.severity as any,
+        eventType: data.eventType as Prisma.EnvEventType,
+        severity: data.severity as Prisma.EnvEventSeverity,
         dateOfEvent: new Date(data.dateOfEvent),
         location: data.location,
         department: data.department,
@@ -182,7 +182,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         emergencyServicesCalled: data.emergencyServicesCalled,
         materialsUsed: data.materialsUsed,
         cleanupDuration: data.cleanupDuration,
-        rcaMethod: data.rcaMethod as any,
+        rcaMethod: data.rcaMethod as Prisma.EnvRCAMethod,
         rootCause: data.rootCause,
         linkedAspectId: data.linkedAspectId,
         investigationLead: data.investigationLead,
@@ -199,7 +199,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         waterCourseName: data.waterCourseName,
         airQualityImpact: data.airQualityImpact,
         remediationCost: data.remediationCost,
-        reputationalImpact: data.reputationalImpact as any,
+        reputationalImpact: data.reputationalImpact as Prisma.EnvReputationalImpact,
         capaRequired: data.capaRequired,
         capaReference: data.capaReference,
         preventiveMeasures: data.preventiveMeasures,

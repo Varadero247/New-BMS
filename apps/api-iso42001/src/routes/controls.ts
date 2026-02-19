@@ -263,7 +263,7 @@ router.get('/soa', async (_req: Request, res: Response) => {
     });
 
     // Build SOA with status summary
-    const controlMap = new Map(controls.map((c) => [(c as any).controlId || c.code, c]));
+    const controlMap = new Map(controls.map((c) => [(c as Record<string, unknown>).controlId || c.code, c]));
 
     const soa = ANNEX_A_CONTROLS.map((annexControl) => {
       const dbControl = controlMap.get(annexControl.controlId);
@@ -271,13 +271,13 @@ router.get('/soa', async (_req: Request, res: Response) => {
         ...annexControl,
         id: dbControl?.id || null,
         implementationStatus:
-          (dbControl as any)?.implementationStatus || dbControl?.status || 'NOT_IMPLEMENTED',
-        justification: (dbControl as any)?.justification || null,
+          (dbControl as Record<string, unknown>)?.implementationStatus || dbControl?.status || 'NOT_IMPLEMENTED',
+        justification: (dbControl as Record<string, unknown>)?.justification || null,
         implementationNotes: dbControl?.implementationNotes || null,
-        evidence: (dbControl as any)?.evidence || dbControl?.evidenceLinks || null,
-        responsiblePerson: (dbControl as any)?.responsiblePerson || dbControl?.owner || null,
-        targetDate: (dbControl as any)?.targetDate || null,
-        completionDate: (dbControl as any)?.completionDate || null,
+        evidence: (dbControl as Record<string, unknown>)?.evidence || dbControl?.evidenceLinks || null,
+        responsiblePerson: (dbControl as Record<string, unknown>)?.responsiblePerson || dbControl?.owner || null,
+        targetDate: (dbControl as Record<string, unknown>)?.targetDate || null,
+        completionDate: (dbControl as Record<string, unknown>)?.completionDate || null,
       };
     });
 
@@ -510,7 +510,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
 
     // Enrich with Annex A metadata
     const annexData = ANNEX_A_CONTROLS.find(
-      (c) => c.controlId === ((control as any).controlId || control.code)
+      (c) => c.controlId === ((control as Record<string, unknown>).controlId || control.code)
     );
 
     res.json({

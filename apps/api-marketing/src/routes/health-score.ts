@@ -137,21 +137,21 @@ router.post('/recalculate', authenticate, async (req: Request, res: Response) =>
       // Re-compute score from stored metrics and persist a new snapshot
       for (const prev of existingScores || []) {
         const newScore = calculateHealthScore({
-          loginsLast7Days: (prev as any).loginsLast7Days ?? 0,
-          recordsCreated: (prev as any).recordsCreated ?? 0,
-          modulesVisited: (prev as any).modulesVisited ?? 0,
-          teamMembersInvited: (prev as any).teamMembersInvited ?? 0 });
+          loginsLast7Days: (prev as Record<string, unknown>).loginsLast7Days ?? 0,
+          recordsCreated: (prev as Record<string, unknown>).recordsCreated ?? 0,
+          modulesVisited: (prev as Record<string, unknown>).modulesVisited ?? 0,
+          teamMembersInvited: (prev as Record<string, unknown>).teamMembersInvited ?? 0 });
         const trend = determineTrend(newScore, prev.score);
-        await (prisma as any).mktHealthScore.create({
+        await prisma.mktHealthScore.create({
           data: {
             userId: prev.userId,
             orgId: prev.orgId,
             score: newScore,
             trend,
-            loginsLast7Days: (prev as any).loginsLast7Days ?? 0,
-            recordsCreated: (prev as any).recordsCreated ?? 0,
-            modulesVisited: (prev as any).modulesVisited ?? 0,
-            teamMembersInvited: (prev as any).teamMembersInvited ?? 0 } });
+            loginsLast7Days: (prev as Record<string, unknown>).loginsLast7Days ?? 0,
+            recordsCreated: (prev as Record<string, unknown>).recordsCreated ?? 0,
+            modulesVisited: (prev as Record<string, unknown>).modulesVisited ?? 0,
+            teamMembersInvited: (prev as Record<string, unknown>).teamMembersInvited ?? 0 } });
         updatedCount++;
       }
     } catch {

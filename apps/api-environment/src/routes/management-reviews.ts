@@ -312,7 +312,7 @@ router.post(
 
       const review = await prisma.envManagementReview.update({
         where: { id: req.params.id },
-        data: { status: 'COMPLETED', completedAt: new Date() } as any,
+        data: { status: 'COMPLETED', completedAt: new Date() } as Record<string, unknown>,
         include: { actions: true },
       });
 

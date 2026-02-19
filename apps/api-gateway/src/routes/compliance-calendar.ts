@@ -151,13 +151,13 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     }
 
     const [events, total] = await Promise.all([
-      (prisma as any).complianceEvent.findMany({
+      prisma.complianceEvent.findMany({
         where,
         orderBy: { dueDate: 'asc' },
         skip,
         take: limitNum,
       }),
-      (prisma as any).complianceEvent.count({ where }),
+      prisma.complianceEvent.count({ where }),
     ]);
 
     const enriched = events.map(enrichEvent);
@@ -190,7 +190,7 @@ router.get('/upcoming', async (req: AuthRequest, res: Response) => {
     const now = new Date();
     const futureDate = new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
 
-    const events = await (prisma as any).complianceEvent.findMany({
+    const events = await prisma.complianceEvent.findMany({
       where: {
         deletedAt: null,
         status: { not: 'COMPLETED' },
@@ -242,13 +242,13 @@ router.post('/events', async (req: AuthRequest, res: Response) => {
     const dueDate = new Date(data.dueDate);
     const initialStatus = computeStatus(dueDate, null);
 
-    const event = await (prisma as any).complianceEvent.create({
+    const event = await prisma.complianceEvent.create({
       data: {
         title: data.title,
         description: data.description,
         type: data.type,
         standard: data.standard,
-        status: initialStatus as any,
+        status: initialStatus as string,
         dueDate,
         assigneeId: data.assigneeId,
         assignee: data.assignee,
@@ -293,7 +293,7 @@ router.put('/events/:id', async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await (prisma as any).complianceEvent.findUnique({ where: { id } });
+    const existing = await prisma.complianceEvent.findUnique({ where: { id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({
         success: false,
@@ -330,7 +330,7 @@ router.put('/events/:id', async (req: AuthRequest, res: Response) => {
       updateData.status = computeStatus(finalDueDate as Date, finalCompletedAt as Date | null);
     }
 
-    const updated = await (prisma as any).complianceEvent.update({
+    const updated = await prisma.complianceEvent.update({
       where: { id },
       data: updateData,
     });
@@ -367,7 +367,7 @@ router.delete('/events/:id', async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await (prisma as any).complianceEvent.findUnique({ where: { id } });
+    const existing = await prisma.complianceEvent.findUnique({ where: { id } });
     if (!existing || existing.deletedAt) {
       return res.status(404).json({
         success: false,
@@ -375,7 +375,7 @@ router.delete('/events/:id', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    await (prisma as any).complianceEvent.update({
+    await prisma.complianceEvent.update({
       where: { id },
       data: { deletedAt: new Date() },
     });

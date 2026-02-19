@@ -371,7 +371,7 @@ router.get('/purchase-orders', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
 
     if (status) {
-      where.status = String(status) as any;
+      where.status = String(status);
     }
     if (supplierId) {
       where.supplierId = String(supplierId);
@@ -766,7 +766,7 @@ router.get('/', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = { deletedAt: null };
 
     if (status) {
-      where.status = String(status) as any;
+      where.status = String(status);
     }
     if (supplierId) {
       where.supplierId = String(supplierId);
@@ -1088,7 +1088,7 @@ router.post('/payments', async (req: Request, res: Response) => {
         billId: parsed.data.billId || null,
         date: new Date(parsed.data.date as string),
         amount: new Prisma.Decimal(parsed.data.amount),
-        method: parsed.data.method as any,
+        method: parsed.data.method as string,
         bankAccountId: parsed.data.bankAccountId || null,
         notes: parsed.data.notes || null,
         createdBy: authReq.user?.id || 'system',
@@ -1125,7 +1125,7 @@ router.post('/payments', async (req: Request, res: Response) => {
         data: {
           amountPaid: new Prisma.Decimal(Math.max(0, newAmountPaid).toFixed(2)),
           amountDue: new Prisma.Decimal(Math.max(0, newAmountDue).toFixed(2)),
-          status: newStatus as any,
+          status: newStatus as string,
         },
       });
     }

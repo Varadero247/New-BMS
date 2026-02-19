@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -119,7 +119,7 @@ router.post('/schedule', async (req: AuthRequest, res: Response) => {
     const schedule = await prisma.envAuditSchedule.create({
       data: {
         title: data.title,
-        type: data.type as any,
+        type: data.type as Prisma.EnvAuditType,
         frequency: data.frequency as string,
         nextDueDate: new Date(data.nextDueDate),
         iso14001Clauses: data.iso14001Clauses,
@@ -219,7 +219,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       data: {
         refNumber,
         title: data.title,
-        type: data.type as any,
+        type: data.type as Prisma.EnvAuditType,
         scope: data.scope,
         auditDate: new Date(data.auditDate),
         leadAuditor: data.leadAuditor,
@@ -402,7 +402,7 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
       data: {
         auditId: req.params.id,
         clause: data.clause,
-        type: data.type as any,
+        type: data.type as Prisma.EnvAuditType,
         description: data.description,
         evidence: data.evidence,
         requirement: data.requirement,
@@ -582,10 +582,10 @@ router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
       data: {
         status: 'COMPLETED',
         summary: data.summary,
-        conclusions: data.conclusions ?? (existing as any).conclusions,
-        recommendations: data.recommendations ?? (existing as any).recommendations,
+        conclusions: data.conclusions ?? (existing as Record<string, unknown>).conclusions,
+        recommendations: data.recommendations ?? (existing as Record<string, unknown>).recommendations,
         completedDate: new Date(),
-      } as any,
+      },
       include: { findings: true },
     });
 

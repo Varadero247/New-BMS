@@ -93,7 +93,7 @@ Return as JSON: {"subject": "...", "body": "..."}`;
         });
 
         if (resp.ok) {
-          const aiData = (await resp.json()) as any;
+          const aiData = (await resp.json()) as Record<string, unknown>;
           const text = aiData.content?.[0]?.text || '';
           const jsonMatch = text.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
@@ -110,8 +110,8 @@ Return as JSON: {"subject": "...", "body": "..."}`;
         companyName: data.companyName,
         website: data.website,
         industry: data.industry,
-        companiesHouseData: companiesHouseData as any,
-        generatedEmail: generatedEmail as any,
+        companiesHouseData: companiesHouseData as Record<string, unknown>,
+        generatedEmail: generatedEmail as string,
         sourceContext: data.sourceContext,
         createdBy: userId,
       },
@@ -180,7 +180,7 @@ router.post('/:id/save-to-hubspot', authenticate, async (req: Request, res: Resp
         });
 
         if (resp.ok) {
-          const dealData = (await resp.json()) as any;
+          const dealData = (await resp.json()) as Record<string, unknown>;
           hubspotDealId = dealData.id;
         }
       } catch (err) {

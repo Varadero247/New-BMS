@@ -104,12 +104,12 @@ router.get('/overdue', async (req: Request, res: Response) => {
 
     const [items, total] = await Promise.all([
       prisma.qualTraining.findMany({
-        where: where as any,
+        where,
         skip,
         take: limit,
         orderBy: { dueDate: 'asc' },
       }),
-      prisma.qualTraining.count({ where: where as any }),
+      prisma.qualTraining.count({ where }),
     ]);
 
     res.json({
@@ -197,12 +197,12 @@ router.get('/', async (req: Request, res: Response) => {
 
     const [items, total] = await Promise.all([
       prisma.qualTraining.findMany({
-        where: where as any,
+        where,
         skip,
         take: limit,
         orderBy: { dueDate: 'asc' },
       }),
-      prisma.qualTraining.count({ where: where as any }),
+      prisma.qualTraining.count({ where }),
     ]);
 
     res.json({

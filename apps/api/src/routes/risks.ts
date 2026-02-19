@@ -224,7 +224,7 @@ router.post('/', authenticate, validate(createRiskSchema), async (req, res, next
         action: 'CREATE',
         entity: 'Risk',
         entityId: risk.id,
-        newData: risk as any,
+        newData: risk as Record<string, unknown>,
       },
     });
 
@@ -286,8 +286,8 @@ router.put('/:id', authenticate, validate(updateRiskSchema), async (req, res, ne
         action: 'UPDATE',
         entity: 'Risk',
         entityId: risk.id,
-        oldData: existing as any,
-        newData: risk as any,
+        oldData: existing as Record<string, unknown>,
+        newData: risk as Record<string, unknown>,
       },
     });
 
@@ -322,7 +322,7 @@ router.delete('/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), async (re
         action: 'DELETE',
         entity: 'Risk',
         entityId: req.params.id,
-        oldData: existing as any,
+        oldData: existing as Record<string, unknown>,
       },
     });
 

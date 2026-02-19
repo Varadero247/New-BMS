@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -184,11 +184,11 @@ router.post('/', async (req: Request, res: Response) => {
 
     const assessment = await prisma.aiImpactAssessment.create({
       data: {
-        reference: reference as any,
+        reference: reference as string,
         systemId: parsed.data.systemId,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
-        impactLevel: (parsed.data.impactLevel || 'LIMITED') as any,
+        impactLevel: (parsed.data.impactLevel || 'LIMITED') as Prisma.AiImpactLevel,
         status: 'DRAFT',
         assessmentType: parsed.data.assessmentType || 'INITIAL',
         scope: parsed.data.scope ?? null,
@@ -204,7 +204,7 @@ router.post('/', async (req: Request, res: Response) => {
         reviewDate: parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null,
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },
@@ -254,7 +254,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
         approvedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },
@@ -348,7 +348,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
             : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },

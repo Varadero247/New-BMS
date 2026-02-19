@@ -268,7 +268,7 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
     const target = await prisma.esgTarget.create({
       data: {
         refNumber,
-        category: data.category as any,
+        category: data.category as string,
         subcategory: data.subcategory,
         description: data.description,
         baselineValue: data.baselineValue,
@@ -309,7 +309,7 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
 
 router.put(
   '/targets/:id',
-  checkOwnership(prisma.esgTarget as any),
+  checkOwnership(prisma.esgTarget as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
       const existing = await prisma.esgTarget.findUnique({ where: { id: req.params.id } });
@@ -337,7 +337,7 @@ router.put(
 
       const target = await prisma.esgTarget.update({
         where: { id: req.params.id },
-        data: data as any,
+        data: data as Record<string, unknown>,
       });
 
       res.json({ success: true, data: target });
@@ -523,7 +523,7 @@ router.post('/metrics', async (req: AuthRequest, res: Response) => {
 
     const metric = await prisma.esgMetric.create({
       data: {
-        category: data.category as any,
+        category: data.category as string,
         subcategory: data.subcategory,
         period: data.period,
         value: data.value,

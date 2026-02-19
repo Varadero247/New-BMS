@@ -607,7 +607,7 @@ function extractTopic(prompt: string): string {
 }
 
 // GET /api/template-generator — List all generated templates
-router.get('/', authenticate as any, async (req: Request, res: Response) => {
+router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
     const { category, isoStandard, page = '1', limit = '20' } = req.query;
@@ -652,7 +652,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
 });
 
 // POST /api/template-generator — Generate a new template from a prompt
-router.post('/', authenticate as any, async (req: Request, res: Response) => {
+router.post('/', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
     const parsed = generateTemplateSchema.safeParse(req.body);
@@ -769,7 +769,7 @@ router.get('/categories', async (_req: Request, res: Response) => {
 });
 
 // GET /api/template-generator/:id — Get a specific generated template
-router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
+router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const template = await prisma.qualGeneratedTemplate.findUnique({
       where: { id: req.params.id },
@@ -796,8 +796,8 @@ router.get('/:id', authenticate as any, async (req: Request, res: Response) => {
 // DELETE /api/template-generator/:id — Delete a generated template
 router.delete(
   '/:id',
-  authenticate as any,
-  requirePermission('quality', (PermissionLevel as any).MANAGE) as any,
+  authenticate,
+  requirePermission('quality', PermissionLevel.FULL),
   async (req: Request, res: Response) => {
     try {
       await prisma.qualGeneratedTemplate.update({

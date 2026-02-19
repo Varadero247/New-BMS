@@ -407,9 +407,9 @@ router.get('/revenue-breakdown', async (req: Request, res: Response) => {
       deletedAt: null,
     };
     if (dateFrom)
-      where.issueDate = { ...((where.issueDate as any) ?? {}), gte: new Date(dateFrom as string) };
+      where.issueDate = { ...((where.issueDate as Record<string, unknown>) ?? {}), gte: new Date(dateFrom as string) };
     if (dateTo)
-      where.issueDate = { ...((where.issueDate as any) ?? {}), lte: new Date(dateTo as string) };
+      where.issueDate = { ...((where.issueDate as Record<string, unknown>) ?? {}), lte: new Date(dateTo as string) };
 
     const invoices = await prisma.finInvoice.findMany({
       where,
@@ -460,9 +460,9 @@ router.get('/expense-breakdown', async (req: Request, res: Response) => {
       deletedAt: null,
     };
     if (dateFrom)
-      where.billDate = { ...((where.billDate as any) ?? {}), gte: new Date(dateFrom as string) };
+      where.billDate = { ...((where.billDate as Record<string, unknown>) ?? {}), gte: new Date(dateFrom as string) };
     if (dateTo)
-      where.billDate = { ...((where.billDate as any) ?? {}), lte: new Date(dateTo as string) };
+      where.billDate = { ...((where.billDate as Record<string, unknown>) ?? {}), lte: new Date(dateTo as string) };
 
     const bills = await prisma.finBill.findMany({
       where,

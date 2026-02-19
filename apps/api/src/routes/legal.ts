@@ -200,7 +200,7 @@ router.post(
           action: 'CREATE',
           entity: 'LegalRequirement',
           entityId: requirement.id,
-          newData: requirement as any,
+          newData: requirement as Record<string, unknown>,
         },
       });
 
@@ -245,8 +245,8 @@ router.put('/:id', authenticate, validate(updateLegalSchema), async (req, res, n
         action: 'UPDATE',
         entity: 'LegalRequirement',
         entityId: requirement.id,
-        oldData: existing as any,
-        newData: requirement as any,
+        oldData: existing as Record<string, unknown>,
+        newData: requirement as Record<string, unknown>,
       },
     });
 
@@ -280,7 +280,7 @@ router.delete('/:id', authenticate, requireRole(['ADMIN']), async (req, res, nex
         action: 'DELETE',
         entity: 'LegalRequirement',
         entityId: req.params.id,
-        oldData: existing as any,
+        oldData: existing as Record<string, unknown>,
       },
     });
 

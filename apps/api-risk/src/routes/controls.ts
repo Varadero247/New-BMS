@@ -63,7 +63,7 @@ router.post('/:id/controls', authenticate, async (req: Request, res: Response) =
     const overall = getControlEffectivenessOverall(allControls);
     await prisma.riskRegister.update({
       where: { id: req.params.id },
-      data: { controlEffectiveness: overall as any },
+      data: { controlEffectiveness: overall as string },
     });
     res.status(201).json({ success: true, data: control });
   } catch (error: unknown) {
@@ -79,7 +79,7 @@ router.get('/:id/controls', authenticate, async (req: Request, res: Response) =>
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const controls = await prisma.riskControl.findMany({
-      where: { riskId: req.params.id, isActive: true, risk: { orgId } } as any,
+      where: { riskId: req.params.id, isActive: true, risk: { orgId } },
       orderBy: { createdAt: 'desc' },
       take: 1000,
     });
@@ -126,7 +126,7 @@ router.put('/:riskId/controls/:id', authenticate, async (req: Request, res: Resp
     const overall = getControlEffectivenessOverall(allControls);
     await prisma.riskRegister.update({
       where: { id: req.params.riskId },
-      data: { controlEffectiveness: overall as any },
+      data: { controlEffectiveness: overall as string },
     });
     res.json({ success: true, data: control });
   } catch (error: unknown) {

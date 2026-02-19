@@ -135,7 +135,7 @@ router.get('/assessments', scopeToUser, async (req: AuthRequest, res: Response) 
 // GET /assessments/:id — Get with all stages
 router.get(
   '/assessments/:id',
-  checkOwnership(prisma.lifeCycleAssessment as any),
+  checkOwnership(prisma.lifeCycleAssessment as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
       const assessment = await prisma.lifeCycleAssessment.findUnique({
@@ -164,7 +164,7 @@ router.get(
 // Uses upsert on the @@unique([assessmentId, stageName]) constraint
 router.put(
   '/assessments/:id/stages/:stage',
-  checkOwnership(prisma.lifeCycleAssessment as any),
+  checkOwnership(prisma.lifeCycleAssessment as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id, stage } = req.params;

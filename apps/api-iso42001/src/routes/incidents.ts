@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -212,7 +212,7 @@ router.post('/', async (req: Request, res: Response) => {
         reportedBy: parsed.data.reportedBy ?? null,
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },
@@ -274,10 +274,10 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
         rootCause: parsed.data.rootCause ?? null,
         findings: parsed.data.findings ?? null,
         contributingFactors: parsed.data.contributingFactors ?? null,
-        investigationStartedAt: (existing as any).investigationStartedAt || new Date(),
+        investigationStartedAt: (existing as Record<string, unknown>).investigationStartedAt || new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },
@@ -339,7 +339,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
         closedBy: parsed.data.closedBy || authReq.user?.id || 'system',
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },
@@ -423,7 +423,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         ...parsed.data,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         system: { select: { id: true, name: true } },
       },

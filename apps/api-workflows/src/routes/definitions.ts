@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -120,11 +120,11 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         category: data.category,
         triggerType: data.triggerType,
-        triggerConfig: data.triggerConfig as any,
-        steps: data.steps as any,
-        rules: data.rules as any,
+        triggerConfig: data.triggerConfig as Prisma.InputJsonValue,
+        steps: data.steps as Prisma.InputJsonValue,
+        rules: data.rules as Prisma.InputJsonValue,
         defaultSlaHours: data.defaultSlaHours,
-        escalationConfig: data.escalationConfig as any,
+        escalationConfig: data.escalationConfig as Prisma.InputJsonValue,
         createdById: data.createdById,
         version: 1,
         status: 'DRAFT',
@@ -271,11 +271,11 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
         description: source.description,
         category: source.category,
         triggerType: source.triggerType,
-        triggerConfig: (source.triggerConfig ?? undefined) as any,
-        steps: source.steps as any,
-        rules: (source.rules ?? undefined) as any,
+        triggerConfig: (source.triggerConfig ?? undefined) as Prisma.InputJsonValue,
+        steps: source.steps as Prisma.InputJsonValue,
+        rules: (source.rules ?? undefined) as Prisma.InputJsonValue,
         defaultSlaHours: source.defaultSlaHours,
-        escalationConfig: (source.escalationConfig ?? undefined) as any,
+        escalationConfig: (source.escalationConfig ?? undefined) as Prisma.InputJsonValue,
         version: 1,
         status: 'DRAFT',
       },

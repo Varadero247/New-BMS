@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -227,13 +227,13 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
       data: {
         fileId: req.params.id,
         hazardId,
-        hazardCategory: data.hazardCategory as any,
+        hazardCategory: data.hazardCategory as string,
         hazardDescription: data.hazardDescription,
         hazardousSituation: data.hazardousSituation,
         harm: data.harm,
         severityBefore: data.severityBefore,
         probabilityBefore: data.probabilityBefore,
-        riskLevelBefore: riskLevelBefore as any,
+        riskLevelBefore: riskLevelBefore as string,
       },
     });
 
@@ -271,7 +271,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     }
 
     const hazard = await prisma.hazard.findUnique({ where: { id: req.params.hazardId } });
-    if (!hazard || (hazard as any).fileId !== req.params.id) {
+    if (!hazard || (hazard as Record<string, unknown>).fileId !== req.params.id) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: 'Hazard not found in this risk management file' },
@@ -283,7 +283,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
       description: z.string().trim().min(1).max(2000),
       implementationStatus: z
         .enum(['PLANNED', 'IN_PROGRESS', 'IMPLEMENTED', 'VERIFIED'])
-        .optional() as any,
+        .optional().nullable(),
       verificationMethod: z.string().trim().optional(),
     });
 
@@ -329,7 +329,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
               hazardId: req.params.hazardId,
               controlType: control.controlType,
               description: control.description,
-              implementationStatus: (control.implementationStatus || 'PLANNED') as any,
+              implementationStatus: (control.implementationStatus || 'PLANNED') as string,
               verificationMethod: control.verificationMethod,
             },
           })

@@ -279,7 +279,7 @@ router.post('/', authenticate, validate(createIncidentSchema), async (req, res, 
         action: 'CREATE',
         entity: 'Incident',
         entityId: incident.id,
-        newData: incident as any,
+        newData: incident as Record<string, unknown>,
       },
     });
 
@@ -327,8 +327,8 @@ router.put('/:id', authenticate, validate(updateIncidentSchema), async (req, res
         action: 'UPDATE',
         entity: 'Incident',
         entityId: incident.id,
-        oldData: existing as any,
-        newData: incident as any,
+        oldData: existing as Record<string, unknown>,
+        newData: incident as Record<string, unknown>,
       },
     });
 
@@ -363,7 +363,7 @@ router.delete('/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), async (re
         action: 'DELETE',
         entity: 'Incident',
         entityId: req.params.id,
-        oldData: existing as any,
+        oldData: existing as Record<string, unknown>,
       },
     });
 

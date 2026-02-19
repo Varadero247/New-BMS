@@ -238,7 +238,7 @@ router.post('/', authenticate, validate(createActionSchema), async (req, res, ne
         action: 'CREATE',
         entity: 'Action',
         entityId: action.id,
-        newData: action as any,
+        newData: action as Record<string, unknown>,
       },
     });
 
@@ -282,8 +282,8 @@ router.put('/:id', authenticate, validate(updateActionSchema), async (req, res, 
         action: 'UPDATE',
         entity: 'Action',
         entityId: action.id,
-        oldData: existing as any,
-        newData: action as any,
+        oldData: existing as Record<string, unknown>,
+        newData: action as Record<string, unknown>,
       },
     });
 
@@ -326,8 +326,8 @@ router.post('/:id/complete', authenticate, async (req, res, next) => {
         action: 'COMPLETE',
         entity: 'Action',
         entityId: action.id,
-        oldData: existing as any,
-        newData: action as any,
+        oldData: existing as Record<string, unknown>,
+        newData: action as Record<string, unknown>,
       },
     });
 
@@ -387,8 +387,8 @@ router.post(
           action: 'VERIFY',
           entity: 'Action',
           entityId: action.id,
-          oldData: existing as any,
-          newData: action as any,
+          oldData: existing as Record<string, unknown>,
+          newData: action as Record<string, unknown>,
         },
       });
 
@@ -424,7 +424,7 @@ router.delete('/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), async (re
         action: 'DELETE',
         entity: 'Action',
         entityId: req.params.id,
-        oldData: existing as any,
+        oldData: existing as Record<string, unknown>,
       },
     });
 

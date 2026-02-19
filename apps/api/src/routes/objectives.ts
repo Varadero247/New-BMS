@@ -229,7 +229,7 @@ router.post(
           action: 'CREATE',
           entity: 'Objective',
           entityId: objective.id,
-          newData: objective as any,
+          newData: objective as Record<string, unknown>,
         },
       });
 
@@ -288,8 +288,8 @@ router.put('/:id', authenticate, validate(updateObjectiveSchema), async (req, re
         action: 'UPDATE',
         entity: 'Objective',
         entityId: objective.id,
-        oldData: existing as any,
-        newData: objective as any,
+        oldData: existing as Record<string, unknown>,
+        newData: objective as Record<string, unknown>,
       },
     });
 
@@ -378,7 +378,7 @@ router.delete('/:id', authenticate, requireRole(['ADMIN', 'MANAGER']), async (re
         action: 'DELETE',
         entity: 'Objective',
         entityId: req.params.id,
-        oldData: existing as any,
+        oldData: existing as Record<string, unknown>,
       },
     });
 

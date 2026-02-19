@@ -45,7 +45,7 @@ router.get('/:id/kri', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const kris = await prisma.riskKri.findMany({
-      where: { riskId: req.params.id, isActive: true, risk: { orgId } } as any,
+      where: { riskId: req.params.id, isActive: true, risk: { orgId } },
       include: { readings: { orderBy: { recordedAt: 'desc' }, take: 10 } },
     });
     res.json({ success: true, data: kris });
@@ -143,12 +143,12 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
       return res
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'KRI not found' } });
-    const status = evaluateKriStatus(kri as any, value);
+    const status = evaluateKriStatus(kri as Record<string, unknown>, value);
     const reading = await prisma.riskKriReading.create({
       data: {
         kriId: req.params.id,
         value,
-        status: status as any,
+        status: status as string,
         recordedBy: (req as AuthRequest).user?.id,
         notes,
       },
@@ -157,7 +157,7 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
       where: { id: req.params.id },
       data: {
         currentValue: value,
-        currentStatus: status as any,
+        currentStatus: status as string,
         lastMeasuredAt: new Date(),
         measuredBy: (req as AuthRequest).user?.id,
       },
@@ -180,7 +180,7 @@ router.get('/kri/breaches', authenticate, async (req: Request, res: Response) =>
         isActive: true,
         currentStatus: { in: ['AMBER', 'RED'] },
         risk: { orgId, deletedAt: null },
-      } as any,
+      },
       include: {
         risk: { select: { id: true, title: true, referenceNumber: true, residualRiskLevel: true } },
       },
@@ -208,7 +208,7 @@ router.get('/kri/due', authenticate, async (req: Request, res: Response) => {
         isActive: true,
         nextMeasurementDue: { lte: nextWeek },
         risk: { orgId, deletedAt: null },
-      } as any,
+      },
       include: { risk: { select: { id: true, title: true, referenceNumber: true } } },
       orderBy: { nextMeasurementDue: 'asc' },
       take: 1000,

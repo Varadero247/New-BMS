@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -141,8 +141,8 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         category: data.category,
         industryType: data.industryType,
-        definitionTemplate: data.definitionTemplate as any,
-        formTemplates: data.formTemplates as any,
+        definitionTemplate: data.definitionTemplate as Prisma.InputJsonValue,
+        formTemplates: data.formTemplates as Prisma.InputJsonValue,
       },
     });
 
@@ -181,7 +181,7 @@ router.put(
 
       const template = await prisma.workflowTemplate.update({
         where: { id: req.params.id },
-        data: data as any,
+        data: data as Record<string, unknown>,
       });
 
       res.json({ success: true, data: template });

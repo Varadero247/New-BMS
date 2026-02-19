@@ -138,7 +138,7 @@ router.post(
           action: 'CREATE',
           entity: 'TrainingCourse',
           entityId: course.id,
-          newData: course as any,
+          newData: course as Record<string, unknown>,
         },
       });
 
@@ -179,8 +179,8 @@ router.put(
           action: 'UPDATE',
           entity: 'TrainingCourse',
           entityId: course.id,
-          oldData: existing as any,
-          newData: course as any,
+          oldData: existing as Record<string, unknown>,
+          newData: course as Record<string, unknown>,
         },
       });
 
@@ -215,7 +215,7 @@ router.delete('/courses/:id', authenticate, requireRole(['ADMIN']), async (req, 
         action: 'DELETE',
         entity: 'TrainingCourse',
         entityId: req.params.id,
-        oldData: existing as any,
+        oldData: existing as Record<string, unknown>,
       },
     });
 

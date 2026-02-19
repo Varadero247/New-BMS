@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -90,10 +90,10 @@ router.post('/chains', async (req: Request, res: Response) => {
         name: data.name,
         description: data.description,
         chainType: data.chainType,
-        levels: data.levels as any,
+        levels: data.levels as Prisma.InputJsonValue,
         requireAllLevels: data.requireAllLevels,
         skipOnUnavailable: data.skipOnUnavailable,
-        conditions: data.conditions as any,
+        conditions: data.conditions as Prisma.InputJsonValue,
       },
     });
 
@@ -134,7 +134,7 @@ router.put(
 
       const chain = await prisma.approvalChain.update({
         where: { id: req.params.id },
-        data: data as any,
+        data: data as Record<string, unknown>,
       });
 
       res.json({ success: true, data: chain });
@@ -364,7 +364,7 @@ router.post('/requests', async (req: Request, res: Response) => {
         departmentId: data.departmentId,
         entityType: data.entityType,
         entityId: data.entityId,
-        entityData: data.entityData as any,
+        entityData: data.entityData as Prisma.InputJsonValue,
         approvalChainId: data.approvalChainId,
         totalLevels: data.totalLevels,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
@@ -457,8 +457,8 @@ router.put(
           level: request.currentLevel,
           decision: data.decision,
           comments: data.comments,
-          conditions: data.conditions as any,
-          attachments: data.attachments as any,
+          conditions: data.conditions as Prisma.InputJsonValue,
+          attachments: data.attachments as Prisma.InputJsonValue,
         },
       });
 
@@ -495,8 +495,8 @@ router.put(
       await prisma.approvalRequest.update({
         where: { id: request.id },
         data: {
-          status: newStatus as any,
-          outcome: outcome as any,
+          status: newStatus as string,
+          outcome: outcome as string,
           decidedAt,
           currentLevel,
         },

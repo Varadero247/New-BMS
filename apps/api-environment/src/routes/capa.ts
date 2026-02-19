@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -186,10 +186,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const capa = await prisma.envCapa.create({
       data: {
         referenceNumber,
-        capaType: data.capaType as any,
+        capaType: data.capaType as Prisma.EnvCapaType,
         title: data.title,
-        severity: data.severity as any,
-        triggerSource: data.triggerSource as any,
+        severity: data.severity as Prisma.EnvCapaSeverity,
+        triggerSource: data.triggerSource as Prisma.EnvCapaTrigger,
         sourceReference: data.sourceReference,
         description: data.description,
         initiatedBy: data.initiatedBy,
@@ -198,7 +198,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         immediateActions: data.immediateActions,
         containmentVerifiedBy: data.containmentVerifiedBy,
         containmentDate: data.containmentDate ? new Date(data.containmentDate) : null,
-        rcaMethod: data.rcaMethod as any,
+        rcaMethod: data.rcaMethod as Prisma.EnvRCAMethod,
         problemStatement: data.problemStatement,
         why1: data.why1,
         why2: data.why2,
@@ -217,7 +217,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         bowtieConsequences: data.bowtieConsequences,
         bowtieMitigating: data.bowtieMitigating,
         rootCauseStatement: data.rootCauseStatement,
-        rootCauseCategory: data.rootCauseCategory as any,
+        rootCauseCategory: data.rootCauseCategory as Prisma.EnvRootCauseCategory,
         effectivenessCriteria: data.effectivenessCriteria,
         effectivenessKPI: data.effectivenessKPI,
         effectivenessTarget: data.effectivenessTarget,
@@ -231,7 +231,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         verifiedBy: data.verifiedBy,
         effectivenessAssessment: data.effectivenessAssessment,
         recurrenceCheck: data.recurrenceCheck,
-        actionsEffective: data.actionsEffective as any,
+        actionsEffective: data.actionsEffective as Prisma.EnvEffectiveness,
         furtherActions: data.furtherActions,
         managementSignoff: data.managementSignoff,
         closureDate: data.closureDate ? new Date(data.closureDate) : null,
