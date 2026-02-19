@@ -1,5 +1,5 @@
 FROM node:20-alpine AS base
-RUN apk add --no-cache dumb-init && corepack enable && corepack prepare pnpm@9.15.4 --activate
+RUN apk add --no-cache dumb-init && corepack enable && corepack prepare pnpm@9 --activate
 
 FROM base AS deps
 WORKDIR /app

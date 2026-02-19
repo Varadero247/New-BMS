@@ -1785,7 +1785,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-partners:
     build:
@@ -1819,7 +1819,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-risk:
     build:
@@ -1852,7 +1852,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-training:
     build:
@@ -1885,7 +1885,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-suppliers:
     build:
@@ -1918,7 +1918,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-assets:
     build:
@@ -1951,7 +1951,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-documents:
     build:
@@ -1984,7 +1984,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-complaints:
     build:
@@ -2017,7 +2017,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-contracts:
     build:
@@ -2050,7 +2050,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-ptw:
     build:
@@ -2083,7 +2083,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-reg-monitor:
     build:
@@ -2116,7 +2116,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-incidents:
     build:
@@ -2149,7 +2149,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-audits:
     build:
@@ -2182,7 +2182,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-mgmt-review:
     build:
@@ -2215,7 +2215,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-setup-wizard:
     build:
@@ -2248,7 +2248,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   api-chemicals:
     build:
@@ -2281,7 +2281,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   web-chemicals:
     build:
@@ -2773,7 +2773,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 30s
 
   web-emergency:
     build:
