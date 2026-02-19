@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -25,9 +25,10 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     if (employeeId) where.employeeId = employeeId as string;
     if (status) where.status = status;
     if (startDate || endDate) {
-      (where as any).date = {};
-      if (startDate) (where as any).date.gte = new Date(startDate as string);
-      if (endDate) (where as any).date.lte = new Date(endDate as string);
+      where.date = {
+        ...(startDate && { gte: new Date(startDate as string) }),
+        ...(endDate && { lte: new Date(endDate as string) }),
+      };
     }
 
     const [attendances, total] = await Promise.all([
@@ -480,8 +481,8 @@ router.post('/', async (req: Request, res: Response) => {
 
     const attendance = await prisma.attendance.upsert({
       where: { employeeId_date: { employeeId: data.employeeId, date: attendanceDate } },
-      update: createData as any,
-      create: createData as any,
+      update: createData as Prisma.AttendanceUncheckedUpdateInput,
+      create: createData as Prisma.AttendanceUncheckedCreateInput,
       include: {
         employee: {
           select: { id: true, firstName: true, lastName: true, employeeNumber: true },

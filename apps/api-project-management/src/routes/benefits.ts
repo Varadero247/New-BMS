@@ -379,13 +379,10 @@ router.post(
         data: {
           benefitId: existing.id,
           measuredValue: measureVal,
-          value: measureVal,
           notes: data.notes,
-          source: data.source,
           measureDate: measureDt ? new Date(measureDt) : new Date(),
-          measuredAt: measureDt ? new Date(measureDt) : new Date(),
           measuredBy: authReq.user?.id,
-        } as any,
+        },
       });
 
       // Update current value on the benefit

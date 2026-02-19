@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, AiRiskCategory, AiRiskLikelihood, AiRiskImpact, AiRiskStatus, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -233,12 +233,12 @@ router.post('/', async (req: Request, res: Response) => {
         systemId: parsed.data.systemId,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
-        category: parsed.data.category as any,
-        likelihood: parsed.data.likelihood as any,
-        impact: parsed.data.impact as any,
+        category: parsed.data.category as AiRiskCategory,
+        likelihood: parsed.data.likelihood as AiRiskLikelihood,
+        impact: parsed.data.impact as AiRiskImpact,
         riskScore,
         riskLevel,
-        status: 'IDENTIFIED' as any,
+        status: 'IDENTIFIED' as AiRiskStatus,
         existingControls: parsed.data.existingControls ?? null,
         proposedMitigations: parsed.data.proposedMitigations ?? null,
         riskOwner: parsed.data.riskOwner ?? null,
@@ -334,7 +334,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const risk = await prisma.aiRiskAssessment.update({
       where: { id },
       data: {
-        ...(parsed.data as any),
+        ...(parsed.data as unknown as Prisma.AiRiskAssessmentUpdateInput),
         riskScore,
         riskLevel,
         reviewDate:

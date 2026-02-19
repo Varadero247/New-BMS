@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -111,9 +111,10 @@ router.post('/pipelines', async (req: Request, res: Response) => {
         stages: {
           create: stages.map((stage) => ({
             id: uuidv4(),
-            ...stage,
-            createdBy: (req as AuthRequest).user?.id || 'system',
-          })) as any,
+            name: stage.name,
+            order: stage.order,
+            probability: stage.probability,
+          })) as Prisma.CrmPipelineStageCreateWithoutPipelineInput[],
         },
       },
       include: { stages: { orderBy: { order: 'asc' } } },
@@ -168,8 +169,7 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
         name: stage.name,
         order: stage.order,
         probability: stage.probability,
-        createdBy: (req as AuthRequest).user?.id || 'system',
-      })) as any,
+      })) as Prisma.CrmPipelineStageCreateManyInput[],
     });
 
     const updated = await prisma.crmPipeline.findUnique({
@@ -279,13 +279,21 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         refNumber: generateRefNumber(),
-        ...validation.data,
-        status: 'OPEN',
+        title: validation.data.title,
+        value: validation.data.value,
+        currency: validation.data.currency,
+        accountId: validation.data.accountId,
+        pipelineId: validation.data.pipelineId,
+        stageId: validation.data.stageId,
+        probability: validation.data.probability,
+        assignedTo: validation.data.assignedTo,
+        source: (validation.data.source || undefined) as Prisma.CrmDealCreateInput['source'],
+        status: 'OPEN' as const,
         expectedCloseDate: validation.data.expectedCloseDate
           ? new Date(validation.data.expectedCloseDate)
           : undefined,
         createdBy: (req as AuthRequest).user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Deal created', { dealId: deal.id, refNumber: deal.refNumber });
@@ -370,9 +378,9 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
         orderBy: { createdAt: 'desc' },
         take: 20,
       }),
-      (deal as any).contactId
+      (deal as unknown as { contactId?: string | null }).contactId
         ? prisma.crmContact.findMany({
-            where: { id: (deal as any).contactId as string, deletedAt: null },
+            where: { id: (deal as unknown as { contactId?: string | null }).contactId as string, deletedAt: null },
             take: 1000,
           })
         : Promise.resolve([]),
@@ -425,7 +433,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const deal = await prisma.crmDeal.update({
       where: { id: req.params.id },
-      data: data as any,
+      data: {
+        ...data,
+        source: data.source as Prisma.CrmDealCreateInput['source'],
+      } as Prisma.CrmDealUncheckedUpdateInput,
     });
 
     logger.info('Deal updated', { dealId: deal.id });
@@ -486,7 +497,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: (deal as any).contactId || undefined,
+        contactId: (deal as unknown as { contactId?: string | null }).contactId || undefined,
         type: 'NOTE',
         subject: `Deal moved to new stage`,
         description: `Stage changed to ${stageId}`,
@@ -533,7 +544,7 @@ router.put('/:id/won', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: (deal as any).contactId || undefined,
+        contactId: (deal as unknown as { contactId?: string | null }).contactId || undefined,
         type: 'NOTE',
         subject: 'Deal closed — Won',
         createdBy: (req as AuthRequest).user?.id || 'system',
@@ -601,7 +612,7 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: (deal as any).contactId || undefined,
+        contactId: (deal as unknown as { contactId?: string | null }).contactId || undefined,
         type: 'NOTE',
         subject: `Deal closed — Lost: ${lostReason}`,
         createdBy: (req as AuthRequest).user?.id || 'system',

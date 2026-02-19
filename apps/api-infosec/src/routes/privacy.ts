@@ -4,6 +4,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
+import { Prisma } from '@ims/database/infosec';
 import { z } from 'zod';
 
 const logger = createLogger('api-infosec');
@@ -288,7 +289,7 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
     const entry = await prisma.isRopa.update({
       where: { id },
       data: {
-        ...parsed.data as any,
+        ...(parsed.data as unknown as Prisma.IsRopaUpdateInput),
         updatedAt: new Date(),
       },
     });

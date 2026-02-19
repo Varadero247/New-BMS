@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, AiImpactLevel, AiImpactAssessmentStatus, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -188,8 +188,8 @@ router.post('/', async (req: Request, res: Response) => {
         systemId: parsed.data.systemId,
         title: parsed.data.title,
         description: parsed.data.description ?? null,
-        impactLevel: (parsed.data.impactLevel || 'LIMITED') as any,
-        status: 'DRAFT' as any,
+        impactLevel: (parsed.data.impactLevel || 'LIMITED') as AiImpactLevel,
+        status: 'DRAFT' as AiImpactAssessmentStatus,
         assessmentType: parsed.data.assessmentType || 'INITIAL',
         scope: parsed.data.scope ?? null,
         methodology: parsed.data.methodology ?? null,
@@ -250,7 +250,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const assessment = await prisma.aiImpactAssessment.update({
       where: { id },
       data: {
-        status: 'APPROVED' as any,
+        status: 'APPROVED' as AiImpactAssessmentStatus,
         approvedBy: authReq.user?.id || 'system',
         approvedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
@@ -340,7 +340,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const assessment = await prisma.aiImpactAssessment.update({
       where: { id },
       data: {
-        ...(parsed.data as any),
+        ...(parsed.data as unknown as Prisma.AiImpactAssessmentUpdateInput),
         reviewDate:
           parsed.data.reviewDate !== undefined
             ? parsed.data.reviewDate

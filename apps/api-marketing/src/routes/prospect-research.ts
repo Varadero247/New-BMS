@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { AutomationConfig } from '../config';
 
 const logger = createLogger('api-marketing:prospect');
@@ -94,7 +94,7 @@ Return as JSON: {"subject": "...", "body": "..."}`;
 
         if (resp.ok) {
           const aiData = (await resp.json()) as Record<string, unknown>;
-          const text = (aiData.content as any[])?.[0]?.text || '';
+          const text = (aiData.content as Array<{ text: string }>)?.[0]?.text || '';
           const jsonMatch = text.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             generatedEmail = JSON.parse(jsonMatch[0]);
@@ -110,8 +110,8 @@ Return as JSON: {"subject": "...", "body": "..."}`;
         companyName: data.companyName,
         website: data.website,
         industry: data.industry,
-        companiesHouseData: companiesHouseData as any,
-        generatedEmail: generatedEmail as any,
+        companiesHouseData: companiesHouseData as Prisma.InputJsonValue,
+        generatedEmail: generatedEmail as Prisma.InputJsonValue,
         sourceContext: data.sourceContext,
         createdBy: userId,
       },

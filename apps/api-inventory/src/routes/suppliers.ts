@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
@@ -124,15 +124,14 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const supplier = await prisma.supplier.create({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         id: uuidv4(),
         ...data,
-        status: 'ACTIVE',
+        status: 'ACTIVE' as const,
         isActive: true,
         createdById: (req as AuthRequest).user?.id,
         updatedById: (req as AuthRequest).user?.id,
-      } as any,
+      } as Prisma.SupplierUncheckedCreateInput,
     });
 
     res.status(201).json({ success: true, data: supplier });
@@ -197,11 +196,10 @@ router.patch('/:id', checkOwnership(prisma.supplier), async (req: Request, res: 
 
     const supplier = await prisma.supplier.update({
       where: { id: req.params.id },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         ...data,
         updatedById: (req as AuthRequest).user?.id,
-      } as any,
+      } as Prisma.SupplierUncheckedUpdateInput,
     });
 
     res.json({ success: true, data: supplier });

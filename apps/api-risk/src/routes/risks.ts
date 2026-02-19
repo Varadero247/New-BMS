@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import {
   getRiskLevel,
   calculateScore,
@@ -393,7 +393,7 @@ router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
     const validFields = ['category', 'department', 'sourceModule', 'aggregationGroup', 'status'];
     const field = validFields.includes(groupBy) ? groupBy : 'category';
     const raw = await prisma.riskRegister.groupBy({
-      by: [field] as any,
+      by: [field as Prisma.RiskRegisterScalarFieldEnum],
       where: { orgId, deletedAt: null },
       _count: true,
     });
@@ -434,7 +434,7 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
       data: {
-        ...(mapped as any),
+        ...(mapped as unknown as Prisma.RiskRegisterCreateInput),
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
@@ -471,7 +471,7 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
       data: {
-        ...(mapped as any),
+        ...(mapped as unknown as Prisma.RiskRegisterCreateInput),
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
@@ -508,7 +508,7 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
     const referenceNumber = await generateRef(orgId);
     const data = await prisma.riskRegister.create({
       data: {
-        ...(mapped as any),
+        ...(mapped as unknown as Prisma.RiskRegisterCreateInput),
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
@@ -690,7 +690,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     }
     const data = await prisma.riskRegister.create({
       data: {
-        ...(calculated as any),
+        ...(calculated as unknown as Prisma.RiskRegisterCreateInput),
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,

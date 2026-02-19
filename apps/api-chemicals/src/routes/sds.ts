@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 
 const router = Router();
 router.param('id', validateIdParam());
@@ -239,8 +239,12 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
 
     const data = await prisma.chemSds.create({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: { ...parsed.data, chemicalId, createdBy: (req as AuthRequest).user?.id } as any,
+      data: {
+        ...parsed.data,
+        ingredients: parsed.data.ingredients as Prisma.InputJsonValue,
+        chemicalId,
+        createdBy: (req as AuthRequest).user?.id,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

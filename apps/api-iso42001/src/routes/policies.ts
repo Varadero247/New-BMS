@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, AiPolicyStatus, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -190,7 +190,7 @@ router.post('/', async (req: Request, res: Response) => {
         title: parsed.data.title,
         content: parsed.data.content,
         policyType: parsed.data.policyType,
-        status: 'DRAFT' as any,
+        status: 'DRAFT' as AiPolicyStatus,
         summary: parsed.data.summary ?? null,
         scope: parsed.data.scope ?? null,
         effectiveDate: parsed.data.effectiveDate ? new Date(parsed.data.effectiveDate) : null,
@@ -240,7 +240,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const policy = await prisma.aiPolicy.update({
       where: { id },
       data: {
-        status: 'APPROVED' as any,
+        status: 'APPROVED' as AiPolicyStatus,
         approvedBy: authReq.user?.id || 'system',
         approvedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
@@ -319,7 +319,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const policy = await prisma.aiPolicy.update({
       where: { id },
       data: {
-        ...(parsed.data as any),
+        ...(parsed.data as unknown as Prisma.AiPolicyUpdateInput),
         effectiveDate:
           parsed.data.effectiveDate !== undefined
             ? parsed.data.effectiveDate

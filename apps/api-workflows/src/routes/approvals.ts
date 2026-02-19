@@ -493,10 +493,9 @@ router.put(
       // Update request
       await prisma.approvalRequest.update({
         where: { id: request.id },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data: {
-          status: newStatus as any,
-          outcome: outcome as any,
+          status: newStatus as 'DRAFT' | 'PENDING' | 'IN_REVIEW' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'EXPIRED' | 'ON_HOLD',
+          outcome: outcome as 'APPROVED' | 'REJECTED' | 'APPROVED_WITH_CONDITIONS' | 'PARTIALLY_APPROVED' | 'CANCELLED' | 'EXPIRED' | null,
           decidedAt,
           currentLevel,
         },

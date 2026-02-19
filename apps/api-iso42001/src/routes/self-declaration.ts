@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, AiSelfDeclarationStatus, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -147,7 +147,7 @@ router.post('/', async (req: Request, res: Response) => {
         scope: parsed.data.scope,
         conformanceStatement: parsed.data.conformanceStatement,
         standard: parsed.data.standard || 'ISO 42001:2023',
-        status: 'DRAFT' as any,
+        status: 'DRAFT' as AiSelfDeclarationStatus,
         declarationDate: new Date(parsed.data.declarationDate),
         validUntil: parsed.data.validUntil ? new Date(parsed.data.validUntil) : null,
         signedBy: parsed.data.signedBy ?? null,
@@ -198,7 +198,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
     const declaration = await prisma.aiSelfDeclaration.update({
       where: { id },
       data: {
-        status: 'PUBLISHED' as any,
+        status: 'PUBLISHED' as AiSelfDeclarationStatus,
         signedBy:
           (z.string().trim().uuid().safeParse(req.body?.signedBy).success
             ? req.body.signedBy
@@ -287,7 +287,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const declaration = await prisma.aiSelfDeclaration.update({
       where: { id },
       data: {
-        ...(parsed.data as any),
+        ...(parsed.data as unknown as Prisma.AiSelfDeclarationUpdateInput),
         declarationDate: parsed.data.declarationDate
           ? new Date(parsed.data.declarationDate)
           : undefined,

@@ -175,11 +175,17 @@ router.put(
 
       const definition = await prisma.workflowDefinition.update({
         where: { id: req.params.id },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data: {
-          ...data,
+          name: data.name,
+          description: data.description,
+          triggerType: data.triggerType,
+          triggerConfig: data.triggerConfig as Prisma.InputJsonValue,
+          steps: data.steps as Prisma.InputJsonValue,
+          rules: data.rules as Prisma.InputJsonValue,
+          defaultSlaHours: data.defaultSlaHours,
+          escalationConfig: data.escalationConfig as Prisma.InputJsonValue,
           version: current.version + 1,
-        } as any,
+        },
       });
 
       res.json({ success: true, data: definition });

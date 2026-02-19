@@ -117,8 +117,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: data.name,
         description: data.description || null,
         sql: data.sql,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        parameters: (data.parameters ?? null) as any,
+        parameters: (data.parameters ?? null) as Prisma.InputJsonValue,
         isPublic: data.isPublic,
         ownerId: authReq.user!.id,
         createdBy: authReq.user!.id,

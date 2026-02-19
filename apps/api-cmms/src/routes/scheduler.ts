@@ -288,7 +288,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: parsed.data.name,
         assetId: parsed.data.assetId,
         description: parsed.data.description ?? null,
-        frequency: parsed.data.frequency as any,
+        frequency: parsed.data.frequency as 'DAILY' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'SEMI_ANNUALLY' | 'ANNUALLY',
         tasks: parsed.data.tasks,
         assignedTo: parsed.data.assignedTo ?? null,
         estimatedDuration: parsed.data.estimatedDuration ?? null,

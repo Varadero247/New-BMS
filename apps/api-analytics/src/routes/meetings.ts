@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma, Prisma } from '../prisma';
+import type { MeetingType } from '@ims/database/analytics';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
@@ -103,8 +104,7 @@ router.post('/', async (req: Request, res: Response) => {
     const meeting = await prisma.meetingNote.create({
       data: {
         title,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        type: type as any,
+        type: type as MeetingType,
         date: new Date(date),
         attendees: attendees || [],
         summary: summary || '',
@@ -152,7 +152,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         ...(title !== undefined && { title }),
-        ...(type !== undefined && { type: type as any }),
+        ...(type !== undefined && { type: type as MeetingType }),
         ...(date !== undefined && { date: new Date(date) }),
         ...(attendees !== undefined && { attendees }),
         ...(summary !== undefined && { summary }),
@@ -233,8 +233,7 @@ router.patch('/:id/actions/:actionIndex', async (req: Request, res: Response) =>
 
     const updated = await prisma.meetingNote.update({
       where: { id: req.params.id },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: { actionItems: actionItems as any },
+      data: { actionItems: actionItems as Prisma.InputJsonValue },
     });
 
     logger.info('Action item toggled', { meetingId: req.params.id, actionIndex });

@@ -100,9 +100,10 @@ router.get('/requests', scopeToUser, async (req: Request, res: Response) => {
     if (status) where.status = status;
     if (leaveTypeId) where.leaveTypeId = leaveTypeId as string;
     if (startDate || endDate) {
-      (where as any).startDate = {};
-      if (startDate) (where as any).startDate.gte = new Date(startDate as string);
-      if (endDate) (where as any).startDate.lte = new Date(endDate as string);
+      where.startDate = {
+        ...(startDate && { gte: new Date(startDate as string) }),
+        ...(endDate && { lte: new Date(endDate as string) }),
+      };
     }
 
     const [requests, total] = await Promise.all([

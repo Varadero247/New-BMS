@@ -3,6 +3,7 @@ import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+import { IsRiskLevel, IsRiskTreatment, IsRiskStatus, Prisma } from '@ims/database/infosec';
 import { z } from 'zod';
 
 const logger = createLogger('api-infosec');
@@ -102,11 +103,11 @@ router.post('/', async (req: Request, res: Response) => {
         likelihood: parsed.data.likelihood,
         impact: parsed.data.impact,
         riskScore,
-        riskLevel: riskLevel as any,
-        treatment: 'MITIGATE' as any,
+        riskLevel: riskLevel as IsRiskLevel,
+        treatment: 'MITIGATE' as IsRiskTreatment,
         assetId: parsed.data.assetId || null,
         owner: parsed.data.owner || '',
-        status: 'IDENTIFIED' as any,
+        status: 'IDENTIFIED' as IsRiskStatus,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -289,11 +290,11 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     const risk = await prisma.isRisk.update({
       where: { id },
       data: {
-        ...parsed.data as any,
+        ...(parsed.data as unknown as Prisma.IsRiskUpdateInput),
         likelihood,
         impact,
         riskScore,
-        riskLevel: riskLevel as any,
+        riskLevel: riskLevel as IsRiskLevel,
         updatedAt: new Date(),
       },
     });

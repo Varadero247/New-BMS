@@ -39,23 +39,24 @@ function currencyToJurisdiction(currency: string): TaxJurisdiction {
 
 function extractTaxAmounts(result: TaxResult): { incomeTax: number; socialSecurity: number } {
   if ('nationalInsurance' in result) {
+    // UKTaxResult
     return { incomeTax: result.incomeTax, socialSecurity: result.nationalInsurance };
   }
-  if ('socialSecurity' in result && 'federalTax' in result) {
-    const r = result as any;
-    return { incomeTax: r.federalTax, socialSecurity: r.socialSecurity + (r.medicare ?? 0) };
-  }
-  if ('gratuity' in result) {
-    const r = result as any;
-    return { incomeTax: 0, socialSecurity: r.socialSecurity ?? 0 };
+  if ('cpp' in result) {
+    // CAFederalTaxResult
+    return { incomeTax: result.federalTax, socialSecurity: result.cpp + result.ei };
   }
   if ('superannuation' in result) {
-    const r = result as any;
-    return { incomeTax: r.incomeTax, socialSecurity: r.superannuation + (r.medicareLevy ?? 0) };
+    // AUTaxResult
+    return { incomeTax: result.incomeTax, socialSecurity: result.superannuation + (result.medicareLevy ?? 0) };
   }
-  if ('cpp' in result) {
-    const r = result as any;
-    return { incomeTax: r.federalTax, socialSecurity: r.cpp + r.ei };
+  if ('federalTax' in result) {
+    // USFederalTaxResult (socialSecurity + medicare)
+    return { incomeTax: result.federalTax, socialSecurity: result.socialSecurity + (result.medicare ?? 0) };
+  }
+  if ('gratuity' in result) {
+    // UAETaxResult
+    return { incomeTax: 0, socialSecurity: result.socialSecurity ?? 0 };
   }
   return { incomeTax: 0, socialSecurity: 0 };
 }

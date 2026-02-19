@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+import { IsScopeStatus } from '@ims/database/infosec';
 import { z } from 'zod';
 
 const logger = createLogger('api-infosec');
@@ -79,7 +80,7 @@ router.put('/', async (req: Request, res: Response) => {
           boundaries: parsed.data.boundaries || null,
           exclusions: parsed.data.exclusions || null,
           justifications: parsed.data.justification || null,
-          status: (parsed.data.status || existing.status) as any,
+          status: (parsed.data.status || existing.status) as IsScopeStatus,
           updatedBy: authReq.user?.id,
           updatedAt: new Date(),
         },
@@ -92,7 +93,7 @@ router.put('/', async (req: Request, res: Response) => {
           boundaries: parsed.data.boundaries || null,
           exclusions: parsed.data.exclusions || null,
           justifications: parsed.data.justification || null,
-          status: (parsed.data.status || 'DRAFT') as any,
+          status: (parsed.data.status || 'DRAFT') as IsScopeStatus,
           createdBy: authReq.user?.id || 'system',
         },
       });

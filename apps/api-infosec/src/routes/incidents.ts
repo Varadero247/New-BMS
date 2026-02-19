@@ -4,6 +4,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
+import { Prisma } from '@ims/database/infosec';
 import { z } from 'zod';
 
 const logger = createLogger('api-infosec');
@@ -105,7 +106,7 @@ router.post('/', async (req: Request, res: Response) => {
       data.gdprNotificationDeadline = new Date(Date.now() + 72 * 60 * 60 * 1000);
     }
 
-    const incident = await prisma.isIncident.create({ data: data as any });
+    const incident = await prisma.isIncident.create({ data: data as unknown as Prisma.IsIncidentCreateInput });
 
     logger.info('Security incident reported', {
       incidentId: incident.id,

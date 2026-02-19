@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -77,7 +77,7 @@ router.post('/filings', async (req: Request, res: Response) => {
         totalTax: data.taxWithheld + data.employerTax,
         paymentDue: data.taxWithheld + data.employerTax,
         status: 'PENDING',
-      } as any,
+      } as unknown as Prisma.TaxFilingUncheckedCreateInput,
     });
 
     res.status(201).json({ success: true, data: filing });

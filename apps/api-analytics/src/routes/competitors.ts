@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
@@ -193,8 +193,7 @@ router.post('/:id/intel', async (req: Request, res: Response) => {
 
     const competitor = await prisma.competitorMonitor.update({
       where: { id: req.params.id },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: { intel: updatedIntel as any },
+      data: { intel: updatedIntel as Prisma.InputJsonValue },
     });
 
     logger.info('Intel added to competitor', { id: competitor.id, type });

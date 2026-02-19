@@ -3,6 +3,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
 import { prisma } from '../prisma';
+import { IsAssetType, IsAssetClassification, IsAssetFormat, IsAssetStatus, Prisma } from '@ims/database/infosec';
 import { z } from 'zod';
 
 const logger = createLogger('api-infosec');
@@ -86,14 +87,14 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         refNumber,
         name: parsed.data.name,
-        type: parsed.data.type as any,
-        classification: parsed.data.classification as any,
-        format: 'DIGITAL' as any,
+        type: parsed.data.type as IsAssetType,
+        classification: parsed.data.classification as IsAssetClassification,
+        format: 'DIGITAL' as IsAssetFormat,
         description: parsed.data.description,
         owner: parsed.data.owner || '',
         custodian: parsed.data.custodian,
         location: parsed.data.location,
-        status: 'ACTIVE' as any,
+        status: 'ACTIVE' as IsAssetStatus,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -221,7 +222,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const asset = await prisma.isAsset.update({
       where: { id },
       data: {
-        ...parsed.data as any,
+        ...(parsed.data as unknown as Prisma.IsAssetUpdateInput),
         updatedAt: new Date(),
       },
     });

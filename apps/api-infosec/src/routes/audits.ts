@@ -3,6 +3,7 @@ import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+import { IsFindingType } from '@ims/database/infosec';
 import { z } from 'zod';
 
 const logger = createLogger('api-infosec');
@@ -562,7 +563,7 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
       data: {
         auditId: id,
         clause: parsed.data.clause,
-        findingType: parsed.data.type as any,
+        findingType: parsed.data.type as IsFindingType,
         description: parsed.data.description,
         evidence: parsed.data.evidence || null,
         status: 'OPEN',

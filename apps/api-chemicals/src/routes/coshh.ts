@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { calculateRiskScore, getRiskLevel } from '../services/riskCalculator';
 
 const router = Router();
@@ -234,10 +234,10 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const healthSurveillanceReq = d.healthSurveillanceReq || chemical.isCmr;
     const recordRetentionYears = chemical.isCmr ? 40 : d.recordRetentionYears || null;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data = await prisma.chemCoshh.create({
       data: {
         ...d,
+        controlMeasures: d.controlMeasures as Prisma.InputJsonValue,
         referenceNumber,
         inherentRiskScore,
         inherentRiskLevel,
@@ -247,7 +247,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         recordRetentionYears,
         orgId,
         createdBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

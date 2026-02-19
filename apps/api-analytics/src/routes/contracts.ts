@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma, Prisma } from '../prisma';
+import type { ContractStatus } from '@ims/database/analytics';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
@@ -151,8 +152,7 @@ router.get('/seed', async (_req: Request, res: Response) => {
     ];
 
     const result = await prisma.contract.createMany({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      data: seeds as any[],
+      data: seeds as Prisma.ContractCreateManyInput[],
       skipDuplicates: true,
     });
 
@@ -211,8 +211,7 @@ router.post('/', async (req: Request, res: Response) => {
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         annualCost: annualCost || 0,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        status: (status || 'ACTIVE') as any,
+        status: (status || 'ACTIVE') as ContractStatus,
         notes: notes || null,
       },
     });

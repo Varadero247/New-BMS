@@ -1,4 +1,4 @@
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { createLogger } from '@ims/monitoring';
 
 const logger = createLogger('board-pack');
@@ -85,8 +85,7 @@ export async function runBoardPackJob(): Promise<string> {
         title,
         quarter: `${year}-Q${quarter}`,
         status: 'DRAFT',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        sections: sections as any,
+        sections: sections as Prisma.InputJsonValue,
         generatedAt: now,
       },
     });

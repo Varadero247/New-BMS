@@ -1,4 +1,4 @@
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { createLogger } from '@ims/monitoring';
 
 const logger = createLogger('recalibration');
@@ -151,8 +151,7 @@ export async function runRecalibration(snapshotId: string): Promise<void> {
     where: { id: snapshotId },
     data: {
       trajectory,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      aiRecommendations: [...existingRecs, ...recommendations] as any,
+      aiRecommendations: [...existingRecs, ...recommendations] as Prisma.InputJsonValue,
     },
   });
 

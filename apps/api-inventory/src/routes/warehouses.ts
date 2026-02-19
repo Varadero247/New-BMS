@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
@@ -228,14 +228,13 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const warehouse = await prisma.warehouse.create({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         id: uuidv4(),
         ...data,
         isActive: true,
         createdById: (req as AuthRequest).user?.id,
         updatedById: (req as AuthRequest).user?.id,
-      } as any,
+      } as Prisma.WarehouseUncheckedCreateInput,
     });
 
     res.status(201).json({ success: true, data: warehouse });
@@ -321,12 +320,11 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: Request, res:
 
     const warehouse = await prisma.warehouse.update({
       where: { id: req.params.id },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         ...updateData,
         version: { increment: 1 },
         updatedById: (req as AuthRequest).user?.id,
-      } as any,
+      } as Prisma.WarehouseUncheckedUpdateInput,
     });
 
     res.json({ success: true, data: warehouse });

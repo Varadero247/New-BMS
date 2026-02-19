@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -154,8 +154,7 @@ router.post('/', async (req: Request, res: Response) => {
         data: {
           productId,
           warehouseId,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          transactionType: adjustmentType as any,
+          transactionType: adjustmentType as 'ADJUSTMENT_IN' | 'ADJUSTMENT_OUT' | 'DAMAGE' | 'EXPIRED',
           referenceType: 'ADJUSTMENT',
           quantityBefore,
           quantityAfter,

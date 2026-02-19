@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
+import { IsControlImplementationStatus } from '@ims/database/infosec';
 import { z } from 'zod';
 
 const logger = createLogger('api-infosec');
@@ -435,7 +436,7 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
     const control = await prisma.isControl.update({
       where: { id },
       data: {
-        implementationStatus: parsed.data.implementationStatus as any,
+        implementationStatus: parsed.data.implementationStatus as IsControlImplementationStatus,
         implementationNotes: parsed.data.implementationNotes || null,
         evidence: parsed.data.evidence || null,
         owner: parsed.data.owner || null,

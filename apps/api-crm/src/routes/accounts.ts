@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createServiceHeaders } from '@ims/service-auth';
@@ -56,8 +56,9 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         ...validation.data,
+        type: validation.data.type as Prisma.CrmAccountCreateInput['type'],
         createdBy: (req as AuthRequest).user?.id || 'system',
-      } as any,
+      } as Prisma.CrmAccountUncheckedCreateInput,
     });
 
     logger.info('Account created', { accountId: account.id });
@@ -181,7 +182,8 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...validation.data,
-      } as any,
+        ...(validation.data.type ? { type: validation.data.type as Prisma.CrmAccountCreateInput['type'] } : {}),
+      } as Prisma.CrmAccountUncheckedUpdateInput,
     });
 
     logger.info('Account updated', { accountId: account.id });

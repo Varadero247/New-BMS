@@ -105,8 +105,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: data.name,
         type: data.type,
         format: data.format,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        filters: (data.filters ?? null) as any,
+        filters: (data.filters ?? null) as Prisma.InputJsonValue,
         status: 'QUEUED',
         requestedBy: authReq.user!.id,
         createdBy: authReq.user!.id,

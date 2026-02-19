@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
@@ -265,14 +265,13 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const product = await prisma.product.create({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         id: uuidv4(),
         ...data,
-        status: 'ACTIVE',
+        status: 'ACTIVE' as const,
         createdById: (req as AuthRequest).user?.id,
         updatedById: (req as AuthRequest).user?.id,
-      } as any,
+      } as Prisma.ProductUncheckedCreateInput,
       include: {
         category: true,
         supplier: true,
@@ -377,12 +376,11 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: Request, res: R
 
     const product = await prisma.product.update({
       where: { id: req.params.id },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       data: {
         ...updateData,
         version: { increment: 1 },
         updatedById: (req as AuthRequest).user?.id,
-      } as any,
+      } as Prisma.ProductUncheckedUpdateInput,
       include: {
         category: true,
         supplier: true,

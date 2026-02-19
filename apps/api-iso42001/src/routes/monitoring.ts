@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, AiMonitoringStatus, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -233,11 +233,11 @@ router.post('/', async (req: Request, res: Response) => {
 
     const record = await prisma.aiMonitoring.create({
       data: {
-        ...(parsed.data as any),
+        ...(parsed.data as unknown as Prisma.AiMonitoringCreateInput),
         measurementDate: parsed.data.measurementDate
           ? new Date(parsed.data.measurementDate)
           : new Date(),
-        status: status as any,
+        status: status as AiMonitoringStatus,
         organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
@@ -313,7 +313,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       data.resolvedAt = new Date(parsed.data.resolvedAt);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const record = await prisma.aiMonitoring.update({ where: { id: req.params.id }, data: data as any });
+    const record = await prisma.aiMonitoring.update({ where: { id: req.params.id }, data: data as unknown as Prisma.AiMonitoringUpdateInput });
     res.json({ success: true, data: record });
   } catch (error: unknown) {
     logger.error('Failed to update monitoring record', {
