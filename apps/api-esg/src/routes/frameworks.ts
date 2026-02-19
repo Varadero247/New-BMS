@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
@@ -11,13 +10,6 @@ const router: Router = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
 
-function generateReference(prefix: string): string {
-  const now = new Date();
-  const yy = now.getFullYear().toString().slice(-2);
-  const mm = (now.getMonth() + 1).toString().padStart(2, '0');
-  const rand = (parseInt(randomUUID().replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
-  return `ESG-${prefix}-${yy}${mm}-${rand}`;
-}
 
 const frameworkCreateSchema = z.object({
   name: z.string().trim().min(1).max(200),

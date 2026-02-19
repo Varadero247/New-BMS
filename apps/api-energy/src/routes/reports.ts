@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
-import { authenticate, type AuthRequest } from '@ims/auth';
+import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 
 const logger = createLogger('api-energy');
