@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { type AuthRequest } from '@ims/auth';
 import { prisma } from '../prisma';
+import { Prisma } from '@ims/database/wizard';
 
 const logger = createLogger('api-setup-wizard:wizard');
 const router = Router();
@@ -89,7 +90,7 @@ router.post('/init', async (req: Request, res: Response) => {
     const wizard = await prisma.setupWizard.create({
       data: {
         organisationId: orgId,
-        userId: user.id || user.userId,
+        userId: user.id || user.userId || 'unknown',
         steps: {
           create: WIZARD_STEPS.map((step) => ({
             stepIndex: step.stepIndex,
@@ -166,7 +167,7 @@ router.patch('/step/:stepIndex', async (req: Request, res: Response) => {
         },
         data: {
           status: 'COMPLETED',
-          data: (parsed.data.data || {}) as Record<string, unknown>,
+          data: (parsed.data.data || {}) as Prisma.InputJsonValue,
           completedAt: new Date(),
         },
       }),
@@ -268,7 +269,7 @@ router.post('/skip', async (req: Request, res: Response) => {
     const wizard = await prisma.setupWizard.create({
       data: {
         organisationId: orgId,
-        userId: user.id || user.userId,
+        userId: user.id || user.userId || 'unknown',
         status: 'SKIPPED',
         completedAt: new Date(),
         steps: {

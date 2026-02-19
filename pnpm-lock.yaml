@@ -3579,6 +3579,9 @@ importers:
       '@ims/monitoring':
         specifier: workspace:*
         version: link:../../packages/monitoring
+      '@ims/rbac':
+        specifier: workspace:*
+        version: link:../../packages/rbac
       '@ims/sentry':
         specifier: workspace:*
         version: link:../../packages/sentry
