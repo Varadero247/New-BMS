@@ -218,7 +218,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const RESERVED = new Set(['close']);
-    if (RESERVED.has(req.params.id)) return undefined as any;
+    if (RESERVED.has(req.params.id)) return undefined as never;
 
     const existing = await prisma.fsNcr.findFirst({
       where: { id: req.params.id, deletedAt: null },

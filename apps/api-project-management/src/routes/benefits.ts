@@ -244,7 +244,7 @@ router.get('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, res:
 
     const measurements = await prisma.benefitMeasurement.findMany({
       where: { benefitId: benefit.id },
-      orderBy: { measuredAt: 'desc' } as any,
+      orderBy: { measuredAt: 'desc' as const },
       take: 1000,
     });
 

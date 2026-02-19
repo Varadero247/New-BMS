@@ -14,7 +14,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         orgId,
         deletedAt: null,
         OR: [
-          { title: { contains: q, mode: 'insensitive' } as any },
+          { title: { contains: q, mode: 'insensitive' } },
           { description: { contains: q, mode: 'insensitive' } },
         ],
       },

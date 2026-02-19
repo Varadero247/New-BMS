@@ -125,7 +125,7 @@ const MODULE_PREFIX: Record<string, string> = {
 
 async function generateCode(module: string): Promise<string> {
   const prefix = MODULE_PREFIX[module] || module.substring(0, 3);
-  const lastTemplate = await (prisma as any).template.findFirst({
+  const lastTemplate = await prisma.template.findFirst({
     where: { code: { startsWith: `TPL-${prefix}-` } },
     orderBy: { code: 'desc' },
     select: { code: true },
@@ -175,7 +175,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     const take = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
 
     const [templates, total] = await Promise.all([
-      (prisma as any).template.findMany({
+      prisma.template.findMany({
         where,
         orderBy: { [sortBy]: sortOrder === 'asc' ? 'asc' : 'desc' },
         skip,
@@ -196,7 +196,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
           updatedAt: true,
         },
       }),
-      (prisma as any).template.count({ where }),
+      prisma.template.count({ where }),
     ]);
 
     res.json({
@@ -227,23 +227,23 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [byModule, byCategory, topUsed, totals] = await Promise.all([
-      (prisma as any).template.groupBy({
+      prisma.template.groupBy({
         by: ['module'],
         _count: true,
         where: { deletedAt: null },
       }),
-      (prisma as any).template.groupBy({
+      prisma.template.groupBy({
         by: ['category'],
         _count: true,
         where: { deletedAt: null },
       }),
-      (prisma as any).template.findMany({
+      prisma.template.findMany({
         where: { deletedAt: null, usageCount: { gt: 0 } },
         orderBy: { usageCount: 'desc' },
         take: 10,
         select: { id: true, code: true, name: true, module: true, usageCount: true },
       }),
-      (prisma as any).template.aggregate({
+      prisma.template.aggregate({
         _count: true,
         _sum: { usageCount: true },
         where: { deletedAt: null },
@@ -288,11 +288,11 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
       return res.json({ success: true, data: [] });
     }
 
-    const templates = await (prisma as any).template.findMany({
+    const templates = await prisma.template.findMany({
       where: {
         deletedAt: null,
         OR: [
-          { name: { contains: q, mode: 'insensitive' } as any },
+          { name: { contains: q, mode: 'insensitive' } },
           { description: { contains: q, mode: 'insensitive' } },
           { code: { contains: q, mode: 'insensitive' } },
           { tags: { has: q.toLowerCase() } },
@@ -329,7 +329,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
 
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
-    const template = await (prisma as any).template.findFirst({
+    const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!template) {
@@ -362,7 +362,7 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
     const data = parsed.data;
     const code = await generateCode(data.module);
 
-    const template = await (prisma as any).template.create({
+    const template = await prisma.template.create({
       data: {
         code,
         name: data.name,
@@ -396,7 +396,7 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
 
 router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).template.findFirst({
+    const existing = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
@@ -411,7 +411,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
     }
 
     // Snapshot current version before update
-    await (prisma as any).templateVersion.create({
+    await prisma.templateVersion.create({
       data: {
         templateId: existing.id,
         version: existing.version,
@@ -425,7 +425,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
     const updateData: Record<string, unknown> = { ...parsed.data, version: existing.version + 1 };
     delete updateData.changeNote;
 
-    const updated = await (prisma as any).template.update({
+    const updated = await prisma.template.update({
       where: { id: req.params.id },
       data: updateData,
     });
@@ -448,7 +448,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
 
 router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
-    const existing = await (prisma as any).template.findFirst({
+    const existing = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
@@ -468,7 +468,7 @@ router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, 
       });
     }
 
-    await (prisma as any).template.update({
+    await prisma.template.update({
       where: { id: req.params.id },
       data: { deletedAt: new Date() },
     });
@@ -494,7 +494,7 @@ router.post(
   requireRole('MANAGER', 'ADMIN'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const original = await (prisma as any).template.findFirst({
+      const original = await prisma.template.findFirst({
         where: { id: req.params.id, deletedAt: null },
       });
       if (!original) {
@@ -510,7 +510,7 @@ router.post(
       const cloneName =
         (nameBody.success ? nameBody.data.name : undefined) || `${original.name} (Copy)`;
 
-      const cloned = await (prisma as any).template.create({
+      const cloned = await prisma.template.create({
         data: {
           code,
           name: cloneName,
@@ -546,7 +546,7 @@ router.post(
 
 router.post('/:id/use', async (req: AuthRequest, res: Response) => {
   try {
-    const template = await (prisma as any).template.findFirst({
+    const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!template) {
@@ -561,7 +561,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
     }
 
     const [instance] = await Promise.all([
-      (prisma as any).templateInstance.create({
+      prisma.templateInstance.create({
         data: {
           templateId: template.id,
           templateCode: template.code,
@@ -572,7 +572,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
           referenceId: parsed.data.referenceId ?? null,
         },
       }),
-      (prisma as any).template.update({
+      prisma.template.update({
         where: { id: template.id },
         data: { usageCount: { increment: 1 } },
       }),
@@ -596,7 +596,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
 
 router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
   try {
-    const template = await (prisma as any).template.findFirst({
+    const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
       select: { id: true },
     });
@@ -606,7 +606,7 @@ router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Template not found' } });
     }
 
-    const versions = await (prisma as any).templateVersion.findMany({
+    const versions = await prisma.templateVersion.findMany({
       where: { templateId: req.params.id },
       orderBy: { version: 'desc' },
       take: 1000,
@@ -640,7 +640,7 @@ router.post(
           error: { code: 'VALIDATION_ERROR', message: 'Invalid version number' },
         });
       }
-      const templateVersion = await (prisma as any).templateVersion.findFirst({
+      const templateVersion = await prisma.templateVersion.findFirst({
         where: { templateId: req.params.id, version: versionNum },
       });
       if (!templateVersion) {
@@ -649,7 +649,7 @@ router.post(
           .json({ success: false, error: { code: 'NOT_FOUND', message: 'Version not found' } });
       }
 
-      const current = await (prisma as any).template.findFirst({
+      const current = await prisma.template.findFirst({
         where: { id: req.params.id, deletedAt: null },
       });
       if (!current) {
@@ -659,7 +659,7 @@ router.post(
       }
 
       // Snapshot current state before restoring
-      await (prisma as any).templateVersion.create({
+      await prisma.templateVersion.create({
         data: {
           templateId: current.id,
           version: current.version,
@@ -670,7 +670,7 @@ router.post(
         },
       });
 
-      const restored = await (prisma as any).template.update({
+      const restored = await prisma.template.update({
         where: { id: req.params.id },
         data: {
           fields: templateVersion.fields,
@@ -698,7 +698,7 @@ router.post(
 
 router.get('/:id/export', async (req: AuthRequest, res: Response) => {
   try {
-    const template = await (prisma as any).template.findFirst({
+    const template = await prisma.template.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!template) {

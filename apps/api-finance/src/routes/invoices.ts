@@ -473,7 +473,7 @@ router.get('/statements/:customerId', async (req: AuthRequest, res: Response) =>
         },
         take: 1000,
       }),
-      (prisma as any).finPayment.findMany({
+      prisma.finPaymentReceived.findMany({
         where: { customerId },
         orderBy: { date: 'asc' },
         select: {
@@ -656,7 +656,7 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
     }
 
     const [payments, total] = await Promise.all([
-      (prisma as any).finPayment.findMany({
+      prisma.finPaymentReceived.findMany({
         where,
         skip,
         take: limitNum,
@@ -666,7 +666,7 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
           invoice: { select: { id: true, reference: true } },
         },
       }),
-      (prisma as any).finPayment.count({ where }),
+      prisma.finPaymentReceived.count({ where }),
     ]);
 
     res.json({
@@ -726,7 +726,7 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
 
     // Use transaction to create payment and update invoice atomically
     const result = await prisma.$transaction(async (tx) => {
-      const payment = await (tx as any).finPayment.create({
+      const payment = await tx.finPaymentReceived.create({
         data: {
           reference,
           customerId: data.customerId,
@@ -830,7 +830,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const taxRates =
       taxRateIds.length > 0
         ? await prisma.finTaxRate.findMany({
-            where: { id: { in: taxRateIds }, isActive: true } as any,
+            where: { id: { in: taxRateIds }, isActive: true },,
             take: 1000,
           })
         : [];
@@ -878,9 +878,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         createdById: req.user?.id,
         updatedById: req.user?.id,
         lines: {
-          create: lineData as any,
+          create: lineData as Record<string, unknown>,
         },
-      } as any,
+      },,
       include: {
         customer: { select: { id: true, code: true, name: true } },
         lines: { orderBy: { sortOrder: 'asc' } },
@@ -957,7 +957,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
       const updateTaxRates =
         updateTaxRateIds.length > 0
           ? await prisma.finTaxRate.findMany({
-              where: { id: { in: updateTaxRateIds }, isActive: true } as any,
+              where: { id: { in: updateTaxRateIds }, isActive: true },,
               take: 1000,
             })
           : [];

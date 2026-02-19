@@ -157,7 +157,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const RESERVED = new Set(['monitoring-records']);
-    if (RESERVED.has(req.params.id)) return undefined as any;
+    if (RESERVED.has(req.params.id)) return undefined as never;
 
     const ccp = await prisma.fsCcp.findFirst({
       where: { id: req.params.id, deletedAt: null },

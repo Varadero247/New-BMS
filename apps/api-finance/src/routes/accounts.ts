@@ -6,6 +6,13 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 
 const logger = createLogger('api-finance');
+interface FinLineWithAccount {
+  accountId: string;
+  debit: unknown;
+  credit: unknown;
+  account: { id: string; code: string; name: string; type: string; normalBalance: string };
+}
+
 const router: Router = Router();
 router.use(authenticate);
 
@@ -135,7 +142,7 @@ function buildAccountTree(accounts: Record<string, unknown>[]): Record<string, u
   for (const acc of accounts) {
     const node = map.get(acc.id as string)!;
     if (acc.parentId && map.has(acc.parentId as string)) {
-      (map.get(acc.parentId as string)!.children as any[]).push(node);
+      (map.get(acc.parentId as string)!.children as Record<string, unknown>[]).push(node);
     } else {
       roots.push(node);
     }
@@ -257,7 +264,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
           status: 'POSTED',
           periodId,
         },
-      } as any,
+      },
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
@@ -272,7 +279,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
     for (const line of lines) {
       const key = line.accountId;
       if (!balances.has(key)) {
-        balances.set(key, { account: (line as any).account, totalDebit: 0, totalCredit: 0 });
+        balances.set(key, { account: (line as FinLineWithAccount).account, totalDebit: 0, totalCredit: 0 });
       }
       const entry = balances.get(key)!;
       entry.totalDebit += Number(line.debit);
@@ -286,7 +293,7 @@ router.get('/trial-balance', async (req: Request, res: Response) => {
       balance: b.totalDebit - b.totalCredit,
     }));
 
-    rows.sort((a, b) => (a as any).code.localeCompare((b as any).code));
+    rows.sort((a, b) => (a as { code: string }).code.localeCompare((b as { code: string }).code));
 
     const totalDebits = rows.reduce((s, r) => s + r.totalDebit, 0);
     const totalCredits = rows.reduce((s, r) => s + r.totalCredit, 0);
@@ -343,7 +350,7 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
           type: { in: ['REVENUE', 'EXPENSE'] },
           deletedAt: null,
         },
-      } as any,
+      },
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
@@ -354,13 +361,13 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
     const expenses: Record<string, { account: Record<string, unknown>; amount: number }> = {};
 
     for (const line of lines) {
-      const target = (line as any).account.type === 'REVENUE' ? revenue : expenses;
+      const target = (line as FinLineWithAccount).account.type === 'REVENUE' ? revenue : expenses;
       if (!target[line.accountId]) {
-        target[line.accountId] = { account: (line as any).account, amount: 0 };
+        target[line.accountId] = { account: (line as FinLineWithAccount).account, amount: 0 };
       }
       // Revenue: credits increase, debits decrease
       // Expenses: debits increase, credits decrease
-      if ((line as any).account.type === 'REVENUE') {
+      if ((line as FinLineWithAccount).account.type === 'REVENUE') {
         target[line.accountId].amount += Number(line.credit) - Number(line.debit);
       } else {
         target[line.accountId].amount += Number(line.debit) - Number(line.credit);
@@ -368,10 +375,10 @@ router.get('/profit-loss', async (req: Request, res: Response) => {
     }
 
     const revenueItems = Object.values(revenue).sort((a, b) =>
-      (a as any).account.code.localeCompare((b as any).account.code)
+      (a as { account: { code: string } }).account.code.localeCompare((b as { account: { code: string } }).account.code)
     );
     const expenseItems = Object.values(expenses).sort((a, b) =>
-      (a as any).account.code.localeCompare((b as any).account.code)
+      (a as { account: { code: string } }).account.code.localeCompare((b as { account: { code: string } }).account.code)
     );
 
     const totalRevenue = revenueItems.reduce((s, r) => s + r.amount, 0);
@@ -415,7 +422,7 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
           type: { in: ['ASSET', 'LIABILITY', 'EQUITY'] },
           deletedAt: null,
         },
-      } as any,
+      },
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
@@ -432,13 +439,13 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
     };
 
     for (const line of lines) {
-      const group = groups[(line as any).account.type];
+      const group = groups[(line as FinLineWithAccount).account.type];
       if (!group[line.accountId]) {
-        group[line.accountId] = { account: (line as any).account, balance: 0 };
+        group[line.accountId] = { account: (line as FinLineWithAccount).account, balance: 0 };
       }
       // Assets: normal debit — debits increase, credits decrease
       // Liabilities/Equity: normal credit — credits increase, debits decrease
-      if ((line as any).account.normalBalance === 'DEBIT') {
+      if ((line as FinLineWithAccount).account.normalBalance === 'DEBIT') {
         group[line.accountId].balance += Number(line.debit) - Number(line.credit);
       } else {
         group[line.accountId].balance += Number(line.credit) - Number(line.debit);
@@ -470,7 +477,7 @@ router.get('/balance-sheet', async (req: Request, res: Response) => {
     const toList = (g: Record<string, { account: Record<string, unknown>; balance: number }>) =>
       Object.values(g)
         .filter((v) => Math.abs(v.balance) >= 0.01)
-        .sort((a, b) => (a as any).account.code.localeCompare((b as any).account.code));
+        .sort((a, b) => (a as { account: { code: string } }).account.code.localeCompare((b as { account: { code: string } }).account.code));
 
     const assets = toList(groups.ASSET);
     const liabilities = toList(groups.LIABILITY);
@@ -533,7 +540,7 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
           date: { gte: fromDate, lte: toDate },
         },
         account: { deletedAt: null },
-      } as any,
+      },
       include: {
         account: { select: { id: true, code: true, name: true, type: true, normalBalance: true } },
       },
@@ -549,7 +556,7 @@ router.get('/cash-flow', async (req: Request, res: Response) => {
       const debit = Number(line.debit);
       const credit = Number(line.credit);
 
-      switch ((line as any).account.type) {
+      switch ((line as FinLineWithAccount).account.type) {
         case 'REVENUE':
         case 'EXPENSE':
           operating.inflows += credit;
@@ -1052,7 +1059,7 @@ router.get('/entries', async (req: Request, res: Response) => {
             include: {
               account: { select: { id: true, code: true, name: true, type: true } },
             },
-            orderBy: { lineNumber: 'asc' } as any,
+            orderBy: { lineNumber: 'asc' as const },
           },
           period: { select: { id: true, name: true, status: true } },
         },
@@ -1090,7 +1097,7 @@ router.get('/entries/:id', async (req: Request, res: Response) => {
               select: { id: true, code: true, name: true, type: true, normalBalance: true },
             },
           },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
         period: true,
       },
@@ -1227,13 +1234,13 @@ router.post('/entries', async (req: Request, res: Response) => {
             description: line.description ?? null,
           })),
         },
-      } as any,
+      },
       include: {
         lines: {
           include: {
             account: { select: { id: true, code: true, name: true, type: true } },
           },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },
@@ -1362,13 +1369,13 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
                 description: line.description ?? null,
               })),
             },
-          } as any,
+          },
           include: {
             lines: {
               include: {
                 account: { select: { id: true, code: true, name: true, type: true } },
               },
-              orderBy: { lineNumber: 'asc' } as any,
+              orderBy: { lineNumber: 'asc' as const },
             },
           },
         });
@@ -1387,13 +1394,13 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
         ...(memo !== undefined && { memo }),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         lines: {
           include: {
             account: { select: { id: true, code: true, name: true, type: true } },
           },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
       },
     });
@@ -1456,7 +1463,7 @@ router.post('/entries/:id/post', async (req: Request, res: Response) => {
           include: {
             account: { select: { id: true, code: true, name: true, type: true } },
           },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },
@@ -1526,8 +1533,8 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
         status: 'POSTED',
         postedAt: new Date(),
         postedBy: authReq.user?.id || 'system',
-        totalDebit: (original as any).totalCredit,
-        totalCredit: (original as any).totalDebit,
+        totalDebit: (original as Record<string, unknown>).totalCredit,
+        totalCredit: (original as Record<string, unknown>).totalDebit,
         createdBy: authReq.user?.id || 'system',
         lines: {
           create: original.lines.map((line, idx) => ({
@@ -1538,13 +1545,13 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
             description: `Reversal: ${line.description || ''}`.trim(),
           })),
         },
-      } as any,
+      },
       include: {
         lines: {
           include: {
             account: { select: { id: true, code: true, name: true, type: true } },
           },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },

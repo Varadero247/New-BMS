@@ -220,34 +220,34 @@ router.get('/summary/:standard', authenticate, async (req, res, next) => {
       objectives,
       achievedObjectives,
     ] = await Promise.all([
-      prisma.risk.count({ where: { standard: standard as any, status: 'ACTIVE' } }),
-      prisma.incident.count({ where: { standard: standard as any } }),
-      prisma.incident.count({ where: { standard: standard as any, status: { not: 'CLOSED' } } }),
-      prisma.action.count({ where: { standard: standard as any } }),
+      prisma.risk.count({ where: { standard: standard, status: 'ACTIVE' } }),
+      prisma.incident.count({ where: { standard: standard } }),
+      prisma.incident.count({ where: { standard: standard, status: { not: 'CLOSED' } } }),
+      prisma.action.count({ where: { standard: standard } }),
       prisma.action.count({
-        where: { standard: standard as any, status: { in: ['OPEN', 'IN_PROGRESS'] } },
+        where: { standard: standard, status: { in: ['OPEN', 'IN_PROGRESS'] } },
       }),
       prisma.action.count({
         where: {
-          standard: standard as any,
+          standard: standard,
           dueDate: { lt: now },
           status: { in: ['OPEN', 'IN_PROGRESS'] },
         },
       }),
-      prisma.legalRequirement.count({ where: { standard: standard as any } }),
+      prisma.legalRequirement.count({ where: { standard: standard } }),
       prisma.legalRequirement.count({
         where: {
-          standard: standard as any,
+          standard: standard,
           complianceStatus: { in: ['COMPLIANT', 'NOT_APPLICABLE'] },
         },
       }),
-      prisma.objective.count({ where: { standard: standard as any } }),
-      prisma.objective.count({ where: { standard: standard as any, status: 'ACHIEVED' } }),
+      prisma.objective.count({ where: { standard: standard } }),
+      prisma.objective.count({ where: { standard: standard, status: 'ACHIEVED' } }),
     ]);
 
     // Get recent incidents
     const recentIncidents = await prisma.incident.findMany({
-      where: { standard: standard as any },
+      where: { standard: standard },
       orderBy: { dateOccurred: 'desc' },
       take: 5,
       select: {
@@ -264,7 +264,7 @@ router.get('/summary/:standard', authenticate, async (req, res, next) => {
     // Get high/critical risks
     const topRisks = await prisma.risk.findMany({
       where: {
-        standard: standard as any,
+        standard: standard,
         status: 'ACTIVE',
         riskLevel: { in: ['HIGH', 'CRITICAL'] },
       },

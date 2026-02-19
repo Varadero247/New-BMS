@@ -125,7 +125,7 @@ router.post('/execute', requireRole('ADMIN'), (req: AuthRequest, res: Response) 
     const { rows, recordType } = parsed.data;
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
 
-    const result = importRecords(rows as any[], recordType, orgId);
+    const result = importRecords(rows as Record<string, unknown>[], recordType, orgId);
 
     logger.info('Import executed', {
       recordType,

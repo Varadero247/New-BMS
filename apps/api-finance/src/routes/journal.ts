@@ -77,7 +77,7 @@ router.get('/', async (req: Request, res: Response) => {
             include: {
               account: { select: { id: true, code: true, name: true, type: true } },
             },
-            orderBy: { lineNumber: 'asc' } as any,
+            orderBy: { lineNumber: 'asc' as const },
           },
           period: { select: { id: true, name: true, status: true } },
         },
@@ -116,7 +116,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
               select: { id: true, code: true, name: true, type: true, normalBalance: true },
             },
           },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
         period: true,
       },
@@ -250,7 +250,7 @@ router.post('/', async (req: Request, res: Response) => {
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },
@@ -376,7 +376,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
           include: {
             lines: {
               include: { account: { select: { id: true, code: true, name: true, type: true } } },
-              orderBy: { lineNumber: 'asc' } as any,
+              orderBy: { lineNumber: 'asc' as const },
             },
           },
         });
@@ -398,7 +398,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
       },
     });
@@ -496,7 +496,7 @@ router.post('/:id/post', async (req: Request, res: Response) => {
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },
-          orderBy: { lineNumber: 'asc' } as any,
+          orderBy: { lineNumber: 'asc' as const },
         },
         period: { select: { id: true, name: true } },
       },

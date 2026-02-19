@@ -441,7 +441,7 @@ router.post('/analyses/:id/accept', authenticate, async (req, res, next) => {
     for (const suggestion of actionsToCreate) {
       const action = await prisma.action.create({
         data: {
-          standard: standard as any,
+          standard: standard,
           referenceNumber: `AI-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
           title: suggestion.title,
           description: suggestion.description,

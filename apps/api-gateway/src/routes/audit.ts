@@ -153,7 +153,7 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
     }
 
     // Persist the e-signature to the database
-    const sig = result.signature as any;
+    const sig = result.signature as Record<string, unknown>;
     await prisma.eSignature.create({
       data: {
         id: sig.id,
@@ -221,7 +221,7 @@ router.get('/esignature/:id', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const sigData = signature as any;
+    const sigData = signature as Record<string, unknown>;
     const verification = verifySignature({
       id: sigData.id,
       userId: sigData.userId,

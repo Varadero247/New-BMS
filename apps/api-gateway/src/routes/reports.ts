@@ -140,7 +140,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeRisks && standard) {
       const risks = await prisma.risk.findMany({
-        where: { standard: standard as any, deletedAt: null },
+        where: { standard: standard, deletedAt: null },
         orderBy: { createdAt: 'desc' },
         take: 50,
         select: {
@@ -173,7 +173,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeIncidents && standard) {
       const incidents = await prisma.incident.findMany({
-        where: { standard: standard as any, deletedAt: null },
+        where: { standard: standard, deletedAt: null },
         orderBy: { dateOccurred: 'desc' },
         take: 50,
         select: {
@@ -203,7 +203,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeActions && standard) {
       const actions = await prisma.action.findMany({
-        where: { standard: standard as any, deletedAt: null },
+        where: { standard: standard, deletedAt: null },
         orderBy: { dueDate: 'asc' },
         take: 50,
         select: {
@@ -232,7 +232,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeCompliance && standard) {
       const complianceScore = await prisma.complianceScore.findUnique({
-        where: { standard: standard as any },
+        where: { standard: standard },
       });
 
       reportContent.compliance = complianceScore || {
