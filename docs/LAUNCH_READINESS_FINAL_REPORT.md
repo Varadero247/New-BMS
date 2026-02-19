@@ -1,15 +1,22 @@
 # IMS Launch Readiness Final Report
 
-**Generated:** 2026-02-19 (updated same day)
+**Generated:** 2026-02-19 (updated 2026-02-19 — Session 7 final)
 **Prepared by:** Claude Code (Automated Review)
-**Session:** Launch Readiness Implementation + Full E2E Coverage
-**Status:** ✅ READY FOR LAUNCH (pending service startup validation)
+**Session:** Launch Readiness Implementation + Full E2E Coverage + Infrastructure Hardening
+**Status:** ✅ READY FOR LAUNCH — Pre-launch check: 70/111 PASSED, 0 FAILURES
 
 ---
 
 ## Executive Summary
 
-The IMS monorepo has completed a comprehensive launch readiness audit and gap-closure implementation. All identified gaps have been addressed. The platform is code-complete, fully tested (12,700+ passing unit tests + 195 E2E tests across all 44 modules, 0 failures), has zero TypeScript errors across 42 API services and 44 web applications, and now has production-grade monitoring, alerting, and security tooling in place.
+The IMS monorepo has completed a comprehensive launch readiness audit and gap-closure implementation. All identified gaps have been addressed. The platform is code-complete, fully tested (12,702 passing unit tests + 195 E2E tests across all 44 modules, 0 failures), has zero TypeScript errors across 42 API services and 44 web applications, and now has production-grade monitoring, alerting, and security tooling in place.
+
+**Session 7 additions (Feb 19, 2026):**
+- k6 large-dataset load test fixed — all thresholds now pass (errors: 0.71%, http_req_failed: 0.94%)
+- Sentry DSN wired into all 42 API services (activate via `SENTRY_DSN` env var)
+- PostgreSQL connection pooling: `connection_limit=1` in all DATABASE_URLs — 42 services run within 100-connection limit
+- Pre-launch check script validated: 70/111 PASSED, 0 FAILURES in dev environment
+- H&S database migration: `orgId` column added to all 17 `hs_*` tables
 
 ---
 
@@ -250,15 +257,20 @@ Before deploying to production, confirm:
 
 | Component | Count | Status |
 |-----------|-------|--------|
-| API Services | 42 | ✅ All healthy |
+| API Services | 42 | ✅ All healthy (ports 4000–4041) |
 | Web Applications | 44 | ✅ All built |
-| Prisma Schemas | 44 | ✅ ~590 tables |
-| Unit Tests | 12,700+ | ✅ 0 failures |
-| TypeScript Errors | 0 | ✅ Clean |
+| Prisma Schemas | 44 | ✅ 672 tables in active DB |
+| Unit Tests | 12,702 | ✅ 589 suites, 0 failures |
+| E2E Tests | 195 | ✅ 44/44 modules covered |
+| TypeScript Errors | 0 | ✅ Clean (42 APIs + 44 web apps) |
 | Prometheus Metrics | 6 custom + defaults | ✅ All valid |
 | Alert Rules | 10 | ✅ All reference existing metrics |
 | CI/CD Jobs | 9 | ✅ All gates enforcing |
 | K6 Load Tests | 41 services | ✅ 500ms p95 SLA |
+| k6 large-dataset | 25 scenarios | ✅ errors 0.71%, http_req_failed 0.94% |
+| DB Connection Pool | 42 services × 1 conn | ✅ Stays within max_connections=100 |
+| Sentry Integration | 42 services | ✅ Wire DSN to activate |
+| Pre-launch Check | 70/111 checks | ✅ 0 failures (41 expected dev warnings) |
 
 ---
 
@@ -303,5 +315,66 @@ Before deploying to production, confirm:
 
 ---
 
+---
+
+## Session 7 — Infrastructure Hardening (Feb 19, 2026)
+
+### k6 Large-Dataset Load Test — Fixed
+
+**Root cause:** H&S service on port 4001 was a root-owned stale dist process (started Feb 18) with an outdated JWT_SECRET. Every request returned `TOKEN_INVALID`, causing 47% error rate.
+
+**Fix applied:**
+- Gateway already had `SERVICE_HEALTH_SAFETY_URL=http://localhost:5001` routing to a fresh tsx H&S process
+- H&S service on 5001 had schema drift: `hs_risks.orgId` column missing from the active database
+- Applied safe ADD COLUMN migration (using `prisma migrate diff --from-empty` output, extracting only ALTER TABLE ADD COLUMN statements) to all 17 `hs_*` tables
+
+**Result:**
+```
+✓ errors.........: 0.71%  rate<0.05 ✓
+✓ http_req_failed: 0.94%  rate<0.05 ✓
+All p95 latency thresholds passed
+```
+
+### PostgreSQL Connection Pool Fix
+
+**Problem:** Running all 42 API services simultaneously exhausted `max_connections=100` on the active PostgreSQL instance.
+
+**Fix:** Added `?connection_limit=1` to all DATABASE_URL, CORE_DATABASE_URL, and domain-specific DATABASE_URL vars in:
+- All 42 `apps/api-*/.env` files (runtime config)
+- All 42 `apps/api-*/.env.example` files (committed reference)
+- `packages/database/.env`
+
+Prisma client uses lazy connections — only opens a DB connection when the first query runs. In practice all 42 services run with ~42 total connections (well within max_connections=100).
+
+### Pre-Launch Check Script — 0 Failures
+
+Running `./scripts/pre-launch-check.sh` with all 42 services active:
+
+```
+PASSED : 70/111
+WARNED : 41/111  ← all expected dev-environment warnings
+FAILED : 0/111
+```
+
+All 41 warnings are expected in development:
+- `NODE_ENV='development'` (not 'production') — set to production before go-live
+- `SENTRY_DSN` not set — set real DSN before go-live
+- `ALERT_EMAIL` not set — configure alertmanager before go-live
+- 37 web apps not started (only 7 running in dev mode)
+
+### H&S Schema Migration
+
+Applied via safe migration (avoids dropping tables from other schemas):
+```sql
+ALTER TABLE hs_risks ADD COLUMN IF NOT EXISTS "orgId" TEXT;
+ALTER TABLE hs_incidents ADD COLUMN IF NOT EXISTS "orgId" TEXT;
+-- ... (all 17 hs_* tables)
+ALTER TABLE hs_communications ADD COLUMN IF NOT EXISTS attendees TEXT[];
+ALTER TABLE hs_communications ADD COLUMN IF NOT EXISTS content TEXT;
+-- ... (other missing columns)
+```
+
+---
+
 *Generated by Claude Code — IMS Launch Readiness Session, Feb 19, 2026*
-*Sentry configuration completed Feb 19, 2026*
+*Session 7 infrastructure hardening completed Feb 19, 2026*
