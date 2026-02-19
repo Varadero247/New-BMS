@@ -326,7 +326,7 @@ export default function AlertsPage() {
                             <p className="font-medium text-gray-900 dark:text-gray-100">
                               {item.title || item.message || '-'}
                             </p>
-                            {item.threshold != null && item.actualValue != null && (
+                            {item.threshold !== null && item.actualValue !== null && (
                               <p className="text-xs text-gray-400 dark:text-gray-500">
                                 Threshold: {item.threshold} {item.unit} | Actual: {item.actualValue}{' '}
                                 {item.unit}

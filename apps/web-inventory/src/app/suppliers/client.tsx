@@ -373,7 +373,7 @@ export default function SuppliersClient() {
                 onClick={() =>
                   setExpanded((prev) => {
                     const n = new Set(prev);
-                    n.has(sup.id) ? n.delete(sup.id) : n.add(sup.id);
+                    if (n.has(sup.id)) { n.delete(sup.id); } else { n.add(sup.id); }
                     return n;
                   })
                 }

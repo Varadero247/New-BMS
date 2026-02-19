@@ -164,7 +164,7 @@ router.post('/', async (req: Request, res: Response) => {
         code,
         ...parsed.data,
         creditLimit:
-          parsed.data.creditLimit != null ? new Prisma.Decimal(parsed.data.creditLimit) : null,
+          parsed.data.creditLimit !== null ? new Prisma.Decimal(parsed.data.creditLimit) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -176,7 +176,7 @@ router.post('/', async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
     if (
-      error != null &&
+      error !== null &&
       typeof error === 'object' &&
       'code' in error &&
       (error as any).code === 'P2002'
@@ -225,7 +225,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       data: {
         ...rest,
         ...(creditLimit !== undefined
-          ? { creditLimit: creditLimit != null ? new Prisma.Decimal(creditLimit) : null }
+          ? { creditLimit: creditLimit !== null ? new Prisma.Decimal(creditLimit) : null }
           : {}),
         updatedAt: new Date(),
       },

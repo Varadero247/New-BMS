@@ -157,7 +157,7 @@ router.post('/', async (req: Request, res: Response) => {
         department: data.department,
         status: data.status || 'ACTIVE',
         purchaseDate: data.purchaseDate ? new Date(data.purchaseDate) : null,
-        purchaseCost: data.purchaseCost != null ? new Prisma.Decimal(data.purchaseCost) : null,
+        purchaseCost: data.purchaseCost !== null ? new Prisma.Decimal(data.purchaseCost) : null,
         warrantyExpiry: data.warrantyExpiry ? new Date(data.warrantyExpiry) : null,
         parentAssetId: data.parentAssetId,
         criticality: data.criticality || 'MEDIUM',
@@ -236,7 +236,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       updateData.purchaseDate = data.purchaseDate ? new Date(data.purchaseDate) : null;
     if (data.purchaseCost !== undefined)
       updateData.purchaseCost =
-        data.purchaseCost != null ? new Prisma.Decimal(data.purchaseCost) : null;
+        data.purchaseCost !== null ? new Prisma.Decimal(data.purchaseCost) : null;
     if (data.warrantyExpiry !== undefined)
       updateData.warrantyExpiry = data.warrantyExpiry ? new Date(data.warrantyExpiry) : null;
 

@@ -101,7 +101,7 @@ export default function EnPIsPage() {
   const stats = {
     total: items.length,
     improving: items.filter((i) => i.trend === 'IMPROVING').length,
-    onTarget: items.filter((i) => i.targetValue != null && i.currentValue <= i.targetValue).length,
+    onTarget: items.filter((i) => i.targetValue !== null && i.currentValue <= i.targetValue).length,
     declining: items.filter((i) => i.trend === 'DECLINING').length,
   };
 
@@ -326,7 +326,7 @@ export default function EnPIsPage() {
                             )
                           : 0;
                       const onTarget =
-                        item.targetValue != null && item.currentValue <= item.targetValue;
+                        item.targetValue !== null && item.currentValue <= item.targetValue;
                       return (
                         <tr key={item.id} className="border-b hover:bg-yellow-50 transition-colors">
                           <td className="py-3 px-4">

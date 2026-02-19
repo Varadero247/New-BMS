@@ -205,9 +205,9 @@ router.post('/', async (req: Request, res: Response) => {
         requestedBy: data.requestedBy,
         scheduledStart: data.scheduledStart ? new Date(data.scheduledStart) : null,
         scheduledEnd: data.scheduledEnd ? new Date(data.scheduledEnd) : null,
-        laborHours: data.laborHours != null ? new Prisma.Decimal(data.laborHours) : null,
-        laborCost: data.laborCost != null ? new Prisma.Decimal(data.laborCost) : null,
-        partsCost: data.partsCost != null ? new Prisma.Decimal(data.partsCost) : null,
+        laborHours: data.laborHours !== null ? new Prisma.Decimal(data.laborHours) : null,
+        laborCost: data.laborCost !== null ? new Prisma.Decimal(data.laborCost) : null,
+        partsCost: data.partsCost !== null ? new Prisma.Decimal(data.partsCost) : null,
         failureCode: data.failureCode,
         createdBy: authReq.user?.id || 'system',
       },
@@ -284,13 +284,13 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (data.scheduledEnd !== undefined)
       updateData.scheduledEnd = data.scheduledEnd ? new Date(data.scheduledEnd) : null;
     if (data.laborHours !== undefined)
-      updateData.laborHours = data.laborHours != null ? new Prisma.Decimal(data.laborHours) : null;
+      updateData.laborHours = data.laborHours !== null ? new Prisma.Decimal(data.laborHours) : null;
     if (data.laborCost !== undefined)
-      updateData.laborCost = data.laborCost != null ? new Prisma.Decimal(data.laborCost) : null;
+      updateData.laborCost = data.laborCost !== null ? new Prisma.Decimal(data.laborCost) : null;
     if (data.partsCost !== undefined)
-      updateData.partsCost = data.partsCost != null ? new Prisma.Decimal(data.partsCost) : null;
+      updateData.partsCost = data.partsCost !== null ? new Prisma.Decimal(data.partsCost) : null;
     if (data.totalCost !== undefined)
-      updateData.totalCost = data.totalCost != null ? new Prisma.Decimal(data.totalCost) : null;
+      updateData.totalCost = data.totalCost !== null ? new Prisma.Decimal(data.totalCost) : null;
 
     const workOrder = await prisma.cmmsWorkOrder.update({
       where: { id: req.params.id },
@@ -439,8 +439,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       actualEnd: new Date(),
       completionNotes: completionNotes || null,
     };
-    if (laborHours != null) updateData.laborHours = new Prisma.Decimal(laborHours);
-    if (partsCost != null) updateData.partsCost = new Prisma.Decimal(partsCost);
+    if (laborHours !== null) updateData.laborHours = new Prisma.Decimal(laborHours);
+    if (partsCost !== null) updateData.partsCost = new Prisma.Decimal(partsCost);
 
     const workOrder = await prisma.cmmsWorkOrder.update({
       where: { id: req.params.id },

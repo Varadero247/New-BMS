@@ -125,8 +125,8 @@ router.post('/', async (req: Request, res: Response) => {
         status: data.status || 'PLANNED',
         startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
-        budget: data.budget != null ? new Prisma.Decimal(data.budget) : null,
-        actualCost: data.actualCost != null ? new Prisma.Decimal(data.actualCost) : null,
+        budget: data.budget !== null ? new Prisma.Decimal(data.budget) : null,
+        actualCost: data.actualCost !== null ? new Prisma.Decimal(data.actualCost) : null,
         owner: data.owner || null,
         impact: data.impact || null,
         createdBy: authReq.user?.id || 'system',
@@ -194,10 +194,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updateData: Record<string, any> = { ...parsed.data };
     if (updateData.budget !== undefined)
-      updateData.budget = updateData.budget != null ? new Prisma.Decimal(updateData.budget) : null;
+      updateData.budget = updateData.budget !== null ? new Prisma.Decimal(updateData.budget) : null;
     if (updateData.actualCost !== undefined)
       updateData.actualCost =
-        updateData.actualCost != null ? new Prisma.Decimal(updateData.actualCost) : null;
+        updateData.actualCost !== null ? new Prisma.Decimal(updateData.actualCost) : null;
     if (updateData.startDate !== undefined)
       updateData.startDate = updateData.startDate ? new Date(updateData.startDate) : null;
     if (updateData.endDate !== undefined)

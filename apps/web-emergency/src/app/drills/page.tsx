@@ -254,7 +254,7 @@ export default function DrillsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-3xl font-bold text-green-600">
-                        {analytics.passRate != null ? `${Math.round(analytics.passRate)}%` : '-'}
+                        {analytics.passRate !== null ? `${Math.round(analytics.passRate)}%` : '-'}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Pass Rate</p>
                     </div>
@@ -269,7 +269,7 @@ export default function DrillsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-3xl font-bold text-blue-600">
-                        {analytics.avgEvacuationTime != null
+                        {analytics.avgEvacuationTime !== null
                           ? `${Math.round(analytics.avgEvacuationTime)}m`
                           : '-'}
                       </p>
@@ -373,8 +373,8 @@ export default function DrillsPage() {
                     <TableBody>
                       {drills.map((drill) => {
                         const timeMet =
-                          drill.evacuationTime != null &&
-                          drill.targetEvacuationTime != null &&
+                          drill.evacuationTime !== null &&
+                          drill.targetEvacuationTime !== null &&
                           drill.evacuationTime <= drill.targetEvacuationTime;
                         return (
                           <TableRow key={drill.id}>
@@ -395,7 +395,7 @@ export default function DrillsPage() {
                               </div>
                             </TableCell>
                             <TableCell>
-                              {drill.evacuationTime != null ? (
+                              {drill.evacuationTime !== null ? (
                                 <div className="flex items-center gap-1">
                                   <Timer className="h-4 w-4 text-gray-400" />
                                   <span
@@ -413,7 +413,7 @@ export default function DrillsPage() {
                               )}
                             </TableCell>
                             <TableCell className="text-sm">
-                              {drill.targetEvacuationTime != null
+                              {drill.targetEvacuationTime !== null
                                 ? `${drill.targetEvacuationTime} mins`
                                 : '-'}
                             </TableCell>

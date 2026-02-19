@@ -182,9 +182,9 @@ router.post('/', async (req: Request, res: Response) => {
         module: data.module,
         formula: data.formula || null,
         unit: data.unit || null,
-        currentValue: data.currentValue != null ? data.currentValue : null,
-        previousValue: data.previousValue != null ? data.previousValue : null,
-        targetValue: data.targetValue != null ? data.targetValue : null,
+        currentValue: data.currentValue !== null ? data.currentValue : null,
+        previousValue: data.previousValue !== null ? data.previousValue : null,
+        targetValue: data.targetValue !== null ? data.targetValue : null,
         trend: data.trend,
         frequency: data.frequency,
         createdBy: authReq.user!.id,
@@ -225,7 +225,7 @@ router.post('/:id/calculate', async (req: Request, res: Response) => {
       Math.round((parseInt(id.replace(/-/g, '').slice(0, 6), 16) + bucket) % 10000) / 100;
     const previousValue = kpi.currentValue;
     let trend: 'UP' | 'DOWN' | 'STABLE' = 'STABLE';
-    if (previousValue != null) {
+    if (previousValue !== null) {
       const prev = Number(previousValue);
       if (newValue > prev) trend = 'UP';
       else if (newValue < prev) trend = 'DOWN';

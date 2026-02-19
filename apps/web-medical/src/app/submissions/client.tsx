@@ -309,7 +309,7 @@ export default function SubmissionsClient() {
                 onClick={() =>
                   setExpanded((prev) => {
                     const n = new Set(prev);
-                    n.has(sub.id) ? n.delete(sub.id) : n.add(sub.id);
+                    if (n.has(sub.id)) { n.delete(sub.id); } else { n.add(sub.id); }
                     return n;
                   })
                 }

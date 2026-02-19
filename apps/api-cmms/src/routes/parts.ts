@@ -150,7 +150,7 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         category: data.category,
         manufacturer: data.manufacturer,
-        unitCost: data.unitCost != null ? new Prisma.Decimal(data.unitCost) : null,
+        unitCost: data.unitCost !== null ? new Prisma.Decimal(data.unitCost) : null,
         quantity: data.quantity ?? 0,
         minStock: data.minStock ?? 0,
         maxStock: data.maxStock,
@@ -231,7 +231,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const data = parsed.data;
     const updateData: Record<string, unknown> = { ...data };
     if (data.unitCost !== undefined)
-      updateData.unitCost = data.unitCost != null ? new Prisma.Decimal(data.unitCost) : null;
+      updateData.unitCost = data.unitCost !== null ? new Prisma.Decimal(data.unitCost) : null;
 
     const part = await prisma.cmmsPart.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: part });

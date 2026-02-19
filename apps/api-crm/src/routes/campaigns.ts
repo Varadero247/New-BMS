@@ -233,7 +233,7 @@ campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
       } catch (err: unknown) {
         // Skip duplicates (unique constraint)
         if (
-          err != null &&
+          err !== null &&
           typeof err === 'object' &&
           'code' in err &&
           (err as any).code === 'P2002'
@@ -434,7 +434,7 @@ emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
       } catch (err: unknown) {
         // Skip duplicates (unique constraint)
         if (
-          err != null &&
+          err !== null &&
           typeof err === 'object' &&
           'code' in err &&
           (err as any).code === 'P2002'

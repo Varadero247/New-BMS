@@ -216,7 +216,7 @@ router.post('/', async (req: Request, res: Response) => {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
     if (
-      error != null &&
+      error !== null &&
       typeof error === 'object' &&
       'code' in error &&
       (error as any).code === 'P2002'

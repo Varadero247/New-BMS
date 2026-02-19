@@ -110,9 +110,9 @@ router.post('/', async (req: Request, res: Response) => {
         metricId: data.metricId,
         year: data.year,
         targetValue: new Prisma.Decimal(data.targetValue),
-        actualValue: data.actualValue != null ? new Prisma.Decimal(data.actualValue) : null,
+        actualValue: data.actualValue !== null ? new Prisma.Decimal(data.actualValue) : null,
         baselineYear: data.baselineYear || null,
-        baselineValue: data.baselineValue != null ? new Prisma.Decimal(data.baselineValue) : null,
+        baselineValue: data.baselineValue !== null ? new Prisma.Decimal(data.baselineValue) : null,
         status: data.status || 'ON_TRACK',
         createdBy: authReq.user?.id || 'system',
       },
@@ -234,10 +234,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       updateData.targetValue = new Prisma.Decimal(updateData.targetValue);
     if (updateData.actualValue !== undefined)
       updateData.actualValue =
-        updateData.actualValue != null ? new Prisma.Decimal(updateData.actualValue) : null;
+        updateData.actualValue !== null ? new Prisma.Decimal(updateData.actualValue) : null;
     if (updateData.baselineValue !== undefined)
       updateData.baselineValue =
-        updateData.baselineValue != null ? new Prisma.Decimal(updateData.baselineValue) : null;
+        updateData.baselineValue !== null ? new Prisma.Decimal(updateData.baselineValue) : null;
 
     const target = await prisma.esgTarget.update({
       where: { id: req.params.id },

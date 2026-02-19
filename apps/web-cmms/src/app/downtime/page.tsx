@@ -501,7 +501,7 @@ export default function DowntimePage() {
                           )}
                         </td>
                         <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">
-                          {evt.duration != null ? evt.duration.toFixed(1) + 'h' : '-'}
+                          {evt.duration !== null ? evt.duration.toFixed(1) + 'h' : '-'}
                         </td>
                         <td className="py-3 px-4">
                           <span

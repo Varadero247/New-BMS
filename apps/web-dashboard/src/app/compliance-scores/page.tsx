@@ -32,6 +32,18 @@ interface ModuleScore {
   href: string;
 }
 
+const MODULE_URLS: Record<string, string> = {
+  hs: process.env.NEXT_PUBLIC_HS_URL || 'http://localhost:3001',
+  env: process.env.NEXT_PUBLIC_ENV_URL || 'http://localhost:3002',
+  quality: process.env.NEXT_PUBLIC_QUALITY_URL || 'http://localhost:3003',
+  infosec: process.env.NEXT_PUBLIC_INFOSEC_URL || 'http://localhost:3015',
+  esg: process.env.NEXT_PUBLIC_ESG_URL || 'http://localhost:3016',
+  iso42001: process.env.NEXT_PUBLIC_ISO42001_URL || 'http://localhost:3024',
+  iso37001: process.env.NEXT_PUBLIC_ISO37001_URL || 'http://localhost:3025',
+  foodsafety: process.env.NEXT_PUBLIC_FOOD_SAFETY_URL || 'http://localhost:3020',
+  energy: process.env.NEXT_PUBLIC_ENERGY_URL || 'http://localhost:3021',
+};
+
 const MOCK_SCORES: ModuleScore[] = [
   {
     id: '1',
@@ -46,7 +58,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-10-15',
     certificationExpiry: '2027-10-15',
     trend: 'UP',
-    href: 'http://localhost:3001',
+    href: MODULE_URLS.hs,
   },
   {
     id: '2',
@@ -61,7 +73,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-09-20',
     certificationExpiry: '2027-09-20',
     trend: 'UP',
-    href: 'http://localhost:3002',
+    href: MODULE_URLS.env,
   },
   {
     id: '3',
@@ -76,7 +88,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-05-01',
     certificationExpiry: '2027-11-01',
     trend: 'DOWN',
-    href: 'http://localhost:3003',
+    href: MODULE_URLS.quality,
   },
   {
     id: '4',
@@ -91,7 +103,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-08-15',
     certificationExpiry: '2027-08-15',
     trend: 'STABLE',
-    href: 'http://localhost:3015',
+    href: MODULE_URLS.infosec,
   },
   {
     id: '5',
@@ -106,7 +118,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-06-01',
     certificationExpiry: null,
     trend: 'UP',
-    href: 'http://localhost:3016',
+    href: MODULE_URLS.esg,
   },
   {
     id: '6',
@@ -121,7 +133,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-07-10',
     certificationExpiry: null,
     trend: 'UP',
-    href: 'http://localhost:3024',
+    href: MODULE_URLS.iso42001,
   },
   {
     id: '7',
@@ -136,7 +148,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-09-01',
     certificationExpiry: '2027-09-01',
     trend: 'UP',
-    href: 'http://localhost:3025',
+    href: MODULE_URLS.iso37001,
   },
   {
     id: '8',
@@ -151,7 +163,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-11-15',
     certificationExpiry: '2027-11-15',
     trend: 'UP',
-    href: 'http://localhost:3020',
+    href: MODULE_URLS.foodsafety,
   },
   {
     id: '9',
@@ -166,7 +178,7 @@ const MOCK_SCORES: ModuleScore[] = [
     nextAudit: '2026-10-01',
     certificationExpiry: '2027-10-01',
     trend: 'UP',
-    href: 'http://localhost:3021',
+    href: MODULE_URLS.energy,
   },
 ];
 

@@ -311,7 +311,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       data: {
         status: 'COMPLETED',
         completedDate: new Date(),
-        score: score != null ? new Prisma.Decimal(score) : existing.score,
+        score: score !== null ? new Prisma.Decimal(score) : existing.score,
         findings: findings ?? existing.findings,
         recommendations: recommendations ?? existing.recommendations,
       },

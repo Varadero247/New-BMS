@@ -9,7 +9,7 @@ export default function ApiDocsPage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:4000/api/docs/openapi.json')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/docs/openapi.json`)
       .then((res) => res.json())
       .then((data) => {
         setSpec(data);

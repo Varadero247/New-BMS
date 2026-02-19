@@ -324,9 +324,9 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
         status: 'COMPLETED',
         completedDate: new Date(),
         completedBy: (req as AuthRequest).user?.id || 'system',
-        ...(result != null ? { result } : {}),
-        ...(findings != null ? { findings } : {}),
-        ...(verifiedBy != null ? { verifiedBy } : {}),
+        ...(result !== null ? { result } : {}),
+        ...(findings !== null ? { findings } : {}),
+        ...(verifiedBy !== null ? { verifiedBy } : {}),
       },
     });
 

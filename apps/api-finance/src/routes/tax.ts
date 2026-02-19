@@ -132,7 +132,7 @@ router.post('/rates', async (req: Request, res: Response) => {
       });
     }
     if (
-      error != null &&
+      error !== null &&
       typeof error === 'object' &&
       'code' in error &&
       (error as any).code === 'P2002'

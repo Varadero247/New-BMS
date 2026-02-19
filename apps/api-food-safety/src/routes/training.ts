@@ -328,9 +328,9 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       data: {
         status: 'COMPLETED',
         completedDate: new Date(),
-        ...(attendees != null ? { attendees } : {}),
-        ...(certificate != null ? { certificate } : {}),
-        ...(validUntil != null ? { validUntil: new Date(validUntil) } : {}),
+        ...(attendees !== null ? { attendees } : {}),
+        ...(certificate !== null ? { certificate } : {}),
+        ...(validUntil !== null ? { validUntil: new Date(validUntil) } : {}),
       },
     });
 

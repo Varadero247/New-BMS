@@ -260,7 +260,7 @@ export default function AssetHealthClient() {
   const [sortBy, setSortBy] = useState<'health' | 'oee' | 'mtbf' | 'failures'>('health');
 
   const assets = useMemo(() => {
-    let filtered = MOCK_ASSETS.filter((a) => {
+    const filtered = MOCK_ASSETS.filter((a) => {
       if (filterCriticality && a.criticality !== filterCriticality) return false;
       if (filterHealth && a.healthStatus !== filterHealth) return false;
       return true;

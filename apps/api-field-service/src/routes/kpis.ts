@@ -207,7 +207,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         value: new Prisma.Decimal(parsed.data.value),
-        target: parsed.data.target != null ? new Prisma.Decimal(parsed.data.target) : null,
+        target: parsed.data.target !== null ? new Prisma.Decimal(parsed.data.target) : null,
         periodStart: new Date(parsed.data.periodStart),
         periodEnd: new Date(parsed.data.periodEnd),
         createdBy: authReq.user!.id,
@@ -278,7 +278,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (parsed.data.value !== undefined) updateData.value = new Prisma.Decimal(parsed.data.value);
     if (parsed.data.target !== undefined)
       updateData.target =
-        parsed.data.target != null ? new Prisma.Decimal(parsed.data.target) : null;
+        parsed.data.target !== null ? new Prisma.Decimal(parsed.data.target) : null;
     if (parsed.data.periodStart) updateData.periodStart = new Date(parsed.data.periodStart);
     if (parsed.data.periodEnd) updateData.periodEnd = new Date(parsed.data.periodEnd);
 

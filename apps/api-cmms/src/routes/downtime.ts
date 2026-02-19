@@ -150,7 +150,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Auto-calculate duration if start and end are provided
     let duration = data.duration;
-    if (duration == null && data.endTime) {
+    if (duration === null && data.endTime) {
       const start = new Date(data.startTime).getTime();
       const end = new Date(data.endTime).getTime();
       duration = (end - start) / (1000 * 60 * 60); // hours
@@ -162,10 +162,10 @@ router.post('/', async (req: Request, res: Response) => {
         workOrderId: data.workOrderId,
         startTime: new Date(data.startTime),
         endTime: data.endTime ? new Date(data.endTime) : null,
-        duration: duration != null ? new Prisma.Decimal(duration) : null,
+        duration: duration !== null ? new Prisma.Decimal(duration) : null,
         reason: data.reason,
         impact: data.impact || 'NONE',
-        estimatedLoss: data.estimatedLoss != null ? new Prisma.Decimal(data.estimatedLoss) : null,
+        estimatedLoss: data.estimatedLoss !== null ? new Prisma.Decimal(data.estimatedLoss) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -240,12 +240,12 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (data.endTime !== undefined)
       updateData.endTime = data.endTime ? new Date(data.endTime) : null;
     if (data.duration !== undefined)
-      updateData.duration = data.duration != null ? new Prisma.Decimal(data.duration) : null;
+      updateData.duration = data.duration !== null ? new Prisma.Decimal(data.duration) : null;
     if (data.reason !== undefined) updateData.reason = data.reason;
     if (data.impact !== undefined) updateData.impact = data.impact;
     if (data.estimatedLoss !== undefined)
       updateData.estimatedLoss =
-        data.estimatedLoss != null ? new Prisma.Decimal(data.estimatedLoss) : null;
+        data.estimatedLoss !== null ? new Prisma.Decimal(data.estimatedLoss) : null;
 
     const downtime = await prisma.cmmsDowntime.update({
       where: { id: req.params.id },

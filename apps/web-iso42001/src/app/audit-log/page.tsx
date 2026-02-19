@@ -210,7 +210,7 @@ export default function AuditLogPage() {
                     <td className="p-3 max-w-md truncate">{entry.description}</td>
                     <td className="p-3 text-gray-600">{entry.userName || entry.userId}</td>
                     <td className="p-3">
-                      {entry.riskScore != null ? (
+                      {entry.riskScore !== null ? (
                         <span
                           className={`font-medium ${entry.riskScore > 70 ? 'text-red-600' : entry.riskScore > 40 ? 'text-yellow-600' : 'text-green-600'}`}
                         >

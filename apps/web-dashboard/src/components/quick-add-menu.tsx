@@ -3,29 +3,32 @@
 import { useState } from 'react';
 import { Plus, X, AlertTriangle, FileWarning, ClipboardList, Target } from 'lucide-react';
 
+const HS_URL = process.env.NEXT_PUBLIC_HS_URL || 'http://localhost:3001';
+const ENV_URL = process.env.NEXT_PUBLIC_ENV_URL || 'http://localhost:3002';
+
 const quickAddItems = [
   {
     name: 'Risk',
     icon: AlertTriangle,
-    href: 'http://localhost:3001/risks/new',
+    href: `${HS_URL}/risks/new`,
     color: 'bg-red-500 hover:bg-red-600',
   },
   {
     name: 'Incident',
     icon: FileWarning,
-    href: 'http://localhost:3001/incidents/new',
+    href: `${HS_URL}/incidents/new`,
     color: 'bg-yellow-500 hover:bg-yellow-600',
   },
   {
     name: 'Action',
     icon: ClipboardList,
-    href: 'http://localhost:3001/actions/new',
+    href: `${HS_URL}/actions/new`,
     color: 'bg-blue-500 hover:bg-blue-600',
   },
   {
     name: 'Objective',
     icon: Target,
-    href: 'http://localhost:3002/objectives/new',
+    href: `${ENV_URL}/objectives/new`,
     color: 'bg-green-500 hover:bg-green-600',
   },
 ];

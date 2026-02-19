@@ -315,7 +315,7 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     // Recalculate riskLevelAfter if severity/probability changed
     const severityAfter = data.severityAfter ?? hazard.severityAfter;
     const probabilityAfter = data.probabilityAfter ?? hazard.probabilityAfter;
-    if (severityAfter != null && probabilityAfter != null) {
+    if (severityAfter !== null && probabilityAfter !== null) {
       updateData.riskLevelAfter = calculateRiskLevel(severityAfter, probabilityAfter);
     }
 

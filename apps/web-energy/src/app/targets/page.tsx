@@ -333,7 +333,7 @@ export default function TargetsPage() {
                             </span>
                           </td>
                           <td className="py-3 px-4 text-right font-mono text-gray-600">
-                            {item.currentValue != null
+                            {item.currentValue !== null
                               ? Number(item.currentValue).toLocaleString()
                               : '-'}{' '}
                             <span className="text-xs text-gray-400 dark:text-gray-500">

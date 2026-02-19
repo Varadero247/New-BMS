@@ -71,7 +71,7 @@ router.post('/', async (req: Request, res: Response) => {
     return res.status(201).json({ success: true, data: partner });
   } catch (error: unknown) {
     if (
-      error != null &&
+      error !== null &&
       typeof error === 'object' &&
       'code' in error &&
       (error as any).code === 'P2002'

@@ -302,7 +302,7 @@ export default function MSAPage() {
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span className={`font-bold text-sm ${grrColor(item.grr || 0)}`}>
-                            {item.grr != null ? `${item.grr}%` : '-'}
+                            {item.grr !== null ? `${item.grr}%` : '-'}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">

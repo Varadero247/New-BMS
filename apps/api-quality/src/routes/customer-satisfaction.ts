@@ -109,15 +109,15 @@ router.post('/public/:token/respond', async (req: AuthRequest, res: Response) =>
     for (const answer of data.answers) {
       const question = survey.questions.find((q) => q.id === answer.questionId);
       if (!question) continue;
-      if (question.type === 'NPS_SCALE' && answer.numericValue != null) {
+      if (question.type === 'NPS_SCALE' && answer.numericValue !== null) {
         npsScore = answer.numericValue;
       }
-      if (question.type === 'RATING' && answer.numericValue != null) {
+      if (question.type === 'RATING' && answer.numericValue !== null) {
         csatScore = answer.numericValue;
       }
     }
 
-    const npsCategory = npsScore != null ? classifyNPS(npsScore) : null;
+    const npsCategory = npsScore !== null ? classifyNPS(npsScore) : null;
 
     const response = await prisma.surveyResponse.create({
       data: {
@@ -363,15 +363,15 @@ router.post('/responses', async (req: AuthRequest, res: Response) => {
     for (const answer of data.answers) {
       const question = survey.questions.find((q) => q.id === answer.questionId);
       if (!question) continue;
-      if (question.type === 'NPS_SCALE' && answer.numericValue != null) {
+      if (question.type === 'NPS_SCALE' && answer.numericValue !== null) {
         npsScore = answer.numericValue;
       }
-      if (question.type === 'RATING' && answer.numericValue != null) {
+      if (question.type === 'RATING' && answer.numericValue !== null) {
         csatScore = answer.numericValue;
       }
     }
 
-    const npsCategory = npsScore != null ? classifyNPS(npsScore) : null;
+    const npsCategory = npsScore !== null ? classifyNPS(npsScore) : null;
 
     const response = await prisma.surveyResponse.create({
       data: {
@@ -498,7 +498,7 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
     const totalResponses = responses.length;
 
     // Overall NPS calculation
-    const npsResponses = responses.filter((r) => r.npsCategory != null);
+    const npsResponses = responses.filter((r) => r.npsCategory !== null);
     const promoters = npsResponses.filter((r) => r.npsCategory === 'PROMOTER').length;
     const detractors = npsResponses.filter((r) => r.npsCategory === 'DETRACTOR').length;
     const nps =
@@ -507,7 +507,7 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
         : null;
 
     // Average CSAT
-    const csatResponses = responses.filter((r) => r.csatScore != null);
+    const csatResponses = responses.filter((r) => r.csatScore !== null);
     const averageCsat =
       csatResponses.length > 0
         ? Math.round(
@@ -532,13 +532,13 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
     }
 
     for (const [month, monthResponses] of grouped) {
-      const mNps = monthResponses.filter((r) => r.npsCategory != null);
+      const mNps = monthResponses.filter((r) => r.npsCategory !== null);
       const mPromoters = mNps.filter((r) => r.npsCategory === 'PROMOTER').length;
       const mDetractors = mNps.filter((r) => r.npsCategory === 'DETRACTOR').length;
       const mNpsScore =
         mNps.length > 0 ? Math.round(((mPromoters - mDetractors) / mNps.length) * 100) : null;
 
-      const mCsat = monthResponses.filter((r) => r.csatScore != null);
+      const mCsat = monthResponses.filter((r) => r.csatScore !== null);
       const mCsatAvg =
         mCsat.length > 0
           ? Math.round(
@@ -596,7 +596,7 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
       take: 1000,
     });
 
-    const npsResponses = recentResponses.filter((r) => r.npsCategory != null);
+    const npsResponses = recentResponses.filter((r) => r.npsCategory !== null);
     const promoters = npsResponses.filter((r) => r.npsCategory === 'PROMOTER').length;
     const detractors = npsResponses.filter((r) => r.npsCategory === 'DETRACTOR').length;
     const currentNps =
@@ -605,7 +605,7 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         : null;
 
     // Current CSAT (last 90 days)
-    const csatResponses = recentResponses.filter((r) => r.csatScore != null);
+    const csatResponses = recentResponses.filter((r) => r.csatScore !== null);
     const currentCsat =
       csatResponses.length > 0
         ? Math.round(
@@ -626,7 +626,7 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
       take: 1000,
     });
 
-    const prevNps = previousResponses.filter((r) => r.npsCategory != null);
+    const prevNps = previousResponses.filter((r) => r.npsCategory !== null);
     const prevPromoters = prevNps.filter((r) => r.npsCategory === 'PROMOTER').length;
     const prevDetractors = prevNps.filter((r) => r.npsCategory === 'DETRACTOR').length;
     const previousNps =
@@ -635,7 +635,7 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         : null;
 
     let trendDirection: 'up' | 'down' | 'stable' | 'insufficient_data' = 'insufficient_data';
-    if (currentNps != null && previousNps != null) {
+    if (currentNps !== null && previousNps !== null) {
       if (currentNps > previousNps) trendDirection = 'up';
       else if (currentNps < previousNps) trendDirection = 'down';
       else trendDirection = 'stable';

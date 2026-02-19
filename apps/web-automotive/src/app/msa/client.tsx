@@ -594,7 +594,7 @@ export default function MsaClient() {
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-center">
-                          {study.grrPercent != null ? (
+                          {study.grrPercent !== null ? (
                             <span
                               className={`text-sm font-bold ${
                                 study.grrPercent <= 10
@@ -898,7 +898,7 @@ export default function MsaClient() {
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Tolerance</p>
                   <p className="text-sm font-medium">
-                    {selectedStudy.tolerance != null ? selectedStudy.tolerance : '-'}
+                    {selectedStudy.tolerance !== null ? selectedStudy.tolerance : '-'}
                   </p>
                 </div>
                 <div>

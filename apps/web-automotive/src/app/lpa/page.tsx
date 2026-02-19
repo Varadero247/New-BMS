@@ -320,7 +320,7 @@ export default function LPAPage() {
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span className={`font-bold ${scoreColor(item.score || 0)}`}>
-                            {item.score != null ? `${item.score}%` : '-'}
+                            {item.score !== null ? `${item.score}%` : '-'}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-center">

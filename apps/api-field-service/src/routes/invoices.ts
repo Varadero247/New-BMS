@@ -127,7 +127,7 @@ router.post('/', async (req: Request, res: Response) => {
         laborTotal: new Prisma.Decimal(parsed.data.laborTotal),
         partsTotal: new Prisma.Decimal(parsed.data.partsTotal),
         total: new Prisma.Decimal(parsed.data.total),
-        tax: parsed.data.tax != null ? new Prisma.Decimal(parsed.data.tax) : null,
+        tax: parsed.data.tax !== null ? new Prisma.Decimal(parsed.data.tax) : null,
         dueDate: new Date(parsed.data.dueDate),
         createdBy: authReq.user!.id,
       },
@@ -202,7 +202,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       updateData.partsTotal = new Prisma.Decimal(parsed.data.partsTotal);
     if (parsed.data.total !== undefined) updateData.total = new Prisma.Decimal(parsed.data.total);
     if (parsed.data.tax !== undefined)
-      updateData.tax = parsed.data.tax != null ? new Prisma.Decimal(parsed.data.tax) : null;
+      updateData.tax = parsed.data.tax !== null ? new Prisma.Decimal(parsed.data.tax) : null;
     if (parsed.data.dueDate) updateData.dueDate = new Date(parsed.data.dueDate);
 
     const data = await prisma.fsSvcInvoice.update({

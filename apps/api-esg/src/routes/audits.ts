@@ -125,7 +125,7 @@ router.post('/', async (req: Request, res: Response) => {
         endDate: data.endDate ? new Date(data.endDate) : null,
         status: data.status || 'PLANNED',
         findings: data.findings || null,
-        score: data.score != null ? new Prisma.Decimal(data.score) : null,
+        score: data.score !== null ? new Prisma.Decimal(data.score) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -195,7 +195,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (updateData.endDate !== undefined)
       updateData.endDate = updateData.endDate ? new Date(updateData.endDate) : null;
     if (updateData.score !== undefined)
-      updateData.score = updateData.score != null ? new Prisma.Decimal(updateData.score) : null;
+      updateData.score = updateData.score !== null ? new Prisma.Decimal(updateData.score) : null;
 
     const audit = await prisma.esgAudit.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: audit });

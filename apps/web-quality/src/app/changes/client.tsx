@@ -582,7 +582,7 @@ export default function ChangesClient() {
                               </div>
                             ))}
                         </div>
-                        {r.estimatedCost != null && r.estimatedCost > 0 && (
+                        {r.estimatedCost !== null && r.estimatedCost > 0 && (
                           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                             Estimated Cost: ${r.estimatedCost.toLocaleString()}
                           </p>

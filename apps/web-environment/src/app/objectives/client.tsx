@@ -629,7 +629,7 @@ export default function ObjectivesClient() {
 
                       {/* Footer info */}
                       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-                        {obj.targetValue != null && (
+                        {obj.targetValue !== null && (
                           <span className="font-medium">
                             KPI: {obj.currentValue ?? 0} / {obj.targetValue} {obj.unit || ''}
                           </span>

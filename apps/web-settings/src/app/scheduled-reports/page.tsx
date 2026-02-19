@@ -21,7 +21,7 @@ interface ReportType {
   description: string;
 }
 
-const API_URL = 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 const CRON_PRESETS = [
   { label: 'Every Monday at 9am', value: '0 9 * * 1' },

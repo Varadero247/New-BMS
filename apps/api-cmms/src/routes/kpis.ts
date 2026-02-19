@@ -175,7 +175,7 @@ router.post('/', async (req: Request, res: Response) => {
         unit: data.unit,
         periodStart: new Date(data.periodStart),
         periodEnd: new Date(data.periodEnd),
-        target: data.target != null ? new Prisma.Decimal(data.target) : null,
+        target: data.target !== null ? new Prisma.Decimal(data.target) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -246,7 +246,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (data.periodStart !== undefined) updateData.periodStart = new Date(data.periodStart);
     if (data.periodEnd !== undefined) updateData.periodEnd = new Date(data.periodEnd);
     if (data.target !== undefined)
-      updateData.target = data.target != null ? new Prisma.Decimal(data.target) : null;
+      updateData.target = data.target !== null ? new Prisma.Decimal(data.target) : null;
 
     const kpi = await prisma.cmmsKpi.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data: kpi });

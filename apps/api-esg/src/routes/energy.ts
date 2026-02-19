@@ -114,7 +114,7 @@ router.post('/', async (req: Request, res: Response) => {
         periodStart: new Date(data.periodStart),
         periodEnd: new Date(data.periodEnd),
         facility: data.facility || null,
-        cost: data.cost != null ? new Prisma.Decimal(data.cost) : null,
+        cost: data.cost !== null ? new Prisma.Decimal(data.cost) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -182,7 +182,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (updateData.quantity !== undefined)
       updateData.quantity = new Prisma.Decimal(updateData.quantity);
     if (updateData.cost !== undefined)
-      updateData.cost = updateData.cost != null ? new Prisma.Decimal(updateData.cost) : null;
+      updateData.cost = updateData.cost !== null ? new Prisma.Decimal(updateData.cost) : null;
     if (updateData.periodStart) updateData.periodStart = new Date(updateData.periodStart);
     if (updateData.periodEnd) updateData.periodEnd = new Date(updateData.periodEnd);
 

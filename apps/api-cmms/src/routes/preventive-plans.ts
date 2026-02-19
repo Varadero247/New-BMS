@@ -133,7 +133,7 @@ router.post('/', async (req: Request, res: Response) => {
         assignedTo: data.assignedTo,
         isActive: data.isActive !== undefined ? data.isActive : true,
         estimatedDuration: data.estimatedDuration,
-        estimatedCost: data.estimatedCost != null ? new Prisma.Decimal(data.estimatedCost) : null,
+        estimatedCost: data.estimatedCost !== null ? new Prisma.Decimal(data.estimatedCost) : null,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -206,7 +206,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       updateData.nextDue = data.nextDue ? new Date(data.nextDue) : null;
     if (data.estimatedCost !== undefined)
       updateData.estimatedCost =
-        data.estimatedCost != null ? new Prisma.Decimal(data.estimatedCost) : null;
+        data.estimatedCost !== null ? new Prisma.Decimal(data.estimatedCost) : null;
 
     const plan = await prisma.cmmsPreventivePlan.update({
       where: { id: req.params.id },

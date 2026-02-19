@@ -317,8 +317,8 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       data: {
         status: 'COMPLETED',
         completedDate: new Date(),
-        ...(unitsRecovered != null ? { unitsRecovered } : {}),
-        ...(rootCause != null ? { rootCause } : {}),
+        ...(unitsRecovered !== null ? { unitsRecovered } : {}),
+        ...(rootCause !== null ? { rootCause } : {}),
       },
     });
 

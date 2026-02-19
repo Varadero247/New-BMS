@@ -30,12 +30,12 @@ const kriSchema = z.object({
 function evaluateKriStatus(kri: Record<string, unknown>, value: number): string {
   const dir = kri.thresholdDirection || 'INCREASING_IS_WORSE';
   if (dir === 'INCREASING_IS_WORSE') {
-    if (kri.redThreshold != null && value > (kri.redThreshold as number)) return 'RED';
-    if (kri.amberThreshold != null && value > (kri.amberThreshold as number)) return 'AMBER';
+    if (kri.redThreshold !== null && value > (kri.redThreshold as number)) return 'RED';
+    if (kri.amberThreshold !== null && value > (kri.amberThreshold as number)) return 'AMBER';
     return 'GREEN';
   } else {
-    if (kri.redThreshold != null && value < (kri.redThreshold as number)) return 'RED';
-    if (kri.amberThreshold != null && value < (kri.amberThreshold as number)) return 'AMBER';
+    if (kri.redThreshold !== null && value < (kri.redThreshold as number)) return 'RED';
+    if (kri.amberThreshold !== null && value < (kri.amberThreshold as number)) return 'AMBER';
     return 'GREEN';
   }
 }

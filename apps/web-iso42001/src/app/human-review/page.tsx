@@ -114,7 +114,7 @@ export default function HumanReviewPage() {
                   <div className="font-medium text-sm">{r.title}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     AI Decision: {r.aiDecision}
-                    {r.aiConfidence != null && ` (${Math.round(r.aiConfidence * 100)}%)`}
+                    {r.aiConfidence !== null && ` (${Math.round(r.aiConfidence * 100)}%)`}
                   </div>
                 </div>
                 <button
@@ -233,7 +233,7 @@ export default function HumanReviewPage() {
                     <td className="p-3 font-medium">{r.title}</td>
                     <td className="p-3 text-gray-600 max-w-xs truncate">{r.aiDecision}</td>
                     <td className="p-3">
-                      {r.aiConfidence != null ? (
+                      {r.aiConfidence !== null ? (
                         <div className="flex items-center gap-2">
                           <div className="w-16 h-2 bg-gray-200 rounded-full">
                             <div
@@ -322,7 +322,7 @@ export default function HumanReviewPage() {
                   AI Decision
                 </p>
                 <p className="text-sm">{activeReview.aiDecision}</p>
-                {activeReview.aiConfidence != null && (
+                {activeReview.aiConfidence !== null && (
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-500 dark:text-gray-400">Confidence:</span>
                     <div className="w-24 h-2 bg-gray-200 rounded-full">

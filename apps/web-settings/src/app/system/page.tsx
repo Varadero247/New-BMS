@@ -23,7 +23,7 @@ interface SystemSettings {
 export default function SystemSettingsPage() {
   const [settings, setSettings] = useState<SystemSettings>({
     siteName: 'IMS - Integrated Management System',
-    siteUrl: 'http://localhost:3000',
+    siteUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     timezone: 'UTC',
     dateFormat: 'DD/MM/YYYY',
     emailNotifications: true,

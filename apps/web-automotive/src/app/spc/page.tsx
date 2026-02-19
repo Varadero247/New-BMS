@@ -296,12 +296,12 @@ export default function SPCPage() {
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span className={`font-bold text-sm ${cpkColor(item.cpk || 0)}`}>
-                            {item.cpk != null ? item.cpk.toFixed(2) : '-'}
+                            {item.cpk !== null ? item.cpk.toFixed(2) : '-'}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-center">
                           <span className={`font-bold text-sm ${cpkColor(item.ppk || 0)}`}>
-                            {item.ppk != null ? item.ppk.toFixed(2) : '-'}
+                            {item.ppk !== null ? item.ppk.toFixed(2) : '-'}
                           </span>
                         </td>
                         <td className="py-3 px-4">

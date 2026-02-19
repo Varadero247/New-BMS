@@ -153,7 +153,7 @@ router.post('/', async (req: Request, res: Response) => {
         phone: data.phone,
         address: data.address,
         specialization: data.specialization,
-        rating: data.rating != null ? new Prisma.Decimal(data.rating) : null,
+        rating: data.rating !== null ? new Prisma.Decimal(data.rating) : null,
         isPreferred: data.isPreferred || false,
         contractExpiry: data.contractExpiry ? new Date(data.contractExpiry) : null,
         createdBy: authReq.user?.id || 'system',
@@ -226,7 +226,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const data = parsed.data;
     const updateData: Record<string, unknown> = { ...data };
     if (data.rating !== undefined)
-      updateData.rating = data.rating != null ? new Prisma.Decimal(data.rating) : null;
+      updateData.rating = data.rating !== null ? new Prisma.Decimal(data.rating) : null;
     if (data.contractExpiry !== undefined)
       updateData.contractExpiry = data.contractExpiry ? new Date(data.contractExpiry) : null;
 
@@ -336,7 +336,7 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
         description: data.description,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
-        value: data.value != null ? new Prisma.Decimal(data.value) : null,
+        value: data.value !== null ? new Prisma.Decimal(data.value) : null,
         type: data.type,
         status: data.status || 'PENDING',
         slaResponseHours: data.slaResponseHours,
@@ -388,7 +388,7 @@ router.put('/contracts/:id', async (req: Request, res: Response) => {
     if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
     if (data.endDate !== undefined) updateData.endDate = new Date(data.endDate);
     if (data.value !== undefined)
-      updateData.value = data.value != null ? new Prisma.Decimal(data.value) : null;
+      updateData.value = data.value !== null ? new Prisma.Decimal(data.value) : null;
 
     const contract = await prisma.cmmsServiceContract.update({
       where: { id: req.params.id },

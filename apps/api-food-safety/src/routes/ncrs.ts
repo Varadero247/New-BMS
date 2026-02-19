@@ -327,9 +327,9 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       data: {
         status: 'CLOSED',
         closedDate: new Date(),
-        ...(rootCause != null ? { rootCause } : {}),
-        ...(correctiveAction != null ? { correctiveAction } : {}),
-        ...(preventiveAction != null ? { preventiveAction } : {}),
+        ...(rootCause !== null ? { rootCause } : {}),
+        ...(correctiveAction !== null ? { correctiveAction } : {}),
+        ...(preventiveAction !== null ? { preventiveAction } : {}),
       },
     });
 

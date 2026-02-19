@@ -501,7 +501,7 @@ router.get('/:id/capability', async (req: AuthRequest, res: Response) => {
     }
 
     // Capability analysis requires USL and LSL
-    if (chart.usl == null || chart.lsl == null) {
+    if (chart.usl === null || chart.lsl === null) {
       return res.status(400).json({
         success: false,
         error: {

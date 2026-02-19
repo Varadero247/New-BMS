@@ -20,7 +20,7 @@ interface DpaAcceptance {
   acceptedAt: string;
 }
 
-const API_URL = 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 function getHeaders() {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;

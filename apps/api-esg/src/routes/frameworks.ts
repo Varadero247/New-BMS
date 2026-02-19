@@ -141,7 +141,7 @@ router.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: framework });
   } catch (error: unknown) {
     if (
-      error != null &&
+      error !== null &&
       typeof error === 'object' &&
       'code' in error &&
       (error as any).code === 'P2002'
@@ -225,7 +225,7 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
         name: data.name,
         code: data.code,
         unit: data.unit,
-        targetValue: data.targetValue != null ? new Prisma.Decimal(data.targetValue) : null,
+        targetValue: data.targetValue !== null ? new Prisma.Decimal(data.targetValue) : null,
         description: data.description || null,
         frequency: data.frequency,
         isRequired: data.isRequired || false,
@@ -236,7 +236,7 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
     res.status(201).json({ success: true, data: metric });
   } catch (error: unknown) {
     if (
-      error != null &&
+      error !== null &&
       typeof error === 'object' &&
       'code' in error &&
       (error as any).code === 'P2002'

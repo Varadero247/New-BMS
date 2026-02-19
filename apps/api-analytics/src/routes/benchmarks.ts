@@ -206,7 +206,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Determine trend
     let trend: 'UP' | 'DOWN' | 'STABLE' = 'STABLE';
-    if (data.currentValue != null) {
+    if (data.currentValue !== null) {
       if (data.currentValue > data.industryAverage) trend = 'UP';
       else if (data.currentValue < data.industryAverage) trend = 'DOWN';
     }
@@ -218,7 +218,7 @@ router.post('/', async (req: Request, res: Response) => {
         module: data.module,
         formula: null,
         unit: data.unit || null,
-        currentValue: data.currentValue != null ? data.currentValue : null,
+        currentValue: data.currentValue !== null ? data.currentValue : null,
         targetValue: data.topPerformer,
         previousValue: data.industryAverage,
         trend,

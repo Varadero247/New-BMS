@@ -14,9 +14,9 @@ export default function DataImportPage() {
 
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
         <BulkImportWizard
-          apiBaseUrl="http://localhost:4000"
-          onComplete={(result) => {
-            console.log('Import complete:', result);
+          apiBaseUrl={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}
+          onComplete={() => {
+            // Import complete callback
           }}
         />
       </div>

@@ -440,7 +440,7 @@ export default function ImprovementsClient() {
   }
 
   function formatCurrency(val: number | null | undefined): string {
-    if (val == null) return '-';
+    if (val === null) return '-';
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
       currency: 'GBP',
@@ -721,7 +721,7 @@ export default function ImprovementsClient() {
                           >
                             {imp.pdcaStage}
                           </Badge>
-                          {imp.priorityScore != null && (
+                          {imp.priorityScore !== null && (
                             <Badge className={priorityColor(imp.priorityScore)}>
                               Score: {imp.priorityScore}
                             </Badge>
@@ -745,12 +745,12 @@ export default function ImprovementsClient() {
                         </div>
                       </div>
                       <div className="text-sm text-gray-400 dark:text-gray-500 text-right ml-4 shrink-0">
-                        {imp.estimatedSaving != null && imp.estimatedSaving > 0 && (
+                        {imp.estimatedSaving !== null && imp.estimatedSaving > 0 && (
                           <div className="text-green-600 font-medium">
                             {formatCurrency(imp.estimatedSaving)}
                           </div>
                         )}
-                        {imp.estimatedCost != null && imp.estimatedCost > 0 && (
+                        {imp.estimatedCost !== null && imp.estimatedCost > 0 && (
                           <div className="text-xs text-gray-400 dark:text-gray-500">
                             Cost: {formatCurrency(imp.estimatedCost)}
                           </div>
@@ -1518,7 +1518,7 @@ export default function ImprovementsClient() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Priority Score</p>
-                  {selectedImprovement.priorityScore != null ? (
+                  {selectedImprovement.priorityScore !== null ? (
                     <Badge className={priorityColor(selectedImprovement.priorityScore)}>
                       {selectedImprovement.priorityScore}
                     </Badge>
@@ -1670,8 +1670,8 @@ export default function ImprovementsClient() {
                   <p className="text-sm font-medium">
                     {formatCurrency(selectedImprovement.actualCost)}
                   </p>
-                  {selectedImprovement.actualCost != null &&
-                    selectedImprovement.estimatedCost != null &&
+                  {selectedImprovement.actualCost !== null &&
+                    selectedImprovement.estimatedCost !== null &&
                     selectedImprovement.estimatedCost > 0 && (
                       <p
                         className={`text-xs mt-1 ${
@@ -1698,8 +1698,8 @@ export default function ImprovementsClient() {
                   <p className="text-sm font-medium text-green-600">
                     {formatCurrency(selectedImprovement.actualSaving)}
                   </p>
-                  {selectedImprovement.actualSaving != null &&
-                    selectedImprovement.estimatedSaving != null &&
+                  {selectedImprovement.actualSaving !== null &&
+                    selectedImprovement.estimatedSaving !== null &&
                     selectedImprovement.estimatedSaving > 0 && (
                       <p
                         className={`text-xs mt-1 ${
