@@ -12,8 +12,8 @@
     },
     "./react": {
       "types": "./dist/react/react/index.d.ts",
-      "import": "./dist/react/index.mjs",
-      "require": "./dist/react/index.js"
+      "import": "./dist/react/react/index.mjs",
+      "require": "./dist/react/react/index.js"
     }
   },
   "scripts": {

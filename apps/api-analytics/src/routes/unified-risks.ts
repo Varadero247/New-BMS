@@ -66,7 +66,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-03-15',
     module: 'Quality',
-    url: 'http://localhost:3003/risks/ur-001',
+    url: '/risks/ur-001',
   },
   {
     id: 'ur-002',
@@ -82,7 +82,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'IN_PROGRESS',
     dueDate: '2026-02-28',
     module: 'Quality',
-    url: 'http://localhost:3003/risks/ur-002',
+    url: '/risks/ur-002',
   },
   {
     id: 'ur-003',
@@ -98,7 +98,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-04-01',
     module: 'Quality',
-    url: 'http://localhost:3003/risks/ur-003',
+    url: '/risks/ur-003',
   },
   {
     id: 'ur-004',
@@ -114,7 +114,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-03-30',
     module: 'Quality',
-    url: 'http://localhost:3003/risks/ur-004',
+    url: '/risks/ur-004',
   },
   {
     id: 'ur-005',
@@ -129,7 +129,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Carol Davis',
     status: 'MONITORING',
     module: 'Quality',
-    url: 'http://localhost:3003/risks/ur-005',
+    url: '/risks/ur-005',
   },
 
   // Health & Safety risks (ISO 45001)
@@ -147,7 +147,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-02-20',
     module: 'Health & Safety',
-    url: 'http://localhost:3001/risks/ur-006',
+    url: '/risks/ur-006',
   },
   {
     id: 'ur-007',
@@ -163,7 +163,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'IN_PROGRESS',
     dueDate: '2026-03-01',
     module: 'Health & Safety',
-    url: 'http://localhost:3001/risks/ur-007',
+    url: '/risks/ur-007',
   },
   {
     id: 'ur-008',
@@ -179,7 +179,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-03-15',
     module: 'Health & Safety',
-    url: 'http://localhost:3001/risks/ur-008',
+    url: '/risks/ur-008',
   },
   {
     id: 'ur-009',
@@ -195,7 +195,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'IN_PROGRESS',
     dueDate: '2026-02-25',
     module: 'Health & Safety',
-    url: 'http://localhost:3001/risks/ur-009',
+    url: '/risks/ur-009',
   },
   {
     id: 'ur-010',
@@ -211,7 +211,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-04-10',
     module: 'Health & Safety',
-    url: 'http://localhost:3001/risks/ur-010',
+    url: '/risks/ur-010',
   },
 
   // Environment risks (ISO 14001)
@@ -229,7 +229,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-02-28',
     module: 'Environment',
-    url: 'http://localhost:3002/risks/ur-011',
+    url: '/risks/ur-011',
   },
   {
     id: 'ur-012',
@@ -245,7 +245,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'IN_PROGRESS',
     dueDate: '2026-03-10',
     module: 'Environment',
-    url: 'http://localhost:3002/risks/ur-012',
+    url: '/risks/ur-012',
   },
   {
     id: 'ur-013',
@@ -260,7 +260,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Eve Green',
     status: 'MONITORING',
     module: 'Environment',
-    url: 'http://localhost:3002/risks/ur-013',
+    url: '/risks/ur-013',
   },
   {
     id: 'ur-014',
@@ -276,7 +276,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-05-01',
     module: 'Environment',
-    url: 'http://localhost:3002/risks/ur-014',
+    url: '/risks/ur-014',
   },
   {
     id: 'ur-015',
@@ -291,7 +291,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Eve Green',
     status: 'MONITORING',
     module: 'Environment',
-    url: 'http://localhost:3002/risks/ur-015',
+    url: '/risks/ur-015',
   },
 
   // InfoSec risks (ISO 27001)
@@ -309,7 +309,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-02-18',
     module: 'Information Security',
-    url: 'http://localhost:3015/risks/ur-016',
+    url: '/risks/ur-016',
   },
   {
     id: 'ur-017',
@@ -325,7 +325,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'IN_PROGRESS',
     dueDate: '2026-03-01',
     module: 'Information Security',
-    url: 'http://localhost:3015/risks/ur-017',
+    url: '/risks/ur-017',
   },
   {
     id: 'ur-018',
@@ -341,7 +341,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-03-31',
     module: 'Information Security',
-    url: 'http://localhost:3015/risks/ur-018',
+    url: '/risks/ur-018',
   },
   {
     id: 'ur-019',
@@ -356,7 +356,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Jane HR',
     status: 'IN_PROGRESS',
     module: 'Information Security',
-    url: 'http://localhost:3015/risks/ur-019',
+    url: '/risks/ur-019',
   },
   {
     id: 'ur-020',
@@ -372,7 +372,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-06-30',
     module: 'Information Security',
-    url: 'http://localhost:3015/risks/ur-020',
+    url: '/risks/ur-020',
   },
 
   // AI risks (ISO 42001)
@@ -390,7 +390,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-03-01',
     module: 'AI Management',
-    url: 'http://localhost:3024/risks/ur-021',
+    url: '/risks/ur-021',
   },
   {
     id: 'ur-022',
@@ -406,7 +406,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'IN_PROGRESS',
     dueDate: '2026-04-15',
     module: 'AI Management',
-    url: 'http://localhost:3024/risks/ur-022',
+    url: '/risks/ur-022',
   },
   {
     id: 'ur-023',
@@ -421,7 +421,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Heidi AI',
     status: 'OPEN',
     module: 'AI Management',
-    url: 'http://localhost:3024/risks/ur-023',
+    url: '/risks/ur-023',
   },
   {
     id: 'ur-024',
@@ -437,7 +437,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-05-01',
     module: 'AI Management',
-    url: 'http://localhost:3024/risks/ur-024',
+    url: '/risks/ur-024',
   },
   {
     id: 'ur-025',
@@ -452,7 +452,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Heidi AI',
     status: 'MONITORING',
     module: 'AI Management',
-    url: 'http://localhost:3024/risks/ur-025',
+    url: '/risks/ur-025',
   },
 
   // Energy risks (ISO 50001)
@@ -470,7 +470,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-03-15',
     module: 'Energy Management',
-    url: 'http://localhost:3021/risks/ur-026',
+    url: '/risks/ur-026',
   },
   {
     id: 'ur-027',
@@ -486,7 +486,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     status: 'OPEN',
     dueDate: '2026-04-01',
     module: 'Energy Management',
-    url: 'http://localhost:3021/risks/ur-027',
+    url: '/risks/ur-027',
   },
   {
     id: 'ur-028',
@@ -501,7 +501,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Heidi Energy',
     status: 'IN_PROGRESS',
     module: 'Energy Management',
-    url: 'http://localhost:3021/risks/ur-028',
+    url: '/risks/ur-028',
   },
   {
     id: 'ur-029',
@@ -516,7 +516,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Heidi Energy',
     status: 'MONITORING',
     module: 'Energy Management',
-    url: 'http://localhost:3021/risks/ur-029',
+    url: '/risks/ur-029',
   },
   {
     id: 'ur-030',
@@ -531,7 +531,7 @@ const SEED_RISKS: UnifiedRisk[] = [
     owner: 'Karl Maintenance',
     status: 'MONITORING',
     module: 'Energy Management',
-    url: 'http://localhost:3021/risks/ur-030',
+    url: '/risks/ur-030',
   },
 ];
 
