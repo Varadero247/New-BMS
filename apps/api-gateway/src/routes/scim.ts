@@ -194,7 +194,7 @@ function scimAuth(req: Request, res: Response, next: NextFunction): void {
   }
 
   // Attach orgId to request for downstream use
-  (req as any).scimOrgId = validToken.orgId;
+  (req as Request & { scimOrgId?: string }).scimOrgId = validToken.orgId;
   next();
 }
 

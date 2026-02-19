@@ -27,7 +27,7 @@ const createControlSchema = z.object({
 const updateControlSchema = createControlSchema.partial();
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { status, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
@@ -84,7 +84,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const y = new Date().getFullYear();
     const c = await prisma.finControl.count({ where: { orgId } });
     const {

@@ -99,7 +99,7 @@ async function generateIncidentNumber(orgId: string): Promise<string> {
 // GET /api/incidents — all incidents
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { status, emergencyType, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId };
     if (status) where.status = status as any;
@@ -141,7 +141,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/incidents/active — currently active incidents ONLY (before /:id)
 router.get('/active', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.femEmergencyIncident.findMany({
       where: { organisationId: orgId, status: { in: ['ACTIVE', 'ELEVATED', 'CONTAINED'] } },
       include: {
@@ -170,7 +170,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const incidentNumber = await generateIncidentNumber(orgId);
     const data = await prisma.femEmergencyIncident.create({
       data: {
@@ -218,7 +218,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/incidents/:id — full incident with all logs
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.femEmergencyIncident.findFirst({
       where: { id: req.params.id, organisationId: orgId },
       include: {
@@ -252,7 +252,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femEmergencyIncident.findFirst({
       where: { id: req.params.id, organisationId: orgId },
     });
@@ -308,7 +308,7 @@ router.post('/:id/close', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: _parsed.error.errors[0].message },
       });
     const { lessonsLearned, rootCauseCategory, riddorReportable, riddorCategory } = _parsed.data;
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femEmergencyIncident.findFirst({
       where: { id: req.params.id, organisationId: orgId },
     });
@@ -364,7 +364,7 @@ router.post('/:id/decision', authenticate, async (req: Request, res: Response) =
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const existingOrgId = (req as any).user?.orgId || 'default';
+    const existingOrgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femEmergencyIncident.findFirst({
       where: { id: req.params.id, organisationId: existingOrgId },
     });
@@ -409,7 +409,7 @@ router.post('/:id/resource', authenticate, async (req: Request, res: Response) =
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const existingOrgId = (req as any).user?.orgId || 'default';
+    const existingOrgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femEmergencyIncident.findFirst({
       where: { id: req.params.id, organisationId: existingOrgId },
     });
@@ -454,7 +454,7 @@ router.post('/:id/communication', authenticate, async (req: Request, res: Respon
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const existingOrgId = (req as any).user?.orgId || 'default';
+    const existingOrgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femEmergencyIncident.findFirst({
       where: { id: req.params.id, organisationId: existingOrgId },
     });
@@ -500,7 +500,7 @@ router.post('/:id/timeline', authenticate, async (req: Request, res: Response) =
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const existingOrgId = (req as any).user?.orgId || 'default';
+    const existingOrgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femEmergencyIncident.findFirst({
       where: { id: req.params.id, organisationId: existingOrgId },
     });

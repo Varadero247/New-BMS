@@ -16,7 +16,7 @@ const assessSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.incIncident.findMany({
       where: { orgId, deletedAt: null, riddorReportable: 'YES' } as any,
       orderBy: { dateOccurred: 'desc' },

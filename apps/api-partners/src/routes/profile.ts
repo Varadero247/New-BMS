@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { PartnerRequest } from '../middleware/partner-auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
@@ -16,7 +17,7 @@ const updateSchema = z.object({
 // GET /api/profile
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -61,7 +62,7 @@ router.get('/', async (req: Request, res: Response) => {
 // PUT /api/profile
 router.put('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

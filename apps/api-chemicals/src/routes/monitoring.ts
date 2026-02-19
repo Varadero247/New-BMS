@@ -42,7 +42,7 @@ const updateMonitoringSchema = createMonitoringSchema.partial();
 // GET /api/monitoring/overdue — due monitoring not done
 router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.chemMonitoring.findMany({
       where: {
         nextMonitoringDue: { lte: new Date() },
@@ -65,7 +65,7 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
 // GET /api/monitoring/dashboard — WEL exceedance summary
 router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const [total, aboveWel, atWel, belowWel, overdue] = await Promise.all([
       prisma.chemMonitoring.count({ where: { chemical: { orgId, deletedAt: null } as any } }),
       prisma.chemMonitoring.count({
@@ -94,7 +94,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
 // GET /api/monitoring — all monitoring records
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { chemicalId, welResult, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (chemicalId) where.chemicalId = chemicalId as any;
@@ -140,7 +140,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     const d = parsed.data;
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
 
     const chemical = await prisma.chemRegister.findFirst({
       where: { id: d.chemicalId, orgId, deletedAt: null } as any,
@@ -190,7 +190,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemMonitoring.findFirst({
       where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
     });

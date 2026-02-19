@@ -65,7 +65,7 @@ router.get('/types', requireRole('ADMIN'), (_req: AuthRequest, res: Response) =>
 // GET /api/admin/reports/schedules — List schedules
 router.get('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const schedules = listSchedules(orgId);
 
     res.json({
@@ -99,7 +99,7 @@ router.post('/schedules', requireRole('ADMIN'), (req: AuthRequest, res: Response
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const schedule = createSchedule({ ...parsed.data, orgId });
 
     logger.info('Report schedule created', {

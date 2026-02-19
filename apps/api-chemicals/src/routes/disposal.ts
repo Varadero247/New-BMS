@@ -33,7 +33,7 @@ const updateDisposalSchema = createDisposalSchema.partial();
 // GET /api/disposal — all disposal records
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { chemicalId, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (chemicalId) where.chemicalId = chemicalId as any;
@@ -82,7 +82,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     const d = parsed.data;
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const chemical = await prisma.chemRegister.findFirst({
       where: { id: d.chemicalId, orgId, deletedAt: null } as any,
     });
@@ -116,7 +116,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemDisposal.findFirst({
       where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
     });

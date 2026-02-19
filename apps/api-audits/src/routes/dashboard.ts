@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('audits-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const where = { orgId, deletedAt: null };
     const [totalAudits, totalFindings, totalChecklists] = await Promise.all([
       prisma.audAudit.count({ where }),

@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { PartnerRequest } from '../middleware/partner-auth';
 import { createLogger } from '@ims/monitoring';
 import { portalPrisma } from '../prisma-portal';
 import { prisma } from '../prisma';
@@ -18,7 +19,7 @@ const TIER_HIERARCHY: Record<string, string[]> = {
 // GET /api/collateral — list accessible collateral
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -57,7 +58,7 @@ router.get('/', async (req: Request, res: Response) => {
 // GET /api/collateral/:id/download — track & return download URL
 router.get('/:id/download', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

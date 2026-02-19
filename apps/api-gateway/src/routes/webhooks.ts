@@ -41,7 +41,7 @@ const updateEndpointSchema = z.object({
 // GET /api/admin/webhooks — List all webhook endpoints
 router.get('/', (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const endpoints = listEndpoints(orgId);
 
     // Strip secrets from response
@@ -86,7 +86,7 @@ router.post('/', (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const endpoint = createEndpoint({
       orgId,
       ...parsed.data,
@@ -125,7 +125,7 @@ router.patch('/:id', (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     if (existing.orgId !== orgId) {
       return res.status(403).json({
         success: false,
@@ -174,7 +174,7 @@ router.delete('/:id', (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     if (existing.orgId !== orgId) {
       return res.status(403).json({
         success: false,
@@ -211,7 +211,7 @@ router.post('/:id/test', (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     if (existing.orgId !== orgId) {
       return res.status(403).json({
         success: false,
@@ -254,7 +254,7 @@ router.get('/:id/deliveries', (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     if (existing.orgId !== orgId) {
       return res.status(403).json({
         success: false,

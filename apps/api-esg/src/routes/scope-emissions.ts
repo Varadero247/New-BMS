@@ -28,7 +28,7 @@ const createSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { scope } = req.query as Record<string, string>;
     const where: Record<string, any> = { orgId, deletedAt: null };
     if (scope) {
@@ -58,7 +58,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const y = new Date().getFullYear();
     const c = await prisma.esgScopeEmission.count({ where: { orgId } });
     const {

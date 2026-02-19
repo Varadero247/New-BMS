@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -180,9 +180,9 @@ router.get('/:id', async (req: Request, res: Response) => {
 // PUT /:id — Update ticket
 // ---------------------------------------------------------------------------
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (req.params.id === 'resolve') return (res as any).next?.('route');
+    if (req.params.id === 'resolve') return next('route');
 
     const parsed = ticketUpdateSchema.safeParse(req.body);
     if (!parsed.success) {

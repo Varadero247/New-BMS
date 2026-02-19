@@ -82,7 +82,7 @@ router.post('/stripe', async (req: Request, res: Response) => {
         });
       }
 
-      const rawBody = (req as any).rawBody;
+      const rawBody = (req as Request & { rawBody?: Buffer }).rawBody;
       if (!rawBody) {
         logger.warn(
           'Raw body not available for Stripe signature verification — ensure raw body middleware is configured'

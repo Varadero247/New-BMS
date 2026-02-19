@@ -8,7 +8,7 @@ router.param('id', validateIdParam());
 const logger = createLogger('incidents-timeline');
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const incident = await prisma.incIncident.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });

@@ -38,7 +38,7 @@ const controlSchema = z.object({
 // POST /api/risks/:id/controls
 router.post('/:id/controls', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const risk = await prisma.riskRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -77,7 +77,7 @@ router.post('/:id/controls', authenticate, async (req: Request, res: Response) =
 // GET /api/risks/:id/controls
 router.get('/:id/controls', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const controls = await prisma.riskControl.findMany({
       where: { riskId: req.params.id, isActive: true, risk: { orgId } } as any,
       orderBy: { createdAt: 'desc' },
@@ -96,7 +96,7 @@ router.get('/:id/controls', authenticate, async (req: Request, res: Response) =>
 // PUT /api/risks/:riskId/controls/:id
 router.put('/:riskId/controls/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const parsed = controlSchema.partial().safeParse(req.body);
     if (!parsed.success)
       return res.status(400).json({
@@ -140,7 +140,7 @@ router.put('/:riskId/controls/:id', authenticate, async (req: Request, res: Resp
 // DELETE /api/risks/:riskId/controls/:id
 router.delete('/:riskId/controls/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.riskControl.findFirst({
       where: {
         id: req.params.id,
@@ -166,7 +166,7 @@ router.delete('/:riskId/controls/:id', authenticate, async (req: Request, res: R
 // POST /api/risks/:riskId/controls/:id/test
 router.post('/:riskId/controls/:id/test', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const testSchema = z.object({
       testingNotes: z.string().trim().optional(),
       effectiveness: z.enum(['STRONG', 'ADEQUATE', 'WEAK', 'NONE_EFFECTIVE']).optional(),

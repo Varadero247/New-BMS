@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('complaints-regulatory');
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.compComplaint.findMany({
       where: { orgId, deletedAt: null, isRegulatory: true } as any,
       orderBy: { createdAt: 'desc' },

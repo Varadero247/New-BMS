@@ -131,7 +131,7 @@ router.post('/', async (req: Request, res: Response) => {
         scheduledDate: parsed.data.scheduledDate ? new Date(parsed.data.scheduledDate) : null,
         dueDate: parsed.data.dueDate ? new Date(parsed.data.dueDate) : null,
         status: 'PLANNED',
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

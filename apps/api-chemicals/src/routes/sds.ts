@@ -100,7 +100,7 @@ const updateSdsSchema = createSdsSchema.partial();
 // GET /api/sds — all SDS records (org-wide)
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { chemical: { orgId, deletedAt: null } };
     if (status) where.status = status as any;
@@ -157,7 +157,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/sds/overdue — SDS past review date
 router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.chemSds.findMany({
       where: {
         status: 'CURRENT',
@@ -181,7 +181,7 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
 // GET /api/sds/:id — get single SDS
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.chemSds.findFirst({
       where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
       include: { chemical: true },
@@ -223,7 +223,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
 
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const chemical = await prisma.chemRegister.findFirst({
       where: { id: chemicalId, orgId, deletedAt: null } as any,
     });
@@ -260,7 +260,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemSds.findFirst({
       where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
     });

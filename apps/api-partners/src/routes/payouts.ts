@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { PartnerRequest } from '../middleware/partner-auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
@@ -16,7 +17,7 @@ const requestPayoutSchema = z.object({
 // GET /api/payouts
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -75,7 +76,7 @@ router.post('/request', async (req: Request, res: Response) => {
       });
     }
 
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

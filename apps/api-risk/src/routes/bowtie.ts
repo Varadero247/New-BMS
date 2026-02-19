@@ -70,7 +70,7 @@ router.get('/:id/bowtie', authenticate, async (req: Request, res: Response) => {
 // POST /api/risks/:id/bowtie
 router.post('/:id/bowtie', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const risk = await prisma.riskRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -124,7 +124,7 @@ router.post('/:id/bowtie', authenticate, async (req: Request, res: Response) => 
 // GET /api/risks/bowtie/all
 router.get('/bowtie/all', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const bowties = await prisma.riskBowtie.findMany({
       where: { risk: { orgId, deletedAt: null } } as any,
       include: {

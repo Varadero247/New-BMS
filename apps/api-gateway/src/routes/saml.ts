@@ -477,7 +477,7 @@ router.get(
   requireRole('ADMIN'),
   (req: AuthRequest, res: Response) => {
     try {
-      const orgId = (req.user as any)?.orgId || 'default';
+      const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
       const config = getConfigByOrgId(orgId);
 
       if (!config) {
@@ -541,7 +541,7 @@ router.post(
         });
       }
 
-      const orgId = (req.user as any)?.orgId || 'default';
+      const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
       const existing = getConfigByOrgId(orgId);
       const now = new Date().toISOString();
 
@@ -627,7 +627,7 @@ router.delete(
   requireRole('ADMIN'),
   (req: AuthRequest, res: Response) => {
     try {
-      const orgId = (req.user as any)?.orgId || 'default';
+      const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
       const config = getConfigByOrgId(orgId);
 
       if (!config) {

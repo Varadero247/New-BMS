@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -195,9 +195,9 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // GET /:id — Get by ID
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
+    if (RESERVED_PATHS.has(req.params.id)) return next('route');
 
     const gift = await (prisma as any).abGift.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
@@ -222,9 +222,9 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 // PUT /:id — Update
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
+    if (RESERVED_PATHS.has(req.params.id)) return next('route');
 
     const parsed = giftUpdateSchema.safeParse(req.body);
     if (!parsed.success) {

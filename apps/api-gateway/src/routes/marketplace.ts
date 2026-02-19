@@ -100,7 +100,7 @@ router.get('/plugins', async (req: AuthRequest, res: Response) => {
 
     const where: Record<string, unknown> = {
       deletedAt: null,
-      OR: [{ isPublic: true, status: 'PUBLISHED' }, { orgId: (req.user as any)?.organisationId }],
+      OR: [{ isPublic: true, status: 'PUBLISHED' }, { orgId: (req.user as { organisationId?: string; orgId?: string })?.organisationId }],
     };
     if (category) (where as any).category = category;
     if (search) (where as any).name = { contains: search, mode: 'insensitive' };
@@ -184,7 +184,7 @@ router.get('/plugins/:id', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       include: {
         versions: { orderBy: { publishedAt: 'desc' }, take: 10 },
-        installs: { where: { orgId: (req.user as any)?.organisationId } },
+        installs: { where: { orgId: (req.user as { organisationId?: string; orgId?: string })?.organisationId } },
       },
     });
 
@@ -224,7 +224,7 @@ router.post(
       }
 
       const plugin = await (prisma as any).mktPlugin.create({
-        data: { ...data, orgId: (req.user as any)?.organisationId },
+        data: { ...data, orgId: (req.user as { organisationId?: string; orgId?: string })?.organisationId },
       });
 
       res.status(201).json({ success: true, data: plugin });
@@ -373,7 +373,7 @@ router.post(
         });
       }
       const data = parsedInstall.data;
-      const orgId = (req.user as any)?.organisationId;
+      const orgId = (req.user as { organisationId?: string; orgId?: string })?.organisationId;
 
       const plugin = await (prisma as any).mktPlugin.findUnique({ where: { id: req.params.id } });
       if (!plugin || plugin.deletedAt) {
@@ -415,7 +415,7 @@ router.delete(
   requireRole('ADMIN', 'SUPER_ADMIN'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const orgId = (req.user as any)?.organisationId;
+      const orgId = (req.user as { organisationId?: string; orgId?: string })?.organisationId;
       await (prisma as any).mktPluginInstall.update({
         where: { pluginId_orgId: { pluginId: req.params.id, orgId } },
         data: { status: 'UNINSTALLED', uninstalledAt: new Date() },
@@ -442,7 +442,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = webhookSchema.parse(req.body);
-      const orgId = (req.user as any)?.organisationId;
+      const orgId = (req.user as { organisationId?: string; orgId?: string })?.organisationId;
       const secret = 'whsec_' + crypto.randomBytes(32).toString('hex');
 
       const subscription = await (prisma as any).mktWebhookSubscription.create({

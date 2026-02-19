@@ -106,7 +106,7 @@ router.post('/', async (req: Request, res: Response) => {
         referenceNumber,
         ...parsed.data,
         decision: parsed.data.decision || 'ON_HOLD',
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

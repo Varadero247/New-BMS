@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('ptw-conflicts');
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const active = await prisma.ptwPermit.findMany({
       where: { orgId, deletedAt: null, status: 'ACTIVE' } as any,
       select: {

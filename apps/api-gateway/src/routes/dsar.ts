@@ -31,7 +31,7 @@ const createSchema = z.object({
 // GET /api/admin/privacy/dsar — List DSAR requests
 router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const requests = listRequests(orgId);
 
     res.json({
@@ -65,7 +65,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const request = createRequest({
       orgId,
       type: parsed.data.type,

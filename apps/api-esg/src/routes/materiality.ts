@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
@@ -160,9 +160,9 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/materiality/:id
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
+    if (RESERVED_PATHS.has(req.params.id)) return next('route');
     const materiality = await prisma.esgMateriality.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,
     });

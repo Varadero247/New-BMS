@@ -7,7 +7,7 @@ const logger = createLogger('risk-dashboard');
 
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const where = { orgId, deletedAt: null };
     const openWhere = { ...where, status: { not: 'CLOSED' as const } };
 

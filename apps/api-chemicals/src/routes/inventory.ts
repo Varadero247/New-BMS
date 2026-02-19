@@ -37,7 +37,7 @@ const updateInventorySchema = createInventorySchema.partial();
 // GET /api/inventory/low-stock — items below min level
 router.get('/low-stock', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const items = await prisma.chemInventory.findMany({
       where: {
         isActive: true,
@@ -63,7 +63,7 @@ router.get('/low-stock', authenticate, async (req: Request, res: Response) => {
 // GET /api/inventory/expiring — expiring within N days
 router.get('/expiring', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const days = Math.min(365, Math.max(1, parseInt(req.query.days as string, 10) || 60));
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
@@ -90,7 +90,7 @@ router.get('/expiring', authenticate, async (req: Request, res: Response) => {
 // GET /api/inventory — all inventory locations
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { location, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = {
       isActive: true,
@@ -152,7 +152,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/inventory/:id — single inventory record
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.chemInventory.findFirst({
       where: { id: req.params.id, isActive: true, chemical: { orgId, deletedAt: null } },
       include: { chemical: true, usageRecords: { orderBy: { usedAt: 'desc' }, take: 20 } },
@@ -182,7 +182,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
 
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const chemical = await prisma.chemRegister.findFirst({
       where: { id: parsed.data.chemicalId, orgId, deletedAt: null } as any,
     });
@@ -239,7 +239,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemInventory.findFirst({
       where: { id: req.params.id, isActive: true, chemical: { orgId, deletedAt: null } },
     });
@@ -265,7 +265,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // POST /api/inventory/:id/inspect — record inspection
 router.post('/:id/inspect', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemInventory.findFirst({
       where: { id: req.params.id, isActive: true, chemical: { orgId, deletedAt: null } },
     });

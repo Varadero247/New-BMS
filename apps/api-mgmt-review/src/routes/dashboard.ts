@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('mgmt-review-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const where = { orgId, deletedAt: null };
     const [totalReviews] = await Promise.all([prisma.mgmtReview.count({ where })]);
     res.json({ success: true, data: { totalReviews } });

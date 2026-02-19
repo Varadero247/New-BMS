@@ -20,7 +20,7 @@ const createSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.esgDefraFactor.findMany({
       where: { orgId, deletedAt: null } as any,
       take: 2000,
@@ -44,7 +44,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { category, subcategory, activity, unit, factor, year, source, notes } = parsed.data;
     const data = await prisma.esgDefraFactor.create({
       data: {

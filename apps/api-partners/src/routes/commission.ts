@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { PartnerRequest } from '../middleware/partner-auth';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
 
@@ -8,7 +9,7 @@ const router = Router();
 // GET /api/commission/summary — commission overview
 router.get('/summary', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -64,7 +65,7 @@ router.get('/summary', async (req: Request, res: Response) => {
 // GET /api/commission/history — full commission history
 router.get('/history', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,
@@ -104,7 +105,7 @@ router.get('/history', async (req: Request, res: Response) => {
 // GET /api/commission/pending — deals with unpaid commission
 router.get('/pending', async (req: Request, res: Response) => {
   try {
-    const partnerId = (req as any).partner?.id;
+    const partnerId = (req as PartnerRequest).partner?.id;
     if (!partnerId) {
       return res.status(401).json({
         success: false,

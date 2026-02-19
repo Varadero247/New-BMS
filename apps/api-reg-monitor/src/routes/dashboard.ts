@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('reg-monitor-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const where = { orgId, deletedAt: null };
     const [totalChanges, totalLegalItems, totalObligations] = await Promise.all([
       prisma.regChange.count({ where }),

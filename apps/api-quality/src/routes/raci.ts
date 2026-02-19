@@ -143,7 +143,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         referenceNumber,
         ...parsed.data,
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

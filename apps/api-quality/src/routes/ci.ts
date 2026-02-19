@@ -182,7 +182,7 @@ router.post('/', async (req: Request, res: Response) => {
         ...parsed.data,
         targetDate: parsed.data.targetDate ? new Date(parsed.data.targetDate) : null,
         status: 'IDEA',
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

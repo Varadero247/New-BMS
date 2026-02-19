@@ -203,7 +203,7 @@ function autoCalculateFields(data: unknown): Record<string, unknown> {
 // GET /api/risks/register — full register export
 router.get('/register', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { page = '1', limit = '50' } = req.query as Record<string, string>;
     const skip =
       (Math.max(1, parseInt(page, 10) || 1) - 1) * Math.max(1, parseInt(limit, 10) || 20);
@@ -244,7 +244,7 @@ router.get('/register', authenticate, async (req: Request, res: Response) => {
 // GET /api/risks/heatmap
 router.get('/heatmap', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { category, owner, sourceModule: sm } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null, status: { not: 'CLOSED' } };
     if (category) where.category = category as any;
@@ -297,7 +297,7 @@ router.get('/heatmap', authenticate, async (req: Request, res: Response) => {
 // GET /api/risks/overdue-review
 router.get('/overdue-review', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const risks = await prisma.riskRegister.findMany({
       where: {
         orgId,
@@ -330,7 +330,7 @@ router.get('/overdue-review', authenticate, async (req: Request, res: Response) 
 // GET /api/risks/exceeds-appetite
 router.get('/exceeds-appetite', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const risks = await prisma.riskRegister.findMany({
       where: {
         orgId,
@@ -363,7 +363,7 @@ router.get('/exceeds-appetite', authenticate, async (req: Request, res: Response
 // GET /api/risks/by-category
 router.get('/by-category', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const raw = await prisma.riskRegister.groupBy({
       by: ['category'],
       where: { orgId, deletedAt: null } as any,
@@ -388,7 +388,7 @@ router.get('/by-category', authenticate, async (req: Request, res: Response) => 
 // GET /api/risks/aggregate
 router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { groupBy = 'category' } = req.query as Record<string, string>;
     const validFields = ['category', 'department', 'sourceModule', 'aggregationGroup', 'status'];
     const field = validFields.includes(groupBy) ? groupBy : 'category';
@@ -416,7 +416,7 @@ router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
 // POST /api/risks/from-coshh/:coshhId
 router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const crossModuleSchema = z
       .object({
         id: z.string().trim().min(1, 'id is required'),
@@ -453,7 +453,7 @@ router.post('/from-coshh/:coshhId', authenticate, async (req: Request, res: Resp
 // POST /api/risks/from-fra/:fraId
 router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const fraSchema = z
       .object({
         id: z.string().trim().min(1, 'id is required'),
@@ -490,7 +490,7 @@ router.post('/from-fra/:fraId', authenticate, async (req: Request, res: Response
 // POST /api/risks/from-incident/:id
 router.post('/from-incident/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const incidentSchema = z
       .object({
         id: z.string().trim().min(1, 'id is required'),
@@ -527,7 +527,7 @@ router.post('/from-incident/:id', authenticate, async (req: Request, res: Respon
 // POST /api/risks/from-audit/:id
 router.post('/from-audit/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const auditSchema = z
       .object({ id: z.string().trim().optional(), title: z.string().trim().optional() })
       .passthrough();
@@ -569,7 +569,7 @@ router.post('/from-audit/:id', authenticate, async (req: Request, res: Response)
 // GET /api/risks — list all with filters
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const {
       status,
       search,
@@ -629,7 +629,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/risks/:id — get risk with all relations
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.riskRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
       include: {
@@ -665,7 +665,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const referenceNumber = await generateRef(orgId);
     const calculated = autoCalculateFields(parsed.data);
     // Auto-check appetite status if we have residual score and appetite statements
@@ -715,7 +715,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.riskRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -761,7 +761,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // DELETE /api/risks/:id — soft delete
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.riskRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });

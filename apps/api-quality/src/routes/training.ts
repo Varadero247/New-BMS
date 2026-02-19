@@ -246,7 +246,7 @@ router.post('/', async (req: Request, res: Response) => {
         assignedDate: new Date(parsed.data.assignedDate),
         dueDate: new Date(parsed.data.dueDate),
         status: 'ASSIGNED',
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

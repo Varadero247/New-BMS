@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('documents-search');
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { q } = req.query as Record<string, string>;
     if (!q) return res.json({ success: true, data: [] });
     const data = await prisma.docDocument.findMany({

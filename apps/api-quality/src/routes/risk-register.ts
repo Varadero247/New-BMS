@@ -237,7 +237,7 @@ router.post('/', async (req: Request, res: Response) => {
         reviewDate: parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null,
         nextReviewDate: parsed.data.nextReviewDate ? new Date(parsed.data.nextReviewDate) : null,
         status: 'OPEN',
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('risk-treatments');
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const risks = await prisma.riskRegister.findMany({
       where: { orgId, deletedAt: null } as any,
       select: { treatment: true },

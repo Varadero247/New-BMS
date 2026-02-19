@@ -77,7 +77,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
     // Hash with bcrypt cost 10
     const keyHash = await bcrypt.hash(fullKey, 10);
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
 
     const record: ApiKeyRecord = {
       id: uuidv4(),
@@ -130,7 +130,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
 // GET /api/admin/api-keys — List all API keys (never returns the full key)
 router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const keys = Array.from(apiKeyStore.values())
       .filter((k) => k.orgId === orgId)
       .map((k) => ({

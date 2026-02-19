@@ -31,7 +31,7 @@ router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const accepted = hasAcceptedDpa(orgId);
 
     res.json({
@@ -67,7 +67,7 @@ router.post('/accept', requireRole('ADMIN'), (req: AuthRequest, res: Response) =
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
 
     if (hasAcceptedDpa(orgId)) {
       return res.status(409).json({
@@ -112,7 +112,7 @@ router.post('/accept', requireRole('ADMIN'), (req: AuthRequest, res: Response) =
 // GET /api/admin/dpa/acceptance — Get acceptance status for the org
 router.get('/acceptance', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const acceptance = getDpaAcceptance(orgId);
 
     res.json({

@@ -21,7 +21,7 @@ const createIr35Schema = z.object({
 });
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.finIr35Assessment.findMany({
       where: { orgId, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
@@ -42,7 +42,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const y = new Date().getFullYear();
     const c = await prisma.finIr35Assessment.count({ where: { orgId } });
     const {

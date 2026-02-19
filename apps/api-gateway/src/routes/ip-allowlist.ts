@@ -37,7 +37,7 @@ const addCidrSchema = z.object({
 // GET /api/admin/ip-allowlist — List allowed CIDRs for current org
 router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const entries = getOrgAllowlist(orgId);
 
     res.json({
@@ -71,7 +71,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const { cidr, label } = parsed.data;
 
     // Ensure CIDR has a prefix length
@@ -108,7 +108,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
 // DELETE /api/admin/ip-allowlist/:id — Remove an allowlist entry
 router.delete('/:id', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const { id } = req.params;
 
     const removed = removeOrgAllowlistEntry(orgId, id);

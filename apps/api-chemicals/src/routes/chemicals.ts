@@ -101,7 +101,7 @@ const updateChemicalSchema = createChemicalSchema.partial();
 // GET /api/chemicals/alerts/expiry — SDS and stock expiry alerts
 router.get('/alerts/expiry', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const days = Math.min(365, Math.max(1, parseInt(req.query.days as string, 10) || 60));
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
@@ -141,7 +141,7 @@ router.get('/alerts/expiry', authenticate, async (req: Request, res: Response) =
 // GET /api/chemicals/alerts/incompatible — incompatibility conflicts by location
 router.get('/alerts/incompatible', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const alerts = await prisma.chemIncompatAlert.findMany({
       where: { isActive: true, chemical: { orgId, isActive: true, deletedAt: null } as any },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
@@ -161,7 +161,7 @@ router.get('/alerts/incompatible', authenticate, async (req: Request, res: Respo
 // GET /api/chemicals — list all chemicals
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const {
       search,
       riskLevel,
@@ -222,7 +222,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/chemicals/:id — get single chemical
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.chemRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
       include: {
@@ -260,7 +260,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const d = parsed.data;
 
     // Auto-set CMR and health surveillance flags
@@ -295,7 +295,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -328,7 +328,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // DELETE /api/chemicals/:id — soft delete
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });

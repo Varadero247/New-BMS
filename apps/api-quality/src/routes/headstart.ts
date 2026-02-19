@@ -1689,7 +1689,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     const { standards, industry, organisationSize, certificationStatus, organisationName } =
       parsed.data;
     const userId = req.user!.id;
-    const orgId = (req.user as any)!.organisationId || 'default';
+    const orgId = (req.user as Record<string, unknown>)!.organisationId || 'default';
 
     // Build headstart pack for each selected standard
     const standardPacks = standards
@@ -1825,7 +1825,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const items = Array.from(headstartStore.values())
-      .filter((a) => a.organisationId === ((req.user as any)!.organisationId || 'default'))
+      .filter((a) => a.organisationId === ((req.user as Record<string, unknown>)!.organisationId || 'default'))
       .sort((a, b) => new Date(b.generatedAt).getTime() - new Date(a.generatedAt).getTime());
 
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
@@ -1890,7 +1890,7 @@ router.get('/:id', scopeToUser, async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (assessment.organisationId !== ((req.user as any)!.organisationId || 'default')) {
+    if (assessment.organisationId !== ((req.user as Record<string, unknown>)!.organisationId || 'default')) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Access denied' },

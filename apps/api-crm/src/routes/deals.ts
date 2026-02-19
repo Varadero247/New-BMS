@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -349,8 +349,8 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /:id — Deal detail
-router.get('/:id', async (req: Request, res: Response) => {
-  if (RESERVED_PATHS.has(req.params.id)) return (res as any).next('route');
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const deal = await prisma.crmDeal.findFirst({
       where: { id: req.params.id, deletedAt: null } as any,

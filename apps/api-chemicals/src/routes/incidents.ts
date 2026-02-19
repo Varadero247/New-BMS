@@ -45,7 +45,7 @@ const updateIncidentSchema = createIncidentSchema.partial();
 // GET /api/incidents — all chemical incidents
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const {
       type,
       severity,
@@ -106,7 +106,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/incidents/:id — single incident
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.chemIncident.findFirst({
       where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
       include: { chemical: true },
@@ -134,7 +134,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const d = parsed.data;
 
     const chemical = await prisma.chemRegister.findFirst({
@@ -167,7 +167,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemIncident.findFirst({
       where: { id: req.params.id, chemical: { orgId, deletedAt: null } },
     });

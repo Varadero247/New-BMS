@@ -56,8 +56,8 @@ router.get('/stats', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
     const orgFilter: Record<string, unknown> = {};
-    if ((authReq.user as any)?.organisationId) {
-      orgFilter.organisationId = (authReq.user as any).organisationId;
+    if ((authReq.user as { organisationId?: string })?.organisationId) {
+      orgFilter.organisationId = (authReq.user as { organisationId?: string }).organisationId;
     }
 
     const [totalEntries, actionCounts, recentEntries, topUsers] = await Promise.all([
@@ -223,7 +223,7 @@ router.post('/', async (req: Request, res: Response) => {
         userId: authReq.user?.id || 'system',
         userName: authReq.user?.email || 'system',
         ipAddress: req.ip || null,
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
       },
     });
 

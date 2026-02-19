@@ -15,7 +15,7 @@ const generateSchema = z.object({
 
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.esgReport.findMany({
       where: { orgId, deletedAt: null } as any,
       orderBy: { createdAt: 'desc' },
@@ -39,7 +39,7 @@ router.post('/generate', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     }
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const y = new Date().getFullYear();
     const c = await prisma.esgReport.count({ where: { orgId } as any });
     const { title, framework, period } = parsed.data;

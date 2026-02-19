@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('ptw-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const where = { orgId, deletedAt: null };
     const [totalPermits, totalMethodStatements, totalToolboxTalks] = await Promise.all([
       prisma.ptwPermit.count({ where }),

@@ -151,7 +151,7 @@ router.post('/', async (req: Request, res: Response) => {
         metadata: (parsed.data.metadata ?? undefined) as any,
         status: 'PENDING',
         createdBy: authReq.user?.id || 'system',
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
       },
     });
 

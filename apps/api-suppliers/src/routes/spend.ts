@@ -28,7 +28,7 @@ async function generateRef(orgId: string): Promise<string> {
 }
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { status, search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { orgId, deletedAt: null };
     if (status) where.status = status;
@@ -68,7 +68,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 });
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.suppSpend.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -93,7 +93,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { supplierId, period, amount, currency, category, poNumber, notes } = parsed.data;
     const data = await prisma.suppSpend.create({
       data: {
@@ -125,7 +125,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.suppSpend.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -149,7 +149,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 });
 router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.suppSpend.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });

@@ -28,7 +28,7 @@ const actionSchema = z.object({
 // GET /api/risks/:id/actions
 router.get('/:id/actions', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const actions = await prisma.riskAction.findMany({
       where: { riskId: req.params.id, risk: { orgId } } as any,
       orderBy: { targetDate: 'asc' },
@@ -47,7 +47,7 @@ router.get('/:id/actions', authenticate, async (req: Request, res: Response) => 
 // POST /api/risks/:id/actions
 router.post('/:id/actions', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const risk = await prisma.riskRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -76,7 +76,7 @@ router.post('/:id/actions', authenticate, async (req: Request, res: Response) =>
 // PUT /api/risks/:riskId/actions/:id
 router.put('/:riskId/actions/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const parsed = actionSchema.partial().safeParse(req.body);
     if (!parsed.success)
       return res.status(400).json({
@@ -111,7 +111,7 @@ router.put('/:riskId/actions/:id', authenticate, async (req: Request, res: Respo
 // POST /api/risks/:riskId/actions/:id/complete
 router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const completeSchema = z.object({
       evidenceOfCompletion: z.string().trim().optional(),
       effectiveness: z.string().trim().optional(),
@@ -151,7 +151,7 @@ router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, 
 // GET /api/risks/actions/overdue
 router.get('/actions/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const actions = await prisma.riskAction.findMany({
       where: {
         status: { in: ['OPEN', 'IN_PROGRESS'] },
@@ -177,7 +177,7 @@ router.get('/actions/overdue', authenticate, async (req: Request, res: Response)
 // GET /api/risks/actions/due-soon
 router.get('/actions/due-soon', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const twoWeeks = new Date();
     twoWeeks.setDate(twoWeeks.getDate() + 14);
     const actions = await prisma.riskAction.findMany({

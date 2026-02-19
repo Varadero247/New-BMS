@@ -66,7 +66,7 @@ async function generateFraRef(orgId: string): Promise<string> {
 // GET /api/fra — all FRAs with filter
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { status, premisesId, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId, deletedAt: null };
     if (status) where.assessmentStatus = status as any;
@@ -105,7 +105,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/fra/overdue — FRAs past review date (MUST be before /:id)
 router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.femFireRiskAssessment.findMany({
       where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: new Date() } as any },
       include: { premises: { select: { name: true } } },
@@ -131,7 +131,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const referenceNumber = await generateFraRef(orgId);
     const overallRiskScore = calculateRiskScore(
       parsed.data.likelihoodRating,
@@ -169,7 +169,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/fra/:id — get full FRA
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.femFireRiskAssessment.findFirst({
       where: { id: req.params.id, organisationId: orgId, deletedAt: null } as any,
       include: { premises: true },
@@ -196,7 +196,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femFireRiskAssessment.findFirst({
       where: { id: req.params.id, organisationId: orgId, deletedAt: null } as any,
     });
@@ -238,7 +238,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // POST /api/fra/:id/approve — approve and sign off
 router.post('/:id/approve', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femFireRiskAssessment.findFirst({
       where: { id: req.params.id, organisationId: orgId, deletedAt: null } as any,
     });
@@ -268,7 +268,7 @@ router.post('/:id/approve', authenticate, async (req: Request, res: Response) =>
 // GET /api/fra/:id/action-plan — just the action plan items
 router.get('/:id/action-plan', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.femFireRiskAssessment.findFirst({
       where: { id: req.params.id, organisationId: orgId, deletedAt: null } as any,
       select: { id: true, referenceNumber: true, actionPlan: true, overallRiskLevel: true },

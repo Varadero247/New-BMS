@@ -165,7 +165,7 @@ router.post('/', async (req: Request, res: Response) => {
         ...parsed.data,
         measurementDate: parsed.data.measurementDate ? new Date(parsed.data.measurementDate) : null,
         status: 'NOT_MEASURED',
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

@@ -8,7 +8,7 @@ router.get('/profile', authenticate, async (req: Request, res: Response) => {
   try {
     const supplier = await prisma.suppSupplier.findFirst({
       where: {
-        orgId: ((req as AuthRequest).user as any)?.orgId || 'default',
+        orgId: ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default',
         email: (req as AuthRequest).user?.email,
         deletedAt: null,
       } as any,

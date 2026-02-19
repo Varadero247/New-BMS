@@ -9,7 +9,7 @@ const logger = createLogger('chem-analytics');
 // GET /api/analytics/dashboard — comprehensive dashboard data
 router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const baseWhere = { orgId, isActive: true, deletedAt: null };
 
     const [

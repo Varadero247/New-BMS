@@ -118,7 +118,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: parsed.data.status || 'IN_TRAINING',
         assessmentDate: parsed.data.assessmentDate ? new Date(parsed.data.assessmentDate) : null,
         nextReviewDate: parsed.data.nextReviewDate ? new Date(parsed.data.nextReviewDate) : null,
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

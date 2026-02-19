@@ -127,7 +127,7 @@ router.post('/', async (req: Request, res: Response) => {
           ? new Date(parsed.data.nextCalibrationDate)
           : null,
         status: 'CURRENT',
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },
     });

@@ -99,7 +99,7 @@ async function generateCoshhRef(orgId: string): Promise<string> {
 // GET /api/coshh/due-review — assessments due for review
 router.get('/due-review', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const days = Math.min(365, Math.max(1, parseInt(req.query.days as string, 10) || 30));
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
@@ -122,7 +122,7 @@ router.get('/due-review', authenticate, async (req: Request, res: Response) => {
 // GET /api/coshh — all COSHH assessments (org-wide)
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const {
       status,
       riskLevel,
@@ -184,7 +184,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/coshh/:id — single COSHH assessment
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.chemCoshh.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
       include: { chemical: true, exposureMonitoring: true },
@@ -213,7 +213,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const d = parsed.data;
 
     const chemical = await prisma.chemRegister.findFirst({
@@ -267,7 +267,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemCoshh.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -315,7 +315,7 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     const { role, name } = parsed.data;
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemCoshh.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });

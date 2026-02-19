@@ -91,7 +91,7 @@ function serializeCert(cert: IsoCertificate) {
 // GET /api/admin/certifications — List certificates with readiness scores
 router.get('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || '00000000-0000-0000-0000-000000000001';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || '00000000-0000-0000-0000-000000000001';
     const certs = listCertificates(orgId);
 
     const data = certs.map((cert) => {
@@ -136,7 +136,7 @@ router.post('/', requireRole('ADMIN'), (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || '00000000-0000-0000-0000-000000000001';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || '00000000-0000-0000-0000-000000000001';
     const data = parsed.data;
 
     const cert = createCertificate({
@@ -267,7 +267,7 @@ router.get('/:id/readiness', requireRole('ADMIN'), (req: AuthRequest, res: Respo
       });
     }
 
-    const orgId = (req.user as any)?.orgId || '00000000-0000-0000-0000-000000000001';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || '00000000-0000-0000-0000-000000000001';
     const readiness = calculateReadinessScore(orgId, cert.standard);
 
     res.json({

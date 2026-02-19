@@ -43,7 +43,7 @@ const updatePremisesSchema = createPremisesSchema.partial();
 // GET /api/premises — list all premises
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { search, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId };
     if (search) where.name = { contains: search, mode: 'insensitive' };
@@ -96,7 +96,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.femPremises.create({
       data: { ...parsed.data, organisationId: orgId },
     });
@@ -113,7 +113,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/premises/:id — get with all related data
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.femPremises.findFirst({
       where: { id: req.params.id, organisationId: orgId },
       include: {
@@ -151,7 +151,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femPremises.findFirst({
       where: { id: req.params.id, organisationId: orgId },
     });

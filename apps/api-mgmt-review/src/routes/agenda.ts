@@ -27,7 +27,7 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
       });
     }
 
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const review = await prisma.mgmtReview.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });

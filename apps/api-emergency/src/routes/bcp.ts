@@ -81,7 +81,7 @@ async function generateBcpRef(orgId: string): Promise<string> {
 // GET /api/bcp — all BCPs
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const { status, page = '1', limit = '20' } = req.query as Record<string, string>;
     const where: Record<string, unknown> = { organisationId: orgId };
     if (status) where.status = status as any;
@@ -118,7 +118,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 // GET /api/bcp/due-review — BCPs approaching review date (before /:id)
 router.get('/due-review', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const data = await prisma.femBusinessContinuityPlan.findMany({
       where: { organisationId: orgId, reviewDate: { lt: thirtyDaysFromNow } },
@@ -144,7 +144,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = (req as any).user?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const planReference = await generateBcpRef(orgId);
     const { reviewDate, biaCompletedDate, ...rest } = parsed.data;
     const data = await prisma.femBusinessContinuityPlan.create({
@@ -196,7 +196,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femBusinessContinuityPlan.findFirst({
       where: { id: req.params.id, organisationId: orgId },
     });
@@ -225,7 +225,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
 // POST /api/bcp/:id/activate — activate BCP
 router.post('/:id/activate', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femBusinessContinuityPlan.findFirst({
       where: { id: req.params.id, organisationId: orgId },
     });
@@ -267,7 +267,7 @@ router.post('/:id/exercise', authenticate, async (req: Request, res: Response) =
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femBusinessContinuityPlan.findFirst({
       where: { id: req.params.id, organisationId: orgId },
     });
@@ -325,7 +325,7 @@ router.put('/:bcpId/exercise/:id', authenticate, async (req: Request, res: Respo
     const existing = await prisma.femBcpExercise.findFirst({
       where: {
         id: req.params.id,
-        bcp: { organisationId: ((req as any).user as any)?.orgId || 'default' },
+        bcp: { organisationId: ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default' },
       },
     });
     if (!existing)

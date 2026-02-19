@@ -18,7 +18,7 @@ router.use(authenticate);
 // GET /api/admin/automation-rules — List all rules with enabled status
 router.get('/', (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const rules = listRules(orgId);
 
     logger.info('Listed automation rules', { orgId, count: rules.length });
@@ -40,7 +40,7 @@ router.get('/', (req: AuthRequest, res: Response) => {
 router.post('/:id/enable', (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
 
     const rule = getRuleById(id);
     if (!rule) {
@@ -70,7 +70,7 @@ router.post('/:id/enable', (req: AuthRequest, res: Response) => {
 router.post('/:id/disable', (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
 
     const rule = getRuleById(id);
     if (!rule) {
@@ -100,7 +100,7 @@ router.post('/:id/disable', (req: AuthRequest, res: Response) => {
 router.get('/:id/log', (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 50));
 
     const rule = getRuleById(id);

@@ -9,7 +9,7 @@ const logger = createLogger('risk-analytics');
 // GET /api/risks/analytics/dashboard
 router.get('/analytics/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const baseWhere = { orgId, deletedAt: null };
 
     const [
@@ -172,7 +172,7 @@ router.get('/analytics/dashboard', authenticate, async (req: Request, res: Respo
 // GET /api/risks/analytics/by-module
 router.get('/analytics/by-module', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const raw = await prisma.riskRegister.groupBy({
       by: ['sourceModule'],
       where: { orgId, deletedAt: null, status: { not: 'CLOSED' } as any },

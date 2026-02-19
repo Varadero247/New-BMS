@@ -306,7 +306,7 @@ router.get('/feature-flags/check', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const orgId = (req.user as any)?.orgId || undefined;
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || undefined;
     const enabled = await isEnabled(parsed.data.name, orgId);
 
     res.json({
@@ -327,7 +327,7 @@ router.get('/feature-flags/check', async (req: AuthRequest, res: Response) => {
 // GET /api/feature-flags — Get all flags for current org
 router.get('/feature-flags', async (req: AuthRequest, res: Response) => {
   try {
-    const orgId = (req.user as any)?.orgId || undefined;
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || undefined;
     const flags = await getAll(orgId);
 
     res.json({ success: true, data: flags });

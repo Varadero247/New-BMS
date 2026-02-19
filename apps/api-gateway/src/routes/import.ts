@@ -123,7 +123,7 @@ router.post('/execute', requireRole('ADMIN'), (req: AuthRequest, res: Response) 
     }
 
     const { rows, recordType } = parsed.data;
-    const orgId = (req.user as any)?.orgId || 'default';
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
 
     const result = importRecords(rows as any[], recordType, orgId);
 

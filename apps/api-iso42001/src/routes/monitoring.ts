@@ -63,8 +63,8 @@ router.get('/dashboard', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
     const where: Record<string, unknown> = { deletedAt: null };
-    if ((authReq.user as any)?.organisationId)
-      where.organisationId = (authReq.user as any).organisationId;
+    if ((authReq.user as { organisationId?: string })?.organisationId)
+      where.organisationId = (authReq.user as { organisationId?: string }).organisationId;
 
     const [total, normal, warning, alert, critical, byMetricType, recent] = await Promise.all([
       prisma.aiMonitoring.count({ where }),
@@ -238,7 +238,7 @@ router.post('/', async (req: Request, res: Response) => {
           ? new Date(parsed.data.measurementDate)
           : new Date(),
         status: status as any,
-        organisationId: (authReq.user as any)?.organisationId || 'default',
+        organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       } as any,
     });

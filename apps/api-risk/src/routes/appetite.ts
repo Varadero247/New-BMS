@@ -78,7 +78,7 @@ const frameworkSchema = z.object({
 // GET /api/risks/appetite
 router.get('/appetite', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const statements = await prisma.riskAppetiteStatement.findMany({
       where: { isActive: true, OR: [{ organisationId: orgId }, { organisationId: null }] },
       orderBy: { category: 'asc' },
@@ -104,7 +104,7 @@ router.post('/appetite', authenticate, async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
     const orgId =
-      parsed.data.organisationId || ((req as AuthRequest).user as any)?.orgId || 'default';
+      parsed.data.organisationId || ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.riskAppetiteStatement.findFirst({
       where: { category: parsed.data.category, organisationId: orgId },
     });
@@ -140,7 +140,7 @@ router.post('/appetite', authenticate, async (req: Request, res: Response) => {
 // GET /api/risks/framework
 router.get('/framework', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const framework = await prisma.riskFramework.findUnique({ where: { organisationId: orgId } });
     res.json({ success: true, data: framework });
   } catch (error: unknown) {
@@ -161,7 +161,7 @@ router.put('/framework', authenticate, async (req: Request, res: Response) => {
         success: false,
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message },
       });
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.riskFramework.findUnique({ where: { organisationId: orgId } });
     let framework;
     if (existing) {

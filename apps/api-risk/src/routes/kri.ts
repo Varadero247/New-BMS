@@ -43,7 +43,7 @@ function evaluateKriStatus(kri: Record<string, unknown>, value: number): string 
 // GET /api/risks/:id/kri
 router.get('/:id/kri', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const kris = await prisma.riskKri.findMany({
       where: { riskId: req.params.id, isActive: true, risk: { orgId } } as any,
       include: { readings: { orderBy: { recordedAt: 'desc' }, take: 10 } },
@@ -60,7 +60,7 @@ router.get('/:id/kri', authenticate, async (req: Request, res: Response) => {
 // POST /api/risks/:id/kri
 router.post('/:id/kri', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const risk = await prisma.riskRegister.findFirst({
       where: { id: req.params.id, orgId, deletedAt: null } as any,
     });
@@ -87,7 +87,7 @@ router.post('/:id/kri', authenticate, async (req: Request, res: Response) => {
 // PUT /api/risks/:riskId/kri/:id
 router.put('/:riskId/kri/:id', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const parsed = kriSchema.partial().safeParse(req.body);
     if (!parsed.success)
       return res.status(400).json({
@@ -119,7 +119,7 @@ router.put('/:riskId/kri/:id', authenticate, async (req: Request, res: Response)
 // POST /api/risks/:riskId/kri/:id/reading
 router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const readingSchema = z.object({
       value: z.number({ required_error: 'value is required' }),
       notes: z.string().trim().optional(),
@@ -174,7 +174,7 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
 // GET /api/risks/kri/breaches
 router.get('/kri/breaches', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const kris = await prisma.riskKri.findMany({
       where: {
         isActive: true,
@@ -200,7 +200,7 @@ router.get('/kri/breaches', authenticate, async (req: Request, res: Response) =>
 // GET /api/risks/kri/due
 router.get('/kri/due', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as any).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const nextWeek = new Date();
     nextWeek.setDate(nextWeek.getDate() + 7);
     const kris = await prisma.riskKri.findMany({

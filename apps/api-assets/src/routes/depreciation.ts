@@ -6,7 +6,7 @@ const router = Router();
 const logger = createLogger('assets-depreciation');
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
-    const orgId = ((req as AuthRequest).user as any)?.orgId || 'default';
+    const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const assets = await prisma.assetRegister.findMany({
       where: { orgId, deletedAt: null, purchaseCost: { not: null } as any },
       select: { id: true, name: true, purchaseCost: true, currentValue: true, purchaseDate: true },
