@@ -95,7 +95,7 @@ router.get('/low-stock', async (req: Request, res: Response) => {
 // GET / — List parts
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { category, lowStock, search } = req.query;
+    const { category, search } = req.query;
     const page = parseIntParam(req.query.page, 1);
     const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;

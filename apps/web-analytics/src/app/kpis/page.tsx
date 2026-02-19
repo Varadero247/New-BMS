@@ -9,7 +9,6 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Target,
   XCircle,
 } from 'lucide-react';
 import { api } from '@/lib/api';

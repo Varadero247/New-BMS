@@ -5,7 +5,6 @@ import {
   FileText,
   CheckCircle,
   Search,
-  Filter,
   Eye,
   Lock,
   Edit3 } from 'lucide-react';
@@ -268,7 +267,7 @@ export default function DocumentsClient() {
     return matchesStatus && matchesType && matchesSearch;
   });
 
-  const projects = [...new Set(documents.map((d) => d.project))];
+  const _projects = [...new Set(documents.map((d) => d.project))];
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">

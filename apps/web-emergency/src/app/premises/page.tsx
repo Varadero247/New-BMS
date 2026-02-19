@@ -37,7 +37,7 @@ const PREMISES_TYPES = [
   'OTHER',
 ] as const;
 
-const FRA_STATUSES = ['CURRENT', 'ACTION_REQUIRED', 'OVERDUE', 'NOT_COMPLETED'] as const;
+const _FRA_STATUSES = ['CURRENT', 'ACTION_REQUIRED', 'OVERDUE', 'NOT_COMPLETED'] as const;
 
 interface Premises {
   id: string;

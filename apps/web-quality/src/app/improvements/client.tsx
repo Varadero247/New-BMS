@@ -141,7 +141,7 @@ const statusColors: Record<string, string> = {
   IMPLEMENTED: 'bg-green-100 text-green-700',
   BENEFITS_REALISED: 'bg-emerald-100 text-emerald-800' };
 
-const statusBadgeVariant = (
+const _statusBadgeVariant = (
   status: string
 ): 'secondary' | 'info' | 'default' | 'warning' | 'success' => {
   switch (status) {

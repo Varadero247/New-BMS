@@ -10,7 +10,7 @@ import {
   Trash2,
   Plus,
   Zap,
-  Gauge } from 'lucide-react';
+  } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Alert {

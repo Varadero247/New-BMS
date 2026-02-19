@@ -55,7 +55,7 @@ export default function MyProfilePage() {
 
   async function loadProfile() {
     try {
-      const [profileRes, permRes] = await Promise.all([
+      const [profileRes, _permRes] = await Promise.all([
         api.get('/api/users/me').catch(() => null),
         api.post('/api/roles/resolve', { roles: [] }).catch(() => null),
       ]);

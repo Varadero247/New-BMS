@@ -8,7 +8,6 @@ import {
   Badge,
   Modal,
   ModalFooter,
-  Textarea,
   Table,
   TableHeader,
   TableBody,

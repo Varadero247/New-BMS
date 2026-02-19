@@ -61,7 +61,7 @@ export default function MonitoringPage() {
       ]);
       setItems(monRes.data.data || []);
       setCcps(ccpRes.data.data || []);
-    } catch (e) {
+    } catch {
       console.error(e);
     } finally {
       setLoading(false);
@@ -98,7 +98,7 @@ export default function MonitoringPage() {
     try {
       await api.delete(`/monitoring/${id}`);
       load();
-    } catch (e: any) {
+    } catch {
       alert('Failed');
     }
   }

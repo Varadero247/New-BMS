@@ -1,4 +1,4 @@
-import { BenchmarkKPI, IndustrySegment, BenchmarkDataPoint } from './types';
+import { BenchmarkKPI, BenchmarkDataPoint } from './types';
 
 /**
  * Industry benchmark data for key performance indicators.

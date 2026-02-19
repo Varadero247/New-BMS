@@ -9,7 +9,7 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  ArrowUpRight } from 'lucide-react';
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface ServiceHealth {

@@ -159,7 +159,7 @@ export default function ComplianceCalendarPage() {
   const [loading, setLoading] = useState(true);
   const [viewDate, setViewDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [typeFilter, setTypeFilter] = useState('');
+  const [typeFilter, _setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
@@ -204,7 +204,7 @@ export default function ComplianceCalendarPage() {
   const selectedEvents = selectedDate ? events.filter((e) => e.dueDate === selectedDate) : null;
 
   const overdue = events.filter((e) => e.status === 'OVERDUE').length;
-  const upcoming = events.filter((e) => e.status === 'UPCOMING').length;
+  const _upcoming = events.filter((e) => e.status === 'UPCOMING').length;
   const dueThisWeek = events.filter((e) => {
     const d = new Date(e.dueDate);
     const now = new Date();

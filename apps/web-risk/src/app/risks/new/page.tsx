@@ -283,7 +283,7 @@ export default function NewRiskPage() {
   const [kriFrequency, setKriFrequency] = useState('MONTHLY');
   const [reviewFrequency, setReviewFrequency] = useState('QUARTERLY');
   const [nextReviewDate, setNextReviewDate] = useState('');
-  const [owner, setOwner] = useState('');
+  const [owner] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [department, setDepartment] = useState('');
   const [notes, setNotes] = useState('');

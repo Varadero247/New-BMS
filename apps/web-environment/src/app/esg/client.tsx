@@ -14,7 +14,7 @@ import {
   Label,
   Select,
   Textarea } from '@ims/ui';
-import { Target, TrendingDown, Droplets, Trash2, Zap, Plus, BarChart3 } from 'lucide-react';
+import { TrendingDown, Droplets, Trash2, Zap, Plus, BarChart3 } from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ============================================

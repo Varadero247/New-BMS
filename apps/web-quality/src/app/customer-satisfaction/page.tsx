@@ -389,7 +389,7 @@ function ScoreGauge({ score, max = 5 }: { score: number; max?: number }) {
   const pct = (score / max) * 100;
   const radius = 52;
   const circ = Math.PI * radius; // half circle
-  const dash = (pct / 100) * circ;
+  const _dash = (pct / 100) * circ;
 
   const color = score >= 4 ? '#10B981' : score >= 3 ? '#F59E0B' : '#DC2626';
 

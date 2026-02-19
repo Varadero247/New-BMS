@@ -16,11 +16,6 @@ import {
 type PenTestType = 'external' | 'internal' | 'web-app' | 'social-engineering' | 'wireless';
 type PenTestStatus = 'completed' | 'in-progress' | 'scheduled' | 'remediation';
 
-interface PenTestFinding {
-  title: string;
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  count: number;
-}
 
 interface PenTest {
   id: string;

@@ -1837,7 +1837,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
       data: {
         items: items
           .slice(start, start + limit)
-          .map(({ standardPacks, ...rest }: Record<string, unknown>) => rest),
+          .map(({ standardPacks: _standardPacks, ...rest }: Record<string, unknown>) => rest),
         total: items.length,
         page,
         limit,

@@ -107,7 +107,7 @@ const FMEA_STATUSES = [
 
 const ROW_STATUSES = ['OPEN', 'IN_PROGRESS', 'COMPLETED', 'VERIFIED', 'CLOSED'] as const;
 
-const ACTION_PRIORITIES = ['HIGH', 'MEDIUM', 'LOW'] as const;
+const _ACTION_PRIORITIES = ['HIGH', 'MEDIUM', 'LOW'] as const;
 
 const typeLabels: Record<string, string> = {
   DFMEA: 'Design FMEA',
@@ -136,7 +136,7 @@ function rpnColor(rpn: number): string {
   return 'bg-green-100 text-green-800';
 }
 
-function rpnBadgeVariant(rpn: number): 'destructive' | 'warning' | 'success' {
+function _rpnBadgeVariant(rpn: number): 'destructive' | 'warning' | 'success' {
   if (rpn > 200) return 'destructive';
   if (rpn >= 80) return 'warning';
   return 'success';
@@ -494,7 +494,7 @@ export default function FmeaClient() {
     return { totalModes, highRpn, mediumRpn, lowRpn, openActs, avgInitialRpn, avgRevisedRpn };
   }, [rows]);
 
-  function highestRpn(fmea: Fmea): number {
+  function _highestRpn(fmea: Fmea): number {
     // Use highRPNCount as heuristic; for cards we use stored max or fallback
     return fmea.highRPNCount || 0;
   }

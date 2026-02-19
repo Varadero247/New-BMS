@@ -64,14 +64,6 @@ function KriStatusBadge({ status }: { status?: string }) {
   );
 }
 
-function isDueSoon(dateStr?: string): boolean {
-  if (!dateStr) return false;
-  const due = new Date(dateStr);
-  const now = new Date();
-  const diff = (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-  return diff <= 7 && diff >= 0;
-}
-
 function isOverdue(dateStr?: string): boolean {
   if (!dateStr) return false;
   return new Date(dateStr) < new Date();

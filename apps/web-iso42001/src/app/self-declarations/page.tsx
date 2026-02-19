@@ -267,7 +267,7 @@ export default function SelfDeclarationsPage() {
   });
 
   const publishedCount = declarations.filter((d) => d.status === 'PUBLISHED').length;
-  const draftCount = declarations.filter((d) => d.status === 'DRAFT').length;
+  const _draftCount = declarations.filter((d) => d.status === 'DRAFT').length;
   const expiredCount = declarations.filter((d) => d.status === 'EXPIRED' || isExpired(d)).length;
   const expiringCount = declarations.filter((d) => {
     const days = daysUntilExpiry(d);

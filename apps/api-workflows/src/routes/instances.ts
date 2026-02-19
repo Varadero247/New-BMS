@@ -16,7 +16,7 @@ router.param('id', validateIdParam());
 const priorityEnum = z.enum(['LOW', 'NORMAL', 'HIGH', 'URGENT', 'CRITICAL']);
 
 // Valid WorkflowInstanceStatus enum values
-const statusEnum = z.enum([
+const _statusEnum = z.enum([
   'PENDING',
   'IN_PROGRESS',
   'WAITING_APPROVAL',

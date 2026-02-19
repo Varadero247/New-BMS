@@ -132,7 +132,7 @@ function ReviewStatusBadge({ status }: { status: string }) {
 
 export default function PEEPPage() {
   const [peeps, setPeeps] = useState<PEEP[]>([]);
-  const [alerts, setAlerts] = useState<PEEP[]>([]);
+  const [_alerts, setAlerts] = useState<PEEP[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [modalOpen, setModalOpen] = useState(false);

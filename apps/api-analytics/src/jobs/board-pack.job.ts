@@ -17,7 +17,7 @@ export async function runBoardPackJob(): Promise<string> {
     const title = `Q${quarter} ${year} Board Pack`;
 
     // Get recent monthly snapshots (last 3 months for the quarter)
-    const quarterStartMonth = (quarter - 1) * 3 + 1;
+    const _quarterStartMonth = (quarter - 1) * 3 + 1;
     const snapshots = await prisma.monthlySnapshot.findMany({
       orderBy: { monthNumber: 'desc' },
       take: 3,

@@ -117,7 +117,7 @@ const complianceColor = (status: string): string => {
   }
 };
 
-const complianceBadgeVariant = (
+const _complianceBadgeVariant = (
   status: string
 ): 'success' | 'warning' | 'destructive' | 'secondary' => {
   switch (status) {

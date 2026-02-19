@@ -217,7 +217,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Customer not found' } });
     }
 
-    const authReq = req as AuthRequest;
+    const _authReq = req as AuthRequest;
     const { creditLimit, ...rest } = parsed.data;
 
     const customer = await prisma.finCustomer.update({
@@ -271,7 +271,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
       });
     }
 
-    const authReq = req as AuthRequest;
+    const _authReq = req as AuthRequest;
     await prisma.finCustomer.update({
       where: { id },
       data: { deletedAt: new Date(), isActive: false },

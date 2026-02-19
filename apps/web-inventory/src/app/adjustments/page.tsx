@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '@ims/ui';
-import { ArrowRightLeft, Plus, Minus, RefreshCw, Warehouse, Search, Package } from 'lucide-react';
+import { ArrowRightLeft, Plus, Minus, RefreshCw, Search, Package } from 'lucide-react';
 import { inventoryApi } from '@/lib/api';
 
 interface Product {

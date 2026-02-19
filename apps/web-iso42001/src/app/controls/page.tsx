@@ -395,7 +395,7 @@ function ComplianceRing({ score, size = 120 }: { score: number; size?: number })
 /* ------------------------------------------------------------------ */
 
 export default function ControlsPage() {
-  const [controls, setControls] = useState<Control[]>([]);
+  const [_controls, setControls] = useState<Control[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);

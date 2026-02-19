@@ -13,7 +13,7 @@ import {
   Select,
   Textarea,
 } from '@ims/ui';
-import { Plus, Search, RefreshCw, Grid3x3 } from 'lucide-react';
+import { Plus, Search, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface RaciEntry {

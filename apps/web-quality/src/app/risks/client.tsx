@@ -19,7 +19,6 @@ import {
   Plus,
   Users,
   AlertTriangle,
-  Target,
   Lightbulb,
   Search,
   ChevronDown,

@@ -7,13 +7,6 @@ import { Button } from '@/components/ui/button';
 import { TrendChart } from '@/components/charts';
 import api from '@/lib/api';
 
-interface TrendData {
-  period: string;
-  incidents: number;
-  risks: number;
-  actions: number;
-  ncs: number;
-}
 
 interface MonthlyTrend {
   month: number;

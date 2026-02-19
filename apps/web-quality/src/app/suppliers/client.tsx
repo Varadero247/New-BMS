@@ -112,7 +112,7 @@ const CERT_OPTIONS = ['YES', 'NO', 'IN_PROGRESS'] as const;
 
 const RATING_OPTIONS = ['EXCELLENT', 'GOOD', 'SATISFACTORY', 'POOR', 'CRITICAL'] as const;
 
-const RISK_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
+const _RISK_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
 
 const AUDIT_TYPES = ['DESKTOP', 'ON_SITE', 'REMOTE', 'FULL_SYSTEM', 'PROCESS', 'PRODUCT'] as const;
 

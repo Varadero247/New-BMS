@@ -4,8 +4,6 @@ import { createLogger } from '@ims/monitoring';
 import {
   NotificationBellState,
   WSNotification,
-  WSNotificationType,
-  WSNotificationSeverity,
 } from '@ims/notifications';
 import { validateIdParam } from '@ims/shared';
 import { v4 as uuidv4 } from 'uuid';

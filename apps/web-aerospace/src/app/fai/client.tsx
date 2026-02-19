@@ -94,7 +94,7 @@ const FAI_STATUSES = [
   'REJECTED',
 ] as const;
 
-const PART_STATUSES = ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NEEDS_REVIEW'] as const;
+const _PART_STATUSES = ['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'NEEDS_REVIEW'] as const;
 
 // ---------------------------------------------------------------------------
 // Helpers

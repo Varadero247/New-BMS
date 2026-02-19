@@ -279,8 +279,8 @@ export default function PoliciesPage() {
   const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [viewPolicy, setViewPolicy] = useState<Policy | null>(null);
-  const [ackModalOpen, setAckModalOpen] = useState(false);
-  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [_ackModalOpen, _setAckModalOpen] = useState(false);
+  const [_historyModalOpen, _setHistoryModalOpen] = useState(false);
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [activeSection, setActiveSection] = useState(0);
@@ -414,7 +414,7 @@ export default function PoliciesPage() {
   });
 
   const publishedCount = policies.filter((p) => p.status === 'PUBLISHED').length;
-  const draftCount = policies.filter((p) => p.status === 'DRAFT').length;
+  const _draftCount = policies.filter((p) => p.status === 'DRAFT').length;
   const reviewCount = policies.filter((p) => p.status === 'UNDER_REVIEW').length;
   const completionPct =
     policies.length > 0
@@ -692,7 +692,7 @@ export default function PoliciesPage() {
 
                     {/* Section completeness bar */}
                     <div className="mt-3 flex gap-1">
-                      {sectionMeta.map((sec, idx) => {
+                      {sectionMeta.map((sec, _idx) => {
                         const filled =
                           policy.sections &&
                           policy.sections[sec.key] &&

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { MapPin, User, Wrench } from 'lucide-react';
+import { MapPin, User } from 'lucide-react';
 
 type JobStatus = 'Scheduled' | 'En Route' | 'On Site' | 'Completed' | 'Cancelled';
 type JobPriority = 'Emergency' | 'High' | 'Medium' | 'Low';

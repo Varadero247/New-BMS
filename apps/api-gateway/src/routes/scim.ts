@@ -54,7 +54,7 @@ interface ScimBearerToken {
 // ─── In-Memory Stores ───────────────────────────────────────────────────────
 
 const MAX_SCIM_USERS = 10000;
-const MAX_SCIM_GROUPS = 1000;
+const _MAX_SCIM_GROUPS = 1000;
 
 const scimUserStore = new Map<string, ScimUser>();
 const scimGroupStore = new Map<string, ScimGroup>();

@@ -146,7 +146,7 @@ export default function TargetsPage() {
     return matchesSearch && matchesStatus;
   });
 
-  const achieved = targets.filter((t) => t.status === 'ACHIEVED').length;
+  const _achieved = targets.filter((t) => t.status === 'ACHIEVED').length;
   const onTrack = targets.filter((t) => t.status === 'ON_TRACK').length;
   const atRisk = targets.filter((t) => t.status === 'AT_RISK' || t.status === 'BEHIND').length;
   const avgProgress =

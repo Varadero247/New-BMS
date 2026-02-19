@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@ims/ui';
-import { ComplianceGauge, SafetyTrendChart } from '@ims/charts';
+import { ComplianceGauge } from '@ims/charts';
 import {
   AlertTriangle,
   FileWarning,

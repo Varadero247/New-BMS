@@ -26,7 +26,7 @@ const createCampaignSchema = z.object({
   description: z.string().trim().optional(),
 });
 
-const updateCampaignSchema = createCampaignSchema.partial();
+const _updateCampaignSchema = createCampaignSchema.partial();
 
 const addContactsSchema = z.object({
   contactIds: z.array(z.string().trim()).min(1, 'At least one contact ID is required'),

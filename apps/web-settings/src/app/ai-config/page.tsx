@@ -45,7 +45,7 @@ export default function AIConfigPage() {
     enableAutoAnalysis: true,
     analysisTypes: ['FIVE_WHYS', 'FISHBONE', 'BOW_TIE', 'PARETO'],
   });
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [apiKeyInput, setApiKeyInput] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {

@@ -8,7 +8,6 @@ import {
   createSignature,
   verifySignature,
   isValidMeaning,
-  type ElectronicSignature,
 } from '@ims/esig';
 import { createEnhancedAuditService } from '@ims/audit';
 

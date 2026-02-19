@@ -206,7 +206,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 
     for (const [key, value] of Object.entries(req.query)) {
       if (key.startsWith('override_') && typeof value === 'string') {
-        const parts = key.replace('override_', '').split('_');
+        const _parts = key.replace('override_', '').split('_');
         // Find the standard code (could be multi-part like ISO_9001)
         let standardCode = '';
         let factorName = '';

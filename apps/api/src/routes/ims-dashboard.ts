@@ -208,8 +208,6 @@ router.get('/summary/:standard', authenticate, async (req, res, next) => {
     }
 
     const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
     const [
       risks,
       incidents,

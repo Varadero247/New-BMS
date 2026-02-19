@@ -33,8 +33,8 @@ function detectRuleViolations(
 ): Map<number, string[]> {
   const violations = new Map<number, string[]>();
   const sigma = (ucl - mean) / 3;
-  const zone1Upper = mean + sigma;
-  const zone1Lower = mean - sigma;
+  const _zone1Upper = mean + sigma;
+  const _zone1Lower = mean - sigma;
   const zone2Upper = mean + 2 * sigma;
   const zone2Lower = mean - 2 * sigma;
 
@@ -107,7 +107,7 @@ function detectRuleViolations(
 export function ControlChart({
   data,
   title = 'Control Chart',
-  chartType = 'i-mr',
+  _chartType = 'i-mr',
   ucl: customUcl,
   lcl: customLcl,
   target: customTarget,

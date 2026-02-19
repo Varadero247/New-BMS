@@ -23,7 +23,7 @@ router.post('/enqueue/:partnerId', async (req: Request, res: Response) => {
       });
     }
 
-    const { email, name } = parsed.data;
+    const { email } = parsed.data;
 
     const sequenceId = `partner-onboarding-${partnerId}`;
     const now = Date.now();

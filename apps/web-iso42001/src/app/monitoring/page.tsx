@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { api } from '@/lib/api';
 import { Modal } from '@ims/ui';
 import {
   Activity,
@@ -335,7 +334,7 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
 }
 
 export default function MonitoringDashboardPage() {
-  const [metrics, setMetrics] = useState<SystemMetric[]>(mockMetrics);
+  const [metrics, _setMetrics] = useState<SystemMetric[]>(mockMetrics);
   const [alerts, setAlerts] = useState<Alert[]>(mockAlerts);
   const [filterSeverity, setFilterSeverity] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -370,7 +369,7 @@ export default function MonitoringDashboardPage() {
   const totalPendingReviews = metrics.reduce((s, m) => s + m.pendingReviews, 0);
   const avgErrorRate =
     metrics.length > 0 ? metrics.reduce((s, m) => s + m.errorRate, 0) / metrics.length : 0;
-  const normalCount = metrics.filter((m) => m.status === 'NORMAL').length;
+  const _normalCount = metrics.filter((m) => m.status === 'NORMAL').length;
   const avgAccuracy =
     metrics.length > 0 ? metrics.reduce((s, m) => s + m.accuracy, 0) / metrics.length : 0;
   const unacknowledgedAlerts = alerts.filter((a) => !a.acknowledged).length;

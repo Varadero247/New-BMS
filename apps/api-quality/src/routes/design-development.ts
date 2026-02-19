@@ -26,9 +26,9 @@ const STAGES = [
   'TRANSFER',
 ] as const;
 
-const STAGE_STATUSES = ['NOT_STARTED', 'IN_PROGRESS', 'SUBMITTED', 'APPROVED'] as const;
+const _STAGE_STATUSES = ['NOT_STARTED', 'IN_PROGRESS', 'SUBMITTED', 'APPROVED'] as const;
 
-const PROJECT_STATUSES = ['DRAFT', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED'] as const;
+const _PROJECT_STATUSES = ['DRAFT', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'CANCELLED'] as const;
 
 // =============================================
 // Reference number generator

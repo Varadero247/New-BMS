@@ -40,7 +40,7 @@ router.post('/capture', async (req: Request, res: Response) => {
       });
     }
 
-    const lead = await prisma.mktLead.create({
+    await prisma.mktLead.create({
       data: parsed.data,
     });
 

@@ -166,7 +166,7 @@ export default function AuditsPage() {
   });
 
   const completed = audits.filter((a) => a.status === 'COMPLETED').length;
-  const inProgress = audits.filter((a) => a.status === 'IN_PROGRESS').length;
+  const _inProgress = audits.filter((a) => a.status === 'IN_PROGRESS').length;
   const overdue = audits.filter(
     (a) => a.status !== 'COMPLETED' && a.status !== 'CANCELLED' && new Date(a.scheduledDate) < today
   ).length;

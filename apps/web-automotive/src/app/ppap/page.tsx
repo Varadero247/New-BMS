@@ -22,7 +22,7 @@ interface PPAPRecord {
 
 const LEVELS = ['LEVEL_1', 'LEVEL_2', 'LEVEL_3', 'LEVEL_4', 'LEVEL_5'];
 const STATUSES = ['DRAFT', 'SUBMITTED', 'APPROVED', 'INTERIM_APPROVED', 'REJECTED', 'RESUBMIT'];
-const DISPOSITIONS = ['APPROVED', 'INTERIM_APPROVED', 'REJECTED', 'PENDING'];
+const _DISPOSITIONS = ['APPROVED', 'INTERIM_APPROVED', 'REJECTED', 'PENDING'];
 const statusColor = (s: string) =>
   s === 'APPROVED'
     ? 'bg-green-100 text-green-700'

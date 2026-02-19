@@ -81,7 +81,7 @@ export default function RenewalsClient() {
     const d = getDaysUntil(c.renewalDate);
     return d !== null && d > 0 && d <= 14;
   });
-  const upcoming = filtered.filter((c) => {
+  const _upcoming = filtered.filter((c) => {
     const d = getDaysUntil(c.renewalDate);
     return d !== null && d > 14;
   });

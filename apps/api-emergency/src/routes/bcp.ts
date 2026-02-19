@@ -30,7 +30,7 @@ const emergencyTypeEnum = z.enum([
   'SUPPLY_CHAIN_DISRUPTION',
   'OTHER',
 ]);
-const bcpStatusEnum = z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'UNDER_REVIEW', 'SUPERSEDED']);
+const _bcpStatusEnum = z.enum(['DRAFT', 'APPROVED', 'ACTIVE', 'UNDER_REVIEW', 'SUPERSEDED']);
 const exerciseTypeEnum = z.enum(['TABLETOP', 'FUNCTIONAL', 'FULL_SCALE', 'DRILL', 'WALK_THROUGH']);
 const exerciseOutcomeEnum = z.enum(['PASSED', 'PASSED_WITH_ACTIONS', 'FAILED', 'CANCELLED']);
 

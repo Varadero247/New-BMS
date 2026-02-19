@@ -7,7 +7,7 @@ import {
   ChevronRight,
   Package,
   Search,
-  Tags } from 'lucide-react';
+} from 'lucide-react';
 
 interface Category {
   id: string;
@@ -385,7 +385,7 @@ export default function CategoriesClient() {
 
   const totalItems = categories.reduce((s, c) => s + c.itemCount, 0);
   const totalValue = categories.reduce((s, c) => s + c.totalValue, 0);
-  const activeCategories = categories.filter((c) => c.status === 'active').length;
+  const _activeCategories = categories.filter((c) => c.status === 'active').length;
   const totalSubcategories = categories.reduce(
     (s, c) => s + c.children.length + c.children.reduce((ss, cc) => ss + cc.children.length, 0),
     0

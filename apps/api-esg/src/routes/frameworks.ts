@@ -40,7 +40,7 @@ const metricCreateSchema = z.object({
   isRequired: z.boolean().optional(),
 });
 
-const dataPointCreateSchema = z.object({
+const _dataPointCreateSchema = z.object({
   periodStart: z
     .string()
     .trim()

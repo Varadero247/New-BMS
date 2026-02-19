@@ -6,7 +6,6 @@ import {
   TrendingDown,
   Minus,
   Filter,
-  ArrowUpRight,
   Leaf,
   Users,
   Shield } from 'lucide-react';

@@ -360,7 +360,7 @@ router.post('/:id/data', async (req: AuthRequest, res: Response) => {
     const pointsInput = Array.isArray(parsed) ? parsed : [parsed];
 
     // Get existing data points for computing chart and detecting violations
-    const existingPoints = await prisma.spcDataPoint.findMany({
+    const _existingPoints = await prisma.spcDataPoint.findMany({
       where: { chartId },
       orderBy: { timestamp: 'asc' },
       take: 200,

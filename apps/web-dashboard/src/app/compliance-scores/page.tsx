@@ -13,7 +13,6 @@ import {
   AlertCircle,
   XCircle } from 'lucide-react';
 import { api } from '@/lib/api';
-import Link from 'next/link';
 
 interface ModuleScore {
   id: string;

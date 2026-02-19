@@ -179,6 +179,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
         { casNumber: { contains: search, mode: 'insensitive' } },
       ];
     }
+    if (riskLevel) where.riskLevel = riskLevel as any;
     if (pictogram) where.pictograms = { has: pictogram };
     if (cmr === 'true') where.isCmr = true;
     if (sc) where.storageClass = sc as any;

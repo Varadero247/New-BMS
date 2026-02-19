@@ -12,7 +12,7 @@ import {
   Plus,
   XCircle,
   BarChart3,
-  Percent } from 'lucide-react';
+} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ExportDropdown } from '@/components/ui/export-dropdown';
 import { ComplianceGauge, TrendChart, COPQChart } from '@/components/charts';
@@ -20,10 +20,8 @@ import api from '@/lib/api';
 import {
   exportIncidents,
   exportIncidentsExcel,
-  exportQualityMetrics,
-  exportQualityMetricsExcel,
   type IncidentExportData,
-  type QualityMetricsData } from '@/lib/export';
+} from '@/lib/export';
 
 interface StandardSummary {
   standard: string;

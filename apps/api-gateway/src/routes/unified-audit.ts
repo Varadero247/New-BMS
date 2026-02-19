@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import {
   checklists,
@@ -237,7 +237,7 @@ router.get('/plans/:id', async (req: AuthRequest, res: Response) => {
 // ---------------------------------------------------------------------------
 // PATCH /plans/:id/clauses/:clause - Update clause status
 // ---------------------------------------------------------------------------
-const VALID_STATUSES: AuditClauseStatus['status'][] = [
+const _VALID_STATUSES: AuditClauseStatus['status'][] = [
   'NOT_STARTED',
   'IN_PROGRESS',
   'CONFORMING',

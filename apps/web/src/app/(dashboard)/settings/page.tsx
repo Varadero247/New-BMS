@@ -82,7 +82,7 @@ const aiProviders = [
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState('ai');
   const [aiSettings, setAiSettings] = useState<AISettings | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -155,7 +155,7 @@ export default function SettingsPage() {
     setTestResult(null);
     try {
       // Simple test by attempting a minimal analysis
-      const res = await api.post('/ai/analyze', {
+      await api.post('/ai/analyze', {
         sourceType: 'INCIDENT',
         sourceId: 'test',
         context: 'Test connection - please respond with OK',

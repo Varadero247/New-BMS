@@ -46,24 +46,24 @@ export function calculatePercentile(
   const data = kpiData[industry];
   if (!data) return 50;
 
-  const { average, bestInClass, worstInClass, lowerIsBetter } = data;
+  const { average: _average, bestInClass, worstInClass, lowerIsBetter } = data;
 
   // Normalize: for lowerIsBetter, invert so we can treat uniformly
   let normalizedValue: number;
   let normalizedBest: number;
-  let normalizedWorst: number;
+  let _normalizedWorst: number;
 
   if (lowerIsBetter) {
     // Lower is better: best = lowest value, worst = highest value
     // Percentile: the lower the value, the higher the percentile
     normalizedValue = worstInClass - value;
     normalizedBest = worstInClass - bestInClass;
-    normalizedWorst = 0;
+    _normalizedWorst = 0;
   } else {
     // Higher is better
     normalizedValue = value - worstInClass;
     normalizedBest = bestInClass - worstInClass;
-    normalizedWorst = 0;
+    _normalizedWorst = 0;
   }
 
   if (normalizedBest === 0) return 50;
@@ -102,7 +102,7 @@ export function generateBenchmarkNarrative(
       ? 'better'
       : 'worse';
 
-  const vsAverage = benchmark.lowerIsBetter
+  const _vsAverage = benchmark.lowerIsBetter
     ? value < benchmark.average
       ? 'below'
       : 'above'

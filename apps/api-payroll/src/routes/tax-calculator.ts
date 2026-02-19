@@ -206,7 +206,7 @@ export function calculateUSFederalTax(grossAnnual: number): TaxBreakdown {
 // Australia Tax Calculation
 // ---------------------------------------------------------------------------
 
-const AU_TAX_FREE_THRESHOLD = 18200;
+const _AU_TAX_FREE_THRESHOLD = 18200;
 
 const AU_BANDS = [
   { name: 'Nil', rate: 0, from: 0, to: 18200 },

@@ -24,7 +24,7 @@ import {
   Clock,
   CheckCircle,
   Target,
-  CalendarDays } from 'lucide-react';
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -192,7 +192,7 @@ export default function ActionsClient() {
   const [formError, setFormError] = useState<string | null>(null);
 
   // AI state
-  const [aiExpanded, setAiExpanded] = useState(false);
+  const [_aiExpanded, setAiExpanded] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<AiAnalysis | null>(null);
 

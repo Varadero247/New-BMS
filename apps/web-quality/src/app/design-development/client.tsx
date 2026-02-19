@@ -22,7 +22,7 @@ import {
   Clock,
   ArrowRight,
   ChevronRight,
-  Pause } from 'lucide-react';
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------

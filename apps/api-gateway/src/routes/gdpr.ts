@@ -594,7 +594,7 @@ router.get('/data-map', async (_req: AuthRequest, res: Response) => {
       take: 1000,
     });
 
-    const policyMap = new Map(
+    const _policyMap = new Map(
       policies.map((p: Record<string, unknown>) => [`${p.module}:${p.dataCategory}`, p])
     );
 

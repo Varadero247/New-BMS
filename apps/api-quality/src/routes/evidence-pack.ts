@@ -755,7 +755,7 @@ router.post('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     // Build sections asynchronously then update in-memory record
     buildEvidencePackSections(data.standard, data.dateFrom || null, data.dateTo || null)
-      .then(({ sections, totalDocuments, totalRecords }) => {
+      .then(({ sections, totalDocuments: _totalDocuments, totalRecords: _totalRecords }) => {
         // Apply inclusion filters
         const filteredSections = sections.map((section) => {
           const s = { ...section };

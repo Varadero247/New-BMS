@@ -7,7 +7,6 @@ import {
   XCircle,
   Clock,
   AlertTriangle,
-  FlaskConical,
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';

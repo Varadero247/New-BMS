@@ -18,10 +18,8 @@ import api from '@/lib/api';
 import {
   exportIncidents,
   exportIncidentsExcel,
-  exportSafetyMetrics,
-  exportSafetyMetricsExcel,
   type IncidentExportData,
-  type SafetyMetricsData } from '@/lib/export';
+} from '@/lib/export';
 
 interface StandardSummary {
   standard: string;

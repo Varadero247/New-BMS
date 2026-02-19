@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@ims/ui';
-import { Settings, Globe, DollarSign, Bell } from 'lucide-react';
+import { Globe, DollarSign, Bell } from 'lucide-react';
 
 export default function PayrollSettingsPage() { const [baseCurrency, setBaseCurrency] = useState('GBP');
   const [payFrequency, setPayFrequency] = useState('MONTHLY');

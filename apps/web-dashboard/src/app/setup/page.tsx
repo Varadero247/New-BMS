@@ -22,7 +22,7 @@ export default function SetupWizardPage() {
   const [stepData, setStepData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [wizardId, setWizardId] = useState<string | null>(null);
+  const [_wizardId, setWizardId] = useState<string | null>(null);
 
   useEffect(() => {
     checkWizardStatus();

@@ -124,7 +124,7 @@ const paymentMadeCreateSchema = z.object({
 // GET /suppliers — List suppliers
 router.get('/suppliers', async (req: Request, res: Response) => {
   try {
-    const authReq = req as AuthRequest;
+    const _authReq = req as AuthRequest;
     const { search, isActive, page = '1', limit = '20' } = req.query;
     const skip =
       (Math.max(1, parseInt(page as string, 10) || 1) - 1) *

@@ -398,7 +398,7 @@ export default function VulnerabilityScansClient() {
             {filteredScans.map((scan) => {
               const isExpanded = expandedScanId === scan.id;
               const sc = statusConfig[scan.status];
-              const totalVulns =
+              const _totalVulns =
                 scan.criticalCount +
                 scan.highCount +
                 scan.mediumCount +

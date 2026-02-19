@@ -536,7 +536,7 @@ router.put(
   checkOwnership(prisma.approvalRequest),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = cancelApprovalSchema.parse(req.body);
+      const _data = cancelApprovalSchema.parse(req.body);
 
       const request = await prisma.approvalRequest.update({
         where: { id: req.params.id },
@@ -704,7 +704,7 @@ router.post('/step', async (req: Request, res: Response) => {
 // GET /api/approvals/stats - Get approval statistics
 router.get('/stats', async (req: Request, res: Response) => {
   try {
-    const [requestsByStatus, requestsByType, avgResponseTime, recentRequests] = await Promise.all([
+    const [requestsByStatus, requestsByType, _avgResponseTime, recentRequests] = await Promise.all([
       prisma.approvalRequest.groupBy({
         by: ['status'],
         _count: { status: true },

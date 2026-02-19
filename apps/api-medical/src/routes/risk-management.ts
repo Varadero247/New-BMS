@@ -320,9 +320,9 @@ router.put('/:id/hazards/:hazardId', async (req: AuthRequest, res: Response) => 
     }
 
     // Create new risk controls if provided
-    let createdControls: Record<string, unknown>[] = [];
+    let _createdControls: Record<string, unknown>[] = [];
     if (data.controls && data.controls.length > 0) {
-      createdControls = await Promise.all(
+      _createdControls = await Promise.all(
         data.controls.map((control) =>
           prisma.riskControl.create({
             data: {

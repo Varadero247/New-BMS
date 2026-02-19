@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@ims/ui';
-import { Settings, Clock, Bell, Zap } from 'lucide-react';
+import { Clock, Bell, Zap } from 'lucide-react';
 
 export default function WorkflowSettingsPage() {
   return (

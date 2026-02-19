@@ -18,7 +18,6 @@ import {
   Plus,
   RefreshCw,
   Zap,
-  CheckCircle2,
   TrendingUp,
   TrendingDown } from 'lucide-react';
 import Link from 'next/link';

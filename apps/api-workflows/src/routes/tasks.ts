@@ -25,7 +25,7 @@ const taskTypeEnum = z.enum([
 ]);
 
 // Valid WorkflowTaskStatus enum values
-const taskStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'OVERDUE']);
+const _taskStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'OVERDUE']);
 
 // GET /api/tasks - Get workflow tasks
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {

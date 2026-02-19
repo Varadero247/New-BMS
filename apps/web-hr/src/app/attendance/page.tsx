@@ -57,7 +57,7 @@ export default function AttendancePage() {
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [summary, setSummary] = useState<any>(null);
+  const [_summary, setSummary] = useState<any>(null);
 
   // Modal state
   const [createModalOpen, setCreateModalOpen] = useState(false);

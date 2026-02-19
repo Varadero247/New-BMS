@@ -18,9 +18,9 @@ router.param('id', validateIdParam());
 
 const PMS_PLAN_STATUSES = ['DRAFT', 'ACTIVE', 'UNDER_REVIEW', 'ARCHIVED'] as const;
 
-const PMS_REPORT_TYPES = ['PSUR', 'PMCF', 'PMS_REPORT', 'TREND_REPORT'] as const;
+const _PMS_REPORT_TYPES = ['PSUR', 'PMCF', 'PMS_REPORT', 'TREND_REPORT'] as const;
 
-const PMS_REPORT_STATUSES = ['DRAFT', 'REVIEW', 'APPROVED', 'PUBLISHED'] as const;
+const _PMS_REPORT_STATUSES = ['DRAFT', 'REVIEW', 'APPROVED', 'PUBLISHED'] as const;
 
 /**
  * Generate reference number: PMS-YYMM-XXXX

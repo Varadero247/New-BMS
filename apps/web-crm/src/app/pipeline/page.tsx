@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, Badge, Button } from '@ims/ui';
-import { Kanban, DollarSign, ChevronRight, RefreshCw } from 'lucide-react';
+import { DollarSign, ChevronRight, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface DealCard {

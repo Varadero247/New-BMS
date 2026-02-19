@@ -13,7 +13,6 @@ import {
   Label,
   Input,
   Textarea,
-  Select,
   AIDisclosure } from '@ims/ui';
 import {
   Plus,

@@ -64,7 +64,7 @@ const statusColors: Record<string, string> = {
   MAINTENANCE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' };
 
 export default function DeviceDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+  use(params);
 
   return (
     <div className="space-y-6">

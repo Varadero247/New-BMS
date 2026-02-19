@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { Card, CardContent, Button, Badge, Input, Select, Modal, ModalFooter } from '@ims/ui';
 import { FileText, Search, Download, Copy, Eye, Filter, ChevronDown } from 'lucide-react';
 import { gateway } from '@/lib/gateway';
 

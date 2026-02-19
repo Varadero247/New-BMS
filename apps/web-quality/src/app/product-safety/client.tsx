@@ -23,7 +23,7 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Beaker } from 'lucide-react';
+} from 'lucide-react';
 import { api } from '@/lib/api';
 
 // ---------------------------------------------------------------------------

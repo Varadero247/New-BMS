@@ -101,7 +101,7 @@ const dimensions = [
     color: '#0EA5E9' },
 ] as const;
 
-type DimensionKey = (typeof dimensions)[number]['key'];
+type _DimensionKey = (typeof dimensions)[number]['key'];
 
 type FormData = {
   title: string;
@@ -150,7 +150,7 @@ const defaultForm: FormData = {
 
 function RiskHeatmap({
   assessments,
-  controlStatuses }: {
+  controlStatuses: _controlStatuses }: {
   assessments: ImpactAssessment[];
   controlStatuses?: never;
 }) {
@@ -195,7 +195,7 @@ function RiskHeatmap({
               (a.privacyScore || 1) +
               (a.safetyScore || 1) +
               (a.autonomyScore || 1);
-            const avg = total / 5;
+            const _avg = total / 5;
             return (
               <tr key={a.id} className="border-t border-border">
                 <td className="py-2 px-3 text-foreground font-medium truncate max-w-[150px]">
@@ -579,8 +579,6 @@ export default function ImpactAssessmentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredAssessments.length > 0 ? (
             filteredAssessments.map((a) => {
-              const total = totalScore(a);
-              const avg = total / 5;
               return (
                 <div key={a.id} className="bg-card border border-border rounded-xl shadow-sm">
                   <div className="p-5">

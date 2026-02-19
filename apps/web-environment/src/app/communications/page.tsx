@@ -102,7 +102,7 @@ export default function CommunicationsPage() {
   const [records, setRecords] = useState<Communication[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [filterDirection, setFilterDirection] = useState<string>('ALL');
+  const [filterDirection, _setFilterDirection] = useState<string>('ALL');
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [filterPriority, setFilterPriority] = useState<string>('ALL');
   const [modalOpen, setModalOpen] = useState(false);

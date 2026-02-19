@@ -28,7 +28,7 @@ const COMMUNICATION_TYPES = [
 
 const DIRECTIONS = ['INTERNAL', 'EXTERNAL'] as const;
 
-const STATUSES = ['DRAFT', 'SENT', 'ACKNOWLEDGED', 'RESPONDED', 'CLOSED'] as const;
+const _STATUSES = ['DRAFT', 'SENT', 'ACKNOWLEDGED', 'RESPONDED', 'CLOSED'] as const;
 
 // =============================================
 // Reference number generator

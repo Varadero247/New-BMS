@@ -63,7 +63,6 @@ const messageCreateSchema = z.object({
 
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const auth = req as AuthRequest;
     const page = parseIntParam(req.query.page, 1);
     const limit = parseIntParam(req.query.limit, 20, 100);
     const skip = (page - 1) * limit;
@@ -151,8 +150,6 @@ router.post('/', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 // GET /:id — Ticket detail
 // ---------------------------------------------------------------------------
-
-const RESERVED_PATHS = new Set(['messages']);
 
 router.get('/:id', async (req: Request, res: Response) => {
   try {
@@ -317,7 +314,6 @@ router.get('/:id/messages', async (req: Request, res: Response) => {
 
 router.put('/:id/resolve', async (req: Request, res: Response) => {
   try {
-    const auth = req as AuthRequest;
     const resolutionParsed = z
       .object({ resolution: z.string().trim().max(5000).optional() })
       .safeParse(req.body);

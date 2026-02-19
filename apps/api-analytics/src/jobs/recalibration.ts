@@ -9,7 +9,7 @@ interface RollingAverages {
   avgNewCustomers: number;
 }
 
-interface Projection {
+interface _Projection {
   projectedMrr: number[];
   projectedCustomers: number[];
 }

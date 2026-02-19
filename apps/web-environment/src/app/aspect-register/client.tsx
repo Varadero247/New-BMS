@@ -5,7 +5,6 @@ import {
   Leaf,
   CheckCircle,
   Search,
-  Filter,
   Droplets,
   Cloud,
   Trash2,

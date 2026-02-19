@@ -3,7 +3,6 @@
 import { use } from 'react';
 import Link from 'next/link';
 import {
-  Building,
   MapPin,
   Calendar,
   Layers,
@@ -62,7 +61,7 @@ const recentAlerts = [
 ];
 
 export default function BuildingDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+  use(params);
 
   return (
     <div className="space-y-6">

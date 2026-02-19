@@ -16,7 +16,7 @@ router.param('id', validateIdParam());
 const triggerTypeEnum = z.enum(['MANUAL', 'AUTOMATIC', 'SCHEDULED', 'EVENT', 'API']);
 
 // Valid WorkflowDefinitionStatus enum values
-const statusEnum = z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED', 'ARCHIVED']);
+const _statusEnum = z.enum(['DRAFT', 'ACTIVE', 'DEPRECATED', 'ARCHIVED']);
 
 // GET /api/definitions - Get workflow definitions
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {

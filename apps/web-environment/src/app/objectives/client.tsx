@@ -58,7 +58,7 @@ const STATUSES = [
   { value: 'DEFERRED', label: 'Deferred' },
 ] as const;
 
-const STATUS_COLOURS: Record<string, string> = {
+const _STATUS_COLOURS: Record<string, string> = {
   NOT_STARTED: 'bg-gray-100 dark:bg-gray-800 text-gray-800',
   ON_TRACK: 'bg-blue-100 text-blue-800',
   AT_RISK: 'bg-yellow-100 text-yellow-800',

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Calculator, ArrowRight, DollarSign, TrendingDown, Globe } from 'lucide-react';
+import { ArrowRight, DollarSign, TrendingDown, Globe } from 'lucide-react';
 
 interface TaxBand { name: string;
   from: number;

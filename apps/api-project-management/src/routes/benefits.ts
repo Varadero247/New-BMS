@@ -17,15 +17,6 @@ router.param('id', validateIdParam());
 // =============================================
 
 const BENEFIT_TYPES = ['FINANCIAL', 'STRATEGIC', 'OPERATIONAL', 'SOCIAL_ENVIRONMENTAL'] as const;
-const BENEFIT_STATUSES = [
-  'IDENTIFIED',
-  'BASELINED',
-  'TRACKING',
-  'REALISED',
-  'PARTIALLY_REALISED',
-  'NOT_REALISED',
-  'CLOSED',
-] as const;
 const MEASUREMENT_METHODS = [
   'QUANTITATIVE',
   'QUALITATIVE',

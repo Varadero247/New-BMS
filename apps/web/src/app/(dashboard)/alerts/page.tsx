@@ -73,7 +73,7 @@ const severityColors = {
 
 export default function AlertsPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterSeverity, setFilterSeverity] = useState('all');
+  const filterSeverity = 'all';
   const [filterStatus, setFilterStatus] = useState('all');
 
   const filteredAlerts = alerts.filter((alert) => {

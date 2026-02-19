@@ -50,7 +50,7 @@ export default function ParetoPage() {
   async function generateFromData() {
     setGenerating(true);
     try {
-      const res = await api.post('/analytics/pareto/generate', {
+      await api.post('/analytics/pareto/generate', {
         sourceType: formData.sourceType,
         title: formData.title || `${formData.sourceType} Pareto Analysis`,
       });

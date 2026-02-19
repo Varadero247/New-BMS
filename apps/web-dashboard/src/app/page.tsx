@@ -424,7 +424,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { config, openCustomize, hydrate, hydrated } = useDashboardStore();
+  const { config, openCustomize, hydrate, hydrated: _hydrated } = useDashboardStore();
   const { hasPermission, permissions } = useRBACContext();
   const wizard = useWelcomeWizard();
   const tour = useTour('home-dashboard');

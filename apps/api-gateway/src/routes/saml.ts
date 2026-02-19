@@ -3,7 +3,7 @@ import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
-import { createHash, createSign, createVerify } from 'crypto';
+import { createVerify } from 'crypto';
 
 // ─── XML Escaping ────────────────────────────────────────────────────────────
 

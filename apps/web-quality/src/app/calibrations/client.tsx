@@ -12,7 +12,7 @@ import {
   Label,
   Select,
   Textarea } from '@ims/ui';
-import { Plus, Ruler, Search, RefreshCw } from 'lucide-react';
+import { Plus, Search, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/api';
 
 interface Calibration {
@@ -172,7 +172,7 @@ export default function CalibrationsPage() {
     }
   };
 
-  const dueCount = items.filter((i) => i.status === 'DUE' || i.status === 'OVERDUE').length;
+  const _dueCount = items.filter((i) => i.status === 'DUE' || i.status === 'OVERDUE').length;
 
   return (
     <div className="p-6 space-y-6">

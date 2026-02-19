@@ -52,7 +52,7 @@ router.post('/enqueue/:userId', async (req: Request, res: Response) => {
         error: { code: 'VALIDATION_ERROR', message: parsed.error.errors[0].message } });
     }
 
-    const { email, firstName, companyName } = parsed.data;
+    const { email } = parsed.data;
 
     const sequenceId = `onboarding-${userId}-${Date.now()}`;
     const now = Date.now();

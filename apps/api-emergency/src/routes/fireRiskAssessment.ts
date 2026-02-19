@@ -10,7 +10,7 @@ const router = Router();
 router.param('id', validateIdParam());
 const logger = createLogger('emergency-fra');
 
-const riskLevelEnum = z.enum(['TRIVIAL', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH', 'INTOLERABLE']);
+const _riskLevelEnum = z.enum(['TRIVIAL', 'LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH', 'INTOLERABLE']);
 
 const createFraSchema = z.object({
   premisesId: z.string().trim().min(1).max(200),

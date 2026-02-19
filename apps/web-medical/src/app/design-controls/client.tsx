@@ -86,7 +86,7 @@ const STAGE_DESCRIPTIONS: Record<string, string> = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getDeviceClassColor(deviceClass: string): string {
+function _getDeviceClassColor(deviceClass: string): string {
   switch (deviceClass) {
     case 'I':
       return 'bg-blue-100 text-blue-800';
@@ -114,7 +114,7 @@ function getDeviceClassBadgeVariant(
   }
 }
 
-function getStageColor(stage: string): string {
+function _getStageColor(stage: string): string {
   switch (stage) {
     case 'Planning':
       return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
@@ -158,7 +158,7 @@ function getStageBadgeVariant(
   }
 }
 
-function getStatusColor(status: string): string {
+function _getStatusColor(status: string): string {
   switch (status) {
     case 'DRAFT':
       return 'bg-gray-100 dark:bg-gray-800 text-gray-700';
@@ -555,7 +555,7 @@ export default function DesignControlsClient() {
                   const currentIndex = getStageIndex(form.currentStage);
                   const isCompleted = index < currentIndex;
                   const isCurrent = index === currentIndex;
-                  const isFuture = index > currentIndex;
+                  const _isFuture = index > currentIndex;
 
                   return (
                     <div key={stage} className="flex items-center flex-1">

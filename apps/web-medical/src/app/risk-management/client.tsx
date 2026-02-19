@@ -114,7 +114,7 @@ const HAZARD_CATEGORIES = [
 
 const CONTROL_TYPES = ['INHERENT_SAFETY', 'PROTECTIVE_MEASURE', 'INFORMATION_FOR_SAFETY'] as const;
 
-const RISK_LEVELS = ['NEGLIGIBLE', 'LOW', 'MEDIUM', 'HIGH', 'UNACCEPTABLE'] as const;
+const _RISK_LEVELS = ['NEGLIGIBLE', 'LOW', 'MEDIUM', 'HIGH', 'UNACCEPTABLE'] as const;
 
 // ---------------------------------------------------------------------------
 // Helpers

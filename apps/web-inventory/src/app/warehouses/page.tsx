@@ -8,12 +8,7 @@ import {
   CardTitle,
   Button,
   Input,
-  Badge,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell } from '@ims/ui';
+  Badge } from '@ims/ui';
 import {
   Warehouse,
   Plus,

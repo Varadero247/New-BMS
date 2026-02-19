@@ -147,7 +147,7 @@ export default function LPAPage() {
     return matchSearch && matchLayer;
   });
 
-  const totalFindings = items.reduce((acc, i) => acc + (i.openFindings || 0), 0);
+  const _totalFindings = items.reduce((acc, i) => acc + (i.openFindings || 0), 0);
   const avgScore =
     items.length > 0
       ? Math.round(items.reduce((acc, i) => acc + (i.score || 0), 0) / items.length)

@@ -109,7 +109,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 // GET / — List stock levels
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    const { warehouseId, productId, search } = req.query;
+    const { warehouseId, productId, search: _search } = req.query;
     const page = parseIntParam(req.query.page, 1);
     const limit = parseIntParam(req.query.limit, 25, 100);
     const skip = (page - 1) * limit;

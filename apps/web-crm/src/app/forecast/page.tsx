@@ -488,7 +488,7 @@ export default function ForecastPage() {
             <CardContent>
               {stageGroups.length > 0 ? (
                 <div className="space-y-3">
-                  {stageGroups.map(([stage, data], index) => {
+                  {stageGroups.map(([stage, data], _index) => {
                     const maxCount = Math.max(...stageGroups.map(([, d]) => d.count), 1);
                     const pct = (data.count / maxCount) * 100;
                     const color = STAGE_COLORS[stage] || '#64748b';

@@ -134,7 +134,7 @@ function uid() {
   return Math.random().toString(36).slice(2, 9);
 }
 
-const RISK_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'] as const;
+const _RISK_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH'] as const;
 const RISK_MATRIX: Record<string, Record<string, string>> = {
   '1': { '1': 'LOW', '2': 'LOW', '3': 'LOW', '4': 'MEDIUM', '5': 'MEDIUM' },
   '2': { '1': 'LOW', '2': 'LOW', '3': 'MEDIUM', '4': 'MEDIUM', '5': 'HIGH' },
@@ -143,7 +143,7 @@ const RISK_MATRIX: Record<string, Record<string, string>> = {
   '5': { '1': 'MEDIUM', '2': 'HIGH', '3': 'HIGH', '4': 'VERY_HIGH', '5': 'VERY_HIGH' },
 };
 
-const RISK_COLORS: Record<string, string> = {
+const _RISK_COLORS: Record<string, string> = {
   LOW: 'bg-green-500',
   MEDIUM: 'bg-amber-400',
   HIGH: 'bg-orange-500',

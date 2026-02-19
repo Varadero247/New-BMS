@@ -40,7 +40,7 @@ interface Incident {
   createdAt: string;
 }
 
-const INCIDENT_TYPES = [
+const _INCIDENT_TYPES = [
   'FIRE',
   'FLOOD',
   'GAS_LEAK',
@@ -55,7 +55,7 @@ const INCIDENT_TYPES = [
   'OTHER',
 ] as const;
 
-const SEVERITY_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
+const _SEVERITY_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
 const STATUS_FILTERS = ['ALL', 'ACTIVE', 'CONTROLLED', 'CLOSED', 'STANDBY'] as const;
 
 const SEVERITY_STYLES: Record<string, string> = {

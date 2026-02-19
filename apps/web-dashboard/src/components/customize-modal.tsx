@@ -11,7 +11,6 @@ import {
   SECTION_IDS,
   SECTION_META,
   MODULE_RBAC_MAP,
-  type WidgetId,
   type SectionId,
 } from '@/lib/dashboard-config';
 import { Lock, ChevronDown, ChevronUp, ArrowUp, ArrowDown } from 'lucide-react';

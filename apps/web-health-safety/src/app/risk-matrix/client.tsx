@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { X, AlertTriangle, Shield, Filter, Eye, EyeOff } from 'lucide-react';
+import { X, AlertTriangle, Shield } from 'lucide-react';
 
 interface Risk {
   id: string;
@@ -282,7 +282,7 @@ export default function RiskMatrixClient() {
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
   const [showInherent, setShowInherent] = useState(true);
   const [showResidual, setShowResidual] = useState(true);
-  const [showDetails, setShowDetails] = useState(false);
+  const [_showDetails, _setShowDetails] = useState(false);
 
   const filteredRisks = useMemo(() => {
     if (!selectedCategory) return mockRisks;

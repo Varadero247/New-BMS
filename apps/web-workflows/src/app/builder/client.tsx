@@ -11,7 +11,6 @@ import {
   Play,
   Power,
   ChevronDown,
-  ArrowDown,
   Plus,
   X,
   CheckCircle,

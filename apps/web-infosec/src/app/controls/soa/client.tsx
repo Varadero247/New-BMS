@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Download, CheckCircle, XCircle, MinusCircle, Filter } from 'lucide-react';
+import { Search, Download, CheckCircle, XCircle } from 'lucide-react';
 
 interface SoAControl {
   id: string;

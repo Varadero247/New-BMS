@@ -39,7 +39,6 @@ const decisionSchema = z.object({
 
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const auth = req as AuthRequest;
     const page = parseIntParam(req.query.page, 1);
     const limit = parseIntParam(req.query.limit, 20, 100);
     const skip = (page - 1) * limit;

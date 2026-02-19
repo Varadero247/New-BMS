@@ -1,8 +1,6 @@
 import {
   Notification,
   NotificationPreferences,
-  NotificationChannel,
-  NotificationType,
 } from './types';
 import { createChannel } from './channels';
 

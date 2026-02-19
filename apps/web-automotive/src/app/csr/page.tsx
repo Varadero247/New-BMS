@@ -127,7 +127,7 @@ export default function CSRPage() {
     }
   }
 
-  const customers = [...new Set(items.map((i) => i.customerName))].filter(Boolean);
+  const _customers = [...new Set(items.map((i) => i.customerName))].filter(Boolean);
   const filtered = items.filter((item) => {
     const matchSearch =
       !search || JSON.stringify(item).toLowerCase().includes(search.toLowerCase());

@@ -190,7 +190,7 @@ function priorityColor(priority: string): string {
   }
 }
 
-function priorityBadgeVariant(priority: string) {
+function _priorityBadgeVariant(priority: string) {
   switch (priority) {
     case 'CRITICAL':
       return 'danger' as const;
@@ -205,7 +205,7 @@ function priorityBadgeVariant(priority: string) {
   }
 }
 
-function statusBadgeVariant(status: string) {
+function _statusBadgeVariant(status: string) {
   switch (status) {
     case 'COMPLETED':
       return 'success' as const;

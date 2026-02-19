@@ -9,7 +9,6 @@ import {
   deleteComment,
   addReaction,
   removeReaction,
-  getCommentById,
 } from '@ims/comments';
 import { z } from 'zod';
 

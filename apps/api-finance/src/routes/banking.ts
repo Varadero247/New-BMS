@@ -465,7 +465,7 @@ router.post('/reconciliations', async (req: Request, res: Response) => {
 router.post('/reconciliations/:id/reconcile', async (req: Request, res: Response) => {
   try {
     const data = reconcileTransactionsSchema.parse(req.body);
-    const user = (req as AuthRequest).user;
+    const _user = (req as AuthRequest).user;
 
     const reconciliation = await prisma.finReconciliation.findUnique({
       where: { id: req.params.id },

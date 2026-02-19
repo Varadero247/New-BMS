@@ -219,7 +219,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     const data = createSchema.parse(req.body);
-    const authReq = req as AuthRequest;
+    const _authReq = req as AuthRequest;
 
     const [employee, cycle] = await Promise.all([
       prisma.employee.findUnique({ where: { id: data.employeeId } }),

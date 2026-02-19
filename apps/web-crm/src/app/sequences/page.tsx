@@ -293,7 +293,7 @@ export default function SequencesPage() {
     (sum, s) => sum + (s.enrolledCount || s._count?.enrollments || 0),
     0
   );
-  const avgOpenRate =
+  const _avgOpenRate =
     sequences.length > 0
       ? sequences.reduce((sum, s) => sum + (s.openRate || 0), 0) / sequences.length
       : 0;

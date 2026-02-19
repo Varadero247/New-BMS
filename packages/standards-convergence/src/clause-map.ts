@@ -1,4 +1,4 @@
-import { AnnexSLClause, ClauseMapping, ISOStandard } from './types';
+import { AnnexSLClause, ClauseMapping } from './types';
 
 export const ANNEX_SL_COMMON_CLAUSES: Record<AnnexSLClause, string> = {
   '4.1': 'Understanding the organisation and its context',

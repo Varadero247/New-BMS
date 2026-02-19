@@ -199,9 +199,9 @@ function buildSections(
   category: string,
   iso: { standard: string; owner: string }
 ): unknown[] {
-  const catDef = TEMPLATE_CATEGORIES[category];
+  const _catDef = TEMPLATE_CATEGORIES[category];
   const sections: unknown[] = [];
-  const lower = prompt.toLowerCase();
+  const _lower = prompt.toLowerCase();
 
   if (category === 'POLICY') {
     sections.push(

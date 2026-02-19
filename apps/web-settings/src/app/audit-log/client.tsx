@@ -4,8 +4,6 @@ import { useState } from 'react';
 import {
   Shield,
   Search,
-  Filter,
-  User,
   FileText,
   Edit3,
   Trash2,

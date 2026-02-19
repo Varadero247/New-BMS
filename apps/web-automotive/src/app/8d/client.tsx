@@ -311,7 +311,7 @@ export default function EightDClient() {
                       {DISCIPLINES.map((d) => {
                         const isDone = d.num < report.currentStep;
                         const isCurrent = d.num === report.currentStep;
-                        const isPending = d.num > report.currentStep;
+                        const _isPending = d.num > report.currentStep;
                         const hasContent = !!(report as unknown as Record<string, string>)[d.key];
                         return (
                           <div key={d.num} className="flex-1 flex flex-col items-center gap-1">

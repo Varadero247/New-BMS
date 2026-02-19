@@ -81,7 +81,7 @@ const planTypeLabels: Record<string, string> = {
 
 const CHAR_TYPES = ['PRODUCT', 'PROCESS'] as const;
 
-const SPECIAL_CHARS = ['', 'CC', 'SC', 'HI', 'YC', 'SH'] as const;
+const _SPECIAL_CHARS = ['', 'CC', 'SC', 'HI', 'YC', 'SH'] as const;
 
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 dark:bg-gray-800 text-gray-700',

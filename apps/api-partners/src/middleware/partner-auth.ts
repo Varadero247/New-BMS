@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { createLogger } from '@ims/monitoring';
 
-const logger = createLogger('api-partners:auth-middleware');
+const _logger = createLogger('api-partners:auth-middleware');
 const JWT_SECRET = process.env.JWT_SECRET || 'partner-secret';
 
 export interface PartnerRequest extends Request {

@@ -147,7 +147,7 @@ export default function Step2DocumentSeed({ data, onUpdate }: Step2Props) {
       Object.fromEntries(standards.map((s) => [s, DOCUMENT_TEMPLATES[s]?.docs || []]))
   );
 
-  const toggleDoc = (stdId: string, doc: string) => {
+  const _toggleDoc = (stdId: string, doc: string) => {
     const current = seedDocs[stdId] || [];
     const next = current.includes(doc) ? current.filter((d) => d !== doc) : [...current, doc];
     const updated = { ...seedDocs, [stdId]: next };

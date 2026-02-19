@@ -31,7 +31,7 @@ function formatCurrency(amount: number): string {
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState<'pnl' | 'balance' | 'cashflow'>('pnl');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [_error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
     d.setMonth(d.getMonth() - 1);

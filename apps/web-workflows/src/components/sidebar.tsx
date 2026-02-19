@@ -12,7 +12,6 @@ import {
   Users,
   Zap,
   Workflow,
-  LayoutTemplate,
   BarChart3,
   Settings,
   BookOpen,

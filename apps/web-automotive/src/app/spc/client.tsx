@@ -278,7 +278,7 @@ export default function SpcClient() {
       (c) => c.status === 'ACTIVE' || c.status === 'IN_CONTROL' || c.status === 'MONITORING'
     ).length;
     const ooc = charts.filter((c) => c.status === 'OUT_OF_CONTROL').length;
-    const totalOocCount = charts.reduce((sum, c) => sum + (c.oocCount || 0), 0);
+    const _totalOocCount = charts.reduce((sum, c) => sum + (c.oocCount || 0), 0);
     return {
       activeCharts: active,
       outOfControl: ooc,

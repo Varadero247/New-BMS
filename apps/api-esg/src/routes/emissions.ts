@@ -48,7 +48,7 @@ const RESERVED_PATHS = new Set(['summary', 'trend']);
 // GET /api/emissions/summary
 router.get('/summary', async (req: Request, res: Response) => {
   try {
-    const authReq = req as AuthRequest;
+    const _authReq = req as AuthRequest;
     const { year } = req.query;
 
     const where: Record<string, any> = { deletedAt: null };
@@ -93,7 +93,7 @@ router.get('/summary', async (req: Request, res: Response) => {
 // GET /api/emissions/trend
 router.get('/trend', async (req: Request, res: Response) => {
   try {
-    const authReq = req as AuthRequest;
+    const _authReq = req as AuthRequest;
     const { year } = req.query;
     const y = year ? parseInt(year as string, 10) : new Date().getFullYear();
 
