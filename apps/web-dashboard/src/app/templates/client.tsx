@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { FileText, Search, Download, Copy, Eye, Filter, ChevronDown } from 'lucide-react';
 import { gateway } from '@/lib/gateway';
 import { Input, Card, CardContent, Badge, Button, Modal, ModalFooter } from '@ims/ui';
-import { Badge, Button, Card, CardContent, Input, Modal, ModalFooter } from '@ims/ui';
 
 interface FieldDefinition {
   name: string;
