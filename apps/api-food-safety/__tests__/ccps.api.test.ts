@@ -33,6 +33,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import ccpsRouter from '../src/routes/ccps';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -52,8 +53,8 @@ describe('GET /api/ccps', () => {
         isActive: true,
       },
     ];
-    (prisma as any).fsCcp.findMany.mockResolvedValue(ccps);
-    (prisma as any).fsCcp.count.mockResolvedValue(1);
+    mockPrisma.fsCcp.findMany.mockResolvedValue(ccps);
+    mockPrisma.fsCcp.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/ccps');
     expect(res.status).toBe(200);
@@ -62,18 +63,18 @@ describe('GET /api/ccps', () => {
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).fsCcp.findMany.mockResolvedValue([]);
-    (prisma as any).fsCcp.count.mockResolvedValue(0);
+    mockPrisma.fsCcp.findMany.mockResolvedValue([]);
+    mockPrisma.fsCcp.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/ccps?isActive=true');
     expect(res.status).toBe(200);
-    expect((prisma as any).fsCcp.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsCcp.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isActive: true }) })
     );
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsCcp.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsCcp.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/ccps');
     expect(res.status).toBe(500);
@@ -82,7 +83,7 @@ describe('GET /api/ccps', () => {
 
 describe('POST /api/ccps', () => {
   it('should create a CCP with auto-generated number', async () => {
-    (prisma as any).fsCcp.count.mockResolvedValue(5);
+    mockPrisma.fsCcp.count.mockResolvedValue(5);
     const created = {
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Cooking Temp',
@@ -92,7 +93,7 @@ describe('POST /api/ccps', () => {
       monitoringMethod: 'Thermometer',
       monitoringFrequency: 'PER_BATCH',
     };
-    (prisma as any).fsCcp.create.mockResolvedValue(created);
+    mockPrisma.fsCcp.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/ccps').send({
       name: 'Cooking Temp',
@@ -111,8 +112,8 @@ describe('POST /api/ccps', () => {
   });
 
   it('should handle database errors on create', async () => {
-    (prisma as any).fsCcp.count.mockResolvedValue(0);
-    (prisma as any).fsCcp.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsCcp.count.mockResolvedValue(0);
+    mockPrisma.fsCcp.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/ccps').send({
       name: 'Cooking Temp',
@@ -133,7 +134,7 @@ describe('GET /api/ccps/:id', () => {
       hazard: null,
       monitoringRecords: [],
     };
-    (prisma as any).fsCcp.findFirst.mockResolvedValue(ccp);
+    mockPrisma.fsCcp.findFirst.mockResolvedValue(ccp);
 
     const res = await request(app).get('/api/ccps/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -141,7 +142,7 @@ describe('GET /api/ccps/:id', () => {
   });
 
   it('should return 404 for non-existent CCP', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue(null);
+    mockPrisma.fsCcp.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/ccps/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -150,10 +151,10 @@ describe('GET /api/ccps/:id', () => {
 
 describe('PUT /api/ccps/:id', () => {
   it('should update a CCP', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue({
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsCcp.update.mockResolvedValue({
+    mockPrisma.fsCcp.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -166,7 +167,7 @@ describe('PUT /api/ccps/:id', () => {
   });
 
   it('should return 404 for non-existent CCP', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue(null);
+    mockPrisma.fsCcp.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/ccps/00000000-0000-0000-0000-000000000099')
@@ -175,7 +176,7 @@ describe('PUT /api/ccps/:id', () => {
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue({
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -188,10 +189,10 @@ describe('PUT /api/ccps/:id', () => {
 
 describe('DELETE /api/ccps/:id', () => {
   it('should soft delete a CCP', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue({
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsCcp.update.mockResolvedValue({
+    mockPrisma.fsCcp.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -202,7 +203,7 @@ describe('DELETE /api/ccps/:id', () => {
   });
 
   it('should return 404 for non-existent CCP', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue(null);
+    mockPrisma.fsCcp.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/ccps/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -211,11 +212,11 @@ describe('DELETE /api/ccps/:id', () => {
 
 describe('GET /api/ccps/:id/monitoring-records', () => {
   it('should return monitoring records for a CCP', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue({
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsMonitoringRecord.findMany.mockResolvedValue([{ id: 'mr-1', value: '76C' }]);
-    (prisma as any).fsMonitoringRecord.count.mockResolvedValue(1);
+    mockPrisma.fsMonitoringRecord.findMany.mockResolvedValue([{ id: 'mr-1', value: '76C' }]);
+    mockPrisma.fsMonitoringRecord.count.mockResolvedValue(1);
 
     const res = await request(app).get(
       '/api/ccps/00000000-0000-0000-0000-000000000001/monitoring-records'
@@ -225,7 +226,7 @@ describe('GET /api/ccps/:id/monitoring-records', () => {
   });
 
   it('should return 404 if CCP not found', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue(null);
+    mockPrisma.fsCcp.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/ccps/00000000-0000-0000-0000-000000000099/monitoring-records'
@@ -236,11 +237,11 @@ describe('GET /api/ccps/:id/monitoring-records', () => {
 
 describe('POST /api/ccps/:id/monitoring-records', () => {
   it('should create a monitoring record for a CCP', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue({
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const created = { id: 'mr-1', ccpId: 'ccp-1', value: '76C', withinLimits: true };
-    (prisma as any).fsMonitoringRecord.create.mockResolvedValue(created);
+    mockPrisma.fsMonitoringRecord.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/ccps/00000000-0000-0000-0000-000000000001/monitoring-records')
@@ -254,7 +255,7 @@ describe('POST /api/ccps/:id/monitoring-records', () => {
   });
 
   it('should return 404 if CCP not found', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue(null);
+    mockPrisma.fsCcp.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/ccps/00000000-0000-0000-0000-000000000099/monitoring-records')
@@ -267,7 +268,7 @@ describe('POST /api/ccps/:id/monitoring-records', () => {
   });
 
   it('should reject invalid monitoring record', async () => {
-    (prisma as any).fsCcp.findFirst.mockResolvedValue({
+    mockPrisma.fsCcp.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 

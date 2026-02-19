@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/competitors';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -50,8 +51,8 @@ describe('GET /api/competitors', () => {
       },
       { id: 'comp-2', name: 'Competitor B', category: 'GENERAL', intel: [] },
     ];
-    (prisma as any).competitorMonitor.findMany.mockResolvedValue(competitors);
-    (prisma as any).competitorMonitor.count.mockResolvedValue(2);
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue(competitors);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/competitors');
 
@@ -62,8 +63,8 @@ describe('GET /api/competitors', () => {
   });
 
   it('should support pagination query params', async () => {
-    (prisma as any).competitorMonitor.findMany.mockResolvedValue([]);
-    (prisma as any).competitorMonitor.count.mockResolvedValue(0);
+    mockPrisma.competitorMonitor.findMany.mockResolvedValue([]);
+    mockPrisma.competitorMonitor.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/competitors?page=2&limit=5');
 
@@ -73,7 +74,7 @@ describe('GET /api/competitors', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).competitorMonitor.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.competitorMonitor.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/competitors');
 
@@ -93,7 +94,7 @@ describe('GET /api/competitors/:id', () => {
       category: 'GENERAL',
       intel: [],
     };
-    (prisma as any).competitorMonitor.findUnique.mockResolvedValue(competitor);
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue(competitor);
 
     const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
 
@@ -103,7 +104,7 @@ describe('GET /api/competitors/:id', () => {
   });
 
   it('should return 404 for a non-existent competitor', async () => {
-    (prisma as any).competitorMonitor.findUnique.mockResolvedValue(null);
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000099');
 
@@ -112,7 +113,7 @@ describe('GET /api/competitors/:id', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000001');
 
@@ -133,7 +134,7 @@ describe('POST /api/competitors', () => {
       category: 'GENERAL',
       intel: [],
     };
-    (prisma as any).competitorMonitor.create.mockResolvedValue(created);
+    mockPrisma.competitorMonitor.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/competitors').send({
       name: 'New Competitor',
@@ -163,7 +164,7 @@ describe('POST /api/competitors', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).competitorMonitor.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.competitorMonitor.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/competitors').send({ name: 'New Competitor' });
 
@@ -184,8 +185,8 @@ describe('PATCH /api/competitors/:id', () => {
       intel: [],
     };
     const updated = { ...existing, name: 'Updated Name' };
-    (prisma as any).competitorMonitor.findUnique.mockResolvedValue(existing);
-    (prisma as any).competitorMonitor.update.mockResolvedValue(updated);
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue(existing);
+    mockPrisma.competitorMonitor.update.mockResolvedValue(updated);
 
     const res = await request(app)
       .patch('/api/competitors/00000000-0000-0000-0000-000000000001')
@@ -197,7 +198,7 @@ describe('PATCH /api/competitors/:id', () => {
   });
 
   it('should return 404 for a non-existent competitor', async () => {
-    (prisma as any).competitorMonitor.findUnique.mockResolvedValue(null);
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .patch('/api/competitors/00000000-0000-0000-0000-000000000099')
@@ -208,7 +209,7 @@ describe('PATCH /api/competitors/:id', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .patch('/api/competitors/00000000-0000-0000-0000-000000000001')
@@ -235,8 +236,8 @@ describe('POST /api/competitors/:id/intel', () => {
         { date: new Date().toISOString(), type: 'PRICING', detail: 'Lowered pricing by 10%' },
       ],
     };
-    (prisma as any).competitorMonitor.findUnique.mockResolvedValue(existing);
-    (prisma as any).competitorMonitor.update.mockResolvedValue(updated);
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue(existing);
+    mockPrisma.competitorMonitor.update.mockResolvedValue(updated);
 
     const res = await request(app)
       .post('/api/competitors/00000000-0000-0000-0000-000000000001/intel')
@@ -264,8 +265,8 @@ describe('POST /api/competitors/:id/intel', () => {
         { date: new Date().toISOString(), type: 'PRODUCT', detail: 'New product' },
       ],
     };
-    (prisma as any).competitorMonitor.findUnique.mockResolvedValue(existing);
-    (prisma as any).competitorMonitor.update.mockResolvedValue(updated);
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue(existing);
+    mockPrisma.competitorMonitor.update.mockResolvedValue(updated);
 
     const res = await request(app)
       .post('/api/competitors/00000000-0000-0000-0000-000000000001/intel')
@@ -288,7 +289,7 @@ describe('POST /api/competitors/:id/intel', () => {
   });
 
   it('should return 404 for a non-existent competitor', async () => {
-    (prisma as any).competitorMonitor.findUnique.mockResolvedValue(null);
+    mockPrisma.competitorMonitor.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/competitors/00000000-0000-0000-0000-000000000099/intel')
@@ -302,7 +303,7 @@ describe('POST /api/competitors/:id/intel', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.competitorMonitor.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .post('/api/competitors/00000000-0000-0000-0000-000000000001/intel')

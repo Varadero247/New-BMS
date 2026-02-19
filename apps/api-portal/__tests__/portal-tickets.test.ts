@@ -31,6 +31,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import portalTicketsRouter from '../src/routes/portal-tickets';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -51,8 +52,8 @@ describe('GET /api/portal/tickets', () => {
         messages: [],
       },
     ];
-    (prisma as any).portalTicket.findMany.mockResolvedValue(items);
-    (prisma as any).portalTicket.count.mockResolvedValue(1);
+    mockPrisma.portalTicket.findMany.mockResolvedValue(items);
+    mockPrisma.portalTicket.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/portal/tickets');
 
@@ -61,8 +62,8 @@ describe('GET /api/portal/tickets', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).portalTicket.findMany.mockResolvedValue([]);
-    (prisma as any).portalTicket.count.mockResolvedValue(0);
+    mockPrisma.portalTicket.findMany.mockResolvedValue([]);
+    mockPrisma.portalTicket.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/tickets?status=OPEN');
 
@@ -70,7 +71,7 @@ describe('GET /api/portal/tickets', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalTicket.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalTicket.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/portal/tickets');
 
@@ -86,7 +87,7 @@ describe('POST /api/portal/tickets', () => {
       subject: 'Login issue',
       status: 'OPEN',
     };
-    (prisma as any).portalTicket.create.mockResolvedValue(ticket);
+    mockPrisma.portalTicket.create.mockResolvedValue(ticket);
 
     const res = await request(app).post('/api/portal/tickets').send({
       subject: 'Login issue',
@@ -119,7 +120,7 @@ describe('GET /api/portal/tickets/:id', () => {
       subject: 'Login issue',
       messages: [{ id: 'm-1', message: 'Help' }],
     };
-    (prisma as any).portalTicket.findFirst.mockResolvedValue(ticket);
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(ticket);
 
     const res = await request(app).get('/api/portal/tickets/00000000-0000-0000-0000-000000000001');
 
@@ -128,7 +129,7 @@ describe('GET /api/portal/tickets/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).portalTicket.findFirst.mockResolvedValue(null);
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/portal/tickets/00000000-0000-0000-0000-000000000099');
 
@@ -138,10 +139,10 @@ describe('GET /api/portal/tickets/:id', () => {
 
 describe('PUT /api/portal/tickets/:id', () => {
   it('should update a ticket', async () => {
-    (prisma as any).portalTicket.findFirst.mockResolvedValue({
+    mockPrisma.portalTicket.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).portalTicket.update.mockResolvedValue({
+    mockPrisma.portalTicket.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       priority: 'LOW',
     });
@@ -154,7 +155,7 @@ describe('PUT /api/portal/tickets/:id', () => {
   });
 
   it('should return 404 for update if not found', async () => {
-    (prisma as any).portalTicket.findFirst.mockResolvedValue(null);
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/portal/tickets/00000000-0000-0000-0000-000000000099')
@@ -167,13 +168,13 @@ describe('PUT /api/portal/tickets/:id', () => {
 describe('POST /api/portal/tickets/:id/messages', () => {
   it('should add a message', async () => {
     const ticket = { id: '00000000-0000-0000-0000-000000000001', status: 'OPEN' };
-    (prisma as any).portalTicket.findFirst.mockResolvedValue(ticket);
-    (prisma as any).portalTicketMessage.create.mockResolvedValue({
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(ticket);
+    mockPrisma.portalTicketMessage.create.mockResolvedValue({
       id: 'm-1',
       ticketId: 't-1',
       message: 'Hello',
     });
-    (prisma as any).portalTicket.update.mockResolvedValue({ ...ticket, status: 'IN_PROGRESS' });
+    mockPrisma.portalTicket.update.mockResolvedValue({ ...ticket, status: 'IN_PROGRESS' });
 
     const res = await request(app)
       .post('/api/portal/tickets/00000000-0000-0000-0000-000000000001/messages')
@@ -183,7 +184,7 @@ describe('POST /api/portal/tickets/:id/messages', () => {
   });
 
   it('should return 404 if ticket not found for message', async () => {
-    (prisma as any).portalTicket.findFirst.mockResolvedValue(null);
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/portal/tickets/00000000-0000-0000-0000-000000000099/messages')
@@ -195,10 +196,10 @@ describe('POST /api/portal/tickets/:id/messages', () => {
 
 describe('GET /api/portal/tickets/:id/messages', () => {
   it('should list messages', async () => {
-    (prisma as any).portalTicket.findFirst.mockResolvedValue({
+    mockPrisma.portalTicket.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).portalTicketMessage.findMany.mockResolvedValue([
+    mockPrisma.portalTicketMessage.findMany.mockResolvedValue([
       { id: 'm-1', message: 'Hello' },
     ]);
 
@@ -211,7 +212,7 @@ describe('GET /api/portal/tickets/:id/messages', () => {
   });
 
   it('should return 404 if ticket not found for messages', async () => {
-    (prisma as any).portalTicket.findFirst.mockResolvedValue(null);
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/portal/tickets/00000000-0000-0000-0000-000000000099/messages'
@@ -224,8 +225,8 @@ describe('GET /api/portal/tickets/:id/messages', () => {
 describe('PUT /api/portal/tickets/:id/resolve', () => {
   it('should resolve a ticket', async () => {
     const ticket = { id: '00000000-0000-0000-0000-000000000001', status: 'IN_PROGRESS' };
-    (prisma as any).portalTicket.findFirst.mockResolvedValue(ticket);
-    (prisma as any).portalTicket.update.mockResolvedValue({
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(ticket);
+    mockPrisma.portalTicket.update.mockResolvedValue({
       ...ticket,
       status: 'RESOLVED',
       resolvedAt: new Date(),
@@ -239,7 +240,7 @@ describe('PUT /api/portal/tickets/:id/resolve', () => {
   });
 
   it('should return 400 if ticket already closed', async () => {
-    (prisma as any).portalTicket.findFirst.mockResolvedValue({
+    mockPrisma.portalTicket.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'CLOSED',
     });
@@ -252,7 +253,7 @@ describe('PUT /api/portal/tickets/:id/resolve', () => {
   });
 
   it('should return 404 if ticket not found for resolve', async () => {
-    (prisma as any).portalTicket.findFirst.mockResolvedValue(null);
+    mockPrisma.portalTicket.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/portal/tickets/00000000-0000-0000-0000-000000000099/resolve')

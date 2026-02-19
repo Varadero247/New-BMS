@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/analytics';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -37,18 +38,18 @@ beforeEach(() => {
 describe('GET /api/analytics/dashboard', () => {
   it('should return all dashboard metrics', async () => {
     // Setup mocks in order of Promise.all calls
-    (prisma as any).chemRegister.count
+    mockPrisma.chemRegister.count
       .mockResolvedValueOnce(50) // totalChemicals
       .mockResolvedValueOnce(5); // cmrCount
-    (prisma as any).chemCoshh.count
+    mockPrisma.chemCoshh.count
       .mockResolvedValueOnce(3) // highRiskCoshh
       .mockResolvedValueOnce(8); // coshhDueReview
-    (prisma as any).chemSds.count.mockResolvedValueOnce(2); // sdsOverdue
-    (prisma as any).chemMonitoring.count.mockResolvedValueOnce(1); // welExceedances
-    (prisma as any).chemInventory.count.mockResolvedValueOnce(4); // expiringStock
-    (prisma as any).chemIncident.count.mockResolvedValueOnce(10); // openIncidents
-    (prisma as any).chemIncompatAlert.count.mockResolvedValueOnce(2); // incompatAlerts
-    (prisma as any).chemCoshh.groupBy.mockResolvedValue([
+    mockPrisma.chemSds.count.mockResolvedValueOnce(2); // sdsOverdue
+    mockPrisma.chemMonitoring.count.mockResolvedValueOnce(1); // welExceedances
+    mockPrisma.chemInventory.count.mockResolvedValueOnce(4); // expiringStock
+    mockPrisma.chemIncident.count.mockResolvedValueOnce(10); // openIncidents
+    mockPrisma.chemIncompatAlert.count.mockResolvedValueOnce(2); // incompatAlerts
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([
       { residualRiskLevel: 'VERY_LOW', _count: 5 },
       { residualRiskLevel: 'LOW', _count: 10 },
       { residualRiskLevel: 'MEDIUM', _count: 8 },
@@ -56,7 +57,7 @@ describe('GET /api/analytics/dashboard', () => {
       { residualRiskLevel: 'VERY_HIGH', _count: 2 },
       { residualRiskLevel: 'UNACCEPTABLE', _count: 1 },
     ]);
-    (prisma as any).chemIncident.findMany.mockResolvedValue([
+    mockPrisma.chemIncident.findMany.mockResolvedValue([
       { id: 'inc-1', dateTime: '2026-02-10T00:00:00.000Z', chemical: { productName: 'Acetone' } },
     ]);
 
@@ -81,15 +82,15 @@ describe('GET /api/analytics/dashboard', () => {
   });
 
   it('should return zeros when database is empty', async () => {
-    (prisma as any).chemRegister.count.mockResolvedValue(0);
-    (prisma as any).chemCoshh.count.mockResolvedValue(0);
-    (prisma as any).chemSds.count.mockResolvedValue(0);
-    (prisma as any).chemMonitoring.count.mockResolvedValue(0);
-    (prisma as any).chemInventory.count.mockResolvedValue(0);
-    (prisma as any).chemIncident.count.mockResolvedValue(0);
-    (prisma as any).chemIncompatAlert.count.mockResolvedValue(0);
-    (prisma as any).chemCoshh.groupBy.mockResolvedValue([]);
-    (prisma as any).chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncompatAlert.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.groupBy.mockResolvedValue([]);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/analytics/dashboard');
     expect(res.status).toBe(200);
@@ -100,7 +101,7 @@ describe('GET /api/analytics/dashboard', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemRegister.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.count.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/analytics/dashboard');
     expect(res.status).toBe(500);

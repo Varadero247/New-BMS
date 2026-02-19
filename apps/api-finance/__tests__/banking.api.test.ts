@@ -46,6 +46,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import bankingRouter from '../src/routes/banking';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -70,7 +71,7 @@ describe('GET /api/banking', () => {
         _count: { transactions: 120 },
       },
     ];
-    (prisma as any).finBankAccount.findMany.mockResolvedValue(accounts);
+    mockPrisma.finBankAccount.findMany.mockResolvedValue(accounts);
 
     const res = await request(app).get('/api/banking');
 
@@ -79,12 +80,12 @@ describe('GET /api/banking', () => {
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).finBankAccount.findMany.mockResolvedValue([]);
+    mockPrisma.finBankAccount.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/banking?isActive=true');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finBankAccount.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finBankAccount.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ isActive: true }),
       })
@@ -92,12 +93,12 @@ describe('GET /api/banking', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).finBankAccount.findMany.mockResolvedValue([]);
+    mockPrisma.finBankAccount.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/banking?type=SAVINGS');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finBankAccount.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finBankAccount.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ type: 'SAVINGS' }),
       })
@@ -105,7 +106,7 @@ describe('GET /api/banking', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finBankAccount.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finBankAccount.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/banking');
 
@@ -115,7 +116,7 @@ describe('GET /api/banking', () => {
 
 describe('GET /api/banking/:id', () => {
   it('should return a bank account with recent transactions', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue({
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue({
       id: 'f1000000-0000-4000-a000-000000000001',
       name: 'Main Account',
       currentBalance: 50000,
@@ -137,7 +138,7 @@ describe('GET /api/banking/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue(null);
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get('/api/banking/00000000-0000-0000-0000-000000000099');
 
@@ -155,7 +156,7 @@ describe('POST /api/banking', () => {
   };
 
   it('should create a bank account', async () => {
-    (prisma as any).finBankAccount.create.mockResolvedValue({ id: 'ba-new', ...validAccount });
+    mockPrisma.finBankAccount.create.mockResolvedValue({ id: 'ba-new', ...validAccount });
 
     const res = await request(app).post('/api/banking').send(validAccount);
 
@@ -170,7 +171,7 @@ describe('POST /api/banking', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finBankAccount.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finBankAccount.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/banking').send(validAccount);
 
@@ -180,11 +181,11 @@ describe('POST /api/banking', () => {
 
 describe('PUT /api/banking/:id', () => {
   it('should update a bank account', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue({
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue({
       id: 'f1000000-0000-4000-a000-000000000001',
       name: 'Old Name',
     });
-    (prisma as any).finBankAccount.update.mockResolvedValue({
+    mockPrisma.finBankAccount.update.mockResolvedValue({
       id: 'f1000000-0000-4000-a000-000000000001',
       name: 'Updated Name',
     });
@@ -198,7 +199,7 @@ describe('PUT /api/banking/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue(null);
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/banking/00000000-0000-0000-0000-000000000099')
@@ -208,7 +209,7 @@ describe('PUT /api/banking/:id', () => {
   });
 
   it('should return 400 for validation error', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue({
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue({
       id: 'f1000000-0000-4000-a000-000000000001',
     });
 
@@ -222,11 +223,11 @@ describe('PUT /api/banking/:id', () => {
 
 describe('DELETE /api/banking/:id', () => {
   it('should soft delete a bank account with no unreconciled transactions', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue({
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue({
       id: 'f1000000-0000-4000-a000-000000000001',
       _count: { transactions: 0 },
     });
-    (prisma as any).finBankAccount.update.mockResolvedValue({
+    mockPrisma.finBankAccount.update.mockResolvedValue({
       id: 'f1000000-0000-4000-a000-000000000001',
     });
 
@@ -236,7 +237,7 @@ describe('DELETE /api/banking/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue(null);
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/banking/00000000-0000-0000-0000-000000000099');
 
@@ -244,7 +245,7 @@ describe('DELETE /api/banking/:id', () => {
   });
 
   it('should return 409 when account has unreconciled transactions', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue({
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue({
       id: 'f1000000-0000-4000-a000-000000000001',
       _count: { transactions: 5 },
     });
@@ -270,8 +271,8 @@ describe('GET /api/banking/transactions/list', () => {
         bankAccount: { id: 'f1000000-0000-4000-a000-000000000001', name: 'Main' },
       },
     ];
-    (prisma as any).finBankTransaction.findMany.mockResolvedValue(transactions);
-    (prisma as any).finBankTransaction.count.mockResolvedValue(1);
+    mockPrisma.finBankTransaction.findMany.mockResolvedValue(transactions);
+    mockPrisma.finBankTransaction.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/banking/transactions/list');
 
@@ -281,8 +282,8 @@ describe('GET /api/banking/transactions/list', () => {
   });
 
   it('should filter by bankAccountId', async () => {
-    (prisma as any).finBankTransaction.findMany.mockResolvedValue([]);
-    (prisma as any).finBankTransaction.count.mockResolvedValue(0);
+    mockPrisma.finBankTransaction.findMany.mockResolvedValue([]);
+    mockPrisma.finBankTransaction.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/banking/transactions/list?bankAccountId=ba-1');
 
@@ -290,8 +291,8 @@ describe('GET /api/banking/transactions/list', () => {
   });
 
   it('should filter by isReconciled', async () => {
-    (prisma as any).finBankTransaction.findMany.mockResolvedValue([]);
-    (prisma as any).finBankTransaction.count.mockResolvedValue(0);
+    mockPrisma.finBankTransaction.findMany.mockResolvedValue([]);
+    mockPrisma.finBankTransaction.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/banking/transactions/list?isReconciled=false');
 
@@ -299,8 +300,8 @@ describe('GET /api/banking/transactions/list', () => {
   });
 
   it('should filter by date range', async () => {
-    (prisma as any).finBankTransaction.findMany.mockResolvedValue([]);
-    (prisma as any).finBankTransaction.count.mockResolvedValue(0);
+    mockPrisma.finBankTransaction.findMany.mockResolvedValue([]);
+    mockPrisma.finBankTransaction.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/banking/transactions/list?dateFrom=2026-01-01&dateTo=2026-01-31'
@@ -310,8 +311,8 @@ describe('GET /api/banking/transactions/list', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).finBankTransaction.findMany.mockResolvedValue([]);
-    (prisma as any).finBankTransaction.count.mockResolvedValue(200);
+    mockPrisma.finBankTransaction.findMany.mockResolvedValue([]);
+    mockPrisma.finBankTransaction.count.mockResolvedValue(200);
 
     const res = await request(app).get('/api/banking/transactions/list?page=2&limit=50');
 
@@ -329,12 +330,12 @@ describe('POST /api/banking/transactions', () => {
   };
 
   it('should create a transaction and update balance', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue({
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue({
       id: validTx.bankAccountId,
       currentBalance: 10000,
     });
-    (prisma as any).finBankTransaction.create.mockResolvedValue({ id: 'tx-new', ...validTx });
-    (prisma as any).finBankAccount.update.mockResolvedValue({
+    mockPrisma.finBankTransaction.create.mockResolvedValue({ id: 'tx-new', ...validTx });
+    mockPrisma.finBankAccount.update.mockResolvedValue({
       id: validTx.bankAccountId,
       currentBalance: 15000,
     });
@@ -346,7 +347,7 @@ describe('POST /api/banking/transactions', () => {
   });
 
   it('should return 404 when bank account not found', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue(null);
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post('/api/banking/transactions').send(validTx);
 
@@ -371,8 +372,8 @@ describe('POST /api/banking/import', () => {
   };
 
   it('should import multiple transactions', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue({ id: validImport.bankAccountId });
-    (prisma as any).finBankTransaction.createMany.mockResolvedValue({ count: 3 });
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue({ id: validImport.bankAccountId });
+    mockPrisma.finBankTransaction.createMany.mockResolvedValue({ count: 3 });
 
     const res = await request(app).post('/api/banking/import').send(validImport);
 
@@ -381,7 +382,7 @@ describe('POST /api/banking/import', () => {
   });
 
   it('should return 404 when bank account not found', async () => {
-    (prisma as any).finBankAccount.findUnique.mockResolvedValue(null);
+    mockPrisma.finBankAccount.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post('/api/banking/import').send(validImport);
 
@@ -409,7 +410,7 @@ describe('GET /api/banking/reconciliations/list', () => {
         _count: { transactions: 10 },
       },
     ];
-    (prisma as any).finReconciliation.findMany.mockResolvedValue(reconciliations);
+    mockPrisma.finReconciliation.findMany.mockResolvedValue(reconciliations);
 
     const res = await request(app).get('/api/banking/reconciliations/list');
 
@@ -418,7 +419,7 @@ describe('GET /api/banking/reconciliations/list', () => {
   });
 
   it('should filter by bankAccountId', async () => {
-    (prisma as any).finReconciliation.findMany.mockResolvedValue([]);
+    mockPrisma.finReconciliation.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/banking/reconciliations/list?bankAccountId=ba-1');
 
@@ -426,7 +427,7 @@ describe('GET /api/banking/reconciliations/list', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).finReconciliation.findMany.mockResolvedValue([]);
+    mockPrisma.finReconciliation.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/banking/reconciliations/list?status=COMPLETED');
 
@@ -444,7 +445,7 @@ describe('POST /api/banking/reconciliations', () => {
   };
 
   it('should start a reconciliation', async () => {
-    (prisma as any).finReconciliation.create.mockResolvedValue({
+    mockPrisma.finReconciliation.create.mockResolvedValue({
       id: 'rec-new',
       status: 'IN_PROGRESS',
       ...validRecon,
@@ -465,11 +466,11 @@ describe('POST /api/banking/reconciliations', () => {
 
 describe('POST /api/banking/reconciliations/:id/reconcile', () => {
   it('should reconcile selected transactions', async () => {
-    (prisma as any).finReconciliation.findUnique.mockResolvedValue({
+    mockPrisma.finReconciliation.findUnique.mockResolvedValue({
       id: 'f1200000-0000-4000-a000-000000000001',
       status: 'IN_PROGRESS',
     });
-    (prisma as any).finBankTransaction.updateMany.mockResolvedValue({ count: 3 });
+    mockPrisma.finBankTransaction.updateMany.mockResolvedValue({ count: 3 });
 
     const res = await request(app)
       .post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000001/reconcile')
@@ -486,7 +487,7 @@ describe('POST /api/banking/reconciliations/:id/reconcile', () => {
   });
 
   it('should return 404 when reconciliation not found', async () => {
-    (prisma as any).finReconciliation.findUnique.mockResolvedValue(null);
+    mockPrisma.finReconciliation.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/banking/reconciliations/00000000-0000-0000-0000-000000000099/reconcile')
@@ -496,7 +497,7 @@ describe('POST /api/banking/reconciliations/:id/reconcile', () => {
   });
 
   it('should return 400 when reconciliation is COMPLETED', async () => {
-    (prisma as any).finReconciliation.findUnique.mockResolvedValue({
+    mockPrisma.finReconciliation.findUnique.mockResolvedValue({
       id: 'f1200000-0000-4000-a000-000000000001',
       status: 'COMPLETED',
     });
@@ -520,16 +521,16 @@ describe('POST /api/banking/reconciliations/:id/reconcile', () => {
 
 describe('POST /api/banking/reconciliations/:id/complete', () => {
   it('should complete a reconciliation', async () => {
-    (prisma as any).finReconciliation.findUnique.mockResolvedValue({
+    mockPrisma.finReconciliation.findUnique.mockResolvedValue({
       id: 'f1200000-0000-4000-a000-000000000001',
       status: 'IN_PROGRESS',
       bankAccountId: 'f1000000-0000-4000-a000-000000000001',
     });
-    (prisma as any).finReconciliation.update.mockResolvedValue({
+    mockPrisma.finReconciliation.update.mockResolvedValue({
       id: 'f1200000-0000-4000-a000-000000000001',
       status: 'COMPLETED',
     });
-    (prisma as any).finBankAccount.update.mockResolvedValue({
+    mockPrisma.finBankAccount.update.mockResolvedValue({
       id: 'f1000000-0000-4000-a000-000000000001',
     });
 
@@ -542,7 +543,7 @@ describe('POST /api/banking/reconciliations/:id/complete', () => {
   });
 
   it('should return 404 when reconciliation not found', async () => {
-    (prisma as any).finReconciliation.findUnique.mockResolvedValue(null);
+    mockPrisma.finReconciliation.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/banking/reconciliations/00000000-0000-0000-0000-000000000099/complete'
@@ -552,7 +553,7 @@ describe('POST /api/banking/reconciliations/:id/complete', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finReconciliation.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finReconciliation.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post(
       '/api/banking/reconciliations/00000000-0000-0000-0000-000000000001/complete'

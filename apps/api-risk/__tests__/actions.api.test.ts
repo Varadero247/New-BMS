@@ -20,6 +20,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/actions';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/risks', router);
@@ -29,7 +30,7 @@ beforeEach(() => {
 
 describe('GET /api/risks/:id/actions', () => {
   it('should return actions for a risk', async () => {
-    (prisma as any).riskAction.findMany.mockResolvedValue([
+    mockPrisma.riskAction.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', actionTitle: 'Test' },
     ]);
     const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/actions');
@@ -40,10 +41,10 @@ describe('GET /api/risks/:id/actions', () => {
 
 describe('POST /api/risks/:id/actions', () => {
   it('should create action', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).riskAction.create.mockResolvedValue({
+    mockPrisma.riskAction.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       actionTitle: 'Install LEV',
     });
@@ -60,7 +61,7 @@ describe('POST /api/risks/:id/actions', () => {
   });
 
   it('should return 404 if risk not found', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .post('/api/risks/00000000-0000-0000-0000-000000000001/actions')
       .send({
@@ -73,7 +74,7 @@ describe('POST /api/risks/:id/actions', () => {
   });
 
   it('should validate required fields', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app)
@@ -85,10 +86,10 @@ describe('POST /api/risks/:id/actions', () => {
 
 describe('PUT /api/risks/:riskId/actions/:id', () => {
   it('should update action', async () => {
-    (prisma as any).riskAction.findFirst.mockResolvedValue({
+    mockPrisma.riskAction.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).riskAction.update.mockResolvedValue({
+    mockPrisma.riskAction.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       priority: 'HIGH',
     });
@@ -101,7 +102,7 @@ describe('PUT /api/risks/:riskId/actions/:id', () => {
   });
 
   it('should return 404 if action not found', async () => {
-    (prisma as any).riskAction.findFirst.mockResolvedValue(null);
+    mockPrisma.riskAction.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put(
         '/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001'
@@ -113,10 +114,10 @@ describe('PUT /api/risks/:riskId/actions/:id', () => {
 
 describe('POST /api/risks/:riskId/actions/:id/complete', () => {
   it('should mark action complete', async () => {
-    (prisma as any).riskAction.findFirst.mockResolvedValue({
+    mockPrisma.riskAction.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).riskAction.update.mockResolvedValue({
+    mockPrisma.riskAction.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
     });
@@ -132,7 +133,7 @@ describe('POST /api/risks/:riskId/actions/:id/complete', () => {
 
 describe('GET /api/risks/actions/overdue', () => {
   it('should return overdue actions', async () => {
-    (prisma as any).riskAction.findMany.mockResolvedValue([
+    mockPrisma.riskAction.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', status: 'OPEN', targetDate: '2025-01-01' },
     ]);
     const res = await request(app).get('/api/risks/actions/overdue');
@@ -142,7 +143,7 @@ describe('GET /api/risks/actions/overdue', () => {
 
 describe('GET /api/risks/actions/due-soon', () => {
   it('should return actions due within 14 days', async () => {
-    (prisma as any).riskAction.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/risks/actions/due-soon');
     expect(res.status).toBe(200);
   });

@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import invoicesRouter from '../src/routes/invoices';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -49,8 +50,8 @@ describe('GET /api/invoices', () => {
         customer: {},
       },
     ];
-    (prisma as any).fsSvcInvoice.findMany.mockResolvedValue(invoices);
-    (prisma as any).fsSvcInvoice.count.mockResolvedValue(1);
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue(invoices);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/invoices');
 
@@ -60,12 +61,12 @@ describe('GET /api/invoices', () => {
   });
 
   it('should filter by customerId', async () => {
-    (prisma as any).fsSvcInvoice.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcInvoice.count.mockResolvedValue(0);
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(0);
 
     await request(app).get('/api/invoices?customerId=cust-1');
 
-    expect((prisma as any).fsSvcInvoice.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcInvoice.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ customerId: 'cust-1' }),
       })
@@ -73,12 +74,12 @@ describe('GET /api/invoices', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsSvcInvoice.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcInvoice.count.mockResolvedValue(0);
+    mockPrisma.fsSvcInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcInvoice.count.mockResolvedValue(0);
 
     await request(app).get('/api/invoices?status=PAID');
 
-    expect((prisma as any).fsSvcInvoice.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcInvoice.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'PAID' }),
       })
@@ -86,7 +87,7 @@ describe('GET /api/invoices', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).fsSvcInvoice.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSvcInvoice.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/invoices');
 
@@ -97,7 +98,7 @@ describe('GET /api/invoices', () => {
 describe('POST /api/invoices', () => {
   it('should create an invoice with generated number', async () => {
     const created = { id: 'inv-new', number: 'FSI-2602-5678', status: 'DRAFT' };
-    (prisma as any).fsSvcInvoice.create.mockResolvedValue(created);
+    mockPrisma.fsSvcInvoice.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/invoices')
@@ -124,7 +125,7 @@ describe('POST /api/invoices', () => {
 
 describe('GET /api/invoices/:id', () => {
   it('should return an invoice by id', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       number: 'FSI-001',
       job: {},
@@ -138,7 +139,7 @@ describe('GET /api/invoices/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/invoices/00000000-0000-0000-0000-000000000099');
 
@@ -148,10 +149,10 @@ describe('GET /api/invoices/:id', () => {
 
 describe('PUT /api/invoices/:id', () => {
   it('should update an invoice', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcInvoice.update.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       total: 300,
     });
@@ -164,7 +165,7 @@ describe('PUT /api/invoices/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/invoices/00000000-0000-0000-0000-000000000099')
@@ -176,10 +177,10 @@ describe('PUT /api/invoices/:id', () => {
 
 describe('DELETE /api/invoices/:id', () => {
   it('should soft delete an invoice', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcInvoice.update.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -191,7 +192,7 @@ describe('DELETE /api/invoices/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/invoices/00000000-0000-0000-0000-000000000099');
 
@@ -201,11 +202,11 @@ describe('DELETE /api/invoices/:id', () => {
 
 describe('PUT /api/invoices/:id/send', () => {
   it('should send a draft invoice', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'DRAFT',
     });
-    (prisma as any).fsSvcInvoice.update.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'SENT',
     });
@@ -217,7 +218,7 @@ describe('PUT /api/invoices/:id/send', () => {
   });
 
   it('should reject if not draft', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'SENT',
     });
@@ -228,7 +229,7 @@ describe('PUT /api/invoices/:id/send', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000099/send');
 
@@ -238,11 +239,11 @@ describe('PUT /api/invoices/:id/send', () => {
 
 describe('PUT /api/invoices/:id/pay', () => {
   it('should mark invoice as paid', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'SENT',
     });
-    (prisma as any).fsSvcInvoice.update.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'PAID',
       paidDate: new Date(),
@@ -255,7 +256,7 @@ describe('PUT /api/invoices/:id/pay', () => {
   });
 
   it('should reject if already paid', async () => {
-    (prisma as any).fsSvcInvoice.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'PAID',
     });

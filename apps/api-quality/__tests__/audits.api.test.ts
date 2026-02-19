@@ -34,7 +34,7 @@ jest.mock('@ims/monitoring', () => ({
 import auditsRouter from '../src/routes/audits';
 import { prisma } from '../src/prisma';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());

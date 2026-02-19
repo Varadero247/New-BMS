@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/monitoring';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -75,8 +76,8 @@ const validMonitoringBody = {
 
 describe('GET /api/monitoring', () => {
   it('should return a list of monitoring records with pagination', async () => {
-    (prisma as any).chemMonitoring.findMany.mockResolvedValue([mockMonitoring]);
-    (prisma as any).chemMonitoring.count.mockResolvedValue(1);
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([mockMonitoring]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/monitoring');
     expect(res.status).toBe(200);
@@ -88,14 +89,14 @@ describe('GET /api/monitoring', () => {
   });
 
   it('should support chemicalId filter', async () => {
-    (prisma as any).chemMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/monitoring?chemicalId=00000000-0000-0000-0000-000000000001'
     );
     expect(res.status).toBe(200);
-    expect((prisma as any).chemMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ chemicalId: '00000000-0000-0000-0000-000000000001' }),
       })
@@ -103,18 +104,18 @@ describe('GET /api/monitoring', () => {
   });
 
   it('should support welResult filter', async () => {
-    (prisma as any).chemMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/monitoring?welResult=ABOVE_WEL');
     expect(res.status).toBe(200);
-    expect((prisma as any).chemMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ resultVsWel: 'ABOVE_WEL' }) })
     );
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemMonitoring.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemMonitoring.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/monitoring');
     expect(res.status).toBe(500);
@@ -126,7 +127,7 @@ describe('GET /api/monitoring', () => {
 describe('GET /api/monitoring/overdue', () => {
   it('should return overdue monitoring records', async () => {
     const overdueItem = { ...mockMonitoring, nextMonitoringDue: '2025-12-01T00:00:00.000Z' };
-    (prisma as any).chemMonitoring.findMany.mockResolvedValue([overdueItem]);
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([overdueItem]);
 
     const res = await request(app).get('/api/monitoring/overdue');
     expect(res.status).toBe(200);
@@ -136,7 +137,7 @@ describe('GET /api/monitoring/overdue', () => {
   });
 
   it('should return empty array when no overdue monitoring', async () => {
-    (prisma as any).chemMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.chemMonitoring.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/monitoring/overdue');
     expect(res.status).toBe(200);
@@ -145,7 +146,7 @@ describe('GET /api/monitoring/overdue', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).chemMonitoring.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemMonitoring.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/monitoring/overdue');
     expect(res.status).toBe(500);
@@ -156,7 +157,7 @@ describe('GET /api/monitoring/overdue', () => {
 
 describe('GET /api/monitoring/dashboard', () => {
   it('should return WEL dashboard stats', async () => {
-    (prisma as any).chemMonitoring.count
+    mockPrisma.chemMonitoring.count
       .mockResolvedValueOnce(100) // total
       .mockResolvedValueOnce(5) // aboveWel
       .mockResolvedValueOnce(10) // atWel
@@ -176,7 +177,7 @@ describe('GET /api/monitoring/dashboard', () => {
   });
 
   it('should return zeros when no monitoring data', async () => {
-    (prisma as any).chemMonitoring.count.mockResolvedValue(0);
+    mockPrisma.chemMonitoring.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/monitoring/dashboard');
     expect(res.status).toBe(200);
@@ -185,7 +186,7 @@ describe('GET /api/monitoring/dashboard', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).chemMonitoring.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemMonitoring.count.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/monitoring/dashboard');
     expect(res.status).toBe(500);
@@ -196,14 +197,14 @@ describe('GET /api/monitoring/dashboard', () => {
 
 describe('POST /api/monitoring', () => {
   it('should create a monitoring record with auto-calculated WEL percentage', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemMonitoring.create.mockResolvedValue(mockMonitoring);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemMonitoring.create.mockResolvedValue(mockMonitoring);
 
     const res = await request(app).post('/api/monitoring').send(validMonitoringBody);
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     // resultValue=5, welTwaLimit=10 => 50% => BELOW_WEL
-    expect((prisma as any).chemMonitoring.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemMonitoring.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           percentageOfWel: 50,
@@ -215,8 +216,8 @@ describe('POST /api/monitoring', () => {
   });
 
   it('should auto-calculate WEL as AT_WEL when result is 90% of limit', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemMonitoring.create.mockResolvedValue({
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemMonitoring.create.mockResolvedValue({
       ...mockMonitoring,
       percentageOfWel: 95,
       resultVsWel: 'AT_WEL',
@@ -230,7 +231,7 @@ describe('POST /api/monitoring', () => {
         resultValue: 9.5,
       });
     expect(res.status).toBe(201);
-    expect((prisma as any).chemMonitoring.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemMonitoring.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           percentageOfWel: 95,
@@ -242,8 +243,8 @@ describe('POST /api/monitoring', () => {
   });
 
   it('should auto-calculate WEL as ABOVE_WEL when result exceeds limit', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemMonitoring.create.mockResolvedValue({
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemMonitoring.create.mockResolvedValue({
       ...mockMonitoring,
       percentageOfWel: 150,
       resultVsWel: 'ABOVE_WEL',
@@ -257,7 +258,7 @@ describe('POST /api/monitoring', () => {
         resultValue: 15,
       });
     expect(res.status).toBe(201);
-    expect((prisma as any).chemMonitoring.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemMonitoring.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           percentageOfWel: 150,
@@ -269,8 +270,8 @@ describe('POST /api/monitoring', () => {
   });
 
   it('should use chemical welTwa8hr when welTwaLimit not provided', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemMonitoring.create.mockResolvedValue(mockMonitoring);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemMonitoring.create.mockResolvedValue(mockMonitoring);
 
     const res = await request(app).post('/api/monitoring').send({
       chemicalId: '00000000-0000-0000-0000-000000000001',
@@ -280,7 +281,7 @@ describe('POST /api/monitoring', () => {
       resultUnit: 'mg/m3',
     });
     expect(res.status).toBe(201);
-    expect((prisma as any).chemMonitoring.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemMonitoring.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           welTwaLimit: 10,
@@ -302,7 +303,7 @@ describe('POST /api/monitoring', () => {
   });
 
   it('should return 404 when chemical does not exist', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/monitoring')
@@ -317,8 +318,8 @@ describe('POST /api/monitoring', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemMonitoring.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemMonitoring.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/monitoring').send(validMonitoringBody);
     expect(res.status).toBe(500);
@@ -329,8 +330,8 @@ describe('POST /api/monitoring', () => {
 
 describe('PUT /api/monitoring/:id', () => {
   it('should update an existing monitoring record', async () => {
-    (prisma as any).chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
-    (prisma as any).chemMonitoring.update.mockResolvedValue({
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
+    mockPrisma.chemMonitoring.update.mockResolvedValue({
       ...mockMonitoring,
       location: 'Lab B',
     });
@@ -346,7 +347,7 @@ describe('PUT /api/monitoring/:id', () => {
   });
 
   it('should return 404 when monitoring record not found', async () => {
-    (prisma as any).chemMonitoring.findFirst.mockResolvedValue(null);
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/monitoring/00000000-0000-0000-0000-000000000099')
@@ -359,8 +360,8 @@ describe('PUT /api/monitoring/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
-    (prisma as any).chemMonitoring.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemMonitoring.findFirst.mockResolvedValue(mockMonitoring);
+    mockPrisma.chemMonitoring.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put('/api/monitoring/00000000-0000-0000-0000-000000000040')

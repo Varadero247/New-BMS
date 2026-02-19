@@ -30,7 +30,7 @@ jest.mock('@ims/service-auth', () => ({
 import { prisma } from '../src/prisma';
 import nonconformancesRoutes from '../src/routes/nonconformances';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe('Quality Nonconformances API Routes', () => {
   let app: express.Express;

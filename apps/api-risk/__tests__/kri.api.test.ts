@@ -21,6 +21,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/kri';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/risks', router);
@@ -30,7 +31,7 @@ beforeEach(() => {
 
 describe('GET /api/risks/:id/kri', () => {
   it('should return KRIs for a risk', async () => {
-    (prisma as any).riskKri.findMany.mockResolvedValue([
+    mockPrisma.riskKri.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', name: 'Test KRI' },
     ]);
     const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/kri');
@@ -41,10 +42,10 @@ describe('GET /api/risks/:id/kri', () => {
 
 describe('POST /api/risks/:id/kri', () => {
   it('should create KRI', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).riskKri.create.mockResolvedValue({
+    mockPrisma.riskKri.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Incident rate',
     });
@@ -56,7 +57,7 @@ describe('POST /api/risks/:id/kri', () => {
   });
 
   it('should return 404 if risk not found', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .post('/api/risks/00000000-0000-0000-0000-000000000001/kri')
       .send({ name: 'Test' });
@@ -64,7 +65,7 @@ describe('POST /api/risks/:id/kri', () => {
   });
 
   it('should validate name required', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app)
@@ -76,10 +77,10 @@ describe('POST /api/risks/:id/kri', () => {
 
 describe('PUT /api/risks/:riskId/kri/:id', () => {
   it('should update KRI', async () => {
-    (prisma as any).riskKri.findFirst.mockResolvedValue({
+    mockPrisma.riskKri.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).riskKri.update.mockResolvedValue({
+    mockPrisma.riskKri.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -94,19 +95,19 @@ describe('PUT /api/risks/:riskId/kri/:id', () => {
 
 describe('POST /api/risks/:riskId/kri/:id/reading', () => {
   it('should record KRI reading and update status', async () => {
-    (prisma as any).riskKri.findFirst.mockResolvedValue({
+    mockPrisma.riskKri.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       greenThreshold: 5,
       amberThreshold: 10,
       redThreshold: 15,
       thresholdDirection: 'INCREASING_IS_WORSE',
     });
-    (prisma as any).riskKriReading.create.mockResolvedValue({
+    mockPrisma.riskKriReading.create.mockResolvedValue({
       id: 'rd1',
       value: 12,
       status: 'AMBER',
     });
-    (prisma as any).riskKri.update.mockResolvedValue({
+    mockPrisma.riskKri.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       currentValue: 12,
       currentStatus: 'AMBER',
@@ -121,19 +122,19 @@ describe('POST /api/risks/:riskId/kri/:id/reading', () => {
   });
 
   it('should return GREEN for low value', async () => {
-    (prisma as any).riskKri.findFirst.mockResolvedValue({
+    mockPrisma.riskKri.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       greenThreshold: 5,
       amberThreshold: 10,
       redThreshold: 15,
       thresholdDirection: 'INCREASING_IS_WORSE',
     });
-    (prisma as any).riskKriReading.create.mockResolvedValue({
+    mockPrisma.riskKriReading.create.mockResolvedValue({
       id: 'rd2',
       value: 3,
       status: 'GREEN',
     });
-    (prisma as any).riskKri.update.mockResolvedValue({});
+    mockPrisma.riskKri.update.mockResolvedValue({});
     const res = await request(app)
       .post(
         '/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000001/reading'
@@ -144,19 +145,19 @@ describe('POST /api/risks/:riskId/kri/:id/reading', () => {
   });
 
   it('should return RED for high value', async () => {
-    (prisma as any).riskKri.findFirst.mockResolvedValue({
+    mockPrisma.riskKri.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       greenThreshold: 5,
       amberThreshold: 10,
       redThreshold: 15,
       thresholdDirection: 'INCREASING_IS_WORSE',
     });
-    (prisma as any).riskKriReading.create.mockResolvedValue({
+    mockPrisma.riskKriReading.create.mockResolvedValue({
       id: 'rd3',
       value: 20,
       status: 'RED',
     });
-    (prisma as any).riskKri.update.mockResolvedValue({});
+    mockPrisma.riskKri.update.mockResolvedValue({});
     const res = await request(app)
       .post(
         '/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000001/reading'
@@ -178,7 +179,7 @@ describe('POST /api/risks/:riskId/kri/:id/reading', () => {
 
 describe('GET /api/risks/kri/breaches', () => {
   it('should return KRIs in amber or red', async () => {
-    (prisma as any).riskKri.findMany.mockResolvedValue([
+    mockPrisma.riskKri.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', currentStatus: 'RED' },
     ]);
     const res = await request(app).get('/api/risks/kri/breaches');
@@ -189,7 +190,7 @@ describe('GET /api/risks/kri/breaches', () => {
 
 describe('GET /api/risks/kri/due', () => {
   it('should return KRIs due this week', async () => {
-    (prisma as any).riskKri.findMany.mockResolvedValue([
+    mockPrisma.riskKri.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', nextMeasurementDue: new Date() },
     ]);
     const res = await request(app).get('/api/risks/kri/due');

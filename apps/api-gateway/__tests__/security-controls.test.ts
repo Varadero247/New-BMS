@@ -8,7 +8,7 @@ jest.mock('@ims/auth', () => ({
     next();
   }),
   requireRole: jest.fn((...roles: string[]) => (req: any, res: any, next: any) => {
-    const user = (req as any).user;
+    const user = (req as { user?: { id: string; email: string; role: string } }).user;
     if (user && roles.includes(user.role)) {
       next();
     } else {

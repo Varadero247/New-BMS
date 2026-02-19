@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import portalQualityRouter from '../src/routes/portal-quality';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -46,8 +47,8 @@ describe('GET /api/portal/quality-reports', () => {
         severity: 'MAJOR',
       },
     ];
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue(items);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(1);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue(items);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/portal/quality-reports');
 
@@ -56,8 +57,8 @@ describe('GET /api/portal/quality-reports', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue([]);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(0);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/quality-reports?status=OPEN');
 
@@ -65,8 +66,8 @@ describe('GET /api/portal/quality-reports', () => {
   });
 
   it('should filter by reportType', async () => {
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue([]);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(0);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/quality-reports?reportType=NCR');
 
@@ -74,8 +75,8 @@ describe('GET /api/portal/quality-reports', () => {
   });
 
   it('should filter by severity', async () => {
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue([]);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(0);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/quality-reports?severity=CRITICAL');
 
@@ -83,7 +84,7 @@ describe('GET /api/portal/quality-reports', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalQualityReport.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalQualityReport.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/portal/quality-reports');
 
@@ -99,7 +100,7 @@ describe('POST /api/portal/quality-reports', () => {
       referenceNumber: 'PTL-QR-2602-1234',
       status: 'OPEN',
     };
-    (prisma as any).portalQualityReport.create.mockResolvedValue(report);
+    mockPrisma.portalQualityReport.create.mockResolvedValue(report);
 
     const res = await request(app).post('/api/portal/quality-reports').send({
       portalUserId: '00000000-0000-0000-0000-000000000001',
@@ -136,7 +137,7 @@ describe('POST /api/portal/quality-reports', () => {
 
 describe('GET /api/portal/quality-reports/:id', () => {
   it('should return a quality report', async () => {
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue({
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       reportType: 'NCR',
     });
@@ -150,7 +151,7 @@ describe('GET /api/portal/quality-reports/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue(null);
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/portal/quality-reports/00000000-0000-0000-0000-000000000099'
@@ -162,10 +163,10 @@ describe('GET /api/portal/quality-reports/:id', () => {
 
 describe('PUT /api/portal/quality-reports/:id', () => {
   it('should update a quality report', async () => {
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue({
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).portalQualityReport.update.mockResolvedValue({
+    mockPrisma.portalQualityReport.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'INVESTIGATING',
     });
@@ -178,7 +179,7 @@ describe('PUT /api/portal/quality-reports/:id', () => {
   });
 
   it('should return 404 for update if not found', async () => {
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue(null);
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000099')
@@ -188,7 +189,7 @@ describe('PUT /api/portal/quality-reports/:id', () => {
   });
 
   it('should handle server error on update', async () => {
-    (prisma as any).portalQualityReport.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalQualityReport.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put('/api/portal/quality-reports/00000000-0000-0000-0000-000000000001')

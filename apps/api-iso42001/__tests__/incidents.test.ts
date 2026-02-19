@@ -32,6 +32,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import incidentsRouter from '../src/routes/incidents';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -94,8 +95,8 @@ const mockIncident = {
 // ===================================================================
 describe('GET /api/incidents', () => {
   it('should return a paginated list of incidents', async () => {
-    (prisma as any).aiIncident.findMany.mockResolvedValue([mockIncident]);
-    (prisma as any).aiIncident.count.mockResolvedValue(1);
+    mockPrisma.aiIncident.findMany.mockResolvedValue([mockIncident]);
+    mockPrisma.aiIncident.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/incidents');
 
@@ -106,8 +107,8 @@ describe('GET /api/incidents', () => {
   });
 
   it('should return empty list when no incidents exist', async () => {
-    (prisma as any).aiIncident.findMany.mockResolvedValue([]);
-    (prisma as any).aiIncident.count.mockResolvedValue(0);
+    mockPrisma.aiIncident.findMany.mockResolvedValue([]);
+    mockPrisma.aiIncident.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/incidents');
 
@@ -116,13 +117,13 @@ describe('GET /api/incidents', () => {
   });
 
   it('should filter by severity', async () => {
-    (prisma as any).aiIncident.findMany.mockResolvedValue([]);
-    (prisma as any).aiIncident.count.mockResolvedValue(0);
+    mockPrisma.aiIncident.findMany.mockResolvedValue([]);
+    mockPrisma.aiIncident.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/incidents?severity=CRITICAL');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiIncident.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiIncident.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ severity: 'CRITICAL' }),
       })
@@ -130,13 +131,13 @@ describe('GET /api/incidents', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).aiIncident.findMany.mockResolvedValue([]);
-    (prisma as any).aiIncident.count.mockResolvedValue(0);
+    mockPrisma.aiIncident.findMany.mockResolvedValue([]);
+    mockPrisma.aiIncident.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/incidents?status=INVESTIGATING');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiIncident.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiIncident.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'INVESTIGATING' }),
       })
@@ -144,13 +145,13 @@ describe('GET /api/incidents', () => {
   });
 
   it('should filter by systemId', async () => {
-    (prisma as any).aiIncident.findMany.mockResolvedValue([]);
-    (prisma as any).aiIncident.count.mockResolvedValue(0);
+    mockPrisma.aiIncident.findMany.mockResolvedValue([]);
+    mockPrisma.aiIncident.count.mockResolvedValue(0);
 
     const res = await request(app).get(`/api/incidents?systemId=${UUID1}`);
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiIncident.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiIncident.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ systemId: UUID1 }),
       })
@@ -158,13 +159,13 @@ describe('GET /api/incidents', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).aiIncident.findMany.mockResolvedValue([]);
-    (prisma as any).aiIncident.count.mockResolvedValue(0);
+    mockPrisma.aiIncident.findMany.mockResolvedValue([]);
+    mockPrisma.aiIncident.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/incidents?search=bias');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiIncident.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiIncident.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -176,7 +177,7 @@ describe('GET /api/incidents', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiIncident.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiIncident.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/incidents');
 
@@ -198,8 +199,8 @@ describe('POST /api/incidents', () => {
   };
 
   it('should create an incident successfully', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiIncident.create.mockResolvedValue({
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiIncident.create.mockResolvedValue({
       id: UUID2,
       reference: 'AI42-INC-2602-4444',
       ...validPayload,
@@ -253,7 +254,7 @@ describe('POST /api/incidents', () => {
   });
 
   it('should return 404 when AI system not found', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/incidents').send(validPayload);
 
@@ -262,8 +263,8 @@ describe('POST /api/incidents', () => {
   });
 
   it('should return 500 on database error during creation', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiIncident.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiIncident.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/incidents').send(validPayload);
 
@@ -277,7 +278,7 @@ describe('POST /api/incidents', () => {
 // ===================================================================
 describe('GET /api/incidents/:id', () => {
   it('should return an incident when found', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
 
     const res = await request(app).get(`/api/incidents/${UUID2}`);
 
@@ -287,7 +288,7 @@ describe('GET /api/incidents/:id', () => {
   });
 
   it('should return 404 when incident not found', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(null);
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/incidents/${UUID1}`);
 
@@ -296,7 +297,7 @@ describe('GET /api/incidents/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiIncident.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiIncident.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(`/api/incidents/${UUID2}`);
 
@@ -310,8 +311,8 @@ describe('GET /api/incidents/:id', () => {
 // ===================================================================
 describe('PUT /api/incidents/:id', () => {
   it('should update an incident successfully', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).aiIncident.update.mockResolvedValue({
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockResolvedValue({
       ...mockIncident,
       severity: 'CRITICAL',
       system: { id: UUID1, name: 'Recommendation Engine', reference: 'AI42-SYS-2602-1111' },
@@ -324,7 +325,7 @@ describe('PUT /api/incidents/:id', () => {
   });
 
   it('should return 404 when updating non-existent incident', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(null);
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(`/api/incidents/${UUID1}`).send({ title: 'Updated' });
 
@@ -347,8 +348,8 @@ describe('PUT /api/incidents/:id', () => {
 // ===================================================================
 describe('PUT /api/incidents/:id/investigate', () => {
   it('should start investigation for an incident', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).aiIncident.update.mockResolvedValue({
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockResolvedValue({
       ...mockIncident,
       status: 'INVESTIGATING',
       investigator: 'Dr. Smith',
@@ -368,7 +369,7 @@ describe('PUT /api/incidents/:id/investigate', () => {
   });
 
   it('should return 404 when investigating non-existent incident', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(null);
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put(`/api/incidents/${UUID1}/investigate`)
@@ -379,7 +380,7 @@ describe('PUT /api/incidents/:id/investigate', () => {
   });
 
   it('should return 400 when investigating a closed incident', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue({
+    mockPrisma.aiIncident.findFirst.mockResolvedValue({
       ...mockIncident,
       status: 'CLOSED',
     });
@@ -393,8 +394,8 @@ describe('PUT /api/incidents/:id/investigate', () => {
   });
 
   it('should return 500 on database error during investigation', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).aiIncident.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put(`/api/incidents/${UUID2}/investigate`)
@@ -410,11 +411,11 @@ describe('PUT /api/incidents/:id/investigate', () => {
 // ===================================================================
 describe('PUT /api/incidents/:id/close', () => {
   it('should close an incident with resolution', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue({
+    mockPrisma.aiIncident.findFirst.mockResolvedValue({
       ...mockIncident,
       status: 'INVESTIGATING',
     });
-    (prisma as any).aiIncident.update.mockResolvedValue({
+    mockPrisma.aiIncident.update.mockResolvedValue({
       ...mockIncident,
       status: 'CLOSED',
       resolution: 'Retrained model with balanced dataset',
@@ -433,7 +434,7 @@ describe('PUT /api/incidents/:id/close', () => {
   });
 
   it('should return 400 when resolution is missing', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
 
     const res = await request(app).put(`/api/incidents/${UUID2}/close`).send({});
 
@@ -442,7 +443,7 @@ describe('PUT /api/incidents/:id/close', () => {
   });
 
   it('should return 404 when closing non-existent incident', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(null);
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put(`/api/incidents/${UUID1}/close`)
@@ -453,7 +454,7 @@ describe('PUT /api/incidents/:id/close', () => {
   });
 
   it('should return 400 when incident is already closed', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue({
+    mockPrisma.aiIncident.findFirst.mockResolvedValue({
       ...mockIncident,
       status: 'CLOSED',
     });
@@ -467,8 +468,8 @@ describe('PUT /api/incidents/:id/close', () => {
   });
 
   it('should return 500 on database error during close', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).aiIncident.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put(`/api/incidents/${UUID2}/close`)
@@ -484,8 +485,8 @@ describe('PUT /api/incidents/:id/close', () => {
 // ===================================================================
 describe('DELETE /api/incidents/:id', () => {
   it('should soft delete an incident', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).aiIncident.update.mockResolvedValue({
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockResolvedValue({
       ...mockIncident,
       deletedAt: new Date(),
     });
@@ -498,7 +499,7 @@ describe('DELETE /api/incidents/:id', () => {
   });
 
   it('should return 404 when deleting non-existent incident', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(null);
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(`/api/incidents/${UUID1}`);
 
@@ -507,8 +508,8 @@ describe('DELETE /api/incidents/:id', () => {
   });
 
   it('should return 500 on database error during delete', async () => {
-    (prisma as any).aiIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).aiIncident.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete(`/api/incidents/${UUID2}`);
 

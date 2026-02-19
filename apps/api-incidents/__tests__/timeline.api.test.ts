@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/timeline';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/timeline', router);
@@ -33,14 +34,14 @@ describe('GET /api/timeline/:id', () => {
       investigationDate: null,
       closedDate: null,
     };
-    (prisma as any).incIncident.findFirst.mockResolvedValue(incident);
+    mockPrisma.incIncident.findFirst.mockResolvedValue(incident);
     const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(2);
     expect(res.body.data[0].event).toBe('Incident occurred');
     expect(res.body.data[1].event).toBe('Reported');
-    expect((prisma as any).incIncident.findFirst).toHaveBeenCalledWith({
+    expect(mockPrisma.incIncident.findFirst).toHaveBeenCalledWith({
       where: { id: '00000000-0000-0000-0000-000000000001', deletedAt: null, orgId: 'org-1' },
     });
   });
@@ -53,7 +54,7 @@ describe('GET /api/timeline/:id', () => {
       investigationDate: new Date('2026-01-20T14:00:00Z'),
       closedDate: null,
     };
-    (prisma as any).incIncident.findFirst.mockResolvedValue(incident);
+    mockPrisma.incIncident.findFirst.mockResolvedValue(incident);
     const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -69,7 +70,7 @@ describe('GET /api/timeline/:id', () => {
       investigationDate: new Date('2026-01-20T14:00:00Z'),
       closedDate: new Date('2026-01-25T09:00:00Z'),
     };
-    (prisma as any).incIncident.findFirst.mockResolvedValue(incident);
+    mockPrisma.incIncident.findFirst.mockResolvedValue(incident);
     const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -78,7 +79,7 @@ describe('GET /api/timeline/:id', () => {
   });
 
   it('should return 404 if incident is not found', async () => {
-    (prisma as any).incIncident.findFirst.mockResolvedValue(null);
+    mockPrisma.incIncident.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -87,7 +88,7 @@ describe('GET /api/timeline/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).incIncident.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.incIncident.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

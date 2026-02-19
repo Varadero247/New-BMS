@@ -62,7 +62,7 @@ describe('Electronic Signature Package', () => {
     });
 
     it('should reject invalid meaning', async () => {
-      const request = { ...baseRequest, meaning: 'INVALID' as any };
+      const request = { ...baseRequest, meaning: 'INVALID' as unknown as import('../src/types').SignatureMeaning };
       const result = await createSignature(request, passwordHash);
 
       expect(result.signature).toBeNull();

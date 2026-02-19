@@ -282,7 +282,7 @@ describe('computeChanges — comprehensive', () => {
   });
 
   it('should handle null old values', () => {
-    const changes = computeChanges({ x: null as any }, { x: 'value' });
+    const changes = computeChanges({ x: null as unknown }, { x: 'value' });
     expect(changes).toHaveLength(1);
   });
 
@@ -309,7 +309,7 @@ describe('computeChanges — comprehensive', () => {
   });
 
   it('should treat undefined as different from missing', () => {
-    const changes = computeChanges({ x: undefined as any }, {});
+    const changes = computeChanges({ x: undefined as unknown }, {});
     // undefined serializes as null in JSON
     expect(changes.length).toBeGreaterThanOrEqual(0);
   });

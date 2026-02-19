@@ -31,6 +31,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/gdpr';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -59,7 +60,7 @@ describe('GET /api/gdpr/categories', () => {
         complianceStatus: 'AT_RISK',
       },
     ];
-    (prisma as any).gdprDataCategory.findMany.mockResolvedValue(categories);
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue(categories);
 
     const res = await request(app).get('/api/gdpr/categories');
 
@@ -69,7 +70,7 @@ describe('GET /api/gdpr/categories', () => {
   });
 
   it('should return an empty list when no categories exist', async () => {
-    (prisma as any).gdprDataCategory.findMany.mockResolvedValue([]);
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/gdpr/categories');
 
@@ -78,7 +79,7 @@ describe('GET /api/gdpr/categories', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).gdprDataCategory.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.gdprDataCategory.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/gdpr/categories');
 
@@ -96,7 +97,7 @@ describe('GET /api/gdpr/dpas', () => {
       { id: 'dpa-1', processorName: 'AWS', purpose: 'Cloud hosting', isActive: true },
       { id: 'dpa-2', processorName: 'Stripe', purpose: 'Payment processing', isActive: true },
     ];
-    (prisma as any).dataProcessingAgreement.findMany.mockResolvedValue(dpas);
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue(dpas);
 
     const res = await request(app).get('/api/gdpr/dpas');
 
@@ -106,7 +107,7 @@ describe('GET /api/gdpr/dpas', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).dataProcessingAgreement.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.dataProcessingAgreement.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/gdpr/dpas');
 
@@ -133,9 +134,9 @@ describe('GET /api/gdpr/report', () => {
       { id: 'dr-2', status: 'COMPLETED' },
       { id: 'dr-3', status: 'PROCESSING' },
     ];
-    (prisma as any).gdprDataCategory.findMany.mockResolvedValue(categories);
-    (prisma as any).dataProcessingAgreement.findMany.mockResolvedValue(dpas);
-    (prisma as any).dataRequest.findMany.mockResolvedValue(dataRequests);
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue(categories);
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue(dpas);
+    mockPrisma.dataRequest.findMany.mockResolvedValue(dataRequests);
 
     const res = await request(app).get('/api/gdpr/report');
 
@@ -151,9 +152,9 @@ describe('GET /api/gdpr/report', () => {
   });
 
   it('should handle empty data', async () => {
-    (prisma as any).gdprDataCategory.findMany.mockResolvedValue([]);
-    (prisma as any).dataProcessingAgreement.findMany.mockResolvedValue([]);
-    (prisma as any).dataRequest.findMany.mockResolvedValue([]);
+    mockPrisma.gdprDataCategory.findMany.mockResolvedValue([]);
+    mockPrisma.dataProcessingAgreement.findMany.mockResolvedValue([]);
+    mockPrisma.dataRequest.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/gdpr/report');
 
@@ -163,7 +164,7 @@ describe('GET /api/gdpr/report', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).gdprDataCategory.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.gdprDataCategory.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/gdpr/report');
 
@@ -184,7 +185,7 @@ describe('POST /api/gdpr/categories', () => {
       retentionDays: 730,
       complianceStatus: 'COMPLIANT',
     };
-    (prisma as any).gdprDataCategory.create.mockResolvedValue(created);
+    mockPrisma.gdprDataCategory.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/gdpr/categories').send({
       category: 'Financial Data',
@@ -213,7 +214,7 @@ describe('POST /api/gdpr/categories', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).gdprDataCategory.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.gdprDataCategory.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/gdpr/categories').send({
       category: 'Financial Data',
@@ -236,7 +237,7 @@ describe('POST /api/gdpr/dpas', () => {
       purpose: 'CDN and DDoS protection',
       isActive: true,
     };
-    (prisma as any).dataProcessingAgreement.create.mockResolvedValue(created);
+    mockPrisma.dataProcessingAgreement.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/gdpr/dpas').send({
       processorName: 'Cloudflare',
@@ -263,7 +264,7 @@ describe('POST /api/gdpr/dpas', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).dataProcessingAgreement.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.dataProcessingAgreement.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/gdpr/dpas').send({
       processorName: 'Cloudflare',

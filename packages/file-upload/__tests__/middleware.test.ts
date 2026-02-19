@@ -67,7 +67,7 @@ describe('File Upload Middleware', () => {
         filename: 'abc123.pdf',
         path: '/uploads/abc123.pdf',
         size: 1024,
-        stream: null as any,
+        stream: null as unknown as import('stream').Readable,
         buffer: Buffer.alloc(0),
       };
 
@@ -91,7 +91,7 @@ describe('File Upload Middleware', () => {
         filename: 'abc123.txt',
         path: '/uploads/abc123.txt',
         size: 100,
-        stream: null as any,
+        stream: null as unknown as import('stream').Readable,
         buffer: Buffer.alloc(0),
       };
 
@@ -113,7 +113,7 @@ describe('File Upload Middleware', () => {
         filename: 'abc123.pdf',
         path: '/uploads/abc123.pdf',
         size: 1024,
-        stream: null as any,
+        stream: null as unknown as import('stream').Readable,
         buffer: Buffer.alloc(0),
       };
 

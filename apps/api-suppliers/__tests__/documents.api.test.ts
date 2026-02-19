@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/documents';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/documents', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/documents', () => {
   it('should return documents list', async () => {
-    (prisma as any).suppDocument.findMany.mockResolvedValue([
+    mockPrisma.suppDocument.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Certificate' },
     ]);
-    (prisma as any).suppDocument.count.mockResolvedValue(1);
+    mockPrisma.suppDocument.count.mockResolvedValue(1);
     const res = await request(app).get('/api/documents');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,15 +47,15 @@ describe('GET /api/documents', () => {
   });
 
   it('should support search and status filters', async () => {
-    (prisma as any).suppDocument.findMany.mockResolvedValue([]);
-    (prisma as any).suppDocument.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.findMany.mockResolvedValue([]);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
     const res = await request(app).get('/api/documents?search=cert&status=ACTIVE');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 500 on DB error', async () => {
-    (prisma as any).suppDocument.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppDocument.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/documents');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -64,7 +65,7 @@ describe('GET /api/documents', () => {
 
 describe('GET /api/documents/:id', () => {
   it('should return a document by id', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue({
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Certificate',
     });
@@ -75,7 +76,7 @@ describe('GET /api/documents/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.suppDocument.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/documents/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -85,8 +86,8 @@ describe('GET /api/documents/:id', () => {
 
 describe('POST /api/documents', () => {
   it('should create a document', async () => {
-    (prisma as any).suppDocument.count.mockResolvedValue(0);
-    (prisma as any).suppDocument.create.mockResolvedValue({
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New Doc',
       supplierId: 'sup-1',
@@ -120,11 +121,11 @@ describe('POST /api/documents', () => {
 
 describe('PUT /api/documents/:id', () => {
   it('should update a document', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue({
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Old Title',
     });
-    (prisma as any).suppDocument.update.mockResolvedValue({
+    mockPrisma.suppDocument.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated Title',
     });
@@ -136,7 +137,7 @@ describe('PUT /api/documents/:id', () => {
   });
 
   it('should return 404 if document not found on update', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.suppDocument.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/documents/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Title' });
@@ -148,10 +149,10 @@ describe('PUT /api/documents/:id', () => {
 
 describe('DELETE /api/documents/:id', () => {
   it('should soft delete a document', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue({
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).suppDocument.update.mockResolvedValue({
+    mockPrisma.suppDocument.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
@@ -161,7 +162,7 @@ describe('DELETE /api/documents/:id', () => {
   });
 
   it('should return 404 if document not found on delete', async () => {
-    (prisma as any).suppDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.suppDocument.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);

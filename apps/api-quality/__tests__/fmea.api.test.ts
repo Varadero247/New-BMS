@@ -40,7 +40,7 @@ jest.mock('uuid', () => ({
 import { prisma } from '../src/prisma';
 import fmeaRoutes from '../src/routes/fmea';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe('Quality FMEA API Routes', () => {
   let app: express.Express;

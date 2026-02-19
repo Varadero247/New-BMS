@@ -19,6 +19,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/depreciation';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/depreciation', router);
@@ -28,7 +29,7 @@ beforeEach(() => {
 
 describe('GET /api/depreciation', () => {
   it('should return depreciation data for assets', async () => {
-    (prisma as any).assetRegister.findMany.mockResolvedValue([
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
       {
         id: '1',
         name: 'Forklift',
@@ -52,7 +53,7 @@ describe('GET /api/depreciation', () => {
   });
 
   it('should return empty array when no assets with purchase cost', async () => {
-    (prisma as any).assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/depreciation');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -60,7 +61,7 @@ describe('GET /api/depreciation', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).assetRegister.findMany.mockRejectedValue(new Error('DB connection error'));
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('DB connection error'));
     const res = await request(app).get('/api/depreciation');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

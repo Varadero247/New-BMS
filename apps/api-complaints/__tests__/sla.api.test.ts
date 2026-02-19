@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/sla';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/sla', router);
@@ -26,7 +27,7 @@ beforeEach(() => {
 
 describe('GET /api/sla', () => {
   it('should return SLA overdue and on-track counts', async () => {
-    (prisma as any).compComplaint.count.mockResolvedValueOnce(3).mockResolvedValueOnce(7);
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(3).mockResolvedValueOnce(7);
     const res = await request(app).get('/api/sla');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -35,7 +36,7 @@ describe('GET /api/sla', () => {
   });
 
   it('should return zero counts when no complaints match', async () => {
-    (prisma as any).compComplaint.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
     const res = await request(app).get('/api/sla');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -44,7 +45,7 @@ describe('GET /api/sla', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).compComplaint.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/sla');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

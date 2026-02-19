@@ -469,7 +469,7 @@ describe('Roles Routes', () => {
       expect(response.status).toBe(200);
       const modules = response.body.data.modules;
       // ADMIN maps to org-admin which has FULL on everything
-      const firstModule = Object.values(modules)[0] as any;
+      const firstModule = Object.values(modules)[0] as Record<string, unknown>;
       expect(firstModule).toHaveProperty('level');
       expect(firstModule).toHaveProperty('name');
     });

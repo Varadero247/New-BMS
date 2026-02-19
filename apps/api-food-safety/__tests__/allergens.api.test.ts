@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import allergensRouter from '../src/routes/allergens';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/allergens', () => {
   it('should return allergens with pagination', async () => {
-    (prisma as any).fsAllergen.findMany.mockResolvedValue([
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', name: 'Peanuts' },
     ]);
-    (prisma as any).fsAllergen.count.mockResolvedValue(1);
+    mockPrisma.fsAllergen.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/allergens');
     expect(res.status).toBe(200);
@@ -50,27 +51,27 @@ describe('GET /api/allergens', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).fsAllergen.findMany.mockResolvedValue([]);
-    (prisma as any).fsAllergen.count.mockResolvedValue(0);
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
 
     await request(app).get('/api/allergens?type=MAJOR');
-    expect((prisma as any).fsAllergen.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsAllergen.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ type: 'MAJOR' }) })
     );
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).fsAllergen.findMany.mockResolvedValue([]);
-    (prisma as any).fsAllergen.count.mockResolvedValue(0);
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(0);
 
     await request(app).get('/api/allergens?isActive=true');
-    expect((prisma as any).fsAllergen.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsAllergen.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isActive: true }) })
     );
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsAllergen.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsAllergen.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/allergens');
     expect(res.status).toBe(500);
@@ -85,7 +86,7 @@ describe('POST /api/allergens', () => {
       code: 'ALG-123',
       type: 'MAJOR',
     };
-    (prisma as any).fsAllergen.create.mockResolvedValue(created);
+    mockPrisma.fsAllergen.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/allergens').send({
       name: 'Peanuts',
@@ -101,7 +102,7 @@ describe('POST /api/allergens', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsAllergen.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsAllergen.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/allergens').send({
       name: 'Peanuts',
@@ -113,7 +114,7 @@ describe('POST /api/allergens', () => {
 
 describe('GET /api/allergens/:id', () => {
   it('should return an allergen by id', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue({
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Peanuts',
     });
@@ -124,7 +125,7 @@ describe('GET /api/allergens/:id', () => {
   });
 
   it('should return 404 for non-existent allergen', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue(null);
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/allergens/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -133,10 +134,10 @@ describe('GET /api/allergens/:id', () => {
 
 describe('PUT /api/allergens/:id', () => {
   it('should update an allergen', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue({
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsAllergen.update.mockResolvedValue({
+    mockPrisma.fsAllergen.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -149,7 +150,7 @@ describe('PUT /api/allergens/:id', () => {
   });
 
   it('should return 404 for non-existent allergen', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue(null);
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/allergens/00000000-0000-0000-0000-000000000099')
@@ -158,7 +159,7 @@ describe('PUT /api/allergens/:id', () => {
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue({
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -171,10 +172,10 @@ describe('PUT /api/allergens/:id', () => {
 
 describe('DELETE /api/allergens/:id', () => {
   it('should soft delete an allergen', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue({
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsAllergen.update.mockResolvedValue({
+    mockPrisma.fsAllergen.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -184,7 +185,7 @@ describe('DELETE /api/allergens/:id', () => {
   });
 
   it('should return 404 for non-existent allergen', async () => {
-    (prisma as any).fsAllergen.findFirst.mockResolvedValue(null);
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/allergens/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);

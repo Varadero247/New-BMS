@@ -215,7 +215,7 @@ describe('Auth Middleware', () => {
     });
 
     it('should reject when user has wrong role', () => {
-      mockReq.user = { id: 'user-123', role: 'USER' } as any;
+      mockReq.user = { id: 'user-123', role: 'USER' } as unknown;
       const middleware = requireRole('ADMIN');
 
       middleware(mockReq as AuthRequest, mockRes, mockNext);
@@ -228,7 +228,7 @@ describe('Auth Middleware', () => {
     });
 
     it('should allow when user has correct role', () => {
-      mockReq.user = { id: 'user-123', role: 'ADMIN' } as any;
+      mockReq.user = { id: 'user-123', role: 'ADMIN' } as unknown;
       const middleware = requireRole('ADMIN');
 
       middleware(mockReq as AuthRequest, mockRes, mockNext);
@@ -238,7 +238,7 @@ describe('Auth Middleware', () => {
     });
 
     it('should allow when user has one of multiple roles', () => {
-      mockReq.user = { id: 'user-123', role: 'MANAGER' } as any;
+      mockReq.user = { id: 'user-123', role: 'MANAGER' } as unknown;
       const middleware = requireRole('ADMIN', 'MANAGER');
 
       middleware(mockReq as AuthRequest, mockRes, mockNext);
@@ -247,7 +247,7 @@ describe('Auth Middleware', () => {
     });
 
     it('should reject when user has none of multiple roles', () => {
-      mockReq.user = { id: 'user-123', role: 'USER' } as any;
+      mockReq.user = { id: 'user-123', role: 'USER' } as unknown;
       const middleware = requireRole('ADMIN', 'MANAGER');
 
       middleware(mockReq as AuthRequest, mockRes, mockNext);

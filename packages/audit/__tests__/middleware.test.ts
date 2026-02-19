@@ -39,7 +39,7 @@ describe('Audit Middleware', () => {
         'x-forwarded-for': '192.168.1.1',
       },
       ip: '127.0.0.1',
-      socket: { remoteAddress: '127.0.0.1' } as any,
+      socket: { remoteAddress: '127.0.0.1' } as unknown as import('net').Socket,
       user: { id: 'user-123' },
     };
 
@@ -567,8 +567,8 @@ describe('Audit Middleware', () => {
       mockReq = {
         ...mockReq,
         headers: { 'user-agent': 'test-agent' },
-        ip: undefined as any,
-        socket: { remoteAddress: '10.0.0.5' } as any,
+        ip: undefined,
+        socket: { remoteAddress: '10.0.0.5' } as unknown as import('net').Socket,
       };
 
       const middleware = auditMiddleware(mockAuditService, {
@@ -589,8 +589,8 @@ describe('Audit Middleware', () => {
       mockReq = {
         ...mockReq,
         headers: { 'user-agent': 'test-agent' },
-        ip: undefined as any,
-        socket: {} as any,
+        ip: undefined,
+        socket: {} as unknown as import('net').Socket,
       };
 
       const middleware = auditMiddleware(mockAuditService, {

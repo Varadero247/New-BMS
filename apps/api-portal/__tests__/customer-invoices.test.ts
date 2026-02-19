@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import customerInvoicesRouter from '../src/routes/customer-invoices';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -47,8 +48,8 @@ describe('GET /api/customer/invoices', () => {
         totalAmount: 100,
       },
     ];
-    (prisma as any).portalOrder.findMany.mockResolvedValue(items);
-    (prisma as any).portalOrder.count.mockResolvedValue(1);
+    mockPrisma.portalOrder.findMany.mockResolvedValue(items);
+    mockPrisma.portalOrder.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/customer/invoices');
 
@@ -59,19 +60,19 @@ describe('GET /api/customer/invoices', () => {
   });
 
   it('should handle pagination params', async () => {
-    (prisma as any).portalOrder.findMany.mockResolvedValue([]);
-    (prisma as any).portalOrder.count.mockResolvedValue(0);
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/customer/invoices?page=2&limit=5');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).portalOrder.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ skip: 5, take: 5 })
     );
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalOrder.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalOrder.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/customer/invoices');
 
@@ -86,7 +87,7 @@ describe('GET /api/customer/invoices/:id', () => {
       orderNumber: 'ORD-001',
       portalUserId: 'user-123',
     };
-    (prisma as any).portalOrder.findFirst.mockResolvedValue(invoice);
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(invoice);
 
     const res = await request(app).get(
       '/api/customer/invoices/00000000-0000-0000-0000-000000000001'
@@ -97,7 +98,7 @@ describe('GET /api/customer/invoices/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/customer/invoices/00000000-0000-0000-0000-000000000099'
@@ -115,8 +116,8 @@ describe('POST /api/customer/invoices/:id/pay', () => {
       portalUserId: 'user-123',
       notes: null,
     };
-    (prisma as any).portalOrder.findFirst.mockResolvedValue(invoice);
-    (prisma as any).portalOrder.update.mockResolvedValue({
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(invoice);
+    mockPrisma.portalOrder.update.mockResolvedValue({
       ...invoice,
       notes: 'Payment intent: BANK_TRANSFER',
     });
@@ -130,7 +131,7 @@ describe('POST /api/customer/invoices/:id/pay', () => {
   });
 
   it('should return 404 if invoice not found for payment', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/customer/invoices/00000000-0000-0000-0000-000000000099/pay')
@@ -140,7 +141,7 @@ describe('POST /api/customer/invoices/:id/pay', () => {
   });
 
   it('should handle server error on pay', async () => {
-    (prisma as any).portalOrder.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalOrder.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .post('/api/customer/invoices/00000000-0000-0000-0000-000000000001/pay')

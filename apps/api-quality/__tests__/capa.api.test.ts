@@ -40,7 +40,7 @@ jest.mock('uuid', () => ({
 import { prisma } from '../src/prisma';
 import capaRoutes from '../src/routes/capa';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe('Quality CAPA API Routes', () => {
   let app: express.Express;

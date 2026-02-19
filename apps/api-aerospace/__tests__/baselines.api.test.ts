@@ -42,7 +42,7 @@ jest.mock('@ims/shared', () => ({
 import router from '../src/routes/baselines';
 import { prisma } from '../src/prisma';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());

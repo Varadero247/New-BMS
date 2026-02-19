@@ -37,6 +37,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/suppliers';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -66,8 +67,8 @@ describe('GET /api/suppliers', () => {
         _count: { purchaseOrders: 2, bills: 1 },
       },
     ];
-    (prisma as any).finSupplier.findMany.mockResolvedValue(suppliers);
-    (prisma as any).finSupplier.count.mockResolvedValue(2);
+    mockPrisma.finSupplier.findMany.mockResolvedValue(suppliers);
+    mockPrisma.finSupplier.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/suppliers');
 
@@ -78,13 +79,13 @@ describe('GET /api/suppliers', () => {
   });
 
   it('should search suppliers by name, code, email, contactPerson', async () => {
-    (prisma as any).finSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).finSupplier.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/suppliers?search=acme');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finSupplier.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finSupplier.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -96,13 +97,13 @@ describe('GET /api/suppliers', () => {
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).finSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).finSupplier.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/suppliers?isActive=false');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finSupplier.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finSupplier.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ isActive: false }),
       })
@@ -110,8 +111,8 @@ describe('GET /api/suppliers', () => {
   });
 
   it('should filter by country', async () => {
-    (prisma as any).finSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).finSupplier.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/suppliers?country=DE');
 
@@ -119,8 +120,8 @@ describe('GET /api/suppliers', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).finSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).finSupplier.count.mockResolvedValue(50);
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(50);
 
     const res = await request(app).get('/api/suppliers?page=2&limit=10');
 
@@ -130,7 +131,7 @@ describe('GET /api/suppliers', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finSupplier.findMany.mockRejectedValue(new Error('DB connection failed'));
+    mockPrisma.finSupplier.findMany.mockRejectedValue(new Error('DB connection failed'));
 
     const res = await request(app).get('/api/suppliers');
 
@@ -162,7 +163,7 @@ describe('GET /api/suppliers/:id', () => {
       ],
       _count: { purchaseOrders: 1, bills: 0 },
     };
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(supplier);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(supplier);
 
     const res = await request(app).get('/api/suppliers/f7000000-0000-4000-a000-000000000001');
 
@@ -172,7 +173,7 @@ describe('GET /api/suppliers/:id', () => {
   });
 
   it('should return 404 when supplier not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000099');
 
@@ -182,7 +183,7 @@ describe('GET /api/suppliers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finSupplier.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finSupplier.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/suppliers/f7000000-0000-4000-a000-000000000001');
 
@@ -205,7 +206,7 @@ describe('POST /api/suppliers', () => {
   };
 
   it('should create a supplier successfully', async () => {
-    (prisma as any).finSupplier.create.mockResolvedValue({
+    mockPrisma.finSupplier.create.mockResolvedValue({
       id: 'supp-new',
       code: 'SUPP-ACMES-1234',
       ...validSupplier,
@@ -252,7 +253,7 @@ describe('POST /api/suppliers', () => {
 
   it('should return 409 on duplicate supplier code', async () => {
     const err = Object.assign(new Error('Unique violation'), { code: 'P2002' });
-    (prisma as any).finSupplier.create.mockRejectedValue(err);
+    mockPrisma.finSupplier.create.mockRejectedValue(err);
 
     const res = await request(app).post('/api/suppliers').send(validSupplier);
 
@@ -262,7 +263,7 @@ describe('POST /api/suppliers', () => {
   });
 
   it('should return 500 on unexpected error', async () => {
-    (prisma as any).finSupplier.create.mockRejectedValue(new Error('Unexpected DB error'));
+    mockPrisma.finSupplier.create.mockRejectedValue(new Error('Unexpected DB error'));
 
     const res = await request(app).post('/api/suppliers').send(validSupplier);
 
@@ -276,11 +277,11 @@ describe('POST /api/suppliers', () => {
 
 describe('PUT /api/suppliers/:id', () => {
   it('should update a supplier successfully', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finSupplier.update.mockResolvedValue({
+    mockPrisma.finSupplier.update.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       name: 'Updated Acme Supplies',
     });
@@ -294,11 +295,11 @@ describe('PUT /api/suppliers/:id', () => {
   });
 
   it('should update isActive flag', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finSupplier.update.mockResolvedValue({
+    mockPrisma.finSupplier.update.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       isActive: false,
     });
@@ -311,11 +312,11 @@ describe('PUT /api/suppliers/:id', () => {
   });
 
   it('should update payment terms', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finSupplier.update.mockResolvedValue({
+    mockPrisma.finSupplier.update.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       paymentTerms: 60,
     });
@@ -328,7 +329,7 @@ describe('PUT /api/suppliers/:id', () => {
   });
 
   it('should return 404 when supplier not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/suppliers/00000000-0000-0000-0000-000000000099')
@@ -339,7 +340,7 @@ describe('PUT /api/suppliers/:id', () => {
   });
 
   it('should return 400 for validation error (invalid email)', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
@@ -352,11 +353,11 @@ describe('PUT /api/suppliers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finSupplier.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finSupplier.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put('/api/suppliers/f7000000-0000-4000-a000-000000000001')
@@ -372,12 +373,12 @@ describe('PUT /api/suppliers/:id', () => {
 
 describe('DELETE /api/suppliers/:id', () => {
   it('should soft delete a supplier with no purchase orders', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finPurchaseOrder.count.mockResolvedValue(0);
-    (prisma as any).finSupplier.update.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.update.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
     });
 
@@ -389,7 +390,7 @@ describe('DELETE /api/suppliers/:id', () => {
   });
 
   it('should return 404 when supplier not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000099');
 
@@ -398,11 +399,11 @@ describe('DELETE /api/suppliers/:id', () => {
   });
 
   it('should return 409 when supplier has existing purchase orders', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finPurchaseOrder.count.mockResolvedValue(4);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(4);
 
     const res = await request(app).delete('/api/suppliers/f7000000-0000-4000-a000-000000000001');
 
@@ -412,11 +413,11 @@ describe('DELETE /api/suppliers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finPurchaseOrder.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finPurchaseOrder.count.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete('/api/suppliers/f7000000-0000-4000-a000-000000000001');
 

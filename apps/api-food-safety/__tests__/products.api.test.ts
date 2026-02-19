@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import productsRouter from '../src/routes/products';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/products', () => {
   it('should return products with pagination', async () => {
-    (prisma as any).fsProduct.findMany.mockResolvedValue([
+    mockPrisma.fsProduct.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', name: 'Product A' },
     ]);
-    (prisma as any).fsProduct.count.mockResolvedValue(1);
+    mockPrisma.fsProduct.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/products');
     expect(res.status).toBe(200);
@@ -50,21 +51,21 @@ describe('GET /api/products', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsProduct.findMany.mockResolvedValue([]);
-    (prisma as any).fsProduct.count.mockResolvedValue(0);
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(0);
 
     await request(app).get('/api/products?status=ACTIVE');
-    expect((prisma as any).fsProduct.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsProduct.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
     );
   });
 
   it('should filter by category', async () => {
-    (prisma as any).fsProduct.findMany.mockResolvedValue([]);
-    (prisma as any).fsProduct.count.mockResolvedValue(0);
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(0);
 
     await request(app).get('/api/products?category=Dairy');
-    expect((prisma as any).fsProduct.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsProduct.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           category: expect.objectContaining({ contains: 'Dairy' }),
@@ -74,7 +75,7 @@ describe('GET /api/products', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsProduct.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsProduct.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/products');
     expect(res.status).toBe(500);
@@ -88,7 +89,7 @@ describe('POST /api/products', () => {
       name: 'Product A',
       code: 'PROD-001',
     };
-    (prisma as any).fsProduct.create.mockResolvedValue(created);
+    mockPrisma.fsProduct.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/products').send({
       name: 'Product A',
@@ -104,7 +105,7 @@ describe('POST /api/products', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsProduct.create.mockRejectedValue(new Error('Unique constraint'));
+    mockPrisma.fsProduct.create.mockRejectedValue(new Error('Unique constraint'));
 
     const res = await request(app).post('/api/products').send({
       name: 'Product A',
@@ -116,7 +117,7 @@ describe('POST /api/products', () => {
 
 describe('GET /api/products/:id', () => {
   it('should return a product by id', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue({
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Product A',
     });
@@ -127,7 +128,7 @@ describe('GET /api/products/:id', () => {
   });
 
   it('should return 404 for non-existent product', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue(null);
+    mockPrisma.fsProduct.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/products/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -136,10 +137,10 @@ describe('GET /api/products/:id', () => {
 
 describe('PUT /api/products/:id', () => {
   it('should update a product', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue({
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsProduct.update.mockResolvedValue({
+    mockPrisma.fsProduct.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -152,7 +153,7 @@ describe('PUT /api/products/:id', () => {
   });
 
   it('should return 404 for non-existent product', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue(null);
+    mockPrisma.fsProduct.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/products/00000000-0000-0000-0000-000000000099')
@@ -161,7 +162,7 @@ describe('PUT /api/products/:id', () => {
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue({
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -174,10 +175,10 @@ describe('PUT /api/products/:id', () => {
 
 describe('DELETE /api/products/:id', () => {
   it('should soft delete a product', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue({
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsProduct.update.mockResolvedValue({
+    mockPrisma.fsProduct.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -187,7 +188,7 @@ describe('DELETE /api/products/:id', () => {
   });
 
   it('should return 404 for non-existent product', async () => {
-    (prisma as any).fsProduct.findFirst.mockResolvedValue(null);
+    mockPrisma.fsProduct.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/products/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);

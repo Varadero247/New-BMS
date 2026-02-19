@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import portalNotificationsRouter from '../src/routes/portal-notifications';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -48,8 +49,8 @@ describe('GET /api/portal/notifications', () => {
       },
       { id: 'n-2', title: 'New document', type: 'DOCUMENT_SHARED', isRead: true },
     ];
-    (prisma as any).portalNotification.findMany.mockResolvedValue(items);
-    (prisma as any).portalNotification.count.mockResolvedValue(2);
+    mockPrisma.portalNotification.findMany.mockResolvedValue(items);
+    mockPrisma.portalNotification.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/portal/notifications');
 
@@ -58,32 +59,32 @@ describe('GET /api/portal/notifications', () => {
   });
 
   it('should filter by isRead=false', async () => {
-    (prisma as any).portalNotification.findMany.mockResolvedValue([]);
-    (prisma as any).portalNotification.count.mockResolvedValue(0);
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/notifications?isRead=false');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).portalNotification.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.portalNotification.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isRead: false }) })
     );
   });
 
   it('should filter by isRead=true', async () => {
-    (prisma as any).portalNotification.findMany.mockResolvedValue([]);
-    (prisma as any).portalNotification.count.mockResolvedValue(0);
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/notifications?isRead=true');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).portalNotification.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.portalNotification.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isRead: true }) })
     );
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).portalNotification.findMany.mockResolvedValue([]);
-    (prisma as any).portalNotification.count.mockResolvedValue(50);
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(50);
 
     const res = await request(app).get('/api/portal/notifications?page=3&limit=10');
 
@@ -92,7 +93,7 @@ describe('GET /api/portal/notifications', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalNotification.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalNotification.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/portal/notifications');
 
@@ -102,7 +103,7 @@ describe('GET /api/portal/notifications', () => {
 
 describe('PUT /api/portal/notifications/read-all', () => {
   it('should mark all as read', async () => {
-    (prisma as any).portalNotification.updateMany.mockResolvedValue({ count: 5 });
+    mockPrisma.portalNotification.updateMany.mockResolvedValue({ count: 5 });
 
     const res = await request(app).put('/api/portal/notifications/read-all');
 
@@ -111,7 +112,7 @@ describe('PUT /api/portal/notifications/read-all', () => {
   });
 
   it('should handle server error on read-all', async () => {
-    (prisma as any).portalNotification.updateMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalNotification.updateMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put('/api/portal/notifications/read-all');
 
@@ -126,8 +127,8 @@ describe('PUT /api/portal/notifications/:id/read', () => {
       portalUserId: 'user-123',
       isRead: false,
     };
-    (prisma as any).portalNotification.findFirst.mockResolvedValue(notification);
-    (prisma as any).portalNotification.update.mockResolvedValue({ ...notification, isRead: true });
+    mockPrisma.portalNotification.findFirst.mockResolvedValue(notification);
+    mockPrisma.portalNotification.update.mockResolvedValue({ ...notification, isRead: true });
 
     const res = await request(app).put(
       '/api/portal/notifications/00000000-0000-0000-0000-000000000001/read'
@@ -138,7 +139,7 @@ describe('PUT /api/portal/notifications/:id/read', () => {
   });
 
   it('should return 404 if notification not found', async () => {
-    (prisma as any).portalNotification.findFirst.mockResolvedValue(null);
+    mockPrisma.portalNotification.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(
       '/api/portal/notifications/00000000-0000-0000-0000-000000000099/read'

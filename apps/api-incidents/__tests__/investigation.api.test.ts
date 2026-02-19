@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/investigation';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/investigation', router);
@@ -32,14 +33,14 @@ describe('POST /api/investigation/:id/assign', () => {
       investigatorName: 'Jane Doe',
       status: 'INVESTIGATING',
     };
-    (prisma as any).incIncident.update.mockResolvedValue(updated);
+    mockPrisma.incIncident.update.mockResolvedValue(updated);
     const res = await request(app)
       .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
       .send({ investigator: 'user-2', investigatorName: 'Jane Doe' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.investigator).toBe('user-2');
-    expect((prisma as any).incIncident.update).toHaveBeenCalledWith({
+    expect(mockPrisma.incIncident.update).toHaveBeenCalledWith({
       where: { id: '00000000-0000-0000-0000-000000000001' },
       data: expect.objectContaining({ investigator: 'user-2', status: 'INVESTIGATING' }),
     });
@@ -64,7 +65,7 @@ describe('POST /api/investigation/:id/assign', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).incIncident.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app)
       .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
       .send({ investigator: 'user-2' });
@@ -85,7 +86,7 @@ describe('PUT /api/investigation/:id/report', () => {
       investigationReport: 'Full report text',
       status: 'ROOT_CAUSE_ANALYSIS',
     };
-    (prisma as any).incIncident.update.mockResolvedValue(updated);
+    mockPrisma.incIncident.update.mockResolvedValue(updated);
     const res = await request(app)
       .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
       .send({
@@ -98,7 +99,7 @@ describe('PUT /api/investigation/:id/report', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.status).toBe('ROOT_CAUSE_ANALYSIS');
-    expect((prisma as any).incIncident.update).toHaveBeenCalledWith({
+    expect(mockPrisma.incIncident.update).toHaveBeenCalledWith({
       where: { id: '00000000-0000-0000-0000-000000000001' },
       data: expect.objectContaining({
         rootCause: 'Equipment failure',
@@ -110,7 +111,7 @@ describe('PUT /api/investigation/:id/report', () => {
 
   it('should accept report with all optional fields omitted', async () => {
     const updated = { id: '00000000-0000-0000-0000-000000000001', status: 'ROOT_CAUSE_ANALYSIS' };
-    (prisma as any).incIncident.update.mockResolvedValue(updated);
+    mockPrisma.incIncident.update.mockResolvedValue(updated);
     const res = await request(app)
       .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
       .send({});
@@ -119,7 +120,7 @@ describe('PUT /api/investigation/:id/report', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).incIncident.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app)
       .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
       .send({ rootCause: 'Equipment failure' });

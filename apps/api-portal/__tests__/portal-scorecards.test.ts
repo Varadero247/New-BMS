@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import portalScorecardsRouter from '../src/routes/portal-scorecards';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -46,8 +47,8 @@ describe('GET /api/portal/scorecards', () => {
         overallScore: 85,
       },
     ];
-    (prisma as any).portalScorecard.findMany.mockResolvedValue(items);
-    (prisma as any).portalScorecard.count.mockResolvedValue(1);
+    mockPrisma.portalScorecard.findMany.mockResolvedValue(items);
+    mockPrisma.portalScorecard.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/portal/scorecards');
 
@@ -56,15 +57,15 @@ describe('GET /api/portal/scorecards', () => {
   });
 
   it('should filter by portalUserId', async () => {
-    (prisma as any).portalScorecard.findMany.mockResolvedValue([]);
-    (prisma as any).portalScorecard.count.mockResolvedValue(0);
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/portal/scorecards?portalUserId=00000000-0000-0000-0000-000000000001'
     );
 
     expect(res.status).toBe(200);
-    expect((prisma as any).portalScorecard.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.portalScorecard.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ portalUserId: '00000000-0000-0000-0000-000000000001' }),
       })
@@ -72,8 +73,8 @@ describe('GET /api/portal/scorecards', () => {
   });
 
   it('should filter by period', async () => {
-    (prisma as any).portalScorecard.findMany.mockResolvedValue([]);
-    (prisma as any).portalScorecard.count.mockResolvedValue(0);
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/scorecards?period=2026-Q1');
 
@@ -81,8 +82,8 @@ describe('GET /api/portal/scorecards', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).portalScorecard.findMany.mockResolvedValue([]);
-    (prisma as any).portalScorecard.count.mockResolvedValue(20);
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(20);
 
     const res = await request(app).get('/api/portal/scorecards?page=2&limit=10');
 
@@ -91,7 +92,7 @@ describe('GET /api/portal/scorecards', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalScorecard.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalScorecard.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/portal/scorecards');
 
@@ -107,7 +108,7 @@ describe('POST /api/portal/scorecards', () => {
       period: '2026-Q1',
       overallScore: 85,
     };
-    (prisma as any).portalScorecard.create.mockResolvedValue(scorecard);
+    mockPrisma.portalScorecard.create.mockResolvedValue(scorecard);
 
     const res = await request(app).post('/api/portal/scorecards').send({
       portalUserId: '00000000-0000-0000-0000-000000000001',
@@ -150,7 +151,7 @@ describe('POST /api/portal/scorecards', () => {
   });
 
   it('should handle server error on create', async () => {
-    (prisma as any).portalScorecard.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalScorecard.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/portal/scorecards').send({
       portalUserId: '00000000-0000-0000-0000-000000000001',
@@ -164,7 +165,7 @@ describe('POST /api/portal/scorecards', () => {
 
 describe('GET /api/portal/scorecards/:id', () => {
   it('should return a scorecard', async () => {
-    (prisma as any).portalScorecard.findFirst.mockResolvedValue({
+    mockPrisma.portalScorecard.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       period: '2026-Q1',
       overallScore: 85,
@@ -179,7 +180,7 @@ describe('GET /api/portal/scorecards/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).portalScorecard.findFirst.mockResolvedValue(null);
+    mockPrisma.portalScorecard.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/portal/scorecards/00000000-0000-0000-0000-000000000099'
@@ -189,7 +190,7 @@ describe('GET /api/portal/scorecards/:id', () => {
   });
 
   it('should handle server error on fetch', async () => {
-    (prisma as any).portalScorecard.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalScorecard.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(
       '/api/portal/scorecards/00000000-0000-0000-0000-000000000001'

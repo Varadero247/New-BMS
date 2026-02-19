@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/tna';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/tna', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/tna', () => {
   it('should return TNAs', async () => {
-    (prisma as any).trainTNA.findMany.mockResolvedValue([
+    mockPrisma.trainTNA.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Leadership Training Gap' },
     ]);
-    (prisma as any).trainTNA.count.mockResolvedValue(1);
+    mockPrisma.trainTNA.count.mockResolvedValue(1);
     const res = await request(app).get('/api/tna');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,8 +47,8 @@ describe('GET /api/tna', () => {
   });
 
   it('should support status and search filters', async () => {
-    (prisma as any).trainTNA.findMany.mockResolvedValue([]);
-    (prisma as any).trainTNA.count.mockResolvedValue(0);
+    mockPrisma.trainTNA.findMany.mockResolvedValue([]);
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
     const res = await request(app).get(
       '/api/tna?status=IN_PROGRESS&search=leadership&page=1&limit=10'
     );
@@ -56,8 +57,8 @@ describe('GET /api/tna', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).trainTNA.findMany.mockRejectedValue(new Error('DB error'));
-    (prisma as any).trainTNA.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainTNA.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainTNA.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/tna');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -67,7 +68,7 @@ describe('GET /api/tna', () => {
 
 describe('GET /api/tna/:id', () => {
   it('should return TNA by id', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue({
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Leadership Training Gap',
     });
@@ -78,14 +79,14 @@ describe('GET /api/tna/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue(null);
+    mockPrisma.trainTNA.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/tna/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).trainTNA.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainTNA.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/tna/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -94,8 +95,8 @@ describe('GET /api/tna/:id', () => {
 
 describe('POST /api/tna', () => {
   it('should create a TNA', async () => {
-    (prisma as any).trainTNA.count.mockResolvedValue(0);
-    (prisma as any).trainTNA.create.mockResolvedValue({
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    mockPrisma.trainTNA.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New TNA',
       referenceNumber: 'TNA-2026-0001',
@@ -106,8 +107,8 @@ describe('POST /api/tna', () => {
   });
 
   it('should create with all optional fields', async () => {
-    (prisma as any).trainTNA.count.mockResolvedValue(2);
-    (prisma as any).trainTNA.create.mockResolvedValue({
+    mockPrisma.trainTNA.count.mockResolvedValue(2);
+    mockPrisma.trainTNA.create.mockResolvedValue({
       id: '2',
       title: 'Full TNA',
       referenceNumber: 'TNA-2026-0003',
@@ -152,8 +153,8 @@ describe('POST /api/tna', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).trainTNA.count.mockResolvedValue(0);
-    (prisma as any).trainTNA.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainTNA.count.mockResolvedValue(0);
+    mockPrisma.trainTNA.create.mockRejectedValue(new Error('DB error'));
     const res = await request(app).post('/api/tna').send({ title: 'New TNA' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -162,11 +163,11 @@ describe('POST /api/tna', () => {
 
 describe('PUT /api/tna/:id', () => {
   it('should update a TNA', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue({
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Old TNA',
     });
-    (prisma as any).trainTNA.update.mockResolvedValue({
+    mockPrisma.trainTNA.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated TNA',
     });
@@ -178,10 +179,10 @@ describe('PUT /api/tna/:id', () => {
   });
 
   it('should update status', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue({
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).trainTNA.update.mockResolvedValue({
+    mockPrisma.trainTNA.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
     });
@@ -193,7 +194,7 @@ describe('PUT /api/tna/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue(null);
+    mockPrisma.trainTNA.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/tna/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Updated' });
@@ -210,10 +211,10 @@ describe('PUT /api/tna/:id', () => {
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue({
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).trainTNA.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainTNA.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app)
       .put('/api/tna/00000000-0000-0000-0000-000000000001')
       .send({ title: 'Updated' });
@@ -224,10 +225,10 @@ describe('PUT /api/tna/:id', () => {
 
 describe('DELETE /api/tna/:id', () => {
   it('should soft delete a TNA', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue({
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).trainTNA.update.mockResolvedValue({
+    mockPrisma.trainTNA.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/tna/00000000-0000-0000-0000-000000000001');
@@ -237,17 +238,17 @@ describe('DELETE /api/tna/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue(null);
+    mockPrisma.trainTNA.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/tna/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).trainTNA.findFirst.mockResolvedValue({
+    mockPrisma.trainTNA.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).trainTNA.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainTNA.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app).delete('/api/tna/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/cashflow';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -44,7 +45,7 @@ describe('GET /api/cashflow', () => {
       { id: 'cf-1', weekStart: new Date('2026-01-05'), inflow: 50000, outflow: 30000 },
       { id: 'cf-2', weekStart: new Date('2026-01-12'), inflow: 60000, outflow: 40000 },
     ];
-    (prisma as any).cashFlowForecast.findMany.mockResolvedValue(forecasts);
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue(forecasts);
 
     const res = await request(app).get('/api/cashflow');
 
@@ -55,7 +56,7 @@ describe('GET /api/cashflow', () => {
   });
 
   it('should return an empty list when no forecasts exist', async () => {
-    (prisma as any).cashFlowForecast.findMany.mockResolvedValue([]);
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/cashflow');
 
@@ -65,7 +66,7 @@ describe('GET /api/cashflow', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).cashFlowForecast.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.cashFlowForecast.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/cashflow');
 
@@ -80,7 +81,7 @@ describe('GET /api/cashflow', () => {
 describe('GET /api/cashflow/position', () => {
   it('should return the latest cash position', async () => {
     const position = { id: 'pos-1', date: new Date(), balance: 250000, currency: 'USD' };
-    (prisma as any).companyCashPosition.findFirst.mockResolvedValue(position);
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue(position);
 
     const res = await request(app).get('/api/cashflow/position');
 
@@ -90,7 +91,7 @@ describe('GET /api/cashflow/position', () => {
   });
 
   it('should return 404 when no cash position data exists', async () => {
-    (prisma as any).companyCashPosition.findFirst.mockResolvedValue(null);
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/cashflow/position');
 
@@ -99,7 +100,7 @@ describe('GET /api/cashflow/position', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).companyCashPosition.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.companyCashPosition.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/cashflow/position');
 

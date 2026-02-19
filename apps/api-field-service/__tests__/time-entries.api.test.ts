@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import timeEntriesRouter from '../src/routes/time-entries';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -49,8 +50,8 @@ describe('GET /api/time-entries', () => {
         technician: {},
       },
     ];
-    (prisma as any).fsSvcTimeEntry.findMany.mockResolvedValue(entries);
-    (prisma as any).fsSvcTimeEntry.count.mockResolvedValue(1);
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue(entries);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/time-entries');
 
@@ -60,12 +61,12 @@ describe('GET /api/time-entries', () => {
   });
 
   it('should filter by jobId', async () => {
-    (prisma as any).fsSvcTimeEntry.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcTimeEntry.count.mockResolvedValue(0);
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(0);
 
     await request(app).get('/api/time-entries?jobId=job-1');
 
-    expect((prisma as any).fsSvcTimeEntry.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcTimeEntry.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ jobId: 'job-1' }),
       })
@@ -73,12 +74,12 @@ describe('GET /api/time-entries', () => {
   });
 
   it('should filter by technicianId and type', async () => {
-    (prisma as any).fsSvcTimeEntry.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcTimeEntry.count.mockResolvedValue(0);
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTimeEntry.count.mockResolvedValue(0);
 
     await request(app).get('/api/time-entries?technicianId=tech-1&type=TRAVEL');
 
-    expect((prisma as any).fsSvcTimeEntry.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcTimeEntry.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ technicianId: 'tech-1', type: 'TRAVEL' }),
       })
@@ -104,7 +105,7 @@ describe('GET /api/time-entries/summary', () => {
         technician: { name: 'John' },
       },
     ];
-    (prisma as any).fsSvcTimeEntry.findMany.mockResolvedValue(entries);
+    mockPrisma.fsSvcTimeEntry.findMany.mockResolvedValue(entries);
 
     const res = await request(app).get('/api/time-entries/summary');
 
@@ -119,7 +120,7 @@ describe('GET /api/time-entries/summary', () => {
 describe('POST /api/time-entries', () => {
   it('should create a time entry', async () => {
     const created = { id: 'te-new', type: 'WORK', startTime: new Date() };
-    (prisma as any).fsSvcTimeEntry.create.mockResolvedValue(created);
+    mockPrisma.fsSvcTimeEntry.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/time-entries').send({
       jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -142,7 +143,7 @@ describe('POST /api/time-entries', () => {
 
 describe('GET /api/time-entries/:id', () => {
   it('should return a time entry', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       type: 'WORK',
       job: {},
@@ -156,7 +157,7 @@ describe('GET /api/time-entries/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/time-entries/00000000-0000-0000-0000-000000000099');
 
@@ -166,10 +167,10 @@ describe('GET /api/time-entries/:id', () => {
 
 describe('PUT /api/time-entries/:id', () => {
   it('should update a time entry', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcTimeEntry.update.mockResolvedValue({
+    mockPrisma.fsSvcTimeEntry.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       type: 'TRAVEL',
     });
@@ -182,7 +183,7 @@ describe('PUT /api/time-entries/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/time-entries/00000000-0000-0000-0000-000000000099')
@@ -194,10 +195,10 @@ describe('PUT /api/time-entries/:id', () => {
 
 describe('DELETE /api/time-entries/:id', () => {
   it('should soft delete a time entry', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcTimeEntry.update.mockResolvedValue({
+    mockPrisma.fsSvcTimeEntry.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -209,7 +210,7 @@ describe('DELETE /api/time-entries/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcTimeEntry.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/time-entries/00000000-0000-0000-0000-000000000099');
 

@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import alertsRouter from '../src/routes/alerts';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -52,8 +53,8 @@ describe('GET /api/alerts', () => {
       },
       { id: 'alrt-2', name: 'Low FPY', metric: 'fpy', status: 'TRIGGERED' },
     ];
-    (prisma as any).analyticsAlert.findMany.mockResolvedValue(alerts);
-    (prisma as any).analyticsAlert.count.mockResolvedValue(2);
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue(alerts);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/alerts');
 
@@ -64,31 +65,31 @@ describe('GET /api/alerts', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).analyticsAlert.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsAlert.count.mockResolvedValue(0);
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/alerts?status=TRIGGERED');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsAlert.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsAlert.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'TRIGGERED' }) })
     );
   });
 
   it('should filter by condition', async () => {
-    (prisma as any).analyticsAlert.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsAlert.count.mockResolvedValue(0);
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsAlert.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/alerts?condition=ABOVE');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsAlert.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsAlert.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ condition: 'ABOVE' }) })
     );
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsAlert.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsAlert.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/alerts');
 
@@ -109,7 +110,7 @@ describe('POST /api/alerts', () => {
       threshold: 3.0,
       status: 'ACTIVE',
     };
-    (prisma as any).analyticsAlert.create.mockResolvedValue(created);
+    mockPrisma.analyticsAlert.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/alerts').send({
       name: 'New Alert',
@@ -138,7 +139,7 @@ describe('GET /api/alerts/triggered', () => {
     const alerts = [
       { id: '00000000-0000-0000-0000-000000000001', status: 'TRIGGERED', triggeredAt: new Date() },
     ];
-    (prisma as any).analyticsAlert.findMany.mockResolvedValue(alerts);
+    mockPrisma.analyticsAlert.findMany.mockResolvedValue(alerts);
 
     const res = await request(app).get('/api/alerts/triggered');
 
@@ -152,7 +153,7 @@ describe('GET /api/alerts/triggered', () => {
 // ===================================================================
 describe('GET /api/alerts/:id', () => {
   it('should return an alert by ID', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Test',
     });
@@ -164,7 +165,7 @@ describe('GET /api/alerts/:id', () => {
   });
 
   it('should return 404 for non-existent alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/alerts/00000000-0000-0000-0000-000000000099');
 
@@ -177,10 +178,10 @@ describe('GET /api/alerts/:id', () => {
 // ===================================================================
 describe('PUT /api/alerts/:id', () => {
   it('should update an alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsAlert.update.mockResolvedValue({
+    mockPrisma.analyticsAlert.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -194,7 +195,7 @@ describe('PUT /api/alerts/:id', () => {
   });
 
   it('should return 404 for non-existent alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/alerts/00000000-0000-0000-0000-000000000099')
@@ -209,10 +210,10 @@ describe('PUT /api/alerts/:id', () => {
 // ===================================================================
 describe('DELETE /api/alerts/:id', () => {
   it('should soft delete an alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsAlert.update.mockResolvedValue({
+    mockPrisma.analyticsAlert.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -224,7 +225,7 @@ describe('DELETE /api/alerts/:id', () => {
   });
 
   it('should return 404 for non-existent alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/alerts/00000000-0000-0000-0000-000000000099');
 
@@ -237,11 +238,11 @@ describe('DELETE /api/alerts/:id', () => {
 // ===================================================================
 describe('PUT /api/alerts/:id/acknowledge', () => {
   it('should acknowledge a triggered alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'TRIGGERED',
     });
-    (prisma as any).analyticsAlert.update.mockResolvedValue({
+    mockPrisma.analyticsAlert.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'ACKNOWLEDGED',
       acknowledgedBy: 'user-123',
@@ -256,7 +257,7 @@ describe('PUT /api/alerts/:id/acknowledge', () => {
   });
 
   it('should reject acknowledge for non-triggered alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'ACTIVE',
     });
@@ -270,7 +271,7 @@ describe('PUT /api/alerts/:id/acknowledge', () => {
   });
 
   it('should return 404 for non-existent alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(
       '/api/alerts/00000000-0000-0000-0000-000000000099/acknowledge'
@@ -285,11 +286,11 @@ describe('PUT /api/alerts/:id/acknowledge', () => {
 // ===================================================================
 describe('PUT /api/alerts/:id/resolve', () => {
   it('should resolve an alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'ACKNOWLEDGED',
     });
-    (prisma as any).analyticsAlert.update.mockResolvedValue({
+    mockPrisma.analyticsAlert.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'RESOLVED',
     });
@@ -301,7 +302,7 @@ describe('PUT /api/alerts/:id/resolve', () => {
   });
 
   it('should reject resolve for already resolved alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue({
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'RESOLVED',
     });
@@ -313,7 +314,7 @@ describe('PUT /api/alerts/:id/resolve', () => {
   });
 
   it('should return 404 for non-existent alert', async () => {
-    (prisma as any).analyticsAlert.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsAlert.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/alerts/00000000-0000-0000-0000-000000000099/resolve');
 

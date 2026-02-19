@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import jobNotesRouter from '../src/routes/job-notes';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -43,8 +44,8 @@ describe('GET /api/job-notes', () => {
     const notes = [
       { id: '00000000-0000-0000-0000-000000000001', type: 'NOTE', content: 'Test note' },
     ];
-    (prisma as any).fsSvcJobNote.findMany.mockResolvedValue(notes);
-    (prisma as any).fsSvcJobNote.count.mockResolvedValue(1);
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue(notes);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/job-notes');
 
@@ -54,12 +55,12 @@ describe('GET /api/job-notes', () => {
   });
 
   it('should filter by jobId', async () => {
-    (prisma as any).fsSvcJobNote.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcJobNote.count.mockResolvedValue(0);
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(0);
 
     await request(app).get('/api/job-notes?jobId=job-1');
 
-    expect((prisma as any).fsSvcJobNote.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcJobNote.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ jobId: 'job-1' }),
       })
@@ -67,12 +68,12 @@ describe('GET /api/job-notes', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).fsSvcJobNote.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcJobNote.count.mockResolvedValue(0);
+    mockPrisma.fsSvcJobNote.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcJobNote.count.mockResolvedValue(0);
 
     await request(app).get('/api/job-notes?type=PHOTO');
 
-    expect((prisma as any).fsSvcJobNote.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcJobNote.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ type: 'PHOTO' }),
       })
@@ -89,7 +90,7 @@ describe('POST /api/job-notes', () => {
       jobId: 'job-1',
       authorId: 'user-123',
     };
-    (prisma as any).fsSvcJobNote.create.mockResolvedValue(created);
+    mockPrisma.fsSvcJobNote.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/job-notes').send({
       jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -102,7 +103,7 @@ describe('POST /api/job-notes', () => {
 
   it('should create a photo note', async () => {
     const created = { id: 'note-new', type: 'PHOTO', content: 'photo-url' };
-    (prisma as any).fsSvcJobNote.create.mockResolvedValue(created);
+    mockPrisma.fsSvcJobNote.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/job-notes').send({
       jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -122,7 +123,7 @@ describe('POST /api/job-notes', () => {
 
 describe('GET /api/job-notes/:id', () => {
   it('should return a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       content: 'Test',
     });
@@ -134,7 +135,7 @@ describe('GET /api/job-notes/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/job-notes/00000000-0000-0000-0000-000000000099');
 
@@ -144,10 +145,10 @@ describe('GET /api/job-notes/:id', () => {
 
 describe('PUT /api/job-notes/:id', () => {
   it('should update a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcJobNote.update.mockResolvedValue({
+    mockPrisma.fsSvcJobNote.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       content: 'Updated',
     });
@@ -160,7 +161,7 @@ describe('PUT /api/job-notes/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/job-notes/00000000-0000-0000-0000-000000000099')
@@ -172,10 +173,10 @@ describe('PUT /api/job-notes/:id', () => {
 
 describe('DELETE /api/job-notes/:id', () => {
   it('should soft delete a job note', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcJobNote.update.mockResolvedValue({
+    mockPrisma.fsSvcJobNote.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -187,7 +188,7 @@ describe('DELETE /api/job-notes/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcJobNote.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcJobNote.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/job-notes/00000000-0000-0000-0000-000000000099');
 

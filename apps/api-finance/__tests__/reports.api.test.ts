@@ -48,6 +48,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import reportsRouter from '../src/routes/reports';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -63,17 +64,17 @@ beforeEach(() => {
 
 describe('GET /api/reports/dashboard', () => {
   it('should return dashboard KPIs', async () => {
-    (prisma as any).finInvoice.aggregate
+    mockPrisma.finInvoice.aggregate
       .mockResolvedValueOnce({ _sum: { amountPaid: 50000 } }) // revenue
       .mockResolvedValueOnce({ _sum: { amountDue: 15000 } }); // AR
-    (prisma as any).finBill.aggregate
+    mockPrisma.finBill.aggregate
       .mockResolvedValueOnce({ _sum: { amountPaid: 30000 } }) // expenses
       .mockResolvedValueOnce({ _sum: { amountDue: 10000 } }); // AP
-    (prisma as any).finBankAccount.aggregate.mockResolvedValue({
+    mockPrisma.finBankAccount.aggregate.mockResolvedValue({
       _sum: { currentBalance: 100000 },
     });
-    (prisma as any).finInvoice.count.mockResolvedValue(3); // overdue invoices
-    (prisma as any).finBill.count.mockResolvedValue(2); // overdue bills
+    mockPrisma.finInvoice.count.mockResolvedValue(3); // overdue invoices
+    mockPrisma.finBill.count.mockResolvedValue(2); // overdue bills
 
     const res = await request(app).get('/api/reports/dashboard');
 
@@ -90,15 +91,15 @@ describe('GET /api/reports/dashboard', () => {
   });
 
   it('should handle null aggregation results', async () => {
-    (prisma as any).finInvoice.aggregate
+    mockPrisma.finInvoice.aggregate
       .mockResolvedValueOnce({ _sum: { amountPaid: null } })
       .mockResolvedValueOnce({ _sum: { amountDue: null } });
-    (prisma as any).finBill.aggregate
+    mockPrisma.finBill.aggregate
       .mockResolvedValueOnce({ _sum: { amountPaid: null } })
       .mockResolvedValueOnce({ _sum: { amountDue: null } });
-    (prisma as any).finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: null } });
-    (prisma as any).finInvoice.count.mockResolvedValue(0);
-    (prisma as any).finBill.count.mockResolvedValue(0);
+    mockPrisma.finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: null } });
+    mockPrisma.finInvoice.count.mockResolvedValue(0);
+    mockPrisma.finBill.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/reports/dashboard');
 
@@ -109,7 +110,7 @@ describe('GET /api/reports/dashboard', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finInvoice.aggregate.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finInvoice.aggregate.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/dashboard');
 
@@ -137,8 +138,8 @@ describe('GET /api/reports/budgets', () => {
         },
       },
     ];
-    (prisma as any).finBudget.findMany.mockResolvedValue(budgets);
-    (prisma as any).finBudget.count.mockResolvedValue(1);
+    mockPrisma.finBudget.findMany.mockResolvedValue(budgets);
+    mockPrisma.finBudget.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/reports/budgets');
 
@@ -148,8 +149,8 @@ describe('GET /api/reports/budgets', () => {
   });
 
   it('should filter by fiscalYear', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
-    (prisma as any).finBudget.count.mockResolvedValue(0);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/reports/budgets?fiscalYear=2026');
 
@@ -157,8 +158,8 @@ describe('GET /api/reports/budgets', () => {
   });
 
   it('should filter by accountId', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
-    (prisma as any).finBudget.count.mockResolvedValue(0);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/reports/budgets?accountId=acc-1');
 
@@ -166,8 +167,8 @@ describe('GET /api/reports/budgets', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
-    (prisma as any).finBudget.count.mockResolvedValue(100);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(100);
 
     const res = await request(app).get('/api/reports/budgets?page=3&limit=10');
 
@@ -179,7 +180,7 @@ describe('GET /api/reports/budgets', () => {
 
 describe('GET /api/reports/budgets/:id', () => {
   it('should return a budget when found', async () => {
-    (prisma as any).finBudget.findUnique.mockResolvedValue({
+    mockPrisma.finBudget.findUnique.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
       name: 'Marketing Q1',
       budgetAmount: 10000,
@@ -195,7 +196,7 @@ describe('GET /api/reports/budgets/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finBudget.findUnique.mockResolvedValue(null);
+    mockPrisma.finBudget.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get('/api/reports/budgets/00000000-0000-0000-0000-000000000099');
 
@@ -213,12 +214,12 @@ describe('POST /api/reports/budgets', () => {
   };
 
   it('should create a budget', async () => {
-    (prisma as any).finAccount.findUnique.mockResolvedValue({
+    mockPrisma.finAccount.findUnique.mockResolvedValue({
       id: validBudget.accountId,
       code: '5100',
       name: 'Marketing',
     });
-    (prisma as any).finBudget.create.mockResolvedValue({
+    mockPrisma.finBudget.create.mockResolvedValue({
       id: 'bud-new',
       ...validBudget,
       account: { id: validBudget.accountId, code: '5100', name: 'Marketing', type: 'EXPENSE' },
@@ -231,7 +232,7 @@ describe('POST /api/reports/budgets', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).finAccount.findUnique.mockResolvedValue(null);
+    mockPrisma.finAccount.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post('/api/reports/budgets').send(validBudget);
 
@@ -239,10 +240,9 @@ describe('POST /api/reports/budgets', () => {
   });
 
   it('should return 409 for duplicate budget (P2002)', async () => {
-    (prisma as any).finAccount.findUnique.mockResolvedValue({ id: validBudget.accountId });
-    const err = new Error('Unique constraint') as any;
-    err.code = 'P2002';
-    (prisma as any).finBudget.create.mockRejectedValue(err);
+    mockPrisma.finAccount.findUnique.mockResolvedValue({ id: validBudget.accountId });
+    const err = Object.assign(new Error('Unique constraint'), { code: 'P2002' });
+    mockPrisma.finBudget.create.mockRejectedValue(err);
 
     const res = await request(app).post('/api/reports/budgets').send(validBudget);
 
@@ -267,11 +267,11 @@ describe('POST /api/reports/budgets', () => {
 
 describe('PUT /api/reports/budgets/:id', () => {
   it('should update a budget', async () => {
-    (prisma as any).finBudget.findUnique.mockResolvedValue({
+    mockPrisma.finBudget.findUnique.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
       actualAmount: 5000,
     });
-    (prisma as any).finBudget.update.mockResolvedValue({
+    mockPrisma.finBudget.update.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
       budgetAmount: 15000,
       variance: 10000,
@@ -292,7 +292,7 @@ describe('PUT /api/reports/budgets/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finBudget.findUnique.mockResolvedValue(null);
+    mockPrisma.finBudget.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/reports/budgets/00000000-0000-0000-0000-000000000099')
@@ -304,10 +304,10 @@ describe('PUT /api/reports/budgets/:id', () => {
 
 describe('DELETE /api/reports/budgets/:id', () => {
   it('should soft delete a budget', async () => {
-    (prisma as any).finBudget.findUnique.mockResolvedValue({
+    mockPrisma.finBudget.findUnique.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
     });
-    (prisma as any).finBudget.update.mockResolvedValue({
+    mockPrisma.finBudget.update.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
     });
 
@@ -320,7 +320,7 @@ describe('DELETE /api/reports/budgets/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finBudget.findUnique.mockResolvedValue(null);
+    mockPrisma.finBudget.findUnique.mockResolvedValue(null);
 
     const res = await request(app).delete(
       '/api/reports/budgets/00000000-0000-0000-0000-000000000099'
@@ -368,7 +368,7 @@ describe('GET /api/reports/budget-vs-actual', () => {
         },
       },
     ];
-    (prisma as any).finBudget.findMany.mockResolvedValue(budgets);
+    mockPrisma.finBudget.findMany.mockResolvedValue(budgets);
 
     const res = await request(app).get('/api/reports/budget-vs-actual?fiscalYear=2026');
 
@@ -381,7 +381,7 @@ describe('GET /api/reports/budget-vs-actual', () => {
   });
 
   it('should use current year when fiscalYear not provided', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/budget-vs-actual');
 
@@ -390,7 +390,7 @@ describe('GET /api/reports/budget-vs-actual', () => {
   });
 
   it('should return empty when no budgets exist', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/budget-vs-actual?fiscalYear=2026');
 
@@ -425,7 +425,7 @@ describe('GET /api/reports/revenue-breakdown', () => {
         customer: { id: 'f4000000-0000-4000-a000-000000000002', name: 'Beta Inc', code: 'C002' },
       },
     ];
-    (prisma as any).finInvoice.findMany.mockResolvedValue(invoices);
+    mockPrisma.finInvoice.findMany.mockResolvedValue(invoices);
 
     const res = await request(app).get('/api/reports/revenue-breakdown');
 
@@ -438,7 +438,7 @@ describe('GET /api/reports/revenue-breakdown', () => {
   });
 
   it('should filter by date range', async () => {
-    (prisma as any).finInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.finInvoice.findMany.mockResolvedValue([]);
 
     const res = await request(app).get(
       '/api/reports/revenue-breakdown?dateFrom=2026-01-01&dateTo=2026-03-31'
@@ -449,7 +449,7 @@ describe('GET /api/reports/revenue-breakdown', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finInvoice.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finInvoice.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/revenue-breakdown');
 
@@ -477,7 +477,7 @@ describe('GET /api/reports/expense-breakdown', () => {
         supplier: { id: 'f7000000-0000-4000-a000-000000000002', name: 'Gear Inc', code: 'S002' },
       },
     ];
-    (prisma as any).finBill.findMany.mockResolvedValue(bills);
+    mockPrisma.finBill.findMany.mockResolvedValue(bills);
 
     const res = await request(app).get('/api/reports/expense-breakdown');
 
@@ -488,7 +488,7 @@ describe('GET /api/reports/expense-breakdown', () => {
   });
 
   it('should filter by date range', async () => {
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
 
     const res = await request(app).get(
       '/api/reports/expense-breakdown?dateFrom=2026-01-01&dateTo=2026-03-31'
@@ -499,7 +499,7 @@ describe('GET /api/reports/expense-breakdown', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finBill.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finBill.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/expense-breakdown');
 
@@ -513,12 +513,12 @@ describe('GET /api/reports/expense-breakdown', () => {
 
 describe('GET /api/reports/cash-forecast', () => {
   it('should return cash forecast with projected cash', async () => {
-    (prisma as any).finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 50000 } });
-    (prisma as any).finInvoice.findMany.mockResolvedValue([
+    mockPrisma.finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 50000 } });
+    mockPrisma.finInvoice.findMany.mockResolvedValue([
       { dueDate: new Date('2026-02-15'), amountDue: 10000 },
       { dueDate: new Date('2026-03-01'), amountDue: 5000 },
     ]);
-    (prisma as any).finBill.findMany.mockResolvedValue([
+    mockPrisma.finBill.findMany.mockResolvedValue([
       { dueDate: new Date('2026-02-20'), amountDue: 8000 },
     ]);
 
@@ -533,9 +533,9 @@ describe('GET /api/reports/cash-forecast', () => {
   });
 
   it('should accept custom months parameter', async () => {
-    (prisma as any).finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 50000 } });
-    (prisma as any).finInvoice.findMany.mockResolvedValue([]);
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 50000 } });
+    mockPrisma.finInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/cash-forecast?months=6');
 
@@ -544,9 +544,9 @@ describe('GET /api/reports/cash-forecast', () => {
   });
 
   it('should cap months at 12', async () => {
-    (prisma as any).finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 50000 } });
-    (prisma as any).finInvoice.findMany.mockResolvedValue([]);
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: 50000 } });
+    mockPrisma.finInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/cash-forecast?months=24');
 
@@ -555,9 +555,9 @@ describe('GET /api/reports/cash-forecast', () => {
   });
 
   it('should handle null bank account balance', async () => {
-    (prisma as any).finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: null } });
-    (prisma as any).finInvoice.findMany.mockResolvedValue([]);
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBankAccount.aggregate.mockResolvedValue({ _sum: { currentBalance: null } });
+    mockPrisma.finInvoice.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/cash-forecast');
 
@@ -567,7 +567,7 @@ describe('GET /api/reports/cash-forecast', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finBankAccount.aggregate.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finBankAccount.aggregate.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/cash-forecast');
 

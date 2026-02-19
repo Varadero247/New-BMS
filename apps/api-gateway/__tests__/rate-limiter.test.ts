@@ -100,7 +100,7 @@ describe('Rate Limiter Middleware', () => {
 
       // Should call next for allowed requests
       await new Promise<void>((resolve) => {
-        limiter(mockReq as any, mockRes as any, (err?: any) => {
+        limiter(mockReq as unknown as Request, mockRes as unknown as Response, (err?: any) => {
           mockNext(err);
           resolve();
         });
@@ -224,7 +224,7 @@ describe('Rate Limiter Middleware', () => {
       };
 
       await new Promise<void>((resolve) => {
-        authLimiter(mockReq as any, mockRes as any, () => resolve());
+        authLimiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
       });
 
       // If the key generator works, the request should proceed
@@ -249,7 +249,7 @@ describe('Rate Limiter Middleware', () => {
       };
 
       await new Promise<void>((resolve) => {
-        authLimiter(mockReq as any, mockRes as any, () => resolve());
+        authLimiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
       });
 
       // Should use 'unknown' for email and still proceed
@@ -274,7 +274,7 @@ describe('Rate Limiter Middleware', () => {
       };
 
       await new Promise<void>((resolve) => {
-        authLimiter(mockReq as any, mockRes as any, () => resolve());
+        authLimiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
       });
 
       // Should fall back to socket.remoteAddress
@@ -299,7 +299,7 @@ describe('Rate Limiter Middleware', () => {
       };
 
       await new Promise<void>((resolve) => {
-        registerLimiter(mockReq as any, mockRes as any, () => resolve());
+        registerLimiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
       });
 
       expect(mockRes.status).not.toHaveBeenCalledWith(429);
@@ -323,7 +323,7 @@ describe('Rate Limiter Middleware', () => {
       };
 
       await new Promise<void>((resolve) => {
-        apiLimiter(mockReq as any, mockRes as any, () => resolve());
+        apiLimiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
       });
 
       expect(mockRes.status).not.toHaveBeenCalledWith(429);
@@ -347,7 +347,7 @@ describe('Rate Limiter Middleware', () => {
       };
 
       await new Promise<void>((resolve) => {
-        passwordResetLimiter(mockReq as any, mockRes as any, () => resolve());
+        passwordResetLimiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
       });
 
       expect(mockRes.status).not.toHaveBeenCalledWith(429);
@@ -371,7 +371,7 @@ describe('Rate Limiter Middleware', () => {
       };
 
       await new Promise<void>((resolve) => {
-        strictApiLimiter(mockReq as any, mockRes as any, () => resolve());
+        strictApiLimiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
       });
 
       expect(mockRes.status).not.toHaveBeenCalledWith(429);
@@ -405,7 +405,7 @@ describe('Rate Limiter Middleware', () => {
           setHeader: jest.fn(),
           getHeader: jest.fn(),
         };
-        testLimiter(mockReq as any, mockRes1 as any, () => resolve());
+        testLimiter(mockReq as unknown as Request, mockRes1 as unknown as Response, () => resolve());
       });
 
       // Second request - should be rate limited
@@ -417,7 +417,7 @@ describe('Rate Limiter Middleware', () => {
       };
 
       await new Promise<void>((resolve) => {
-        testLimiter(mockReq as any, mockRes as any, () => resolve());
+        testLimiter(mockReq as unknown as Request, mockRes as unknown as Response, () => resolve());
         setTimeout(resolve, 100);
       });
 

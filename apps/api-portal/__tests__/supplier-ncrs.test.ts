@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import supplierNcrsRouter from '../src/routes/supplier-ncrs';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -46,8 +47,8 @@ describe('GET /api/supplier/ncrs', () => {
         status: 'OPEN',
       },
     ];
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue(items);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(1);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue(items);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/supplier/ncrs');
 
@@ -56,8 +57,8 @@ describe('GET /api/supplier/ncrs', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue([]);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(0);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/supplier/ncrs?status=OPEN');
 
@@ -65,8 +66,8 @@ describe('GET /api/supplier/ncrs', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue([]);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(0);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/supplier/ncrs?page=1&limit=10');
 
@@ -75,7 +76,7 @@ describe('GET /api/supplier/ncrs', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalQualityReport.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalQualityReport.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/supplier/ncrs');
 
@@ -92,8 +93,8 @@ describe('POST /api/supplier/ncrs/:id/response', () => {
       status: 'OPEN',
       attachments: null,
     };
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue(ncr);
-    (prisma as any).portalQualityReport.update.mockResolvedValue({
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue(ncr);
+    mockPrisma.portalQualityReport.update.mockResolvedValue({
       ...ncr,
       status: 'INVESTIGATING',
       resolution: 'Fixed material source',
@@ -108,7 +109,7 @@ describe('POST /api/supplier/ncrs/:id/response', () => {
   });
 
   it('should return 404 if NCR not found', async () => {
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue(null);
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000099/response')
@@ -125,7 +126,7 @@ describe('POST /api/supplier/ncrs/:id/response', () => {
       status: 'CLOSED',
       attachments: null,
     };
-    (prisma as any).portalQualityReport.findFirst.mockResolvedValue(ncr);
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue(ncr);
 
     const res = await request(app)
       .post('/api/supplier/ncrs/00000000-0000-0000-0000-000000000001/response')

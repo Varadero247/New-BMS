@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/disposal';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -73,8 +74,8 @@ const validDisposalBody = {
 
 describe('GET /api/disposal', () => {
   it('should return a list of disposal records with pagination', async () => {
-    (prisma as any).chemDisposal.findMany.mockResolvedValue([mockDisposal]);
-    (prisma as any).chemDisposal.count.mockResolvedValue(1);
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([mockDisposal]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/disposal');
     expect(res.status).toBe(200);
@@ -87,14 +88,14 @@ describe('GET /api/disposal', () => {
   });
 
   it('should support chemicalId filter', async () => {
-    (prisma as any).chemDisposal.findMany.mockResolvedValue([]);
-    (prisma as any).chemDisposal.count.mockResolvedValue(0);
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/disposal?chemicalId=00000000-0000-0000-0000-000000000001'
     );
     expect(res.status).toBe(200);
-    expect((prisma as any).chemDisposal.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemDisposal.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ chemicalId: '00000000-0000-0000-0000-000000000001' }),
       })
@@ -102,8 +103,8 @@ describe('GET /api/disposal', () => {
   });
 
   it('should return empty data when no disposal records', async () => {
-    (prisma as any).chemDisposal.findMany.mockResolvedValue([]);
-    (prisma as any).chemDisposal.count.mockResolvedValue(0);
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/disposal');
     expect(res.status).toBe(200);
@@ -113,7 +114,7 @@ describe('GET /api/disposal', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemDisposal.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemDisposal.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/disposal');
     expect(res.status).toBe(500);
@@ -124,14 +125,14 @@ describe('GET /api/disposal', () => {
 
 describe('POST /api/disposal', () => {
   it('should create a disposal record', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemDisposal.create.mockResolvedValue(mockDisposal);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemDisposal.create.mockResolvedValue(mockDisposal);
 
     const res = await request(app).post('/api/disposal').send(validDisposalBody);
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.disposalMethod).toBe('Licensed waste contractor');
-    expect((prisma as any).chemDisposal.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemDisposal.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           disposedBy: 'user-1',
@@ -142,8 +143,8 @@ describe('POST /api/disposal', () => {
   });
 
   it('should create disposal with full details', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemDisposal.create.mockResolvedValue(mockDisposal);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemDisposal.create.mockResolvedValue(mockDisposal);
 
     const res = await request(app)
       .post('/api/disposal')
@@ -196,7 +197,7 @@ describe('POST /api/disposal', () => {
   });
 
   it('should return 404 when chemical does not exist', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/disposal')
@@ -211,8 +212,8 @@ describe('POST /api/disposal', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemDisposal.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemDisposal.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/disposal').send(validDisposalBody);
     expect(res.status).toBe(500);
@@ -223,8 +224,8 @@ describe('POST /api/disposal', () => {
 
 describe('PUT /api/disposal/:id', () => {
   it('should update an existing disposal record', async () => {
-    (prisma as any).chemDisposal.findFirst.mockResolvedValue(mockDisposal);
-    (prisma as any).chemDisposal.update.mockResolvedValue({
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue(mockDisposal);
+    mockPrisma.chemDisposal.update.mockResolvedValue({
       ...mockDisposal,
       certificateRef: 'CERT-2026-001',
     });
@@ -238,7 +239,7 @@ describe('PUT /api/disposal/:id', () => {
   });
 
   it('should return 404 when disposal record not found', async () => {
-    (prisma as any).chemDisposal.findFirst.mockResolvedValue(null);
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/disposal/00000000-0000-0000-0000-000000000099').send({
       certificateRef: 'CERT-X',
@@ -249,8 +250,8 @@ describe('PUT /api/disposal/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemDisposal.findFirst.mockResolvedValue(mockDisposal);
-    (prisma as any).chemDisposal.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue(mockDisposal);
+    mockPrisma.chemDisposal.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put('/api/disposal/00000000-0000-0000-0000-000000000060').send({
       certificateRef: 'Fail',

@@ -34,6 +34,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import techniciansRouter from '../src/routes/technicians';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -61,8 +62,8 @@ describe('GET /api/technicians', () => {
         skills: ['plumbing'],
       },
     ];
-    (prisma as any).fsSvcTechnician.findMany.mockResolvedValue(technicians);
-    (prisma as any).fsSvcTechnician.count.mockResolvedValue(2);
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue(technicians);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/technicians');
 
@@ -73,12 +74,12 @@ describe('GET /api/technicians', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsSvcTechnician.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcTechnician.count.mockResolvedValue(0);
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(0);
 
     await request(app).get('/api/technicians?status=AVAILABLE');
 
-    expect((prisma as any).fsSvcTechnician.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcTechnician.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'AVAILABLE' }),
       })
@@ -86,12 +87,12 @@ describe('GET /api/technicians', () => {
   });
 
   it('should filter by zone', async () => {
-    (prisma as any).fsSvcTechnician.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcTechnician.count.mockResolvedValue(0);
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcTechnician.count.mockResolvedValue(0);
 
     await request(app).get('/api/technicians?zone=North');
 
-    expect((prisma as any).fsSvcTechnician.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcTechnician.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ zone: 'North' }),
       })
@@ -99,7 +100,7 @@ describe('GET /api/technicians', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).fsSvcTechnician.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSvcTechnician.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/technicians');
 
@@ -113,7 +114,7 @@ describe('GET /api/technicians/available', () => {
     const available = [
       { id: '00000000-0000-0000-0000-000000000001', name: 'John', status: 'AVAILABLE' },
     ];
-    (prisma as any).fsSvcTechnician.findMany.mockResolvedValue(available);
+    mockPrisma.fsSvcTechnician.findMany.mockResolvedValue(available);
 
     const res = await request(app).get('/api/technicians/available');
 
@@ -126,7 +127,7 @@ describe('GET /api/technicians/available', () => {
 describe('POST /api/technicians', () => {
   it('should create a technician', async () => {
     const created = { id: 'tech-new', name: 'New Tech', email: 'new@test.com', skills: ['hvac'] };
-    (prisma as any).fsSvcTechnician.create.mockResolvedValue(created);
+    mockPrisma.fsSvcTechnician.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/technicians')
@@ -147,7 +148,7 @@ describe('POST /api/technicians', () => {
   it('should handle duplicate email', async () => {
     const error: any = new Error('Unique constraint');
     error.code = 'P2002';
-    (prisma as any).fsSvcTechnician.create.mockRejectedValue(error);
+    mockPrisma.fsSvcTechnician.create.mockRejectedValue(error);
 
     const res = await request(app)
       .post('/api/technicians')
@@ -160,7 +161,7 @@ describe('POST /api/technicians', () => {
 describe('GET /api/technicians/:id', () => {
   it('should return a technician by id', async () => {
     const tech = { id: '00000000-0000-0000-0000-000000000001', name: 'John', jobs: [] };
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(tech);
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue(tech);
 
     const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000001');
 
@@ -169,7 +170,7 @@ describe('GET /api/technicians/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/technicians/00000000-0000-0000-0000-000000000099');
 
@@ -179,10 +180,10 @@ describe('GET /api/technicians/:id', () => {
 
 describe('GET /api/technicians/:id/schedule', () => {
   it('should return technician schedule', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcJob.findMany.mockResolvedValue([
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([
       { id: 'job-1', scheduledStart: new Date() },
     ]);
 
@@ -195,7 +196,7 @@ describe('GET /api/technicians/:id/schedule', () => {
   });
 
   it('should return 404 if technician not found', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/technicians/00000000-0000-0000-0000-000000000099/schedule'
@@ -207,10 +208,10 @@ describe('GET /api/technicians/:id/schedule', () => {
 
 describe('PUT /api/technicians/:id', () => {
   it('should update a technician', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcTechnician.update.mockResolvedValue({
+    mockPrisma.fsSvcTechnician.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -224,7 +225,7 @@ describe('PUT /api/technicians/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/technicians/00000000-0000-0000-0000-000000000099')
@@ -236,10 +237,10 @@ describe('PUT /api/technicians/:id', () => {
 
 describe('DELETE /api/technicians/:id', () => {
   it('should soft delete a technician', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcTechnician.update.mockResolvedValue({
+    mockPrisma.fsSvcTechnician.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -251,7 +252,7 @@ describe('DELETE /api/technicians/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/technicians/00000000-0000-0000-0000-000000000099');
 

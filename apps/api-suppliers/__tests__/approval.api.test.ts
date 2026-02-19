@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/approval';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/approval', router);
@@ -26,7 +27,7 @@ beforeEach(() => {
 
 describe('POST /api/approval/:id/approve', () => {
   it('should approve a supplier', async () => {
-    (prisma as any).suppSupplier.update.mockResolvedValue({
+    mockPrisma.suppSupplier.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'APPROVED',
     });
@@ -39,7 +40,7 @@ describe('POST /api/approval/:id/approve', () => {
   });
 
   it('should return 500 on error when approving', async () => {
-    (prisma as any).suppSupplier.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSupplier.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app).post(
       '/api/approval/00000000-0000-0000-0000-000000000001/approve'
     );
@@ -51,7 +52,7 @@ describe('POST /api/approval/:id/approve', () => {
 
 describe('POST /api/approval/:id/suspend', () => {
   it('should suspend a supplier', async () => {
-    (prisma as any).suppSupplier.update.mockResolvedValue({
+    mockPrisma.suppSupplier.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'SUSPENDED',
     });
@@ -64,7 +65,7 @@ describe('POST /api/approval/:id/suspend', () => {
   });
 
   it('should return 500 on error when suspending', async () => {
-    (prisma as any).suppSupplier.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSupplier.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app).post(
       '/api/approval/00000000-0000-0000-0000-000000000001/suspend'
     );

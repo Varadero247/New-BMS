@@ -70,7 +70,7 @@ jest.mock('@ims/monitoring', () => ({
 import { prisma } from '../src/prisma';
 import analyseRouter from '../src/routes/analyse';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe('POST /api/analyse', () => {
   let app: express.Express;

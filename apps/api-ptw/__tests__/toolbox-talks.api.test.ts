@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/toolbox-talks';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/toolbox-talks', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/toolbox-talks', () => {
   it('should return paginated toolbox talks', async () => {
-    (prisma as any).ptwToolboxTalk.findMany.mockResolvedValue([
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', topic: 'Safety Brief' },
     ]);
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(1);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(1);
     const res = await request(app).get('/api/toolbox-talks');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,16 +47,16 @@ describe('GET /api/toolbox-talks', () => {
   });
 
   it('should support status filter query param', async () => {
-    (prisma as any).ptwToolboxTalk.findMany.mockResolvedValue([]);
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
     const res = await request(app).get('/api/toolbox-talks?status=COMPLETED');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should support search query param', async () => {
-    (prisma as any).ptwToolboxTalk.findMany.mockResolvedValue([{ id: '2', topic: 'Fire Safety' }]);
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(1);
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([{ id: '2', topic: 'Fire Safety' }]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(1);
     const res = await request(app).get('/api/toolbox-talks?search=fire');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -63,8 +64,8 @@ describe('GET /api/toolbox-talks', () => {
   });
 
   it('should return correct pagination metadata', async () => {
-    (prisma as any).ptwToolboxTalk.findMany.mockResolvedValue([]);
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(50);
+    mockPrisma.ptwToolboxTalk.findMany.mockResolvedValue([]);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(50);
     const res = await request(app).get('/api/toolbox-talks?page=2&limit=10');
     expect(res.status).toBe(200);
     expect(res.body.pagination.page).toBe(2);
@@ -74,8 +75,8 @@ describe('GET /api/toolbox-talks', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).ptwToolboxTalk.findMany.mockRejectedValue(new Error('DB failure'));
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.findMany.mockRejectedValue(new Error('DB failure'));
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
     const res = await request(app).get('/api/toolbox-talks');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -85,7 +86,7 @@ describe('GET /api/toolbox-talks', () => {
 
 describe('GET /api/toolbox-talks/:id', () => {
   it('should return a toolbox talk by id', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'Safety Brief',
     });
@@ -96,7 +97,7 @@ describe('GET /api/toolbox-talks/:id', () => {
   });
 
   it('should return 404 if toolbox talk not found', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue(null);
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/toolbox-talks/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -104,7 +105,7 @@ describe('GET /api/toolbox-talks/:id', () => {
   });
 
   it('should return 500 on database error for get by id', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockRejectedValue(new Error('DB failure'));
+    mockPrisma.ptwToolboxTalk.findFirst.mockRejectedValue(new Error('DB failure'));
     const res = await request(app).get('/api/toolbox-talks/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -114,8 +115,8 @@ describe('GET /api/toolbox-talks/:id', () => {
 
 describe('POST /api/toolbox-talks', () => {
   it('should create a toolbox talk', async () => {
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(0);
-    (prisma as any).ptwToolboxTalk.create.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'Safety Brief',
       referenceNumber: 'PTT-2026-0001',
@@ -127,8 +128,8 @@ describe('POST /api/toolbox-talks', () => {
   });
 
   it('should create with all optional fields', async () => {
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(2);
-    (prisma as any).ptwToolboxTalk.create.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(2);
+    mockPrisma.ptwToolboxTalk.create.mockResolvedValue({
       id: '3',
       topic: 'Fire Safety',
       referenceNumber: 'PTT-2026-0003',
@@ -169,11 +170,11 @@ describe('POST /api/toolbox-talks', () => {
 
 describe('PUT /api/toolbox-talks/:id', () => {
   it('should update an existing toolbox talk', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'Old Topic',
     });
-    (prisma as any).ptwToolboxTalk.update.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'New Topic',
     });
@@ -185,7 +186,7 @@ describe('PUT /api/toolbox-talks/:id', () => {
   });
 
   it('should return 404 when updating non-existent toolbox talk', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue(null);
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/toolbox-talks/00000000-0000-0000-0000-000000000099')
       .send({ topic: 'New Topic' });
@@ -195,11 +196,11 @@ describe('PUT /api/toolbox-talks/:id', () => {
   });
 
   it('should allow partial updates', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'Safety Brief',
     });
-    (prisma as any).ptwToolboxTalk.update.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'Safety Brief',
       notes: 'Updated notes',
@@ -212,11 +213,11 @@ describe('PUT /api/toolbox-talks/:id', () => {
   });
 
   it('should return 500 on database error during update', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'Safety Brief',
     });
-    (prisma as any).ptwToolboxTalk.update.mockRejectedValue(new Error('DB failure'));
+    mockPrisma.ptwToolboxTalk.update.mockRejectedValue(new Error('DB failure'));
     const res = await request(app)
       .put('/api/toolbox-talks/00000000-0000-0000-0000-000000000001')
       .send({ topic: 'New Topic' });
@@ -228,11 +229,11 @@ describe('PUT /api/toolbox-talks/:id', () => {
 
 describe('DELETE /api/toolbox-talks/:id', () => {
   it('should soft delete a toolbox talk', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'Safety Brief',
     });
-    (prisma as any).ptwToolboxTalk.update.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -245,7 +246,7 @@ describe('DELETE /api/toolbox-talks/:id', () => {
   });
 
   it('should return 404 when deleting non-existent toolbox talk', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue(null);
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue(null);
     const res = await request(app).delete(
       '/api/toolbox-talks/00000000-0000-0000-0000-000000000099'
     );
@@ -255,11 +256,11 @@ describe('DELETE /api/toolbox-talks/:id', () => {
   });
 
   it('should return 500 on database error during delete', async () => {
-    (prisma as any).ptwToolboxTalk.findFirst.mockResolvedValue({
+    mockPrisma.ptwToolboxTalk.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       topic: 'Safety Brief',
     });
-    (prisma as any).ptwToolboxTalk.update.mockRejectedValue(new Error('DB failure'));
+    mockPrisma.ptwToolboxTalk.update.mockRejectedValue(new Error('DB failure'));
     const res = await request(app).delete(
       '/api/toolbox-talks/00000000-0000-0000-0000-000000000001'
     );

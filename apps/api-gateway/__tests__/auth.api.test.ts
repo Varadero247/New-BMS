@@ -122,9 +122,9 @@ describe('Auth API Routes', () => {
     };
 
     it('should login successfully with valid credentials', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
       mockComparePassword.mockResolvedValueOnce(true);
-      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app).post('/api/auth/login').send(loginPayload);
 
@@ -139,7 +139,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 401 for invalid email', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app).post('/api/auth/login').send(loginPayload);
 
@@ -149,7 +149,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 401 for invalid password', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
+      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser);
       mockComparePassword.mockResolvedValueOnce(false);
 
       const response = await request(app).post('/api/auth/login').send(loginPayload);
@@ -161,7 +161,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 401 for inactive user', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ ...mockUser, isActive: false } as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({ ...mockUser, isActive: false });
 
       const response = await request(app).post('/api/auth/login').send(loginPayload);
 
@@ -199,9 +199,9 @@ describe('Auth API Routes', () => {
     });
 
     it('should create a session on successful login', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
       mockComparePassword.mockResolvedValueOnce(true);
-      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       await request(app).post('/api/auth/login').send(loginPayload);
 
@@ -214,7 +214,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      mockPrisma.user.findUnique.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.user.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).post('/api/auth/login').send(loginPayload);
 
@@ -240,8 +240,8 @@ describe('Auth API Routes', () => {
         firstName: registerPayload.firstName,
         lastName: registerPayload.lastName,
         role: 'USER',
-      } as any);
-      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+      });
+      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app).post('/api/auth/register').send(registerPayload);
 
@@ -255,7 +255,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 409 if user already exists', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: 'existing-user' } as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'existing-user' });
 
       const response = await request(app).post('/api/auth/register').send(registerPayload);
 
@@ -293,13 +293,13 @@ describe('Auth API Routes', () => {
     });
 
     it('should hash the password before storing', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         email: registerPayload.email,
         role: 'USER',
-      } as any);
-      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+      });
+      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       await request(app).post('/api/auth/register').send(registerPayload);
 
@@ -312,13 +312,13 @@ describe('Auth API Routes', () => {
     });
 
     it('should accept optional fields', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         email: registerPayload.email,
         role: 'USER',
-      } as any);
-      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+      });
+      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       const payload = {
         ...registerPayload,
@@ -349,8 +349,8 @@ describe('Auth API Routes', () => {
     };
 
     it('should refresh tokens successfully with valid refresh token', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
-      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUser);
+      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .post('/api/auth/refresh')
@@ -365,7 +365,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 401 for inactive user', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ ...mockUser, isActive: false } as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({ ...mockUser, isActive: false });
 
       const response = await request(app)
         .post('/api/auth/refresh')
@@ -377,7 +377,7 @@ describe('Auth API Routes', () => {
     });
 
     it('should return 401 for 00000000-0000-4000-a000-ffffffffffff user', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .post('/api/auth/refresh')
@@ -428,8 +428,8 @@ describe('Auth API Routes', () => {
     });
 
     it('should create a new session on successful refresh', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser as any);
-      mockPrisma.session.create.mockResolvedValueOnce({} as any);
+      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUser);
+      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       await request(app).post('/api/auth/refresh').send({ refreshToken: 'valid-refresh-token' });
 

@@ -17,7 +17,7 @@ const mockPrisma = {
   session: {
     deleteMany: jest.fn(),
   },
-} as any;
+} as Record<string, Record<string, jest.Mock>>;
 
 // Mock logger
 const mockLogger = {

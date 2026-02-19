@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import ncrsRouter from '../src/routes/ncrs';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/ncrs', () => {
   it('should return NCRs with pagination', async () => {
-    (prisma as any).fsNcr.findMany.mockResolvedValue([
+    mockPrisma.fsNcr.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'NCR 1' },
     ]);
-    (prisma as any).fsNcr.count.mockResolvedValue(1);
+    mockPrisma.fsNcr.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/ncrs');
     expect(res.status).toBe(200);
@@ -50,37 +51,37 @@ describe('GET /api/ncrs', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsNcr.findMany.mockResolvedValue([]);
-    (prisma as any).fsNcr.count.mockResolvedValue(0);
+    mockPrisma.fsNcr.findMany.mockResolvedValue([]);
+    mockPrisma.fsNcr.count.mockResolvedValue(0);
 
     await request(app).get('/api/ncrs?status=OPEN');
-    expect((prisma as any).fsNcr.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsNcr.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'OPEN' }) })
     );
   });
 
   it('should filter by severity', async () => {
-    (prisma as any).fsNcr.findMany.mockResolvedValue([]);
-    (prisma as any).fsNcr.count.mockResolvedValue(0);
+    mockPrisma.fsNcr.findMany.mockResolvedValue([]);
+    mockPrisma.fsNcr.count.mockResolvedValue(0);
 
     await request(app).get('/api/ncrs?severity=HIGH');
-    expect((prisma as any).fsNcr.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsNcr.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ severity: 'HIGH' }) })
     );
   });
 
   it('should filter by category', async () => {
-    (prisma as any).fsNcr.findMany.mockResolvedValue([]);
-    (prisma as any).fsNcr.count.mockResolvedValue(0);
+    mockPrisma.fsNcr.findMany.mockResolvedValue([]);
+    mockPrisma.fsNcr.count.mockResolvedValue(0);
 
     await request(app).get('/api/ncrs?category=PROCESS');
-    expect((prisma as any).fsNcr.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsNcr.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ category: 'PROCESS' }) })
     );
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsNcr.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsNcr.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/ncrs');
     expect(res.status).toBe(500);
@@ -94,7 +95,7 @@ describe('POST /api/ncrs', () => {
       number: 'NCR-2602-1234',
       title: 'Contamination found',
     };
-    (prisma as any).fsNcr.create.mockResolvedValue(created);
+    mockPrisma.fsNcr.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/ncrs').send({
       title: 'Contamination found',
@@ -111,7 +112,7 @@ describe('POST /api/ncrs', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsNcr.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsNcr.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/ncrs').send({
       title: 'NCR',
@@ -124,7 +125,7 @@ describe('POST /api/ncrs', () => {
 
 describe('GET /api/ncrs/:id', () => {
   it('should return an NCR by id', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue({
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -134,7 +135,7 @@ describe('GET /api/ncrs/:id', () => {
   });
 
   it('should return 404 for non-existent NCR', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue(null);
+    mockPrisma.fsNcr.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/ncrs/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -143,10 +144,10 @@ describe('GET /api/ncrs/:id', () => {
 
 describe('PUT /api/ncrs/:id', () => {
   it('should update an NCR', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue({
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsNcr.update.mockResolvedValue({
+    mockPrisma.fsNcr.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'INVESTIGATING',
     });
@@ -159,7 +160,7 @@ describe('PUT /api/ncrs/:id', () => {
   });
 
   it('should return 404 for non-existent NCR', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue(null);
+    mockPrisma.fsNcr.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/ncrs/00000000-0000-0000-0000-000000000099')
@@ -170,10 +171,10 @@ describe('PUT /api/ncrs/:id', () => {
 
 describe('DELETE /api/ncrs/:id', () => {
   it('should soft delete an NCR', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue({
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsNcr.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsNcr.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
 
     const res = await request(app).delete('/api/ncrs/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -181,7 +182,7 @@ describe('DELETE /api/ncrs/:id', () => {
   });
 
   it('should return 404 for non-existent NCR', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue(null);
+    mockPrisma.fsNcr.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/ncrs/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -190,11 +191,11 @@ describe('DELETE /api/ncrs/:id', () => {
 
 describe('PUT /api/ncrs/:id/close', () => {
   it('should close an NCR', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue({
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'CORRECTIVE_ACTION',
     });
-    (prisma as any).fsNcr.update.mockResolvedValue({
+    mockPrisma.fsNcr.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'CLOSED',
     });
@@ -210,7 +211,7 @@ describe('PUT /api/ncrs/:id/close', () => {
   });
 
   it('should reject closing an already closed NCR', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue({
+    mockPrisma.fsNcr.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'CLOSED',
     });
@@ -223,7 +224,7 @@ describe('PUT /api/ncrs/:id/close', () => {
   });
 
   it('should return 404 for non-existent NCR', async () => {
-    (prisma as any).fsNcr.findFirst.mockResolvedValue(null);
+    mockPrisma.fsNcr.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/ncrs/00000000-0000-0000-0000-000000000099/close')
@@ -234,7 +235,7 @@ describe('PUT /api/ncrs/:id/close', () => {
 
 describe('GET /api/ncrs/open', () => {
   it('should return open NCRs', async () => {
-    (prisma as any).fsNcr.findMany.mockResolvedValue([
+    mockPrisma.fsNcr.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', status: 'OPEN' },
     ]);
 
@@ -244,7 +245,7 @@ describe('GET /api/ncrs/open', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsNcr.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsNcr.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/ncrs/open');
     expect(res.status).toBe(500);

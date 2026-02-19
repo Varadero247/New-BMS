@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import envMonRouter from '../src/routes/environmental-monitoring';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/environmental-monitoring', () => {
   it('should return records with pagination', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', location: 'Zone A' },
     ]);
-    (prisma as any).fsEnvironmentalMonitoring.count.mockResolvedValue(1);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/environmental-monitoring');
     expect(res.status).toBe(200);
@@ -50,31 +51,31 @@ describe('GET /api/environmental-monitoring', () => {
   });
 
   it('should filter by testType', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).fsEnvironmentalMonitoring.count.mockResolvedValue(0);
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(0);
 
     await request(app).get('/api/environmental-monitoring?testType=SWAB');
-    expect((prisma as any).fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ testType: 'SWAB' }) })
     );
   });
 
   it('should filter by withinSpec', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).fsEnvironmentalMonitoring.count.mockResolvedValue(0);
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(0);
 
     await request(app).get('/api/environmental-monitoring?withinSpec=false');
-    expect((prisma as any).fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ withinSpec: false }) })
     );
   });
 
   it('should filter by location', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).fsEnvironmentalMonitoring.count.mockResolvedValue(0);
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(0);
 
     await request(app).get('/api/environmental-monitoring?location=Zone');
-    expect((prisma as any).fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           location: expect.objectContaining({ contains: 'Zone' }),
@@ -84,7 +85,7 @@ describe('GET /api/environmental-monitoring', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/environmental-monitoring');
     expect(res.status).toBe(500);
@@ -98,7 +99,7 @@ describe('POST /api/environmental-monitoring', () => {
       location: 'Zone A',
       testType: 'SWAB',
     };
-    (prisma as any).fsEnvironmentalMonitoring.create.mockResolvedValue(created);
+    mockPrisma.fsEnvironmentalMonitoring.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/environmental-monitoring').send({
       location: 'Zone A',
@@ -120,7 +121,7 @@ describe('POST /api/environmental-monitoring', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsEnvironmentalMonitoring.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/environmental-monitoring').send({
       location: 'Zone A',
@@ -136,7 +137,7 @@ describe('POST /api/environmental-monitoring', () => {
 
 describe('GET /api/environmental-monitoring/:id', () => {
   it('should return a record by id', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -148,7 +149,7 @@ describe('GET /api/environmental-monitoring/:id', () => {
   });
 
   it('should return 404 for non-existent record', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/environmental-monitoring/00000000-0000-0000-0000-000000000099'
@@ -159,10 +160,10 @@ describe('GET /api/environmental-monitoring/:id', () => {
 
 describe('PUT /api/environmental-monitoring/:id', () => {
   it('should update a record', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsEnvironmentalMonitoring.update.mockResolvedValue({
+    mockPrisma.fsEnvironmentalMonitoring.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       result: 'Positive',
     });
@@ -175,7 +176,7 @@ describe('PUT /api/environmental-monitoring/:id', () => {
   });
 
   it('should return 404 for non-existent record', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/environmental-monitoring/00000000-0000-0000-0000-000000000099')
@@ -184,7 +185,7 @@ describe('PUT /api/environmental-monitoring/:id', () => {
   });
 
   it('should reject invalid update', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -197,10 +198,10 @@ describe('PUT /api/environmental-monitoring/:id', () => {
 
 describe('DELETE /api/environmental-monitoring/:id', () => {
   it('should soft delete a record', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsEnvironmentalMonitoring.update.mockResolvedValue({
+    mockPrisma.fsEnvironmentalMonitoring.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -212,7 +213,7 @@ describe('DELETE /api/environmental-monitoring/:id', () => {
   });
 
   it('should return 404 for non-existent record', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
+    mockPrisma.fsEnvironmentalMonitoring.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(
       '/api/environmental-monitoring/00000000-0000-0000-0000-000000000099'
@@ -223,21 +224,21 @@ describe('DELETE /api/environmental-monitoring/:id', () => {
 
 describe('GET /api/environmental-monitoring/out-of-spec', () => {
   it('should return out-of-spec records', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockResolvedValue([
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', withinSpec: false },
     ]);
-    (prisma as any).fsEnvironmentalMonitoring.count.mockResolvedValue(1);
+    mockPrisma.fsEnvironmentalMonitoring.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/environmental-monitoring/out-of-spec');
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
-    expect((prisma as any).fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsEnvironmentalMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ withinSpec: false }) })
     );
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsEnvironmentalMonitoring.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsEnvironmentalMonitoring.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/environmental-monitoring/out-of-spec');
     expect(res.status).toBe(500);

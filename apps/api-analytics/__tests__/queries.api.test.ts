@@ -30,6 +30,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import queriesRouter from '../src/routes/queries';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -53,8 +54,8 @@ describe('GET /api/queries', () => {
       },
       { id: 'q-2', name: 'Public Query', ownerId: 'user-456', isPublic: true },
     ];
-    (prisma as any).analyticsQuery.findMany.mockResolvedValue(queries);
-    (prisma as any).analyticsQuery.count.mockResolvedValue(2);
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue(queries);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/queries');
 
@@ -65,31 +66,31 @@ describe('GET /api/queries', () => {
   });
 
   it('should filter by owner=me', async () => {
-    (prisma as any).analyticsQuery.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsQuery.count.mockResolvedValue(0);
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/queries?owner=me');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsQuery.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsQuery.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ ownerId: 'user-123' }) })
     );
   });
 
   it('should filter by isPublic', async () => {
-    (prisma as any).analyticsQuery.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsQuery.count.mockResolvedValue(0);
+    mockPrisma.analyticsQuery.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsQuery.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/queries?isPublic=true');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsQuery.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsQuery.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isPublic: true }) })
     );
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsQuery.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsQuery.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/queries');
 
@@ -103,7 +104,7 @@ describe('GET /api/queries', () => {
 describe('POST /api/queries', () => {
   it('should create a new query', async () => {
     const created = { id: 'q-new', name: 'New Query', sql: 'SELECT 1', ownerId: 'user-123' };
-    (prisma as any).analyticsQuery.create.mockResolvedValue(created);
+    mockPrisma.analyticsQuery.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/queries').send({
       name: 'New Query',
@@ -127,7 +128,7 @@ describe('POST /api/queries', () => {
 // ===================================================================
 describe('GET /api/queries/:id', () => {
   it('should return a query by ID', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Test',
     });
@@ -139,7 +140,7 @@ describe('GET /api/queries/:id', () => {
   });
 
   it('should return 404 for non-existent query', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/queries/00000000-0000-0000-0000-000000000099');
 
@@ -152,10 +153,10 @@ describe('GET /api/queries/:id', () => {
 // ===================================================================
 describe('PUT /api/queries/:id', () => {
   it('should update a query', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsQuery.update.mockResolvedValue({
+    mockPrisma.analyticsQuery.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -169,7 +170,7 @@ describe('PUT /api/queries/:id', () => {
   });
 
   it('should return 404 for non-existent query', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/queries/00000000-0000-0000-0000-000000000099')
@@ -184,10 +185,10 @@ describe('PUT /api/queries/:id', () => {
 // ===================================================================
 describe('DELETE /api/queries/:id', () => {
   it('should soft delete a query', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsQuery.update.mockResolvedValue({
+    mockPrisma.analyticsQuery.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -199,7 +200,7 @@ describe('DELETE /api/queries/:id', () => {
   });
 
   it('should return 404 for non-existent query', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/queries/00000000-0000-0000-0000-000000000099');
 
@@ -216,15 +217,15 @@ describe('POST /api/queries/:id/execute', () => {
       { id: 1, name: 'Sample 1', value: 100 },
       { id: 2, name: 'Sample 2', value: 200 },
     ];
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sql: 'SELECT 1',
     });
-    (prisma as any).analyticsQuery.update.mockResolvedValue({
+    mockPrisma.analyticsQuery.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       lastRun: new Date(),
     });
-    (prisma as any).$transaction.mockImplementation(async (fn: any) => {
+    mockPrisma.$transaction.mockImplementation(async (fn: any) => {
       const tx = {
         $executeRawUnsafe: jest.fn().mockResolvedValue(0),
         $queryRawUnsafe: jest.fn().mockResolvedValue(mockRows),
@@ -244,7 +245,7 @@ describe('POST /api/queries/:id/execute', () => {
   });
 
   it('should reject non-SELECT queries', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sql: 'DROP TABLE users',
     });
@@ -258,7 +259,7 @@ describe('POST /api/queries/:id/execute', () => {
   });
 
   it('should reject stacked queries containing semicolons', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue({
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sql: 'SELECT 1; DROP TABLE users',
     });
@@ -273,7 +274,7 @@ describe('POST /api/queries/:id/execute', () => {
   });
 
   it('should return 404 for non-existent query', async () => {
-    (prisma as any).analyticsQuery.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsQuery.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/queries/00000000-0000-0000-0000-000000000099/execute'

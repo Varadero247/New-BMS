@@ -123,11 +123,11 @@ const mockIndexedDB = {
   },
 };
 
-(globalThis as any).indexedDB = mockIndexedDB;
+(globalThis as Record<string, unknown>).indexedDB = mockIndexedDB;
 
 // ─── Mock fetch ───
 const mockFetch = jest.fn();
-(globalThis as any).fetch = mockFetch;
+(globalThis as Record<string, unknown>).fetch = mockFetch;
 
 // ─── Tests ───
 

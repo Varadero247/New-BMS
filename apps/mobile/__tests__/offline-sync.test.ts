@@ -11,7 +11,7 @@ import { createAuditFinding } from '../src/screens/shared/AuditFindingCapture';
 
 // Mock global fetch
 const mockFetch = jest.fn();
-global.fetch = mockFetch as any;
+global.fetch = mockFetch as unknown as typeof global.fetch;
 
 describe('OfflineSyncEngine', () => {
   let engine: OfflineSyncEngine;

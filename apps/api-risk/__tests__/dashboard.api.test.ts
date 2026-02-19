@@ -23,6 +23,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/dashboard';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/dashboard', router);
@@ -31,12 +32,12 @@ beforeEach(() => {
 });
 
 function mockAllCounts(val: number) {
-  (prisma as any).riskRegister.count.mockResolvedValue(val);
-  (prisma as any).riskCapa.count.mockResolvedValue(val);
-  (prisma as any).riskReview.count.mockResolvedValue(val);
-  (prisma as any).riskAction.count.mockResolvedValue(val);
-  (prisma as any).riskKri.count.mockResolvedValue(val);
-  (prisma as any).riskRegister.aggregate.mockResolvedValue({
+  mockPrisma.riskRegister.count.mockResolvedValue(val);
+  mockPrisma.riskCapa.count.mockResolvedValue(val);
+  mockPrisma.riskReview.count.mockResolvedValue(val);
+  mockPrisma.riskAction.count.mockResolvedValue(val);
+  mockPrisma.riskKri.count.mockResolvedValue(val);
+  mockPrisma.riskRegister.aggregate.mockResolvedValue({
     _avg: { residualScore: val ? 8.5 : null },
   });
 }
@@ -66,7 +67,7 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).riskRegister.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.riskRegister.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

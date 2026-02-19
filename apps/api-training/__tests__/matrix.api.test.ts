@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/matrix';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/matrix', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/matrix', () => {
   it('should return matrix entries', async () => {
-    (prisma as any).trainMatrix.findMany.mockResolvedValue([
+    mockPrisma.trainMatrix.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', competencyId: 'comp-1', employeeId: 'emp-1' },
     ]);
-    (prisma as any).trainMatrix.count.mockResolvedValue(1);
+    mockPrisma.trainMatrix.count.mockResolvedValue(1);
     const res = await request(app).get('/api/matrix');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,8 +47,8 @@ describe('GET /api/matrix', () => {
   });
 
   it('should support pagination', async () => {
-    (prisma as any).trainMatrix.findMany.mockResolvedValue([]);
-    (prisma as any).trainMatrix.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.findMany.mockResolvedValue([]);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
     const res = await request(app).get('/api/matrix?page=2&limit=5');
     expect(res.status).toBe(200);
     expect(res.body.pagination.page).toBe(2);
@@ -55,8 +56,8 @@ describe('GET /api/matrix', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).trainMatrix.findMany.mockRejectedValue(new Error('DB error'));
-    (prisma as any).trainMatrix.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainMatrix.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainMatrix.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/matrix');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -65,7 +66,7 @@ describe('GET /api/matrix', () => {
 
 describe('GET /api/matrix/:id', () => {
   it('should return matrix entry by id', async () => {
-    (prisma as any).trainMatrix.findFirst.mockResolvedValue({
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       competencyId: 'comp-1',
     });
@@ -76,14 +77,14 @@ describe('GET /api/matrix/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).trainMatrix.findFirst.mockResolvedValue(null);
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/matrix/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).trainMatrix.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainMatrix.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/matrix/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -92,8 +93,8 @@ describe('GET /api/matrix/:id', () => {
 
 describe('POST /api/matrix', () => {
   it('should create a matrix entry', async () => {
-    (prisma as any).trainMatrix.count.mockResolvedValue(0);
-    (prisma as any).trainMatrix.create.mockResolvedValue({
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       competencyId: 'comp-1',
       employeeId: 'emp-1',
@@ -107,8 +108,8 @@ describe('POST /api/matrix', () => {
   });
 
   it('should create with all optional fields', async () => {
-    (prisma as any).trainMatrix.count.mockResolvedValue(0);
-    (prisma as any).trainMatrix.create.mockResolvedValue({ id: '2' });
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.create.mockResolvedValue({ id: '2' });
     const res = await request(app).post('/api/matrix').send({
       competencyId: 'comp-1',
       employeeId: 'emp-1',
@@ -148,8 +149,8 @@ describe('POST /api/matrix', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).trainMatrix.count.mockResolvedValue(0);
-    (prisma as any).trainMatrix.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.create.mockRejectedValue(new Error('DB error'));
     const res = await request(app).post('/api/matrix').send({
       competencyId: 'comp-1',
       employeeId: 'emp-1',
@@ -161,10 +162,10 @@ describe('POST /api/matrix', () => {
 
 describe('PUT /api/matrix/:id', () => {
   it('should update a matrix entry', async () => {
-    (prisma as any).trainMatrix.findFirst.mockResolvedValue({
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).trainMatrix.update.mockResolvedValue({
+    mockPrisma.trainMatrix.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       currentLevel: 'COMPETENT',
     });
@@ -176,7 +177,7 @@ describe('PUT /api/matrix/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).trainMatrix.findFirst.mockResolvedValue(null);
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/matrix/00000000-0000-0000-0000-000000000099')
       .send({ currentLevel: 'COMPETENT' });
@@ -193,10 +194,10 @@ describe('PUT /api/matrix/:id', () => {
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).trainMatrix.findFirst.mockResolvedValue({
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).trainMatrix.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainMatrix.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app)
       .put('/api/matrix/00000000-0000-0000-0000-000000000001')
       .send({ currentLevel: 'COMPETENT' });
@@ -207,10 +208,10 @@ describe('PUT /api/matrix/:id', () => {
 
 describe('DELETE /api/matrix/:id', () => {
   it('should soft delete a matrix entry', async () => {
-    (prisma as any).trainMatrix.findFirst.mockResolvedValue({
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).trainMatrix.update.mockResolvedValue({
+    mockPrisma.trainMatrix.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/matrix/00000000-0000-0000-0000-000000000001');
@@ -220,17 +221,17 @@ describe('DELETE /api/matrix/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).trainMatrix.findFirst.mockResolvedValue(null);
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/matrix/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).trainMatrix.findFirst.mockResolvedValue({
+    mockPrisma.trainMatrix.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).trainMatrix.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainMatrix.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app).delete('/api/matrix/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

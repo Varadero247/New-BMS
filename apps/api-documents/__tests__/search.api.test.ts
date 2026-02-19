@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/search';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/search', router);
@@ -33,7 +34,7 @@ describe('GET /api/search', () => {
   });
 
   it('should return matching documents for a query', async () => {
-    (prisma as any).docDocument.findMany.mockResolvedValue([
+    mockPrisma.docDocument.findMany.mockResolvedValue([
       { id: '1', title: 'Safety Policy', description: 'Health and safety policy document' },
       { id: '2', title: 'Safety Procedure', description: 'Procedure for safety checks' },
     ]);
@@ -45,7 +46,7 @@ describe('GET /api/search', () => {
   });
 
   it('should return empty array when no documents match the query', async () => {
-    (prisma as any).docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/search?q=nonexistent');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -53,7 +54,7 @@ describe('GET /api/search', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).docDocument.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.docDocument.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/search?q=test');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -61,9 +62,9 @@ describe('GET /api/search', () => {
   });
 
   it('should call findMany with correct orgId filter', async () => {
-    (prisma as any).docDocument.findMany.mockResolvedValue([]);
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
     await request(app).get('/api/search?q=report');
-    expect((prisma as any).docDocument.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ orgId: 'org-1', deletedAt: null }),
       })

@@ -51,12 +51,12 @@ describe('benchmarks', () => {
     });
 
     it('should return null for unknown KPI', () => {
-      const result = getBenchmark('unknown' as any, 'manufacturing');
+      const result = getBenchmark('unknown' as string, 'manufacturing');
       expect(result).toBeNull();
     });
 
     it('should return null for unknown industry', () => {
-      const result = getBenchmark('ltifr', 'unknown' as any);
+      const result = getBenchmark('ltifr', 'unknown' as string);
       expect(result).toBeNull();
     });
 
@@ -99,7 +99,7 @@ describe('benchmarks', () => {
     });
 
     it('should return 50 for unknown KPI', () => {
-      const percentile = calculatePercentile(5, 'unknown' as any, 'manufacturing');
+      const percentile = calculatePercentile(5, 'unknown' as string, 'manufacturing');
       expect(percentile).toBe(50);
     });
 
@@ -136,7 +136,7 @@ describe('benchmarks', () => {
     });
 
     it('should handle unknown KPI gracefully', () => {
-      const narrative = generateBenchmarkNarrative(5, 'unknown' as any, 'manufacturing');
+      const narrative = generateBenchmarkNarrative(5, 'unknown' as string, 'manufacturing');
       expect(narrative).toContain('No benchmark data');
     });
 

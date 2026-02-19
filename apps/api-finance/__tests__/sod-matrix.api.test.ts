@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import sodMatrixRouter from '../src/routes/sod-matrix';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -58,7 +59,7 @@ describe('GET /api/sod-matrix', () => {
         orgId: '00000000-0000-4000-a000-000000000100',
       },
     ];
-    (prisma as any).finSodRule.findMany.mockResolvedValue(rules);
+    mockPrisma.finSodRule.findMany.mockResolvedValue(rules);
 
     const res = await request(app).get('/api/sod-matrix');
 
@@ -68,12 +69,12 @@ describe('GET /api/sod-matrix', () => {
   });
 
   it('should filter by orgId from the authenticated user', async () => {
-    (prisma as any).finSodRule.findMany.mockResolvedValue([]);
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/sod-matrix');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finSodRule.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finSodRule.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           orgId: '00000000-0000-4000-a000-000000000100',
@@ -84,7 +85,7 @@ describe('GET /api/sod-matrix', () => {
   });
 
   it('should return an empty array when no rules exist', async () => {
-    (prisma as any).finSodRule.findMany.mockResolvedValue([]);
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/sod-matrix');
 
@@ -94,7 +95,7 @@ describe('GET /api/sod-matrix', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finSodRule.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finSodRule.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/sod-matrix');
 
@@ -117,7 +118,7 @@ describe('POST /api/sod-matrix', () => {
   };
 
   it('should create a SoD rule successfully', async () => {
-    (prisma as any).finSodRule.create.mockResolvedValue({
+    mockPrisma.finSodRule.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validRule,
       orgId: '00000000-0000-4000-a000-000000000100',
@@ -132,7 +133,7 @@ describe('POST /api/sod-matrix', () => {
   });
 
   it('should set orgId and createdBy from authenticated user', async () => {
-    (prisma as any).finSodRule.create.mockResolvedValue({
+    mockPrisma.finSodRule.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validRule,
       orgId: '00000000-0000-4000-a000-000000000100',
@@ -140,7 +141,7 @@ describe('POST /api/sod-matrix', () => {
 
     await request(app).post('/api/sod-matrix').send(validRule);
 
-    expect((prisma as any).finSodRule.create).toHaveBeenCalledWith(
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           orgId: '00000000-0000-4000-a000-000000000100',
@@ -151,7 +152,7 @@ describe('POST /api/sod-matrix', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).finSodRule.create.mockRejectedValue(new Error('Validation failed'));
+    mockPrisma.finSodRule.create.mockRejectedValue(new Error('Validation failed'));
 
     const res = await request(app).post('/api/sod-matrix').send(validRule);
 
@@ -161,7 +162,7 @@ describe('POST /api/sod-matrix', () => {
   });
 
   it('should include the request body fields in the created record', async () => {
-    (prisma as any).finSodRule.create.mockResolvedValue({
+    mockPrisma.finSodRule.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validRule,
       orgId: '00000000-0000-4000-a000-000000000100',
@@ -170,7 +171,7 @@ describe('POST /api/sod-matrix', () => {
     const res = await request(app).post('/api/sod-matrix').send(validRule);
 
     expect(res.status).toBe(201);
-    expect((prisma as any).finSodRule.create).toHaveBeenCalledWith(
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           role1: 'Accounts Payable',

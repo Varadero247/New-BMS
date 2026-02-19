@@ -16,7 +16,7 @@ describe('AuditService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    auditService = createAuditService(mockPrisma as any);
+    auditService = createAuditService(mockPrisma as unknown as Parameters<typeof createAuditService>[0]);
   });
 
   describe('log', () => {
@@ -83,7 +83,7 @@ describe('AuditService', () => {
     });
 
     it('should return null when disabled', async () => {
-      const disabledService = createAuditService(mockPrisma as any, { enabled: false });
+      const disabledService = createAuditService(mockPrisma as unknown as Parameters<typeof createAuditService>[0], { enabled: false });
 
       const result = await disabledService.log({
         action: AuditAction.CREATE,

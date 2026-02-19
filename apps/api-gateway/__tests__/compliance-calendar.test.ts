@@ -94,8 +94,8 @@ describe('Compliance Calendar API Routes', () => {
   // =========================================================================
   describe('GET /api/dashboard/compliance-calendar', () => {
     it('should return all compliance events', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent, mockOverdueEvent] as any);
-      mockPrisma.complianceEvent.count.mockResolvedValue(2);
+      (mockPrisma.complianceEvent.findMany as jest.Mock).mockResolvedValue([mockEvent, mockOverdueEvent]);
+      (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(2);
 
       const response = await request(app)
         .get('/api/dashboard/compliance-calendar')
@@ -109,8 +109,8 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should enrich events with daysUntilDue and color', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent] as any);
-      mockPrisma.complianceEvent.count.mockResolvedValue(1);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent]);
+      (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(1);
 
       const response = await request(app)
         .get('/api/dashboard/compliance-calendar')
@@ -124,8 +124,8 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should filter by standard', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent] as any);
-      mockPrisma.complianceEvent.count.mockResolvedValue(1);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent]);
+      (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(1);
 
       await request(app)
         .get('/api/dashboard/compliance-calendar?standard=ISO_9001_CAL')
@@ -141,8 +141,8 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should filter by multiple standards', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent, mockOverdueEvent] as any);
-      mockPrisma.complianceEvent.count.mockResolvedValue(2);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent, mockOverdueEvent]);
+      (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(2);
 
       await request(app)
         .get('/api/dashboard/compliance-calendar?standard=ISO_9001_CAL,ISO_14001_CAL')
@@ -158,8 +158,8 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should filter by type', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent] as any);
-      mockPrisma.complianceEvent.count.mockResolvedValue(1);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent]);
+      (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(1);
 
       await request(app)
         .get('/api/dashboard/compliance-calendar?type=AUDIT')
@@ -175,8 +175,8 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should filter by status', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockOverdueEvent] as any);
-      mockPrisma.complianceEvent.count.mockResolvedValue(1);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockOverdueEvent]);
+      (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(1);
 
       await request(app)
         .get('/api/dashboard/compliance-calendar?status=OVERDUE')
@@ -192,8 +192,8 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should filter by date range', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent] as any);
-      mockPrisma.complianceEvent.count.mockResolvedValue(1);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent]);
+      (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(1);
 
       const startDate = '2026-01-01';
       const endDate = '2026-12-31';
@@ -215,8 +215,8 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should paginate results', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent] as any);
-      mockPrisma.complianceEvent.count.mockResolvedValue(100);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent]);
+      (mockPrisma.complianceEvent.count as jest.Mock).mockResolvedValue(100);
 
       const response = await request(app)
         .get('/api/dashboard/compliance-calendar?page=2&limit=10')
@@ -267,7 +267,7 @@ describe('Compliance Calendar API Routes', () => {
   // =========================================================================
   describe('GET /api/dashboard/compliance-calendar/upcoming', () => {
     it('should return upcoming events with default 30 days', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent, mockDueSoonEvent] as any);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent, mockDueSoonEvent]);
 
       const response = await request(app)
         .get('/api/dashboard/compliance-calendar/upcoming')
@@ -284,7 +284,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should accept custom days parameter', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockDueSoonEvent] as any);
+      (mockPrisma.complianceEvent.findMany as jest.Mock).mockResolvedValue([mockDueSoonEvent]);
 
       await request(app)
         .get('/api/dashboard/compliance-calendar/upcoming?days=7')
@@ -300,7 +300,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should cap days at 365', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([]);
+      (mockPrisma.complianceEvent.findMany as jest.Mock).mockResolvedValue([]);
 
       const response = await request(app)
         .get('/api/dashboard/compliance-calendar/upcoming?days=999')
@@ -310,7 +310,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should group events by standard and type in summary', async () => {
-      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent, mockDueSoonEvent] as any);
+      mockPrisma.complianceEvent.findMany.mockResolvedValue([mockEvent, mockDueSoonEvent]);
 
       const response = await request(app)
         .get('/api/dashboard/compliance-calendar/upcoming')
@@ -323,7 +323,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.complianceEvent.findMany.mockRejectedValue(new Error('DB error'));
+      (mockPrisma.complianceEvent.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
         .get('/api/dashboard/compliance-calendar/upcoming')
@@ -350,7 +350,7 @@ describe('Compliance Calendar API Routes', () => {
 
     it('should create a compliance event', async () => {
       const created = { ...mockEvent, ...validBody, id: 'evt-new' };
-      mockPrisma.complianceEvent.create.mockResolvedValue(created as any);
+      mockPrisma.complianceEvent.create.mockResolvedValue(created);
 
       const response = await request(app)
         .post('/api/dashboard/compliance-calendar/events')
@@ -365,7 +365,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should set createdBy from authenticated user', async () => {
-      mockPrisma.complianceEvent.create.mockResolvedValue(mockEvent as any);
+      (mockPrisma.complianceEvent.create as jest.Mock).mockResolvedValue(mockEvent);
 
       await request(app)
         .post('/api/dashboard/compliance-calendar/events')
@@ -382,7 +382,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should compute initial status based on due date', async () => {
-      mockPrisma.complianceEvent.create.mockResolvedValue(mockEvent as any);
+      (mockPrisma.complianceEvent.create as jest.Mock).mockResolvedValue(mockEvent);
 
       await request(app)
         .post('/api/dashboard/compliance-calendar/events')
@@ -441,10 +441,10 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should accept optional recurrence', async () => {
-      mockPrisma.complianceEvent.create.mockResolvedValue({
+      (mockPrisma.complianceEvent.create as jest.Mock).mockResolvedValue({
         ...mockEvent,
         recurrence: 'QUARTERLY',
-      } as any);
+      });
 
       const response = await request(app)
         .post('/api/dashboard/compliance-calendar/events')
@@ -455,7 +455,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should handle database errors on create', async () => {
-      mockPrisma.complianceEvent.create.mockRejectedValue(new Error('DB error'));
+      (mockPrisma.complianceEvent.create as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
         .post('/api/dashboard/compliance-calendar/events')
@@ -472,11 +472,11 @@ describe('Compliance Calendar API Routes', () => {
   // =========================================================================
   describe('PUT /api/dashboard/compliance-calendar/events/:id', () => {
     it('should update an existing event', async () => {
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent as any);
-      mockPrisma.complianceEvent.update.mockResolvedValue({
+      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent);
+      (mockPrisma.complianceEvent.update as jest.Mock).mockResolvedValue({
         ...mockEvent,
         title: 'Updated Title',
-      } as any);
+      });
 
       const response = await request(app)
         .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
@@ -489,7 +489,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should return 404 for non-existent event', async () => {
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(null);
+      (mockPrisma.complianceEvent.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
         .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000099')
@@ -504,7 +504,7 @@ describe('Compliance Calendar API Routes', () => {
       mockPrisma.complianceEvent.findUnique.mockResolvedValue({
         ...mockEvent,
         deletedAt: new Date(),
-      } as any);
+      });
 
       const response = await request(app)
         .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
@@ -516,12 +516,12 @@ describe('Compliance Calendar API Routes', () => {
 
     it('should mark event as completed', async () => {
       const completedAt = new Date().toISOString();
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent as any);
-      mockPrisma.complianceEvent.update.mockResolvedValue({
+      (mockPrisma.complianceEvent.findUnique as jest.Mock).mockResolvedValue(mockEvent);
+      (mockPrisma.complianceEvent.update as jest.Mock).mockResolvedValue({
         ...mockEvent,
         completedAt: new Date(completedAt),
         status: 'COMPLETED',
-      } as any);
+      });
 
       const response = await request(app)
         .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
@@ -533,12 +533,12 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should recompute status when due date changes', async () => {
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent as any);
-      mockPrisma.complianceEvent.update.mockResolvedValue({
+      (mockPrisma.complianceEvent.findUnique as jest.Mock).mockResolvedValue(mockEvent);
+      (mockPrisma.complianceEvent.update as jest.Mock).mockResolvedValue({
         ...mockEvent,
         dueDate: pastDate,
         status: 'OVERDUE',
-      } as any);
+      });
 
       await request(app)
         .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
@@ -555,7 +555,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should handle validation errors on update', async () => {
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent as any);
+      (mockPrisma.complianceEvent.findUnique as jest.Mock).mockResolvedValue(mockEvent);
 
       const response = await request(app)
         .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
@@ -567,8 +567,8 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should handle database errors on update', async () => {
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent as any);
-      mockPrisma.complianceEvent.update.mockRejectedValue(new Error('DB error'));
+      (mockPrisma.complianceEvent.findUnique as jest.Mock).mockResolvedValue(mockEvent);
+      (mockPrisma.complianceEvent.update as jest.Mock).mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)
         .put('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
@@ -585,11 +585,11 @@ describe('Compliance Calendar API Routes', () => {
   // =========================================================================
   describe('DELETE /api/dashboard/compliance-calendar/events/:id', () => {
     it('should soft-delete an event', async () => {
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent as any);
-      mockPrisma.complianceEvent.update.mockResolvedValue({
+      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent);
+      (mockPrisma.complianceEvent.update as jest.Mock).mockResolvedValue({
         ...mockEvent,
         deletedAt: new Date(),
-      } as any);
+      });
 
       const response = await request(app)
         .delete('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
@@ -604,7 +604,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should return 404 for non-existent event', async () => {
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(null);
+      (mockPrisma.complianceEvent.findUnique as jest.Mock).mockResolvedValue(null);
 
       const response = await request(app)
         .delete('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000099')
@@ -618,7 +618,7 @@ describe('Compliance Calendar API Routes', () => {
       mockPrisma.complianceEvent.findUnique.mockResolvedValue({
         ...mockEvent,
         deletedAt: new Date(),
-      } as any);
+      });
 
       const response = await request(app)
         .delete('/api/dashboard/compliance-calendar/events/00000000-0000-0000-0000-000000000001')
@@ -628,7 +628,7 @@ describe('Compliance Calendar API Routes', () => {
     });
 
     it('should handle database errors on delete', async () => {
-      mockPrisma.complianceEvent.findUnique.mockResolvedValue(mockEvent as any);
+      (mockPrisma.complianceEvent.findUnique as jest.Mock).mockResolvedValue(mockEvent);
       mockPrisma.complianceEvent.update.mockRejectedValue(new Error('DB error'));
 
       const response = await request(app)

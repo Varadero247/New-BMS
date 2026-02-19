@@ -44,7 +44,7 @@ jest.mock('@ims/templates', () => ({
 import { prisma } from '@ims/database';
 import templateRoutes from '../src/routes/templates';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 // ---- App Setup ----
 

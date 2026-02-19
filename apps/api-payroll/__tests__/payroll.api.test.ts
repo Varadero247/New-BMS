@@ -94,8 +94,8 @@ describe('Payroll API Routes', () => {
     ];
 
     it('should return list of payroll runs with pagination', async () => {
-      mockPrisma.payrollRun.findMany.mockResolvedValueOnce(mockRuns as any);
-      mockPrisma.payrollRun.count.mockResolvedValueOnce(2);
+      (mockPrisma.payrollRun.findMany as jest.Mock).mockResolvedValueOnce(mockRuns);
+      (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app).get('/api/payroll/runs');
 
@@ -111,8 +111,8 @@ describe('Payroll API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      mockPrisma.payrollRun.findMany.mockResolvedValueOnce([mockRuns[0]] as any);
-      mockPrisma.payrollRun.count.mockResolvedValueOnce(50);
+      mockPrisma.payrollRun.findMany.mockResolvedValueOnce([mockRuns[0]]);
+      (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(50);
 
       const response = await request(app).get('/api/payroll/runs?page=2&limit=10');
 
@@ -180,7 +180,7 @@ describe('Payroll API Routes', () => {
     };
 
     it('should return single payroll run with payslips', async () => {
-      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(mockRun as any);
+      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(mockRun);
 
       const response = await request(app).get(
         '/api/payroll/runs/35000000-0000-4000-a000-000000000001'
@@ -193,7 +193,7 @@ describe('Payroll API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff run', async () => {
-      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.payrollRun.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app).get(
         '/api/payroll/runs/00000000-0000-4000-a000-ffffffffffff'
@@ -230,7 +230,7 @@ describe('Payroll API Routes', () => {
         runNumber: 'PAY-2024-0003',
         ...createPayload,
         status: 'DRAFT',
-      } as any);
+      });
 
       const response = await request(app).post('/api/payroll/runs').send(createPayload);
 
@@ -240,11 +240,11 @@ describe('Payroll API Routes', () => {
     });
 
     it('should generate sequential run number', async () => {
-      mockPrisma.payrollRun.count.mockResolvedValueOnce(5);
+      (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(5);
       mockPrisma.payrollRun.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         runNumber: 'PAY-2024-0006',
-      } as any);
+      });
 
       await request(app).post('/api/payroll/runs').send(createPayload);
 
@@ -256,11 +256,11 @@ describe('Payroll API Routes', () => {
     });
 
     it('should set initial status to DRAFT', async () => {
-      mockPrisma.payrollRun.count.mockResolvedValueOnce(0);
+      (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(0);
       mockPrisma.payrollRun.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         status: 'DRAFT',
-      } as any);
+      });
 
       await request(app).post('/api/payroll/runs').send(createPayload);
 
@@ -290,7 +290,7 @@ describe('Payroll API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.payrollRun.count.mockResolvedValueOnce(0);
+      (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(0);
       mockPrisma.payrollRun.create.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).post('/api/payroll/runs').send(createPayload);
@@ -320,11 +320,11 @@ describe('Payroll API Routes', () => {
         periodEnd: new Date('2024-01-31'),
         payDate: new Date('2024-02-01'),
       };
-      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(fakeRun as any);
-      mockPrisma.payrollRun.update.mockResolvedValue({ ...fakeRun, status: 'CALCULATED' } as any);
+      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(fakeRun);
+      (mockPrisma.payrollRun.update as jest.Mock).mockResolvedValue({ ...fakeRun, status: 'CALCULATED' });
       mockPrisma.$transaction.mockImplementation(async (fn: any) => fn(mockPrisma));
-      mockPrisma.payslip.count.mockResolvedValue(0);
-      mockPrisma.payslip.upsert.mockResolvedValue({} as any);
+      (mockPrisma.payslip.count as jest.Mock).mockResolvedValue(0);
+      mockPrisma.payslip.upsert.mockResolvedValue({});
 
       const mockEmployees = [
         {
@@ -363,8 +363,8 @@ describe('Payroll API Routes', () => {
         periodEnd: new Date('2024-01-31'),
         payDate: new Date('2024-02-01'),
       };
-      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(fakeRun as any);
-      mockPrisma.payrollRun.update.mockResolvedValue({} as any);
+      (mockPrisma.payrollRun.findUnique as jest.Mock).mockResolvedValueOnce(fakeRun);
+      (mockPrisma.payrollRun.update as jest.Mock).mockResolvedValue({});
 
       const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
@@ -381,7 +381,7 @@ describe('Payroll API Routes', () => {
     });
 
     it('should handle database errors and set status to ERROR', async () => {
-      mockPrisma.payrollRun.findUnique.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.payrollRun.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).post(
         '/api/payroll/runs/35000000-0000-4000-a000-000000000001/calculate'
@@ -398,8 +398,8 @@ describe('Payroll API Routes', () => {
         id: '35000000-0000-4000-a000-000000000001',
         status: 'APPROVED',
         approvalStatus: 'APPROVED',
-      } as any);
-      mockPrisma.payslip.updateMany.mockResolvedValueOnce({ count: 50 });
+      });
+      (mockPrisma.payslip.updateMany as jest.Mock).mockResolvedValueOnce({ count: 50 });
 
       const response = await request(app)
         .put('/api/payroll/runs/35000000-0000-4000-a000-000000000001/approve')
@@ -412,8 +412,8 @@ describe('Payroll API Routes', () => {
     it('should publish all payslips on approval', async () => {
       mockPrisma.payrollRun.update.mockResolvedValueOnce({
         id: '35000000-0000-4000-a000-000000000001',
-      } as any);
-      mockPrisma.payslip.updateMany.mockResolvedValueOnce({ count: 50 });
+      });
+      (mockPrisma.payslip.updateMany as jest.Mock).mockResolvedValueOnce({ count: 50 });
 
       await request(app)
         .put('/api/payroll/runs/35000000-0000-4000-a000-000000000001/approve')
@@ -452,8 +452,8 @@ describe('Payroll API Routes', () => {
     ];
 
     it('should return list of payslips with pagination', async () => {
-      mockPrisma.payslip.findMany.mockResolvedValueOnce(mockPayslips as any);
-      mockPrisma.payslip.count.mockResolvedValueOnce(1);
+      mockPrisma.payslip.findMany.mockResolvedValueOnce(mockPayslips);
+      (mockPrisma.payslip.count as jest.Mock).mockResolvedValueOnce(1);
 
       const response = await request(app).get('/api/payroll/payslips');
 
@@ -521,7 +521,7 @@ describe('Payroll API Routes', () => {
     };
 
     it('should return single payslip with items', async () => {
-      mockPrisma.payslip.findUnique.mockResolvedValueOnce(mockPayslip as any);
+      mockPrisma.payslip.findUnique.mockResolvedValueOnce(mockPayslip);
 
       const response = await request(app).get(
         '/api/payroll/payslips/4c000000-0000-4000-a000-000000000001'
@@ -534,7 +534,7 @@ describe('Payroll API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff payslip', async () => {
-      mockPrisma.payslip.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.payslip.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app).get(
         '/api/payroll/payslips/00000000-0000-4000-a000-ffffffffffff'
@@ -561,7 +561,7 @@ describe('Payroll API Routes', () => {
       mockPrisma.payrollRun.count.mockResolvedValue(10);
       mockPrisma.payrollRun.aggregate.mockResolvedValue({
         _sum: { totalNet: 500000, totalGross: 600000 },
-      } as any);
+      });
 
       const response = await request(app).get('/api/payroll/stats');
 

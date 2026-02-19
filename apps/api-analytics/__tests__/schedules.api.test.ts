@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import schedulesRouter from '../src/routes/schedules';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -52,8 +53,8 @@ describe('GET /api/schedules', () => {
       },
       { id: 'sch-2', name: 'Weekly Export', type: 'EXPORT', isActive: true },
     ];
-    (prisma as any).analyticsSchedule.findMany.mockResolvedValue(schedules);
-    (prisma as any).analyticsSchedule.count.mockResolvedValue(2);
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue(schedules);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/schedules');
 
@@ -64,31 +65,31 @@ describe('GET /api/schedules', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).analyticsSchedule.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsSchedule.count.mockResolvedValue(0);
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/schedules?type=REPORT');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsSchedule.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsSchedule.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ type: 'REPORT' }) })
     );
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).analyticsSchedule.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsSchedule.count.mockResolvedValue(0);
+    mockPrisma.analyticsSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsSchedule.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/schedules?isActive=true');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsSchedule.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsSchedule.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isActive: true }) })
     );
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsSchedule.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsSchedule.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/schedules');
 
@@ -108,7 +109,7 @@ describe('POST /api/schedules', () => {
       cronExpression: '0 8 * * *',
       isActive: true,
     };
-    (prisma as any).analyticsSchedule.create.mockResolvedValue(created);
+    mockPrisma.analyticsSchedule.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/schedules').send({
       name: 'New Schedule',
@@ -134,7 +135,7 @@ describe('POST /api/schedules', () => {
 // ===================================================================
 describe('GET /api/schedules/:id', () => {
   it('should return a schedule by ID', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Test',
     });
@@ -146,7 +147,7 @@ describe('GET /api/schedules/:id', () => {
   });
 
   it('should return 404 for non-existent schedule', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000099');
 
@@ -159,10 +160,10 @@ describe('GET /api/schedules/:id', () => {
 // ===================================================================
 describe('PUT /api/schedules/:id', () => {
   it('should update a schedule', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsSchedule.update.mockResolvedValue({
+    mockPrisma.analyticsSchedule.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -176,7 +177,7 @@ describe('PUT /api/schedules/:id', () => {
   });
 
   it('should return 404 for non-existent schedule', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/schedules/00000000-0000-0000-0000-000000000099')
@@ -191,10 +192,10 @@ describe('PUT /api/schedules/:id', () => {
 // ===================================================================
 describe('DELETE /api/schedules/:id', () => {
   it('should soft delete a schedule', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsSchedule.update.mockResolvedValue({
+    mockPrisma.analyticsSchedule.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -206,7 +207,7 @@ describe('DELETE /api/schedules/:id', () => {
   });
 
   it('should return 404 for non-existent schedule', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000099');
 
@@ -219,11 +220,11 @@ describe('DELETE /api/schedules/:id', () => {
 // ===================================================================
 describe('PUT /api/schedules/:id/toggle', () => {
   it('should toggle schedule from active to inactive', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       isActive: true,
     });
-    (prisma as any).analyticsSchedule.update.mockResolvedValue({
+    mockPrisma.analyticsSchedule.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       isActive: false,
     });
@@ -237,11 +238,11 @@ describe('PUT /api/schedules/:id/toggle', () => {
   });
 
   it('should toggle schedule from inactive to active', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue({
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       isActive: false,
     });
-    (prisma as any).analyticsSchedule.update.mockResolvedValue({
+    mockPrisma.analyticsSchedule.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       isActive: true,
     });
@@ -255,7 +256,7 @@ describe('PUT /api/schedules/:id/toggle', () => {
   });
 
   it('should return 404 for non-existent schedule', async () => {
-    (prisma as any).analyticsSchedule.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsSchedule.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(
       '/api/schedules/00000000-0000-0000-0000-000000000099/toggle'

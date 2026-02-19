@@ -19,6 +19,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/inductions';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/inductions', router);
@@ -28,7 +29,7 @@ beforeEach(() => {
 
 describe('GET /api/inductions', () => {
   it('should return induction records', async () => {
-    (prisma as any).trainRecord.findMany.mockResolvedValue([
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
       { id: '1', employeeName: 'John Doe', course: { title: 'Site Induction', code: 'IND-001' } },
       {
         id: '2',
@@ -44,7 +45,7 @@ describe('GET /api/inductions', () => {
   });
 
   it('should return empty array when no inductions exist', async () => {
-    (prisma as any).trainRecord.findMany.mockResolvedValue([]);
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/inductions');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -52,7 +53,7 @@ describe('GET /api/inductions', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).trainRecord.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainRecord.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/inductions');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

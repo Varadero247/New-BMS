@@ -33,6 +33,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import contactsRouter from '../src/routes/contacts';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -64,7 +65,7 @@ const mockContact = {
 
 describe('POST /api/contacts', () => {
   it('should create a contact with valid data', async () => {
-    (prisma as any).crmContact.create.mockResolvedValue(mockContact);
+    mockPrisma.crmContact.create.mockResolvedValue(mockContact);
 
     const res = await request(app).post('/api/contacts').send({
       firstName: 'John',
@@ -94,7 +95,7 @@ describe('POST /api/contacts', () => {
       postalCode: 'EC1A 1BB',
       notes: 'Important contact',
     };
-    (prisma as any).crmContact.create.mockResolvedValue(fullContact);
+    mockPrisma.crmContact.create.mockResolvedValue(fullContact);
 
     const res = await request(app)
       .post('/api/contacts')
@@ -174,7 +175,7 @@ describe('POST /api/contacts', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmContact.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmContact.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/contacts').send({
       firstName: 'John',
@@ -193,8 +194,8 @@ describe('POST /api/contacts', () => {
 
 describe('GET /api/contacts', () => {
   it('should return paginated list', async () => {
-    (prisma as any).crmContact.findMany.mockResolvedValue([mockContact]);
-    (prisma as any).crmContact.count.mockResolvedValue(1);
+    mockPrisma.crmContact.findMany.mockResolvedValue([mockContact]);
+    mockPrisma.crmContact.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/contacts');
 
@@ -206,8 +207,8 @@ describe('GET /api/contacts', () => {
   });
 
   it('should return empty array when no contacts', async () => {
-    (prisma as any).crmContact.findMany.mockResolvedValue([]);
-    (prisma as any).crmContact.count.mockResolvedValue(0);
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmContact.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/contacts');
 
@@ -217,8 +218,8 @@ describe('GET /api/contacts', () => {
   });
 
   it('should handle pagination params', async () => {
-    (prisma as any).crmContact.findMany.mockResolvedValue([]);
-    (prisma as any).crmContact.count.mockResolvedValue(50);
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmContact.count.mockResolvedValue(50);
 
     const res = await request(app).get('/api/contacts?page=2&limit=10');
 
@@ -228,13 +229,13 @@ describe('GET /api/contacts', () => {
   });
 
   it('should filter by accountId', async () => {
-    (prisma as any).crmContact.findMany.mockResolvedValue([]);
-    (prisma as any).crmContact.count.mockResolvedValue(0);
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmContact.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/contacts?accountId=acc-123');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmContact.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmContact.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ accountId: 'acc-123' }),
       })
@@ -242,13 +243,13 @@ describe('GET /api/contacts', () => {
   });
 
   it('should search by name/email', async () => {
-    (prisma as any).crmContact.findMany.mockResolvedValue([]);
-    (prisma as any).crmContact.count.mockResolvedValue(0);
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmContact.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/contacts?search=john');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmContact.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmContact.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -260,13 +261,13 @@ describe('GET /api/contacts', () => {
   });
 
   it('should filter by source', async () => {
-    (prisma as any).crmContact.findMany.mockResolvedValue([]);
-    (prisma as any).crmContact.count.mockResolvedValue(0);
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmContact.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/contacts?source=INBOUND');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmContact.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmContact.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ source: 'INBOUND' }),
       })
@@ -274,13 +275,13 @@ describe('GET /api/contacts', () => {
   });
 
   it('should filter by tags', async () => {
-    (prisma as any).crmContact.findMany.mockResolvedValue([]);
-    (prisma as any).crmContact.count.mockResolvedValue(0);
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmContact.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/contacts?tags=vip,tech');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmContact.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmContact.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ tags: { hasSome: ['vip', 'tech'] } }),
       })
@@ -288,7 +289,7 @@ describe('GET /api/contacts', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmContact.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmContact.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/contacts');
 
@@ -302,7 +303,7 @@ describe('GET /api/contacts', () => {
 
 describe('GET /api/contacts/:id', () => {
   it('should return contact detail', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
 
     const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001');
 
@@ -312,7 +313,7 @@ describe('GET /api/contacts/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000099');
 
@@ -321,7 +322,7 @@ describe('GET /api/contacts/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmContact.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmContact.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/contacts/00000000-0000-0000-0000-000000000001');
 
@@ -335,8 +336,8 @@ describe('GET /api/contacts/:id', () => {
 
 describe('PUT /api/contacts/:id', () => {
   it('should update contact fields', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmContact.update.mockResolvedValue({ ...mockContact, firstName: 'Jane' });
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmContact.update.mockResolvedValue({ ...mockContact, firstName: 'Jane' });
 
     const res = await request(app)
       .put('/api/contacts/00000000-0000-0000-0000-000000000001')
@@ -348,7 +349,7 @@ describe('PUT /api/contacts/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/contacts/00000000-0000-0000-0000-000000000099')
@@ -359,8 +360,8 @@ describe('PUT /api/contacts/:id', () => {
   });
 
   it('should update multiple fields', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmContact.update.mockResolvedValue({
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmContact.update.mockResolvedValue({
       ...mockContact,
       firstName: 'Jane',
       jobTitle: 'CEO',
@@ -376,8 +377,8 @@ describe('PUT /api/contacts/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmContact.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmContact.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put('/api/contacts/00000000-0000-0000-0000-000000000001')
@@ -393,15 +394,15 @@ describe('PUT /api/contacts/:id', () => {
 
 describe('DELETE /api/contacts/:id', () => {
   it('should soft delete contact (sets deletedAt)', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmContact.update.mockResolvedValue({ ...mockContact, deletedAt: new Date() });
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmContact.update.mockResolvedValue({ ...mockContact, deletedAt: new Date() });
 
     const res = await request(app).delete('/api/contacts/00000000-0000-0000-0000-000000000001');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toBe('Contact deleted');
-    expect((prisma as any).crmContact.update).toHaveBeenCalledWith(
+    expect(mockPrisma.crmContact.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ deletedAt: expect.any(Date) }),
       })
@@ -409,7 +410,7 @@ describe('DELETE /api/contacts/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/contacts/00000000-0000-0000-0000-000000000099');
 
@@ -418,8 +419,8 @@ describe('DELETE /api/contacts/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmContact.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmContact.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete('/api/contacts/00000000-0000-0000-0000-000000000001');
 
@@ -435,8 +436,8 @@ describe('POST /api/contacts/:id/activities', () => {
   const validActivity = { type: 'CALL', subject: 'Follow up call' };
 
   it('should create an activity', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmActivity.create.mockResolvedValue({
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmActivity.create.mockResolvedValue({
       id: 'activity-1',
       contactId: 'contact-1',
       ...validActivity,
@@ -453,8 +454,8 @@ describe('POST /api/contacts/:id/activities', () => {
   });
 
   it('should create an activity with optional fields', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmActivity.create.mockResolvedValue({
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmActivity.create.mockResolvedValue({
       id: 'activity-1',
       contactId: 'contact-1',
       type: 'MEETING',
@@ -513,7 +514,7 @@ describe('POST /api/contacts/:id/activities', () => {
   });
 
   it('should return 404 when contact not found', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/contacts/00000000-0000-0000-0000-000000000099/activities')
@@ -524,8 +525,8 @@ describe('POST /api/contacts/:id/activities', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmActivity.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmActivity.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .post('/api/contacts/00000000-0000-0000-0000-000000000001/activities')
@@ -557,9 +558,9 @@ describe('GET /api/contacts/:id/activities', () => {
         createdAt: new Date(),
       },
     ];
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmActivity.findMany.mockResolvedValue(activities);
-    (prisma as any).crmActivity.count.mockResolvedValue(2);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmActivity.findMany.mockResolvedValue(activities);
+    mockPrisma.crmActivity.count.mockResolvedValue(2);
 
     const res = await request(app).get(
       '/api/contacts/00000000-0000-0000-0000-000000000001/activities'
@@ -572,9 +573,9 @@ describe('GET /api/contacts/:id/activities', () => {
   });
 
   it('should return empty array when no activities', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmActivity.findMany.mockResolvedValue([]);
-    (prisma as any).crmActivity.count.mockResolvedValue(0);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmActivity.findMany.mockResolvedValue([]);
+    mockPrisma.crmActivity.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/contacts/00000000-0000-0000-0000-000000000001/activities'
@@ -585,7 +586,7 @@ describe('GET /api/contacts/:id/activities', () => {
   });
 
   it('should return 404 when contact not found', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(null);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/contacts/00000000-0000-0000-0000-000000000099/activities'
@@ -595,9 +596,9 @@ describe('GET /api/contacts/:id/activities', () => {
   });
 
   it('should handle pagination params', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmActivity.findMany.mockResolvedValue([]);
-    (prisma as any).crmActivity.count.mockResolvedValue(25);
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmActivity.findMany.mockResolvedValue([]);
+    mockPrisma.crmActivity.count.mockResolvedValue(25);
 
     const res = await request(app).get(
       '/api/contacts/00000000-0000-0000-0000-000000000001/activities?page=2&limit=10'
@@ -609,8 +610,8 @@ describe('GET /api/contacts/:id/activities', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmContact.findFirst.mockResolvedValue(mockContact);
-    (prisma as any).crmActivity.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmContact.findFirst.mockResolvedValue(mockContact);
+    mockPrisma.crmActivity.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(
       '/api/contacts/00000000-0000-0000-0000-000000000001/activities'

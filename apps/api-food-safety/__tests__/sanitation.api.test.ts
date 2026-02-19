@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import sanitationRouter from '../src/routes/sanitation';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/sanitation', () => {
   it('should return sanitation tasks with pagination', async () => {
-    (prisma as any).fsSanitation.findMany.mockResolvedValue([
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', area: 'Kitchen' },
     ]);
-    (prisma as any).fsSanitation.count.mockResolvedValue(1);
+    mockPrisma.fsSanitation.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/sanitation');
     expect(res.status).toBe(200);
@@ -50,27 +51,27 @@ describe('GET /api/sanitation', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsSanitation.findMany.mockResolvedValue([]);
-    (prisma as any).fsSanitation.count.mockResolvedValue(0);
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(0);
 
     await request(app).get('/api/sanitation?status=SCHEDULED');
-    expect((prisma as any).fsSanitation.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSanitation.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'SCHEDULED' }) })
     );
   });
 
   it('should filter by frequency', async () => {
-    (prisma as any).fsSanitation.findMany.mockResolvedValue([]);
-    (prisma as any).fsSanitation.count.mockResolvedValue(0);
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([]);
+    mockPrisma.fsSanitation.count.mockResolvedValue(0);
 
     await request(app).get('/api/sanitation?frequency=DAILY');
-    expect((prisma as any).fsSanitation.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSanitation.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ frequency: 'DAILY' }) })
     );
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsSanitation.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSanitation.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/sanitation');
     expect(res.status).toBe(500);
@@ -84,7 +85,7 @@ describe('POST /api/sanitation', () => {
       area: 'Kitchen',
       procedure: 'Deep clean',
     };
-    (prisma as any).fsSanitation.create.mockResolvedValue(created);
+    mockPrisma.fsSanitation.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/sanitation').send({
       area: 'Kitchen',
@@ -102,7 +103,7 @@ describe('POST /api/sanitation', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsSanitation.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSanitation.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/sanitation').send({
       area: 'Kitchen',
@@ -116,7 +117,7 @@ describe('POST /api/sanitation', () => {
 
 describe('GET /api/sanitation/:id', () => {
   it('should return a sanitation task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue({
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -126,7 +127,7 @@ describe('GET /api/sanitation/:id', () => {
   });
 
   it('should return 404 for non-existent task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/sanitation/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -135,10 +136,10 @@ describe('GET /api/sanitation/:id', () => {
 
 describe('PUT /api/sanitation/:id', () => {
   it('should update a sanitation task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue({
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSanitation.update.mockResolvedValue({
+    mockPrisma.fsSanitation.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       area: 'Updated',
     });
@@ -151,7 +152,7 @@ describe('PUT /api/sanitation/:id', () => {
   });
 
   it('should return 404 for non-existent task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/sanitation/00000000-0000-0000-0000-000000000099')
@@ -162,10 +163,10 @@ describe('PUT /api/sanitation/:id', () => {
 
 describe('DELETE /api/sanitation/:id', () => {
   it('should soft delete a sanitation task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue({
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSanitation.update.mockResolvedValue({
+    mockPrisma.fsSanitation.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -175,7 +176,7 @@ describe('DELETE /api/sanitation/:id', () => {
   });
 
   it('should return 404 for non-existent task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/sanitation/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -184,11 +185,11 @@ describe('DELETE /api/sanitation/:id', () => {
 
 describe('PUT /api/sanitation/:id/complete', () => {
   it('should complete a sanitation task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue({
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'SCHEDULED',
     });
-    (prisma as any).fsSanitation.update.mockResolvedValue({
+    mockPrisma.fsSanitation.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
     });
@@ -201,7 +202,7 @@ describe('PUT /api/sanitation/:id/complete', () => {
   });
 
   it('should reject completing an already completed task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue({
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
     });
@@ -213,7 +214,7 @@ describe('PUT /api/sanitation/:id/complete', () => {
   });
 
   it('should return 404 for non-existent task', async () => {
-    (prisma as any).fsSanitation.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSanitation.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/sanitation/00000000-0000-0000-0000-000000000099/complete')
@@ -224,7 +225,7 @@ describe('PUT /api/sanitation/:id/complete', () => {
 
 describe('GET /api/sanitation/overdue', () => {
   it('should return overdue sanitation tasks', async () => {
-    (prisma as any).fsSanitation.findMany.mockResolvedValue([
+    mockPrisma.fsSanitation.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', status: 'OVERDUE' },
     ]);
 
@@ -234,7 +235,7 @@ describe('GET /api/sanitation/overdue', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsSanitation.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSanitation.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/sanitation/overdue');
     expect(res.status).toBe(500);

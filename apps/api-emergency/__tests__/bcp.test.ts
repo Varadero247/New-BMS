@@ -42,8 +42,8 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const mockBcp = prisma.femBusinessContinuityPlan as any;
-const mockExercise = prisma.femBcpExercise as any;
+const mockBcp = jest.mocked(prisma.femBusinessContinuityPlan);
+const mockExercise = jest.mocked(prisma.femBcpExercise);
 
 const BCP_ID = '00000000-0000-0000-0000-000000000001';
 const EXERCISE_ID = '00000000-0000-0000-0000-000000000002';

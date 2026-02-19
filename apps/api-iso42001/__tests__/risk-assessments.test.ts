@@ -32,6 +32,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import riskAssessmentsRouter from '../src/routes/risk-assessments';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -81,8 +82,8 @@ const mockRisk = {
 // ===================================================================
 describe('GET /api/risk-assessments', () => {
   it('should return a paginated list of risk assessments', async () => {
-    (prisma as any).aiRiskAssessment.findMany.mockResolvedValue([mockRisk]);
-    (prisma as any).aiRiskAssessment.count.mockResolvedValue(1);
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/risk-assessments');
 
@@ -93,8 +94,8 @@ describe('GET /api/risk-assessments', () => {
   });
 
   it('should return empty list when no risks exist', async () => {
-    (prisma as any).aiRiskAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiRiskAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/risk-assessments');
 
@@ -103,13 +104,13 @@ describe('GET /api/risk-assessments', () => {
   });
 
   it('should filter by category', async () => {
-    (prisma as any).aiRiskAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiRiskAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/risk-assessments?category=BIAS_DISCRIMINATION');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiRiskAssessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiRiskAssessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ category: 'BIAS_DISCRIMINATION' }),
       })
@@ -117,13 +118,13 @@ describe('GET /api/risk-assessments', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).aiRiskAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiRiskAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/risk-assessments?status=IDENTIFIED');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiRiskAssessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiRiskAssessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'IDENTIFIED' }),
       })
@@ -131,13 +132,13 @@ describe('GET /api/risk-assessments', () => {
   });
 
   it('should filter by systemId', async () => {
-    (prisma as any).aiRiskAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiRiskAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get(`/api/risk-assessments?systemId=${UUID1}`);
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiRiskAssessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiRiskAssessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ systemId: UUID1 }),
       })
@@ -145,13 +146,13 @@ describe('GET /api/risk-assessments', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).aiRiskAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiRiskAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/risk-assessments?search=bias');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiRiskAssessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiRiskAssessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -163,7 +164,7 @@ describe('GET /api/risk-assessments', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiRiskAssessment.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiRiskAssessment.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/risk-assessments');
 
@@ -186,8 +187,8 @@ describe('POST /api/risk-assessments', () => {
   };
 
   it('should create a risk assessment successfully', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiRiskAssessment.create.mockResolvedValue({
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiRiskAssessment.create.mockResolvedValue({
       id: UUID2,
       reference: 'AI42-RSK-2602-3333',
       ...validPayload,
@@ -231,7 +232,7 @@ describe('POST /api/risk-assessments', () => {
   });
 
   it('should return 404 when AI system not found', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/risk-assessments').send(validPayload);
 
@@ -252,8 +253,8 @@ describe('POST /api/risk-assessments', () => {
   });
 
   it('should return 500 on database error during creation', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiRiskAssessment.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiRiskAssessment.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/risk-assessments').send(validPayload);
 
@@ -267,7 +268,7 @@ describe('POST /api/risk-assessments', () => {
 // ===================================================================
 describe('GET /api/risk-assessments/:id', () => {
   it('should return a risk assessment when found', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
 
     const res = await request(app).get(`/api/risk-assessments/${UUID2}`);
 
@@ -278,7 +279,7 @@ describe('GET /api/risk-assessments/:id', () => {
   });
 
   it('should return 404 when risk assessment not found', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockResolvedValue(null);
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/risk-assessments/${UUID1}`);
 
@@ -287,7 +288,7 @@ describe('GET /api/risk-assessments/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiRiskAssessment.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(`/api/risk-assessments/${UUID2}`);
 
@@ -301,8 +302,8 @@ describe('GET /api/risk-assessments/:id', () => {
 // ===================================================================
 describe('PUT /api/risk-assessments/:id', () => {
   it('should update a risk assessment successfully', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
-    (prisma as any).aiRiskAssessment.update.mockResolvedValue({
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockResolvedValue({
       ...mockRisk,
       status: 'MITIGATED',
       system: { id: UUID1, name: 'Test AI System', reference: 'AI42-SYS-2602-1111' },
@@ -317,7 +318,7 @@ describe('PUT /api/risk-assessments/:id', () => {
   });
 
   it('should return 404 when updating non-existent risk', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockResolvedValue(null);
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put(`/api/risk-assessments/${UUID1}`)
@@ -337,8 +338,8 @@ describe('PUT /api/risk-assessments/:id', () => {
   });
 
   it('should return 500 on database error during update', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
-    (prisma as any).aiRiskAssessment.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put(`/api/risk-assessments/${UUID2}`)
@@ -354,8 +355,8 @@ describe('PUT /api/risk-assessments/:id', () => {
 // ===================================================================
 describe('DELETE /api/risk-assessments/:id', () => {
   it('should soft delete a risk assessment', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
-    (prisma as any).aiRiskAssessment.update.mockResolvedValue({
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockResolvedValue({
       ...mockRisk,
       deletedAt: new Date(),
     });
@@ -368,7 +369,7 @@ describe('DELETE /api/risk-assessments/:id', () => {
   });
 
   it('should return 404 when deleting non-existent risk', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockResolvedValue(null);
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(`/api/risk-assessments/${UUID1}`);
 
@@ -377,8 +378,8 @@ describe('DELETE /api/risk-assessments/:id', () => {
   });
 
   it('should return 500 on database error during delete', async () => {
-    (prisma as any).aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
-    (prisma as any).aiRiskAssessment.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete(`/api/risk-assessments/${UUID2}`);
 

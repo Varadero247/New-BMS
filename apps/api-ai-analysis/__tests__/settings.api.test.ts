@@ -51,7 +51,7 @@ jest.mock('uuid', () => ({
 import { prisma } from '../src/prisma';
 import settingsRouter from '../src/routes/settings';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const mockExistingSettings = {
   id: 'settings-1',

@@ -75,7 +75,7 @@ describe('Architecture Fix Verification', () => {
     it('should have authenticate imported and used in route file', () => {
       // The fact that our mock for @ims/auth is called proves authenticate is in the middleware chain.
       // We verify by checking that req.user is populated when handler runs.
-      mockPrisma.risk.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
       mockPrisma.risk.count.mockResolvedValueOnce(0);
 
       return request(app)
@@ -144,8 +144,8 @@ describe('Architecture Fix Verification', () => {
     it('should return 204 with no body on successful delete', async () => {
       mockPrisma.risk.findUnique.mockResolvedValueOnce({
         id: '10000000-0000-4000-a000-000000000123',
-      } as any);
-      mockPrisma.risk.delete.mockResolvedValueOnce({} as any);
+      });
+      (mockPrisma.risk.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app).delete('/api/risks/10000000-0000-4000-a000-000000000123');
 

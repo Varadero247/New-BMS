@@ -44,7 +44,7 @@ jest.mock('@ims/service-auth', () => ({
 import capaRouter from '../src/routes/capa';
 import { prisma } from '../src/prisma';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());

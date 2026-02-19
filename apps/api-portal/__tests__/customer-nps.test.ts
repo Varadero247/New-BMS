@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import customerNpsRouter from '../src/routes/customer-nps';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -43,7 +44,7 @@ describe('POST /api/customer/nps', () => {
       description: 'NPS Score: 9',
       status: 'CLOSED',
     };
-    (prisma as any).portalQualityReport.create.mockResolvedValue(nps);
+    mockPrisma.portalQualityReport.create.mockResolvedValue(nps);
 
     const res = await request(app)
       .post('/api/customer/nps')
@@ -72,7 +73,7 @@ describe('POST /api/customer/nps', () => {
       description: 'NPS Score: 0',
       status: 'CLOSED',
     };
-    (prisma as any).portalQualityReport.create.mockResolvedValue(nps);
+    mockPrisma.portalQualityReport.create.mockResolvedValue(nps);
 
     const res = await request(app).post('/api/customer/nps').send({ score: 0 });
 
@@ -80,7 +81,7 @@ describe('POST /api/customer/nps', () => {
   });
 
   it('should handle server error on submit', async () => {
-    (prisma as any).portalQualityReport.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalQualityReport.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/customer/nps').send({ score: 8 });
 
@@ -91,8 +92,8 @@ describe('POST /api/customer/nps', () => {
 describe('GET /api/customer/nps', () => {
   it('should list NPS submissions', async () => {
     const items = [{ id: 'n-1', reportType: 'INSPECTION', description: 'NPS Score: 9' }];
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue(items);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(1);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue(items);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/customer/nps');
 
@@ -101,8 +102,8 @@ describe('GET /api/customer/nps', () => {
   });
 
   it('should return pagination info', async () => {
-    (prisma as any).portalQualityReport.findMany.mockResolvedValue([]);
-    (prisma as any).portalQualityReport.count.mockResolvedValue(0);
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/customer/nps');
 
@@ -111,7 +112,7 @@ describe('GET /api/customer/nps', () => {
   });
 
   it('should handle server error on list', async () => {
-    (prisma as any).portalQualityReport.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalQualityReport.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/customer/nps');
 

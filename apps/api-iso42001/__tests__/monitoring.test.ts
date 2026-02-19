@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import monitoringRouter from '../src/routes/monitoring';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -72,17 +73,17 @@ const mockRecord = {
 // ===================================================================
 describe('GET /api/monitoring/dashboard', () => {
   it('should return monitoring dashboard summary', async () => {
-    (prisma as any).aiMonitoring.count
+    mockPrisma.aiMonitoring.count
       .mockResolvedValueOnce(50) // total
       .mockResolvedValueOnce(35) // normal
       .mockResolvedValueOnce(8) // warning
       .mockResolvedValueOnce(5) // alert
       .mockResolvedValueOnce(2); // critical
-    (prisma as any).aiMonitoring.groupBy.mockResolvedValue([
+    mockPrisma.aiMonitoring.groupBy.mockResolvedValue([
       { metricType: 'PERFORMANCE', _count: { id: 20 } },
       { metricType: 'ACCURACY', _count: { id: 15 } },
     ]);
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([mockRecord]);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([mockRecord]);
 
     const res = await request(app).get('/api/monitoring/dashboard');
 
@@ -98,9 +99,9 @@ describe('GET /api/monitoring/dashboard', () => {
   });
 
   it('should return zeros when no records exist', async () => {
-    (prisma as any).aiMonitoring.count.mockResolvedValue(0);
-    (prisma as any).aiMonitoring.groupBy.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(0);
+    mockPrisma.aiMonitoring.groupBy.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/monitoring/dashboard');
 
@@ -111,7 +112,7 @@ describe('GET /api/monitoring/dashboard', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiMonitoring.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiMonitoring.count.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/monitoring/dashboard');
 
@@ -126,8 +127,8 @@ describe('GET /api/monitoring/dashboard', () => {
 // ===================================================================
 describe('GET /api/monitoring/system/:systemId', () => {
   it('should return monitoring records for a specific system', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([mockRecord]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(1);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([mockRecord]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/monitoring/system/system-churn-predictor');
 
@@ -138,14 +139,14 @@ describe('GET /api/monitoring/system/:systemId', () => {
   });
 
   it('should filter by status within system', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(0);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(0);
 
     await request(app).get(
       '/api/monitoring/system/00000000-0000-0000-0000-000000000001?status=WARNING'
     );
 
-    expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           systemId: '00000000-0000-0000-0000-000000000001',
@@ -156,14 +157,14 @@ describe('GET /api/monitoring/system/:systemId', () => {
   });
 
   it('should filter by metricType within system', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(0);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(0);
 
     await request(app).get(
       '/api/monitoring/system/00000000-0000-0000-0000-000000000001?metricType=BIAS'
     );
 
-    expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ metricType: 'BIAS' }),
       })
@@ -171,8 +172,8 @@ describe('GET /api/monitoring/system/:systemId', () => {
   });
 
   it('should support pagination', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(50);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(50);
 
     const res = await request(app).get(
       '/api/monitoring/system/00000000-0000-0000-0000-000000000001?page=2&limit=10'
@@ -185,7 +186,7 @@ describe('GET /api/monitoring/system/:systemId', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiMonitoring.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiMonitoring.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(
       '/api/monitoring/system/00000000-0000-0000-0000-000000000001'
@@ -201,8 +202,8 @@ describe('GET /api/monitoring/system/:systemId', () => {
 // ===================================================================
 describe('GET /api/monitoring', () => {
   it('should return paginated list of monitoring records', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([mockRecord]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(1);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([mockRecord]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/monitoring');
 
@@ -214,12 +215,12 @@ describe('GET /api/monitoring', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(0);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(0);
 
     await request(app).get('/api/monitoring?status=ALERT');
 
-    expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'ALERT' }),
       })
@@ -227,12 +228,12 @@ describe('GET /api/monitoring', () => {
   });
 
   it('should filter by metricType', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(0);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(0);
 
     await request(app).get('/api/monitoring?metricType=ACCURACY');
 
-    expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ metricType: 'ACCURACY' }),
       })
@@ -240,12 +241,12 @@ describe('GET /api/monitoring', () => {
   });
 
   it('should filter by systemId', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(0);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(0);
 
     await request(app).get('/api/monitoring?systemId=sys-abc');
 
-    expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ systemId: 'sys-abc' }),
       })
@@ -253,12 +254,12 @@ describe('GET /api/monitoring', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(0);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(0);
 
     await request(app).get('/api/monitoring?search=accuracy');
 
-    expect((prisma as any).aiMonitoring.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiMonitoring.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -272,8 +273,8 @@ describe('GET /api/monitoring', () => {
   });
 
   it('should support pagination params', async () => {
-    (prisma as any).aiMonitoring.findMany.mockResolvedValue([]);
-    (prisma as any).aiMonitoring.count.mockResolvedValue(100);
+    mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+    mockPrisma.aiMonitoring.count.mockResolvedValue(100);
 
     const res = await request(app).get('/api/monitoring?page=3&limit=10');
 
@@ -284,7 +285,7 @@ describe('GET /api/monitoring', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiMonitoring.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiMonitoring.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/monitoring');
 
@@ -307,7 +308,7 @@ describe('POST /api/monitoring', () => {
   };
 
   it('should create a monitoring record successfully', async () => {
-    (prisma as any).aiMonitoring.create.mockResolvedValue({
+    mockPrisma.aiMonitoring.create.mockResolvedValue({
       ...mockRecord,
       id: UUID1,
     });
@@ -316,11 +317,11 @@ describe('POST /api/monitoring', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
-    expect((prisma as any).aiMonitoring.create).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.aiMonitoring.create).toHaveBeenCalledTimes(1);
   });
 
   it('should auto-set status to WARNING when value exceeds threshold (ABOVE)', async () => {
-    (prisma as any).aiMonitoring.create.mockResolvedValue({ ...mockRecord, status: 'WARNING' });
+    mockPrisma.aiMonitoring.create.mockResolvedValue({ ...mockRecord, status: 'WARNING' });
 
     await request(app).post('/api/monitoring').send({
       systemId: '00000000-0000-0000-0000-000000000001',
@@ -331,7 +332,7 @@ describe('POST /api/monitoring', () => {
       thresholdType: 'ABOVE',
     });
 
-    expect((prisma as any).aiMonitoring.create).toHaveBeenCalledWith(
+    expect(mockPrisma.aiMonitoring.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: 'WARNING' }),
       })
@@ -339,7 +340,7 @@ describe('POST /api/monitoring', () => {
   });
 
   it('should auto-set status to NORMAL when value does not exceed threshold', async () => {
-    (prisma as any).aiMonitoring.create.mockResolvedValue({ ...mockRecord, status: 'NORMAL' });
+    mockPrisma.aiMonitoring.create.mockResolvedValue({ ...mockRecord, status: 'NORMAL' });
 
     await request(app).post('/api/monitoring').send({
       systemId: '00000000-0000-0000-0000-000000000001',
@@ -350,7 +351,7 @@ describe('POST /api/monitoring', () => {
       thresholdType: 'ABOVE',
     });
 
-    expect((prisma as any).aiMonitoring.create).toHaveBeenCalledWith(
+    expect(mockPrisma.aiMonitoring.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ status: 'NORMAL' }),
       })
@@ -390,7 +391,7 @@ describe('POST /api/monitoring', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiMonitoring.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiMonitoring.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/monitoring').send(validPayload);
 
@@ -404,7 +405,7 @@ describe('POST /api/monitoring', () => {
 // ===================================================================
 describe('GET /api/monitoring/:id', () => {
   it('should return a monitoring record by ID', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
 
     const res = await request(app).get(`/api/monitoring/${UUID1}`);
 
@@ -414,7 +415,7 @@ describe('GET /api/monitoring/:id', () => {
   });
 
   it('should return 404 when record not found', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(null);
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/monitoring/${UUID2}`);
 
@@ -424,7 +425,7 @@ describe('GET /api/monitoring/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiMonitoring.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(`/api/monitoring/${UUID1}`);
 
@@ -438,8 +439,8 @@ describe('GET /api/monitoring/:id', () => {
 // ===================================================================
 describe('PUT /api/monitoring/:id', () => {
   it('should update a monitoring record successfully', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(mockRecord);
-    (prisma as any).aiMonitoring.update.mockResolvedValue({
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.aiMonitoring.update.mockResolvedValue({
       ...mockRecord,
       status: 'RESOLVED',
       resolutionNotes: 'Issue resolved',
@@ -455,7 +456,7 @@ describe('PUT /api/monitoring/:id', () => {
   });
 
   it('should return 400 for invalid status', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
 
     const res = await request(app)
       .put(`/api/monitoring/${UUID1}`)
@@ -467,7 +468,7 @@ describe('PUT /api/monitoring/:id', () => {
   });
 
   it('should return 404 when record not found for update', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(null);
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(`/api/monitoring/${UUID2}`).send({ notes: 'Update notes' });
 
@@ -476,8 +477,8 @@ describe('PUT /api/monitoring/:id', () => {
   });
 
   it('should return 500 on database error during update', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(mockRecord);
-    (prisma as any).aiMonitoring.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.aiMonitoring.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/monitoring/${UUID1}`).send({ notes: 'Test' });
 
@@ -491,8 +492,8 @@ describe('PUT /api/monitoring/:id', () => {
 // ===================================================================
 describe('DELETE /api/monitoring/:id', () => {
   it('should soft delete a monitoring record', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(mockRecord);
-    (prisma as any).aiMonitoring.update.mockResolvedValue({
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.aiMonitoring.update.mockResolvedValue({
       ...mockRecord,
       deletedAt: new Date(),
     });
@@ -506,7 +507,7 @@ describe('DELETE /api/monitoring/:id', () => {
   });
 
   it('should return 404 when record not found for deletion', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(null);
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(`/api/monitoring/${UUID2}`);
 
@@ -516,8 +517,8 @@ describe('DELETE /api/monitoring/:id', () => {
   });
 
   it('should return 500 on database error during delete', async () => {
-    (prisma as any).aiMonitoring.findFirst.mockResolvedValue(mockRecord);
-    (prisma as any).aiMonitoring.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiMonitoring.findFirst.mockResolvedValue(mockRecord);
+    mockPrisma.aiMonitoring.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete(`/api/monitoring/${UUID1}`);
 

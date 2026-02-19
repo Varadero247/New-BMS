@@ -36,6 +36,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import reportsRouter from '../src/routes/reports';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -59,8 +60,8 @@ describe('GET /api/reports', () => {
       },
       { id: 'rpt-2', name: 'Ad Hoc Quality', type: 'AD_HOC', format: 'EXCEL' },
     ];
-    (prisma as any).analyticsReport.findMany.mockResolvedValue(reports);
-    (prisma as any).analyticsReport.count.mockResolvedValue(2);
+    mockPrisma.analyticsReport.findMany.mockResolvedValue(reports);
+    mockPrisma.analyticsReport.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/reports');
 
@@ -71,19 +72,19 @@ describe('GET /api/reports', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).analyticsReport.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsReport.count.mockResolvedValue(0);
+    mockPrisma.analyticsReport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsReport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/reports?type=SCHEDULED');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsReport.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsReport.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ type: 'SCHEDULED' }) })
     );
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsReport.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsReport.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports');
 
@@ -97,7 +98,7 @@ describe('GET /api/reports', () => {
 describe('POST /api/reports', () => {
   it('should create a new report', async () => {
     const created = { id: 'rpt-new', name: 'New Report', type: 'AD_HOC', format: 'PDF' };
-    (prisma as any).analyticsReport.create.mockResolvedValue(created);
+    mockPrisma.analyticsReport.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/reports')
@@ -126,7 +127,7 @@ describe('POST /api/reports', () => {
 describe('GET /api/reports/:id', () => {
   it('should return a report with recent runs', async () => {
     const report = { id: '00000000-0000-0000-0000-000000000001', name: 'Test', runs: [] };
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue(report);
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue(report);
 
     const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001');
 
@@ -135,7 +136,7 @@ describe('GET /api/reports/:id', () => {
   });
 
   it('should return 404 for non-existent report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000099');
 
@@ -148,10 +149,10 @@ describe('GET /api/reports/:id', () => {
 // ===================================================================
 describe('PUT /api/reports/:id', () => {
   it('should update a report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsReport.update.mockResolvedValue({
+    mockPrisma.analyticsReport.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -165,7 +166,7 @@ describe('PUT /api/reports/:id', () => {
   });
 
   it('should return 404 for non-existent report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/reports/00000000-0000-0000-0000-000000000099')
@@ -180,10 +181,10 @@ describe('PUT /api/reports/:id', () => {
 // ===================================================================
 describe('DELETE /api/reports/:id', () => {
   it('should soft delete a report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsReport.update.mockResolvedValue({
+    mockPrisma.analyticsReport.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -195,7 +196,7 @@ describe('DELETE /api/reports/:id', () => {
   });
 
   it('should return 404 for non-existent report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/reports/00000000-0000-0000-0000-000000000099');
 
@@ -208,15 +209,15 @@ describe('DELETE /api/reports/:id', () => {
 // ===================================================================
 describe('POST /api/reports/:id/run', () => {
   it('should queue a report run', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsReportRun.create.mockResolvedValue({
+    mockPrisma.analyticsReportRun.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       reportId: 'rpt-1',
       status: 'QUEUED',
     });
-    (prisma as any).analyticsReport.update.mockResolvedValue({
+    mockPrisma.analyticsReport.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -227,7 +228,7 @@ describe('POST /api/reports/:id/run', () => {
   });
 
   it('should return 404 for non-existent report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/reports/00000000-0000-0000-0000-000000000099/run');
 
@@ -240,13 +241,13 @@ describe('POST /api/reports/:id/run', () => {
 // ===================================================================
 describe('GET /api/reports/:id/runs', () => {
   it('should list report runs', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsReportRun.findMany.mockResolvedValue([
+    mockPrisma.analyticsReportRun.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', status: 'COMPLETED' },
     ]);
-    (prisma as any).analyticsReportRun.count.mockResolvedValue(1);
+    mockPrisma.analyticsReportRun.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000001/runs');
 
@@ -255,7 +256,7 @@ describe('GET /api/reports/:id/runs', () => {
   });
 
   it('should return 404 for non-existent report', async () => {
-    (prisma as any).analyticsReport.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsReport.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/reports/00000000-0000-0000-0000-000000000099/runs');
 
@@ -274,7 +275,7 @@ describe('GET /api/reports/:id/runs/:runId', () => {
       status: 'COMPLETED',
       report: { id: '00000000-0000-0000-0000-000000000001' },
     };
-    (prisma as any).analyticsReportRun.findFirst.mockResolvedValue(run);
+    mockPrisma.analyticsReportRun.findFirst.mockResolvedValue(run);
 
     const res = await request(app).get(
       '/api/reports/00000000-0000-0000-0000-000000000001/runs/00000000-0000-0000-0000-000000000001'
@@ -285,7 +286,7 @@ describe('GET /api/reports/:id/runs/:runId', () => {
   });
 
   it('should return 404 for non-existent run', async () => {
-    (prisma as any).analyticsReportRun.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsReportRun.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/reports/00000000-0000-0000-0000-000000000001/runs/00000000-0000-0000-0000-000000000099'

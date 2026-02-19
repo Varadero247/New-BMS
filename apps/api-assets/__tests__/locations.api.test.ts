@@ -19,6 +19,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/locations';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/locations', router);
@@ -28,7 +29,7 @@ beforeEach(() => {
 
 describe('GET /api/locations', () => {
   it('should return location counts', async () => {
-    (prisma as any).assetRegister.findMany.mockResolvedValue([
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
       { location: 'Warehouse A' },
       { location: 'Warehouse A' },
       { location: 'Factory Floor' },
@@ -45,7 +46,7 @@ describe('GET /api/locations', () => {
   });
 
   it('should skip assets with no location', async () => {
-    (prisma as any).assetRegister.findMany.mockResolvedValue([
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
       { location: null },
       { location: 'Site B' },
       { location: '' },
@@ -59,7 +60,7 @@ describe('GET /api/locations', () => {
   });
 
   it('should return empty array when no assets', async () => {
-    (prisma as any).assetRegister.findMany.mockResolvedValue([]);
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/locations');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -67,7 +68,7 @@ describe('GET /api/locations', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).assetRegister.findMany.mockRejectedValue(new Error('DB connection error'));
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('DB connection error'));
     const res = await request(app).get('/api/locations');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

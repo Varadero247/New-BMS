@@ -8,18 +8,23 @@ import { createHealthCheck } from '../src/healthCheck';
 // UUID v4 pattern
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+type MockReq = { get: jest.Mock; correlationId?: string };
+type MockRes = { setHeader: jest.Mock; status: jest.Mock; json: jest.Mock };
+
 describe('correlationIdMiddleware', () => {
   const createMocks = (headerValue?: string) => {
-    const mockReq = {
+    const mockReq: MockReq = {
       get: jest.fn((header: string) => {
         if (header === CORRELATION_ID_HEADER) return headerValue;
         return undefined;
       }),
-      correlationId: undefined as string | undefined,
-    } as any;
-    const mockRes = {
+      correlationId: undefined,
+    };
+    const mockRes: MockRes = {
       setHeader: jest.fn(),
-    } as any;
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
     const mockNext = jest.fn();
     return { mockReq, mockRes, mockNext };
   };
@@ -33,7 +38,7 @@ describe('correlationIdMiddleware', () => {
     const middleware = correlationIdMiddleware();
     const { mockReq, mockRes, mockNext } = createMocks();
 
-    middleware(mockReq, mockRes, mockNext);
+    middleware(mockReq as unknown as import('express').Request, mockRes as unknown as import('express').Response, mockNext);
 
     expect(mockNext).toHaveBeenCalledTimes(1);
   });
@@ -42,7 +47,7 @@ describe('correlationIdMiddleware', () => {
     const middleware = correlationIdMiddleware();
     const { mockReq, mockRes, mockNext } = createMocks();
 
-    middleware(mockReq, mockRes, mockNext);
+    middleware(mockReq as unknown as import('express').Request, mockRes as unknown as import('express').Response, mockNext);
 
     expect(mockReq.correlationId).toBeDefined();
     expect(mockReq.correlationId).toMatch(UUID_REGEX);
@@ -53,7 +58,7 @@ describe('correlationIdMiddleware', () => {
     const middleware = correlationIdMiddleware();
     const { mockReq, mockRes, mockNext } = createMocks(existingId);
 
-    middleware(mockReq, mockRes, mockNext);
+    middleware(mockReq as unknown as import('express').Request, mockRes as unknown as import('express').Response, mockNext);
 
     expect(mockReq.correlationId).toBe(existingId);
   });
@@ -62,7 +67,7 @@ describe('correlationIdMiddleware', () => {
     const middleware = correlationIdMiddleware();
     const { mockReq, mockRes, mockNext } = createMocks();
 
-    middleware(mockReq, mockRes, mockNext);
+    middleware(mockReq as unknown as import('express').Request, mockRes as unknown as import('express').Response, mockNext);
 
     expect(mockRes.setHeader).toHaveBeenCalledWith(CORRELATION_ID_HEADER, expect.any(String));
   });
@@ -71,7 +76,7 @@ describe('correlationIdMiddleware', () => {
     const middleware = correlationIdMiddleware();
     const { mockReq, mockRes, mockNext } = createMocks();
 
-    middleware(mockReq, mockRes, mockNext);
+    middleware(mockReq as unknown as import('express').Request, mockRes as unknown as import('express').Response, mockNext);
 
     const headerValue = mockRes.setHeader.mock.calls[0][1];
     expect(mockReq.correlationId).toBe(headerValue);
@@ -80,13 +85,13 @@ describe('correlationIdMiddleware', () => {
 
 describe('getCorrelationId', () => {
   it('returns the correlation ID from the request', () => {
-    const mockReq = { correlationId: 'abc-123' } as any;
-    expect(getCorrelationId(mockReq)).toBe('abc-123');
+    const mockReq = { correlationId: 'abc-123' };
+    expect(getCorrelationId(mockReq as unknown as import('express').Request)).toBe('abc-123');
   });
 
   it('returns "unknown" when no correlation ID is set', () => {
-    const mockReq = {} as any;
-    expect(getCorrelationId(mockReq)).toBe('unknown');
+    const mockReq = {};
+    expect(getCorrelationId(mockReq as unknown as import('express').Request)).toBe('unknown');
   });
 });
 
@@ -94,27 +99,24 @@ describe('createHealthCheck', () => {
   const originalMemoryUsage = process.memoryUsage;
 
   beforeEach(() => {
-    // Mock memory usage to return safe values (well under 90% threshold)
     process.memoryUsage = jest.fn().mockReturnValue({
-      heapUsed: 50 * 1024 * 1024, // 50MB
-      heapTotal: 200 * 1024 * 1024, // 200MB
+      heapUsed: 50 * 1024 * 1024,
+      heapTotal: 200 * 1024 * 1024,
       rss: 250 * 1024 * 1024,
       external: 10 * 1024 * 1024,
       arrayBuffers: 5 * 1024 * 1024,
-    }) as any;
+    }) as unknown as typeof process.memoryUsage;
   });
 
   afterEach(() => {
     process.memoryUsage = originalMemoryUsage;
   });
 
-  const createMockRes = () => {
-    const mockRes = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn(),
-    } as any;
-    return mockRes;
-  };
+  const createMockRes = (): MockRes => ({
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn(),
+    setHeader: jest.fn(),
+  });
 
   it('returns a handler function', () => {
     const handler = createHealthCheck('test-service');
@@ -125,7 +127,7 @@ describe('createHealthCheck', () => {
     const handler = createHealthCheck('test-service');
     const mockRes = createMockRes();
 
-    await handler({} as any, mockRes);
+    await handler({} as unknown as import('express').Request, mockRes as unknown as import('express').Response);
 
     expect(mockRes.status).toHaveBeenCalledWith(200);
     expect(mockRes.json).toHaveBeenCalledWith(
@@ -139,10 +141,10 @@ describe('createHealthCheck', () => {
     const mockPrisma = {
       $queryRaw: jest.fn().mockResolvedValue([{ '?column?': 1 }]),
     };
-    const handler = createHealthCheck('test-service', mockPrisma as any);
+    const handler = createHealthCheck('test-service', mockPrisma as unknown as Parameters<typeof createHealthCheck>[1]);
     const mockRes = createMockRes();
 
-    await handler({} as any, mockRes);
+    await handler({} as unknown as import('express').Request, mockRes as unknown as import('express').Response);
 
     expect(mockPrisma.$queryRaw).toHaveBeenCalled();
     expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -155,10 +157,10 @@ describe('createHealthCheck', () => {
     const mockPrisma = {
       $queryRaw: jest.fn().mockRejectedValue(new Error('Connection refused')),
     };
-    const handler = createHealthCheck('test-service', mockPrisma as any);
+    const handler = createHealthCheck('test-service', mockPrisma as unknown as Parameters<typeof createHealthCheck>[1]);
     const mockRes = createMockRes();
 
-    await handler({} as any, mockRes);
+    await handler({} as unknown as import('express').Request, mockRes as unknown as import('express').Response);
 
     expect(mockRes.status).toHaveBeenCalledWith(503);
     const responseBody = mockRes.json.mock.calls[0][0];
@@ -170,7 +172,7 @@ describe('createHealthCheck', () => {
     const handler = createHealthCheck('test-service');
     const mockRes = createMockRes();
 
-    await handler({} as any, mockRes);
+    await handler({} as unknown as import('express').Request, mockRes as unknown as import('express').Response);
 
     const responseBody = mockRes.json.mock.calls[0][0];
     expect(responseBody.checks.memory).toBeDefined();
@@ -185,14 +187,13 @@ describe('createHealthCheck', () => {
     const handler = createHealthCheck('my-service', undefined, '1.2.3');
     const mockRes = createMockRes();
 
-    await handler({} as any, mockRes);
+    await handler({} as unknown as import('express').Request, mockRes as unknown as import('express').Response);
 
     const responseBody = mockRes.json.mock.calls[0][0];
     expect(responseBody.service).toBe('my-service');
     expect(typeof responseBody.uptime).toBe('number');
     expect(responseBody.uptime).toBeGreaterThanOrEqual(0);
     expect(responseBody.timestamp).toBeDefined();
-    // Timestamp should be ISO format
     expect(new Date(responseBody.timestamp).toISOString()).toBe(responseBody.timestamp);
     expect(responseBody.version).toBe('1.2.3');
   });

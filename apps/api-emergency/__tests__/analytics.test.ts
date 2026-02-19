@@ -52,13 +52,13 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const mockPremises = prisma.femPremises as any;
-const mockFra = prisma.femFireRiskAssessment as any;
-const mockIncident = prisma.femEmergencyIncident as any;
-const mockWarden = prisma.femFireWarden as any;
-const mockPeep = prisma.femPeep as any;
-const mockEquipment = prisma.femEmergencyEquipment as any;
-const mockBcp = prisma.femBusinessContinuityPlan as any;
+const mockPremises = jest.mocked(prisma.femPremises);
+const mockFra = jest.mocked(prisma.femFireRiskAssessment);
+const mockIncident = jest.mocked(prisma.femEmergencyIncident);
+const mockWarden = jest.mocked(prisma.femFireWarden);
+const mockPeep = jest.mocked(prisma.femPeep);
+const mockEquipment = jest.mocked(prisma.femEmergencyEquipment);
+const mockBcp = jest.mocked(prisma.femBusinessContinuityPlan);
 
 function setupAnalyticsMocks(
   overrides: Partial<{

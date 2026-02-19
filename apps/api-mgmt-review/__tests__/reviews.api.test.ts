@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/reviews';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/reviews', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/reviews', () => {
   it('should return management reviews', async () => {
-    (prisma as any).mgmtReview.findMany.mockResolvedValue([
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Test' },
     ]);
-    (prisma as any).mgmtReview.count.mockResolvedValue(1);
+    mockPrisma.mgmtReview.count.mockResolvedValue(1);
     const res = await request(app).get('/api/reviews');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,12 +47,12 @@ describe('GET /api/reviews', () => {
 
 describe('GET /api/reviews/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).mgmtReview.findFirst.mockResolvedValue(null);
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/reviews/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).mgmtReview.findFirst.mockResolvedValue({
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).get('/api/reviews/00000000-0000-0000-0000-000000000001');
@@ -62,8 +63,8 @@ describe('GET /api/reviews/:id', () => {
 
 describe('POST /api/reviews', () => {
   it('should create', async () => {
-    (prisma as any).mgmtReview.count.mockResolvedValue(0);
-    (prisma as any).mgmtReview.create.mockResolvedValue({
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    mockPrisma.mgmtReview.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New',
     });
@@ -75,10 +76,10 @@ describe('POST /api/reviews', () => {
 
 describe('PUT /api/reviews/:id', () => {
   it('should update', async () => {
-    (prisma as any).mgmtReview.findFirst.mockResolvedValue({
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).mgmtReview.update.mockResolvedValue({
+    mockPrisma.mgmtReview.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -91,10 +92,10 @@ describe('PUT /api/reviews/:id', () => {
 
 describe('DELETE /api/reviews/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).mgmtReview.findFirst.mockResolvedValue({
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).mgmtReview.update.mockResolvedValue({
+    mockPrisma.mgmtReview.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000001');

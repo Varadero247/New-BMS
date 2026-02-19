@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/programmes';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/programmes', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/programmes', () => {
   it('should return programmes with pagination', async () => {
-    (prisma as any).audProgramme.findMany.mockResolvedValue([
+    mockPrisma.audProgramme.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Annual Audit Programme 2026' },
     ]);
-    (prisma as any).audProgramme.count.mockResolvedValue(1);
+    mockPrisma.audProgramme.count.mockResolvedValue(1);
     const res = await request(app).get('/api/programmes');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -47,8 +48,8 @@ describe('GET /api/programmes', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).audProgramme.findMany.mockResolvedValue([]);
-    (prisma as any).audProgramme.count.mockResolvedValue(0);
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
     const res = await request(app).get('/api/programmes?status=ACTIVE');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -56,18 +57,18 @@ describe('GET /api/programmes', () => {
   });
 
   it('should filter by search term', async () => {
-    (prisma as any).audProgramme.findMany.mockResolvedValue([
+    mockPrisma.audProgramme.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'ISO Programme' },
     ]);
-    (prisma as any).audProgramme.count.mockResolvedValue(1);
+    mockPrisma.audProgramme.count.mockResolvedValue(1);
     const res = await request(app).get('/api/programmes?search=ISO');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should support pagination parameters', async () => {
-    (prisma as any).audProgramme.findMany.mockResolvedValue([]);
-    (prisma as any).audProgramme.count.mockResolvedValue(0);
+    mockPrisma.audProgramme.findMany.mockResolvedValue([]);
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
     const res = await request(app).get('/api/programmes?page=2&limit=10');
     expect(res.status).toBe(200);
     expect(res.body.pagination.page).toBe(2);
@@ -75,8 +76,8 @@ describe('GET /api/programmes', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).audProgramme.findMany.mockRejectedValue(new Error('DB error'));
-    (prisma as any).audProgramme.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.audProgramme.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.audProgramme.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/programmes');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -86,7 +87,7 @@ describe('GET /api/programmes', () => {
 
 describe('GET /api/programmes/:id', () => {
   it('should return programme by id', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Test Programme',
       year: 2026,
@@ -98,7 +99,7 @@ describe('GET /api/programmes/:id', () => {
   });
 
   it('should return 404 when programme not found', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue(null);
+    mockPrisma.audProgramme.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/programmes/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -106,7 +107,7 @@ describe('GET /api/programmes/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).audProgramme.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.audProgramme.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/programmes/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -115,8 +116,8 @@ describe('GET /api/programmes/:id', () => {
 
 describe('POST /api/programmes', () => {
   it('should create a programme', async () => {
-    (prisma as any).audProgramme.count.mockResolvedValue(0);
-    (prisma as any).audProgramme.create.mockResolvedValue({
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    mockPrisma.audProgramme.create.mockResolvedValue({
       id: 'new-1',
       title: 'Audit Programme 2026',
       year: 2026,
@@ -154,8 +155,8 @@ describe('POST /api/programmes', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).audProgramme.count.mockResolvedValue(0);
-    (prisma as any).audProgramme.create.mockRejectedValue(new Error('Create failed'));
+    mockPrisma.audProgramme.count.mockResolvedValue(0);
+    mockPrisma.audProgramme.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app).post('/api/programmes').send({ title: 'Programme', year: 2026 });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -165,12 +166,12 @@ describe('POST /api/programmes', () => {
 
 describe('PUT /api/programmes/:id', () => {
   it('should update a programme', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Old Programme',
       year: 2025,
     });
-    (prisma as any).audProgramme.update.mockResolvedValue({
+    mockPrisma.audProgramme.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated Programme',
       year: 2026,
@@ -184,7 +185,7 @@ describe('PUT /api/programmes/:id', () => {
   });
 
   it('should return 404 if programme not found', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue(null);
+    mockPrisma.audProgramme.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/programmes/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Updated' });
@@ -194,10 +195,10 @@ describe('PUT /api/programmes/:id', () => {
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).audProgramme.update.mockRejectedValue(new Error('Update failed'));
+    mockPrisma.audProgramme.update.mockRejectedValue(new Error('Update failed'));
     const res = await request(app)
       .put('/api/programmes/00000000-0000-0000-0000-000000000001')
       .send({ title: 'Updated' });
@@ -209,11 +210,11 @@ describe('PUT /api/programmes/:id', () => {
 
 describe('DELETE /api/programmes/:id', () => {
   it('should soft-delete a programme', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'To Delete',
     });
-    (prisma as any).audProgramme.update.mockResolvedValue({
+    mockPrisma.audProgramme.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -224,7 +225,7 @@ describe('DELETE /api/programmes/:id', () => {
   });
 
   it('should return 404 if programme not found', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue(null);
+    mockPrisma.audProgramme.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/programmes/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -232,10 +233,10 @@ describe('DELETE /api/programmes/:id', () => {
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).audProgramme.findFirst.mockResolvedValue({
+    mockPrisma.audProgramme.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).audProgramme.update.mockRejectedValue(new Error('Delete failed'));
+    mockPrisma.audProgramme.update.mockRejectedValue(new Error('Delete failed'));
     const res = await request(app).delete('/api/programmes/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

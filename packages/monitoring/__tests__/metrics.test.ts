@@ -8,6 +8,7 @@ import {
   metricsHandler,
 } from '../src/metrics';
 import client from 'prom-client';
+import type { Request, Response, NextFunction } from 'express';
 
 describe('Prometheus metrics', () => {
   beforeEach(async () => {
@@ -45,24 +46,35 @@ describe('Prometheus metrics', () => {
   });
 
   describe('metricsMiddleware', () => {
+    type MockReq = {
+      method: string;
+      path: string;
+      route?: { path: string };
+    };
+
+    type MockRes = {
+      statusCode: number;
+      on: jest.Mock;
+    };
+
     let finishCallback: (() => void) | null;
 
     const createMockReqRes = () => {
       finishCallback = null;
-      const mockReq = {
+      const mockReq: MockReq = {
         method: 'GET',
         path: '/test',
         route: { path: '/test' },
-      } as any;
-      const mockRes = {
+      };
+      const mockRes: MockRes = {
         statusCode: 200,
         on: jest.fn((event: string, cb: () => void) => {
           if (event === 'finish') {
             finishCallback = cb;
           }
         }),
-      } as any;
-      const mockNext = jest.fn();
+      };
+      const mockNext: NextFunction = jest.fn();
       return { mockReq, mockRes, mockNext };
     };
 
@@ -75,7 +87,11 @@ describe('Prometheus metrics', () => {
       const middleware = metricsMiddleware('test-service');
       const { mockReq, mockRes, mockNext } = createMockReqRes();
 
-      middleware(mockReq, mockRes, mockNext);
+      middleware(
+        mockReq as unknown as Request,
+        mockRes as unknown as Response,
+        mockNext
+      );
 
       expect(mockNext).toHaveBeenCalledTimes(1);
     });
@@ -84,7 +100,11 @@ describe('Prometheus metrics', () => {
       const middleware = metricsMiddleware('test-service');
       const { mockReq, mockRes, mockNext } = createMockReqRes();
 
-      middleware(mockReq, mockRes, mockNext);
+      middleware(
+        mockReq as unknown as Request,
+        mockRes as unknown as Response,
+        mockNext
+      );
 
       expect(mockRes.on).toHaveBeenCalledWith('finish', expect.any(Function));
     });
@@ -93,7 +113,11 @@ describe('Prometheus metrics', () => {
       const middleware = metricsMiddleware('metrics-test-svc');
       const { mockReq, mockRes, mockNext } = createMockReqRes();
 
-      middleware(mockReq, mockRes, mockNext);
+      middleware(
+        mockReq as unknown as Request,
+        mockRes as unknown as Response,
+        mockNext
+      );
 
       // Simulate the finish event
       expect(finishCallback).not.toBeNull();
@@ -108,7 +132,11 @@ describe('Prometheus metrics', () => {
       const middleware = metricsMiddleware('active-req-svc');
       const { mockReq, mockRes, mockNext } = createMockReqRes();
 
-      middleware(mockReq, mockRes, mockNext);
+      middleware(
+        mockReq as unknown as Request,
+        mockRes as unknown as Response,
+        mockNext
+      );
 
       // Before finish, active requests should have been incremented
       // After finish, it should be decremented
@@ -120,14 +148,19 @@ describe('Prometheus metrics', () => {
   });
 
   describe('metricsHandler', () => {
+    type MockHandlerRes = {
+      set: jest.Mock;
+      end: jest.Mock;
+    };
+
     it('returns metrics content', async () => {
-      const mockRes = {
+      const mockRes: MockHandlerRes = {
         set: jest.fn(),
         end: jest.fn(),
-      } as any;
-      const mockReq = {} as any;
+      };
+      const mockReq = {} as unknown as Request;
 
-      await metricsHandler(mockReq, mockRes);
+      await metricsHandler(mockReq, mockRes as unknown as Response);
 
       expect(mockRes.end).toHaveBeenCalledTimes(1);
       const metricsContent = mockRes.end.mock.calls[0][0];
@@ -136,13 +169,13 @@ describe('Prometheus metrics', () => {
     });
 
     it('sets correct content type header', async () => {
-      const mockRes = {
+      const mockRes: MockHandlerRes = {
         set: jest.fn(),
         end: jest.fn(),
-      } as any;
-      const mockReq = {} as any;
+      };
+      const mockReq = {} as unknown as Request;
 
-      await metricsHandler(mockReq, mockRes);
+      await metricsHandler(mockReq, mockRes as unknown as Response);
 
       expect(mockRes.set).toHaveBeenCalledWith('Content-Type', expect.stringContaining('text/'));
     });

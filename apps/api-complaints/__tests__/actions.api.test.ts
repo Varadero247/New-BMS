@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/actions';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/actions', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/actions', () => {
   it('should return actions', async () => {
-    (prisma as any).compAction.findMany.mockResolvedValue([
+    mockPrisma.compAction.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Test' },
     ]);
-    (prisma as any).compAction.count.mockResolvedValue(1);
+    mockPrisma.compAction.count.mockResolvedValue(1);
     const res = await request(app).get('/api/actions');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,12 +47,12 @@ describe('GET /api/actions', () => {
 
 describe('GET /api/actions/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).compAction.findFirst.mockResolvedValue(null);
+    mockPrisma.compAction.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/actions/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).compAction.findFirst.mockResolvedValue({
+    mockPrisma.compAction.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).get('/api/actions/00000000-0000-0000-0000-000000000001');
@@ -62,8 +63,8 @@ describe('GET /api/actions/:id', () => {
 
 describe('POST /api/actions', () => {
   it('should create', async () => {
-    (prisma as any).compAction.count.mockResolvedValue(0);
-    (prisma as any).compAction.create.mockResolvedValue({
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    mockPrisma.compAction.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New',
     });
@@ -77,10 +78,10 @@ describe('POST /api/actions', () => {
 
 describe('PUT /api/actions/:id', () => {
   it('should update', async () => {
-    (prisma as any).compAction.findFirst.mockResolvedValue({
+    mockPrisma.compAction.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).compAction.update.mockResolvedValue({
+    mockPrisma.compAction.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -93,10 +94,10 @@ describe('PUT /api/actions/:id', () => {
 
 describe('DELETE /api/actions/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).compAction.findFirst.mockResolvedValue({
+    mockPrisma.compAction.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).compAction.update.mockResolvedValue({
+    mockPrisma.compAction.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/actions/00000000-0000-0000-0000-000000000001');

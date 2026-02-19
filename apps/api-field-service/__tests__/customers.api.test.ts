@@ -37,6 +37,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import customersRouter from '../src/routes/customers';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -52,8 +53,8 @@ describe('GET /api/customers', () => {
       { id: '00000000-0000-0000-0000-000000000001', name: 'Acme Corp', code: 'CUST-1001' },
       { id: 'cust-2', name: 'Beta Inc', code: 'CUST-1002' },
     ];
-    (prisma as any).fsSvcCustomer.findMany.mockResolvedValue(customers);
-    (prisma as any).fsSvcCustomer.count.mockResolvedValue(2);
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue(customers);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/customers');
 
@@ -64,12 +65,12 @@ describe('GET /api/customers', () => {
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).fsSvcCustomer.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcCustomer.count.mockResolvedValue(0);
+    mockPrisma.fsSvcCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcCustomer.count.mockResolvedValue(0);
 
     await request(app).get('/api/customers?isActive=true');
 
-    expect((prisma as any).fsSvcCustomer.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcCustomer.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ isActive: true }),
       })
@@ -77,7 +78,7 @@ describe('GET /api/customers', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).fsSvcCustomer.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSvcCustomer.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/customers');
 
@@ -93,7 +94,7 @@ describe('POST /api/customers', () => {
       code: 'CUST-5678',
       address: { city: 'London' },
     };
-    (prisma as any).fsSvcCustomer.create.mockResolvedValue(created);
+    mockPrisma.fsSvcCustomer.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/customers')
@@ -119,7 +120,7 @@ describe('GET /api/customers/:id', () => {
       sites: [],
       contracts: [],
     };
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue(customer);
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue(customer);
 
     const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001');
 
@@ -128,7 +129,7 @@ describe('GET /api/customers/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000099');
 
@@ -138,10 +139,10 @@ describe('GET /api/customers/:id', () => {
 
 describe('GET /api/customers/:id/sites', () => {
   it('should return customer sites', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcSite.findMany.mockResolvedValue([{ id: 'site-1', name: 'HQ' }]);
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([{ id: 'site-1', name: 'HQ' }]);
 
     const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001/sites');
 
@@ -150,7 +151,7 @@ describe('GET /api/customers/:id/sites', () => {
   });
 
   it('should return 404 if customer not found', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000099/sites');
 
@@ -160,11 +161,11 @@ describe('GET /api/customers/:id/sites', () => {
 
 describe('GET /api/customers/:id/jobs', () => {
   it('should return customer jobs with pagination', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcJob.findMany.mockResolvedValue([{ id: 'job-1' }]);
-    (prisma as any).fsSvcJob.count.mockResolvedValue(1);
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([{ id: 'job-1' }]);
+    mockPrisma.fsSvcJob.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000001/jobs');
 
@@ -176,10 +177,10 @@ describe('GET /api/customers/:id/jobs', () => {
 
 describe('PUT /api/customers/:id', () => {
   it('should update a customer', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcCustomer.update.mockResolvedValue({
+    mockPrisma.fsSvcCustomer.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -193,7 +194,7 @@ describe('PUT /api/customers/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/customers/00000000-0000-0000-0000-000000000099')
@@ -205,10 +206,10 @@ describe('PUT /api/customers/:id', () => {
 
 describe('DELETE /api/customers/:id', () => {
   it('should soft delete a customer', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcCustomer.update.mockResolvedValue({
+    mockPrisma.fsSvcCustomer.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -220,7 +221,7 @@ describe('DELETE /api/customers/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcCustomer.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/customers/00000000-0000-0000-0000-000000000099');
 

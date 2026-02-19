@@ -96,8 +96,8 @@ describe('HR Employees API Routes', () => {
     ];
 
     it('should return list of employees with pagination', async () => {
-      mockPrisma.employee.findMany.mockResolvedValueOnce(mockEmployees as any);
-      mockPrisma.employee.count.mockResolvedValueOnce(2);
+      (mockPrisma.employee.findMany as jest.Mock).mockResolvedValueOnce(mockEmployees);
+      (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app).get('/api/employees');
 
@@ -113,8 +113,8 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      mockPrisma.employee.findMany.mockResolvedValueOnce([mockEmployees[0]] as any);
-      mockPrisma.employee.count.mockResolvedValueOnce(100);
+      mockPrisma.employee.findMany.mockResolvedValueOnce([mockEmployees[0]]);
+      (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(100);
 
       const response = await request(app).get('/api/employees?page=2&limit=10');
 
@@ -210,8 +210,8 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should include department, position, and manager info', async () => {
-      mockPrisma.employee.findMany.mockResolvedValueOnce(mockEmployees as any);
-      mockPrisma.employee.count.mockResolvedValueOnce(2);
+      mockPrisma.employee.findMany.mockResolvedValueOnce(mockEmployees);
+      (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(2);
 
       await request(app).get('/api/employees');
 
@@ -268,7 +268,7 @@ describe('HR Employees API Routes', () => {
     ];
 
     it('should return hierarchical org chart', async () => {
-      mockPrisma.employee.findMany.mockResolvedValueOnce(mockOrgEmployees as any);
+      mockPrisma.employee.findMany.mockResolvedValueOnce(mockOrgEmployees);
 
       const response = await request(app).get('/api/employees/org-chart');
 
@@ -280,7 +280,7 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should only include active employees', async () => {
-      mockPrisma.employee.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.employee.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app).get('/api/employees/org-chart');
 
@@ -307,14 +307,14 @@ describe('HR Employees API Routes', () => {
       mockPrisma.employee.count.mockResolvedValue(10);
       mockPrisma.employee.groupBy.mockResolvedValue([
         { departmentId: 'd1', _count: { id: 5 } },
-      ] as any);
-      mockPrisma.hRDepartment.findMany.mockResolvedValue([
+      ]);
+      (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValue([
         { id: 'd1', name: 'Engineering' },
-      ] as any);
-      mockPrisma.employeeSalary.aggregate.mockResolvedValue({
+      ]);
+      (mockPrisma.employeeSalary.aggregate as jest.Mock).mockResolvedValue({
         _avg: { baseSalary: 50000 },
         _sum: { baseSalary: 500000 },
-      } as any);
+      });
     });
 
     it('should return employee statistics', async () => {
@@ -337,7 +337,7 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.employee.count.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employee.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).get('/api/employees/stats');
 
@@ -369,7 +369,7 @@ describe('HR Employees API Routes', () => {
     };
 
     it('should return single employee with full details', async () => {
-      mockPrisma.employee.findUnique.mockResolvedValueOnce(mockEmployee as any);
+      mockPrisma.employee.findUnique.mockResolvedValueOnce(mockEmployee);
 
       const response = await request(app).get(
         '/api/employees/2a000000-0000-4000-a000-000000000001'
@@ -381,7 +381,7 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should include related data', async () => {
-      mockPrisma.employee.findUnique.mockResolvedValueOnce(mockEmployee as any);
+      (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValueOnce(mockEmployee);
 
       await request(app).get('/api/employees/2a000000-0000-4000-a000-000000000001');
 
@@ -402,7 +402,7 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff employee', async () => {
-      mockPrisma.employee.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.employee.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app).get(
         '/api/employees/00000000-0000-4000-a000-ffffffffffff'
@@ -441,7 +441,7 @@ describe('HR Employees API Routes', () => {
         ...createPayload,
         department: { id: createPayload.departmentId, name: 'Engineering' },
         position: null,
-      } as any);
+      });
 
       const response = await request(app).post('/api/employees').send(createPayload);
 
@@ -476,13 +476,13 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should accept optional fields', async () => {
-      mockPrisma.employee.create.mockResolvedValueOnce({
+      (mockPrisma.employee.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         middleName: 'Middle',
         phone: '+1234567890',
         gender: 'MALE',
-      } as any);
+      });
 
       const response = await request(app)
         .post('/api/employees')
@@ -497,7 +497,7 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.employee.create.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employee.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).post('/api/employees').send(createPayload);
 
@@ -513,7 +513,7 @@ describe('HR Employees API Routes', () => {
         firstName: 'Updated',
         department: { id: 'd1', name: 'Engineering' },
         position: null,
-      } as any);
+      });
 
       const response = await request(app)
         .put('/api/employees/2a000000-0000-4000-a000-000000000001')
@@ -533,7 +533,7 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.employee.update.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employee.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .put('/api/employees/2a000000-0000-4000-a000-000000000001')
@@ -550,7 +550,7 @@ describe('HR Employees API Routes', () => {
         id: '2a000000-0000-4000-a000-000000000001',
         employmentStatus: 'TERMINATED',
         terminationDate: new Date(),
-      } as any);
+      });
 
       const response = await request(app).delete(
         '/api/employees/2a000000-0000-4000-a000-000000000001'
@@ -567,7 +567,7 @@ describe('HR Employees API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.employee.update.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.employee.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).delete(
         '/api/employees/2a000000-0000-4000-a000-000000000001'
@@ -591,7 +591,7 @@ describe('HR Employees API Routes', () => {
     ];
 
     it('should return direct reports', async () => {
-      mockPrisma.employee.findMany.mockResolvedValueOnce(mockSubordinates as any);
+      mockPrisma.employee.findMany.mockResolvedValueOnce(mockSubordinates);
 
       const response = await request(app).get(
         '/api/employees/53000000-0000-4000-a000-000000000001/subordinates'

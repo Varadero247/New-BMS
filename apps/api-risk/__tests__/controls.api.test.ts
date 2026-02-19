@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/controls';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/risks', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('POST /api/risks/:id/controls', () => {
   it('should create a control', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
-    (prisma as any).riskControl.create.mockResolvedValue({ id: 'c1', controlType: 'PREVENTIVE' });
-    (prisma as any).riskControl.findMany.mockResolvedValue([{ effectiveness: 'ADEQUATE' }]);
-    (prisma as any).riskRegister.update.mockResolvedValue({});
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
+    mockPrisma.riskControl.create.mockResolvedValue({ id: 'c1', controlType: 'PREVENTIVE' });
+    mockPrisma.riskControl.findMany.mockResolvedValue([{ effectiveness: 'ADEQUATE' }]);
+    mockPrisma.riskRegister.update.mockResolvedValue({});
     const res = await request(app)
       .post('/api/risks/00000000-0000-0000-0000-000000000001/controls')
       .send({ controlType: 'PREVENTIVE', description: 'Test control' });
@@ -46,7 +47,7 @@ describe('POST /api/risks/:id/controls', () => {
   });
 
   it('should return 404 if risk not found', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .post('/api/risks/00000000-0000-0000-0000-000000000001/controls')
       .send({ controlType: 'PREVENTIVE', description: 'Test' });
@@ -54,7 +55,7 @@ describe('POST /api/risks/:id/controls', () => {
   });
 
   it('should validate control type', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
     const res = await request(app)
       .post('/api/risks/00000000-0000-0000-0000-000000000001/controls')
       .send({ controlType: 'INVALID', description: 'Test' });
@@ -64,7 +65,7 @@ describe('POST /api/risks/:id/controls', () => {
 
 describe('GET /api/risks/:id/controls', () => {
   it('should return controls', async () => {
-    (prisma as any).riskControl.findMany.mockResolvedValue([{ id: 'c1' }]);
+    mockPrisma.riskControl.findMany.mockResolvedValue([{ id: 'c1' }]);
     const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/controls');
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
@@ -73,10 +74,10 @@ describe('GET /api/risks/:id/controls', () => {
 
 describe('PUT /api/risks/:riskId/controls/:id', () => {
   it('should update control', async () => {
-    (prisma as any).riskControl.findFirst.mockResolvedValue({ id: 'c1' });
-    (prisma as any).riskControl.update.mockResolvedValue({ id: 'c1', effectiveness: 'STRONG' });
-    (prisma as any).riskControl.findMany.mockResolvedValue([{ effectiveness: 'STRONG' }]);
-    (prisma as any).riskRegister.update.mockResolvedValue({});
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockResolvedValue({ id: 'c1', effectiveness: 'STRONG' });
+    mockPrisma.riskControl.findMany.mockResolvedValue([{ effectiveness: 'STRONG' }]);
+    mockPrisma.riskRegister.update.mockResolvedValue({});
     const res = await request(app)
       .put(
         '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
@@ -86,7 +87,7 @@ describe('PUT /api/risks/:riskId/controls/:id', () => {
   });
 
   it('should return 404 if control not found', async () => {
-    (prisma as any).riskControl.findFirst.mockResolvedValue(null);
+    mockPrisma.riskControl.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put(
         '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
@@ -98,8 +99,8 @@ describe('PUT /api/risks/:riskId/controls/:id', () => {
 
 describe('DELETE /api/risks/:riskId/controls/:id', () => {
   it('should soft delete control', async () => {
-    (prisma as any).riskControl.findFirst.mockResolvedValue({ id: 'c1' });
-    (prisma as any).riskControl.update.mockResolvedValue({ id: 'c1', isActive: false });
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockResolvedValue({ id: 'c1', isActive: false });
     const res = await request(app).delete(
       '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
     );
@@ -109,8 +110,8 @@ describe('DELETE /api/risks/:riskId/controls/:id', () => {
 
 describe('POST /api/risks/:riskId/controls/:id/test', () => {
   it('should record test result', async () => {
-    (prisma as any).riskControl.findFirst.mockResolvedValue({ id: 'c1' });
-    (prisma as any).riskControl.update.mockResolvedValue({ id: 'c1', lastTestedDate: new Date() });
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockResolvedValue({ id: 'c1', lastTestedDate: new Date() });
     const res = await request(app)
       .post(
         '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002/test'

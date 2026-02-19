@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/dashboard';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/dashboard', router);
@@ -26,8 +27,8 @@ beforeEach(() => {
 
 describe('GET /api/dashboard/stats', () => {
   it('should return dashboard stats', async () => {
-    (prisma as any).compComplaint.count.mockResolvedValue(10);
-    (prisma as any).compAction.count.mockResolvedValue(5);
+    mockPrisma.compComplaint.count.mockResolvedValue(10);
+    mockPrisma.compAction.count.mockResolvedValue(5);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -37,7 +38,7 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).compComplaint.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

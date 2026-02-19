@@ -37,7 +37,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const mockFra = prisma.femFireRiskAssessment as any;
+const mockFra = jest.mocked(prisma.femFireRiskAssessment);
 
 const FRA_ID = '00000000-0000-0000-0000-000000000001';
 const PREMISES_ID = '00000000-0000-0000-0000-000000000002';

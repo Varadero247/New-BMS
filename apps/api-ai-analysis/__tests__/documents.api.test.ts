@@ -1,6 +1,6 @@
 // Mock fetch globally BEFORE any imports
 const mockFetch = jest.fn();
-(global as any).fetch = mockFetch;
+global.fetch = mockFetch;
 
 jest.mock('../src/prisma', () => ({
   prisma: {

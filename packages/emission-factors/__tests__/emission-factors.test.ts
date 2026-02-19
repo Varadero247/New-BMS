@@ -103,7 +103,7 @@ describe('emission-factors', () => {
     });
 
     it('should throw for unknown fuel type', () => {
-      expect(() => calculateEmission('unknown' as any, 100, 'litre', 'DEFRA')).toThrow();
+      expect(() => calculateEmission('unknown' as string, 100, 'litre', 'DEFRA')).toThrow();
     });
   });
 

@@ -30,7 +30,7 @@ jest.mock('../src/config', () => ({
   },
 }));
 
-global.fetch = jest.fn(() => Promise.resolve({ ok: false })) as any;
+global.fetch = jest.fn(() => Promise.resolve({ ok: false })) as unknown as typeof globalThis.fetch;
 
 import linkedinRouter from '../src/routes/linkedin-tracker';
 import { prisma } from '../src/prisma';

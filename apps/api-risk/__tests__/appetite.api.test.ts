@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/appetite';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/risks', router);
@@ -34,7 +35,7 @@ beforeEach(() => {
 
 describe('GET /api/risks/appetite', () => {
   it('should return appetite statements', async () => {
-    (prisma as any).riskAppetiteStatement.findMany.mockResolvedValue([
+    mockPrisma.riskAppetiteStatement.findMany.mockResolvedValue([
       { id: '1', category: 'HEALTH_SAFETY', appetiteLevel: 'VERY_LOW' },
     ]);
     const res = await request(app).get('/api/risks/appetite');
@@ -45,8 +46,8 @@ describe('GET /api/risks/appetite', () => {
 
 describe('POST /api/risks/appetite', () => {
   it('should create new appetite statement', async () => {
-    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue(null);
-    (prisma as any).riskAppetiteStatement.create.mockResolvedValue({
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    mockPrisma.riskAppetiteStatement.create.mockResolvedValue({
       id: '1',
       category: 'FINANCIAL',
       appetiteLevel: 'MODERATE_APPETITE',
@@ -65,11 +66,11 @@ describe('POST /api/risks/appetite', () => {
   });
 
   it('should update existing appetite statement', async () => {
-    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue({
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue({
       id: '1',
       category: 'FINANCIAL',
     });
-    (prisma as any).riskAppetiteStatement.update.mockResolvedValue({
+    mockPrisma.riskAppetiteStatement.update.mockResolvedValue({
       id: '1',
       appetiteLevel: 'HIGH_APPETITE',
     });
@@ -93,7 +94,7 @@ describe('POST /api/risks/appetite', () => {
 
 describe('GET /api/risks/framework', () => {
   it('should return framework config', async () => {
-    (prisma as any).riskFramework.findUnique.mockResolvedValue({
+    mockPrisma.riskFramework.findUnique.mockResolvedValue({
       id: 'f1',
       frameworkVersion: 'ISO 31000:2018',
     });
@@ -103,7 +104,7 @@ describe('GET /api/risks/framework', () => {
   });
 
   it('should return null if no framework configured', async () => {
-    (prisma as any).riskFramework.findUnique.mockResolvedValue(null);
+    mockPrisma.riskFramework.findUnique.mockResolvedValue(null);
     const res = await request(app).get('/api/risks/framework');
     expect(res.status).toBe(200);
     expect(res.body.data).toBeNull();
@@ -112,8 +113,8 @@ describe('GET /api/risks/framework', () => {
 
 describe('PUT /api/risks/framework', () => {
   it('should create framework if not exists', async () => {
-    (prisma as any).riskFramework.findUnique.mockResolvedValue(null);
-    (prisma as any).riskFramework.create.mockResolvedValue({ id: 'f1', organisationId: 'org-1' });
+    mockPrisma.riskFramework.findUnique.mockResolvedValue(null);
+    mockPrisma.riskFramework.create.mockResolvedValue({ id: 'f1', organisationId: 'org-1' });
     const res = await request(app)
       .put('/api/risks/framework')
       .send({ riskCommitteeExists: true, riskCommitteeName: 'Risk Board' });
@@ -121,11 +122,11 @@ describe('PUT /api/risks/framework', () => {
   });
 
   it('should update existing framework', async () => {
-    (prisma as any).riskFramework.findUnique.mockResolvedValue({
+    mockPrisma.riskFramework.findUnique.mockResolvedValue({
       id: 'f1',
       organisationId: 'org-1',
     });
-    (prisma as any).riskFramework.update.mockResolvedValue({ id: 'f1', maturityLevel: 'Defined' });
+    mockPrisma.riskFramework.update.mockResolvedValue({ id: 'f1', maturityLevel: 'Defined' });
     const res = await request(app).put('/api/risks/framework').send({ maturityLevel: 'Defined' });
     expect(res.status).toBe(200);
   });

@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import controlsRouter from '../src/routes/controls';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -86,8 +87,8 @@ const mockControl2 = {
 // ===================================================================
 describe('GET /api/controls', () => {
   it('should return a paginated list of controls', async () => {
-    (prisma as any).aiControl.findMany.mockResolvedValue([mockControl, mockControl2]);
-    (prisma as any).aiControl.count.mockResolvedValue(2);
+    mockPrisma.aiControl.findMany.mockResolvedValue([mockControl, mockControl2]);
+    mockPrisma.aiControl.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/controls');
 
@@ -98,8 +99,8 @@ describe('GET /api/controls', () => {
   });
 
   it('should return empty list when no controls exist', async () => {
-    (prisma as any).aiControl.findMany.mockResolvedValue([]);
-    (prisma as any).aiControl.count.mockResolvedValue(0);
+    mockPrisma.aiControl.findMany.mockResolvedValue([]);
+    mockPrisma.aiControl.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/controls');
 
@@ -108,13 +109,13 @@ describe('GET /api/controls', () => {
   });
 
   it('should filter by domain', async () => {
-    (prisma as any).aiControl.findMany.mockResolvedValue([]);
-    (prisma as any).aiControl.count.mockResolvedValue(0);
+    mockPrisma.aiControl.findMany.mockResolvedValue([]);
+    mockPrisma.aiControl.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/controls?domain=AI_POLICY');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiControl.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiControl.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ domain: 'AI_POLICY' }),
       })
@@ -122,13 +123,13 @@ describe('GET /api/controls', () => {
   });
 
   it('should filter by status (implementationStatus)', async () => {
-    (prisma as any).aiControl.findMany.mockResolvedValue([]);
-    (prisma as any).aiControl.count.mockResolvedValue(0);
+    mockPrisma.aiControl.findMany.mockResolvedValue([]);
+    mockPrisma.aiControl.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/controls?status=FULLY_IMPLEMENTED');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiControl.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiControl.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ implementationStatus: 'FULLY_IMPLEMENTED' }),
       })
@@ -136,13 +137,13 @@ describe('GET /api/controls', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).aiControl.findMany.mockResolvedValue([]);
-    (prisma as any).aiControl.count.mockResolvedValue(0);
+    mockPrisma.aiControl.findMany.mockResolvedValue([]);
+    mockPrisma.aiControl.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/controls?search=policy');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiControl.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiControl.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -154,7 +155,7 @@ describe('GET /api/controls', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiControl.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiControl.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/controls');
 
@@ -168,7 +169,7 @@ describe('GET /api/controls', () => {
 // ===================================================================
 describe('GET /api/controls/:id', () => {
   it('should return a control when found', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(mockControl);
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl);
 
     const res = await request(app).get(`/api/controls/${UUID1}`);
 
@@ -178,7 +179,7 @@ describe('GET /api/controls/:id', () => {
   });
 
   it('should return 404 when control not found', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(null);
+    mockPrisma.aiControl.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/controls/${UUID2}`);
 
@@ -188,7 +189,7 @@ describe('GET /api/controls/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiControl.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiControl.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(`/api/controls/${UUID1}`);
 
@@ -202,8 +203,8 @@ describe('GET /api/controls/:id', () => {
 // ===================================================================
 describe('PUT /api/controls/:id/status', () => {
   it('should update the control implementation status', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(mockControl2);
-    (prisma as any).aiControl.update.mockResolvedValue({
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl2);
+    mockPrisma.aiControl.update.mockResolvedValue({
       ...mockControl2,
       implementationStatus: 'FULLY_IMPLEMENTED',
       justification: 'RACI matrix completed and approved',
@@ -220,8 +221,8 @@ describe('PUT /api/controls/:id/status', () => {
   });
 
   it('should update status to NOT_APPLICABLE with justification', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(mockControl);
-    (prisma as any).aiControl.update.mockResolvedValue({
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl);
+    mockPrisma.aiControl.update.mockResolvedValue({
       ...mockControl,
       implementationStatus: 'NOT_APPLICABLE',
       justification: 'Not relevant for our AI use cases',
@@ -247,7 +248,7 @@ describe('PUT /api/controls/:id/status', () => {
   });
 
   it('should return 404 when control not found', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(null);
+    mockPrisma.aiControl.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .put(`/api/controls/${UUID2}/status`)
@@ -258,8 +259,8 @@ describe('PUT /api/controls/:id/status', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(mockControl);
-    (prisma as any).aiControl.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl);
+    mockPrisma.aiControl.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put(`/api/controls/${UUID1}/status`)
@@ -275,8 +276,8 @@ describe('PUT /api/controls/:id/status', () => {
 // ===================================================================
 describe('PUT /api/controls/:id/implementation', () => {
   it('should update implementation notes and evidence', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(mockControl2);
-    (prisma as any).aiControl.update.mockResolvedValue({
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl2);
+    mockPrisma.aiControl.update.mockResolvedValue({
       ...mockControl2,
       implementationNotes: 'RACI matrix finalized, roles assigned',
       evidence: 'https://sharepoint/docs/raci-v1.xlsx',
@@ -293,8 +294,8 @@ describe('PUT /api/controls/:id/implementation', () => {
   });
 
   it('should update responsible person and target date', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(mockControl2);
-    (prisma as any).aiControl.update.mockResolvedValue({
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl2);
+    mockPrisma.aiControl.update.mockResolvedValue({
       ...mockControl2,
       responsiblePerson: 'Jane Doe',
       targetDate: new Date('2026-08-01'),
@@ -310,7 +311,7 @@ describe('PUT /api/controls/:id/implementation', () => {
   });
 
   it('should return 404 when control not found', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(null);
+    mockPrisma.aiControl.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .put(`/api/controls/${UUID1}/implementation`)
@@ -321,8 +322,8 @@ describe('PUT /api/controls/:id/implementation', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiControl.findUnique.mockResolvedValue(mockControl);
-    (prisma as any).aiControl.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl);
+    mockPrisma.aiControl.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put(`/api/controls/${UUID1}/implementation`)
@@ -338,7 +339,7 @@ describe('PUT /api/controls/:id/implementation', () => {
 // ===================================================================
 describe('GET /api/controls/soa', () => {
   it('should return SOA with controls grouped by domain', async () => {
-    (prisma as any).aiControl.findMany.mockResolvedValue([mockControl, mockControl2]);
+    mockPrisma.aiControl.findMany.mockResolvedValue([mockControl, mockControl2]);
 
     const res = await request(app).get('/api/controls/soa');
 
@@ -350,7 +351,7 @@ describe('GET /api/controls/soa', () => {
   });
 
   it('should return SOA with correct summary stats', async () => {
-    (prisma as any).aiControl.findMany.mockResolvedValue([
+    mockPrisma.aiControl.findMany.mockResolvedValue([
       { ...mockControl, controlId: 'A.2.1', implementationStatus: 'FULLY_IMPLEMENTED' },
       { ...mockControl2, controlId: 'A.3.1', implementationStatus: 'NOT_IMPLEMENTED' },
     ]);
@@ -363,7 +364,7 @@ describe('GET /api/controls/soa', () => {
   });
 
   it('should return SOA even when no controls in database', async () => {
-    (prisma as any).aiControl.findMany.mockResolvedValue([]);
+    mockPrisma.aiControl.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/controls/soa');
 
@@ -374,7 +375,7 @@ describe('GET /api/controls/soa', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiControl.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiControl.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/controls/soa');
 

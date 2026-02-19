@@ -69,7 +69,7 @@ describe('Sessions API Routes', () => {
     ];
 
     it('should return list of active sessions', async () => {
-      mockPrisma.session.findMany.mockResolvedValueOnce(mockSessions as any);
+      (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce(mockSessions);
 
       const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
 
@@ -79,7 +79,7 @@ describe('Sessions API Routes', () => {
     });
 
     it('should mark current session', async () => {
-      mockPrisma.session.findMany.mockResolvedValueOnce(mockSessions as any);
+      (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce(mockSessions);
 
       const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
 
@@ -88,7 +88,7 @@ describe('Sessions API Routes', () => {
     });
 
     it('should only return non-expired sessions', async () => {
-      mockPrisma.session.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
 
@@ -118,8 +118,8 @@ describe('Sessions API Routes', () => {
       mockPrisma.session.findFirst.mockResolvedValueOnce({
         id: '00000000-0000-0000-0000-000000000002',
         userId: '20000000-0000-4000-a000-000000000123',
-      } as any);
-      mockPrisma.session.delete.mockResolvedValueOnce({} as any);
+      });
+      (mockPrisma.session.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/sessions/00000000-0000-0000-0000-000000000002')

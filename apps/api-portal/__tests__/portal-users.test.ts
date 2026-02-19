@@ -37,6 +37,7 @@ jest.mock('uuid', () => ({ v4: () => 'mock-uuid-token' }));
 
 import portalUsersRouter from '../src/routes/portal-users';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -57,8 +58,8 @@ describe('GET /api/portal/users', () => {
         status: 'ACTIVE',
       },
     ];
-    (prisma as any).portalUser.findMany.mockResolvedValue(users);
-    (prisma as any).portalUser.count.mockResolvedValue(1);
+    mockPrisma.portalUser.findMany.mockResolvedValue(users);
+    mockPrisma.portalUser.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/portal/users');
 
@@ -68,20 +69,20 @@ describe('GET /api/portal/users', () => {
   });
 
   it('should filter by portalType', async () => {
-    (prisma as any).portalUser.findMany.mockResolvedValue([]);
-    (prisma as any).portalUser.count.mockResolvedValue(0);
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/users?portalType=SUPPLIER');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).portalUser.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.portalUser.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ portalType: 'SUPPLIER' }) })
     );
   });
 
   it('should handle search', async () => {
-    (prisma as any).portalUser.findMany.mockResolvedValue([]);
-    (prisma as any).portalUser.count.mockResolvedValue(0);
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/users?search=acme');
 
@@ -89,7 +90,7 @@ describe('GET /api/portal/users', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalUser.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalUser.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/portal/users');
 
@@ -99,7 +100,7 @@ describe('GET /api/portal/users', () => {
 
 describe('POST /api/portal/users', () => {
   it('should create a portal user', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
     const user = {
       id: '00000000-0000-0000-0000-000000000001',
       email: 'new@test.com',
@@ -108,7 +109,7 @@ describe('POST /api/portal/users', () => {
       role: 'CUSTOMER_USER',
       status: 'PENDING',
     };
-    (prisma as any).portalUser.create.mockResolvedValue(user);
+    mockPrisma.portalUser.create.mockResolvedValue(user);
 
     const res = await request(app).post('/api/portal/users').send({
       email: 'new@test.com',
@@ -123,7 +124,7 @@ describe('POST /api/portal/users', () => {
   });
 
   it('should return 409 for duplicate email', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue({
+    mockPrisma.portalUser.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -154,7 +155,7 @@ describe('POST /api/portal/users', () => {
 describe('POST /api/portal/users/invite', () => {
   it('should send an invitation', async () => {
     const invitation = { id: 'inv-1', email: 'invite@test.com', token: 'mock-uuid-token' };
-    (prisma as any).portalInvitation.create.mockResolvedValue(invitation);
+    mockPrisma.portalInvitation.create.mockResolvedValue(invitation);
 
     const res = await request(app).post('/api/portal/users/invite').send({
       email: 'invite@test.com',
@@ -176,7 +177,7 @@ describe('GET /api/portal/users/:id', () => {
       email: 'user@test.com',
       name: 'User',
     };
-    (prisma as any).portalUser.findFirst.mockResolvedValue(user);
+    mockPrisma.portalUser.findFirst.mockResolvedValue(user);
 
     const res = await request(app).get('/api/portal/users/00000000-0000-0000-0000-000000000001');
 
@@ -185,7 +186,7 @@ describe('GET /api/portal/users/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/portal/users/00000000-0000-0000-0000-000000000099');
 
@@ -195,10 +196,10 @@ describe('GET /api/portal/users/:id', () => {
 
 describe('PUT /api/portal/users/:id', () => {
   it('should update a user', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue({
+    mockPrisma.portalUser.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).portalUser.update.mockResolvedValue({
+    mockPrisma.portalUser.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -212,7 +213,7 @@ describe('PUT /api/portal/users/:id', () => {
   });
 
   it('should return 404 if user not found for update', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/portal/users/00000000-0000-0000-0000-000000000099')
@@ -224,10 +225,10 @@ describe('PUT /api/portal/users/:id', () => {
 
 describe('DELETE /api/portal/users/:id', () => {
   it('should deactivate a user', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue({
+    mockPrisma.portalUser.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).portalUser.update.mockResolvedValue({
+    mockPrisma.portalUser.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'INACTIVE',
     });
@@ -239,7 +240,7 @@ describe('DELETE /api/portal/users/:id', () => {
   });
 
   it('should return 404 if user not found for delete', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/portal/users/00000000-0000-0000-0000-000000000099');
 

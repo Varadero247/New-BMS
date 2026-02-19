@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/public';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/public', router);
@@ -26,8 +27,8 @@ beforeEach(() => {
 
 describe('POST /api/public/submit', () => {
   it('should submit a complaint and return reference number', async () => {
-    (prisma as any).compComplaint.count.mockResolvedValue(5);
-    (prisma as any).compComplaint.create.mockResolvedValue({
+    mockPrisma.compComplaint.count.mockResolvedValue(5);
+    mockPrisma.compComplaint.create.mockResolvedValue({
       id: '1',
       referenceNumber: 'CMP-2026-0006',
     });
@@ -64,8 +65,8 @@ describe('POST /api/public/submit', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).compComplaint.count.mockResolvedValue(0);
-    (prisma as any).compComplaint.create.mockRejectedValue(new Error('Create failed'));
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app).post('/api/public/submit').send({ title: 'Complaint' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -73,8 +74,8 @@ describe('POST /api/public/submit', () => {
   });
 
   it('should use provided orgId', async () => {
-    (prisma as any).compComplaint.count.mockResolvedValue(0);
-    (prisma as any).compComplaint.create.mockResolvedValue({
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({
       id: '2',
       referenceNumber: 'CMP-2026-0001',
     });

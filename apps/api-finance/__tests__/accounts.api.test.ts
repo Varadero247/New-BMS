@@ -58,6 +58,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import accountsRouter from '../src/routes/accounts';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -90,8 +91,8 @@ describe('GET /api/accounts', () => {
         _count: { children: 0, journalLines: 5 },
       },
     ];
-    (prisma as any).finAccount.findMany.mockResolvedValue(accounts);
-    (prisma as any).finAccount.count.mockResolvedValue(2);
+    mockPrisma.finAccount.findMany.mockResolvedValue(accounts);
+    mockPrisma.finAccount.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/accounts');
 
@@ -102,13 +103,13 @@ describe('GET /api/accounts', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).finAccount.findMany.mockResolvedValue([]);
-    (prisma as any).finAccount.count.mockResolvedValue(0);
+    mockPrisma.finAccount.findMany.mockResolvedValue([]);
+    mockPrisma.finAccount.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts?type=ASSET');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finAccount.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finAccount.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ type: 'ASSET' }),
       })
@@ -116,13 +117,13 @@ describe('GET /api/accounts', () => {
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).finAccount.findMany.mockResolvedValue([]);
-    (prisma as any).finAccount.count.mockResolvedValue(0);
+    mockPrisma.finAccount.findMany.mockResolvedValue([]);
+    mockPrisma.finAccount.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts?isActive=true');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finAccount.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finAccount.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ isActive: true }),
       })
@@ -130,13 +131,13 @@ describe('GET /api/accounts', () => {
   });
 
   it('should search by code, name, or description', async () => {
-    (prisma as any).finAccount.findMany.mockResolvedValue([]);
-    (prisma as any).finAccount.count.mockResolvedValue(0);
+    mockPrisma.finAccount.findMany.mockResolvedValue([]);
+    mockPrisma.finAccount.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts?search=cash');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finAccount.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finAccount.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -148,8 +149,8 @@ describe('GET /api/accounts', () => {
   });
 
   it('should handle pagination params', async () => {
-    (prisma as any).finAccount.findMany.mockResolvedValue([]);
-    (prisma as any).finAccount.count.mockResolvedValue(100);
+    mockPrisma.finAccount.findMany.mockResolvedValue([]);
+    mockPrisma.finAccount.count.mockResolvedValue(100);
 
     const res = await request(app).get('/api/accounts?page=3&limit=10');
 
@@ -160,7 +161,7 @@ describe('GET /api/accounts', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finAccount.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finAccount.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/accounts');
 
@@ -190,7 +191,7 @@ describe('GET /api/accounts/tree', () => {
         _count: { journalLines: 3 },
       },
     ];
-    (prisma as any).finAccount.findMany.mockResolvedValue(accounts);
+    mockPrisma.finAccount.findMany.mockResolvedValue(accounts);
 
     const res = await request(app).get('/api/accounts/tree');
 
@@ -200,7 +201,7 @@ describe('GET /api/accounts/tree', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finAccount.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finAccount.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/accounts/tree');
 
@@ -221,7 +222,7 @@ describe('GET /api/accounts/:id', () => {
       parent: null,
       children: [],
     };
-    (prisma as any).finAccount.findFirst.mockResolvedValue(account);
+    mockPrisma.finAccount.findFirst.mockResolvedValue(account);
 
     const res = await request(app).get('/api/accounts/f2000000-0000-4000-a000-000000000001');
 
@@ -230,7 +231,7 @@ describe('GET /api/accounts/:id', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.finAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099');
 
@@ -239,7 +240,7 @@ describe('GET /api/accounts/:id', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finAccount.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finAccount.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/accounts/f2000000-0000-4000-a000-000000000001');
 
@@ -260,8 +261,8 @@ describe('POST /api/accounts', () => {
   };
 
   it('should create an account successfully', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue(null);
-    (prisma as any).finAccount.create.mockResolvedValue({
+    mockPrisma.finAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.finAccount.create.mockResolvedValue({
       id: 'new-acc',
       ...validAccount,
       parent: null,
@@ -275,7 +276,7 @@ describe('POST /api/accounts', () => {
   });
 
   it('should return 409 for duplicate code', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: 'existing', code: '1000' });
+    mockPrisma.finAccount.findFirst.mockResolvedValue({ id: 'existing', code: '1000' });
 
     const res = await request(app).post('/api/accounts').send(validAccount);
 
@@ -284,7 +285,7 @@ describe('POST /api/accounts', () => {
   });
 
   it('should return 404 for invalid parent', async () => {
-    (prisma as any).finAccount.findFirst
+    mockPrisma.finAccount.findFirst
       .mockResolvedValueOnce(null) // no duplicate code
       .mockResolvedValueOnce(null); // parent not found
 
@@ -307,10 +308,9 @@ describe('POST /api/accounts', () => {
   });
 
   it('should handle P2002 unique constraint error', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue(null);
-    const err = new Error('Unique constraint') as any;
-    err.code = 'P2002';
-    (prisma as any).finAccount.create.mockRejectedValue(err);
+    mockPrisma.finAccount.findFirst.mockResolvedValue(null);
+    const err = Object.assign(new Error('Unique constraint'), { code: 'P2002' });
+    mockPrisma.finAccount.create.mockRejectedValue(err);
 
     const res = await request(app).post('/api/accounts').send(validAccount);
 
@@ -323,11 +323,11 @@ describe('POST /api/accounts', () => {
 // ===================================================================
 describe('PUT /api/accounts/:id', () => {
   it('should update an account successfully', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({
+    mockPrisma.finAccount.findFirst.mockResolvedValue({
       id: 'f2000000-0000-4000-a000-000000000001',
       code: '1000',
     });
-    (prisma as any).finAccount.update.mockResolvedValue({
+    mockPrisma.finAccount.update.mockResolvedValue({
       id: 'f2000000-0000-4000-a000-000000000001',
       name: 'Updated Cash',
       parent: null,
@@ -342,7 +342,7 @@ describe('PUT /api/accounts/:id', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.finAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/accounts/00000000-0000-0000-0000-000000000099')
@@ -353,7 +353,7 @@ describe('PUT /api/accounts/:id', () => {
 
   it('should return 400 for circular parent reference', async () => {
     const uuid = '550e8400-e29b-41d4-a716-446655440099';
-    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: uuid, code: '1000' });
+    mockPrisma.finAccount.findFirst.mockResolvedValue({ id: uuid, code: '1000' });
 
     const res = await request(app).put(`/api/accounts/${uuid}`).send({
       parentId: uuid,
@@ -364,7 +364,7 @@ describe('PUT /api/accounts/:id', () => {
   });
 
   it('should return 404 for non-existent parent', async () => {
-    (prisma as any).finAccount.findFirst
+    mockPrisma.finAccount.findFirst
       .mockResolvedValueOnce({ id: 'f2000000-0000-4000-a000-000000000001', code: '1000' }) // account exists
       .mockResolvedValueOnce(null); // parent not found
 
@@ -382,12 +382,12 @@ describe('PUT /api/accounts/:id', () => {
 // ===================================================================
 describe('DELETE /api/accounts/:id', () => {
   it('should soft delete an account successfully', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({
+    mockPrisma.finAccount.findFirst.mockResolvedValue({
       id: 'f2000000-0000-4000-a000-000000000001',
       code: '1000',
     });
-    (prisma as any).finJournalLine.count.mockResolvedValue(0);
-    (prisma as any).finAccount.update.mockResolvedValue({
+    mockPrisma.finJournalLine.count.mockResolvedValue(0);
+    mockPrisma.finAccount.update.mockResolvedValue({
       id: 'f2000000-0000-4000-a000-000000000001',
     });
 
@@ -398,7 +398,7 @@ describe('DELETE /api/accounts/:id', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.finAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/accounts/00000000-0000-0000-0000-000000000099');
 
@@ -406,11 +406,11 @@ describe('DELETE /api/accounts/:id', () => {
   });
 
   it('should return 409 when account has journal lines', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({
+    mockPrisma.finAccount.findFirst.mockResolvedValue({
       id: 'f2000000-0000-4000-a000-000000000001',
       code: '1000',
     });
-    (prisma as any).finJournalLine.count.mockResolvedValue(5);
+    mockPrisma.finJournalLine.count.mockResolvedValue(5);
 
     const res = await request(app).delete('/api/accounts/f2000000-0000-4000-a000-000000000001');
 
@@ -433,8 +433,8 @@ describe('GET /api/accounts/entries', () => {
         period: { id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026', status: 'OPEN' },
       },
     ];
-    (prisma as any).finJournalEntry.findMany.mockResolvedValue(entries);
-    (prisma as any).finJournalEntry.count.mockResolvedValue(1);
+    mockPrisma.finJournalEntry.findMany.mockResolvedValue(entries);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/accounts/entries');
 
@@ -444,13 +444,13 @@ describe('GET /api/accounts/entries', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).finJournalEntry.findMany.mockResolvedValue([]);
-    (prisma as any).finJournalEntry.count.mockResolvedValue(0);
+    mockPrisma.finJournalEntry.findMany.mockResolvedValue([]);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts/entries?status=POSTED');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finJournalEntry.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finJournalEntry.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'POSTED' }),
       })
@@ -458,8 +458,8 @@ describe('GET /api/accounts/entries', () => {
   });
 
   it('should filter by periodId', async () => {
-    (prisma as any).finJournalEntry.findMany.mockResolvedValue([]);
-    (prisma as any).finJournalEntry.count.mockResolvedValue(0);
+    mockPrisma.finJournalEntry.findMany.mockResolvedValue([]);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts/entries?periodId=period-1');
 
@@ -467,8 +467,8 @@ describe('GET /api/accounts/entries', () => {
   });
 
   it('should filter by date range', async () => {
-    (prisma as any).finJournalEntry.findMany.mockResolvedValue([]);
-    (prisma as any).finJournalEntry.count.mockResolvedValue(0);
+    mockPrisma.finJournalEntry.findMany.mockResolvedValue([]);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/accounts/entries?dateFrom=2026-01-01&dateTo=2026-01-31'
@@ -489,7 +489,7 @@ describe('GET /api/accounts/entries/:id', () => {
       lines: [],
       period: { id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026' },
     };
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue(entry);
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue(entry);
 
     const res = await request(app).get(
       '/api/accounts/entries/f2200000-0000-4000-a000-000000000001'
@@ -500,7 +500,7 @@ describe('GET /api/accounts/entries/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/accounts/entries/00000000-0000-0000-0000-000000000099'
@@ -525,15 +525,15 @@ describe('POST /api/accounts/entries', () => {
   };
 
   it('should create a journal entry successfully', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({
+    mockPrisma.finPeriod.findUnique.mockResolvedValue({
       id: validEntry.periodId,
       status: 'OPEN',
     });
-    (prisma as any).finAccount.findMany.mockResolvedValue([
+    mockPrisma.finAccount.findMany.mockResolvedValue([
       { id: '550e8400-e29b-41d4-a716-446655440001' },
       { id: '550e8400-e29b-41d4-a716-446655440002' },
     ]);
-    (prisma as any).finJournalEntry.create.mockResolvedValue({
+    mockPrisma.finJournalEntry.create.mockResolvedValue({
       id: 'je-new',
       ...validEntry,
       reference: 'FIN-JE-2601-1234',
@@ -594,7 +594,7 @@ describe('POST /api/accounts/entries', () => {
   });
 
   it('should return 400 when period is CLOSED', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({
+    mockPrisma.finPeriod.findUnique.mockResolvedValue({
       id: validEntry.periodId,
       status: 'CLOSED',
     });
@@ -606,7 +606,7 @@ describe('POST /api/accounts/entries', () => {
   });
 
   it('should return 404 when period not found', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue(null);
+    mockPrisma.finPeriod.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post('/api/accounts/entries').send(validEntry);
 
@@ -615,11 +615,11 @@ describe('POST /api/accounts/entries', () => {
   });
 
   it('should return 400 when account IDs are invalid', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({
+    mockPrisma.finPeriod.findUnique.mockResolvedValue({
       id: validEntry.periodId,
       status: 'OPEN',
     });
-    (prisma as any).finAccount.findMany.mockResolvedValue([
+    mockPrisma.finAccount.findMany.mockResolvedValue([
       { id: '550e8400-e29b-41d4-a716-446655440001' },
     ]);
 
@@ -641,11 +641,11 @@ describe('POST /api/accounts/entries', () => {
 // ===================================================================
 describe('PUT /api/accounts/entries/:id', () => {
   it('should update header-only fields of a DRAFT entry', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
     });
-    (prisma as any).finJournalEntry.update.mockResolvedValue({
+    mockPrisma.finJournalEntry.update.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       description: 'Updated desc',
       lines: [],
@@ -660,7 +660,7 @@ describe('PUT /api/accounts/entries/:id', () => {
   });
 
   it('should return 404 when entry not found', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/accounts/entries/00000000-0000-0000-0000-000000000099')
@@ -670,7 +670,7 @@ describe('PUT /api/accounts/entries/:id', () => {
   });
 
   it('should return 400 when entry is not DRAFT', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
     });
@@ -684,15 +684,15 @@ describe('PUT /api/accounts/entries/:id', () => {
   });
 
   it('should update lines when provided and validate double-entry', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
     });
-    (prisma as any).finAccount.findMany.mockResolvedValue([
+    mockPrisma.finAccount.findMany.mockResolvedValue([
       { id: '550e8400-e29b-41d4-a716-446655440001' },
       { id: '550e8400-e29b-41d4-a716-446655440002' },
     ]);
-    (prisma as any).$transaction.mockImplementation(async (fn: any) => {
+    mockPrisma.$transaction.mockImplementation(async (fn: any) => {
       const tx = {
         finJournalLine: { deleteMany: jest.fn() },
         finJournalEntry: {
@@ -717,7 +717,7 @@ describe('PUT /api/accounts/entries/:id', () => {
   });
 
   it('should return 400 when updated lines debits != credits', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
     });
@@ -740,12 +740,12 @@ describe('PUT /api/accounts/entries/:id', () => {
 // ===================================================================
 describe('POST /api/accounts/entries/:id/post', () => {
   it('should post a DRAFT entry in an OPEN period', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       period: { status: 'OPEN' },
     });
-    (prisma as any).finJournalEntry.update.mockResolvedValue({
+    mockPrisma.finJournalEntry.update.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
       lines: [],
@@ -761,7 +761,7 @@ describe('POST /api/accounts/entries/:id/post', () => {
   });
 
   it('should return 404 when entry not found', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/accounts/entries/00000000-0000-0000-0000-000000000099/post'
@@ -771,7 +771,7 @@ describe('POST /api/accounts/entries/:id/post', () => {
   });
 
   it('should return 400 when entry is already POSTED', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
       period: { status: 'OPEN' },
@@ -786,7 +786,7 @@ describe('POST /api/accounts/entries/:id/post', () => {
   });
 
   it('should return 400 when period is CLOSED', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       period: { status: 'CLOSED' },
@@ -806,7 +806,7 @@ describe('POST /api/accounts/entries/:id/post', () => {
 // ===================================================================
 describe('POST /api/accounts/entries/:id/reverse', () => {
   it('should reverse a POSTED entry', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       reference: 'FIN-JE-2601-1000',
       status: 'POSTED',
@@ -830,13 +830,13 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
       ],
       period: { status: 'OPEN' },
     });
-    (prisma as any).finJournalEntry.create.mockResolvedValue({
+    mockPrisma.finJournalEntry.create.mockResolvedValue({
       id: 'je-reversal',
       status: 'POSTED',
       lines: [],
       period: { id: 'f2300000-0000-4000-a000-000000000001', name: 'Jan 2026' },
     });
-    (prisma as any).finJournalEntry.update.mockResolvedValue({
+    mockPrisma.finJournalEntry.update.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'REVERSED',
     });
@@ -850,7 +850,7 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
   });
 
   it('should return 404 when entry not found', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue(null);
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/accounts/entries/00000000-0000-0000-0000-000000000099/reverse'
@@ -860,7 +860,7 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
   });
 
   it('should return 400 when entry is not POSTED', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       lines: [],
@@ -876,7 +876,7 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
   });
 
   it('should return 400 when period is CLOSED', async () => {
-    (prisma as any).finJournalEntry.findUnique.mockResolvedValue({
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
       id: 'f2200000-0000-4000-a000-000000000001',
       status: 'POSTED',
       lines: [],
@@ -897,11 +897,11 @@ describe('POST /api/accounts/entries/:id/reverse', () => {
 // ===================================================================
 describe('GET /api/accounts/trial-balance', () => {
   it('should return trial balance for a valid period', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({
+    mockPrisma.finPeriod.findUnique.mockResolvedValue({
       id: 'f2300000-0000-4000-a000-000000000001',
       name: 'Jan 2026',
     });
-    (prisma as any).finJournalLine.findMany.mockResolvedValue([
+    mockPrisma.finJournalLine.findMany.mockResolvedValue([
       {
         accountId: 'f2000000-0000-4000-a000-000000000001',
         debit: 500,
@@ -943,7 +943,7 @@ describe('GET /api/accounts/trial-balance', () => {
   });
 
   it('should return 404 when period not found', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue(null);
+    mockPrisma.finPeriod.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get('/api/accounts/trial-balance?periodId=nonexistent');
 
@@ -956,7 +956,7 @@ describe('GET /api/accounts/trial-balance', () => {
 // ===================================================================
 describe('GET /api/accounts/profit-loss', () => {
   it('should return P&L report for date range', async () => {
-    (prisma as any).finJournalLine.findMany.mockResolvedValue([
+    mockPrisma.finJournalLine.findMany.mockResolvedValue([
       {
         accountId: 'acc-rev',
         debit: 0,
@@ -1005,7 +1005,7 @@ describe('GET /api/accounts/profit-loss', () => {
 // ===================================================================
 describe('GET /api/accounts/balance-sheet', () => {
   it('should return balance sheet', async () => {
-    (prisma as any).finJournalLine.findMany.mockResolvedValue([
+    mockPrisma.finJournalLine.findMany.mockResolvedValue([
       {
         accountId: 'f2000000-0000-4000-a000-000000000001',
         debit: 10000,
@@ -1019,7 +1019,7 @@ describe('GET /api/accounts/balance-sheet', () => {
         },
       },
     ]);
-    (prisma as any).finAccount.findMany.mockResolvedValue([
+    mockPrisma.finAccount.findMany.mockResolvedValue([
       {
         id: 'f2000000-0000-4000-a000-000000000001',
         code: '1000',
@@ -1037,8 +1037,8 @@ describe('GET /api/accounts/balance-sheet', () => {
   });
 
   it('should work without asOf parameter (defaults to now)', async () => {
-    (prisma as any).finJournalLine.findMany.mockResolvedValue([]);
-    (prisma as any).finAccount.findMany.mockResolvedValue([]);
+    mockPrisma.finJournalLine.findMany.mockResolvedValue([]);
+    mockPrisma.finAccount.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/accounts/balance-sheet');
 
@@ -1059,8 +1059,8 @@ describe('GET /api/accounts/periods', () => {
         _count: { journalEntries: 5 },
       },
     ];
-    (prisma as any).finPeriod.findMany.mockResolvedValue(periods);
-    (prisma as any).finPeriod.count.mockResolvedValue(1);
+    mockPrisma.finPeriod.findMany.mockResolvedValue(periods);
+    mockPrisma.finPeriod.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/accounts/periods');
 
@@ -1070,8 +1070,8 @@ describe('GET /api/accounts/periods', () => {
   });
 
   it('should filter by fiscalYear', async () => {
-    (prisma as any).finPeriod.findMany.mockResolvedValue([]);
-    (prisma as any).finPeriod.count.mockResolvedValue(0);
+    mockPrisma.finPeriod.findMany.mockResolvedValue([]);
+    mockPrisma.finPeriod.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts/periods?fiscalYear=2026');
 
@@ -1079,8 +1079,8 @@ describe('GET /api/accounts/periods', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).finPeriod.findMany.mockResolvedValue([]);
-    (prisma as any).finPeriod.count.mockResolvedValue(0);
+    mockPrisma.finPeriod.findMany.mockResolvedValue([]);
+    mockPrisma.finPeriod.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts/periods?status=OPEN');
 
@@ -1101,8 +1101,8 @@ describe('POST /api/accounts/periods', () => {
   };
 
   it('should create a period successfully', async () => {
-    (prisma as any).finPeriod.findFirst.mockResolvedValue(null);
-    (prisma as any).finPeriod.create.mockResolvedValue({
+    mockPrisma.finPeriod.findFirst.mockResolvedValue(null);
+    mockPrisma.finPeriod.create.mockResolvedValue({
       id: 'p-new',
       ...validPeriod,
       status: 'OPEN',
@@ -1115,7 +1115,7 @@ describe('POST /api/accounts/periods', () => {
   });
 
   it('should return 409 when period overlaps', async () => {
-    (prisma as any).finPeriod.findFirst.mockResolvedValue({
+    mockPrisma.finPeriod.findFirst.mockResolvedValue({
       id: 'existing',
       name: 'Existing Period',
     });
@@ -1138,12 +1138,12 @@ describe('POST /api/accounts/periods', () => {
 // ===================================================================
 describe('PUT /api/accounts/periods/:id/close', () => {
   it('should close an OPEN period with no unposted entries', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({
+    mockPrisma.finPeriod.findUnique.mockResolvedValue({
       id: 'f2300000-0000-4000-a000-000000000001',
       status: 'OPEN',
     });
-    (prisma as any).finJournalEntry.count.mockResolvedValue(0);
-    (prisma as any).finPeriod.update.mockResolvedValue({
+    mockPrisma.finJournalEntry.count.mockResolvedValue(0);
+    mockPrisma.finPeriod.update.mockResolvedValue({
       id: 'f2300000-0000-4000-a000-000000000001',
       status: 'CLOSED',
     });
@@ -1157,7 +1157,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
   });
 
   it('should return 404 when period not found', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue(null);
+    mockPrisma.finPeriod.findUnique.mockResolvedValue(null);
 
     const res = await request(app).put(
       '/api/accounts/periods/00000000-0000-0000-0000-000000000099/close'
@@ -1167,7 +1167,7 @@ describe('PUT /api/accounts/periods/:id/close', () => {
   });
 
   it('should return 400 when period is already CLOSED', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({
+    mockPrisma.finPeriod.findUnique.mockResolvedValue({
       id: 'f2300000-0000-4000-a000-000000000001',
       status: 'CLOSED',
     });
@@ -1181,11 +1181,11 @@ describe('PUT /api/accounts/periods/:id/close', () => {
   });
 
   it('should return 409 when unposted entries exist', async () => {
-    (prisma as any).finPeriod.findUnique.mockResolvedValue({
+    mockPrisma.finPeriod.findUnique.mockResolvedValue({
       id: 'f2300000-0000-4000-a000-000000000001',
       status: 'OPEN',
     });
-    (prisma as any).finJournalEntry.count.mockResolvedValue(3);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(3);
 
     const res = await request(app).put(
       '/api/accounts/periods/00000000-0000-0000-0000-000000000001/close'

@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/portal';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/portal', router);
@@ -26,7 +27,7 @@ beforeEach(() => {
 
 describe('GET /api/portal/profile', () => {
   it('should return the supplier profile', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue({
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
       id: '1',
       name: 'Acme Corp',
       email: 'supplier@example.com',
@@ -38,7 +39,7 @@ describe('GET /api/portal/profile', () => {
   });
 
   it('should return 404 if supplier profile not found', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/portal/profile');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -46,7 +47,7 @@ describe('GET /api/portal/profile', () => {
   });
 
   it('should return 500 on DB error', async () => {
-    (prisma as any).suppSupplier.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSupplier.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/portal/profile');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

@@ -71,9 +71,9 @@ function mockPushEnvironment() {
     configurable: true,
   });
 
-  (globalThis as any).PushManager = class {};
+  (globalThis as Record<string, unknown>).PushManager = class {};
 
-  (globalThis as any).Notification = Object.assign(jest.fn(), {
+  (globalThis as Record<string, unknown>).Notification = Object.assign(jest.fn(), {
     permission: 'granted' as NotificationPermission,
     requestPermission: jest.fn().mockResolvedValue('granted'),
   });
@@ -89,9 +89,9 @@ function mockPushEnvironment() {
 }
 
 function clearPushEnvironment() {
-  delete (navigator as any).serviceWorker;
-  delete (globalThis as any).PushManager;
-  delete (globalThis as any).Notification;
+  delete (navigator as Record<string, unknown>).serviceWorker;
+  delete (globalThis as Record<string, unknown>).PushManager;
+  delete (globalThis as Record<string, unknown>).Notification;
 }
 
 // ─────────────────────────────────────────────
@@ -120,7 +120,7 @@ describe('push-notifications', () => {
     });
 
     it('returns false when serviceWorker is missing', () => {
-      delete (navigator as any).serviceWorker;
+      delete (navigator as Record<string, unknown>).serviceWorker;
       expect(isPushSupported()).toBe(false);
     });
   });
@@ -128,7 +128,7 @@ describe('push-notifications', () => {
   describe('getPermissionState', () => {
     it('returns current Notification.permission when supported', () => {
       mockPushEnvironment();
-      (globalThis as any).Notification.permission = 'default';
+      (globalThis as Record<string, unknown>).Notification.permission = 'default';
       expect(getPermissionState()).toBe('default');
     });
 
@@ -141,10 +141,10 @@ describe('push-notifications', () => {
   describe('requestPermission', () => {
     it('calls Notification.requestPermission and returns result', async () => {
       mockPushEnvironment();
-      (globalThis as any).Notification.requestPermission = jest.fn().mockResolvedValue('granted');
+      (globalThis as Record<string, unknown>).Notification.requestPermission = jest.fn().mockResolvedValue('granted');
       const result = await requestPermission();
       expect(result).toBe('granted');
-      expect((globalThis as any).Notification.requestPermission).toHaveBeenCalled();
+      expect((globalThis as Record<string, unknown>).Notification.requestPermission).toHaveBeenCalled();
     });
 
     it('returns denied when push not supported', async () => {
@@ -154,7 +154,7 @@ describe('push-notifications', () => {
 
     it('returns denied when user denies permission', async () => {
       mockPushEnvironment();
-      (globalThis as any).Notification.requestPermission = jest.fn().mockResolvedValue('denied');
+      (globalThis as Record<string, unknown>).Notification.requestPermission = jest.fn().mockResolvedValue('denied');
       const result = await requestPermission();
       expect(result).toBe('denied');
     });
@@ -184,7 +184,7 @@ describe('push-notifications', () => {
 
     it('returns null when permission is denied', async () => {
       mockPushEnvironment();
-      (globalThis as any).Notification.requestPermission = jest.fn().mockResolvedValue('denied');
+      (globalThis as Record<string, unknown>).Notification.requestPermission = jest.fn().mockResolvedValue('denied');
       const result = await subscribeToPush('some-key');
       expect(result).toBeNull();
     });
@@ -201,7 +201,7 @@ describe('push-notifications', () => {
     it('returns true when no subscription exists', async () => {
       mockPushEnvironment();
       const reg = await navigator.serviceWorker.ready;
-      (reg as any).pushManager.getSubscription = jest.fn().mockResolvedValue(null);
+      (reg as { pushManager: Record<string, jest.Mock> }).pushManager.getSubscription = jest.fn().mockResolvedValue(null);
       const result = await unsubscribeFromPush();
       expect(result).toBe(true);
     });
@@ -222,7 +222,7 @@ describe('push-notifications', () => {
     it('returns false when no subscription', async () => {
       mockPushEnvironment();
       const reg = await navigator.serviceWorker.ready;
-      (reg as any).pushManager.getSubscription = jest.fn().mockResolvedValue(null);
+      (reg as { pushManager: Record<string, jest.Mock> }).pushManager.getSubscription = jest.fn().mockResolvedValue(null);
       const result = await isSubscribedToPush();
       expect(result).toBe(false);
     });
@@ -236,7 +236,7 @@ describe('push-notifications', () => {
   describe('showLocalNotification', () => {
     it('shows notification with provided options', async () => {
       const env = mockPushEnvironment();
-      (globalThis as any).Notification.permission = 'granted';
+      (globalThis as Record<string, unknown>).Notification.permission = 'granted';
 
       await showLocalNotification({
         title: 'Test Alert',
@@ -257,7 +257,7 @@ describe('push-notifications', () => {
 
     it('uses custom icon and badge when provided', async () => {
       const env = mockPushEnvironment();
-      (globalThis as any).Notification.permission = 'granted';
+      (globalThis as Record<string, unknown>).Notification.permission = 'granted';
 
       await showLocalNotification({
         title: 'Custom',
@@ -277,7 +277,7 @@ describe('push-notifications', () => {
 
     it('does nothing when permission not granted', async () => {
       const env = mockPushEnvironment();
-      (globalThis as any).Notification.permission = 'default';
+      (globalThis as Record<string, unknown>).Notification.permission = 'default';
 
       await showLocalNotification({ title: 'Test', body: 'Body' });
       expect(env.showNotificationFn).not.toHaveBeenCalled();
@@ -487,7 +487,7 @@ describe('manifest-generator', () => {
         themeColor: '#000',
         backgroundColor: '#fff',
       });
-      const icons = manifest.icons as any[];
+      const icons = manifest.icons as Array<Record<string, unknown>>;
       expect(icons).toHaveLength(8);
       expect(icons[0].sizes).toBe('72x72');
       expect(icons[icons.length - 1].sizes).toBe('512x512');
@@ -603,7 +603,7 @@ describe('manifest-generator', () => {
 
     it('creates a new link element when none exists', () => {
       jest.spyOn(document, 'querySelector').mockReturnValue(null);
-      jest.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
+      jest.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLElement);
 
       injectManifest({ name: 'Test' });
 
@@ -614,7 +614,7 @@ describe('manifest-generator', () => {
     });
 
     it('reuses existing link element', () => {
-      const existingLink = { rel: 'manifest', href: '/old-manifest.json' } as any;
+      const existingLink = { rel: 'manifest', href: '/old-manifest.json' } as unknown as Element;
       jest.spyOn(document, 'querySelector').mockReturnValue(existingLink);
 
       injectManifest({ name: 'Test' });
@@ -624,7 +624,7 @@ describe('manifest-generator', () => {
     });
 
     it('revokes previous blob URL', () => {
-      const existingLink = { rel: 'manifest', href: 'blob:http://localhost/old-blob' } as any;
+      const existingLink = { rel: 'manifest', href: 'blob:http://localhost/old-blob' } as unknown as Element;
       jest.spyOn(document, 'querySelector').mockReturnValue(existingLink);
 
       injectManifest({ name: 'Test' });
@@ -633,7 +633,7 @@ describe('manifest-generator', () => {
     });
 
     it('does not revoke non-blob URLs', () => {
-      const existingLink = { rel: 'manifest', href: '/manifest.json' } as any;
+      const existingLink = { rel: 'manifest', href: '/manifest.json' } as unknown as Element;
       jest.spyOn(document, 'querySelector').mockReturnValue(existingLink);
 
       injectManifest({ name: 'Test' });
@@ -643,7 +643,7 @@ describe('manifest-generator', () => {
 
     it('creates blob with correct content type', () => {
       jest.spyOn(document, 'querySelector').mockReturnValue(null);
-      jest.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
+      jest.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLElement);
 
       const manifest = { name: 'IMS', short_name: 'IMS' };
       injectManifest(manifest);
@@ -667,7 +667,7 @@ describe('manifest-generator', () => {
     });
 
     it('creates a new meta element when none exists', () => {
-      const mockMeta = { name: '', content: '' } as any;
+      const mockMeta = { name: '', content: '' } as unknown as HTMLMetaElement;
       jest.spyOn(document, 'querySelector').mockReturnValue(null);
       jest.spyOn(document, 'createElement').mockReturnValue(mockMeta);
 
@@ -680,7 +680,7 @@ describe('manifest-generator', () => {
     });
 
     it('updates existing meta element', () => {
-      const existingMeta = { name: 'theme-color', content: '#000000' } as any;
+      const existingMeta = { name: 'theme-color', content: '#000000' } as unknown as HTMLMetaElement;
       jest.spyOn(document, 'querySelector').mockReturnValue(existingMeta);
 
       setThemeColor('#2563eb');

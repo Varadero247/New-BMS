@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import hmrcCalendarRouter from '../src/routes/hmrc-calendar';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -60,7 +61,7 @@ describe('GET /api/hmrc-calendar', () => {
         orgId: '00000000-0000-4000-a000-000000000100',
       },
     ];
-    (prisma as any).finHmrcDeadline.findMany.mockResolvedValue(deadlines);
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue(deadlines);
 
     const res = await request(app).get('/api/hmrc-calendar');
 
@@ -70,12 +71,12 @@ describe('GET /api/hmrc-calendar', () => {
   });
 
   it('should order results by dueDate ascending', async () => {
-    (prisma as any).finHmrcDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/hmrc-calendar');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finHmrcDeadline.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finHmrcDeadline.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         orderBy: { dueDate: 'asc' },
       })
@@ -83,11 +84,11 @@ describe('GET /api/hmrc-calendar', () => {
   });
 
   it('should filter by orgId from authenticated user', async () => {
-    (prisma as any).finHmrcDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
 
     await request(app).get('/api/hmrc-calendar');
 
-    expect((prisma as any).finHmrcDeadline.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finHmrcDeadline.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           orgId: '00000000-0000-4000-a000-000000000100',
@@ -98,7 +99,7 @@ describe('GET /api/hmrc-calendar', () => {
   });
 
   it('should return an empty array when no deadlines exist', async () => {
-    (prisma as any).finHmrcDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/hmrc-calendar');
 
@@ -108,7 +109,7 @@ describe('GET /api/hmrc-calendar', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finHmrcDeadline.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finHmrcDeadline.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/hmrc-calendar');
 
@@ -131,7 +132,7 @@ describe('POST /api/hmrc-calendar', () => {
   };
 
   it('should create an HMRC deadline successfully', async () => {
-    (prisma as any).finHmrcDeadline.create.mockResolvedValue({
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validDeadline,
       orgId: '00000000-0000-4000-a000-000000000100',
@@ -146,7 +147,7 @@ describe('POST /api/hmrc-calendar', () => {
   });
 
   it('should set orgId and createdBy from authenticated user', async () => {
-    (prisma as any).finHmrcDeadline.create.mockResolvedValue({
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validDeadline,
       orgId: '00000000-0000-4000-a000-000000000100',
@@ -154,7 +155,7 @@ describe('POST /api/hmrc-calendar', () => {
 
     await request(app).post('/api/hmrc-calendar').send(validDeadline);
 
-    expect((prisma as any).finHmrcDeadline.create).toHaveBeenCalledWith(
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           orgId: '00000000-0000-4000-a000-000000000100',
@@ -165,7 +166,7 @@ describe('POST /api/hmrc-calendar', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).finHmrcDeadline.create.mockRejectedValue(new Error('Missing required field'));
+    mockPrisma.finHmrcDeadline.create.mockRejectedValue(new Error('Missing required field'));
 
     const res = await request(app).post('/api/hmrc-calendar').send(validDeadline);
 
@@ -175,7 +176,7 @@ describe('POST /api/hmrc-calendar', () => {
   });
 
   it('should include body fields in the created deadline', async () => {
-    (prisma as any).finHmrcDeadline.create.mockResolvedValue({
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validDeadline,
       orgId: '00000000-0000-4000-a000-000000000100',
@@ -184,7 +185,7 @@ describe('POST /api/hmrc-calendar', () => {
     const res = await request(app).post('/api/hmrc-calendar').send(validDeadline);
 
     expect(res.status).toBe(201);
-    expect((prisma as any).finHmrcDeadline.create).toHaveBeenCalledWith(
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           title: 'VAT Return Q1 2026',

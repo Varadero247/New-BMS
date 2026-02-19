@@ -48,7 +48,7 @@ jest.mock('@ims/shared', () => ({
 import { prisma } from '../src/prisma';
 import customerSatisfactionRouter from '../src/routes/customer-satisfaction';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe('Quality Customer Satisfaction API Routes', () => {
   let app: express.Express;

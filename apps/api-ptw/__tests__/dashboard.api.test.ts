@@ -21,6 +21,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/dashboard';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/dashboard', router);
@@ -30,9 +31,9 @@ beforeEach(() => {
 
 describe('GET /api/dashboard/stats', () => {
   it('should return dashboard stats with counts', async () => {
-    (prisma as any).ptwPermit.count.mockResolvedValue(10);
-    (prisma as any).ptwMethodStatement.count.mockResolvedValue(5);
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(3);
+    mockPrisma.ptwPermit.count.mockResolvedValue(10);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(5);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(3);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -42,9 +43,9 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return zeros when no records exist', async () => {
-    (prisma as any).ptwPermit.count.mockResolvedValue(0);
-    (prisma as any).ptwMethodStatement.count.mockResolvedValue(0);
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(0);
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -54,9 +55,9 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).ptwPermit.count.mockRejectedValue(new Error('DB failure'));
-    (prisma as any).ptwMethodStatement.count.mockResolvedValue(0);
-    (prisma as any).ptwToolboxTalk.count.mockResolvedValue(0);
+    mockPrisma.ptwPermit.count.mockRejectedValue(new Error('DB failure'));
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

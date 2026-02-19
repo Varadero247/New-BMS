@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import supplierOrdersRouter from '../src/routes/supplier-orders';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -46,8 +47,8 @@ describe('GET /api/supplier/purchase-orders', () => {
         status: 'SUBMITTED',
       },
     ];
-    (prisma as any).portalOrder.findMany.mockResolvedValue(items);
-    (prisma as any).portalOrder.count.mockResolvedValue(1);
+    mockPrisma.portalOrder.findMany.mockResolvedValue(items);
+    mockPrisma.portalOrder.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/supplier/purchase-orders');
 
@@ -56,8 +57,8 @@ describe('GET /api/supplier/purchase-orders', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).portalOrder.findMany.mockResolvedValue([]);
-    (prisma as any).portalOrder.count.mockResolvedValue(0);
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/supplier/purchase-orders?status=SUBMITTED');
 
@@ -65,8 +66,8 @@ describe('GET /api/supplier/purchase-orders', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).portalOrder.findMany.mockResolvedValue([]);
-    (prisma as any).portalOrder.count.mockResolvedValue(25);
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(25);
 
     const res = await request(app).get('/api/supplier/purchase-orders?page=2&limit=10');
 
@@ -75,7 +76,7 @@ describe('GET /api/supplier/purchase-orders', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalOrder.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalOrder.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/supplier/purchase-orders');
 
@@ -93,8 +94,8 @@ describe('POST /api/supplier/purchase-orders/:id/confirm', () => {
       notes: null,
       expectedDelivery: null,
     };
-    (prisma as any).portalOrder.findFirst.mockResolvedValue(order);
-    (prisma as any).portalOrder.update.mockResolvedValue({ ...order, status: 'CONFIRMED' });
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(order);
+    mockPrisma.portalOrder.update.mockResolvedValue({ ...order, status: 'CONFIRMED' });
 
     const res = await request(app)
       .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
@@ -105,7 +106,7 @@ describe('POST /api/supplier/purchase-orders/:id/confirm', () => {
   });
 
   it('should return 404 if PO not found', async () => {
-    (prisma as any).portalOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000099/confirm')
@@ -123,7 +124,7 @@ describe('POST /api/supplier/purchase-orders/:id/confirm', () => {
       notes: null,
       expectedDelivery: null,
     };
-    (prisma as any).portalOrder.findFirst.mockResolvedValue(order);
+    mockPrisma.portalOrder.findFirst.mockResolvedValue(order);
 
     const res = await request(app)
       .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
@@ -134,7 +135,7 @@ describe('POST /api/supplier/purchase-orders/:id/confirm', () => {
   });
 
   it('should handle server error on confirm', async () => {
-    (prisma as any).portalOrder.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalOrder.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')

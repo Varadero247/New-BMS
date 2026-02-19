@@ -18,7 +18,7 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
-global.fetch = jest.fn() as any;
+global.fetch = jest.fn() as unknown as typeof globalThis.fetch;
 
 import chatRouter from '../src/routes/chat';
 import { prisma } from '../src/prisma';

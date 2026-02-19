@@ -32,6 +32,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import impactAssessmentsRouter from '../src/routes/impact-assessments';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -93,8 +94,8 @@ const mockAssessment = {
 // ===================================================================
 describe('GET /api/impact-assessments', () => {
   it('should return a paginated list of impact assessments', async () => {
-    (prisma as any).aiImpactAssessment.findMany.mockResolvedValue([mockAssessment]);
-    (prisma as any).aiImpactAssessment.count.mockResolvedValue(1);
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([mockAssessment]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/impact-assessments');
 
@@ -105,8 +106,8 @@ describe('GET /api/impact-assessments', () => {
   });
 
   it('should return empty list when no assessments exist', async () => {
-    (prisma as any).aiImpactAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiImpactAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/impact-assessments');
 
@@ -115,13 +116,13 @@ describe('GET /api/impact-assessments', () => {
   });
 
   it('should filter by systemId', async () => {
-    (prisma as any).aiImpactAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiImpactAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get(`/api/impact-assessments?systemId=${UUID1}`);
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiImpactAssessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiImpactAssessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ systemId: UUID1 }),
       })
@@ -129,13 +130,13 @@ describe('GET /api/impact-assessments', () => {
   });
 
   it('should filter by impactLevel', async () => {
-    (prisma as any).aiImpactAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiImpactAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/impact-assessments?impactLevel=HIGH');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiImpactAssessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiImpactAssessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ impactLevel: 'HIGH' }),
       })
@@ -143,13 +144,13 @@ describe('GET /api/impact-assessments', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).aiImpactAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiImpactAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/impact-assessments?status=APPROVED');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiImpactAssessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiImpactAssessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'APPROVED' }),
       })
@@ -157,13 +158,13 @@ describe('GET /api/impact-assessments', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).aiImpactAssessment.findMany.mockResolvedValue([]);
-    (prisma as any).aiImpactAssessment.count.mockResolvedValue(0);
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/impact-assessments?search=credit');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiImpactAssessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiImpactAssessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -175,7 +176,7 @@ describe('GET /api/impact-assessments', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiImpactAssessment.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiImpactAssessment.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/impact-assessments');
 
@@ -197,8 +198,8 @@ describe('POST /api/impact-assessments', () => {
   };
 
   it('should create an impact assessment successfully', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiImpactAssessment.create.mockResolvedValue({
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiImpactAssessment.create.mockResolvedValue({
       id: UUID2,
       reference: 'AI42-IMP-2602-7777',
       ...validPayload,
@@ -240,7 +241,7 @@ describe('POST /api/impact-assessments', () => {
   });
 
   it('should return 404 when AI system not found', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/impact-assessments').send(validPayload);
 
@@ -249,8 +250,8 @@ describe('POST /api/impact-assessments', () => {
   });
 
   it('should return 500 on database error during creation', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiImpactAssessment.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiImpactAssessment.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/impact-assessments').send(validPayload);
 
@@ -264,7 +265,7 @@ describe('POST /api/impact-assessments', () => {
 // ===================================================================
 describe('GET /api/impact-assessments/:id', () => {
   it('should return an impact assessment when found', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
 
     const res = await request(app).get(`/api/impact-assessments/${UUID2}`);
 
@@ -275,7 +276,7 @@ describe('GET /api/impact-assessments/:id', () => {
   });
 
   it('should return 404 when impact assessment not found', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(null);
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/impact-assessments/${UUID1}`);
 
@@ -285,7 +286,7 @@ describe('GET /api/impact-assessments/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiImpactAssessment.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(`/api/impact-assessments/${UUID2}`);
 
@@ -299,8 +300,8 @@ describe('GET /api/impact-assessments/:id', () => {
 // ===================================================================
 describe('PUT /api/impact-assessments/:id', () => {
   it('should update an impact assessment successfully', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
-    (prisma as any).aiImpactAssessment.update.mockResolvedValue({
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockResolvedValue({
       ...mockAssessment,
       impactLevel: 'UNACCEPTABLE',
       system: { id: UUID1, name: 'Credit Scoring AI', reference: 'AI42-SYS-2602-5555' },
@@ -315,7 +316,7 @@ describe('PUT /api/impact-assessments/:id', () => {
   });
 
   it('should return 404 when updating non-existent assessment', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(null);
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put(`/api/impact-assessments/${UUID1}`)
@@ -335,8 +336,8 @@ describe('PUT /api/impact-assessments/:id', () => {
   });
 
   it('should return 500 on database error during update', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
-    (prisma as any).aiImpactAssessment.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put(`/api/impact-assessments/${UUID2}`)
@@ -352,8 +353,8 @@ describe('PUT /api/impact-assessments/:id', () => {
 // ===================================================================
 describe('PUT /api/impact-assessments/:id/approve', () => {
   it('should approve an impact assessment successfully', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
-    (prisma as any).aiImpactAssessment.update.mockResolvedValue({
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockResolvedValue({
       ...mockAssessment,
       status: 'APPROVED',
       approvedBy: 'user-123',
@@ -370,7 +371,7 @@ describe('PUT /api/impact-assessments/:id/approve', () => {
   });
 
   it('should return 404 when approving non-existent assessment', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(null);
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(`/api/impact-assessments/${UUID1}/approve`);
 
@@ -379,7 +380,7 @@ describe('PUT /api/impact-assessments/:id/approve', () => {
   });
 
   it('should return 400 when assessment is already approved', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue({
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue({
       ...mockAssessment,
       status: 'APPROVED',
     });
@@ -391,8 +392,8 @@ describe('PUT /api/impact-assessments/:id/approve', () => {
   });
 
   it('should return 500 on database error during approval', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
-    (prisma as any).aiImpactAssessment.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/impact-assessments/${UUID2}/approve`);
 
@@ -406,8 +407,8 @@ describe('PUT /api/impact-assessments/:id/approve', () => {
 // ===================================================================
 describe('DELETE /api/impact-assessments/:id', () => {
   it('should soft delete an impact assessment', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
-    (prisma as any).aiImpactAssessment.update.mockResolvedValue({
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockResolvedValue({
       ...mockAssessment,
       deletedAt: new Date(),
     });
@@ -420,7 +421,7 @@ describe('DELETE /api/impact-assessments/:id', () => {
   });
 
   it('should return 404 when deleting non-existent assessment', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(null);
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(`/api/impact-assessments/${UUID1}`);
 
@@ -429,8 +430,8 @@ describe('DELETE /api/impact-assessments/:id', () => {
   });
 
   it('should return 500 on database error during delete', async () => {
-    (prisma as any).aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
-    (prisma as any).aiImpactAssessment.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete(`/api/impact-assessments/${UUID2}`);
 

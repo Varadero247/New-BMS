@@ -73,7 +73,7 @@ describe('Workflow Definitions API Routes', () => {
     ];
 
     it('should return list of workflow definitions', async () => {
-      mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce(mockDefinitions as any);
+      (mockPrisma.workflowDefinition.findMany as jest.Mock).mockResolvedValueOnce(mockDefinitions);
 
       const response = await request(app).get('/api/definitions');
 
@@ -83,7 +83,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should filter by status', async () => {
-      mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.workflowDefinition.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app).get('/api/definitions?status=ACTIVE');
 
@@ -125,7 +125,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should include instance count', async () => {
-      mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce(mockDefinitions as any);
+      mockPrisma.workflowDefinition.findMany.mockResolvedValueOnce(mockDefinitions);
 
       await request(app).get('/api/definitions');
 
@@ -139,7 +139,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.workflowDefinition.findMany.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowDefinition.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).get('/api/definitions');
 
@@ -159,7 +159,7 @@ describe('Workflow Definitions API Routes', () => {
     };
 
     it('should return single definition with instances', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(mockDefinition as any);
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(mockDefinition);
 
       const response = await request(app).get(
         '/api/definitions/3b000000-0000-4000-a000-000000000001'
@@ -172,7 +172,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app).get(
         '/api/definitions/00000000-0000-4000-a000-ffffffffffff'
@@ -209,7 +209,7 @@ describe('Workflow Definitions API Routes', () => {
         ...createPayload,
         status: 'DRAFT',
         version: 1,
-      } as any);
+      });
 
       const response = await request(app).post('/api/definitions').send(createPayload);
 
@@ -219,11 +219,11 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should set initial status to DRAFT and version to 1', async () => {
-      mockPrisma.workflowDefinition.create.mockResolvedValueOnce({
+      (mockPrisma.workflowDefinition.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         status: 'DRAFT',
         version: 1,
-      } as any);
+      });
 
       await request(app).post('/api/definitions').send(createPayload);
 
@@ -263,10 +263,10 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should accept optional defaultSlaHours', async () => {
-      mockPrisma.workflowDefinition.create.mockResolvedValueOnce({
+      (mockPrisma.workflowDefinition.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         defaultSlaHours: 24,
-      } as any);
+      });
 
       const response = await request(app)
         .post('/api/definitions')
@@ -276,7 +276,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.workflowDefinition.create.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowDefinition.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).post('/api/definitions').send(createPayload);
 
@@ -294,12 +294,12 @@ describe('Workflow Definitions API Routes', () => {
     };
 
     it('should update definition and increment version', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(existingDefinition as any);
-      mockPrisma.workflowDefinition.update.mockResolvedValueOnce({
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(existingDefinition);
+      (mockPrisma.workflowDefinition.update as jest.Mock).mockResolvedValueOnce({
         ...existingDefinition,
         name: 'Updated Workflow',
         version: 2,
-      } as any);
+      });
 
       const response = await request(app)
         .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
@@ -317,7 +317,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .put('/api/definitions/00000000-0000-4000-a000-ffffffffffff')
@@ -328,8 +328,8 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should allow updating steps and rules', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(existingDefinition as any);
-      mockPrisma.workflowDefinition.update.mockResolvedValueOnce({} as any);
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(existingDefinition);
+      (mockPrisma.workflowDefinition.update as jest.Mock).mockResolvedValueOnce({});
 
       await request(app)
         .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
@@ -348,7 +348,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .put('/api/definitions/3b000000-0000-4000-a000-000000000001')
@@ -365,12 +365,12 @@ describe('Workflow Definitions API Routes', () => {
         id: '3b000000-0000-4000-a000-000000000001',
         version: 3,
         status: 'DRAFT',
-      } as any);
-      mockPrisma.workflowDefinition.update.mockResolvedValueOnce({
+      });
+      (mockPrisma.workflowDefinition.update as jest.Mock).mockResolvedValueOnce({
         id: '3b000000-0000-4000-a000-000000000001',
         status: 'ACTIVE',
         publishedAt: new Date(),
-      } as any);
+      });
 
       const response = await request(app).put(
         '/api/definitions/3b000000-0000-4000-a000-000000000001/activate'
@@ -388,7 +388,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff definition', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app).put(
         '/api/definitions/00000000-0000-4000-a000-ffffffffffff/activate'
@@ -415,7 +415,7 @@ describe('Workflow Definitions API Routes', () => {
       mockPrisma.workflowDefinition.update.mockResolvedValueOnce({
         id: '3b000000-0000-4000-a000-000000000001',
         status: 'ARCHIVED',
-      } as any);
+      });
 
       const response = await request(app).put(
         '/api/definitions/3b000000-0000-4000-a000-000000000001/archive'
@@ -430,7 +430,7 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.workflowDefinition.update.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.workflowDefinition.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).put(
         '/api/definitions/3b000000-0000-4000-a000-000000000001/archive'
@@ -457,14 +457,14 @@ describe('Workflow Definitions API Routes', () => {
     };
 
     it('should clone definition with new code', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(sourceDefinition as any);
-      mockPrisma.workflowDefinition.create.mockResolvedValueOnce({
+      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(sourceDefinition);
+      (mockPrisma.workflowDefinition.create as jest.Mock).mockResolvedValueOnce({
         id: 'clone-123',
         code: expect.stringContaining('ORIGINAL-COPY'),
         name: 'Original Workflow (Copy)',
         status: 'DRAFT',
         version: 1,
-      } as any);
+      });
 
       const response = await request(app).post(
         '/api/definitions/3b000000-0000-4000-a000-000000000001/clone'
@@ -475,12 +475,12 @@ describe('Workflow Definitions API Routes', () => {
     });
 
     it('should set cloned definition to DRAFT with version 1', async () => {
-      mockPrisma.workflowDefinition.findUnique.mockResolvedValueOnce(sourceDefinition as any);
-      mockPrisma.workflowDefinition.create.mockResolvedValueOnce({
+      (mockPrisma.workflowDefinition.findUnique as jest.Mock).mockResolvedValueOnce(sourceDefinition);
+      (mockPrisma.workflowDefinition.create as jest.Mock).mockResolvedValueOnce({
         id: 'clone-123',
         status: 'DRAFT',
         version: 1,
-      } as any);
+      });
 
       await request(app).post('/api/definitions/3b000000-0000-4000-a000-000000000001/clone');
 

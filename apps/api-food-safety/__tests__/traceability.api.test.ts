@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import traceabilityRouter from '../src/routes/traceability';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/traceability', () => {
   it('should return traceability records with pagination', async () => {
-    (prisma as any).fsTraceability.findMany.mockResolvedValue([
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', productName: 'Product A' },
     ]);
-    (prisma as any).fsTraceability.count.mockResolvedValue(1);
+    mockPrisma.fsTraceability.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/traceability');
     expect(res.status).toBe(200);
@@ -50,21 +51,21 @@ describe('GET /api/traceability', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsTraceability.findMany.mockResolvedValue([]);
-    (prisma as any).fsTraceability.count.mockResolvedValue(0);
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
 
     await request(app).get('/api/traceability?status=IN_PRODUCTION');
-    expect((prisma as any).fsTraceability.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsTraceability.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'IN_PRODUCTION' }) })
     );
   });
 
   it('should filter by productName', async () => {
-    (prisma as any).fsTraceability.findMany.mockResolvedValue([]);
-    (prisma as any).fsTraceability.count.mockResolvedValue(0);
+    mockPrisma.fsTraceability.findMany.mockResolvedValue([]);
+    mockPrisma.fsTraceability.count.mockResolvedValue(0);
 
     await request(app).get('/api/traceability?productName=Milk');
-    expect((prisma as any).fsTraceability.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsTraceability.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           productName: expect.objectContaining({ contains: 'Milk' }),
@@ -74,7 +75,7 @@ describe('GET /api/traceability', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsTraceability.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsTraceability.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/traceability');
     expect(res.status).toBe(500);
@@ -88,7 +89,7 @@ describe('POST /api/traceability', () => {
       productName: 'Product A',
       batchNumber: 'B001',
     };
-    (prisma as any).fsTraceability.create.mockResolvedValue(created);
+    mockPrisma.fsTraceability.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/traceability')
@@ -108,7 +109,7 @@ describe('POST /api/traceability', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsTraceability.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsTraceability.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/traceability').send({
       productName: 'Product A',
@@ -122,7 +123,7 @@ describe('POST /api/traceability', () => {
 
 describe('GET /api/traceability/:id', () => {
   it('should return a traceability record by id', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue({
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -132,7 +133,7 @@ describe('GET /api/traceability/:id', () => {
   });
 
   it('should return 404 for non-existent record', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue(null);
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/traceability/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -141,10 +142,10 @@ describe('GET /api/traceability/:id', () => {
 
 describe('PUT /api/traceability/:id', () => {
   it('should update a traceability record', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue({
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsTraceability.update.mockResolvedValue({
+    mockPrisma.fsTraceability.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'DISTRIBUTED',
     });
@@ -157,7 +158,7 @@ describe('PUT /api/traceability/:id', () => {
   });
 
   it('should return 404 for non-existent record', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue(null);
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/traceability/00000000-0000-0000-0000-000000000099')
@@ -168,10 +169,10 @@ describe('PUT /api/traceability/:id', () => {
 
 describe('DELETE /api/traceability/:id', () => {
   it('should soft delete a traceability record', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue({
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsTraceability.update.mockResolvedValue({
+    mockPrisma.fsTraceability.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -181,7 +182,7 @@ describe('DELETE /api/traceability/:id', () => {
   });
 
   it('should return 404 for non-existent record', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue(null);
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/traceability/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -190,7 +191,7 @@ describe('DELETE /api/traceability/:id', () => {
 
 describe('GET /api/traceability/batch/:batchNumber', () => {
   it('should return a traceability record by batch number', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue({
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       batchNumber: 'B001',
     });
@@ -201,7 +202,7 @@ describe('GET /api/traceability/batch/:batchNumber', () => {
   });
 
   it('should return 404 for non-existent batch', async () => {
-    (prisma as any).fsTraceability.findFirst.mockResolvedValue(null);
+    mockPrisma.fsTraceability.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/traceability/batch/00000000-0000-0000-0000-000000000099'
@@ -210,7 +211,7 @@ describe('GET /api/traceability/batch/:batchNumber', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsTraceability.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsTraceability.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/traceability/batch/B001');
     expect(res.status).toBe(500);

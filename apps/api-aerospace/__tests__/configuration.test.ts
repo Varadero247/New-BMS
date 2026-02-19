@@ -640,7 +640,7 @@ describe('Aerospace Configuration Management API Routes', () => {
 
     it('should default status to CURRENT when not provided', async () => {
       const payloadNoStatus = { ...validItemPayload };
-      delete (payloadNoStatus as any).status;
+      Reflect.deleteProperty(payloadNoStatus, 'status');
 
       (mockPrisma.configBaseline.findUnique as jest.Mock).mockResolvedValueOnce({
         id: '00000000-0000-0000-0000-000000000001',

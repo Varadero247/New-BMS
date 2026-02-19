@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/sds';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -61,8 +62,8 @@ const mockChemical = {
 
 describe('GET /api/sds', () => {
   it('should return a list of SDS records with pagination', async () => {
-    (prisma as any).chemSds.findMany.mockResolvedValue([mockSds]);
-    (prisma as any).chemSds.count.mockResolvedValue(1);
+    mockPrisma.chemSds.findMany.mockResolvedValue([mockSds]);
+    mockPrisma.chemSds.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/sds');
     expect(res.status).toBe(200);
@@ -75,19 +76,19 @@ describe('GET /api/sds', () => {
   });
 
   it('should support status filter', async () => {
-    (prisma as any).chemSds.findMany.mockResolvedValue([]);
-    (prisma as any).chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/sds?status=CURRENT');
     expect(res.status).toBe(200);
-    expect((prisma as any).chemSds.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemSds.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'CURRENT' }) })
     );
   });
 
   it('should support search parameter', async () => {
-    (prisma as any).chemSds.findMany.mockResolvedValue([]);
-    (prisma as any).chemSds.count.mockResolvedValue(0);
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/sds?search=acetone');
     expect(res.status).toBe(200);
@@ -95,7 +96,7 @@ describe('GET /api/sds', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemSds.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemSds.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/sds');
     expect(res.status).toBe(500);
@@ -107,7 +108,7 @@ describe('GET /api/sds', () => {
 describe('GET /api/sds/overdue', () => {
   it('should return overdue SDS records', async () => {
     const overdueSds = { ...mockSds, nextReviewDate: '2025-01-01T00:00:00.000Z' };
-    (prisma as any).chemSds.findMany.mockResolvedValue([overdueSds]);
+    mockPrisma.chemSds.findMany.mockResolvedValue([overdueSds]);
 
     const res = await request(app).get('/api/sds/overdue');
     expect(res.status).toBe(200);
@@ -117,7 +118,7 @@ describe('GET /api/sds/overdue', () => {
   });
 
   it('should return empty array when no overdue SDS', async () => {
-    (prisma as any).chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/sds/overdue');
     expect(res.status).toBe(200);
@@ -126,7 +127,7 @@ describe('GET /api/sds/overdue', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).chemSds.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemSds.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/sds/overdue');
     expect(res.status).toBe(500);
@@ -137,7 +138,7 @@ describe('GET /api/sds/overdue', () => {
 
 describe('GET /api/sds/:id', () => {
   it('should return a single SDS record', async () => {
-    (prisma as any).chemSds.findFirst.mockResolvedValue({ ...mockSds, chemical: mockChemical });
+    mockPrisma.chemSds.findFirst.mockResolvedValue({ ...mockSds, chemical: mockChemical });
 
     const res = await request(app).get('/api/sds/00000000-0000-0000-0000-000000000010');
     expect(res.status).toBe(200);
@@ -146,7 +147,7 @@ describe('GET /api/sds/:id', () => {
   });
 
   it('should return 404 when SDS not found', async () => {
-    (prisma as any).chemSds.findFirst.mockResolvedValue(null);
+    mockPrisma.chemSds.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/sds/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -155,7 +156,7 @@ describe('GET /api/sds/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemSds.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemSds.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/sds/00000000-0000-0000-0000-000000000010');
     expect(res.status).toBe(500);
@@ -166,9 +167,9 @@ describe('GET /api/sds/:id', () => {
 
 describe('POST /api/sds', () => {
   it('should create a new SDS and supersede existing current', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemSds.updateMany.mockResolvedValue({ count: 1 });
-    (prisma as any).chemSds.create.mockResolvedValue(mockSds);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemSds.updateMany.mockResolvedValue({ count: 1 });
+    mockPrisma.chemSds.create.mockResolvedValue(mockSds);
 
     const res = await request(app).post('/api/sds').send({
       chemicalId: '00000000-0000-0000-0000-000000000001',
@@ -180,7 +181,7 @@ describe('POST /api/sds', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.version).toBe('1.0');
     // Should supersede existing current SDS
-    expect((prisma as any).chemSds.updateMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemSds.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { chemicalId: '00000000-0000-0000-0000-000000000001', status: 'CURRENT' },
         data: { status: 'SUPERSEDED' },
@@ -212,7 +213,7 @@ describe('POST /api/sds', () => {
   });
 
   it('should return 404 when chemical does not exist', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/sds').send({
       chemicalId: '00000000-0000-0000-0000-000000000099',
@@ -227,9 +228,9 @@ describe('POST /api/sds', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemSds.updateMany.mockResolvedValue({ count: 0 });
-    (prisma as any).chemSds.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemSds.updateMany.mockResolvedValue({ count: 0 });
+    mockPrisma.chemSds.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/sds').send({
       chemicalId: '00000000-0000-0000-0000-000000000001',
@@ -245,8 +246,8 @@ describe('POST /api/sds', () => {
 
 describe('PUT /api/sds/:id', () => {
   it('should update an existing SDS record', async () => {
-    (prisma as any).chemSds.findFirst.mockResolvedValue(mockSds);
-    (prisma as any).chemSds.update.mockResolvedValue({ ...mockSds, version: '2.0' });
+    mockPrisma.chemSds.findFirst.mockResolvedValue(mockSds);
+    mockPrisma.chemSds.update.mockResolvedValue({ ...mockSds, version: '2.0' });
 
     const res = await request(app).put('/api/sds/00000000-0000-0000-0000-000000000010').send({
       version: '2.0',
@@ -257,7 +258,7 @@ describe('PUT /api/sds/:id', () => {
   });
 
   it('should return 404 when SDS not found', async () => {
-    (prisma as any).chemSds.findFirst.mockResolvedValue(null);
+    mockPrisma.chemSds.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/sds/00000000-0000-0000-0000-000000000099').send({
       version: '2.0',
@@ -268,8 +269,8 @@ describe('PUT /api/sds/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemSds.findFirst.mockResolvedValue(mockSds);
-    (prisma as any).chemSds.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemSds.findFirst.mockResolvedValue(mockSds);
+    mockPrisma.chemSds.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put('/api/sds/00000000-0000-0000-0000-000000000010').send({
       version: '2.0',

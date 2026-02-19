@@ -34,6 +34,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import quotesRouter from '../src/routes/quotes';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -86,8 +87,8 @@ const mockQuote = {
 
 describe('POST /api/quotes', () => {
   it('should create quote with lines and calculate totals', async () => {
-    (prisma as any).crmQuote.count.mockResolvedValue(0);
-    (prisma as any).crmQuote.create.mockResolvedValue(mockQuote);
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
+    mockPrisma.crmQuote.create.mockResolvedValue(mockQuote);
 
     const res = await request(app)
       .post('/api/quotes')
@@ -104,8 +105,8 @@ describe('POST /api/quotes', () => {
   });
 
   it('should create quote without lines', async () => {
-    (prisma as any).crmQuote.count.mockResolvedValue(0);
-    (prisma as any).crmQuote.create.mockResolvedValue({
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
+    mockPrisma.crmQuote.create.mockResolvedValue({
       ...mockQuote,
       subtotal: 0,
       taxTotal: 0,
@@ -122,8 +123,8 @@ describe('POST /api/quotes', () => {
   });
 
   it('should create quote with multiple lines', async () => {
-    (prisma as any).crmQuote.count.mockResolvedValue(5);
-    (prisma as any).crmQuote.create.mockResolvedValue({
+    mockPrisma.crmQuote.count.mockResolvedValue(5);
+    mockPrisma.crmQuote.create.mockResolvedValue({
       ...mockQuote,
       subtotal: 2500,
       taxTotal: 500,
@@ -177,8 +178,8 @@ describe('POST /api/quotes', () => {
   });
 
   it('should generate sequential ref numbers', async () => {
-    (prisma as any).crmQuote.count.mockResolvedValue(5);
-    (prisma as any).crmQuote.create.mockResolvedValue({
+    mockPrisma.crmQuote.count.mockResolvedValue(5);
+    mockPrisma.crmQuote.create.mockResolvedValue({
       ...mockQuote,
       refNumber: 'QUO-2602-0006',
     });
@@ -191,8 +192,8 @@ describe('POST /api/quotes', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmQuote.count.mockResolvedValue(0);
-    (prisma as any).crmQuote.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
+    mockPrisma.crmQuote.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/quotes').send({
       title: 'Test',
@@ -208,8 +209,8 @@ describe('POST /api/quotes', () => {
 
 describe('GET /api/quotes', () => {
   it('should return paginated list', async () => {
-    (prisma as any).crmQuote.findMany.mockResolvedValue([mockQuote]);
-    (prisma as any).crmQuote.count.mockResolvedValue(1);
+    mockPrisma.crmQuote.findMany.mockResolvedValue([mockQuote]);
+    mockPrisma.crmQuote.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/quotes');
 
@@ -220,13 +221,13 @@ describe('GET /api/quotes', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).crmQuote.findMany.mockResolvedValue([]);
-    (prisma as any).crmQuote.count.mockResolvedValue(0);
+    mockPrisma.crmQuote.findMany.mockResolvedValue([]);
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/quotes?status=SENT');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmQuote.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmQuote.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'SENT' }),
       })
@@ -234,13 +235,13 @@ describe('GET /api/quotes', () => {
   });
 
   it('should filter by dealId', async () => {
-    (prisma as any).crmQuote.findMany.mockResolvedValue([]);
-    (prisma as any).crmQuote.count.mockResolvedValue(0);
+    mockPrisma.crmQuote.findMany.mockResolvedValue([]);
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/quotes?dealId=deal-1');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmQuote.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmQuote.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ dealId: 'deal-1' }),
       })
@@ -248,13 +249,13 @@ describe('GET /api/quotes', () => {
   });
 
   it('should filter by accountId', async () => {
-    (prisma as any).crmQuote.findMany.mockResolvedValue([]);
-    (prisma as any).crmQuote.count.mockResolvedValue(0);
+    mockPrisma.crmQuote.findMany.mockResolvedValue([]);
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/quotes?accountId=acc-1');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmQuote.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmQuote.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ accountId: 'acc-1' }),
       })
@@ -262,8 +263,8 @@ describe('GET /api/quotes', () => {
   });
 
   it('should return empty array when no quotes', async () => {
-    (prisma as any).crmQuote.findMany.mockResolvedValue([]);
-    (prisma as any).crmQuote.count.mockResolvedValue(0);
+    mockPrisma.crmQuote.findMany.mockResolvedValue([]);
+    mockPrisma.crmQuote.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/quotes');
 
@@ -272,8 +273,8 @@ describe('GET /api/quotes', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).crmQuote.findMany.mockResolvedValue([]);
-    (prisma as any).crmQuote.count.mockResolvedValue(50);
+    mockPrisma.crmQuote.findMany.mockResolvedValue([]);
+    mockPrisma.crmQuote.count.mockResolvedValue(50);
 
     const res = await request(app).get('/api/quotes?page=3&limit=10');
 
@@ -283,7 +284,7 @@ describe('GET /api/quotes', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmQuote.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmQuote.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/quotes');
 
@@ -297,7 +298,7 @@ describe('GET /api/quotes', () => {
 
 describe('GET /api/quotes/:id', () => {
   it('should return quote with lines', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(mockQuote);
 
     const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001');
 
@@ -308,7 +309,7 @@ describe('GET /api/quotes/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000099');
 
@@ -317,7 +318,7 @@ describe('GET /api/quotes/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmQuote.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmQuote.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001');
 
@@ -331,8 +332,8 @@ describe('GET /api/quotes/:id', () => {
 
 describe('PUT /api/quotes/:id', () => {
   it('should update draft quote', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
-    (prisma as any).crmQuote.update.mockResolvedValue({ ...mockQuote, notes: 'Updated' });
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(mockQuote);
+    mockPrisma.crmQuote.update.mockResolvedValue({ ...mockQuote, notes: 'Updated' });
 
     const res = await request(app)
       .put('/api/quotes/00000000-0000-0000-0000-000000000001')
@@ -343,7 +344,7 @@ describe('PUT /api/quotes/:id', () => {
   });
 
   it('should return 400 when not in DRAFT status', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
+    mockPrisma.crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
 
     const res = await request(app)
       .put('/api/quotes/00000000-0000-0000-0000-000000000001')
@@ -354,7 +355,7 @@ describe('PUT /api/quotes/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/quotes/00000000-0000-0000-0000-000000000099')
@@ -364,9 +365,9 @@ describe('PUT /api/quotes/:id', () => {
   });
 
   it('should recalculate totals when lines are updated', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
-    (prisma as any).crmQuoteLine.deleteMany.mockResolvedValue({ count: 1 });
-    (prisma as any).crmQuote.update.mockResolvedValue({
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(mockQuote);
+    mockPrisma.crmQuoteLine.deleteMany.mockResolvedValue({ count: 1 });
+    mockPrisma.crmQuote.update.mockResolvedValue({
       ...mockQuote,
       subtotal: 500,
       total: 600,
@@ -383,8 +384,8 @@ describe('PUT /api/quotes/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
-    (prisma as any).crmQuote.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(mockQuote);
+    mockPrisma.crmQuote.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put('/api/quotes/00000000-0000-0000-0000-000000000001')
@@ -400,8 +401,8 @@ describe('PUT /api/quotes/:id', () => {
 
 describe('POST /api/quotes/:id/send', () => {
   it('should mark as sent', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
-    (prisma as any).crmQuote.update.mockResolvedValue({
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(mockQuote);
+    mockPrisma.crmQuote.update.mockResolvedValue({
       ...mockQuote,
       status: 'SENT',
       sentAt: new Date(),
@@ -415,7 +416,7 @@ describe('POST /api/quotes/:id/send', () => {
   });
 
   it('should return 400 when quote is not DRAFT', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
+    mockPrisma.crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
 
     const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/send');
 
@@ -424,7 +425,7 @@ describe('POST /api/quotes/:id/send', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000099/send');
 
@@ -432,8 +433,8 @@ describe('POST /api/quotes/:id/send', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote);
-    (prisma as any).crmQuote.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(mockQuote);
+    mockPrisma.crmQuote.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/send');
 
@@ -447,8 +448,8 @@ describe('POST /api/quotes/:id/send', () => {
 
 describe('POST /api/quotes/:id/accept', () => {
   it('should mark as accepted', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
-    (prisma as any).crmQuote.update.mockResolvedValue({
+    mockPrisma.crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
+    mockPrisma.crmQuote.update.mockResolvedValue({
       ...mockQuote,
       status: 'ACCEPTED',
       acceptedAt: new Date(),
@@ -462,7 +463,7 @@ describe('POST /api/quotes/:id/accept', () => {
   });
 
   it('should return 400 when quote is not SENT', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(mockQuote); // DRAFT status
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(mockQuote); // DRAFT status
 
     const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/accept');
 
@@ -471,7 +472,7 @@ describe('POST /api/quotes/:id/accept', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000099/accept');
 
@@ -479,8 +480,8 @@ describe('POST /api/quotes/:id/accept', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
-    (prisma as any).crmQuote.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmQuote.findFirst.mockResolvedValue({ ...mockQuote, status: 'SENT' });
+    mockPrisma.crmQuote.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/quotes/00000000-0000-0000-0000-000000000001/accept');
 
@@ -494,7 +495,7 @@ describe('POST /api/quotes/:id/accept', () => {
 
 describe('GET /api/quotes/:id/pdf', () => {
   it('should return a real PDF binary with correct headers', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue({ ...mockQuote, lines: [] });
+    mockPrisma.crmQuote.findFirst.mockResolvedValue({ ...mockQuote, lines: [] });
 
     const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001/pdf');
 
@@ -509,7 +510,7 @@ describe('GET /api/quotes/:id/pdf', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmQuote.findFirst.mockResolvedValue(null);
+    mockPrisma.crmQuote.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000099/pdf');
 
@@ -517,7 +518,7 @@ describe('GET /api/quotes/:id/pdf', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmQuote.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmQuote.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/quotes/00000000-0000-0000-0000-000000000001/pdf');
 

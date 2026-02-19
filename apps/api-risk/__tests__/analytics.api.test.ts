@@ -21,6 +21,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/analytics';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/risks', router);
@@ -30,11 +31,11 @@ beforeEach(() => {
 
 describe('GET /api/risks/analytics/dashboard', () => {
   it('should return full analytics dashboard', async () => {
-    (prisma as any).riskRegister.count.mockResolvedValue(10);
-    (prisma as any).riskRegister.groupBy.mockResolvedValue([]);
-    (prisma as any).riskRegister.findMany.mockResolvedValue([]);
-    (prisma as any).riskAction.count.mockResolvedValue(2);
-    (prisma as any).riskKri.count.mockResolvedValue(1);
+    mockPrisma.riskRegister.count.mockResolvedValue(10);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(2);
+    mockPrisma.riskKri.count.mockResolvedValue(1);
     const res = await request(app).get('/api/risks/analytics/dashboard');
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveProperty('totalRisks');
@@ -49,7 +50,7 @@ describe('GET /api/risks/analytics/dashboard', () => {
 
 describe('GET /api/risks/analytics/by-module', () => {
   it('should return module breakdown', async () => {
-    (prisma as any).riskRegister.groupBy.mockResolvedValue([
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([
       { sourceModule: 'MANUAL', _count: 5 },
       { sourceModule: 'CHEMICAL_COSHH', _count: 3 },
     ]);

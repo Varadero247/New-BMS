@@ -8,7 +8,7 @@ import {
 } from '../src/middleware/api-version';
 
 describe('API Versioning Middleware', () => {
-  let mockReq: Partial<Request>;
+  let mockReq: Partial<Request> & { apiVersion?: string };
   let mockRes: Partial<Response>;
   let mockNext: jest.Mock;
 
@@ -91,7 +91,7 @@ describe('API Versioning Middleware', () => {
       mockReq.path = '/api/v1/users';
       extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
 
-      expect((mockReq as any).apiVersion).toBe('v1');
+      expect(mockReq.apiVersion).toBe('v1');
       expect(mockNext).toHaveBeenCalled();
     });
 
@@ -99,7 +99,7 @@ describe('API Versioning Middleware', () => {
       mockReq.path = '/api/v2/users';
       extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
 
-      expect((mockReq as any).apiVersion).toBe('v2');
+      expect(mockReq.apiVersion).toBe('v2');
     });
 
     it('should fall back to header when not in path', () => {
@@ -107,7 +107,7 @@ describe('API Versioning Middleware', () => {
       mockReq.headers = { 'x-api-version': 'v2' };
       extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
 
-      expect((mockReq as any).apiVersion).toBe('v2');
+      expect(mockReq.apiVersion).toBe('v2');
     });
 
     it('should use current version when neither path nor header provided', () => {
@@ -115,13 +115,13 @@ describe('API Versioning Middleware', () => {
       mockReq.headers = {};
       extractApiVersion(mockReq as Request, mockRes as Response, mockNext);
 
-      expect((mockReq as any).apiVersion).toBe('v1');
+      expect(mockReq.apiVersion).toBe('v1');
     });
   });
 
   describe('validateApiVersion', () => {
     it('should call next for supported version', () => {
-      (mockReq as any).apiVersion = 'v1';
+      mockReq.apiVersion = 'v1';
       validateApiVersion(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalled();
@@ -129,7 +129,7 @@ describe('API Versioning Middleware', () => {
     });
 
     it('should return 400 for unsupported version', () => {
-      (mockReq as any).apiVersion = 'v99';
+      mockReq.apiVersion = 'v99';
       validateApiVersion(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
@@ -149,7 +149,7 @@ describe('API Versioning Middleware', () => {
       API_VERSION.DEPRECATED.push('v0');
       API_VERSION.SUPPORTED.push('v0');
 
-      (mockReq as any).apiVersion = 'v0';
+      mockReq.apiVersion = 'v0';
       validateApiVersion(mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockRes.setHeader).toHaveBeenCalledWith('Deprecation', 'true');

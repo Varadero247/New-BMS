@@ -91,8 +91,8 @@ describe('Resilience Package', () => {
 
       const result = await breaker.fire();
       expect(result).toBe('success');
-      expect((breaker as any).isOpen()).toBe(false);
-      expect((breaker as any).isClosed()).toBe(true);
+      expect((breaker as { isOpen: () => boolean }).isOpen()).toBe(false);
+      expect((breaker as { isClosed: () => boolean }).isClosed()).toBe(true);
     });
 
     it('should register breaker in registry', () => {

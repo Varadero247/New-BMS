@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/read-receipts';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/read-receipts', router);
@@ -34,7 +35,7 @@ beforeEach(() => {
 
 describe('GET /api/read-receipts', () => {
   it('should return list of read receipts', async () => {
-    (prisma as any).docReadReceipt.findMany.mockResolvedValue([
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([
       {
         id: '00000000-0000-0000-0000-000000000001',
         documentId: 'doc-1',
@@ -42,7 +43,7 @@ describe('GET /api/read-receipts', () => {
         status: 'READ',
       },
     ]);
-    (prisma as any).docReadReceipt.count.mockResolvedValue(1);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(1);
     const res = await request(app).get('/api/read-receipts');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -51,16 +52,16 @@ describe('GET /api/read-receipts', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).docReadReceipt.findMany.mockResolvedValue([]);
-    (prisma as any).docReadReceipt.count.mockResolvedValue(0);
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
     const res = await request(app).get('/api/read-receipts?status=ACKNOWLEDGED');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).docReadReceipt.findMany.mockRejectedValue(new Error('DB error'));
-    (prisma as any).docReadReceipt.count.mockResolvedValue(0);
+    mockPrisma.docReadReceipt.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
     const res = await request(app).get('/api/read-receipts');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -70,7 +71,7 @@ describe('GET /api/read-receipts', () => {
 
 describe('GET /api/read-receipts/:id', () => {
   it('should return a read receipt by id', async () => {
-    (prisma as any).docReadReceipt.findFirst.mockResolvedValue({
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       documentId: 'doc-1',
     });
@@ -81,7 +82,7 @@ describe('GET /api/read-receipts/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).docReadReceipt.findFirst.mockResolvedValue(null);
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/read-receipts/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.error.code).toBe('NOT_FOUND');
@@ -90,7 +91,7 @@ describe('GET /api/read-receipts/:id', () => {
 
 describe('POST /api/read-receipts', () => {
   it('should create a read receipt', async () => {
-    (prisma as any).docReadReceipt.create.mockResolvedValue({
+    mockPrisma.docReadReceipt.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       documentId: 'doc-1',
       userId: 'user-1',
@@ -127,12 +128,12 @@ describe('POST /api/read-receipts', () => {
 
 describe('PUT /api/read-receipts/:id', () => {
   it('should update a read receipt', async () => {
-    (prisma as any).docReadReceipt.findFirst.mockResolvedValue({
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       documentId: 'doc-1',
       userId: 'user-1',
     });
-    (prisma as any).docReadReceipt.update.mockResolvedValue({
+    mockPrisma.docReadReceipt.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       documentId: 'doc-1',
       userId: 'user-1',
@@ -146,7 +147,7 @@ describe('PUT /api/read-receipts/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).docReadReceipt.findFirst.mockResolvedValue(null);
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/read-receipts/00000000-0000-0000-0000-000000000099')
       .send({ status: 'READ' });
@@ -157,10 +158,10 @@ describe('PUT /api/read-receipts/:id', () => {
 
 describe('DELETE /api/read-receipts/:id', () => {
   it('should soft delete a read receipt', async () => {
-    (prisma as any).docReadReceipt.findFirst.mockResolvedValue({
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).docReadReceipt.update.mockResolvedValue({
+    mockPrisma.docReadReceipt.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete(
@@ -171,7 +172,7 @@ describe('DELETE /api/read-receipts/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).docReadReceipt.findFirst.mockResolvedValue(null);
+    mockPrisma.docReadReceipt.findFirst.mockResolvedValue(null);
     const res = await request(app).delete(
       '/api/read-receipts/00000000-0000-0000-0000-000000000099'
     );

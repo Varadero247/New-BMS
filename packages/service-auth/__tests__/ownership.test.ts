@@ -3,7 +3,7 @@
  * Tests: requireRole, checkOwnership, scopeToUser
  */
 import { Request, Response, NextFunction } from 'express';
-import { requireRole, checkOwnership, scopeToUser } from '../src/ownership';
+import { requireRole, checkOwnership, scopeToUser, PrismaModelDelegate } from '../src/ownership';
 
 // Mock request factory
 function mockReq(overrides: Record<string, unknown> = {}): Request {
@@ -38,7 +38,7 @@ describe('requireRole', () => {
   it('rejects USER from ADMIN route with 403', () => {
     const req = mockReq({ user: { id: '1', role: 'USER', email: 'a@b.com' } });
     const { status } = mockRes();
-    requireRole('ADMIN')(req, { status } as any, next);
+    requireRole('ADMIN')(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(403);
     expect(next).not.toHaveBeenCalled();
   });
@@ -46,7 +46,7 @@ describe('requireRole', () => {
   it('rejects VIEWER from USER route with 403', () => {
     const req = mockReq({ user: { id: '1', role: 'VIEWER', email: 'a@b.com' } });
     const { status } = mockRes();
-    requireRole('USER')(req, { status } as any, next);
+    requireRole('USER')(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(403);
     expect(next).not.toHaveBeenCalled();
   });
@@ -82,7 +82,7 @@ describe('requireRole', () => {
   it('returns 401 when no user on request', () => {
     const req = mockReq();
     const { status } = mockRes();
-    requireRole('USER')(req, { status } as any, next);
+    requireRole('USER')(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(401);
     expect(next).not.toHaveBeenCalled();
   });
@@ -90,7 +90,7 @@ describe('requireRole', () => {
   it('returns 403 with INSUFFICIENT_ROLE code', () => {
     const req = mockReq({ user: { id: '1', role: 'USER', email: 'a@b.com' } });
     const { status, json } = mockRes();
-    requireRole('ADMIN')(req, { status } as any, next);
+    requireRole('ADMIN')(req, { status } as unknown as Response, next);
     expect(json).toHaveBeenCalledWith(
       expect.objectContaining({
         success: false,
@@ -102,7 +102,7 @@ describe('requireRole', () => {
   it('returns 401 with AUTHENTICATION_REQUIRED code', () => {
     const req = mockReq();
     const { status, json } = mockRes();
-    requireRole('USER')(req, { status } as any, next);
+    requireRole('USER')(req, { status } as unknown as Response, next);
     expect(json).toHaveBeenCalledWith(
       expect.objectContaining({
         success: false,
@@ -125,7 +125,7 @@ describe('checkOwnership', () => {
       params: { id: 'record-456' },
     });
     const { res } = mockRes();
-    const middleware = checkOwnership(mockModel({ createdBy: userId }) as any);
+    const middleware = checkOwnership(mockModel({ createdBy: userId }) as unknown as PrismaModelDelegate);
     await middleware(req, res, next);
     expect(next).toHaveBeenCalled();
   });
@@ -136,8 +136,8 @@ describe('checkOwnership', () => {
       params: { id: 'record-456' },
     });
     const { status } = mockRes();
-    const middleware = checkOwnership(mockModel({ createdBy: 'user-123' }) as any);
-    await middleware(req, { status } as any, next);
+    const middleware = checkOwnership(mockModel({ createdBy: 'user-123' }) as unknown as PrismaModelDelegate);
+    await middleware(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(403);
     expect(next).not.toHaveBeenCalled();
   });
@@ -149,7 +149,7 @@ describe('checkOwnership', () => {
     });
     const { res } = mockRes();
     const model = mockModel({ createdBy: 'user-123' });
-    const middleware = checkOwnership(model as any);
+    const middleware = checkOwnership(model as PrismaModelDelegate);
     await middleware(req, res, next);
     expect(next).toHaveBeenCalled();
     // ADMIN bypass means findUnique is never called
@@ -163,7 +163,7 @@ describe('checkOwnership', () => {
     });
     const { res } = mockRes();
     const model = mockModel({ createdBy: 'other-user' });
-    const middleware = checkOwnership(model as any);
+    const middleware = checkOwnership(model as PrismaModelDelegate);
     await middleware(req, res, next);
     expect(next).toHaveBeenCalled();
     expect(model.findUnique).not.toHaveBeenCalled();
@@ -175,8 +175,8 @@ describe('checkOwnership', () => {
       params: { id: 'nonexistent' },
     });
     const { status, json } = mockRes();
-    const middleware = checkOwnership(mockModel(null) as any);
-    await middleware(req, { status } as any, next);
+    const middleware = checkOwnership(mockModel(null) as unknown as PrismaModelDelegate);
+    await middleware(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(404);
     expect(json).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -188,8 +188,8 @@ describe('checkOwnership', () => {
   it('returns 401 when no user on request', async () => {
     const req = mockReq({ params: { id: 'record-456' } });
     const { status } = mockRes();
-    const middleware = checkOwnership(mockModel({ createdBy: 'user-1' }) as any);
-    await middleware(req, { status } as any, next);
+    const middleware = checkOwnership(mockModel({ createdBy: 'user-1' }) as unknown as PrismaModelDelegate);
+    await middleware(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(401);
   });
 
@@ -199,8 +199,8 @@ describe('checkOwnership', () => {
       params: { id: 'record-456' },
     });
     const { status, json } = mockRes();
-    const middleware = checkOwnership(mockModel({ createdBy: 'user-123' }) as any);
-    await middleware(req, { status } as any, next);
+    const middleware = checkOwnership(mockModel({ createdBy: 'user-123' }) as unknown as PrismaModelDelegate);
+    await middleware(req, { status } as unknown as Response, next);
     expect(json).toHaveBeenCalledWith(
       expect.objectContaining({
         error: expect.objectContaining({ code: 'OWNERSHIP_REQUIRED' }),
@@ -216,7 +216,7 @@ describe('checkOwnership', () => {
     });
     const { res } = mockRes();
     const model = mockModel({ ownerId: userId });
-    const middleware = checkOwnership(model as any, 'ownerId');
+    const middleware = checkOwnership(model as unknown as PrismaModelDelegate, 'ownerId');
     await middleware(req, res, next);
     expect(next).toHaveBeenCalled();
     expect(model.findUnique).toHaveBeenCalledWith({
@@ -232,8 +232,8 @@ describe('checkOwnership', () => {
     });
     const { status, json } = mockRes();
     const model = { findUnique: jest.fn().mockRejectedValue(new Error('DB error')) };
-    const middleware = checkOwnership(model as any);
-    await middleware(req, { status } as any, next);
+    const middleware = checkOwnership(model as PrismaModelDelegate);
+    await middleware(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(500);
     expect(json).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -249,8 +249,8 @@ describe('checkOwnership', () => {
     });
     const { status } = mockRes();
     const model = mockModel({ createdBy: 'user-123' });
-    const middleware = checkOwnership(model as any);
-    await middleware(req, { status } as any, next);
+    const middleware = checkOwnership(model as PrismaModelDelegate);
+    await middleware(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(403);
     expect(model.findUnique).toHaveBeenCalled();
   });
@@ -264,7 +264,7 @@ describe('scopeToUser', () => {
     });
     const { res } = mockRes();
     scopeToUser(req, res, next);
-    expect((req as any).ownerFilter).toEqual({});
+    expect((req as { ownerFilter?: Record<string, string> }).ownerFilter).toEqual({});
     expect(next).toHaveBeenCalled();
   });
 
@@ -275,7 +275,7 @@ describe('scopeToUser', () => {
     });
     const { res } = mockRes();
     scopeToUser(req, res, next);
-    expect((req as any).ownerFilter).toEqual({ createdBy: userId });
+    expect((req as { ownerFilter?: Record<string, string> }).ownerFilter).toEqual({ createdBy: userId });
     expect(next).toHaveBeenCalled();
   });
 
@@ -285,7 +285,7 @@ describe('scopeToUser', () => {
     });
     const { res } = mockRes();
     scopeToUser(req, res, next);
-    expect((req as any).ownerFilter).toEqual({});
+    expect((req as { ownerFilter?: Record<string, string> }).ownerFilter).toEqual({});
     expect(next).toHaveBeenCalled();
   });
 
@@ -296,14 +296,14 @@ describe('scopeToUser', () => {
     });
     const { res } = mockRes();
     scopeToUser(req, res, next);
-    expect((req as any).ownerFilter).toEqual({ createdBy: userId });
+    expect((req as { ownerFilter?: Record<string, string> }).ownerFilter).toEqual({ createdBy: userId });
     expect(next).toHaveBeenCalled();
   });
 
   it('returns 401 when no user on request', () => {
     const req = mockReq();
     const { status, json } = mockRes();
-    scopeToUser(req, { status } as any, next);
+    scopeToUser(req, { status } as unknown as Response, next);
     expect(status).toHaveBeenCalledWith(401);
     expect(json).toHaveBeenCalledWith(
       expect.objectContaining({

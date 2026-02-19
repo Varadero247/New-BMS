@@ -36,7 +36,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const mockDrill = prisma.femEvacuationDrill as any;
+const mockDrill = jest.mocked(prisma.femEvacuationDrill);
 
 const DRILL_ID = '00000000-0000-0000-0000-000000000001';
 const PREMISES_ID = '00000000-0000-0000-0000-000000000002';

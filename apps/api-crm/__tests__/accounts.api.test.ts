@@ -40,6 +40,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import accountsRouter from '../src/routes/accounts';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -76,7 +77,7 @@ const mockAccount = {
 
 describe('POST /api/accounts', () => {
   it('should create an account with valid data', async () => {
-    (prisma as any).crmAccount.create.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.create.mockResolvedValue(mockAccount);
 
     const res = await request(app).post('/api/accounts').send({
       name: 'Acme Corp',
@@ -89,7 +90,7 @@ describe('POST /api/accounts', () => {
   });
 
   it('should create an account with all optional fields', async () => {
-    (prisma as any).crmAccount.create.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.create.mockResolvedValue(mockAccount);
 
     const res = await request(app)
       .post('/api/accounts')
@@ -149,7 +150,7 @@ describe('POST /api/accounts', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmAccount.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmAccount.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/accounts').send({
       name: 'Acme Corp',
@@ -166,8 +167,8 @@ describe('POST /api/accounts', () => {
 
 describe('GET /api/accounts', () => {
   it('should return paginated list', async () => {
-    (prisma as any).crmAccount.findMany.mockResolvedValue([mockAccount]);
-    (prisma as any).crmAccount.count.mockResolvedValue(1);
+    mockPrisma.crmAccount.findMany.mockResolvedValue([mockAccount]);
+    mockPrisma.crmAccount.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/accounts');
 
@@ -178,8 +179,8 @@ describe('GET /api/accounts', () => {
   });
 
   it('should return empty array when no accounts', async () => {
-    (prisma as any).crmAccount.findMany.mockResolvedValue([]);
-    (prisma as any).crmAccount.count.mockResolvedValue(0);
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts');
 
@@ -188,13 +189,13 @@ describe('GET /api/accounts', () => {
   });
 
   it('should search by name', async () => {
-    (prisma as any).crmAccount.findMany.mockResolvedValue([]);
-    (prisma as any).crmAccount.count.mockResolvedValue(0);
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts?search=acme');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmAccount.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmAccount.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -206,13 +207,13 @@ describe('GET /api/accounts', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).crmAccount.findMany.mockResolvedValue([]);
-    (prisma as any).crmAccount.count.mockResolvedValue(0);
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts?type=PROSPECT');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmAccount.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmAccount.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ type: 'PROSPECT' }),
       })
@@ -220,13 +221,13 @@ describe('GET /api/accounts', () => {
   });
 
   it('should filter by tags', async () => {
-    (prisma as any).crmAccount.findMany.mockResolvedValue([]);
-    (prisma as any).crmAccount.count.mockResolvedValue(0);
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/accounts?tags=enterprise,vip');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmAccount.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmAccount.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ tags: { hasSome: ['enterprise', 'vip'] } }),
       })
@@ -234,8 +235,8 @@ describe('GET /api/accounts', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).crmAccount.findMany.mockResolvedValue([]);
-    (prisma as any).crmAccount.count.mockResolvedValue(100);
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.count.mockResolvedValue(100);
 
     const res = await request(app).get('/api/accounts?page=3&limit=10');
 
@@ -245,7 +246,7 @@ describe('GET /api/accounts', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmAccount.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmAccount.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/accounts');
 
@@ -259,7 +260,7 @@ describe('GET /api/accounts', () => {
 
 describe('GET /api/accounts/:id', () => {
   it('should return account detail', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
 
     const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001');
 
@@ -269,7 +270,7 @@ describe('GET /api/accounts/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099');
 
@@ -284,8 +285,8 @@ describe('GET /api/accounts/:id', () => {
 
 describe('PUT /api/accounts/:id', () => {
   it('should update account', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
-    (prisma as any).crmAccount.update.mockResolvedValue({ ...mockAccount, name: 'Acme Inc' });
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.update.mockResolvedValue({ ...mockAccount, name: 'Acme Inc' });
 
     const res = await request(app)
       .put('/api/accounts/00000000-0000-0000-0000-000000000001')
@@ -297,7 +298,7 @@ describe('PUT /api/accounts/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/accounts/00000000-0000-0000-0000-000000000099')
@@ -307,8 +308,8 @@ describe('PUT /api/accounts/:id', () => {
   });
 
   it('should update multiple fields', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
-    (prisma as any).crmAccount.update.mockResolvedValue({
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.update.mockResolvedValue({
       ...mockAccount,
       name: 'New Name',
       industry: 'Technology',
@@ -324,8 +325,8 @@ describe('PUT /api/accounts/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
-    (prisma as any).crmAccount.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put('/api/accounts/00000000-0000-0000-0000-000000000001')
@@ -341,8 +342,8 @@ describe('PUT /api/accounts/:id', () => {
 
 describe('DELETE /api/accounts/:id', () => {
   it('should soft delete account', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
-    (prisma as any).crmAccount.update.mockResolvedValue({ ...mockAccount, deletedAt: new Date() });
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.update.mockResolvedValue({ ...mockAccount, deletedAt: new Date() });
 
     const res = await request(app).delete('/api/accounts/00000000-0000-0000-0000-000000000001');
 
@@ -352,7 +353,7 @@ describe('DELETE /api/accounts/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/accounts/00000000-0000-0000-0000-000000000099');
 
@@ -366,8 +367,8 @@ describe('DELETE /api/accounts/:id', () => {
 
 describe('GET /api/accounts/:id/contacts', () => {
   it('should return contacts for account', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
-    (prisma as any).crmContact.findMany.mockResolvedValue([
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmContact.findMany.mockResolvedValue([
       { id: 'c-1', firstName: 'John', lastName: 'Doe', email: 'john@acme.com' },
     ]);
 
@@ -381,8 +382,8 @@ describe('GET /api/accounts/:id/contacts', () => {
   });
 
   it('should return empty array when no contacts', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
-    (prisma as any).crmContact.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmContact.findMany.mockResolvedValue([]);
 
     const res = await request(app).get(
       '/api/accounts/00000000-0000-0000-0000-000000000001/contacts'
@@ -393,7 +394,7 @@ describe('GET /api/accounts/:id/contacts', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/accounts/00000000-0000-0000-0000-000000000099/contacts'
@@ -409,8 +410,8 @@ describe('GET /api/accounts/:id/contacts', () => {
 
 describe('GET /api/accounts/:id/deals', () => {
   it('should return deals for account', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
-    (prisma as any).crmDeal.findMany.mockResolvedValue([
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
       { id: 'd-1', title: 'Enterprise Deal', value: 50000 },
     ]);
 
@@ -422,8 +423,8 @@ describe('GET /api/accounts/:id/deals', () => {
   });
 
   it('should return empty array when no deals', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
-    (prisma as any).crmDeal.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmDeal.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000001/deals');
 
@@ -432,7 +433,7 @@ describe('GET /api/accounts/:id/deals', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/accounts/00000000-0000-0000-0000-000000000099/deals');
 
@@ -446,7 +447,7 @@ describe('GET /api/accounts/:id/deals', () => {
 
 describe('GET /api/accounts/:id/compliance', () => {
   it('should return compliance data with LOW risk', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue({
+    mockPrisma.crmAccount.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Acme Corp',
       qualitySupplierScore: 90,
@@ -465,7 +466,7 @@ describe('GET /api/accounts/:id/compliance', () => {
   });
 
   it('should return MEDIUM risk for moderate issues', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue({
+    mockPrisma.crmAccount.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Acme Corp',
       qualitySupplierScore: 70,
@@ -482,7 +483,7 @@ describe('GET /api/accounts/:id/compliance', () => {
   });
 
   it('should return HIGH risk for many issues', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue({
+    mockPrisma.crmAccount.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Acme Corp',
       qualitySupplierScore: 40,
@@ -499,7 +500,7 @@ describe('GET /api/accounts/:id/compliance', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/accounts/00000000-0000-0000-0000-000000000099/compliance'
@@ -515,7 +516,7 @@ describe('GET /api/accounts/:id/compliance', () => {
 
 describe('GET /api/accounts/:id/invoices', () => {
   it('should return invoices from Finance service', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
 
     const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
@@ -534,7 +535,7 @@ describe('GET /api/accounts/:id/invoices', () => {
   });
 
   it('should return empty array when Finance service is unavailable', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(mockAccount);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(mockAccount);
 
     const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: false,
@@ -553,7 +554,7 @@ describe('GET /api/accounts/:id/invoices', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).crmAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.crmAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/accounts/00000000-0000-0000-0000-000000000099/invoices'

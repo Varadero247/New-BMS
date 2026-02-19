@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import ir35Router from '../src/routes/ir35';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -61,7 +62,7 @@ describe('GET /api/ir35', () => {
         orgId: '00000000-0000-4000-a000-000000000100',
       },
     ];
-    (prisma as any).finIr35Assessment.findMany.mockResolvedValue(assessments);
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue(assessments);
 
     const res = await request(app).get('/api/ir35');
 
@@ -71,12 +72,12 @@ describe('GET /api/ir35', () => {
   });
 
   it('should order results by createdAt descending', async () => {
-    (prisma as any).finIr35Assessment.findMany.mockResolvedValue([]);
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/ir35');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finIr35Assessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finIr35Assessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         orderBy: { createdAt: 'desc' },
       })
@@ -84,11 +85,11 @@ describe('GET /api/ir35', () => {
   });
 
   it('should filter by orgId from authenticated user', async () => {
-    (prisma as any).finIr35Assessment.findMany.mockResolvedValue([]);
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
 
     await request(app).get('/api/ir35');
 
-    expect((prisma as any).finIr35Assessment.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finIr35Assessment.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           orgId: '00000000-0000-4000-a000-000000000100',
@@ -99,7 +100,7 @@ describe('GET /api/ir35', () => {
   });
 
   it('should return an empty array when no assessments exist', async () => {
-    (prisma as any).finIr35Assessment.findMany.mockResolvedValue([]);
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/ir35');
 
@@ -109,7 +110,7 @@ describe('GET /api/ir35', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finIr35Assessment.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finIr35Assessment.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/ir35');
 
@@ -134,8 +135,8 @@ describe('POST /api/ir35', () => {
   };
 
   it('should create an IR35 assessment successfully', async () => {
-    (prisma as any).finIr35Assessment.count.mockResolvedValue(0);
-    (prisma as any).finIr35Assessment.create.mockResolvedValue({
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0001',
@@ -151,8 +152,8 @@ describe('POST /api/ir35', () => {
   });
 
   it('should auto-generate a reference number using IR35 prefix and count', async () => {
-    (prisma as any).finIr35Assessment.count.mockResolvedValue(3);
-    (prisma as any).finIr35Assessment.create.mockResolvedValue({
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(3);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000004',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0004',
@@ -166,8 +167,8 @@ describe('POST /api/ir35', () => {
   });
 
   it('should set orgId and createdBy from authenticated user', async () => {
-    (prisma as any).finIr35Assessment.count.mockResolvedValue(0);
-    (prisma as any).finIr35Assessment.create.mockResolvedValue({
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0001',
@@ -176,7 +177,7 @@ describe('POST /api/ir35', () => {
 
     await request(app).post('/api/ir35').send(validAssessment);
 
-    expect((prisma as any).finIr35Assessment.create).toHaveBeenCalledWith(
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           orgId: '00000000-0000-4000-a000-000000000100',
@@ -187,8 +188,8 @@ describe('POST /api/ir35', () => {
   });
 
   it('should use count to generate padded reference number', async () => {
-    (prisma as any).finIr35Assessment.count.mockResolvedValue(0);
-    (prisma as any).finIr35Assessment.create.mockResolvedValue({
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0001',
@@ -197,12 +198,12 @@ describe('POST /api/ir35', () => {
 
     await request(app).post('/api/ir35').send(validAssessment);
 
-    expect((prisma as any).finIr35Assessment.count).toHaveBeenCalledWith(
+    expect(mockPrisma.finIr35Assessment.count).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ orgId: '00000000-0000-4000-a000-000000000100' }),
       })
     );
-    expect((prisma as any).finIr35Assessment.create).toHaveBeenCalledWith(
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           referenceNumber: expect.stringMatching(/^IR35-\d{4}-\d{4}$/),
@@ -212,8 +213,8 @@ describe('POST /api/ir35', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).finIr35Assessment.count.mockResolvedValue(0);
-    (prisma as any).finIr35Assessment.create.mockRejectedValue(new Error('Validation failed'));
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockRejectedValue(new Error('Validation failed'));
 
     const res = await request(app).post('/api/ir35').send(validAssessment);
 
@@ -223,8 +224,8 @@ describe('POST /api/ir35', () => {
   });
 
   it('should include body fields in the created assessment', async () => {
-    (prisma as any).finIr35Assessment.count.mockResolvedValue(0);
-    (prisma as any).finIr35Assessment.create.mockResolvedValue({
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...validAssessment,
       referenceNumber: 'IR35-2026-0001',
@@ -234,7 +235,7 @@ describe('POST /api/ir35', () => {
     const res = await request(app).post('/api/ir35').send(validAssessment);
 
     expect(res.status).toBe(201);
-    expect((prisma as any).finIr35Assessment.create).toHaveBeenCalledWith(
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           contractorName: 'John Smith',

@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import kpisRouter from '../src/routes/kpis';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -52,8 +53,8 @@ describe('GET /api/kpis', () => {
       },
       { id: 'kpi-2', name: 'FPY', module: 'QUALITY', trend: 'UP' },
     ];
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue(kpis);
-    (prisma as any).analyticsKpi.count.mockResolvedValue(2);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue(kpis);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/kpis');
 
@@ -64,31 +65,31 @@ describe('GET /api/kpis', () => {
   });
 
   it('should filter by module', async () => {
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsKpi.count.mockResolvedValue(0);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/kpis?module=QUALITY');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsKpi.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsKpi.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ module: 'QUALITY' }) })
     );
   });
 
   it('should filter by frequency', async () => {
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsKpi.count.mockResolvedValue(0);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/kpis?frequency=DAILY');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsKpi.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsKpi.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ frequency: 'DAILY' }) })
     );
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsKpi.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsKpi.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/kpis');
 
@@ -108,7 +109,7 @@ describe('POST /api/kpis', () => {
       trend: 'STABLE',
       frequency: 'MONTHLY',
     };
-    (prisma as any).analyticsKpi.create.mockResolvedValue(created);
+    mockPrisma.analyticsKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/kpis').send({
       name: 'New KPI',
@@ -144,7 +145,7 @@ describe('GET /api/kpis/executive-dashboard', () => {
       { id: 'kpi-2', name: 'FPY', module: 'QUALITY', trend: 'UP' },
       { id: 'kpi-3', name: 'NCR Rate', module: 'QUALITY', trend: 'DOWN' },
     ];
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue(kpis);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue(kpis);
 
     const res = await request(app).get('/api/kpis/executive-dashboard');
 
@@ -162,7 +163,7 @@ describe('GET /api/kpis/modules/:module', () => {
     const kpis = [
       { id: '00000000-0000-0000-0000-000000000001', name: 'TRIR', module: 'HEALTH_SAFETY' },
     ];
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue(kpis);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue(kpis);
 
     const res = await request(app).get('/api/kpis/modules/HEALTH_SAFETY');
 
@@ -176,7 +177,7 @@ describe('GET /api/kpis/modules/:module', () => {
 // ===================================================================
 describe('GET /api/kpis/:id', () => {
   it('should return a KPI by ID', async () => {
-    (prisma as any).analyticsKpi.findFirst.mockResolvedValue({
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'TRIR',
     });
@@ -188,7 +189,7 @@ describe('GET /api/kpis/:id', () => {
   });
 
   it('should return 404 for non-existent KPI', async () => {
-    (prisma as any).analyticsKpi.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000099');
 
@@ -201,10 +202,10 @@ describe('GET /api/kpis/:id', () => {
 // ===================================================================
 describe('PUT /api/kpis/:id', () => {
   it('should update a KPI', async () => {
-    (prisma as any).analyticsKpi.findFirst.mockResolvedValue({
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsKpi.update.mockResolvedValue({
+    mockPrisma.analyticsKpi.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -218,7 +219,7 @@ describe('PUT /api/kpis/:id', () => {
   });
 
   it('should return 404 for non-existent KPI', async () => {
-    (prisma as any).analyticsKpi.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/kpis/00000000-0000-0000-0000-000000000099')
@@ -233,10 +234,10 @@ describe('PUT /api/kpis/:id', () => {
 // ===================================================================
 describe('DELETE /api/kpis/:id', () => {
   it('should soft delete a KPI', async () => {
-    (prisma as any).analyticsKpi.findFirst.mockResolvedValue({
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsKpi.update.mockResolvedValue({
+    mockPrisma.analyticsKpi.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -248,7 +249,7 @@ describe('DELETE /api/kpis/:id', () => {
   });
 
   it('should return 404 for non-existent KPI', async () => {
-    (prisma as any).analyticsKpi.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000099');
 
@@ -261,11 +262,11 @@ describe('DELETE /api/kpis/:id', () => {
 // ===================================================================
 describe('POST /api/kpis/:id/calculate', () => {
   it('should recalculate a KPI', async () => {
-    (prisma as any).analyticsKpi.findFirst.mockResolvedValue({
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       currentValue: 50,
     });
-    (prisma as any).analyticsKpi.update.mockResolvedValue({
+    mockPrisma.analyticsKpi.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       currentValue: 75,
       previousValue: 50,
@@ -280,7 +281,7 @@ describe('POST /api/kpis/:id/calculate', () => {
   });
 
   it('should return 404 for non-existent KPI', async () => {
-    (prisma as any).analyticsKpi.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsKpi.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/kpis/00000000-0000-0000-0000-000000000099/calculate');
 

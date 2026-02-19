@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import contractsRouter from '../src/routes/contracts';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -48,8 +49,8 @@ describe('GET /api/contracts', () => {
         status: 'ACTIVE',
       },
     ];
-    (prisma as any).fsSvcContract.findMany.mockResolvedValue(contracts);
-    (prisma as any).fsSvcContract.count.mockResolvedValue(1);
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue(contracts);
+    mockPrisma.fsSvcContract.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/contracts');
 
@@ -59,12 +60,12 @@ describe('GET /api/contracts', () => {
   });
 
   it('should filter by customerId', async () => {
-    (prisma as any).fsSvcContract.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcContract.count.mockResolvedValue(0);
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcContract.count.mockResolvedValue(0);
 
     await request(app).get('/api/contracts?customerId=cust-1');
 
-    expect((prisma as any).fsSvcContract.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcContract.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ customerId: 'cust-1' }),
       })
@@ -72,12 +73,12 @@ describe('GET /api/contracts', () => {
   });
 
   it('should filter by type and status', async () => {
-    (prisma as any).fsSvcContract.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcContract.count.mockResolvedValue(0);
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcContract.count.mockResolvedValue(0);
 
     await request(app).get('/api/contracts?type=SLA&status=ACTIVE');
 
-    expect((prisma as any).fsSvcContract.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcContract.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ type: 'SLA', status: 'ACTIVE' }),
       })
@@ -87,7 +88,7 @@ describe('GET /api/contracts', () => {
 
 describe('GET /api/contracts/expiring', () => {
   it('should return expiring contracts', async () => {
-    (prisma as any).fsSvcContract.findMany.mockResolvedValue([
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', endDate: new Date() },
     ]);
 
@@ -98,7 +99,7 @@ describe('GET /api/contracts/expiring', () => {
   });
 
   it('should accept days parameter', async () => {
-    (prisma as any).fsSvcContract.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcContract.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/contracts/expiring?days=60');
 
@@ -115,7 +116,7 @@ describe('POST /api/contracts', () => {
       type: 'SLA',
       status: 'PENDING',
     };
-    (prisma as any).fsSvcContract.create.mockResolvedValue(created);
+    mockPrisma.fsSvcContract.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/contracts').send({
       customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -137,7 +138,7 @@ describe('POST /api/contracts', () => {
 
 describe('GET /api/contracts/:id', () => {
   it('should return a contract by id', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'SLA Contract',
       customer: {},
@@ -151,7 +152,7 @@ describe('GET /api/contracts/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000099');
 
@@ -161,10 +162,10 @@ describe('GET /api/contracts/:id', () => {
 
 describe('PUT /api/contracts/:id', () => {
   it('should update a contract', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcContract.update.mockResolvedValue({
+    mockPrisma.fsSvcContract.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -178,7 +179,7 @@ describe('PUT /api/contracts/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/contracts/00000000-0000-0000-0000-000000000099')
@@ -190,10 +191,10 @@ describe('PUT /api/contracts/:id', () => {
 
 describe('DELETE /api/contracts/:id', () => {
   it('should soft delete a contract', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcContract.update.mockResolvedValue({
+    mockPrisma.fsSvcContract.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -205,7 +206,7 @@ describe('DELETE /api/contracts/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcContract.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000099');
 

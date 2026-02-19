@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/release-notes';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -48,8 +49,8 @@ describe('GET /api/release-notes', () => {
       },
       { id: 'cl-2', version: '2.0.1', title: 'Bug fix', publishedAt: new Date() },
     ];
-    (prisma as any).changelog.findMany.mockResolvedValue(changelogs);
-    (prisma as any).changelog.count.mockResolvedValue(2);
+    mockPrisma.changelog.findMany.mockResolvedValue(changelogs);
+    mockPrisma.changelog.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/release-notes');
 
@@ -61,8 +62,8 @@ describe('GET /api/release-notes', () => {
   });
 
   it('should support pagination query params', async () => {
-    (prisma as any).changelog.findMany.mockResolvedValue([]);
-    (prisma as any).changelog.count.mockResolvedValue(0);
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/release-notes?page=2&limit=10');
 
@@ -72,8 +73,8 @@ describe('GET /api/release-notes', () => {
   });
 
   it('should cap limit at 50', async () => {
-    (prisma as any).changelog.findMany.mockResolvedValue([]);
-    (prisma as any).changelog.count.mockResolvedValue(0);
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/release-notes?limit=100');
 
@@ -82,8 +83,8 @@ describe('GET /api/release-notes', () => {
   });
 
   it('should return an empty list when no changelogs exist', async () => {
-    (prisma as any).changelog.findMany.mockResolvedValue([]);
-    (prisma as any).changelog.count.mockResolvedValue(0);
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/release-notes');
 
@@ -93,7 +94,7 @@ describe('GET /api/release-notes', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).changelog.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.changelog.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/release-notes');
 
@@ -113,7 +114,7 @@ describe('GET /api/release-notes/:id', () => {
       title: 'Major release',
       publishedAt: new Date(),
     };
-    (prisma as any).changelog.findUnique.mockResolvedValue(changelog);
+    mockPrisma.changelog.findUnique.mockResolvedValue(changelog);
 
     const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000001');
 
@@ -124,7 +125,7 @@ describe('GET /api/release-notes/:id', () => {
   });
 
   it('should return 404 for a non-existent changelog', async () => {
-    (prisma as any).changelog.findUnique.mockResolvedValue(null);
+    mockPrisma.changelog.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000099');
 
@@ -133,7 +134,7 @@ describe('GET /api/release-notes/:id', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).changelog.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.changelog.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000001');
 

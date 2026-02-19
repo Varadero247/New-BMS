@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/calibrations';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/calibrations', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/calibrations', () => {
   it('should return calibrations list', async () => {
-    (prisma as any).assetCalibration.findMany.mockResolvedValue([
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', referenceNumber: 'ACL-2026-0001' },
     ]);
-    (prisma as any).assetCalibration.count.mockResolvedValue(1);
+    mockPrisma.assetCalibration.count.mockResolvedValue(1);
     const res = await request(app).get('/api/calibrations');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,24 +47,24 @@ describe('GET /api/calibrations', () => {
   });
 
   it('should support status filter', async () => {
-    (prisma as any).assetCalibration.findMany.mockResolvedValue([]);
-    (prisma as any).assetCalibration.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
     const res = await request(app).get('/api/calibrations?status=PASSED');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should support search filter', async () => {
-    (prisma as any).assetCalibration.findMany.mockResolvedValue([]);
-    (prisma as any).assetCalibration.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.findMany.mockResolvedValue([]);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
     const res = await request(app).get('/api/calibrations?search=torque');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).assetCalibration.findMany.mockRejectedValue(new Error('DB error'));
-    (prisma as any).assetCalibration.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.assetCalibration.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.assetCalibration.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/calibrations');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -72,7 +73,7 @@ describe('GET /api/calibrations', () => {
 
 describe('GET /api/calibrations/:id', () => {
   it('should return a calibration by id', async () => {
-    (prisma as any).assetCalibration.findFirst.mockResolvedValue({
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       referenceNumber: 'ACL-2026-0001',
     });
@@ -83,7 +84,7 @@ describe('GET /api/calibrations/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).assetCalibration.findFirst.mockResolvedValue(null);
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/calibrations/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -93,8 +94,8 @@ describe('GET /api/calibrations/:id', () => {
 
 describe('POST /api/calibrations', () => {
   it('should create a calibration', async () => {
-    (prisma as any).assetCalibration.count.mockResolvedValue(0);
-    (prisma as any).assetCalibration.create.mockResolvedValue({
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       referenceNumber: 'ACL-2026-0001',
     });
@@ -127,8 +128,8 @@ describe('POST /api/calibrations', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).assetCalibration.count.mockResolvedValue(0);
-    (prisma as any).assetCalibration.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.create.mockRejectedValue(new Error('DB error'));
     const res = await request(app).post('/api/calibrations').send({
       assetId: 'asset-1',
       scheduledDate: '2026-03-01',
@@ -140,10 +141,10 @@ describe('POST /api/calibrations', () => {
 
 describe('PUT /api/calibrations/:id', () => {
   it('should update a calibration', async () => {
-    (prisma as any).assetCalibration.findFirst.mockResolvedValue({
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).assetCalibration.update.mockResolvedValue({
+    mockPrisma.assetCalibration.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'PASSED',
     });
@@ -155,7 +156,7 @@ describe('PUT /api/calibrations/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).assetCalibration.findFirst.mockResolvedValue(null);
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/calibrations/00000000-0000-0000-0000-000000000099')
       .send({ status: 'PASSED' });
@@ -173,10 +174,10 @@ describe('PUT /api/calibrations/:id', () => {
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).assetCalibration.findFirst.mockResolvedValue({
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).assetCalibration.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.assetCalibration.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app)
       .put('/api/calibrations/00000000-0000-0000-0000-000000000001')
       .send({ status: 'PASSED' });
@@ -187,10 +188,10 @@ describe('PUT /api/calibrations/:id', () => {
 
 describe('DELETE /api/calibrations/:id', () => {
   it('should soft delete a calibration', async () => {
-    (prisma as any).assetCalibration.findFirst.mockResolvedValue({
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).assetCalibration.update.mockResolvedValue({
+    mockPrisma.assetCalibration.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
@@ -200,17 +201,17 @@ describe('DELETE /api/calibrations/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).assetCalibration.findFirst.mockResolvedValue(null);
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).assetCalibration.findFirst.mockResolvedValue({
+    mockPrisma.assetCalibration.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).assetCalibration.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.assetCalibration.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app).delete('/api/calibrations/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

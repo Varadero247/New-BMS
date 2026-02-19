@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/regulatory';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/regulatory', router);
@@ -26,7 +27,7 @@ beforeEach(() => {
 
 describe('GET /api/regulatory', () => {
   it('should return regulatory complaints', async () => {
-    (prisma as any).compComplaint.findMany.mockResolvedValue([
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
       { id: '1', title: 'Regulatory Complaint', isRegulatory: true },
       { id: '2', title: 'Another Regulatory', isRegulatory: true },
     ]);
@@ -37,7 +38,7 @@ describe('GET /api/regulatory', () => {
   });
 
   it('should return empty list when no regulatory complaints', async () => {
-    (prisma as any).compComplaint.findMany.mockResolvedValue([]);
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/regulatory');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -45,7 +46,7 @@ describe('GET /api/regulatory', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).compComplaint.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.compComplaint.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/regulatory');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

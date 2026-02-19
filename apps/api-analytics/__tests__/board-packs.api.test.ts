@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/board-packs';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -44,8 +45,8 @@ describe('GET /api/board-packs', () => {
       { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT', generatedAt: new Date() },
       { id: 'bp-2', status: 'FINAL', generatedAt: new Date() },
     ];
-    (prisma as any).boardPack.findMany.mockResolvedValue(boardPacks);
-    (prisma as any).boardPack.count.mockResolvedValue(2);
+    mockPrisma.boardPack.findMany.mockResolvedValue(boardPacks);
+    mockPrisma.boardPack.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/board-packs');
 
@@ -57,8 +58,8 @@ describe('GET /api/board-packs', () => {
   });
 
   it('should support pagination query params', async () => {
-    (prisma as any).boardPack.findMany.mockResolvedValue([]);
-    (prisma as any).boardPack.count.mockResolvedValue(0);
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/board-packs?page=2&limit=5');
 
@@ -68,7 +69,7 @@ describe('GET /api/board-packs', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).boardPack.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.boardPack.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/board-packs');
 
@@ -87,7 +88,7 @@ describe('GET /api/board-packs/:id', () => {
       status: 'DRAFT',
       generatedAt: new Date(),
     };
-    (prisma as any).boardPack.findUnique.mockResolvedValue(boardPack);
+    mockPrisma.boardPack.findUnique.mockResolvedValue(boardPack);
 
     const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000001');
 
@@ -97,7 +98,7 @@ describe('GET /api/board-packs/:id', () => {
   });
 
   it('should return 404 for a non-existent board pack', async () => {
-    (prisma as any).boardPack.findUnique.mockResolvedValue(null);
+    mockPrisma.boardPack.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000099');
 
@@ -106,7 +107,7 @@ describe('GET /api/board-packs/:id', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).boardPack.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.boardPack.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/board-packs/00000000-0000-0000-0000-000000000001');
 
@@ -122,8 +123,8 @@ describe('PATCH /api/board-packs/:id', () => {
   it('should transition DRAFT to FINAL', async () => {
     const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' };
     const updated = { id: '00000000-0000-0000-0000-000000000001', status: 'FINAL' };
-    (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
-    (prisma as any).boardPack.update.mockResolvedValue(updated);
+    mockPrisma.boardPack.findUnique.mockResolvedValue(existing);
+    mockPrisma.boardPack.update.mockResolvedValue(updated);
 
     const res = await request(app)
       .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
@@ -137,8 +138,8 @@ describe('PATCH /api/board-packs/:id', () => {
   it('should transition FINAL to DISTRIBUTED', async () => {
     const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'FINAL' };
     const updated = { id: '00000000-0000-0000-0000-000000000001', status: 'DISTRIBUTED' };
-    (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
-    (prisma as any).boardPack.update.mockResolvedValue(updated);
+    mockPrisma.boardPack.findUnique.mockResolvedValue(existing);
+    mockPrisma.boardPack.update.mockResolvedValue(updated);
 
     const res = await request(app)
       .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
@@ -150,7 +151,7 @@ describe('PATCH /api/board-packs/:id', () => {
 
   it('should reject invalid status transition (DRAFT to DISTRIBUTED)', async () => {
     const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' };
-    (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
+    mockPrisma.boardPack.findUnique.mockResolvedValue(existing);
 
     const res = await request(app)
       .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
@@ -162,7 +163,7 @@ describe('PATCH /api/board-packs/:id', () => {
 
   it('should reject transition from DISTRIBUTED', async () => {
     const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DISTRIBUTED' };
-    (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
+    mockPrisma.boardPack.findUnique.mockResolvedValue(existing);
 
     const res = await request(app)
       .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
@@ -172,7 +173,7 @@ describe('PATCH /api/board-packs/:id', () => {
   });
 
   it('should return 404 for a non-existent board pack', async () => {
-    (prisma as any).boardPack.findUnique.mockResolvedValue(null);
+    mockPrisma.boardPack.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .patch('/api/board-packs/00000000-0000-0000-0000-000000000099')
@@ -184,7 +185,7 @@ describe('PATCH /api/board-packs/:id', () => {
 
   it('should return 400 for invalid status value', async () => {
     const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' };
-    (prisma as any).boardPack.findUnique.mockResolvedValue(existing);
+    mockPrisma.boardPack.findUnique.mockResolvedValue(existing);
 
     const res = await request(app)
       .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
@@ -195,7 +196,7 @@ describe('PATCH /api/board-packs/:id', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).boardPack.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.boardPack.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')

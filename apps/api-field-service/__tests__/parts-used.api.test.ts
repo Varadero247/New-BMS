@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import partsUsedRouter from '../src/routes/parts-used';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -43,8 +44,8 @@ describe('GET /api/parts-used', () => {
     const parts = [
       { id: '00000000-0000-0000-0000-000000000001', partName: 'Filter', quantity: 2, job: {} },
     ];
-    (prisma as any).fsSvcPartUsed.findMany.mockResolvedValue(parts);
-    (prisma as any).fsSvcPartUsed.count.mockResolvedValue(1);
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue(parts);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/parts-used');
 
@@ -54,12 +55,12 @@ describe('GET /api/parts-used', () => {
   });
 
   it('should filter by jobId', async () => {
-    (prisma as any).fsSvcPartUsed.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcPartUsed.count.mockResolvedValue(0);
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(0);
 
     await request(app).get('/api/parts-used?jobId=job-1');
 
-    expect((prisma as any).fsSvcPartUsed.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcPartUsed.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ jobId: 'job-1' }),
       })
@@ -67,7 +68,7 @@ describe('GET /api/parts-used', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).fsSvcPartUsed.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSvcPartUsed.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/parts-used');
 
@@ -84,7 +85,7 @@ describe('POST /api/parts-used', () => {
       unitCost: 150,
       totalCost: 150,
     };
-    (prisma as any).fsSvcPartUsed.create.mockResolvedValue(created);
+    mockPrisma.fsSvcPartUsed.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/parts-used').send({
       jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -108,7 +109,7 @@ describe('POST /api/parts-used', () => {
 
 describe('GET /api/parts-used/:id', () => {
   it('should return a part used entry', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       partName: 'Filter',
       job: {},
@@ -121,7 +122,7 @@ describe('GET /api/parts-used/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/parts-used/00000000-0000-0000-0000-000000000099');
 
@@ -131,10 +132,10 @@ describe('GET /api/parts-used/:id', () => {
 
 describe('PUT /api/parts-used/:id', () => {
   it('should update a part used entry', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcPartUsed.update.mockResolvedValue({
+    mockPrisma.fsSvcPartUsed.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       quantity: 3,
     });
@@ -147,7 +148,7 @@ describe('PUT /api/parts-used/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/parts-used/00000000-0000-0000-0000-000000000099')
@@ -159,10 +160,10 @@ describe('PUT /api/parts-used/:id', () => {
 
 describe('DELETE /api/parts-used/:id', () => {
   it('should soft delete a part used entry', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcPartUsed.update.mockResolvedValue({
+    mockPrisma.fsSvcPartUsed.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -174,7 +175,7 @@ describe('DELETE /api/parts-used/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcPartUsed.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/parts-used/00000000-0000-0000-0000-000000000099');
 

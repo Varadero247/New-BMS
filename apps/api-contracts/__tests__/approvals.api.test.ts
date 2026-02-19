@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/approvals';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/approvals', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/approvals', () => {
   it('should return approvals', async () => {
-    (prisma as any).contApproval.findMany.mockResolvedValue([
+    mockPrisma.contApproval.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Test' },
     ]);
-    (prisma as any).contApproval.count.mockResolvedValue(1);
+    mockPrisma.contApproval.count.mockResolvedValue(1);
     const res = await request(app).get('/api/approvals');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,12 +47,12 @@ describe('GET /api/approvals', () => {
 
 describe('GET /api/approvals/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).contApproval.findFirst.mockResolvedValue(null);
+    mockPrisma.contApproval.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).contApproval.findFirst.mockResolvedValue({
+    mockPrisma.contApproval.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000001');
@@ -62,8 +63,8 @@ describe('GET /api/approvals/:id', () => {
 
 describe('POST /api/approvals', () => {
   it('should create', async () => {
-    (prisma as any).contApproval.count.mockResolvedValue(0);
-    (prisma as any).contApproval.create.mockResolvedValue({
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    mockPrisma.contApproval.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New',
     });
@@ -77,10 +78,10 @@ describe('POST /api/approvals', () => {
 
 describe('PUT /api/approvals/:id', () => {
   it('should update', async () => {
-    (prisma as any).contApproval.findFirst.mockResolvedValue({
+    mockPrisma.contApproval.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).contApproval.update.mockResolvedValue({
+    mockPrisma.contApproval.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -93,10 +94,10 @@ describe('PUT /api/approvals/:id', () => {
 
 describe('DELETE /api/approvals/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).contApproval.findFirst.mockResolvedValue({
+    mockPrisma.contApproval.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).contApproval.update.mockResolvedValue({
+    mockPrisma.contApproval.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/approvals/00000000-0000-0000-0000-000000000001');

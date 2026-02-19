@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/suppliers';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/suppliers', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/suppliers', () => {
   it('should return suppliers with pagination', async () => {
-    (prisma as any).suppSupplier.findMany.mockResolvedValue([
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', name: 'Acme Corp' },
     ]);
-    (prisma as any).suppSupplier.count.mockResolvedValue(1);
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
     const res = await request(app).get('/api/suppliers');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,23 +47,23 @@ describe('GET /api/suppliers', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).suppSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
     const res = await request(app).get('/api/suppliers?status=APPROVED');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should search by name', async () => {
-    (prisma as any).suppSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
     const res = await request(app).get('/api/suppliers?search=acme');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).suppSupplier.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSupplier.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/suppliers');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -72,7 +73,7 @@ describe('GET /api/suppliers', () => {
 
 describe('GET /api/suppliers/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -80,7 +81,7 @@ describe('GET /api/suppliers/:id', () => {
   });
 
   it('should return item by id', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue({
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Acme Corp',
     });
@@ -91,7 +92,7 @@ describe('GET /api/suppliers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).suppSupplier.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSupplier.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -101,8 +102,8 @@ describe('GET /api/suppliers/:id', () => {
 
 describe('POST /api/suppliers', () => {
   it('should create', async () => {
-    (prisma as any).suppSupplier.count.mockResolvedValue(0);
-    (prisma as any).suppSupplier.create.mockResolvedValue({
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppSupplier.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'New Supplier',
       referenceNumber: 'SUP-2026-0001',
@@ -128,8 +129,8 @@ describe('POST /api/suppliers', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).suppSupplier.count.mockResolvedValue(0);
-    (prisma as any).suppSupplier.create.mockRejectedValue(new Error('Unique constraint'));
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppSupplier.create.mockRejectedValue(new Error('Unique constraint'));
     const res = await request(app).post('/api/suppliers').send({ name: 'Duplicate' });
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -139,10 +140,10 @@ describe('POST /api/suppliers', () => {
 
 describe('PUT /api/suppliers/:id', () => {
   it('should update', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue({
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).suppSupplier.update.mockResolvedValue({
+    mockPrisma.suppSupplier.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -154,7 +155,7 @@ describe('PUT /api/suppliers/:id', () => {
   });
 
   it('should return 404 when supplier not found', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/suppliers/00000000-0000-0000-0000-000000000099')
       .send({ name: 'Updated' });
@@ -164,10 +165,10 @@ describe('PUT /api/suppliers/:id', () => {
   });
 
   it('should return 500 on database update error', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue({
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).suppSupplier.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSupplier.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app)
       .put('/api/suppliers/00000000-0000-0000-0000-000000000001')
       .send({ name: 'Updated' });
@@ -179,10 +180,10 @@ describe('PUT /api/suppliers/:id', () => {
 
 describe('DELETE /api/suppliers/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue({
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).suppSupplier.update.mockResolvedValue({
+    mockPrisma.suppSupplier.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
@@ -191,7 +192,7 @@ describe('DELETE /api/suppliers/:id', () => {
   });
 
   it('should return 404 when supplier not found', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -199,10 +200,10 @@ describe('DELETE /api/suppliers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).suppSupplier.findFirst.mockResolvedValue({
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).suppSupplier.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSupplier.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

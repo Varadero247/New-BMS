@@ -21,6 +21,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/dashboard';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/dashboard', router);
@@ -30,9 +31,9 @@ beforeEach(() => {
 
 describe('GET /api/dashboard/stats', () => {
   it('should return stats with counts', async () => {
-    (prisma as any).docDocument.count.mockResolvedValue(10);
-    (prisma as any).docVersion.count.mockResolvedValue(25);
-    (prisma as any).docApproval.count.mockResolvedValue(3);
+    mockPrisma.docDocument.count.mockResolvedValue(10);
+    mockPrisma.docVersion.count.mockResolvedValue(25);
+    mockPrisma.docApproval.count.mockResolvedValue(3);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -42,9 +43,9 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).docDocument.count.mockRejectedValue(new Error('DB error'));
-    (prisma as any).docVersion.count.mockResolvedValue(0);
-    (prisma as any).docApproval.count.mockResolvedValue(0);
+    mockPrisma.docDocument.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -52,9 +53,9 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return zero counts when no documents exist', async () => {
-    (prisma as any).docDocument.count.mockResolvedValue(0);
-    (prisma as any).docVersion.count.mockResolvedValue(0);
-    (prisma as any).docApproval.count.mockResolvedValue(0);
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

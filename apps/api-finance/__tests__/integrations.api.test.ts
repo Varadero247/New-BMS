@@ -36,6 +36,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import integrationsRouter from '../src/routes/integrations';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -71,7 +72,7 @@ describe('GET /api/integrations', () => {
         syncLogs: [],
       },
     ];
-    (prisma as any).finIntegration.findMany.mockResolvedValue(integrations);
+    mockPrisma.finIntegration.findMany.mockResolvedValue(integrations);
 
     const res = await request(app).get('/api/integrations');
 
@@ -81,7 +82,7 @@ describe('GET /api/integrations', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finIntegration.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finIntegration.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/integrations');
 
@@ -95,7 +96,7 @@ describe('GET /api/integrations', () => {
 
 describe('GET /api/integrations/:id', () => {
   it('should return integration with recent sync logs', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       name: 'Xero Sync',
       provider: 'XERO',
@@ -125,7 +126,7 @@ describe('GET /api/integrations/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
+    mockPrisma.finIntegration.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get('/api/integrations/00000000-0000-0000-0000-000000000099');
 
@@ -133,7 +134,7 @@ describe('GET /api/integrations/:id', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finIntegration.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finIntegration.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/integrations/f5000000-0000-4000-a000-000000000001');
 
@@ -154,7 +155,7 @@ describe('POST /api/integrations', () => {
   };
 
   it('should create an integration', async () => {
-    (prisma as any).finIntegration.create.mockResolvedValue({
+    mockPrisma.finIntegration.create.mockResolvedValue({
       id: 'int-new',
       ...validIntegration,
       isActive: false,
@@ -169,7 +170,7 @@ describe('POST /api/integrations', () => {
 
   it('should create with minimal fields', async () => {
     const minimal = { provider: 'QUICKBOOKS', name: 'QuickBooks' };
-    (prisma as any).finIntegration.create.mockResolvedValue({
+    mockPrisma.finIntegration.create.mockResolvedValue({
       id: 'int-new',
       ...minimal,
       direction: 'BIDIRECTIONAL',
@@ -196,7 +197,7 @@ describe('POST /api/integrations', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finIntegration.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finIntegration.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/integrations').send(validIntegration);
 
@@ -210,11 +211,11 @@ describe('POST /api/integrations', () => {
 
 describe('PUT /api/integrations/:id', () => {
   it('should update an integration', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       name: 'Old Name',
     });
-    (prisma as any).finIntegration.update.mockResolvedValue({
+    mockPrisma.finIntegration.update.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       name: 'Updated Xero Sync',
     });
@@ -228,7 +229,7 @@ describe('PUT /api/integrations/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
+    mockPrisma.finIntegration.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/integrations/00000000-0000-0000-0000-000000000099')
@@ -238,7 +239,7 @@ describe('PUT /api/integrations/:id', () => {
   });
 
   it('should return 400 for validation error', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
     });
 
@@ -256,11 +257,11 @@ describe('PUT /api/integrations/:id', () => {
 
 describe('POST /api/integrations/:id/activate', () => {
   it('should activate an integration', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       isActive: false,
     });
-    (prisma as any).finIntegration.update.mockResolvedValue({
+    mockPrisma.finIntegration.update.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       isActive: true,
     });
@@ -274,7 +275,7 @@ describe('POST /api/integrations/:id/activate', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
+    mockPrisma.finIntegration.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/integrations/00000000-0000-0000-0000-000000000099/activate'
@@ -284,7 +285,7 @@ describe('POST /api/integrations/:id/activate', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finIntegration.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finIntegration.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post(
       '/api/integrations/f5000000-0000-4000-a000-000000000001/activate'
@@ -296,11 +297,11 @@ describe('POST /api/integrations/:id/activate', () => {
 
 describe('POST /api/integrations/:id/deactivate', () => {
   it('should deactivate an integration', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       isActive: true,
     });
-    (prisma as any).finIntegration.update.mockResolvedValue({
+    mockPrisma.finIntegration.update.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       isActive: false,
     });
@@ -314,7 +315,7 @@ describe('POST /api/integrations/:id/deactivate', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
+    mockPrisma.finIntegration.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/integrations/00000000-0000-0000-0000-000000000099/deactivate'
@@ -330,13 +331,13 @@ describe('POST /api/integrations/:id/deactivate', () => {
 
 describe('POST /api/integrations/:id/sync', () => {
   it('should trigger sync for an active integration', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       isActive: true,
       direction: 'BIDIRECTIONAL',
     });
-    (prisma as any).finSyncLog.create.mockResolvedValue({ id: 'log-new', status: 'PENDING' });
-    (prisma as any).finIntegration.update.mockResolvedValue({
+    mockPrisma.finSyncLog.create.mockResolvedValue({ id: 'log-new', status: 'PENDING' });
+    mockPrisma.finIntegration.update.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
     });
 
@@ -350,7 +351,7 @@ describe('POST /api/integrations/:id/sync', () => {
   });
 
   it('should return 404 when integration not found', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue(null);
+    mockPrisma.finIntegration.findUnique.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/integrations/00000000-0000-0000-0000-000000000099/sync'
@@ -360,7 +361,7 @@ describe('POST /api/integrations/:id/sync', () => {
   });
 
   it('should return 400 when integration is inactive', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       isActive: false,
     });
@@ -374,12 +375,12 @@ describe('POST /api/integrations/:id/sync', () => {
   });
 
   it('should return 500 on error during sync', async () => {
-    (prisma as any).finIntegration.findUnique.mockResolvedValue({
+    mockPrisma.finIntegration.findUnique.mockResolvedValue({
       id: 'f5000000-0000-4000-a000-000000000001',
       isActive: true,
       direction: 'BIDIRECTIONAL',
     });
-    (prisma as any).finSyncLog.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finSyncLog.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post(
       '/api/integrations/f5000000-0000-4000-a000-000000000001/sync'
@@ -410,8 +411,8 @@ describe('GET /api/integrations/:id/logs', () => {
         errorMessage: 'Connection timeout',
       },
     ];
-    (prisma as any).finSyncLog.findMany.mockResolvedValue(logs);
-    (prisma as any).finSyncLog.count.mockResolvedValue(2);
+    mockPrisma.finSyncLog.findMany.mockResolvedValue(logs);
+    mockPrisma.finSyncLog.count.mockResolvedValue(2);
 
     const res = await request(app).get(
       '/api/integrations/f5000000-0000-4000-a000-000000000001/logs'
@@ -424,8 +425,8 @@ describe('GET /api/integrations/:id/logs', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).finSyncLog.findMany.mockResolvedValue([]);
-    (prisma as any).finSyncLog.count.mockResolvedValue(50);
+    mockPrisma.finSyncLog.findMany.mockResolvedValue([]);
+    mockPrisma.finSyncLog.count.mockResolvedValue(50);
 
     const res = await request(app).get(
       '/api/integrations/f5000000-0000-4000-a000-000000000001/logs?page=3&limit=10'
@@ -437,8 +438,8 @@ describe('GET /api/integrations/:id/logs', () => {
   });
 
   it('should return empty list when no logs exist', async () => {
-    (prisma as any).finSyncLog.findMany.mockResolvedValue([]);
-    (prisma as any).finSyncLog.count.mockResolvedValue(0);
+    mockPrisma.finSyncLog.findMany.mockResolvedValue([]);
+    mockPrisma.finSyncLog.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/integrations/f5000000-0000-4000-a000-000000000001/logs'
@@ -450,7 +451,7 @@ describe('GET /api/integrations/:id/logs', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).finSyncLog.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finSyncLog.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(
       '/api/integrations/f5000000-0000-4000-a000-000000000001/logs'

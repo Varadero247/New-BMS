@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import recallsRouter from '../src/routes/recalls';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/recalls', () => {
   it('should return recalls with pagination', async () => {
-    (prisma as any).fsRecall.findMany.mockResolvedValue([
+    mockPrisma.fsRecall.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', productName: 'Product A' },
     ]);
-    (prisma as any).fsRecall.count.mockResolvedValue(1);
+    mockPrisma.fsRecall.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/recalls');
     expect(res.status).toBe(200);
@@ -49,37 +50,37 @@ describe('GET /api/recalls', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsRecall.findMany.mockResolvedValue([]);
-    (prisma as any).fsRecall.count.mockResolvedValue(0);
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    mockPrisma.fsRecall.count.mockResolvedValue(0);
 
     await request(app).get('/api/recalls?status=INITIATED');
-    expect((prisma as any).fsRecall.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsRecall.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'INITIATED' }) })
     );
   });
 
   it('should filter by severity', async () => {
-    (prisma as any).fsRecall.findMany.mockResolvedValue([]);
-    (prisma as any).fsRecall.count.mockResolvedValue(0);
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    mockPrisma.fsRecall.count.mockResolvedValue(0);
 
     await request(app).get('/api/recalls?severity=CRITICAL');
-    expect((prisma as any).fsRecall.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsRecall.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ severity: 'CRITICAL' }) })
     );
   });
 
   it('should filter by type', async () => {
-    (prisma as any).fsRecall.findMany.mockResolvedValue([]);
-    (prisma as any).fsRecall.count.mockResolvedValue(0);
+    mockPrisma.fsRecall.findMany.mockResolvedValue([]);
+    mockPrisma.fsRecall.count.mockResolvedValue(0);
 
     await request(app).get('/api/recalls?type=VOLUNTARY');
-    expect((prisma as any).fsRecall.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsRecall.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ type: 'VOLUNTARY' }) })
     );
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsRecall.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsRecall.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/recalls');
     expect(res.status).toBe(500);
@@ -93,7 +94,7 @@ describe('POST /api/recalls', () => {
       number: 'RCL-2602-1234',
       productName: 'Product A',
     };
-    (prisma as any).fsRecall.create.mockResolvedValue(created);
+    mockPrisma.fsRecall.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/recalls').send({
       productName: 'Product A',
@@ -113,7 +114,7 @@ describe('POST /api/recalls', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsRecall.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsRecall.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/recalls').send({
       productName: 'Product A',
@@ -129,7 +130,7 @@ describe('POST /api/recalls', () => {
 
 describe('GET /api/recalls/:id', () => {
   it('should return a recall by id', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue({
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -139,7 +140,7 @@ describe('GET /api/recalls/:id', () => {
   });
 
   it('should return 404 for non-existent recall', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue(null);
+    mockPrisma.fsRecall.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/recalls/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -148,10 +149,10 @@ describe('GET /api/recalls/:id', () => {
 
 describe('PUT /api/recalls/:id', () => {
   it('should update a recall', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue({
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsRecall.update.mockResolvedValue({
+    mockPrisma.fsRecall.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'IN_PROGRESS',
     });
@@ -163,7 +164,7 @@ describe('PUT /api/recalls/:id', () => {
   });
 
   it('should return 404 for non-existent recall', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue(null);
+    mockPrisma.fsRecall.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/recalls/00000000-0000-0000-0000-000000000099')
@@ -174,10 +175,10 @@ describe('PUT /api/recalls/:id', () => {
 
 describe('DELETE /api/recalls/:id', () => {
   it('should soft delete a recall', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue({
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsRecall.update.mockResolvedValue({
+    mockPrisma.fsRecall.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -187,7 +188,7 @@ describe('DELETE /api/recalls/:id', () => {
   });
 
   it('should return 404 for non-existent recall', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue(null);
+    mockPrisma.fsRecall.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/recalls/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -196,11 +197,11 @@ describe('DELETE /api/recalls/:id', () => {
 
 describe('PUT /api/recalls/:id/complete', () => {
   it('should complete a recall', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue({
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'IN_PROGRESS',
     });
-    (prisma as any).fsRecall.update.mockResolvedValue({
+    mockPrisma.fsRecall.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
     });
@@ -213,7 +214,7 @@ describe('PUT /api/recalls/:id/complete', () => {
   });
 
   it('should reject completing an already completed recall', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue({
+    mockPrisma.fsRecall.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
     });
@@ -225,7 +226,7 @@ describe('PUT /api/recalls/:id/complete', () => {
   });
 
   it('should return 404 for non-existent recall', async () => {
-    (prisma as any).fsRecall.findFirst.mockResolvedValue(null);
+    mockPrisma.fsRecall.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/recalls/00000000-0000-0000-0000-000000000099/complete')
@@ -236,7 +237,7 @@ describe('PUT /api/recalls/:id/complete', () => {
 
 describe('GET /api/recalls/active', () => {
   it('should return active recalls', async () => {
-    (prisma as any).fsRecall.findMany.mockResolvedValue([
+    mockPrisma.fsRecall.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', status: 'INITIATED' },
     ]);
 
@@ -246,7 +247,7 @@ describe('GET /api/recalls/active', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsRecall.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsRecall.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/recalls/active');
     expect(res.status).toBe(500);

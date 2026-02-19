@@ -173,7 +173,7 @@ describe('CSS variable mapping (applyThemeVars logic)', () => {
     getElementByIdMock = jest.fn().mockReturnValue(null);
 
     // Mock document globals
-    (global as any).document = {
+    (global as Record<string, unknown>).document = {
       documentElement: {
         style: {
           setProperty: setPropertyMock,
@@ -194,7 +194,7 @@ describe('CSS variable mapping (applyThemeVars logic)', () => {
   });
 
   afterEach(() => {
-    delete (global as any).document;
+    delete (global as Record<string, unknown>).document;
   });
 
   /**
@@ -219,9 +219,9 @@ describe('CSS variable mapping (applyThemeVars logic)', () => {
       const link =
         document.querySelector<HTMLLinkElement>("link[rel*='icon']") ||
         document.createElement('link');
-      (link as any).type = 'image/x-icon';
-      (link as any).rel = 'shortcut icon';
-      (link as any).href = theme.favicon;
+      (link as unknown as Record<string, unknown>).type = 'image/x-icon';
+      (link as unknown as Record<string, unknown>).rel = 'shortcut icon';
+      (link as unknown as Record<string, unknown>).href = theme.favicon;
       document.head.appendChild(link);
     }
 
@@ -235,10 +235,10 @@ describe('CSS variable mapping (applyThemeVars logic)', () => {
       let style = document.getElementById('ims-custom-theme');
       if (!style) {
         style = document.createElement('style');
-        (style as any).id = 'ims-custom-theme';
+        (style as unknown as Record<string, unknown>).id = 'ims-custom-theme';
         document.head.appendChild(style);
       }
-      (style as any).textContent = theme.customCSS;
+      (style as unknown as Record<string, unknown>).textContent = theme.customCSS;
     }
   }
 
@@ -345,15 +345,15 @@ describe('CSS variable mapping (applyThemeVars logic)', () => {
   });
 
   it('should update document.title with brandName preserving page prefix', () => {
-    (global as any).document.title = 'Dashboard | Old Brand';
+    ((global as Record<string, unknown>).document as Record<string, unknown>).title = 'Dashboard | Old Brand';
     applyThemeVars(DEFAULT_THEME);
-    expect((global as any).document.title).toBe('Dashboard | IMS Platform');
+    expect(((global as Record<string, unknown>).document as Record<string, unknown>).title).toBe('Dashboard | IMS Platform');
   });
 
   it('should set document.title to brandName when no separator exists', () => {
-    (global as any).document.title = 'Simple Title';
+    ((global as Record<string, unknown>).document as Record<string, unknown>).title = 'Simple Title';
     applyThemeVars(DEFAULT_THEME);
-    expect((global as any).document.title).toBe('IMS Platform');
+    expect(((global as Record<string, unknown>).document as Record<string, unknown>).title).toBe('IMS Platform');
   });
 
   it('should inject custom CSS into a new style element', () => {
@@ -414,11 +414,11 @@ describe('localStorage caching behavior', () => {
       setItem: jest.fn(),
       removeItem: jest.fn(),
     };
-    (global as any).localStorage = localStorageMock;
+    (global as Record<string, unknown>).localStorage = localStorageMock;
   });
 
   afterEach(() => {
-    delete (global as any).localStorage;
+    delete (global as Record<string, unknown>).localStorage;
   });
 
   it('should read cached theme from localStorage key "ims-theme"', () => {
@@ -480,16 +480,16 @@ describe('API fetch behavior', () => {
 
   beforeEach(() => {
     fetchMock = jest.fn();
-    (global as any).fetch = fetchMock;
-    (global as any).localStorage = {
+    (global as Record<string, unknown>).fetch = fetchMock;
+    (global as Record<string, unknown>).localStorage = {
       getItem: jest.fn().mockReturnValue(null),
       setItem: jest.fn(),
     };
   });
 
   afterEach(() => {
-    delete (global as any).fetch;
-    delete (global as any).localStorage;
+    delete (global as Record<string, unknown>).fetch;
+    delete (global as Record<string, unknown>).localStorage;
   });
 
   it('should call correct MSP branding endpoint', async () => {
@@ -573,7 +573,7 @@ describe('API fetch behavior', () => {
   });
 
   it('should use DEFAULT_THEME when no token is available', () => {
-    (global as any).localStorage.getItem.mockReturnValue(null);
+    ((global as Record<string, unknown>).localStorage as Record<string, jest.Mock>).getItem.mockReturnValue(null);
 
     const token = localStorage.getItem('token');
     const apiUrl = 'http://localhost:4000';
@@ -629,7 +629,7 @@ describe('API fetch behavior', () => {
     expect(merged.customCSS).toBe('body { background: red; }');
     // backgroundColor should remain default because the merge logic only spreads 6 fields
     expect(merged.backgroundColor).toBe('#f8fafc');
-    expect((merged as any).unknownField).toBeUndefined();
+    expect((merged as unknown as Record<string, unknown>).unknownField).toBeUndefined();
   });
 });
 
@@ -729,7 +729,7 @@ describe('Error handling', () => {
 
   it('should fall back to DEFAULT_THEME on fetch error', async () => {
     const fetchMock = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
-    (global as any).fetch = fetchMock;
+    (global as Record<string, unknown>).fetch = fetchMock;
 
     let theme: ThemeConfig = DEFAULT_THEME;
     let error: string | null = null;
@@ -744,7 +744,7 @@ describe('Error handling', () => {
     expect(error).toBe('ECONNREFUSED');
     expect(theme).toEqual(DEFAULT_THEME);
 
-    delete (global as any).fetch;
+    delete (global as Record<string, unknown>).fetch;
   });
 
   it('should handle invalid JSON response gracefully', async () => {
@@ -754,7 +754,7 @@ describe('Error handling', () => {
         throw new SyntaxError('Unexpected token');
       },
     });
-    (global as any).fetch = fetchMock;
+    (global as Record<string, unknown>).fetch = fetchMock;
 
     let error: string | null = null;
     let theme: ThemeConfig = DEFAULT_THEME;
@@ -770,7 +770,7 @@ describe('Error handling', () => {
     expect(error).toBe('Unexpected token');
     expect(theme).toEqual(DEFAULT_THEME);
 
-    delete (global as any).fetch;
+    delete (global as Record<string, unknown>).fetch;
   });
 });
 

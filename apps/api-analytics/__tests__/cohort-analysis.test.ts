@@ -15,11 +15,12 @@ jest.mock('@ims/monitoring', () => ({
 
 import { runCohortAnalysis } from '../src/jobs/cohort-analysis';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 beforeEach(() => {
   jest.clearAllMocks();
   // Default: no historical snapshots → fallback rates used (2.5% churn, 1.5% expansion)
-  (prisma as any).monthlySnapshot.findMany.mockResolvedValue([]);
+  mockPrisma.monthlySnapshot.findMany.mockResolvedValue([]);
 });
 
 describe('runCohortAnalysis', () => {

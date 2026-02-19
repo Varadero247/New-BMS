@@ -77,8 +77,8 @@ describe('Inventory Products API Routes', () => {
     ];
 
     it('should return list of products with pagination', async () => {
-      mockPrisma.product.findMany.mockResolvedValueOnce(mockProducts as any);
-      mockPrisma.product.count.mockResolvedValueOnce(2);
+      (mockPrisma.product.findMany as jest.Mock).mockResolvedValueOnce(mockProducts);
+      (mockPrisma.product.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app).get('/api/products').set('Authorization', 'Bearer token');
 
@@ -94,8 +94,8 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should support pagination parameters', async () => {
-      mockPrisma.product.findMany.mockResolvedValueOnce([mockProducts[0]] as any);
-      mockPrisma.product.count.mockResolvedValueOnce(100);
+      mockPrisma.product.findMany.mockResolvedValueOnce([mockProducts[0]]);
+      (mockPrisma.product.count as jest.Mock).mockResolvedValueOnce(100);
 
       const response = await request(app)
         .get('/api/products?page=2&limit=10')
@@ -180,12 +180,12 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should filter low stock products', async () => {
-      mockPrisma.product.findMany.mockResolvedValueOnce(mockProducts as any);
-      mockPrisma.product.count.mockResolvedValueOnce(2);
+      mockPrisma.product.findMany.mockResolvedValueOnce(mockProducts);
+      (mockPrisma.product.count as jest.Mock).mockResolvedValueOnce(2);
       mockPrisma.inventory.groupBy.mockResolvedValueOnce([
         { productId: '27000000-0000-4000-a000-000000000001', _sum: { quantityOnHand: 5 } },
         { productId: 'prod-2', _sum: { quantityOnHand: 20 } },
-      ] as any);
+      ]);
 
       const response = await request(app)
         .get('/api/products?lowStock=true')
@@ -198,7 +198,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.product.findMany.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.product.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app).get('/api/products').set('Authorization', 'Bearer token');
 
@@ -221,7 +221,7 @@ describe('Inventory Products API Routes', () => {
             { quantityOnHand: 5, warehouseId: '28000000-0000-4000-a000-000000000001' },
           ],
         },
-      ] as any);
+      ]);
 
       const response = await request(app)
         .get('/api/products/low-stock')
@@ -234,7 +234,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should only include active products', async () => {
-      mockPrisma.product.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.product.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app).get('/api/products/low-stock').set('Authorization', 'Bearer token');
 
@@ -267,7 +267,7 @@ describe('Inventory Products API Routes', () => {
         category: { id: '4d000000-0000-4000-a000-000000000001', name: 'Widgets' },
         supplier: { id: '25000000-0000-4000-a000-000000000001', name: 'Acme' },
         inventoryItems: [],
-      } as any);
+      });
 
       const response = await request(app)
         .get('/api/products/search?q=SKU001')
@@ -279,11 +279,11 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should find product by barcode', async () => {
-      mockPrisma.product.findFirst.mockResolvedValueOnce({
+      (mockPrisma.product.findFirst as jest.Mock).mockResolvedValueOnce({
         id: '27000000-0000-4000-a000-000000000001',
         sku: 'SKU001',
         barcode: '1234567890',
-      } as any);
+      });
 
       const response = await request(app)
         .get('/api/products/search?q=1234567890')
@@ -302,7 +302,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should return 404 when product not found', async () => {
-      mockPrisma.product.findFirst.mockResolvedValueOnce(null);
+      (mockPrisma.product.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .get('/api/products/search?q=NONEXISTENT')
@@ -340,7 +340,7 @@ describe('Inventory Products API Routes', () => {
     };
 
     it('should return single product with inventory', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce(mockProduct as any);
+      mockPrisma.product.findUnique.mockResolvedValueOnce(mockProduct);
 
       const response = await request(app)
         .get('/api/products/27000000-0000-4000-a000-000000000001')
@@ -353,7 +353,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff product', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .get('/api/products/00000000-0000-4000-a000-ffffffffffff')
@@ -391,7 +391,7 @@ describe('Inventory Products API Routes', () => {
         status: 'ACTIVE',
         category: null,
         supplier: null,
-      } as any);
+      });
 
       const response = await request(app)
         .post('/api/products')
@@ -404,11 +404,11 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should set createdById from authenticated user', async () => {
-      mockPrisma.product.findUnique.mockResolvedValue(null);
+      (mockPrisma.product.findUnique as jest.Mock).mockResolvedValue(null);
       mockPrisma.product.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         createdById: '20000000-0000-4000-a000-000000000123',
-      } as any);
+      });
 
       await request(app)
         .post('/api/products')
@@ -425,7 +425,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should return 400 for duplicate SKU', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce({ id: 'existing' } as any);
+      (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'existing' });
 
       const response = await request(app)
         .post('/api/products')
@@ -439,7 +439,7 @@ describe('Inventory Products API Routes', () => {
     it('should return 400 for duplicate barcode', async () => {
       mockPrisma.product.findUnique
         .mockResolvedValueOnce(null) // SKU check
-        .mockResolvedValueOnce({ id: 'existing' } as any); // Barcode check
+        .mockResolvedValueOnce({ id: 'existing' }); // Barcode check
 
       const response = await request(app)
         .post('/api/products')
@@ -481,7 +481,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.product.findUnique.mockResolvedValue(null);
+      (mockPrisma.product.findUnique as jest.Mock).mockResolvedValue(null);
       mockPrisma.product.create.mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
@@ -504,12 +504,12 @@ describe('Inventory Products API Routes', () => {
     };
 
     it('should update product successfully', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce(existingProduct as any);
-      mockPrisma.product.update.mockResolvedValueOnce({
+      mockPrisma.product.findUnique.mockResolvedValueOnce(existingProduct);
+      (mockPrisma.product.update as jest.Mock).mockResolvedValueOnce({
         ...existingProduct,
         name: 'Updated Widget',
         version: 2,
-      } as any);
+      });
 
       const response = await request(app)
         .patch('/api/products/27000000-0000-4000-a000-000000000001')
@@ -521,7 +521,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff product', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .patch('/api/products/00000000-0000-4000-a000-ffffffffffff')
@@ -536,7 +536,7 @@ describe('Inventory Products API Routes', () => {
       mockPrisma.product.findUnique.mockResolvedValueOnce({
         ...existingProduct,
         version: 2,
-      } as any);
+      });
 
       const response = await request(app)
         .patch('/api/products/27000000-0000-4000-a000-000000000001')
@@ -549,8 +549,8 @@ describe('Inventory Products API Routes', () => {
 
     it('should check for duplicate SKU on change', async () => {
       mockPrisma.product.findUnique
-        .mockResolvedValueOnce(existingProduct as any) // Find existing
-        .mockResolvedValueOnce({ id: 'other' } as any); // Duplicate check
+        .mockResolvedValueOnce(existingProduct) // Find existing
+        .mockResolvedValueOnce({ id: 'other' }); // Duplicate check
 
       const response = await request(app)
         .patch('/api/products/27000000-0000-4000-a000-000000000001')
@@ -562,11 +562,11 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should allow updating status', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce(existingProduct as any);
-      mockPrisma.product.update.mockResolvedValueOnce({
+      (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce(existingProduct);
+      (mockPrisma.product.update as jest.Mock).mockResolvedValueOnce({
         ...existingProduct,
         status: 'DISCONTINUED',
-      } as any);
+      });
 
       const response = await request(app)
         .patch('/api/products/27000000-0000-4000-a000-000000000001')
@@ -577,7 +577,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      mockPrisma.product.findUnique.mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.product.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .patch('/api/products/27000000-0000-4000-a000-000000000001')
@@ -594,8 +594,8 @@ describe('Inventory Products API Routes', () => {
       mockPrisma.product.findUnique.mockResolvedValueOnce({
         id: '27000000-0000-4000-a000-000000000001',
         inventoryItems: [],
-      } as any);
-      mockPrisma.product.update.mockResolvedValueOnce({} as any);
+      });
+      (mockPrisma.product.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/products/27000000-0000-4000-a000-000000000001')
@@ -605,7 +605,7 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should return 404 for 00000000-0000-4000-a000-ffffffffffff product', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .delete('/api/products/00000000-0000-4000-a000-ffffffffffff')
@@ -619,7 +619,7 @@ describe('Inventory Products API Routes', () => {
       mockPrisma.product.findUnique.mockResolvedValueOnce({
         id: '27000000-0000-4000-a000-000000000001',
         inventoryItems: [{ quantityOnHand: 50 }],
-      } as any);
+      });
 
       const response = await request(app)
         .delete('/api/products/27000000-0000-4000-a000-000000000001')
@@ -630,11 +630,11 @@ describe('Inventory Products API Routes', () => {
     });
 
     it('should allow deletion if inventory is zero', async () => {
-      mockPrisma.product.findUnique.mockResolvedValueOnce({
+      (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({
         id: '27000000-0000-4000-a000-000000000001',
         inventoryItems: [{ quantityOnHand: 0 }],
-      } as any);
-      mockPrisma.product.update.mockResolvedValueOnce({} as any);
+      });
+      (mockPrisma.product.update as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/products/27000000-0000-4000-a000-000000000001')

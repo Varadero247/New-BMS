@@ -241,7 +241,7 @@ describe('tax-engine', () => {
     });
 
     it('should throw for unsupported jurisdiction', () => {
-      expect(() => calculateTax('XX' as any, 50000)).toThrow('Unsupported jurisdiction');
+      expect(() => calculateTax('XX' as string, 50000)).toThrow('Unsupported jurisdiction');
     });
   });
 });

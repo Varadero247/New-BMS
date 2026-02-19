@@ -90,7 +90,7 @@ describe('createSignature — comprehensive', () => {
   });
 
   it('should reject invalid meaning', async () => {
-    const request = { ...baseRequest, meaning: 'INVALID_MEANING' as any };
+    const request = { ...baseRequest, meaning: 'INVALID_MEANING' as unknown as import('../src/types').SignatureMeaning };
     const result = await createSignature(request, passwordHash);
     expect(result.signature).toBeNull();
     expect(result.error).toContain('Invalid signature meaning');
@@ -107,7 +107,7 @@ describe('createSignature — comprehensive', () => {
   });
 
   it('should reject lowercase meaning', async () => {
-    const request = { ...baseRequest, meaning: 'approved' as any };
+    const request = { ...baseRequest, meaning: 'approved' as unknown as import('../src/types').SignatureMeaning };
     const result = await createSignature(request, passwordHash);
     expect(result.signature).toBeNull();
   });

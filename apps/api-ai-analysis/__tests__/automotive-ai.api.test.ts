@@ -51,7 +51,7 @@ jest.mock('@ims/monitoring', () => ({
 import { prisma } from '../src/prisma';
 import analyzeRouter from '../src/routes/analyze';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 // Helper to build a mock OpenAI-style fetch response
 function mockOpenAIResponse(content: string, tokensUsed = 150) {

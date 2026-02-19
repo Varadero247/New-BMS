@@ -65,25 +65,25 @@ describe('Security Fix Verification', () => {
   describe('F-004: JWT Issuer and Audience Claims', () => {
     it('should include iss claim in access tokens', () => {
       const token = generateToken({ userId: 'user-123' });
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded.iss).toBe('ims-api');
     });
 
     it('should include aud claim in access tokens', () => {
       const token = generateToken({ userId: 'user-123' });
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded.aud).toBe('ims-client');
     });
 
     it('should include iss claim in refresh tokens', () => {
       const token = generateRefreshToken('user-123');
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded.iss).toBe('ims-api');
     });
 
     it('should include aud claim in refresh tokens', () => {
       const token = generateRefreshToken('user-123');
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded.aud).toBe('ims-client');
     });
 
@@ -156,13 +156,13 @@ describe('Security Fix Verification', () => {
 
     it('should include type=refresh in refresh tokens', () => {
       const token = generateRefreshToken('user-123');
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded.type).toBe('refresh');
     });
 
     it('should not include type=refresh in access tokens', () => {
       const token = generateToken({ userId: 'user-123' });
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded.type).toBeUndefined();
     });
   });
@@ -226,7 +226,7 @@ describe('Security Fix Verification', () => {
   describe('F-004: JWT Secret Enforcement', () => {
     it('should throw without JWT_SECRET in any environment', () => {
       delete process.env.JWT_SECRET;
-      (process.env as any).NODE_ENV = 'production';
+      process.env.NODE_ENV = 'production';
       jest.resetModules();
       const { generateToken: genToken } = require('../src/jwt');
       expect(() => genToken({ userId: 'test' })).toThrow(
@@ -236,7 +236,7 @@ describe('Security Fix Verification', () => {
 
     it('should throw in development without JWT_SECRET', () => {
       delete process.env.JWT_SECRET;
-      (process.env as any).NODE_ENV = 'development';
+      process.env.NODE_ENV = 'development';
       jest.resetModules();
       const { generateToken: genToken } = require('../src/jwt');
       expect(() => genToken({ userId: 'test' })).toThrow(

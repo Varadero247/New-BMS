@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/permits';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/permits', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/permits', () => {
   it('should return permits', async () => {
-    (prisma as any).ptwPermit.findMany.mockResolvedValue([
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Test' },
     ]);
-    (prisma as any).ptwPermit.count.mockResolvedValue(1);
+    mockPrisma.ptwPermit.count.mockResolvedValue(1);
     const res = await request(app).get('/api/permits');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,12 +47,12 @@ describe('GET /api/permits', () => {
 
 describe('GET /api/permits/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).ptwPermit.findFirst.mockResolvedValue(null);
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/permits/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).ptwPermit.findFirst.mockResolvedValue({
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).get('/api/permits/00000000-0000-0000-0000-000000000001');
@@ -62,8 +63,8 @@ describe('GET /api/permits/:id', () => {
 
 describe('POST /api/permits', () => {
   it('should create', async () => {
-    (prisma as any).ptwPermit.count.mockResolvedValue(0);
-    (prisma as any).ptwPermit.create.mockResolvedValue({
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwPermit.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New',
     });
@@ -75,10 +76,10 @@ describe('POST /api/permits', () => {
 
 describe('PUT /api/permits/:id', () => {
   it('should update', async () => {
-    (prisma as any).ptwPermit.findFirst.mockResolvedValue({
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).ptwPermit.update.mockResolvedValue({
+    mockPrisma.ptwPermit.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -91,10 +92,10 @@ describe('PUT /api/permits/:id', () => {
 
 describe('DELETE /api/permits/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).ptwPermit.findFirst.mockResolvedValue({
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).ptwPermit.update.mockResolvedValue({
+    mockPrisma.ptwPermit.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/permits/00000000-0000-0000-0000-000000000001');

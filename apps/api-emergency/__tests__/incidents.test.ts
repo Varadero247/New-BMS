@@ -49,11 +49,11 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const mockIncident = prisma.femEmergencyIncident as any;
-const mockTimeline = prisma.femIncidentTimelineEvent as any;
-const mockDecision = prisma.femIncidentDecisionLog as any;
-const mockResource = prisma.femIncidentResourceLog as any;
-const mockComm = prisma.femIncidentCommunicationLog as any;
+const mockIncident = jest.mocked(prisma.femEmergencyIncident);
+const mockTimeline = jest.mocked(prisma.femIncidentTimelineEvent);
+const mockDecision = jest.mocked(prisma.femIncidentDecisionLog);
+const mockResource = jest.mocked(prisma.femIncidentResourceLog);
+const mockComm = jest.mocked(prisma.femIncidentCommunicationLog);
 
 const INCIDENT_ID = '00000000-0000-0000-0000-000000000001';
 

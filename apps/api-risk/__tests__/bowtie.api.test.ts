@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/bowtie';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/risks', router);
@@ -46,14 +47,14 @@ const validBowtie = {
 
 describe('GET /api/risks/:id/bowtie', () => {
   it('should return bowtie or null', async () => {
-    (prisma as any).riskBowtie.findUnique.mockResolvedValue(null);
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
     const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/bowtie');
     expect(res.status).toBe(200);
     expect(res.body.data).toBeNull();
   });
 
   it('should return existing bowtie', async () => {
-    (prisma as any).riskBowtie.findUnique.mockResolvedValue({ id: 'b1', topEvent: 'Fire' });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue({ id: 'b1', topEvent: 'Fire' });
     const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/bowtie');
     expect(res.status).toBe(200);
     expect(res.body.data.topEvent).toBe('Fire');
@@ -62,13 +63,13 @@ describe('GET /api/risks/:id/bowtie', () => {
 
 describe('POST /api/risks/:id/bowtie', () => {
   it('should create bowtie for HIGH risk', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       residualRiskLevel: 'HIGH',
       inherentRiskLevel: 'HIGH',
     });
-    (prisma as any).riskBowtie.findUnique.mockResolvedValue(null);
-    (prisma as any).riskBowtie.create.mockResolvedValue({ id: 'b1', ...validBowtie });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    mockPrisma.riskBowtie.create.mockResolvedValue({ id: 'b1', ...validBowtie });
     const res = await request(app)
       .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
       .send(validBowtie);
@@ -77,7 +78,7 @@ describe('POST /api/risks/:id/bowtie', () => {
   });
 
   it('should reject bowtie for LOW risk', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       residualRiskLevel: 'LOW',
       inherentRiskLevel: 'LOW',
@@ -90,7 +91,7 @@ describe('POST /api/risks/:id/bowtie', () => {
   });
 
   it('should reject bowtie for MEDIUM risk', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       residualRiskLevel: 'MEDIUM',
       inherentRiskLevel: 'MEDIUM',
@@ -102,12 +103,12 @@ describe('POST /api/risks/:id/bowtie', () => {
   });
 
   it('should update existing bowtie', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       residualRiskLevel: 'CRITICAL',
     });
-    (prisma as any).riskBowtie.findUnique.mockResolvedValue({ id: 'b1', version: '1.0' });
-    (prisma as any).riskBowtie.update.mockResolvedValue({
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue({ id: 'b1', version: '1.0' });
+    mockPrisma.riskBowtie.update.mockResolvedValue({
       id: 'b1',
       ...validBowtie,
       version: '1.1',
@@ -119,7 +120,7 @@ describe('POST /api/risks/:id/bowtie', () => {
   });
 
   it('should return 404 if risk not found', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
       .send(validBowtie);
@@ -129,7 +130,7 @@ describe('POST /api/risks/:id/bowtie', () => {
 
 describe('GET /api/risks/bowtie/all', () => {
   it('should return all bowties', async () => {
-    (prisma as any).riskBowtie.findMany.mockResolvedValue([{ id: 'b1', topEvent: 'Fire' }]);
+    mockPrisma.riskBowtie.findMany.mockResolvedValue([{ id: 'b1', topEvent: 'Fire' }]);
     const res = await request(app).get('/api/risks/bowtie/all');
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);

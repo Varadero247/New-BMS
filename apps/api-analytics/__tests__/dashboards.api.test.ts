@@ -41,6 +41,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import dashboardsRouter from '../src/routes/dashboards';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -65,8 +66,8 @@ describe('GET /api/dashboards', () => {
       },
       { id: 'dash-2', name: 'Sales', ownerId: 'user-123', isPublic: false, analyticsWidgets: [] },
     ];
-    (prisma as any).analyticsDashboard.findMany.mockResolvedValue(dashboards);
-    (prisma as any).analyticsDashboard.count.mockResolvedValue(2);
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue(dashboards);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/dashboards');
 
@@ -78,31 +79,31 @@ describe('GET /api/dashboards', () => {
   });
 
   it('should filter by owner=me', async () => {
-    (prisma as any).analyticsDashboard.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsDashboard.count.mockResolvedValue(0);
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/dashboards?owner=me');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsDashboard.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsDashboard.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ ownerId: 'user-123' }) })
     );
   });
 
   it('should filter by isPublic=true', async () => {
-    (prisma as any).analyticsDashboard.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsDashboard.count.mockResolvedValue(0);
+    mockPrisma.analyticsDashboard.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDashboard.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/dashboards?isPublic=true');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsDashboard.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsDashboard.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isPublic: true }) })
     );
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsDashboard.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsDashboard.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/dashboards');
 
@@ -124,7 +125,7 @@ describe('POST /api/dashboards', () => {
       layout: {},
       widgets: [],
     };
-    (prisma as any).analyticsDashboard.create.mockResolvedValue(created);
+    mockPrisma.analyticsDashboard.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/dashboards').send({ name: 'New Dashboard' });
 
@@ -153,7 +154,7 @@ describe('GET /api/dashboards/default', () => {
       isDefault: true,
       analyticsWidgets: [],
     };
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(dashboard);
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(dashboard);
 
     const res = await request(app).get('/api/dashboards/default');
 
@@ -163,7 +164,7 @@ describe('GET /api/dashboards/default', () => {
   });
 
   it('should return 404 when no default dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/dashboards/default');
 
@@ -181,7 +182,7 @@ describe('GET /api/dashboards/:id', () => {
       name: 'Test',
       analyticsWidgets: [],
     };
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(dashboard);
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(dashboard);
 
     const res = await request(app).get('/api/dashboards/00000000-0000-0000-0000-000000000001');
 
@@ -190,7 +191,7 @@ describe('GET /api/dashboards/:id', () => {
   });
 
   it('should return 404 for non-existent dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/dashboards/00000000-0000-0000-0000-000000000099');
 
@@ -203,10 +204,10 @@ describe('GET /api/dashboards/:id', () => {
 // ===================================================================
 describe('PUT /api/dashboards/:id', () => {
   it('should update a dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue({
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsDashboard.update.mockResolvedValue({
+    mockPrisma.analyticsDashboard.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -220,7 +221,7 @@ describe('PUT /api/dashboards/:id', () => {
   });
 
   it('should return 404 for non-existent dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/dashboards/00000000-0000-0000-0000-000000000099')
@@ -235,14 +236,14 @@ describe('PUT /api/dashboards/:id', () => {
 // ===================================================================
 describe('DELETE /api/dashboards/:id', () => {
   it('should soft delete a dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue({
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsDashboard.update.mockResolvedValue({
+    mockPrisma.analyticsDashboard.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
-    (prisma as any).analyticsWidget.updateMany.mockResolvedValue({ count: 2 });
+    mockPrisma.analyticsWidget.updateMany.mockResolvedValue({ count: 2 });
 
     const res = await request(app).delete('/api/dashboards/00000000-0000-0000-0000-000000000001');
 
@@ -251,7 +252,7 @@ describe('DELETE /api/dashboards/:id', () => {
   });
 
   it('should return 404 for non-existent dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/dashboards/00000000-0000-0000-0000-000000000099');
 
@@ -285,13 +286,13 @@ describe('POST /api/dashboards/:id/clone', () => {
         },
       ],
     };
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(original);
-    (prisma as any).analyticsDashboard.create.mockResolvedValue({
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(original);
+    mockPrisma.analyticsDashboard.create.mockResolvedValue({
       id: 'dash-clone',
       name: 'Original (Copy)',
     });
-    (prisma as any).analyticsWidget.createMany.mockResolvedValue({ count: 1 });
-    (prisma as any).analyticsDashboard.findUnique.mockResolvedValue({
+    mockPrisma.analyticsWidget.createMany.mockResolvedValue({ count: 1 });
+    mockPrisma.analyticsDashboard.findUnique.mockResolvedValue({
       id: 'dash-clone',
       name: 'Original (Copy)',
       analyticsWidgets: [{ id: 'w-clone' }],
@@ -306,7 +307,7 @@ describe('POST /api/dashboards/:id/clone', () => {
   });
 
   it('should return 404 for non-existent dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/dashboards/00000000-0000-0000-0000-000000000099/clone'
@@ -321,10 +322,10 @@ describe('POST /api/dashboards/:id/clone', () => {
 // ===================================================================
 describe('POST /api/dashboards/:id/widgets', () => {
   it('should add a widget to a dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue({
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsWidget.create.mockResolvedValue({
+    mockPrisma.analyticsWidget.create.mockResolvedValue({
       id: 'w-new',
       title: 'New Widget',
       type: 'CHART',
@@ -343,7 +344,7 @@ describe('POST /api/dashboards/:id/widgets', () => {
   });
 
   it('should reject invalid widget data', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue({
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -355,7 +356,7 @@ describe('POST /api/dashboards/:id/widgets', () => {
   });
 
   it('should return 404 for non-existent dashboard', async () => {
-    (prisma as any).analyticsDashboard.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsDashboard.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/dashboards/00000000-0000-0000-0000-000000000099/widgets')
@@ -374,11 +375,11 @@ describe('POST /api/dashboards/:id/widgets', () => {
 // ===================================================================
 describe('PUT /api/dashboards/:id/widgets/:widgetId', () => {
   it('should update a widget', async () => {
-    (prisma as any).analyticsWidget.findFirst.mockResolvedValue({
+    mockPrisma.analyticsWidget.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       dashboardId: 'dash-1',
     });
-    (prisma as any).analyticsWidget.update.mockResolvedValue({
+    mockPrisma.analyticsWidget.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated Widget',
     });
@@ -394,7 +395,7 @@ describe('PUT /api/dashboards/:id/widgets/:widgetId', () => {
   });
 
   it('should return 404 for non-existent widget', async () => {
-    (prisma as any).analyticsWidget.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsWidget.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put(
@@ -411,11 +412,11 @@ describe('PUT /api/dashboards/:id/widgets/:widgetId', () => {
 // ===================================================================
 describe('DELETE /api/dashboards/:id/widgets/:widgetId', () => {
   it('should soft delete a widget', async () => {
-    (prisma as any).analyticsWidget.findFirst.mockResolvedValue({
+    mockPrisma.analyticsWidget.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       dashboardId: 'dash-1',
     });
-    (prisma as any).analyticsWidget.update.mockResolvedValue({
+    mockPrisma.analyticsWidget.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -429,7 +430,7 @@ describe('DELETE /api/dashboards/:id/widgets/:widgetId', () => {
   });
 
   it('should return 404 for non-existent widget', async () => {
-    (prisma as any).analyticsWidget.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsWidget.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(
       '/api/dashboards/00000000-0000-0000-0000-000000000001/widgets/00000000-0000-0000-0000-000000000099'

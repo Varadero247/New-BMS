@@ -51,7 +51,7 @@ describe('JWT Utilities', () => {
 
     it('should include issuer and audience claims', () => {
       const token = generateToken({ userId: 'user-123' });
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded?.iss).toBe('ims-api');
       expect(decoded?.aud).toBe('ims-client');
     });
@@ -95,13 +95,13 @@ describe('JWT Utilities', () => {
 
     it('should include refresh type marker', () => {
       const token = generateRefreshToken('user-123');
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded?.type).toBe('refresh');
     });
 
     it('should include issuer and audience claims', () => {
       const token = generateRefreshToken('user-123');
-      const decoded = decodeToken(token) as any;
+      const decoded = decodeToken(token) as Record<string, unknown>;
       expect(decoded?.iss).toBe('ims-api');
       expect(decoded?.aud).toBe('ims-client');
     });
@@ -269,7 +269,7 @@ describe('JWT Utilities', () => {
 
     it('should throw in development without JWT_SECRET', () => {
       delete process.env.JWT_SECRET;
-      (process.env as any).NODE_ENV = 'development';
+      process.env.NODE_ENV = 'development';
       jest.resetModules();
 
       const { generateToken: genToken } = require('../src/jwt');

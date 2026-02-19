@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/spend';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/spend', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/spend', () => {
   it('should return spend list', async () => {
-    (prisma as any).suppSpend.findMany.mockResolvedValue([
+    mockPrisma.suppSpend.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', amount: 5000, period: '2026-Q1' },
     ]);
-    (prisma as any).suppSpend.count.mockResolvedValue(1);
+    mockPrisma.suppSpend.count.mockResolvedValue(1);
     const res = await request(app).get('/api/spend');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,15 +47,15 @@ describe('GET /api/spend', () => {
   });
 
   it('should support status filter', async () => {
-    (prisma as any).suppSpend.findMany.mockResolvedValue([]);
-    (prisma as any).suppSpend.count.mockResolvedValue(0);
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
     const res = await request(app).get('/api/spend?status=APPROVED');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 500 on DB error', async () => {
-    (prisma as any).suppSpend.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSpend.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/spend');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -64,7 +65,7 @@ describe('GET /api/spend', () => {
 
 describe('GET /api/spend/:id', () => {
   it('should return a spend record by id', async () => {
-    (prisma as any).suppSpend.findFirst.mockResolvedValue({
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       amount: 5000,
     });
@@ -75,7 +76,7 @@ describe('GET /api/spend/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).suppSpend.findFirst.mockResolvedValue(null);
+    mockPrisma.suppSpend.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/spend/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -85,8 +86,8 @@ describe('GET /api/spend/:id', () => {
 
 describe('POST /api/spend', () => {
   it('should create a spend record', async () => {
-    (prisma as any).suppSpend.count.mockResolvedValue(0);
-    (prisma as any).suppSpend.create.mockResolvedValue({
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    mockPrisma.suppSpend.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       supplierId: 'sup-1',
       period: '2026-Q1',
@@ -122,11 +123,11 @@ describe('POST /api/spend', () => {
 
 describe('PUT /api/spend/:id', () => {
   it('should update a spend record', async () => {
-    (prisma as any).suppSpend.findFirst.mockResolvedValue({
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       amount: 5000,
     });
-    (prisma as any).suppSpend.update.mockResolvedValue({
+    mockPrisma.suppSpend.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       amount: 8000,
     });
@@ -138,7 +139,7 @@ describe('PUT /api/spend/:id', () => {
   });
 
   it('should return 404 if spend not found on update', async () => {
-    (prisma as any).suppSpend.findFirst.mockResolvedValue(null);
+    mockPrisma.suppSpend.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/spend/00000000-0000-0000-0000-000000000099')
       .send({ amount: 8000 });
@@ -150,10 +151,10 @@ describe('PUT /api/spend/:id', () => {
 
 describe('DELETE /api/spend/:id', () => {
   it('should soft delete a spend record', async () => {
-    (prisma as any).suppSpend.findFirst.mockResolvedValue({
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).suppSpend.update.mockResolvedValue({
+    mockPrisma.suppSpend.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/spend/00000000-0000-0000-0000-000000000001');
@@ -163,7 +164,7 @@ describe('DELETE /api/spend/:id', () => {
   });
 
   it('should return 404 if spend not found on delete', async () => {
-    (prisma as any).suppSpend.findFirst.mockResolvedValue(null);
+    mockPrisma.suppSpend.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/spend/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);

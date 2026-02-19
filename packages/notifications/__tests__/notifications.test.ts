@@ -146,7 +146,7 @@ describe('notifications', () => {
     });
 
     it('should throw for unknown channel type', () => {
-      expect(() => createChannel('unknown' as any)).toThrow('Unknown channel type');
+      expect(() => createChannel('unknown' as string)).toThrow('Unknown channel type');
     });
   });
 

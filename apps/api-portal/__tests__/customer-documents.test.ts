@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import customerDocumentsRouter from '../src/routes/customer-documents';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -48,8 +49,8 @@ describe('GET /api/customer/documents', () => {
       },
       { id: 'd-2', title: 'Contract', category: 'CONTRACT', visibility: 'SHARED' },
     ];
-    (prisma as any).portalDocument.findMany.mockResolvedValue(items);
-    (prisma as any).portalDocument.count.mockResolvedValue(2);
+    mockPrisma.portalDocument.findMany.mockResolvedValue(items);
+    mockPrisma.portalDocument.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/customer/documents');
 
@@ -59,20 +60,20 @@ describe('GET /api/customer/documents', () => {
   });
 
   it('should filter by category', async () => {
-    (prisma as any).portalDocument.findMany.mockResolvedValue([]);
-    (prisma as any).portalDocument.count.mockResolvedValue(0);
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/customer/documents?category=CONTRACT');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).portalDocument.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.portalDocument.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ category: 'CONTRACT' }) })
     );
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).portalDocument.findMany.mockResolvedValue([]);
-    (prisma as any).portalDocument.count.mockResolvedValue(50);
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(50);
 
     const res = await request(app).get('/api/customer/documents?page=3&limit=10');
 
@@ -81,7 +82,7 @@ describe('GET /api/customer/documents', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalDocument.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalDocument.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/customer/documents');
 
@@ -97,7 +98,7 @@ describe('GET /api/customer/documents/:id', () => {
       visibility: 'PUBLIC',
       portalType: 'CUSTOMER',
     };
-    (prisma as any).portalDocument.findFirst.mockResolvedValue(doc);
+    mockPrisma.portalDocument.findFirst.mockResolvedValue(doc);
 
     const res = await request(app).get(
       '/api/customer/documents/00000000-0000-0000-0000-000000000001'
@@ -108,7 +109,7 @@ describe('GET /api/customer/documents/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).portalDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.portalDocument.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/customer/documents/00000000-0000-0000-0000-000000000099'
@@ -118,7 +119,7 @@ describe('GET /api/customer/documents/:id', () => {
   });
 
   it('should handle server error on fetch', async () => {
-    (prisma as any).portalDocument.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalDocument.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(
       '/api/customer/documents/00000000-0000-0000-0000-000000000001'
@@ -128,8 +129,8 @@ describe('GET /api/customer/documents/:id', () => {
   });
 
   it('should return pagination info', async () => {
-    (prisma as any).portalDocument.findMany.mockResolvedValue([]);
-    (prisma as any).portalDocument.count.mockResolvedValue(0);
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/customer/documents');
 

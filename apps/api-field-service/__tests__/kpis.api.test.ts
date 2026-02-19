@@ -32,6 +32,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import kpisRouter from '../src/routes/kpis';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -52,8 +53,8 @@ describe('GET /api/kpis', () => {
         technician: {},
       },
     ];
-    (prisma as any).fsSvcKpi.findMany.mockResolvedValue(kpis);
-    (prisma as any).fsSvcKpi.count.mockResolvedValue(1);
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue(kpis);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/kpis');
 
@@ -63,12 +64,12 @@ describe('GET /api/kpis', () => {
   });
 
   it('should filter by technicianId', async () => {
-    (prisma as any).fsSvcKpi.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcKpi.count.mockResolvedValue(0);
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
 
     await request(app).get('/api/kpis?technicianId=tech-1');
 
-    expect((prisma as any).fsSvcKpi.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcKpi.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ technicianId: 'tech-1' }),
       })
@@ -76,12 +77,12 @@ describe('GET /api/kpis', () => {
   });
 
   it('should filter by metricType', async () => {
-    (prisma as any).fsSvcKpi.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcKpi.count.mockResolvedValue(0);
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcKpi.count.mockResolvedValue(0);
 
     await request(app).get('/api/kpis?metricType=UTILIZATION');
 
-    expect((prisma as any).fsSvcKpi.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcKpi.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ metricType: 'UTILIZATION' }),
       })
@@ -89,7 +90,7 @@ describe('GET /api/kpis', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).fsSvcKpi.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSvcKpi.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/kpis');
 
@@ -116,8 +117,8 @@ describe('GET /api/kpis/dashboard', () => {
       },
       { metricType: 'UTILIZATION', value: 75, unit: '%', target: 80, technician: { name: 'John' } },
     ];
-    (prisma as any).fsSvcKpi.findMany.mockResolvedValue(kpis);
-    (prisma as any).fsSvcJob.count
+    mockPrisma.fsSvcKpi.findMany.mockResolvedValue(kpis);
+    mockPrisma.fsSvcJob.count
       .mockResolvedValueOnce(50) // totalJobs
       .mockResolvedValueOnce(40) // completedJobs
       .mockResolvedValueOnce(10); // openJobs
@@ -133,7 +134,7 @@ describe('GET /api/kpis/dashboard', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).fsSvcKpi.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSvcKpi.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/kpis/dashboard');
 
@@ -144,7 +145,7 @@ describe('GET /api/kpis/dashboard', () => {
 describe('POST /api/kpis', () => {
   it('should create a KPI', async () => {
     const created = { id: 'kpi-new', metricType: 'FIRST_TIME_FIX', value: 92, unit: '%' };
-    (prisma as any).fsSvcKpi.create.mockResolvedValue(created);
+    mockPrisma.fsSvcKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/kpis').send({
       metricType: 'FIRST_TIME_FIX',
@@ -161,7 +162,7 @@ describe('POST /api/kpis', () => {
 
   it('should create a technician-specific KPI', async () => {
     const created = { id: 'kpi-new', technicianId: 'tech-1', metricType: 'UTILIZATION', value: 80 };
-    (prisma as any).fsSvcKpi.create.mockResolvedValue(created);
+    mockPrisma.fsSvcKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/kpis').send({
       technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
@@ -184,7 +185,7 @@ describe('POST /api/kpis', () => {
 
 describe('GET /api/kpis/:id', () => {
   it('should return a KPI by id', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       metricType: 'FIRST_TIME_FIX',
       technician: {},
@@ -197,7 +198,7 @@ describe('GET /api/kpis/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/kpis/00000000-0000-0000-0000-000000000099');
 
@@ -207,10 +208,10 @@ describe('GET /api/kpis/:id', () => {
 
 describe('PUT /api/kpis/:id', () => {
   it('should update a KPI', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcKpi.update.mockResolvedValue({
+    mockPrisma.fsSvcKpi.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       value: 95,
     });
@@ -223,7 +224,7 @@ describe('PUT /api/kpis/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/kpis/00000000-0000-0000-0000-000000000099')
@@ -235,10 +236,10 @@ describe('PUT /api/kpis/:id', () => {
 
 describe('DELETE /api/kpis/:id', () => {
   it('should soft delete a KPI', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcKpi.update.mockResolvedValue({
+    mockPrisma.fsSvcKpi.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -250,7 +251,7 @@ describe('DELETE /api/kpis/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcKpi.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/kpis/00000000-0000-0000-0000-000000000099');
 

@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import selfDeclarationRouter from '../src/routes/self-declaration';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -69,8 +70,8 @@ const mockDeclaration = {
 // ===================================================================
 describe('GET /api/self-declaration', () => {
   it('should return a paginated list of self-declarations', async () => {
-    (prisma as any).aiSelfDeclaration.findMany.mockResolvedValue([mockDeclaration]);
-    (prisma as any).aiSelfDeclaration.count.mockResolvedValue(1);
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([mockDeclaration]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/self-declaration');
 
@@ -81,8 +82,8 @@ describe('GET /api/self-declaration', () => {
   });
 
   it('should return empty list when no declarations exist', async () => {
-    (prisma as any).aiSelfDeclaration.findMany.mockResolvedValue([]);
-    (prisma as any).aiSelfDeclaration.count.mockResolvedValue(0);
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/self-declaration');
 
@@ -91,13 +92,13 @@ describe('GET /api/self-declaration', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).aiSelfDeclaration.findMany.mockResolvedValue([]);
-    (prisma as any).aiSelfDeclaration.count.mockResolvedValue(0);
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/self-declaration?status=PUBLISHED');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiSelfDeclaration.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiSelfDeclaration.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'PUBLISHED' }),
       })
@@ -105,13 +106,13 @@ describe('GET /api/self-declaration', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).aiSelfDeclaration.findMany.mockResolvedValue([]);
-    (prisma as any).aiSelfDeclaration.count.mockResolvedValue(0);
+    mockPrisma.aiSelfDeclaration.findMany.mockResolvedValue([]);
+    mockPrisma.aiSelfDeclaration.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/self-declaration?search=nexara');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiSelfDeclaration.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiSelfDeclaration.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -123,7 +124,7 @@ describe('GET /api/self-declaration', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiSelfDeclaration.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSelfDeclaration.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/self-declaration');
 
@@ -146,7 +147,7 @@ describe('POST /api/self-declaration', () => {
   };
 
   it('should create a self-declaration successfully', async () => {
-    (prisma as any).aiSelfDeclaration.create.mockResolvedValue({
+    mockPrisma.aiSelfDeclaration.create.mockResolvedValue({
       id: UUID2,
       reference: 'AI42-DEC-2602-9999',
       ...validPayload,
@@ -211,7 +212,7 @@ describe('POST /api/self-declaration', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiSelfDeclaration.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSelfDeclaration.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/self-declaration').send(validPayload);
 
@@ -225,7 +226,7 @@ describe('POST /api/self-declaration', () => {
 // ===================================================================
 describe('GET /api/self-declaration/:id', () => {
   it('should return a self-declaration when found', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
 
     const res = await request(app).get(`/api/self-declaration/${UUID1}`);
 
@@ -236,7 +237,7 @@ describe('GET /api/self-declaration/:id', () => {
   });
 
   it('should return 404 when self-declaration not found', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/self-declaration/${UUID2}`);
 
@@ -246,7 +247,7 @@ describe('GET /api/self-declaration/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSelfDeclaration.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(`/api/self-declaration/${UUID1}`);
 
@@ -260,8 +261,8 @@ describe('GET /api/self-declaration/:id', () => {
 // ===================================================================
 describe('PUT /api/self-declaration/:id', () => {
   it('should update a self-declaration successfully', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
-    (prisma as any).aiSelfDeclaration.update.mockResolvedValue({
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockResolvedValue({
       ...mockDeclaration,
       title: 'Updated Self-Declaration',
     });
@@ -276,7 +277,7 @@ describe('PUT /api/self-declaration/:id', () => {
   });
 
   it('should return 404 when updating non-existent declaration', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(`/api/self-declaration/${UUID2}`).send({ title: 'Updated' });
 
@@ -294,8 +295,8 @@ describe('PUT /api/self-declaration/:id', () => {
   });
 
   it('should return 500 on database error during update', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
-    (prisma as any).aiSelfDeclaration.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/self-declaration/${UUID1}`).send({ title: 'Updated' });
 
@@ -309,8 +310,8 @@ describe('PUT /api/self-declaration/:id', () => {
 // ===================================================================
 describe('PUT /api/self-declaration/:id/publish', () => {
   it('should publish a self-declaration successfully', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
-    (prisma as any).aiSelfDeclaration.update.mockResolvedValue({
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockResolvedValue({
       ...mockDeclaration,
       status: 'PUBLISHED',
       signedBy: 'user-123',
@@ -325,7 +326,7 @@ describe('PUT /api/self-declaration/:id/publish', () => {
   });
 
   it('should return 404 when publishing non-existent declaration', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(`/api/self-declaration/${UUID2}/publish`);
 
@@ -334,7 +335,7 @@ describe('PUT /api/self-declaration/:id/publish', () => {
   });
 
   it('should return 400 when declaration is already published', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue({
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue({
       ...mockDeclaration,
       status: 'PUBLISHED',
     });
@@ -346,8 +347,8 @@ describe('PUT /api/self-declaration/:id/publish', () => {
   });
 
   it('should return 500 on database error during publish', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
-    (prisma as any).aiSelfDeclaration.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/self-declaration/${UUID1}/publish`);
 
@@ -361,8 +362,8 @@ describe('PUT /api/self-declaration/:id/publish', () => {
 // ===================================================================
 describe('DELETE /api/self-declaration/:id', () => {
   it('should soft delete a self-declaration', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
-    (prisma as any).aiSelfDeclaration.update.mockResolvedValue({
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockResolvedValue({
       ...mockDeclaration,
       deletedAt: new Date(),
     });
@@ -375,7 +376,7 @@ describe('DELETE /api/self-declaration/:id', () => {
   });
 
   it('should return 404 when deleting non-existent declaration', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(`/api/self-declaration/${UUID2}`);
 
@@ -384,8 +385,8 @@ describe('DELETE /api/self-declaration/:id', () => {
   });
 
   it('should return 500 on database error during delete', async () => {
-    (prisma as any).aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
-    (prisma as any).aiSelfDeclaration.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSelfDeclaration.findFirst.mockResolvedValue(mockDeclaration);
+    mockPrisma.aiSelfDeclaration.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete(`/api/self-declaration/${UUID1}`);
 

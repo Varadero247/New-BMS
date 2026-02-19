@@ -47,6 +47,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import { campaignRouter, emailSequenceRouter } from '../src/routes/campaigns';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -91,7 +92,7 @@ const mockSequence = {
 
 describe('POST /api/campaigns', () => {
   it('should create campaign with valid data', async () => {
-    (prisma as any).crmCampaign.create.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaign.create.mockResolvedValue(mockCampaign);
 
     const res = await request(app).post('/api/campaigns').send({
       name: 'Spring Promotion',
@@ -104,7 +105,7 @@ describe('POST /api/campaigns', () => {
   });
 
   it('should create campaign with all optional fields', async () => {
-    (prisma as any).crmCampaign.create.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaign.create.mockResolvedValue(mockCampaign);
 
     const res = await request(app).post('/api/campaigns').send({
       name: 'Spring Promotion',
@@ -147,7 +148,7 @@ describe('POST /api/campaigns', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmCampaign.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmCampaign.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/campaigns').send({
       name: 'Test',
@@ -160,8 +161,8 @@ describe('POST /api/campaigns', () => {
 
 describe('GET /api/campaigns', () => {
   it('should return paginated list', async () => {
-    (prisma as any).crmCampaign.findMany.mockResolvedValue([mockCampaign]);
-    (prisma as any).crmCampaign.count.mockResolvedValue(1);
+    mockPrisma.crmCampaign.findMany.mockResolvedValue([mockCampaign]);
+    mockPrisma.crmCampaign.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/campaigns');
 
@@ -172,13 +173,13 @@ describe('GET /api/campaigns', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).crmCampaign.findMany.mockResolvedValue([]);
-    (prisma as any).crmCampaign.count.mockResolvedValue(0);
+    mockPrisma.crmCampaign.findMany.mockResolvedValue([]);
+    mockPrisma.crmCampaign.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/campaigns?status=ACTIVE');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).crmCampaign.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.crmCampaign.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'ACTIVE' }),
       })
@@ -186,8 +187,8 @@ describe('GET /api/campaigns', () => {
   });
 
   it('should return empty array when no campaigns', async () => {
-    (prisma as any).crmCampaign.findMany.mockResolvedValue([]);
-    (prisma as any).crmCampaign.count.mockResolvedValue(0);
+    mockPrisma.crmCampaign.findMany.mockResolvedValue([]);
+    mockPrisma.crmCampaign.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/campaigns');
 
@@ -196,7 +197,7 @@ describe('GET /api/campaigns', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmCampaign.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmCampaign.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/campaigns');
 
@@ -206,8 +207,8 @@ describe('GET /api/campaigns', () => {
 
 describe('GET /api/campaigns/:id', () => {
   it('should return campaign detail with member count', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
-    (prisma as any).crmCampaignMember.count.mockResolvedValue(15);
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaignMember.count.mockResolvedValue(15);
 
     const res = await request(app).get('/api/campaigns/00000000-0000-0000-0000-000000000001');
 
@@ -217,7 +218,7 @@ describe('GET /api/campaigns/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(null);
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/campaigns/00000000-0000-0000-0000-000000000099');
 
@@ -225,7 +226,7 @@ describe('GET /api/campaigns/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmCampaign.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmCampaign.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/campaigns/00000000-0000-0000-0000-000000000001');
 
@@ -235,8 +236,8 @@ describe('GET /api/campaigns/:id', () => {
 
 describe('GET /api/campaigns/:id/performance', () => {
   it('should return performance metrics', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
-    (prisma as any).crmCampaignMember.findMany.mockResolvedValue([
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaignMember.findMany.mockResolvedValue([
       { id: 'm-1', status: 'SENT' },
       { id: 'm-2', status: 'OPENED' },
       { id: 'm-3', status: 'CLICKED' },
@@ -258,8 +259,8 @@ describe('GET /api/campaigns/:id/performance', () => {
   });
 
   it('should return zero rates when no members', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
-    (prisma as any).crmCampaignMember.findMany.mockResolvedValue([]);
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaignMember.findMany.mockResolvedValue([]);
 
     const res = await request(app).get(
       '/api/campaigns/00000000-0000-0000-0000-000000000001/performance'
@@ -271,7 +272,7 @@ describe('GET /api/campaigns/:id/performance', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(null);
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/campaigns/00000000-0000-0000-0000-000000000099/performance'
@@ -283,8 +284,8 @@ describe('GET /api/campaigns/:id/performance', () => {
 
 describe('POST /api/campaigns/:id/contacts', () => {
   it('should add contacts to campaign', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
-    (prisma as any).crmCampaignMember.create.mockResolvedValue({
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaignMember.create.mockResolvedValue({
       id: 'member-1',
       campaignId: 'camp-1',
       contactId: 'c-1',
@@ -302,7 +303,7 @@ describe('POST /api/campaigns/:id/contacts', () => {
   });
 
   it('should return 400 for missing contactIds', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(mockCampaign);
 
     const res = await request(app)
       .post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts')
@@ -312,7 +313,7 @@ describe('POST /api/campaigns/:id/contacts', () => {
   });
 
   it('should return 400 for empty contactIds array', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(mockCampaign);
 
     const res = await request(app)
       .post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts')
@@ -324,7 +325,7 @@ describe('POST /api/campaigns/:id/contacts', () => {
   });
 
   it('should return 404 when campaign not found', async () => {
-    (prisma as any).crmCampaign.findFirst.mockResolvedValue(null);
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/campaigns/00000000-0000-0000-0000-000000000099/contacts')
@@ -342,7 +343,7 @@ describe('POST /api/campaigns/:id/contacts', () => {
 
 describe('POST /api/email-sequences', () => {
   it('should create email sequence', async () => {
-    (prisma as any).crmEmailSequence.create.mockResolvedValue(mockSequence);
+    mockPrisma.crmEmailSequence.create.mockResolvedValue(mockSequence);
 
     const res = await request(app).post('/api/email-sequences').send({
       name: 'Welcome Series',
@@ -364,7 +365,7 @@ describe('POST /api/email-sequences', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmEmailSequence.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmEmailSequence.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/email-sequences').send({
       name: 'Test',
@@ -376,8 +377,8 @@ describe('POST /api/email-sequences', () => {
 
 describe('GET /api/email-sequences', () => {
   it('should return list of sequences', async () => {
-    (prisma as any).crmEmailSequence.findMany.mockResolvedValue([mockSequence]);
-    (prisma as any).crmEmailSequence.count.mockResolvedValue(1);
+    mockPrisma.crmEmailSequence.findMany.mockResolvedValue([mockSequence]);
+    mockPrisma.crmEmailSequence.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/email-sequences');
 
@@ -387,8 +388,8 @@ describe('GET /api/email-sequences', () => {
   });
 
   it('should return empty array when none', async () => {
-    (prisma as any).crmEmailSequence.findMany.mockResolvedValue([]);
-    (prisma as any).crmEmailSequence.count.mockResolvedValue(0);
+    mockPrisma.crmEmailSequence.findMany.mockResolvedValue([]);
+    mockPrisma.crmEmailSequence.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/email-sequences');
 
@@ -399,8 +400,8 @@ describe('GET /api/email-sequences', () => {
 
 describe('PUT /api/email-sequences/:id', () => {
   it('should update email sequence', async () => {
-    (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
-    (prisma as any).crmEmailSequence.update.mockResolvedValue({
+    mockPrisma.crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
+    mockPrisma.crmEmailSequence.update.mockResolvedValue({
       ...mockSequence,
       name: 'Updated Series',
     });
@@ -414,7 +415,7 @@ describe('PUT /api/email-sequences/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.crmEmailSequence.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/email-sequences/00000000-0000-0000-0000-000000000099')
@@ -426,8 +427,8 @@ describe('PUT /api/email-sequences/:id', () => {
 
 describe('PUT /api/email-sequences/:id/enroll', () => {
   it('should enroll contacts', async () => {
-    (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
-    (prisma as any).crmEmailEnrollment.create.mockResolvedValue({
+    mockPrisma.crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
+    mockPrisma.crmEmailEnrollment.create.mockResolvedValue({
       id: 'enroll-1',
       sequenceId: 'seq-1',
       contactId: 'c-1',
@@ -444,7 +445,7 @@ describe('PUT /api/email-sequences/:id/enroll', () => {
   });
 
   it('should return 400 for missing contactIds', async () => {
-    (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
+    mockPrisma.crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
 
     const res = await request(app)
       .put('/api/email-sequences/00000000-0000-0000-0000-000000000001/enroll')
@@ -454,7 +455,7 @@ describe('PUT /api/email-sequences/:id/enroll', () => {
   });
 
   it('should return 400 for empty contactIds array', async () => {
-    (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
+    mockPrisma.crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
 
     const res = await request(app)
       .put('/api/email-sequences/00000000-0000-0000-0000-000000000001/enroll')
@@ -466,7 +467,7 @@ describe('PUT /api/email-sequences/:id/enroll', () => {
   });
 
   it('should return 404 when sequence not found', async () => {
-    (prisma as any).crmEmailSequence.findFirst.mockResolvedValue(null);
+    mockPrisma.crmEmailSequence.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/email-sequences/00000000-0000-0000-0000-000000000099/enroll')

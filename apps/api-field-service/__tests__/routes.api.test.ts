@@ -35,6 +35,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import routesRouter from '../src/routes/routes';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -54,8 +55,8 @@ describe('GET /api/routes', () => {
         technician: {},
       },
     ];
-    (prisma as any).fsSvcRoute.findMany.mockResolvedValue(routes);
-    (prisma as any).fsSvcRoute.count.mockResolvedValue(1);
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue(routes);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/routes');
 
@@ -65,12 +66,12 @@ describe('GET /api/routes', () => {
   });
 
   it('should filter by technicianId', async () => {
-    (prisma as any).fsSvcRoute.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcRoute.count.mockResolvedValue(0);
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(0);
 
     await request(app).get('/api/routes?technicianId=tech-1');
 
-    expect((prisma as any).fsSvcRoute.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcRoute.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ technicianId: 'tech-1' }),
       })
@@ -78,12 +79,12 @@ describe('GET /api/routes', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsSvcRoute.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcRoute.count.mockResolvedValue(0);
+    mockPrisma.fsSvcRoute.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcRoute.count.mockResolvedValue(0);
 
     await request(app).get('/api/routes?status=PLANNED');
 
-    expect((prisma as any).fsSvcRoute.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcRoute.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'PLANNED' }),
       })
@@ -91,7 +92,7 @@ describe('GET /api/routes', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).fsSvcRoute.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSvcRoute.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/routes');
 
@@ -101,10 +102,10 @@ describe('GET /api/routes', () => {
 
 describe('GET /api/routes/optimize/:technicianId/:date', () => {
   it('should return optimized route for day', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcJob.findMany.mockResolvedValue([
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([
       {
         id: 'job-1',
         number: 'JOB-001',
@@ -124,7 +125,7 @@ describe('GET /api/routes/optimize/:technicianId/:date', () => {
   });
 
   it('should return 404 if technician not found', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/routes/optimize/00000000-0000-0000-0000-000000000099/2026-02-13'
@@ -137,7 +138,7 @@ describe('GET /api/routes/optimize/:technicianId/:date', () => {
 describe('POST /api/routes', () => {
   it('should create a route', async () => {
     const created = { id: 'route-new', technicianId: 'tech-1', date: new Date(), stops: [] };
-    (prisma as any).fsSvcRoute.create.mockResolvedValue(created);
+    mockPrisma.fsSvcRoute.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/routes')
@@ -160,7 +161,7 @@ describe('POST /api/routes', () => {
 
 describe('GET /api/routes/:id', () => {
   it('should return a route by id', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       stops: [],
       technician: {},
@@ -173,7 +174,7 @@ describe('GET /api/routes/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/routes/00000000-0000-0000-0000-000000000099');
 
@@ -183,10 +184,10 @@ describe('GET /api/routes/:id', () => {
 
 describe('PUT /api/routes/:id', () => {
   it('should update a route', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcRoute.update.mockResolvedValue({
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'IN_PROGRESS',
     });
@@ -199,7 +200,7 @@ describe('PUT /api/routes/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/routes/00000000-0000-0000-0000-000000000099')
@@ -211,10 +212,10 @@ describe('PUT /api/routes/:id', () => {
 
 describe('DELETE /api/routes/:id', () => {
   it('should soft delete a route', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcRoute.update.mockResolvedValue({
+    mockPrisma.fsSvcRoute.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -226,7 +227,7 @@ describe('DELETE /api/routes/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcRoute.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcRoute.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/routes/00000000-0000-0000-0000-000000000099');
 

@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/riddor';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/riddor', router);
@@ -34,12 +35,12 @@ describe('GET /api/riddor', () => {
       },
       { id: 'inc-2', title: 'Dangerous occurrence', riddorReportable: 'YES' },
     ];
-    (prisma as any).incIncident.findMany.mockResolvedValue(incidents);
+    mockPrisma.incIncident.findMany.mockResolvedValue(incidents);
     const res = await request(app).get('/api/riddor');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveLength(2);
-    expect((prisma as any).incIncident.findMany).toHaveBeenCalledWith({
+    expect(mockPrisma.incIncident.findMany).toHaveBeenCalledWith({
       where: { orgId: 'org-1', deletedAt: null, riddorReportable: 'YES' },
       orderBy: { dateOccurred: 'desc' },
       take: 500,
@@ -47,7 +48,7 @@ describe('GET /api/riddor', () => {
   });
 
   it('should return empty array when no RIDDOR incidents exist', async () => {
-    (prisma as any).incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/riddor');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -55,7 +56,7 @@ describe('GET /api/riddor', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).incIncident.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.incIncident.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/riddor');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -70,14 +71,14 @@ describe('POST /api/riddor/:id/assess', () => {
       riddorReportable: 'YES',
       riddorRef: 'RIDDOR-2026-001',
     };
-    (prisma as any).incIncident.update.mockResolvedValue(updated);
+    mockPrisma.incIncident.update.mockResolvedValue(updated);
     const res = await request(app)
       .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
       .send({ reportable: true, riddorRef: 'RIDDOR-2026-001' });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.riddorReportable).toBe('YES');
-    expect((prisma as any).incIncident.update).toHaveBeenCalledWith({
+    expect(mockPrisma.incIncident.update).toHaveBeenCalledWith({
       where: { id: '00000000-0000-0000-0000-000000000001' },
       data: expect.objectContaining({ riddorReportable: 'YES', riddorRef: 'RIDDOR-2026-001' }),
     });
@@ -85,13 +86,13 @@ describe('POST /api/riddor/:id/assess', () => {
 
   it('should mark incident as NOT RIDDOR reportable', async () => {
     const updated = { id: '00000000-0000-0000-0000-000000000001', riddorReportable: 'NO' };
-    (prisma as any).incIncident.update.mockResolvedValue(updated);
+    mockPrisma.incIncident.update.mockResolvedValue(updated);
     const res = await request(app)
       .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
       .send({ reportable: false });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect((prisma as any).incIncident.update).toHaveBeenCalledWith({
+    expect(mockPrisma.incIncident.update).toHaveBeenCalledWith({
       where: { id: '00000000-0000-0000-0000-000000000001' },
       data: expect.objectContaining({ riddorReportable: 'NO' }),
     });
@@ -116,7 +117,7 @@ describe('POST /api/riddor/:id/assess', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).incIncident.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app)
       .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
       .send({ reportable: true });

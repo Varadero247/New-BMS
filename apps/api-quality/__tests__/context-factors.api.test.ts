@@ -39,7 +39,7 @@ jest.mock('@ims/rbac', () => ({
 import contextFactorsRouter from '../src/routes/context-factors';
 import { prisma } from '../src/prisma';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());

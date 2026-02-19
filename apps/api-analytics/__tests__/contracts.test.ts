@@ -203,7 +203,7 @@ describe('DELETE /api/contracts/:id', () => {
 
     const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
-    expect((prisma.contract as any).delete).toHaveBeenCalledWith({
+    expect((prisma.contract.delete as jest.Mock)).toHaveBeenCalledWith({
       where: { id: '00000000-0000-0000-0000-000000000001' },
     });
   });

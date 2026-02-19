@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import portalApprovalsRouter from '../src/routes/portal-approvals';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -41,8 +42,8 @@ describe('GET /api/portal/approvals', () => {
     const items = [
       { id: '00000000-0000-0000-0000-000000000001', type: 'ORDER', status: 'PENDING' },
     ];
-    (prisma as any).portalApproval.findMany.mockResolvedValue(items);
-    (prisma as any).portalApproval.count.mockResolvedValue(1);
+    mockPrisma.portalApproval.findMany.mockResolvedValue(items);
+    mockPrisma.portalApproval.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/portal/approvals');
 
@@ -51,8 +52,8 @@ describe('GET /api/portal/approvals', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).portalApproval.findMany.mockResolvedValue([]);
-    (prisma as any).portalApproval.count.mockResolvedValue(0);
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/approvals?status=PENDING');
 
@@ -60,8 +61,8 @@ describe('GET /api/portal/approvals', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).portalApproval.findMany.mockResolvedValue([]);
-    (prisma as any).portalApproval.count.mockResolvedValue(0);
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/approvals?type=DOCUMENT');
 
@@ -69,7 +70,7 @@ describe('GET /api/portal/approvals', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalApproval.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalApproval.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/portal/approvals');
 
@@ -85,7 +86,7 @@ describe('POST /api/portal/approvals', () => {
       referenceId: 'ord-1',
       status: 'PENDING',
     };
-    (prisma as any).portalApproval.create.mockResolvedValue(approval);
+    mockPrisma.portalApproval.create.mockResolvedValue(approval);
 
     const res = await request(app)
       .post('/api/portal/approvals')
@@ -113,8 +114,8 @@ describe('POST /api/portal/approvals', () => {
 describe('PUT /api/portal/approvals/:id/approve', () => {
   it('should approve a pending approval', async () => {
     const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
-    (prisma as any).portalApproval.findFirst.mockResolvedValue(approval);
-    (prisma as any).portalApproval.update.mockResolvedValue({ ...approval, status: 'APPROVED' });
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(approval);
+    mockPrisma.portalApproval.update.mockResolvedValue({ ...approval, status: 'APPROVED' });
 
     const res = await request(app)
       .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/approve')
@@ -124,7 +125,7 @@ describe('PUT /api/portal/approvals/:id/approve', () => {
   });
 
   it('should return 400 if not pending', async () => {
-    (prisma as any).portalApproval.findFirst.mockResolvedValue({
+    mockPrisma.portalApproval.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'APPROVED',
     });
@@ -138,7 +139,7 @@ describe('PUT /api/portal/approvals/:id/approve', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).portalApproval.findFirst.mockResolvedValue(null);
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/portal/approvals/00000000-0000-0000-0000-000000000099/approve')
@@ -151,8 +152,8 @@ describe('PUT /api/portal/approvals/:id/approve', () => {
 describe('PUT /api/portal/approvals/:id/reject', () => {
   it('should reject a pending approval', async () => {
     const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
-    (prisma as any).portalApproval.findFirst.mockResolvedValue(approval);
-    (prisma as any).portalApproval.update.mockResolvedValue({ ...approval, status: 'REJECTED' });
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(approval);
+    mockPrisma.portalApproval.update.mockResolvedValue({ ...approval, status: 'REJECTED' });
 
     const res = await request(app)
       .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/reject')
@@ -162,7 +163,7 @@ describe('PUT /api/portal/approvals/:id/reject', () => {
   });
 
   it('should return 400 if not pending for reject', async () => {
-    (prisma as any).portalApproval.findFirst.mockResolvedValue({
+    mockPrisma.portalApproval.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'REJECTED',
     });
@@ -175,7 +176,7 @@ describe('PUT /api/portal/approvals/:id/reject', () => {
   });
 
   it('should return 404 if not found for reject', async () => {
-    (prisma as any).portalApproval.findFirst.mockResolvedValue(null);
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/portal/approvals/00000000-0000-0000-0000-000000000099/reject')

@@ -31,7 +31,7 @@ function createTestApp(middlewares: any[], handler?: any) {
     '/test',
     handler ||
       ((_req: any, res: any) => {
-        res.json({ success: true, permissions: (_req as any).permissions });
+        res.json({ success: true, permissions: (_req as Record<string, unknown>).permissions });
       })
   );
 

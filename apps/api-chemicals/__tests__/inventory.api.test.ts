@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/inventory';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -78,8 +79,8 @@ const validInventoryBody = {
 
 describe('GET /api/inventory', () => {
   it('should return a list of inventory records with pagination', async () => {
-    (prisma as any).chemInventory.findMany.mockResolvedValue([mockInventory]);
-    (prisma as any).chemInventory.count.mockResolvedValue(1);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([mockInventory]);
+    mockPrisma.chemInventory.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/inventory');
     expect(res.status).toBe(200);
@@ -92,8 +93,8 @@ describe('GET /api/inventory', () => {
   });
 
   it('should support location filter', async () => {
-    (prisma as any).chemInventory.findMany.mockResolvedValue([]);
-    (prisma as any).chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/inventory?location=Lab+A');
     expect(res.status).toBe(200);
@@ -101,8 +102,8 @@ describe('GET /api/inventory', () => {
   });
 
   it('should support search parameter', async () => {
-    (prisma as any).chemInventory.findMany.mockResolvedValue([]);
-    (prisma as any).chemInventory.count.mockResolvedValue(0);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/inventory?search=acetone');
     expect(res.status).toBe(200);
@@ -110,7 +111,7 @@ describe('GET /api/inventory', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemInventory.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemInventory.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/inventory');
     expect(res.status).toBe(500);
@@ -121,7 +122,7 @@ describe('GET /api/inventory', () => {
 
 describe('GET /api/inventory/:id', () => {
   it('should return a single inventory record', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue({
+    mockPrisma.chemInventory.findFirst.mockResolvedValue({
       ...mockInventory,
       usageRecords: [],
     });
@@ -133,7 +134,7 @@ describe('GET /api/inventory/:id', () => {
   });
 
   it('should return 404 when inventory record not found', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue(null);
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/inventory/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -142,7 +143,7 @@ describe('GET /api/inventory/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemInventory.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemInventory.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/inventory/00000000-0000-0000-0000-000000000030');
     expect(res.status).toBe(500);
@@ -154,7 +155,7 @@ describe('GET /api/inventory/:id', () => {
 describe('GET /api/inventory/low-stock', () => {
   it('should return items below minimum stock level', async () => {
     const lowItem = { ...mockInventory, quantityOnhand: 1, minStockLevel: 5 };
-    (prisma as any).chemInventory.findMany.mockResolvedValue([lowItem]);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([lowItem]);
 
     const res = await request(app).get('/api/inventory/low-stock');
     expect(res.status).toBe(200);
@@ -165,7 +166,7 @@ describe('GET /api/inventory/low-stock', () => {
 
   it('should filter out items above minimum stock level', async () => {
     const normalItem = { ...mockInventory, quantityOnhand: 10, minStockLevel: 5 };
-    (prisma as any).chemInventory.findMany.mockResolvedValue([normalItem]);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([normalItem]);
 
     const res = await request(app).get('/api/inventory/low-stock');
     expect(res.status).toBe(200);
@@ -174,7 +175,7 @@ describe('GET /api/inventory/low-stock', () => {
   });
 
   it('should return empty array when no low stock', async () => {
-    (prisma as any).chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/inventory/low-stock');
     expect(res.status).toBe(200);
@@ -183,7 +184,7 @@ describe('GET /api/inventory/low-stock', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).chemInventory.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemInventory.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/inventory/low-stock');
     expect(res.status).toBe(500);
@@ -195,7 +196,7 @@ describe('GET /api/inventory/low-stock', () => {
 describe('GET /api/inventory/expiring', () => {
   it('should return expiring stock items', async () => {
     const expiringItem = { ...mockInventory, expiryDate: '2026-03-01T00:00:00.000Z' };
-    (prisma as any).chemInventory.findMany.mockResolvedValue([expiringItem]);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([expiringItem]);
 
     const res = await request(app).get('/api/inventory/expiring');
     expect(res.status).toBe(200);
@@ -205,7 +206,7 @@ describe('GET /api/inventory/expiring', () => {
   });
 
   it('should support days query parameter', async () => {
-    (prisma as any).chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/inventory/expiring?days=30');
     expect(res.status).toBe(200);
@@ -214,7 +215,7 @@ describe('GET /api/inventory/expiring', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).chemInventory.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemInventory.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/inventory/expiring');
     expect(res.status).toBe(500);
@@ -225,8 +226,8 @@ describe('GET /api/inventory/expiring', () => {
 
 describe('POST /api/inventory', () => {
   it('should create an inventory record', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemInventory.create.mockResolvedValue(mockInventory);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemInventory.create.mockResolvedValue(mockInventory);
 
     const res = await request(app).post('/api/inventory').send(validInventoryBody);
     expect(res.status).toBe(201);
@@ -241,14 +242,14 @@ describe('POST /api/inventory', () => {
       location: 'Lab A - Cabinet 3',
       chemical: { productName: 'Sodium Fluoride', casNumber: '7681-49-4' },
     };
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(chemWithIncompat);
-    (prisma as any).chemInventory.findMany.mockResolvedValue([conflictingItem]);
-    (prisma as any).chemIncompatAlert.createMany.mockResolvedValue({ count: 1 });
-    (prisma as any).chemInventory.create.mockResolvedValue(mockInventory);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(chemWithIncompat);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([conflictingItem]);
+    mockPrisma.chemIncompatAlert.createMany.mockResolvedValue({ count: 1 });
+    mockPrisma.chemInventory.create.mockResolvedValue(mockInventory);
 
     const res = await request(app).post('/api/inventory').send(validInventoryBody);
     expect(res.status).toBe(201);
-    expect((prisma as any).chemIncompatAlert.createMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemIncompatAlert.createMany).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.arrayContaining([
           expect.objectContaining({
@@ -262,13 +263,13 @@ describe('POST /api/inventory', () => {
   });
 
   it('should not check incompatibility when chemical has no incompatibleWith', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemInventory.create.mockResolvedValue(mockInventory);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemInventory.create.mockResolvedValue(mockInventory);
 
     const res = await request(app).post('/api/inventory').send(validInventoryBody);
     expect(res.status).toBe(201);
     // findMany for incompatibility check should NOT have been called
-    expect((prisma as any).chemInventory.findMany).not.toHaveBeenCalled();
+    expect(mockPrisma.chemInventory.findMany).not.toHaveBeenCalled();
   });
 
   it('should return 400 when location is missing', async () => {
@@ -295,7 +296,7 @@ describe('POST /api/inventory', () => {
   });
 
   it('should return 404 when chemical does not exist', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/inventory')
@@ -310,8 +311,8 @@ describe('POST /api/inventory', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemInventory.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemInventory.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/inventory').send(validInventoryBody);
     expect(res.status).toBe(500);
@@ -322,8 +323,8 @@ describe('POST /api/inventory', () => {
 
 describe('PUT /api/inventory/:id', () => {
   it('should update an existing inventory record', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
-    (prisma as any).chemInventory.update.mockResolvedValue({
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    mockPrisma.chemInventory.update.mockResolvedValue({
       ...mockInventory,
       quantityOnhand: 10,
     });
@@ -337,7 +338,7 @@ describe('PUT /api/inventory/:id', () => {
   });
 
   it('should return 404 when inventory record not found', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue(null);
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/inventory/00000000-0000-0000-0000-000000000099').send({
       quantityOnhand: 10,
@@ -348,8 +349,8 @@ describe('PUT /api/inventory/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
-    (prisma as any).chemInventory.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    mockPrisma.chemInventory.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put('/api/inventory/00000000-0000-0000-0000-000000000030').send({
       quantityOnhand: 10,
@@ -362,8 +363,8 @@ describe('PUT /api/inventory/:id', () => {
 
 describe('POST /api/inventory/:id/inspect', () => {
   it('should record an inspection', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
-    (prisma as any).chemInventory.update.mockResolvedValue({
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    mockPrisma.chemInventory.update.mockResolvedValue({
       ...mockInventory,
       lastInspectedAt: new Date().toISOString(),
       inspectedBy: 'user-1',
@@ -377,7 +378,7 @@ describe('POST /api/inventory/:id/inspect', () => {
       });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect((prisma as any).chemInventory.update).toHaveBeenCalledWith(
+    expect(mockPrisma.chemInventory.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           meetsStorageReqs: true,
@@ -389,8 +390,8 @@ describe('POST /api/inventory/:id/inspect', () => {
   });
 
   it('should record inspection with storage issues', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
-    (prisma as any).chemInventory.update.mockResolvedValue({
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    mockPrisma.chemInventory.update.mockResolvedValue({
       ...mockInventory,
       meetsStorageReqs: false,
       storageIssues: 'Ventilation not working',
@@ -404,7 +405,7 @@ describe('POST /api/inventory/:id/inspect', () => {
       });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect((prisma as any).chemInventory.update).toHaveBeenCalledWith(
+    expect(mockPrisma.chemInventory.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           meetsStorageReqs: false,
@@ -415,7 +416,7 @@ describe('POST /api/inventory/:id/inspect', () => {
   });
 
   it('should return 404 when inventory record not found', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue(null);
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/inventory/00000000-0000-0000-0000-000000000099/inspect')
@@ -428,8 +429,8 @@ describe('POST /api/inventory/:id/inspect', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemInventory.findFirst.mockResolvedValue(mockInventory);
-    (prisma as any).chemInventory.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemInventory.findFirst.mockResolvedValue(mockInventory);
+    mockPrisma.chemInventory.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .post('/api/inventory/00000000-0000-0000-0000-000000000030/inspect')

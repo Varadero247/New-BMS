@@ -295,7 +295,7 @@ describe('SecretsManager', () => {
 
     it('should return fallback in development when secret missing', async () => {
       delete process.env.TEST_SECRET;
-      (process.env as any).NODE_ENV = 'development';
+      process.env.NODE_ENV = 'development';
       const manager = new SecretsManager();
       const value = await manager.getSecretWithFallback('TEST_SECRET', 'fallback');
       expect(value).toBe('fallback');
@@ -303,7 +303,7 @@ describe('SecretsManager', () => {
 
     it('should throw in production when secret missing', async () => {
       delete process.env.TEST_SECRET;
-      (process.env as any).NODE_ENV = 'production';
+      process.env.NODE_ENV = 'production';
       const manager = new SecretsManager();
       await expect(manager.getSecretWithFallback('TEST_SECRET', 'fallback')).rejects.toThrow(
         'not configured in production'
@@ -347,7 +347,7 @@ describe('Convenience Functions', () => {
 
   it('getSecretWithFallback should work with default manager', async () => {
     delete process.env.MY_SECRET;
-    (process.env as any).NODE_ENV = 'development';
+    process.env.NODE_ENV = 'development';
     const value = await getSecretWithFallback('MY_SECRET', 'default');
     expect(value).toBe('default');
   });

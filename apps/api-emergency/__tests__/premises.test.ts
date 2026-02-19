@@ -42,13 +42,13 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const mockPremises = prisma.femPremises as any;
-const mockFra = prisma.femFireRiskAssessment as any;
-const mockIncident = prisma.femEmergencyIncident as any;
-const mockWarden = prisma.femFireWarden as any;
-const mockEquipment = prisma.femEmergencyEquipment as any;
-const mockPeep = prisma.femPeep as any;
-const mockDrill = prisma.femEvacuationDrill as any;
+const mockPremises = jest.mocked(prisma.femPremises);
+const mockFra = jest.mocked(prisma.femFireRiskAssessment);
+const mockIncident = jest.mocked(prisma.femEmergencyIncident);
+const mockWarden = jest.mocked(prisma.femFireWarden);
+const mockEquipment = jest.mocked(prisma.femEmergencyEquipment);
+const mockPeep = jest.mocked(prisma.femPeep);
+const mockDrill = jest.mocked(prisma.femEvacuationDrill);
 
 const PREMISES_ID = '00000000-0000-0000-0000-000000000001';
 

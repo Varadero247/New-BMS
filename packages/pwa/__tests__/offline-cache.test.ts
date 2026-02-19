@@ -37,7 +37,7 @@ class MockResponse {
 }
 
 // Install MockResponse as global Response before any imports that use it
-(globalThis as any).Response = MockResponse;
+(globalThis as Record<string, unknown>).Response = MockResponse;
 
 import { OfflineCache } from '../src/offline-cache';
 
@@ -95,7 +95,7 @@ const mockCaches = {
   match: async (): Promise<undefined> => undefined,
 };
 
-(globalThis as any).caches = mockCaches;
+(globalThis as Record<string, unknown>).caches = mockCaches;
 
 // ─── Helpers ───
 
@@ -243,7 +243,7 @@ describe('OfflineCache', () => {
   });
 
   test('cacheResponse handles null-body responses', async () => {
-    const response = new MockResponse(null, { status: 204 }) as any;
+    const response = new MockResponse(null, { status: 204 }) as unknown as Response;
     await cache.cacheResponse('https://app.example.com/api/empty', response);
 
     const cached = await cache.getCachedResponse('https://app.example.com/api/empty');

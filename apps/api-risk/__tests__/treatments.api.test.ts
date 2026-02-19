@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/treatments';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/treatments', router);
@@ -26,7 +27,7 @@ beforeEach(() => {
 
 describe('GET /api/treatments', () => {
   it('should return treatment counts', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
       { treatment: 'MITIGATE' },
       { treatment: 'ACCEPT' },
       { treatment: 'MITIGATE' },
@@ -41,7 +42,7 @@ describe('GET /api/treatments', () => {
   });
 
   it('should return empty array when no risks exist', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/treatments');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -49,7 +50,7 @@ describe('GET /api/treatments', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).riskRegister.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/treatments');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

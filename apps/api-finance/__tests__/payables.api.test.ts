@@ -65,6 +65,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import payablesRouter from '../src/routes/payables';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -88,8 +89,8 @@ describe('GET /api/payables/suppliers', () => {
         _count: { bills: 3, purchaseOrders: 2, payments: 1 },
       },
     ];
-    (prisma as any).finSupplier.findMany.mockResolvedValue(suppliers);
-    (prisma as any).finSupplier.count.mockResolvedValue(1);
+    mockPrisma.finSupplier.findMany.mockResolvedValue(suppliers);
+    mockPrisma.finSupplier.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/payables/suppliers');
 
@@ -99,8 +100,8 @@ describe('GET /api/payables/suppliers', () => {
   });
 
   it('should search suppliers', async () => {
-    (prisma as any).finSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).finSupplier.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/payables/suppliers?search=widget');
 
@@ -108,8 +109,8 @@ describe('GET /api/payables/suppliers', () => {
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).finSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).finSupplier.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/payables/suppliers?isActive=true');
 
@@ -117,8 +118,8 @@ describe('GET /api/payables/suppliers', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).finSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).finSupplier.count.mockResolvedValue(40);
+    mockPrisma.finSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.finSupplier.count.mockResolvedValue(40);
 
     const res = await request(app).get('/api/payables/suppliers?page=2&limit=10');
 
@@ -129,7 +130,7 @@ describe('GET /api/payables/suppliers', () => {
 
 describe('GET /api/payables/suppliers/:id', () => {
   it('should return a supplier when found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       code: 'S001',
       name: 'Widget Co',
@@ -145,7 +146,7 @@ describe('GET /api/payables/suppliers/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/payables/suppliers/00000000-0000-0000-0000-000000000099'
@@ -159,8 +160,8 @@ describe('POST /api/payables/suppliers', () => {
   const validSupplier = { code: 'S001', name: 'Widget Co', email: 'info@widget.co' };
 
   it('should create a supplier successfully', async () => {
-    (prisma as any).finSupplier.findUnique.mockResolvedValue(null);
-    (prisma as any).finSupplier.create.mockResolvedValue({ id: 'sup-new', ...validSupplier });
+    mockPrisma.finSupplier.findUnique.mockResolvedValue(null);
+    mockPrisma.finSupplier.create.mockResolvedValue({ id: 'sup-new', ...validSupplier });
 
     const res = await request(app).post('/api/payables/suppliers').send(validSupplier);
 
@@ -169,7 +170,7 @@ describe('POST /api/payables/suppliers', () => {
   });
 
   it('should return 409 for duplicate code', async () => {
-    (prisma as any).finSupplier.findUnique.mockResolvedValue({ id: 'existing', code: 'S001' });
+    mockPrisma.finSupplier.findUnique.mockResolvedValue({ id: 'existing', code: 'S001' });
 
     const res = await request(app).post('/api/payables/suppliers').send(validSupplier);
 
@@ -186,11 +187,11 @@ describe('POST /api/payables/suppliers', () => {
 
 describe('PUT /api/payables/suppliers/:id', () => {
   it('should update a supplier', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       code: 'S001',
     });
-    (prisma as any).finSupplier.update.mockResolvedValue({
+    mockPrisma.finSupplier.update.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       name: 'Updated Widget Co',
     });
@@ -204,7 +205,7 @@ describe('PUT /api/payables/suppliers/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/payables/suppliers/00000000-0000-0000-0000-000000000099')
@@ -214,11 +215,11 @@ describe('PUT /api/payables/suppliers/:id', () => {
   });
 
   it('should return 409 for duplicate code on update', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
       code: 'S001',
     });
-    (prisma as any).finSupplier.findUnique.mockResolvedValue({
+    mockPrisma.finSupplier.findUnique.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000002',
       code: 'S002',
     });
@@ -233,11 +234,11 @@ describe('PUT /api/payables/suppliers/:id', () => {
 
 describe('DELETE /api/payables/suppliers/:id', () => {
   it('should soft delete a supplier with no unpaid bills', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
     });
-    (prisma as any).finBill.count.mockResolvedValue(0);
-    (prisma as any).finSupplier.update.mockResolvedValue({
+    mockPrisma.finBill.count.mockResolvedValue(0);
+    mockPrisma.finSupplier.update.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
     });
 
@@ -250,7 +251,7 @@ describe('DELETE /api/payables/suppliers/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(
       '/api/payables/suppliers/00000000-0000-0000-0000-000000000099'
@@ -260,10 +261,10 @@ describe('DELETE /api/payables/suppliers/:id', () => {
   });
 
   it('should return 409 when supplier has unpaid bills', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: 'f7000000-0000-4000-a000-000000000001',
     });
-    (prisma as any).finBill.count.mockResolvedValue(3);
+    mockPrisma.finBill.count.mockResolvedValue(3);
 
     const res = await request(app).delete(
       '/api/payables/suppliers/f7000000-0000-4000-a000-000000000001'
@@ -289,8 +290,8 @@ describe('GET /api/payables/purchase-orders', () => {
         _count: { lines: 2 },
       },
     ];
-    (prisma as any).finPurchaseOrder.findMany.mockResolvedValue(orders);
-    (prisma as any).finPurchaseOrder.count.mockResolvedValue(1);
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue(orders);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/payables/purchase-orders');
 
@@ -299,8 +300,8 @@ describe('GET /api/payables/purchase-orders', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).finPurchaseOrder.findMany.mockResolvedValue([]);
-    (prisma as any).finPurchaseOrder.count.mockResolvedValue(0);
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/payables/purchase-orders?status=APPROVED');
 
@@ -308,8 +309,8 @@ describe('GET /api/payables/purchase-orders', () => {
   });
 
   it('should filter by supplierId', async () => {
-    (prisma as any).finPurchaseOrder.findMany.mockResolvedValue([]);
-    (prisma as any).finPurchaseOrder.count.mockResolvedValue(0);
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/payables/purchase-orders?supplierId=f7000000-0000-4000-a000-000000000001'
@@ -319,8 +320,8 @@ describe('GET /api/payables/purchase-orders', () => {
   });
 
   it('should search by reference or supplier name', async () => {
-    (prisma as any).finPurchaseOrder.findMany.mockResolvedValue([]);
-    (prisma as any).finPurchaseOrder.count.mockResolvedValue(0);
+    mockPrisma.finPurchaseOrder.findMany.mockResolvedValue([]);
+    mockPrisma.finPurchaseOrder.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/payables/purchase-orders?search=FIN-PO');
 
@@ -330,7 +331,7 @@ describe('GET /api/payables/purchase-orders', () => {
 
 describe('GET /api/payables/purchase-orders/:id', () => {
   it('should return a PO when found', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       reference: 'FIN-PO-2601-1000',
       supplier: {
@@ -359,7 +360,7 @@ describe('GET /api/payables/purchase-orders/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099'
@@ -377,11 +378,11 @@ describe('POST /api/payables/purchase-orders', () => {
   };
 
   it('should create a PO with lines', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: validPO.supplierId,
       currency: 'USD',
     });
-    (prisma as any).finPurchaseOrder.create.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.create.mockResolvedValue({
       id: 'po-new',
       reference: 'FIN-PO-2601-5678',
       status: 'DRAFT',
@@ -397,7 +398,7 @@ describe('POST /api/payables/purchase-orders', () => {
   });
 
   it('should return 404 when supplier not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/payables/purchase-orders').send(validPO);
 
@@ -413,11 +414,11 @@ describe('POST /api/payables/purchase-orders', () => {
 
 describe('PUT /api/payables/purchase-orders/:id', () => {
   it('should update a draft PO', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'DRAFT',
     });
-    (prisma as any).finPurchaseOrder.update.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.update.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       notes: 'Updated notes',
       supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
@@ -432,7 +433,7 @@ describe('PUT /api/payables/purchase-orders/:id', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099')
@@ -442,7 +443,7 @@ describe('PUT /api/payables/purchase-orders/:id', () => {
   });
 
   it('should return 400 when PO is not DRAFT', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'APPROVED',
     });
@@ -458,11 +459,11 @@ describe('PUT /api/payables/purchase-orders/:id', () => {
 
 describe('POST /api/payables/purchase-orders/:id/approve', () => {
   it('should approve a DRAFT PO', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'DRAFT',
     });
-    (prisma as any).finPurchaseOrder.update.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.update.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'APPROVED',
       supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
@@ -477,7 +478,7 @@ describe('POST /api/payables/purchase-orders/:id/approve', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099/approve'
@@ -487,7 +488,7 @@ describe('POST /api/payables/purchase-orders/:id/approve', () => {
   });
 
   it('should return 400 when PO cannot be approved in current status', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'RECEIVED',
     });
@@ -503,11 +504,11 @@ describe('POST /api/payables/purchase-orders/:id/approve', () => {
 
 describe('POST /api/payables/purchase-orders/:id/receive', () => {
   it('should mark an APPROVED PO as received', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'APPROVED',
     });
-    (prisma as any).finPurchaseOrder.update.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.update.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'RECEIVED',
       supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
@@ -522,7 +523,7 @@ describe('POST /api/payables/purchase-orders/:id/receive', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099/receive'
@@ -532,7 +533,7 @@ describe('POST /api/payables/purchase-orders/:id/receive', () => {
   });
 
   it('should return 400 when PO is DRAFT', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'DRAFT',
     });
@@ -547,11 +548,11 @@ describe('POST /api/payables/purchase-orders/:id/receive', () => {
 
 describe('POST /api/payables/purchase-orders/:id/cancel', () => {
   it('should cancel a PO', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'DRAFT',
     });
-    (prisma as any).finPurchaseOrder.update.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.update.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'CANCELLED',
       supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
@@ -566,7 +567,7 @@ describe('POST /api/payables/purchase-orders/:id/cancel', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post(
       '/api/payables/purchase-orders/00000000-0000-0000-0000-000000000099/cancel'
@@ -576,7 +577,7 @@ describe('POST /api/payables/purchase-orders/:id/cancel', () => {
   });
 
   it('should return 400 when already cancelled', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'CANCELLED',
     });
@@ -589,7 +590,7 @@ describe('POST /api/payables/purchase-orders/:id/cancel', () => {
   });
 
   it('should return 400 when already closed', async () => {
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue({
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue({
       id: 'f7100000-0000-4000-a000-000000000001',
       status: 'CLOSED',
     });
@@ -616,8 +617,8 @@ describe('GET /api/payables (bills list)', () => {
         supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
       },
     ];
-    (prisma as any).finBill.findMany.mockResolvedValue(bills);
-    (prisma as any).finBill.count.mockResolvedValue(1);
+    mockPrisma.finBill.findMany.mockResolvedValue(bills);
+    mockPrisma.finBill.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/payables');
 
@@ -626,8 +627,8 @@ describe('GET /api/payables (bills list)', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
-    (prisma as any).finBill.count.mockResolvedValue(0);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/payables?status=PAID');
 
@@ -635,8 +636,8 @@ describe('GET /api/payables (bills list)', () => {
   });
 
   it('should filter by supplierId', async () => {
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
-    (prisma as any).finBill.count.mockResolvedValue(0);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/payables?supplierId=f7000000-0000-4000-a000-000000000001'
@@ -646,8 +647,8 @@ describe('GET /api/payables (bills list)', () => {
   });
 
   it('should search bills', async () => {
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
-    (prisma as any).finBill.count.mockResolvedValue(0);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/payables?search=FIN-BILL');
 
@@ -664,11 +665,11 @@ describe('POST /api/payables (create bill)', () => {
   };
 
   it('should create a bill with lines', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: validBill.supplierId,
       currency: 'USD',
     });
-    (prisma as any).finBill.create.mockResolvedValue({
+    mockPrisma.finBill.create.mockResolvedValue({
       id: 'bill-new',
       reference: 'FIN-BILL-2601-5678',
       status: 'DRAFT',
@@ -684,7 +685,7 @@ describe('POST /api/payables (create bill)', () => {
   });
 
   it('should return 404 when supplier not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/payables').send(validBill);
 
@@ -692,11 +693,11 @@ describe('POST /api/payables (create bill)', () => {
   });
 
   it('should validate purchase order if provided', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({
       id: validBill.supplierId,
       currency: 'USD',
     });
-    (prisma as any).finPurchaseOrder.findFirst.mockResolvedValue(null);
+    mockPrisma.finPurchaseOrder.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/payables')
@@ -717,12 +718,12 @@ describe('POST /api/payables (create bill)', () => {
 
 describe('PUT /api/payables/:id (update bill)', () => {
   it('should update a draft bill', async () => {
-    (prisma as any).finBill.findFirst.mockResolvedValue({
+    mockPrisma.finBill.findFirst.mockResolvedValue({
       id: 'f7200000-0000-4000-a000-000000000001',
       status: 'DRAFT',
       amountPaid: 0,
     });
-    (prisma as any).finBill.update.mockResolvedValue({
+    mockPrisma.finBill.update.mockResolvedValue({
       id: 'f7200000-0000-4000-a000-000000000001',
       notes: 'Updated',
       supplier: { id: 'f7000000-0000-4000-a000-000000000001', code: 'S001', name: 'Widget Co' },
@@ -737,7 +738,7 @@ describe('PUT /api/payables/:id (update bill)', () => {
   });
 
   it('should return 404 when not found', async () => {
-    (prisma as any).finBill.findFirst.mockResolvedValue(null);
+    mockPrisma.finBill.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/payables/00000000-0000-0000-0000-000000000099')
@@ -747,7 +748,7 @@ describe('PUT /api/payables/:id (update bill)', () => {
   });
 
   it('should return 400 when bill is not DRAFT', async () => {
-    (prisma as any).finBill.findFirst.mockResolvedValue({
+    mockPrisma.finBill.findFirst.mockResolvedValue({
       id: 'f7200000-0000-4000-a000-000000000001',
       status: 'PAID',
     });
@@ -775,14 +776,14 @@ describe('POST /api/payables/payments', () => {
   };
 
   it('should record a payment and update bill status', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: validPayment.supplierId });
-    (prisma as any).finBill.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({ id: validPayment.supplierId });
+    mockPrisma.finBill.findFirst.mockResolvedValue({
       id: validPayment.billId,
       status: 'RECEIVED',
       total: 500,
       amountPaid: 0,
     });
-    (prisma as any).finPaymentMade.create.mockResolvedValue({
+    mockPrisma.finPaymentMade.create.mockResolvedValue({
       id: 'pay-new',
       reference: 'FIN-PAY-2601-5678',
       amount: 250,
@@ -796,7 +797,7 @@ describe('POST /api/payables/payments', () => {
         status: 'RECEIVED',
       },
     });
-    (prisma as any).finBill.update.mockResolvedValue({});
+    mockPrisma.finBill.update.mockResolvedValue({});
 
     const res = await request(app).post('/api/payables/payments').send(validPayment);
 
@@ -805,7 +806,7 @@ describe('POST /api/payables/payments', () => {
   });
 
   it('should return 404 when supplier not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/payables/payments').send(validPayment);
 
@@ -813,8 +814,8 @@ describe('POST /api/payables/payments', () => {
   });
 
   it('should return 404 when bill not found', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: validPayment.supplierId });
-    (prisma as any).finBill.findFirst.mockResolvedValue(null);
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({ id: validPayment.supplierId });
+    mockPrisma.finBill.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/payables/payments').send(validPayment);
 
@@ -822,8 +823,8 @@ describe('POST /api/payables/payments', () => {
   });
 
   it('should return 400 when bill is PAID', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: validPayment.supplierId });
-    (prisma as any).finBill.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({ id: validPayment.supplierId });
+    mockPrisma.finBill.findFirst.mockResolvedValue({
       id: validPayment.billId,
       status: 'PAID',
     });
@@ -834,8 +835,8 @@ describe('POST /api/payables/payments', () => {
   });
 
   it('should return 400 when bill is VOID', async () => {
-    (prisma as any).finSupplier.findFirst.mockResolvedValue({ id: validPayment.supplierId });
-    (prisma as any).finBill.findFirst.mockResolvedValue({
+    mockPrisma.finSupplier.findFirst.mockResolvedValue({ id: validPayment.supplierId });
+    mockPrisma.finBill.findFirst.mockResolvedValue({
       id: validPayment.billId,
       status: 'VOID',
     });
@@ -863,8 +864,8 @@ describe('GET /api/payables/payments', () => {
         bill: null,
       },
     ];
-    (prisma as any).finPaymentMade.findMany.mockResolvedValue(payments);
-    (prisma as any).finPaymentMade.count.mockResolvedValue(1);
+    mockPrisma.finPaymentMade.findMany.mockResolvedValue(payments);
+    mockPrisma.finPaymentMade.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/payables/payments');
 
@@ -873,8 +874,8 @@ describe('GET /api/payables/payments', () => {
   });
 
   it('should filter by supplierId', async () => {
-    (prisma as any).finPaymentMade.findMany.mockResolvedValue([]);
-    (prisma as any).finPaymentMade.count.mockResolvedValue(0);
+    mockPrisma.finPaymentMade.findMany.mockResolvedValue([]);
+    mockPrisma.finPaymentMade.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/payables/payments?supplierId=f7000000-0000-4000-a000-000000000001'
@@ -884,8 +885,8 @@ describe('GET /api/payables/payments', () => {
   });
 
   it('should filter by date range', async () => {
-    (prisma as any).finPaymentMade.findMany.mockResolvedValue([]);
-    (prisma as any).finPaymentMade.count.mockResolvedValue(0);
+    mockPrisma.finPaymentMade.findMany.mockResolvedValue([]);
+    mockPrisma.finPaymentMade.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/payables/payments?dateFrom=2026-01-01&dateTo=2026-01-31'
@@ -905,7 +906,7 @@ describe('GET /api/payables/aging', () => {
     const overdue15 = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
     const overdue50 = new Date(now.getTime() - 50 * 24 * 60 * 60 * 1000);
 
-    (prisma as any).finBill.findMany.mockResolvedValue([
+    mockPrisma.finBill.findMany.mockResolvedValue([
       {
         id: 'f7200000-0000-4000-a000-000000000001',
         amountDue: 500,
@@ -928,7 +929,7 @@ describe('GET /api/payables/aging', () => {
   });
 
   it('should return empty aging when no overdue bills', async () => {
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/payables/aging');
 
@@ -939,7 +940,7 @@ describe('GET /api/payables/aging', () => {
 
 describe('POST /api/payables/payment-run', () => {
   it('should generate a payment run', async () => {
-    (prisma as any).finBill.findMany.mockResolvedValue([
+    mockPrisma.finBill.findMany.mockResolvedValue([
       {
         id: 'f7200000-0000-4000-a000-000000000001',
         reference: 'FIN-BILL-2601-1000',
@@ -965,7 +966,7 @@ describe('POST /api/payables/payment-run', () => {
   });
 
   it('should accept custom asOfDate', async () => {
-    (prisma as any).finBill.findMany.mockResolvedValue([]);
+    mockPrisma.finBill.findMany.mockResolvedValue([]);
 
     const res = await request(app)
       .post('/api/payables/payment-run')

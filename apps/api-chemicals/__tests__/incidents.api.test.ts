@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/incidents';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -74,8 +75,8 @@ const validIncidentBody = {
 
 describe('GET /api/incidents', () => {
   it('should return a list of incidents with pagination', async () => {
-    (prisma as any).chemIncident.findMany.mockResolvedValue([mockIncident]);
-    (prisma as any).chemIncident.count.mockResolvedValue(1);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([mockIncident]);
+    mockPrisma.chemIncident.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/incidents');
     expect(res.status).toBe(200);
@@ -88,40 +89,40 @@ describe('GET /api/incidents', () => {
   });
 
   it('should support type filter', async () => {
-    (prisma as any).chemIncident.findMany.mockResolvedValue([]);
-    (prisma as any).chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/incidents?type=EXPOSURE');
     expect(res.status).toBe(200);
-    expect((prisma as any).chemIncident.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemIncident.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ incidentType: 'EXPOSURE' }) })
     );
   });
 
   it('should support severity filter', async () => {
-    (prisma as any).chemIncident.findMany.mockResolvedValue([]);
-    (prisma as any).chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/incidents?severity=MAJOR');
     expect(res.status).toBe(200);
-    expect((prisma as any).chemIncident.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemIncident.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ severity: 'MAJOR' }) })
     );
   });
 
   it('should support search parameter', async () => {
-    (prisma as any).chemIncident.findMany.mockResolvedValue([]);
-    (prisma as any).chemIncident.count.mockResolvedValue(0);
+    mockPrisma.chemIncident.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncident.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/incidents?search=spill');
     expect(res.status).toBe(200);
-    expect((prisma as any).chemIncident.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemIncident.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
     );
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemIncident.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemIncident.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/incidents');
     expect(res.status).toBe(500);
@@ -132,7 +133,7 @@ describe('GET /api/incidents', () => {
 
 describe('GET /api/incidents/:id', () => {
   it('should return a single incident', async () => {
-    (prisma as any).chemIncident.findFirst.mockResolvedValue({
+    mockPrisma.chemIncident.findFirst.mockResolvedValue({
       ...mockIncident,
       chemical: mockChemical,
     });
@@ -145,7 +146,7 @@ describe('GET /api/incidents/:id', () => {
   });
 
   it('should return 404 when incident not found', async () => {
-    (prisma as any).chemIncident.findFirst.mockResolvedValue(null);
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -155,7 +156,7 @@ describe('GET /api/incidents/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemIncident.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemIncident.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000050');
     expect(res.status).toBe(500);
@@ -166,14 +167,14 @@ describe('GET /api/incidents/:id', () => {
 
 describe('POST /api/incidents', () => {
   it('should create a new incident', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemIncident.create.mockResolvedValue(mockIncident);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemIncident.create.mockResolvedValue(mockIncident);
 
     const res = await request(app).post('/api/incidents').send(validIncidentBody);
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.incidentType).toBe('SPILL');
-    expect((prisma as any).chemIncident.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemIncident.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           orgId: 'org-1',
@@ -184,8 +185,8 @@ describe('POST /api/incidents', () => {
   });
 
   it('should create incident with exposure routes', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemIncident.create.mockResolvedValue({
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemIncident.create.mockResolvedValue({
       ...mockIncident,
       exposureRoutes: ['INHALATION', 'SKIN_ABSORPTION'],
     });
@@ -253,7 +254,7 @@ describe('POST /api/incidents', () => {
   });
 
   it('should return 404 when chemical does not exist', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/incidents')
@@ -268,8 +269,8 @@ describe('POST /api/incidents', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemIncident.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemIncident.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/incidents').send(validIncidentBody);
     expect(res.status).toBe(500);
@@ -280,8 +281,8 @@ describe('POST /api/incidents', () => {
 
 describe('PUT /api/incidents/:id', () => {
   it('should update an existing incident', async () => {
-    (prisma as any).chemIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).chemIncident.update.mockResolvedValue({
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.chemIncident.update.mockResolvedValue({
       ...mockIncident,
       rootCauseAnalysis: 'Improper handling',
       correctiveActions: 'Retrain staff',
@@ -297,7 +298,7 @@ describe('PUT /api/incidents/:id', () => {
   });
 
   it('should return 404 when incident not found', async () => {
-    (prisma as any).chemIncident.findFirst.mockResolvedValue(null);
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/incidents/00000000-0000-0000-0000-000000000099').send({
       description: 'Updated',
@@ -308,8 +309,8 @@ describe('PUT /api/incidents/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemIncident.findFirst.mockResolvedValue(mockIncident);
-    (prisma as any).chemIncident.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.chemIncident.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put('/api/incidents/00000000-0000-0000-0000-000000000050').send({
       description: 'Fail',

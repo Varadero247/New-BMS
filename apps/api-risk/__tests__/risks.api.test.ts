@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/risks';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/risks', router);
@@ -36,25 +37,25 @@ beforeEach(() => {
 
 describe('GET /api/risks', () => {
   it('should return risks', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Test' },
     ]);
-    (prisma as any).riskRegister.count.mockResolvedValue(1);
+    mockPrisma.riskRegister.count.mockResolvedValue(1);
     const res = await request(app).get('/api/risks');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should filter by category', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([]);
-    (prisma as any).riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
     const res = await request(app).get('/api/risks?category=HEALTH_SAFETY');
     expect(res.status).toBe(200);
   });
 
   it('should search by title', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([]);
-    (prisma as any).riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
     const res = await request(app).get('/api/risks?search=fire');
     expect(res.status).toBe(200);
   });
@@ -62,12 +63,12 @@ describe('GET /api/risks', () => {
 
 describe('GET /api/risks/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id with relations', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       riskControls: [],
       keyRiskIndicators: [],
@@ -82,14 +83,14 @@ describe('GET /api/risks/:id', () => {
 
 describe('POST /api/risks', () => {
   it('should create with auto-calculated scores', async () => {
-    (prisma as any).riskRegister.count.mockResolvedValue(0);
-    (prisma as any).riskRegister.create.mockResolvedValue({
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New',
       inherentScore: 9,
       inherentRiskLevel: 'HIGH',
     });
-    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue(null);
     const res = await request(app).post('/api/risks').send({
       title: 'New',
       category: 'OPERATIONAL',
@@ -101,12 +102,12 @@ describe('POST /api/risks', () => {
   });
 
   it('should accept numeric likelihood/consequence', async () => {
-    (prisma as any).riskRegister.count.mockResolvedValue(0);
-    (prisma as any).riskRegister.create.mockResolvedValue({
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       inherentScore: 12,
     });
-    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue(null);
     const res = await request(app).post('/api/risks').send({
       title: 'Numeric test',
       category: 'FINANCIAL',
@@ -119,16 +120,16 @@ describe('POST /api/risks', () => {
 
 describe('PUT /api/risks/:id', () => {
   it('should update', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       category: 'OPERATIONAL',
       residualScore: 8,
     });
-    (prisma as any).riskRegister.update.mockResolvedValue({
+    mockPrisma.riskRegister.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
-    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/risks/00000000-0000-0000-0000-000000000001')
       .send({ title: 'Updated' });
@@ -136,16 +137,16 @@ describe('PUT /api/risks/:id', () => {
   });
 
   it('should auto-check appetite status on update', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       category: 'HEALTH_SAFETY',
       residualScore: 12,
     });
-    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue({
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue({
       maximumTolerableScore: 6,
       acceptableResidualScore: 4,
     });
-    (prisma as any).riskRegister.update.mockResolvedValue({
+    mockPrisma.riskRegister.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       appetiteStatus: 'EXCEEDS',
     });
@@ -158,10 +159,10 @@ describe('PUT /api/risks/:id', () => {
 
 describe('DELETE /api/risks/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).riskRegister.update.mockResolvedValue({
+    mockPrisma.riskRegister.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/risks/00000000-0000-0000-0000-000000000001');
@@ -170,16 +171,16 @@ describe('DELETE /api/risks/:id', () => {
   });
 
   it('should return 404 when risk not found', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/risks/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).riskRegister.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.riskRegister.update.mockRejectedValue(new Error('DB error'));
     const res = await request(app).delete('/api/risks/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
   });
@@ -187,7 +188,7 @@ describe('DELETE /api/risks/:id', () => {
 
 describe('GET /api/risks - error paths', () => {
   it('should return 500 on database error', async () => {
-    (prisma as any).riskRegister.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/risks');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -196,7 +197,7 @@ describe('GET /api/risks - error paths', () => {
 
 describe('PUT /api/risks/:id - error paths', () => {
   it('should return 404 when risk not found', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.riskRegister.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/risks/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Updated' });
@@ -204,13 +205,13 @@ describe('PUT /api/risks/:id - error paths', () => {
   });
 
   it('should return 500 on database update error', async () => {
-    (prisma as any).riskRegister.findFirst.mockResolvedValue({
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       category: 'OPERATIONAL',
       residualScore: 8,
     });
-    (prisma as any).riskRegister.update.mockRejectedValue(new Error('DB error'));
-    (prisma as any).riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    mockPrisma.riskRegister.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/risks/00000000-0000-0000-0000-000000000001')
       .send({ title: 'Updated' });
@@ -220,10 +221,10 @@ describe('PUT /api/risks/:id - error paths', () => {
 
 describe('GET /api/risks/register', () => {
   it('should return full register with relations', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001' },
     ]);
-    (prisma as any).riskRegister.count.mockResolvedValue(1);
+    mockPrisma.riskRegister.count.mockResolvedValue(1);
     const res = await request(app).get('/api/risks/register');
     expect(res.status).toBe(200);
     expect(res.body.pagination).toBeDefined();
@@ -232,7 +233,7 @@ describe('GET /api/risks/register', () => {
 
 describe('GET /api/risks/heatmap', () => {
   it('should return 5x5 heatmap data', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
       {
         id: '00000000-0000-0000-0000-000000000001',
         residualLikelihoodNum: 3,
@@ -253,7 +254,7 @@ describe('GET /api/risks/heatmap', () => {
 
 describe('GET /api/risks/overdue-review', () => {
   it('should return overdue risks', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', nextReviewDate: '2025-01-01' },
     ]);
     const res = await request(app).get('/api/risks/overdue-review');
@@ -263,7 +264,7 @@ describe('GET /api/risks/overdue-review', () => {
 
 describe('GET /api/risks/exceeds-appetite', () => {
   it('should return risks exceeding appetite', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/risks/exceeds-appetite');
     expect(res.status).toBe(200);
   });
@@ -271,7 +272,7 @@ describe('GET /api/risks/exceeds-appetite', () => {
 
 describe('GET /api/risks/by-category', () => {
   it('should return category breakdown', async () => {
-    (prisma as any).riskRegister.groupBy.mockResolvedValue([
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([
       { category: 'HEALTH_SAFETY', _count: 3 },
     ]);
     const res = await request(app).get('/api/risks/by-category');
@@ -282,7 +283,7 @@ describe('GET /api/risks/by-category', () => {
 
 describe('GET /api/risks/aggregate', () => {
   it('should aggregate by category', async () => {
-    (prisma as any).riskRegister.groupBy.mockResolvedValue([{ category: 'FINANCIAL', _count: 2 }]);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([{ category: 'FINANCIAL', _count: 2 }]);
     const res = await request(app).get('/api/risks/aggregate?groupBy=category');
     expect(res.status).toBe(200);
   });
@@ -290,8 +291,8 @@ describe('GET /api/risks/aggregate', () => {
 
 describe('POST /api/risks/from-coshh/:coshhId', () => {
   it('should create risk from COSHH', async () => {
-    (prisma as any).riskRegister.count.mockResolvedValue(0);
-    (prisma as any).riskRegister.create.mockResolvedValue({
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sourceModule: 'CHEMICAL_COSHH',
     });
@@ -317,8 +318,8 @@ describe('POST /api/risks/from-coshh/:coshhId', () => {
 
 describe('POST /api/risks/from-fra/:fraId', () => {
   it('should create risk from FRA', async () => {
-    (prisma as any).riskRegister.count.mockResolvedValue(0);
-    (prisma as any).riskRegister.create.mockResolvedValue({
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sourceModule: 'FIRE_EMERGENCY',
     });
@@ -336,8 +337,8 @@ describe('POST /api/risks/from-fra/:fraId', () => {
 
 describe('POST /api/risks/from-incident/:id', () => {
   it('should create risk from incident', async () => {
-    (prisma as any).riskRegister.count.mockResolvedValue(0);
-    (prisma as any).riskRegister.create.mockResolvedValue({
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sourceModule: 'HEALTH_SAFETY',
     });
@@ -354,8 +355,8 @@ describe('POST /api/risks/from-incident/:id', () => {
 
 describe('POST /api/risks/from-audit/:id', () => {
   it('should create risk from audit finding', async () => {
-    (prisma as any).riskRegister.count.mockResolvedValue(0);
-    (prisma as any).riskRegister.create.mockResolvedValue({
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       sourceModule: 'AUDIT_MOD',
       category: 'COMPLIANCE',

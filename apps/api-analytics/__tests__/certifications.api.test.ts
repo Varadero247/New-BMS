@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/certifications';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -51,8 +52,8 @@ describe('GET /api/certifications', () => {
       },
       { id: 'dl-2', name: 'DMCC Renewal', category: 'LICENCE', status: 'UPCOMING' },
     ];
-    (prisma as any).complianceDeadline.findMany.mockResolvedValue(deadlines);
-    (prisma as any).complianceDeadline.count.mockResolvedValue(2);
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue(deadlines);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/certifications');
 
@@ -63,31 +64,31 @@ describe('GET /api/certifications', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).complianceDeadline.findMany.mockResolvedValue([]);
-    (prisma as any).complianceDeadline.count.mockResolvedValue(0);
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/certifications?status=OVERDUE');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).complianceDeadline.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.complianceDeadline.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'OVERDUE' }) })
     );
   });
 
   it('should filter by category', async () => {
-    (prisma as any).complianceDeadline.findMany.mockResolvedValue([]);
-    (prisma as any).complianceDeadline.count.mockResolvedValue(0);
+    mockPrisma.complianceDeadline.findMany.mockResolvedValue([]);
+    mockPrisma.complianceDeadline.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/certifications?category=SECURITY');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).complianceDeadline.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.complianceDeadline.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ category: 'SECURITY' }) })
     );
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).complianceDeadline.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.complianceDeadline.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/certifications');
 
@@ -101,7 +102,7 @@ describe('GET /api/certifications', () => {
 // ===================================================================
 describe('GET /api/certifications/seed', () => {
   it('should seed compliance deadlines and return count', async () => {
-    (prisma as any).complianceDeadline.createMany.mockResolvedValue({ count: 5 });
+    mockPrisma.complianceDeadline.createMany.mockResolvedValue({ count: 5 });
 
     const res = await request(app).get('/api/certifications/seed');
 
@@ -112,7 +113,7 @@ describe('GET /api/certifications/seed', () => {
   });
 
   it('should handle server errors during seeding', async () => {
-    (prisma as any).complianceDeadline.createMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.complianceDeadline.createMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/certifications/seed');
 
@@ -132,7 +133,7 @@ describe('GET /api/certifications/:id', () => {
       category: 'COMPLIANCE',
       status: 'UPCOMING',
     };
-    (prisma as any).complianceDeadline.findUnique.mockResolvedValue(deadline);
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue(deadline);
 
     const res = await request(app).get('/api/certifications/00000000-0000-0000-0000-000000000001');
 
@@ -142,7 +143,7 @@ describe('GET /api/certifications/:id', () => {
   });
 
   it('should return 404 for a non-existent deadline', async () => {
-    (prisma as any).complianceDeadline.findUnique.mockResolvedValue(null);
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue(null);
 
     const res = await request(app).get('/api/certifications/00000000-0000-0000-0000-000000000099');
 
@@ -151,7 +152,7 @@ describe('GET /api/certifications/:id', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).complianceDeadline.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.complianceDeadline.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/certifications/00000000-0000-0000-0000-000000000001');
 
@@ -172,7 +173,7 @@ describe('POST /api/certifications', () => {
       dueDate: new Date('2026-06-15'),
       status: 'UPCOMING',
     };
-    (prisma as any).complianceDeadline.create.mockResolvedValue(created);
+    mockPrisma.complianceDeadline.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/certifications').send({
       name: 'CREST Pen Test',
@@ -204,7 +205,7 @@ describe('POST /api/certifications', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).complianceDeadline.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.complianceDeadline.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/certifications').send({
       name: 'CREST Pen Test',
@@ -229,8 +230,8 @@ describe('PATCH /api/certifications/:id', () => {
       status: 'UPCOMING',
     };
     const updated = { ...existing, name: 'Updated Name', status: 'COMPLETED' };
-    (prisma as any).complianceDeadline.findUnique.mockResolvedValue(existing);
-    (prisma as any).complianceDeadline.update.mockResolvedValue(updated);
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue(existing);
+    mockPrisma.complianceDeadline.update.mockResolvedValue(updated);
 
     const res = await request(app)
       .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
@@ -242,7 +243,7 @@ describe('PATCH /api/certifications/:id', () => {
   });
 
   it('should return 404 for a non-existent deadline', async () => {
-    (prisma as any).complianceDeadline.findUnique.mockResolvedValue(null);
+    mockPrisma.complianceDeadline.findUnique.mockResolvedValue(null);
 
     const res = await request(app)
       .patch('/api/certifications/00000000-0000-0000-0000-000000000099')
@@ -253,7 +254,7 @@ describe('PATCH /api/certifications/:id', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).complianceDeadline.findUnique.mockRejectedValue(new Error('DB error'));
+    mockPrisma.complianceDeadline.findUnique.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .patch('/api/certifications/00000000-0000-0000-0000-000000000001')

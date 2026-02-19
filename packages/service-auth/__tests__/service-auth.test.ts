@@ -37,7 +37,7 @@ describe('Service Auth Package', () => {
 
     it('should include service name in payload', () => {
       const token = generateServiceToken('api-gateway');
-      const decoded = jwt.decode(token) as any;
+      const decoded = jwt.decode(token) as Record<string, unknown>;
 
       expect(decoded.serviceName).toBe('api-gateway');
       expect(decoded.serviceId).toBe('service-api-gateway');
@@ -45,14 +45,14 @@ describe('Service Auth Package', () => {
 
     it('should include permissions when provided', () => {
       const token = generateServiceToken('api-gateway', ['read:users', 'write:users']);
-      const decoded = jwt.decode(token) as any;
+      const decoded = jwt.decode(token) as Record<string, unknown>;
 
       expect(decoded.permissions).toEqual(['read:users', 'write:users']);
     });
 
     it('should use default empty permissions when not provided', () => {
       const token = generateServiceToken('api-gateway');
-      const decoded = jwt.decode(token) as any;
+      const decoded = jwt.decode(token) as Record<string, unknown>;
 
       expect(decoded.permissions).toEqual([]);
     });
@@ -440,7 +440,7 @@ describe('Service Auth Package', () => {
       });
 
       const token = generateServiceToken('test');
-      const decoded = jwt.decode(token, { complete: true }) as any;
+      const decoded = jwt.decode(token, { complete: true }) as Record<string, unknown>;
 
       expect(decoded.payload.iss).toBe('custom-issuer');
       expect(decoded.payload.aud).toBe('custom-audience');
@@ -456,7 +456,7 @@ describe('Service Auth Package', () => {
       const payload = jwt.verify(token, customSecret, {
         issuer: 'ims-api-gateway',
         audience: 'ims-services',
-      }) as any;
+      }) as Record<string, unknown>;
 
       expect(payload.serviceName).toBe('test');
     });
@@ -471,7 +471,7 @@ describe('Service Auth Package', () => {
       resetServiceAuthConfig();
 
       const token = generateServiceToken('test');
-      const decoded = jwt.decode(token, { complete: true }) as any;
+      const decoded = jwt.decode(token, { complete: true }) as Record<string, unknown>;
 
       expect(decoded.payload.iss).toBe('ims-api-gateway');
     });

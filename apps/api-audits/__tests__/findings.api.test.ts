@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/findings';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/findings', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/findings', () => {
   it('should return findings', async () => {
-    (prisma as any).audFinding.findMany.mockResolvedValue([
+    mockPrisma.audFinding.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Test' },
     ]);
-    (prisma as any).audFinding.count.mockResolvedValue(1);
+    mockPrisma.audFinding.count.mockResolvedValue(1);
     const res = await request(app).get('/api/findings');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,12 +47,12 @@ describe('GET /api/findings', () => {
 
 describe('GET /api/findings/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).audFinding.findFirst.mockResolvedValue(null);
+    mockPrisma.audFinding.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/findings/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).audFinding.findFirst.mockResolvedValue({
+    mockPrisma.audFinding.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).get('/api/findings/00000000-0000-0000-0000-000000000001');
@@ -62,8 +63,8 @@ describe('GET /api/findings/:id', () => {
 
 describe('POST /api/findings', () => {
   it('should create', async () => {
-    (prisma as any).audFinding.count.mockResolvedValue(0);
-    (prisma as any).audFinding.create.mockResolvedValue({
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audFinding.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New',
     });
@@ -77,10 +78,10 @@ describe('POST /api/findings', () => {
 
 describe('PUT /api/findings/:id', () => {
   it('should update', async () => {
-    (prisma as any).audFinding.findFirst.mockResolvedValue({
+    mockPrisma.audFinding.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).audFinding.update.mockResolvedValue({
+    mockPrisma.audFinding.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -93,10 +94,10 @@ describe('PUT /api/findings/:id', () => {
 
 describe('DELETE /api/findings/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).audFinding.findFirst.mockResolvedValue({
+    mockPrisma.audFinding.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).audFinding.update.mockResolvedValue({
+    mockPrisma.audFinding.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/findings/00000000-0000-0000-0000-000000000001');

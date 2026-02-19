@@ -49,7 +49,7 @@ jest.mock('@ims/service-auth', () => ({
 import traceabilityRouter from '../src/routes/traceability';
 import { prisma } from '../src/prisma';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());

@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/categories';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/categories', router);
@@ -26,7 +27,7 @@ beforeEach(() => {
 
 describe('GET /api/categories', () => {
   it('should return category counts', async () => {
-    (prisma as any).suppSupplier.findMany.mockResolvedValue([
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
       { category: 'IT' },
       { category: 'IT' },
       { category: 'Manufacturing' },
@@ -40,7 +41,7 @@ describe('GET /api/categories', () => {
   });
 
   it('should return empty array when no suppliers', async () => {
-    (prisma as any).suppSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/categories');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -48,7 +49,7 @@ describe('GET /api/categories', () => {
   });
 
   it('should skip suppliers with null category', async () => {
-    (prisma as any).suppSupplier.findMany.mockResolvedValue([
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
       { category: null },
       { category: 'IT' },
     ]);
@@ -59,7 +60,7 @@ describe('GET /api/categories', () => {
   });
 
   it('should return 500 on DB error', async () => {
-    (prisma as any).suppSupplier.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.suppSupplier.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/categories');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

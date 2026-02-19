@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/coshh';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -92,8 +93,8 @@ const validCoshhBody = {
 
 describe('GET /api/coshh', () => {
   it('should return a list of COSHH assessments with pagination', async () => {
-    (prisma as any).chemCoshh.findMany.mockResolvedValue([mockCoshh]);
-    (prisma as any).chemCoshh.count.mockResolvedValue(1);
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([mockCoshh]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/coshh');
     expect(res.status).toBe(200);
@@ -105,29 +106,29 @@ describe('GET /api/coshh', () => {
   });
 
   it('should support status filter', async () => {
-    (prisma as any).chemCoshh.findMany.mockResolvedValue([]);
-    (prisma as any).chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/coshh?status=ACTIVE');
     expect(res.status).toBe(200);
-    expect((prisma as any).chemCoshh.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemCoshh.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
     );
   });
 
   it('should support riskLevel filter', async () => {
-    (prisma as any).chemCoshh.findMany.mockResolvedValue([]);
-    (prisma as any).chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/coshh?riskLevel=HIGH');
     expect(res.status).toBe(200);
-    expect((prisma as any).chemCoshh.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemCoshh.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ residualRiskLevel: 'HIGH' }) })
     );
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemCoshh.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemCoshh.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/coshh');
     expect(res.status).toBe(500);
@@ -139,7 +140,7 @@ describe('GET /api/coshh', () => {
 describe('GET /api/coshh/due-review', () => {
   it('should return assessments due for review', async () => {
     const dueItem = { ...mockCoshh, reviewDate: '2026-02-20T00:00:00.000Z' };
-    (prisma as any).chemCoshh.findMany.mockResolvedValue([dueItem]);
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([dueItem]);
 
     const res = await request(app).get('/api/coshh/due-review');
     expect(res.status).toBe(200);
@@ -149,7 +150,7 @@ describe('GET /api/coshh/due-review', () => {
   });
 
   it('should support days query parameter', async () => {
-    (prisma as any).chemCoshh.findMany.mockResolvedValue([]);
+    mockPrisma.chemCoshh.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/coshh/due-review?days=60');
     expect(res.status).toBe(200);
@@ -158,7 +159,7 @@ describe('GET /api/coshh/due-review', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).chemCoshh.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemCoshh.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/coshh/due-review');
     expect(res.status).toBe(500);
@@ -169,7 +170,7 @@ describe('GET /api/coshh/due-review', () => {
 
 describe('GET /api/coshh/:id', () => {
   it('should return a single COSHH assessment', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue({ ...mockCoshh, exposureMonitoring: [] });
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue({ ...mockCoshh, exposureMonitoring: [] });
 
     const res = await request(app).get('/api/coshh/00000000-0000-0000-0000-000000000020');
     expect(res.status).toBe(200);
@@ -178,7 +179,7 @@ describe('GET /api/coshh/:id', () => {
   });
 
   it('should return 404 when assessment not found', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(null);
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/coshh/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -187,7 +188,7 @@ describe('GET /api/coshh/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemCoshh.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemCoshh.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/coshh/00000000-0000-0000-0000-000000000020');
     expect(res.status).toBe(500);
@@ -198,15 +199,15 @@ describe('GET /api/coshh/:id', () => {
 
 describe('POST /api/coshh', () => {
   it('should create a COSHH assessment with auto-calculated risk scores', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemCoshh.count.mockResolvedValue(0);
-    (prisma as any).chemCoshh.create.mockResolvedValue(mockCoshh);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.create.mockResolvedValue(mockCoshh);
 
     const res = await request(app).post('/api/coshh').send(validCoshhBody);
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     // Verify risk score auto-calculation: 3*4=12 => HIGH
-    expect((prisma as any).chemCoshh.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemCoshh.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           inherentRiskScore: 12,
@@ -221,16 +222,16 @@ describe('POST /api/coshh', () => {
   });
 
   it('should auto-generate reference number', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemCoshh.count.mockResolvedValue(5);
-    (prisma as any).chemCoshh.create.mockResolvedValue({
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemCoshh.count.mockResolvedValue(5);
+    mockPrisma.chemCoshh.create.mockResolvedValue({
       ...mockCoshh,
       referenceNumber: 'COSHH-2026-0006',
     });
 
     const res = await request(app).post('/api/coshh').send(validCoshhBody);
     expect(res.status).toBe(201);
-    expect((prisma as any).chemCoshh.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemCoshh.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           referenceNumber: expect.stringMatching(/^COSHH-\d{4}-\d{4}$/),
@@ -240,9 +241,9 @@ describe('POST /api/coshh', () => {
   });
 
   it('should auto-set healthSurveillanceReq and recordRetentionYears=40 for CMR chemicals', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockCmrChemical);
-    (prisma as any).chemCoshh.count.mockResolvedValue(0);
-    (prisma as any).chemCoshh.create.mockResolvedValue({
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockCmrChemical);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.create.mockResolvedValue({
       ...mockCoshh,
       healthSurveillanceReq: true,
       recordRetentionYears: 40,
@@ -255,7 +256,7 @@ describe('POST /api/coshh', () => {
         chemicalId: '00000000-0000-0000-0000-000000000002',
       });
     expect(res.status).toBe(201);
-    expect((prisma as any).chemCoshh.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemCoshh.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           healthSurveillanceReq: true,
@@ -282,7 +283,7 @@ describe('POST /api/coshh', () => {
   });
 
   it('should return 404 when chemical does not exist', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/coshh')
@@ -309,9 +310,9 @@ describe('POST /api/coshh', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemCoshh.count.mockResolvedValue(0);
-    (prisma as any).chemCoshh.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemCoshh.count.mockResolvedValue(0);
+    mockPrisma.chemCoshh.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/coshh').send(validCoshhBody);
     expect(res.status).toBe(500);
@@ -322,8 +323,8 @@ describe('POST /api/coshh', () => {
 
 describe('PUT /api/coshh/:id', () => {
   it('should update an existing COSHH assessment', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockResolvedValue({
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockResolvedValue({
       ...mockCoshh,
       activityDescription: 'Updated activity',
     });
@@ -337,8 +338,8 @@ describe('PUT /api/coshh/:id', () => {
   });
 
   it('should recalculate risk scores when likelihood and severity are updated', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockResolvedValue({
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockResolvedValue({
       ...mockCoshh,
       inherentRiskScore: 25,
       inherentRiskLevel: 'UNACCEPTABLE',
@@ -353,7 +354,7 @@ describe('PUT /api/coshh/:id', () => {
       residualSeverity: 4,
     });
     expect(res.status).toBe(200);
-    expect((prisma as any).chemCoshh.update).toHaveBeenCalledWith(
+    expect(mockPrisma.chemCoshh.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           inherentRiskScore: 25,
@@ -366,7 +367,7 @@ describe('PUT /api/coshh/:id', () => {
   });
 
   it('should return 404 when assessment not found', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(null);
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/coshh/00000000-0000-0000-0000-000000000099').send({
       activityDescription: 'Nope',
@@ -377,8 +378,8 @@ describe('PUT /api/coshh/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put('/api/coshh/00000000-0000-0000-0000-000000000020').send({
       activityDescription: 'Fail',
@@ -391,8 +392,8 @@ describe('PUT /api/coshh/:id', () => {
 
 describe('POST /api/coshh/:id/sign-off', () => {
   it('should allow assessor sign-off', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockResolvedValue({
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockResolvedValue({
       ...mockCoshh,
       assessorName: 'John Doe',
       assessorSignedAt: new Date().toISOString(),
@@ -406,7 +407,7 @@ describe('POST /api/coshh/:id/sign-off', () => {
       });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect((prisma as any).chemCoshh.update).toHaveBeenCalledWith(
+    expect(mockPrisma.chemCoshh.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           assessorName: 'John Doe',
@@ -417,8 +418,8 @@ describe('POST /api/coshh/:id/sign-off', () => {
   });
 
   it('should allow supervisor sign-off', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockResolvedValue({
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockResolvedValue({
       ...mockCoshh,
       supervisorName: 'Jane Smith',
       supervisorSignedAt: new Date().toISOString(),
@@ -432,7 +433,7 @@ describe('POST /api/coshh/:id/sign-off', () => {
       });
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect((prisma as any).chemCoshh.update).toHaveBeenCalledWith(
+    expect(mockPrisma.chemCoshh.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           supervisorName: 'Jane Smith',
@@ -465,7 +466,7 @@ describe('POST /api/coshh/:id/sign-off', () => {
   });
 
   it('should return 400 for invalid role', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
 
     const res = await request(app)
       .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')
@@ -480,7 +481,7 @@ describe('POST /api/coshh/:id/sign-off', () => {
   });
 
   it('should return 404 when assessment not found', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(null);
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/coshh/00000000-0000-0000-0000-000000000099/sign-off')
@@ -494,8 +495,8 @@ describe('POST /api/coshh/:id/sign-off', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemCoshh.findFirst.mockResolvedValue(mockCoshh);
-    (prisma as any).chemCoshh.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemCoshh.findFirst.mockResolvedValue(mockCoshh);
+    mockPrisma.chemCoshh.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .post('/api/coshh/00000000-0000-0000-0000-000000000020/sign-off')

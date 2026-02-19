@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/heat-map';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/heat-map', router);
@@ -30,7 +31,7 @@ describe('GET /api/heat-map', () => {
       { id: '1', title: 'Risk A', likelihood: 3, consequence: 4, inherentScore: 12 },
       { id: '2', title: 'Risk B', likelihood: 2, consequence: 2, inherentScore: 4 },
     ];
-    (prisma as any).riskRegister.findMany.mockResolvedValue(mockRisks);
+    mockPrisma.riskRegister.findMany.mockResolvedValue(mockRisks);
     const res = await request(app).get('/api/heat-map');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -39,7 +40,7 @@ describe('GET /api/heat-map', () => {
   });
 
   it('should return empty heat map when no open risks exist', async () => {
-    (prisma as any).riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/heat-map');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -48,7 +49,7 @@ describe('GET /api/heat-map', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).riskRegister.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/heat-map');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

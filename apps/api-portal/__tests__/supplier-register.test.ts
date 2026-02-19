@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import supplierRegisterRouter from '../src/routes/supplier-register';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -39,9 +40,9 @@ beforeEach(() => {
 
 describe('POST /api/supplier/register', () => {
   it('should register a new supplier', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
     const user = { id: 'u-1', email: 'supplier@test.com', name: 'Acme', status: 'PENDING' };
-    (prisma as any).portalUser.create.mockResolvedValue(user);
+    mockPrisma.portalUser.create.mockResolvedValue(user);
 
     const res = await request(app)
       .post('/api/supplier/register')
@@ -53,7 +54,7 @@ describe('POST /api/supplier/register', () => {
   });
 
   it('should return 409 if email already registered', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue({
+    mockPrisma.portalUser.findFirst.mockResolvedValue({
       id: 'u-1',
       email: 'supplier@test.com',
     });
@@ -83,7 +84,7 @@ describe('POST /api/supplier/register', () => {
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalUser.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalUser.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .post('/api/supplier/register')
@@ -104,7 +105,7 @@ describe('GET /api/supplier/register/status', () => {
       role: 'SUPPLIER_USER',
       createdAt: new Date(),
     };
-    (prisma as any).portalUser.findFirst.mockResolvedValue(user);
+    mockPrisma.portalUser.findFirst.mockResolvedValue(user);
 
     const res = await request(app).get('/api/supplier/register/status');
 
@@ -113,7 +114,7 @@ describe('GET /api/supplier/register/status', () => {
   });
 
   it('should return 404 if user not found', async () => {
-    (prisma as any).portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/supplier/register/status');
 
@@ -121,7 +122,7 @@ describe('GET /api/supplier/register/status', () => {
   });
 
   it('should handle server error on status', async () => {
-    (prisma as any).portalUser.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalUser.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/supplier/register/status');
 

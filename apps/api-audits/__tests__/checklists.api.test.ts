@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/checklists';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/checklists', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/checklists', () => {
   it('should return checklists with pagination', async () => {
-    (prisma as any).audChecklist.findMany.mockResolvedValue([
+    mockPrisma.audChecklist.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'ISO 9001 Checklist' },
     ]);
-    (prisma as any).audChecklist.count.mockResolvedValue(1);
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
     const res = await request(app).get('/api/checklists');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -47,26 +48,26 @@ describe('GET /api/checklists', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).audChecklist.findMany.mockResolvedValue([]);
-    (prisma as any).audChecklist.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.findMany.mockResolvedValue([]);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
     const res = await request(app).get('/api/checklists?status=COMPLETED');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should filter by search term', async () => {
-    (prisma as any).audChecklist.findMany.mockResolvedValue([
+    mockPrisma.audChecklist.findMany.mockResolvedValue([
       { id: '2', title: 'Quality Checklist' },
     ]);
-    (prisma as any).audChecklist.count.mockResolvedValue(1);
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
     const res = await request(app).get('/api/checklists?search=Quality');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).audChecklist.findMany.mockRejectedValue(new Error('DB error'));
-    (prisma as any).audChecklist.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.audChecklist.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.audChecklist.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/checklists');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -76,7 +77,7 @@ describe('GET /api/checklists', () => {
 
 describe('GET /api/checklists/:id', () => {
   it('should return checklist by id', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Test Checklist',
     });
@@ -87,7 +88,7 @@ describe('GET /api/checklists/:id', () => {
   });
 
   it('should return 404 when checklist not found', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue(null);
+    mockPrisma.audChecklist.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -95,7 +96,7 @@ describe('GET /api/checklists/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).audChecklist.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.audChecklist.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -104,8 +105,8 @@ describe('GET /api/checklists/:id', () => {
 
 describe('POST /api/checklists', () => {
   it('should create a checklist', async () => {
-    (prisma as any).audChecklist.count.mockResolvedValue(0);
-    (prisma as any).audChecklist.create.mockResolvedValue({
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.create.mockResolvedValue({
       id: 'new-1',
       auditId: 'audit-1',
       title: 'New Checklist',
@@ -136,8 +137,8 @@ describe('POST /api/checklists', () => {
   });
 
   it('should return 500 on database error during create', async () => {
-    (prisma as any).audChecklist.count.mockResolvedValue(0);
-    (prisma as any).audChecklist.create.mockRejectedValue(new Error('Create failed'));
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app)
       .post('/api/checklists')
       .send({ auditId: 'audit-1', title: 'Checklist' });
@@ -149,11 +150,11 @@ describe('POST /api/checklists', () => {
 
 describe('PUT /api/checklists/:id', () => {
   it('should update a checklist', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Old Title',
     });
-    (prisma as any).audChecklist.update.mockResolvedValue({
+    mockPrisma.audChecklist.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated Title',
     });
@@ -166,7 +167,7 @@ describe('PUT /api/checklists/:id', () => {
   });
 
   it('should return 404 if checklist not found', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue(null);
+    mockPrisma.audChecklist.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/checklists/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Updated' });
@@ -176,10 +177,10 @@ describe('PUT /api/checklists/:id', () => {
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).audChecklist.update.mockRejectedValue(new Error('Update failed'));
+    mockPrisma.audChecklist.update.mockRejectedValue(new Error('Update failed'));
     const res = await request(app)
       .put('/api/checklists/00000000-0000-0000-0000-000000000001')
       .send({ title: 'Updated' });
@@ -191,11 +192,11 @@ describe('PUT /api/checklists/:id', () => {
 
 describe('DELETE /api/checklists/:id', () => {
   it('should soft-delete a checklist', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'To Delete',
     });
-    (prisma as any).audChecklist.update.mockResolvedValue({
+    mockPrisma.audChecklist.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -206,7 +207,7 @@ describe('DELETE /api/checklists/:id', () => {
   });
 
   it('should return 404 if checklist not found', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue(null);
+    mockPrisma.audChecklist.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -214,10 +215,10 @@ describe('DELETE /api/checklists/:id', () => {
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).audChecklist.findFirst.mockResolvedValue({
+    mockPrisma.audChecklist.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).audChecklist.update.mockRejectedValue(new Error('Delete failed'));
+    mockPrisma.audChecklist.update.mockRejectedValue(new Error('Delete failed'));
     const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

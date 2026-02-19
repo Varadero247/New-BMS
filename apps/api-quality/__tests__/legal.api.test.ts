@@ -33,7 +33,7 @@ jest.mock('uuid', () => ({
 import { prisma } from '../src/prisma';
 import legalRoutes from '../src/routes/legal';
 
-const mockPrisma = prisma as any;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 describe('Quality Legal Obligations API Routes', () => {
   let app: express.Express;

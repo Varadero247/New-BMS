@@ -80,8 +80,8 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers as any);
-      mockPrisma.user.count.mockResolvedValueOnce(2);
+      (mockPrisma.user.findMany as jest.Mock).mockResolvedValueOnce(mockUsers);
+      (mockPrisma.user.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app).get('/api/users').set('Authorization', 'Bearer token');
 
@@ -93,8 +93,8 @@ describe('Users API Routes', () => {
 
     it('should return list of users for manager', async () => {
       mockUser = { id: 'manager-123', email: 'manager@test.com', role: 'MANAGER' };
-      mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers as any);
-      mockPrisma.user.count.mockResolvedValueOnce(2);
+      mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers);
+      (mockPrisma.user.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app).get('/api/users').set('Authorization', 'Bearer token');
 
@@ -121,8 +121,8 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers as any);
-      mockPrisma.user.count.mockResolvedValueOnce(100);
+      mockPrisma.user.findMany.mockResolvedValueOnce(mockUsers);
+      (mockPrisma.user.count as jest.Mock).mockResolvedValueOnce(100);
 
       const response = await request(app)
         .get('/api/users?page=2&limit=10')
@@ -185,7 +185,7 @@ describe('Users API Routes', () => {
     };
 
     it('should return user data for own profile', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUserData as any);
+      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUserData);
 
       const response = await request(app)
         .get('/api/users/20000000-0000-4000-a000-000000000123')
@@ -202,7 +202,7 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.findUnique.mockResolvedValueOnce(mockUserData as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(mockUserData);
 
       const response = await request(app)
         .get('/api/users/20000000-0000-4000-a000-000000000123')
@@ -233,7 +233,7 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .get('/api/users/00000000-0000-4000-a000-ffffffffffff')
@@ -263,7 +263,7 @@ describe('Users API Routes', () => {
         id: '30000000-0000-4000-a000-000000000123',
         ...createUserPayload,
         role: 'USER',
-      } as any);
+      });
 
       const response = await request(app)
         .post('/api/users')
@@ -296,7 +296,7 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.findUnique.mockResolvedValueOnce({ id: 'existing' } as any);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({ id: 'existing' });
 
       const response = await request(app)
         .post('/api/users')
@@ -329,11 +329,11 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.findUnique.mockResolvedValueOnce(null);
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         role: 'MANAGER',
-      } as any);
+      });
 
       const response = await request(app)
         .post('/api/users')
@@ -346,13 +346,13 @@ describe('Users API Routes', () => {
 
   describe('PATCH /api/users/:id', () => {
     it('should update own profile', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce({
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
-      } as any);
-      mockPrisma.user.update.mockResolvedValueOnce({
+      });
+      (mockPrisma.user.update as jest.Mock).mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         firstName: 'Updated',
-      } as any);
+      });
 
       const response = await request(app)
         .patch('/api/users/20000000-0000-4000-a000-000000000123')
@@ -369,13 +369,13 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.findUnique.mockResolvedValueOnce({
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({
         id: '55000000-0000-4000-a000-000000000001',
-      } as any);
-      mockPrisma.user.update.mockResolvedValueOnce({
+      });
+      (mockPrisma.user.update as jest.Mock).mockResolvedValueOnce({
         id: '55000000-0000-4000-a000-000000000001',
         firstName: 'Updated',
-      } as any);
+      });
 
       const response = await request(app)
         .patch('/api/users/55000000-0000-4000-a000-000000000001')
@@ -401,13 +401,13 @@ describe('Users API Routes', () => {
     });
 
     it('should not allow non-admin to change role', async () => {
-      mockPrisma.user.findUnique.mockResolvedValueOnce({
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
-      } as any);
-      mockPrisma.user.update.mockResolvedValueOnce({
+      });
+      (mockPrisma.user.update as jest.Mock).mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         role: 'USER',
-      } as any);
+      });
 
       await request(app)
         .patch('/api/users/20000000-0000-4000-a000-000000000123')
@@ -427,13 +427,13 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.findUnique.mockResolvedValueOnce({
+      (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
-      } as any);
-      mockPrisma.user.update.mockResolvedValueOnce({
+      });
+      (mockPrisma.user.update as jest.Mock).mockResolvedValueOnce({
         id: '20000000-0000-4000-a000-000000000123',
         role: 'MANAGER',
-      } as any);
+      });
 
       await request(app)
         .patch('/api/users/20000000-0000-4000-a000-000000000123')
@@ -455,7 +455,7 @@ describe('Users API Routes', () => {
         email: 'admin@test.com',
         role: 'ADMIN',
       };
-      mockPrisma.user.delete.mockResolvedValueOnce({} as any);
+      (mockPrisma.user.delete as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app)
         .delete('/api/users/55000000-0000-4000-a000-000000000001')

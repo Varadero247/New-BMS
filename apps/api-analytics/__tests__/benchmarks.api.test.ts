@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import benchmarksRouter from '../src/routes/benchmarks';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -51,7 +52,7 @@ describe('GET /api/benchmarks', () => {
         unit: 'per 200k hours',
       },
     ];
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue(kpis);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue(kpis);
 
     const res = await request(app).get('/api/benchmarks');
 
@@ -68,7 +69,7 @@ describe('GET /api/benchmarks', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsKpi.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsKpi.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/benchmarks');
 
@@ -92,7 +93,7 @@ describe('GET /api/benchmarks/:module', () => {
         unit: 'per 200k hours',
       },
     ];
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue(kpis);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue(kpis);
 
     const res = await request(app).get('/api/benchmarks/HEALTH_SAFETY');
 
@@ -103,7 +104,7 @@ describe('GET /api/benchmarks/:module', () => {
   });
 
   it('should return empty arrays for unknown module', async () => {
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/benchmarks/00000000-0000-0000-0000-000000000099');
 
@@ -113,7 +114,7 @@ describe('GET /api/benchmarks/:module', () => {
   });
 
   it('should handle case-insensitive module names', async () => {
-    (prisma as any).analyticsKpi.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/benchmarks/quality');
 
@@ -135,7 +136,7 @@ describe('POST /api/benchmarks', () => {
       description: 'Benchmark: Custom Metric',
       trend: 'UP',
     };
-    (prisma as any).analyticsKpi.create.mockResolvedValue(created);
+    mockPrisma.analyticsKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/benchmarks').send({
       name: 'Custom Metric',
@@ -152,7 +153,7 @@ describe('POST /api/benchmarks', () => {
 
   it('should set trend DOWN when current below industry average', async () => {
     const created = { id: 'kpi-new', name: 'Low Metric', trend: 'DOWN' };
-    (prisma as any).analyticsKpi.create.mockResolvedValue(created);
+    mockPrisma.analyticsKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/benchmarks').send({
       name: 'Low Metric',
@@ -165,14 +166,14 @@ describe('POST /api/benchmarks', () => {
 
     expect(res.status).toBe(201);
     // The create call should have trend: 'DOWN'
-    expect((prisma as any).analyticsKpi.create).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsKpi.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ trend: 'DOWN' }) })
     );
   });
 
   it('should set trend STABLE when no current value', async () => {
     const created = { id: 'kpi-new', name: 'No Value', trend: 'STABLE' };
-    (prisma as any).analyticsKpi.create.mockResolvedValue(created);
+    mockPrisma.analyticsKpi.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/benchmarks').send({
       name: 'No Value',
@@ -183,7 +184,7 @@ describe('POST /api/benchmarks', () => {
     });
 
     expect(res.status).toBe(201);
-    expect((prisma as any).analyticsKpi.create).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsKpi.create).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ trend: 'STABLE' }) })
     );
   });
@@ -196,7 +197,7 @@ describe('POST /api/benchmarks', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsKpi.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsKpi.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/benchmarks').send({
       name: 'Test',

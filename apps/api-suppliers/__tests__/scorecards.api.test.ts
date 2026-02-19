@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/scorecards';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/scorecards', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/scorecards', () => {
   it('should return scorecards', async () => {
-    (prisma as any).suppScorecard.findMany.mockResolvedValue([
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Test' },
     ]);
-    (prisma as any).suppScorecard.count.mockResolvedValue(1);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1);
     const res = await request(app).get('/api/scorecards');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,12 +47,12 @@ describe('GET /api/scorecards', () => {
 
 describe('GET /api/scorecards/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).suppScorecard.findFirst.mockResolvedValue(null);
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/scorecards/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).suppScorecard.findFirst.mockResolvedValue({
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).get('/api/scorecards/00000000-0000-0000-0000-000000000001');
@@ -62,8 +63,8 @@ describe('GET /api/scorecards/:id', () => {
 
 describe('POST /api/scorecards', () => {
   it('should create', async () => {
-    (prisma as any).suppScorecard.count.mockResolvedValue(0);
-    (prisma as any).suppScorecard.create.mockResolvedValue({
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New',
     });
@@ -75,10 +76,10 @@ describe('POST /api/scorecards', () => {
 
 describe('PUT /api/scorecards/:id', () => {
   it('should update', async () => {
-    (prisma as any).suppScorecard.findFirst.mockResolvedValue({
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).suppScorecard.update.mockResolvedValue({
+    mockPrisma.suppScorecard.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -91,10 +92,10 @@ describe('PUT /api/scorecards/:id', () => {
 
 describe('DELETE /api/scorecards/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).suppScorecard.findFirst.mockResolvedValue({
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).suppScorecard.update.mockResolvedValue({
+    mockPrisma.suppScorecard.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete('/api/scorecards/00000000-0000-0000-0000-000000000001');

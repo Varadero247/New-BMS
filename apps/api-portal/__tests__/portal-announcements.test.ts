@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import portalAnnouncementsRouter from '../src/routes/portal-announcements';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -46,8 +47,8 @@ describe('GET /api/portal/announcements', () => {
         portalType: 'CUSTOMER',
       },
     ];
-    (prisma as any).portalAnnouncement.findMany.mockResolvedValue(items);
-    (prisma as any).portalAnnouncement.count.mockResolvedValue(1);
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue(items);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/portal/announcements');
 
@@ -56,19 +57,19 @@ describe('GET /api/portal/announcements', () => {
   });
 
   it('should filter by portalType', async () => {
-    (prisma as any).portalAnnouncement.findMany.mockResolvedValue([]);
-    (prisma as any).portalAnnouncement.count.mockResolvedValue(0);
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/portal/announcements?portalType=SUPPLIER');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).portalAnnouncement.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.portalAnnouncement.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ portalType: 'SUPPLIER' }) })
     );
   });
 
   it('should handle server error', async () => {
-    (prisma as any).portalAnnouncement.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalAnnouncement.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/portal/announcements');
 
@@ -83,7 +84,7 @@ describe('POST /api/portal/announcements', () => {
       title: 'New Feature',
       isActive: true,
     };
-    (prisma as any).portalAnnouncement.create.mockResolvedValue(announcement);
+    mockPrisma.portalAnnouncement.create.mockResolvedValue(announcement);
 
     const res = await request(app).post('/api/portal/announcements').send({
       title: 'New Feature',
@@ -115,10 +116,10 @@ describe('POST /api/portal/announcements', () => {
 
 describe('PUT /api/portal/announcements/:id', () => {
   it('should update an announcement', async () => {
-    (prisma as any).portalAnnouncement.findFirst.mockResolvedValue({
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).portalAnnouncement.update.mockResolvedValue({
+    mockPrisma.portalAnnouncement.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -131,7 +132,7 @@ describe('PUT /api/portal/announcements/:id', () => {
   });
 
   it('should return 404 for update if not found', async () => {
-    (prisma as any).portalAnnouncement.findFirst.mockResolvedValue(null);
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/portal/announcements/00000000-0000-0000-0000-000000000099')
@@ -143,10 +144,10 @@ describe('PUT /api/portal/announcements/:id', () => {
 
 describe('DELETE /api/portal/announcements/:id', () => {
   it('should soft-delete an announcement', async () => {
-    (prisma as any).portalAnnouncement.findFirst.mockResolvedValue({
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).portalAnnouncement.update.mockResolvedValue({
+    mockPrisma.portalAnnouncement.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
       isActive: false,
@@ -161,7 +162,7 @@ describe('DELETE /api/portal/announcements/:id', () => {
   });
 
   it('should return 404 for delete if not found', async () => {
-    (prisma as any).portalAnnouncement.findFirst.mockResolvedValue(null);
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(
       '/api/portal/announcements/00000000-0000-0000-0000-000000000099'
@@ -171,7 +172,7 @@ describe('DELETE /api/portal/announcements/:id', () => {
   });
 
   it('should handle server error on delete', async () => {
-    (prisma as any).portalAnnouncement.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.portalAnnouncement.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete(
       '/api/portal/announcements/00000000-0000-0000-0000-000000000001'

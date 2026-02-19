@@ -29,6 +29,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import exportsRouter from '../src/routes/exports';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -52,8 +53,8 @@ describe('GET /api/exports', () => {
       },
       { id: 'exp-2', name: 'Quality Export', status: 'QUEUED', format: 'EXCEL' },
     ];
-    (prisma as any).analyticsExport.findMany.mockResolvedValue(exports);
-    (prisma as any).analyticsExport.count.mockResolvedValue(2);
+    mockPrisma.analyticsExport.findMany.mockResolvedValue(exports);
+    mockPrisma.analyticsExport.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/exports');
 
@@ -64,31 +65,31 @@ describe('GET /api/exports', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).analyticsExport.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsExport.count.mockResolvedValue(0);
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/exports?status=COMPLETED');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsExport.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsExport.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'COMPLETED' }) })
     );
   });
 
   it('should filter by format', async () => {
-    (prisma as any).analyticsExport.findMany.mockResolvedValue([]);
-    (prisma as any).analyticsExport.count.mockResolvedValue(0);
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/exports?format=CSV');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).analyticsExport.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.analyticsExport.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ format: 'CSV' }) })
     );
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).analyticsExport.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.analyticsExport.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/exports');
 
@@ -108,7 +109,7 @@ describe('POST /api/exports', () => {
       format: 'CSV',
       status: 'QUEUED',
     };
-    (prisma as any).analyticsExport.create.mockResolvedValue(created);
+    mockPrisma.analyticsExport.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/exports').send({
       name: 'New Export',
@@ -134,7 +135,7 @@ describe('POST /api/exports', () => {
 // ===================================================================
 describe('GET /api/exports/:id', () => {
   it('should return an export by ID', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Test',
     });
@@ -146,7 +147,7 @@ describe('GET /api/exports/:id', () => {
   });
 
   it('should return 404 for non-existent export', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/exports/00000000-0000-0000-0000-000000000099');
 
@@ -159,10 +160,10 @@ describe('GET /api/exports/:id', () => {
 // ===================================================================
 describe('DELETE /api/exports/:id', () => {
   it('should soft delete an export', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).analyticsExport.update.mockResolvedValue({
+    mockPrisma.analyticsExport.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -174,7 +175,7 @@ describe('DELETE /api/exports/:id', () => {
   });
 
   it('should return 404 for non-existent export', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/exports/00000000-0000-0000-0000-000000000099');
 
@@ -187,7 +188,7 @@ describe('DELETE /api/exports/:id', () => {
 // ===================================================================
 describe('GET /api/exports/:id/download', () => {
   it('should return download URL for completed export', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Test Export',
       status: 'COMPLETED',
@@ -205,7 +206,7 @@ describe('GET /api/exports/:id/download', () => {
   });
 
   it('should return 400 for non-completed export', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'QUEUED',
       format: 'CSV',
@@ -220,7 +221,7 @@ describe('GET /api/exports/:id/download', () => {
   });
 
   it('should return 404 for non-existent export', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue(null);
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/exports/00000000-0000-0000-0000-000000000099/download'
@@ -230,7 +231,7 @@ describe('GET /api/exports/:id/download', () => {
   });
 
   it('should return 404 when file URL missing', async () => {
-    (prisma as any).analyticsExport.findFirst.mockResolvedValue({
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
       format: 'CSV',

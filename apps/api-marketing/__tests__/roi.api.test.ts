@@ -24,7 +24,7 @@ jest.mock('@ims/auth', () => ({
 }));
 
 // Mock fetch for HubSpot
-global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) })) as any;
+global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) })) as unknown as typeof globalThis.fetch;
 
 import roiRouter, { calculateROI } from '../src/routes/roi';
 import { prisma } from '../src/prisma';

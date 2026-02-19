@@ -22,6 +22,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/dashboard';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/dashboard', router);
@@ -31,10 +32,10 @@ beforeEach(() => {
 
 describe('GET /api/dashboard/stats', () => {
   it('should return training stats', async () => {
-    (prisma as any).trainCourse.count.mockResolvedValue(10);
-    (prisma as any).trainRecord.count.mockResolvedValue(50);
-    (prisma as any).trainCompetency.count.mockResolvedValue(8);
-    (prisma as any).trainMatrix.count.mockResolvedValue(3);
+    mockPrisma.trainCourse.count.mockResolvedValue(10);
+    mockPrisma.trainRecord.count.mockResolvedValue(50);
+    mockPrisma.trainCompetency.count.mockResolvedValue(8);
+    mockPrisma.trainMatrix.count.mockResolvedValue(3);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -45,10 +46,10 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return zeros when no data exists', async () => {
-    (prisma as any).trainCourse.count.mockResolvedValue(0);
-    (prisma as any).trainRecord.count.mockResolvedValue(0);
-    (prisma as any).trainCompetency.count.mockResolvedValue(0);
-    (prisma as any).trainMatrix.count.mockResolvedValue(0);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -59,10 +60,10 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).trainCourse.count.mockRejectedValue(new Error('DB error'));
-    (prisma as any).trainRecord.count.mockRejectedValue(new Error('DB error'));
-    (prisma as any).trainCompetency.count.mockRejectedValue(new Error('DB error'));
-    (prisma as any).trainMatrix.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainCourse.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainRecord.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainCompetency.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.trainMatrix.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

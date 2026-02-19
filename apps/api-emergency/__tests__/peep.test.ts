@@ -36,7 +36,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const mockPeep = prisma.femPeep as any;
+const mockPeep = jest.mocked(prisma.femPeep);
 
 const PEEP_ID = '00000000-0000-0000-0000-000000000001';
 const PREMISES_ID = '00000000-0000-0000-0000-000000000002';

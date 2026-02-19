@@ -26,6 +26,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/dashboard';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -37,20 +38,20 @@ beforeEach(() => {
 
 describe('GET /api/dashboard/stats', () => {
   it('should return total review count', async () => {
-    (prisma as any).mgmtReview.count.mockResolvedValue(10);
+    mockPrisma.mgmtReview.count.mockResolvedValue(10);
 
     const res = await request(app).get('/api/dashboard/stats');
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty('totalReviews', 10);
-    expect((prisma as any).mgmtReview.count).toHaveBeenCalledWith({
+    expect(mockPrisma.mgmtReview.count).toHaveBeenCalledWith({
       where: { orgId: 'org-1', deletedAt: null },
     });
   });
 
   it('should return 0 when there are no reviews', async () => {
-    (prisma as any).mgmtReview.count.mockResolvedValue(0);
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/dashboard/stats');
 
@@ -60,7 +61,7 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 500 when count throws an error', async () => {
-    (prisma as any).mgmtReview.count.mockRejectedValue(new Error('Database error'));
+    mockPrisma.mgmtReview.count.mockRejectedValue(new Error('Database error'));
 
     const res = await request(app).get('/api/dashboard/stats');
 
@@ -71,11 +72,11 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should use the orgId from the authenticated user', async () => {
-    (prisma as any).mgmtReview.count.mockResolvedValue(5);
+    mockPrisma.mgmtReview.count.mockResolvedValue(5);
 
     await request(app).get('/api/dashboard/stats');
 
-    const countCall = (prisma as any).mgmtReview.count.mock.calls[0][0];
+    const countCall = mockPrisma.mgmtReview.count.mock.calls[0][0];
     expect(countCall.where.orgId).toBe('org-1');
     expect(countCall.where.deletedAt).toBeNull();
   });

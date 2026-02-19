@@ -35,6 +35,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import schedulesRouter from '../src/routes/schedules';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -55,8 +56,8 @@ describe('GET /api/schedules', () => {
         technician: {},
       },
     ];
-    (prisma as any).fsSvcSchedule.findMany.mockResolvedValue(schedules);
-    (prisma as any).fsSvcSchedule.count.mockResolvedValue(1);
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue(schedules);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/schedules');
 
@@ -66,12 +67,12 @@ describe('GET /api/schedules', () => {
   });
 
   it('should filter by technicianId', async () => {
-    (prisma as any).fsSvcSchedule.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcSchedule.count.mockResolvedValue(0);
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(0);
 
     await request(app).get('/api/schedules?technicianId=tech-1');
 
-    expect((prisma as any).fsSvcSchedule.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcSchedule.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ technicianId: 'tech-1' }),
       })
@@ -79,12 +80,12 @@ describe('GET /api/schedules', () => {
   });
 
   it('should filter by isAvailable', async () => {
-    (prisma as any).fsSvcSchedule.findMany.mockResolvedValue([]);
-    (prisma as any).fsSvcSchedule.count.mockResolvedValue(0);
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSchedule.count.mockResolvedValue(0);
 
     await request(app).get('/api/schedules?isAvailable=true');
 
-    expect((prisma as any).fsSvcSchedule.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSvcSchedule.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ isAvailable: true }),
       })
@@ -92,7 +93,7 @@ describe('GET /api/schedules', () => {
   });
 
   it('should handle server errors', async () => {
-    (prisma as any).fsSvcSchedule.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSvcSchedule.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/schedules');
 
@@ -102,14 +103,14 @@ describe('GET /api/schedules', () => {
 
 describe('GET /api/schedules/calendar/:technicianId', () => {
   it('should return calendar view with schedules and jobs', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'John',
     });
-    (prisma as any).fsSvcSchedule.findMany.mockResolvedValue([
+    mockPrisma.fsSvcSchedule.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', date: new Date() },
     ]);
-    (prisma as any).fsSvcJob.findMany.mockResolvedValue([{ id: 'job-1', title: 'Repair' }]);
+    mockPrisma.fsSvcJob.findMany.mockResolvedValue([{ id: 'job-1', title: 'Repair' }]);
 
     const res = await request(app).get(
       '/api/schedules/calendar/00000000-0000-0000-0000-000000000001'
@@ -122,7 +123,7 @@ describe('GET /api/schedules/calendar/:technicianId', () => {
   });
 
   it('should return 404 if technician not found', async () => {
-    (prisma as any).fsSvcTechnician.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcTechnician.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(
       '/api/schedules/calendar/00000000-0000-0000-0000-000000000099'
@@ -135,7 +136,7 @@ describe('GET /api/schedules/calendar/:technicianId', () => {
 describe('POST /api/schedules', () => {
   it('should create a schedule', async () => {
     const created = { id: 'sched-new', technicianId: 'tech-1', date: new Date(), slots: [] };
-    (prisma as any).fsSvcSchedule.create.mockResolvedValue(created);
+    mockPrisma.fsSvcSchedule.create.mockResolvedValue(created);
 
     const res = await request(app)
       .post('/api/schedules')
@@ -158,7 +159,7 @@ describe('POST /api/schedules', () => {
 
 describe('GET /api/schedules/:id', () => {
   it('should return a schedule by id', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       slots: [],
       technician: {},
@@ -171,7 +172,7 @@ describe('GET /api/schedules/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/schedules/00000000-0000-0000-0000-000000000099');
 
@@ -181,10 +182,10 @@ describe('GET /api/schedules/:id', () => {
 
 describe('PUT /api/schedules/:id', () => {
   it('should update a schedule', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcSchedule.update.mockResolvedValue({
+    mockPrisma.fsSvcSchedule.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       isAvailable: false,
     });
@@ -197,7 +198,7 @@ describe('PUT /api/schedules/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/schedules/00000000-0000-0000-0000-000000000099')
@@ -209,10 +210,10 @@ describe('PUT /api/schedules/:id', () => {
 
 describe('DELETE /api/schedules/:id', () => {
   it('should soft delete a schedule', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue({
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSvcSchedule.update.mockResolvedValue({
+    mockPrisma.fsSvcSchedule.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -224,7 +225,7 @@ describe('DELETE /api/schedules/:id', () => {
   });
 
   it('should return 404 for not found', async () => {
-    (prisma as any).fsSvcSchedule.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/schedules/00000000-0000-0000-0000-000000000099');
 

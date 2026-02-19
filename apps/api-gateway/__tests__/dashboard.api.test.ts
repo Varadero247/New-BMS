@@ -57,43 +57,43 @@ describe('Dashboard API Routes', () => {
   describe('GET /api/dashboard/stats', () => {
     beforeEach(() => {
       // Setup default mock responses
-      mockPrisma.complianceScore.findMany.mockResolvedValue([
+      (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValue([
         { standard: 'ISO_45001', overallScore: 85 },
         { standard: 'ISO_14001', overallScore: 90 },
         { standard: 'ISO_9001', overallScore: 88 },
-      ] as any);
+      ]);
 
-      mockPrisma.risk.count.mockResolvedValue(10);
+      (mockPrisma.risk.count as jest.Mock).mockResolvedValue(10);
       mockPrisma.risk.groupBy.mockResolvedValue([
         { standard: 'ISO_45001', _count: { id: 5 } },
         { standard: 'ISO_14001', _count: { id: 3 } },
-      ] as any);
-      mockPrisma.risk.findMany.mockResolvedValue([
+      ]);
+      (mockPrisma.risk.findMany as jest.Mock).mockResolvedValue([
         {
           id: '10000000-0000-4000-a000-000000000001',
           title: 'Risk 1',
           riskScore: 25,
           riskLevel: 'CRITICAL',
         },
-      ] as any);
+      ]);
 
-      mockPrisma.incident.count.mockResolvedValue(5);
+      (mockPrisma.incident.count as jest.Mock).mockResolvedValue(5);
       mockPrisma.incident.groupBy.mockResolvedValue([
         { standard: 'ISO_45001', _count: { id: 3 } },
-      ] as any);
+      ]);
 
-      mockPrisma.action.count.mockResolvedValue(20);
+      (mockPrisma.action.count as jest.Mock).mockResolvedValue(20);
       mockPrisma.action.findMany.mockResolvedValue([
         {
           id: '13000000-0000-4000-a000-000000000001',
           title: 'Overdue Action',
           dueDate: new Date(),
         },
-      ] as any);
+      ]);
 
-      mockPrisma.aIAnalysis.findMany.mockResolvedValue([
+      (mockPrisma.aIAnalysis.findMany as jest.Mock).mockResolvedValue([
         { id: 'ai-1', sourceType: 'INCIDENT', suggestedRootCause: 'Test cause' },
-      ] as any);
+      ]);
     });
 
     it('should return dashboard statistics', async () => {
@@ -181,7 +181,7 @@ describe('Dashboard API Routes', () => {
     });
 
     it('should handle missing compliance scores gracefully', async () => {
-      mockPrisma.complianceScore.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       const response = await request(app)
         .get('/api/dashboard/stats')
@@ -210,7 +210,7 @@ describe('Dashboard API Routes', () => {
       mockPrisma.complianceScore.findMany.mockResolvedValueOnce([
         { standard: 'ISO_45001', overallScore: 85 },
         { standard: 'ISO_14001', overallScore: 90 },
-      ] as any);
+      ]);
 
       const response = await request(app)
         .get('/api/dashboard/compliance')
@@ -222,7 +222,7 @@ describe('Dashboard API Routes', () => {
     });
 
     it('should return empty array when no compliance data', async () => {
-      mockPrisma.complianceScore.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.complianceScore.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       const response = await request(app)
         .get('/api/dashboard/compliance')
@@ -251,7 +251,7 @@ describe('Dashboard API Routes', () => {
     ];
 
     it('should return monthly trends', async () => {
-      mockPrisma.monthlyTrend.findMany.mockResolvedValueOnce(mockTrends as any);
+      mockPrisma.monthlyTrend.findMany.mockResolvedValueOnce(mockTrends);
 
       const response = await request(app)
         .get('/api/dashboard/trends')
@@ -263,7 +263,7 @@ describe('Dashboard API Routes', () => {
     });
 
     it('should filter by standard', async () => {
-      mockPrisma.monthlyTrend.findMany.mockResolvedValueOnce(mockTrends as any);
+      (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValueOnce(mockTrends);
 
       await request(app)
         .get('/api/dashboard/trends?standard=ISO_45001')
@@ -279,7 +279,7 @@ describe('Dashboard API Routes', () => {
     });
 
     it('should filter by metric', async () => {
-      mockPrisma.monthlyTrend.findMany.mockResolvedValueOnce(mockTrends as any);
+      (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValueOnce(mockTrends);
 
       await request(app)
         .get('/api/dashboard/trends?metric=RISKS')
@@ -295,7 +295,7 @@ describe('Dashboard API Routes', () => {
     });
 
     it('should filter by year', async () => {
-      mockPrisma.monthlyTrend.findMany.mockResolvedValueOnce(mockTrends as any);
+      (mockPrisma.monthlyTrend.findMany as jest.Mock).mockResolvedValueOnce(mockTrends);
 
       await request(app)
         .get('/api/dashboard/trends?year=2023')

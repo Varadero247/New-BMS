@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/method-statements';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/method-statements', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/method-statements', () => {
   it('should return method statements', async () => {
-    (prisma as any).ptwMethodStatement.findMany.mockResolvedValue([
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Test' },
     ]);
-    (prisma as any).ptwMethodStatement.count.mockResolvedValue(1);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(1);
     const res = await request(app).get('/api/method-statements');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,14 +47,14 @@ describe('GET /api/method-statements', () => {
 
 describe('GET /api/method-statements/:id', () => {
   it('should return 404 if not found', async () => {
-    (prisma as any).ptwMethodStatement.findFirst.mockResolvedValue(null);
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue(null);
     const res = await request(app).get(
       '/api/method-statements/00000000-0000-0000-0000-000000000099'
     );
     expect(res.status).toBe(404);
   });
   it('should return item by id', async () => {
-    (prisma as any).ptwMethodStatement.findFirst.mockResolvedValue({
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).get(
@@ -66,8 +67,8 @@ describe('GET /api/method-statements/:id', () => {
 
 describe('POST /api/method-statements', () => {
   it('should create', async () => {
-    (prisma as any).ptwMethodStatement.count.mockResolvedValue(0);
-    (prisma as any).ptwMethodStatement.create.mockResolvedValue({
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'New',
     });
@@ -79,10 +80,10 @@ describe('POST /api/method-statements', () => {
 
 describe('PUT /api/method-statements/:id', () => {
   it('should update', async () => {
-    (prisma as any).ptwMethodStatement.findFirst.mockResolvedValue({
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).ptwMethodStatement.update.mockResolvedValue({
+    mockPrisma.ptwMethodStatement.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -95,10 +96,10 @@ describe('PUT /api/method-statements/:id', () => {
 
 describe('DELETE /api/method-statements/:id', () => {
   it('should soft delete', async () => {
-    (prisma as any).ptwMethodStatement.findFirst.mockResolvedValue({
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).ptwMethodStatement.update.mockResolvedValue({
+    mockPrisma.ptwMethodStatement.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
     const res = await request(app).delete(

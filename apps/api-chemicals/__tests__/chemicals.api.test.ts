@@ -28,6 +28,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/chemicals';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -56,8 +57,8 @@ const mockChemical = {
 
 describe('GET /api/chemicals', () => {
   it('should return a list of chemicals with pagination', async () => {
-    (prisma as any).chemRegister.findMany.mockResolvedValue([mockChemical]);
-    (prisma as any).chemRegister.count.mockResolvedValue(1);
+    mockPrisma.chemRegister.findMany.mockResolvedValue([mockChemical]);
+    mockPrisma.chemRegister.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/chemicals');
     expect(res.status).toBe(200);
@@ -70,30 +71,30 @@ describe('GET /api/chemicals', () => {
   });
 
   it('should support search query parameter', async () => {
-    (prisma as any).chemRegister.findMany.mockResolvedValue([]);
-    (prisma as any).chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemRegister.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/chemicals?search=acetone');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect((prisma as any).chemRegister.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ OR: expect.any(Array) }) })
     );
   });
 
   it('should support CMR filter', async () => {
-    (prisma as any).chemRegister.findMany.mockResolvedValue([]);
-    (prisma as any).chemRegister.count.mockResolvedValue(0);
+    mockPrisma.chemRegister.findMany.mockResolvedValue([]);
+    mockPrisma.chemRegister.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/chemicals?cmr=true');
     expect(res.status).toBe(200);
-    expect((prisma as any).chemRegister.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ isCmr: true }) })
     );
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemRegister.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/chemicals');
     expect(res.status).toBe(500);
@@ -104,7 +105,7 @@ describe('GET /api/chemicals', () => {
 
 describe('GET /api/chemicals/:id', () => {
   it('should return a single chemical by ID', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
 
     const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
@@ -113,7 +114,7 @@ describe('GET /api/chemicals/:id', () => {
   });
 
   it('should return 404 when chemical not found', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -122,7 +123,7 @@ describe('GET /api/chemicals/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemRegister.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/chemicals/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
@@ -134,7 +135,7 @@ describe('GET /api/chemicals/:id', () => {
 describe('POST /api/chemicals', () => {
   it('should create a new chemical', async () => {
     const created = { ...mockChemical, id: '00000000-0000-0000-0000-000000000002' };
-    (prisma as any).chemRegister.create.mockResolvedValue(created);
+    mockPrisma.chemRegister.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/chemicals').send({
       productName: 'Acetone',
@@ -144,7 +145,7 @@ describe('POST /api/chemicals', () => {
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.productName).toBe('Acetone');
-    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ orgId: 'org-1', createdBy: 'user-1' }),
       })
@@ -170,7 +171,7 @@ describe('POST /api/chemicals', () => {
   });
 
   it('should auto-set isCmr and healthSurveillanceReq when isCarcinogen is true', async () => {
-    (prisma as any).chemRegister.create.mockResolvedValue({
+    mockPrisma.chemRegister.create.mockResolvedValue({
       ...mockChemical,
       isCmr: true,
       healthSurveillanceReq: true,
@@ -182,7 +183,7 @@ describe('POST /api/chemicals', () => {
       isCarcinogen: true,
     });
     expect(res.status).toBe(201);
-    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }),
       })
@@ -190,7 +191,7 @@ describe('POST /api/chemicals', () => {
   });
 
   it('should auto-set isCmr when isMutagen is true', async () => {
-    (prisma as any).chemRegister.create.mockResolvedValue({
+    mockPrisma.chemRegister.create.mockResolvedValue({
       ...mockChemical,
       isCmr: true,
       healthSurveillanceReq: true,
@@ -202,7 +203,7 @@ describe('POST /api/chemicals', () => {
       isMutagen: true,
     });
     expect(res.status).toBe(201);
-    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }),
       })
@@ -210,7 +211,7 @@ describe('POST /api/chemicals', () => {
   });
 
   it('should auto-set isCmr when isReprotoxic is true', async () => {
-    (prisma as any).chemRegister.create.mockResolvedValue({
+    mockPrisma.chemRegister.create.mockResolvedValue({
       ...mockChemical,
       isCmr: true,
       healthSurveillanceReq: true,
@@ -222,7 +223,7 @@ describe('POST /api/chemicals', () => {
       isReprotoxic: true,
     });
     expect(res.status).toBe(201);
-    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }),
       })
@@ -230,14 +231,14 @@ describe('POST /api/chemicals', () => {
   });
 
   it('should set isCmr=false when no CMR flags are set', async () => {
-    (prisma as any).chemRegister.create.mockResolvedValue({ ...mockChemical });
+    mockPrisma.chemRegister.create.mockResolvedValue({ ...mockChemical });
 
     const res = await request(app).post('/api/chemicals').send({
       productName: 'Safe Chem',
       chemicalName: 'Safe Chemical',
     });
     expect(res.status).toBe(201);
-    expect((prisma as any).chemRegister.create).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ isCmr: false, healthSurveillanceReq: false }),
       })
@@ -245,7 +246,7 @@ describe('POST /api/chemicals', () => {
   });
 
   it('should return 500 on database create error', async () => {
-    (prisma as any).chemRegister.create.mockRejectedValue(new Error('Unique constraint'));
+    mockPrisma.chemRegister.create.mockRejectedValue(new Error('Unique constraint'));
 
     const res = await request(app).post('/api/chemicals').send({
       productName: 'Duplicate',
@@ -259,8 +260,8 @@ describe('POST /api/chemicals', () => {
 
 describe('PUT /api/chemicals/:id', () => {
   it('should update an existing chemical', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemRegister.update.mockResolvedValue({
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemRegister.update.mockResolvedValue({
       ...mockChemical,
       productName: 'Updated Acetone',
     });
@@ -274,7 +275,7 @@ describe('PUT /api/chemicals/:id', () => {
   });
 
   it('should return 404 when chemical not found', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000099').send({
       productName: 'Nonexistent',
@@ -285,13 +286,13 @@ describe('PUT /api/chemicals/:id', () => {
   });
 
   it('should recalculate isCmr on update when isCarcinogen changes', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue({
+    mockPrisma.chemRegister.findFirst.mockResolvedValue({
       ...mockChemical,
       isCarcinogen: false,
       isMutagen: false,
       isReprotoxic: false,
     });
-    (prisma as any).chemRegister.update.mockResolvedValue({
+    mockPrisma.chemRegister.update.mockResolvedValue({
       ...mockChemical,
       isCmr: true,
       healthSurveillanceReq: true,
@@ -302,7 +303,7 @@ describe('PUT /api/chemicals/:id', () => {
       isCarcinogen: true,
     });
     expect(res.status).toBe(200);
-    expect((prisma as any).chemRegister.update).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.update).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({ isCmr: true, healthSurveillanceReq: true }),
       })
@@ -310,8 +311,8 @@ describe('PUT /api/chemicals/:id', () => {
   });
 
   it('should return 500 on database update error', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemRegister.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemRegister.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put('/api/chemicals/00000000-0000-0000-0000-000000000001').send({
       productName: 'Fail',
@@ -324,8 +325,8 @@ describe('PUT /api/chemicals/:id', () => {
 
 describe('DELETE /api/chemicals/:id', () => {
   it('should soft delete a chemical', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemRegister.update.mockResolvedValue({
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemRegister.update.mockResolvedValue({
       ...mockChemical,
       deletedAt: new Date().toISOString(),
       isActive: false,
@@ -335,13 +336,13 @@ describe('DELETE /api/chemicals/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.message).toBe('Chemical deleted successfully');
-    expect((prisma as any).chemRegister.update).toHaveBeenCalledWith(
+    expect(mockPrisma.chemRegister.update).toHaveBeenCalledWith(
       expect.objectContaining({ data: expect.objectContaining({ isActive: false }) })
     );
   });
 
   it('should return 404 when chemical not found', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(null);
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -350,8 +351,8 @@ describe('DELETE /api/chemicals/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).chemRegister.findFirst.mockResolvedValue(mockChemical);
-    (prisma as any).chemRegister.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemRegister.findFirst.mockResolvedValue(mockChemical);
+    mockPrisma.chemRegister.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete('/api/chemicals/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
@@ -376,8 +377,8 @@ describe('GET /api/chemicals/alerts/expiry', () => {
         chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' },
       },
     ];
-    (prisma as any).chemSds.findMany.mockResolvedValue(sdsExpiring);
-    (prisma as any).chemInventory.findMany.mockResolvedValue(stockExpiring);
+    mockPrisma.chemSds.findMany.mockResolvedValue(sdsExpiring);
+    mockPrisma.chemInventory.findMany.mockResolvedValue(stockExpiring);
 
     const res = await request(app).get('/api/chemicals/alerts/expiry');
     expect(res.status).toBe(200);
@@ -387,8 +388,8 @@ describe('GET /api/chemicals/alerts/expiry', () => {
   });
 
   it('should support days query parameter', async () => {
-    (prisma as any).chemSds.findMany.mockResolvedValue([]);
-    (prisma as any).chemInventory.findMany.mockResolvedValue([]);
+    mockPrisma.chemSds.findMany.mockResolvedValue([]);
+    mockPrisma.chemInventory.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/chemicals/alerts/expiry?days=30');
     expect(res.status).toBe(200);
@@ -396,7 +397,7 @@ describe('GET /api/chemicals/alerts/expiry', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).chemSds.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemSds.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/chemicals/alerts/expiry');
     expect(res.status).toBe(500);
@@ -416,7 +417,7 @@ describe('GET /api/chemicals/alerts/incompatible', () => {
         chemical: { id: 'c-1', productName: 'Acetone', casNumber: '67-64-1' },
       },
     ];
-    (prisma as any).chemIncompatAlert.findMany.mockResolvedValue(alerts);
+    mockPrisma.chemIncompatAlert.findMany.mockResolvedValue(alerts);
 
     const res = await request(app).get('/api/chemicals/alerts/incompatible');
     expect(res.status).toBe(200);
@@ -426,7 +427,7 @@ describe('GET /api/chemicals/alerts/incompatible', () => {
   });
 
   it('should return empty array when no alerts', async () => {
-    (prisma as any).chemIncompatAlert.findMany.mockResolvedValue([]);
+    mockPrisma.chemIncompatAlert.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/chemicals/alerts/incompatible');
     expect(res.status).toBe(200);
@@ -435,7 +436,7 @@ describe('GET /api/chemicals/alerts/incompatible', () => {
   });
 
   it('should return 500 on error', async () => {
-    (prisma as any).chemIncompatAlert.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.chemIncompatAlert.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/chemicals/alerts/incompatible');
     expect(res.status).toBe(500);

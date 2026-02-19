@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/notices';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/notices', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/notices', () => {
   it('should return notices list', async () => {
-    (prisma as any).contNotice.findMany.mockResolvedValue([
+    mockPrisma.contNotice.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Notice A', dueDate: '2026-03-01' },
     ]);
-    (prisma as any).contNotice.count.mockResolvedValue(1);
+    mockPrisma.contNotice.count.mockResolvedValue(1);
     const res = await request(app).get('/api/notices');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,16 +47,16 @@ describe('GET /api/notices', () => {
   });
 
   it('should support status and search filters', async () => {
-    (prisma as any).contNotice.findMany.mockResolvedValue([]);
-    (prisma as any).contNotice.count.mockResolvedValue(0);
+    mockPrisma.contNotice.findMany.mockResolvedValue([]);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
     const res = await request(app).get('/api/notices?status=PENDING&search=renewal');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 500 on db error', async () => {
-    (prisma as any).contNotice.findMany.mockRejectedValue(new Error('DB error'));
-    (prisma as any).contNotice.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.contNotice.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.contNotice.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/notices');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -65,7 +66,7 @@ describe('GET /api/notices', () => {
 
 describe('GET /api/notices/:id', () => {
   it('should return notice by id', async () => {
-    (prisma as any).contNotice.findFirst.mockResolvedValue({
+    mockPrisma.contNotice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Notice A',
     });
@@ -76,7 +77,7 @@ describe('GET /api/notices/:id', () => {
   });
 
   it('should return 404 if notice not found', async () => {
-    (prisma as any).contNotice.findFirst.mockResolvedValue(null);
+    mockPrisma.contNotice.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/notices/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -84,7 +85,7 @@ describe('GET /api/notices/:id', () => {
   });
 
   it('should return 500 on db error', async () => {
-    (prisma as any).contNotice.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.contNotice.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/notices/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -93,8 +94,8 @@ describe('GET /api/notices/:id', () => {
 
 describe('POST /api/notices', () => {
   it('should create a notice', async () => {
-    (prisma as any).contNotice.count.mockResolvedValue(0);
-    (prisma as any).contNotice.create.mockResolvedValue({
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    mockPrisma.contNotice.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       contractId: 'c-1',
       title: 'New Notice',
@@ -136,8 +137,8 @@ describe('POST /api/notices', () => {
   });
 
   it('should accept valid priority enum values', async () => {
-    (prisma as any).contNotice.count.mockResolvedValue(0);
-    (prisma as any).contNotice.create.mockResolvedValue({
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    mockPrisma.contNotice.create.mockResolvedValue({
       id: '2',
       contractId: 'c-1',
       title: 'High Priority',
@@ -161,8 +162,8 @@ describe('POST /api/notices', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).contNotice.count.mockResolvedValue(0);
-    (prisma as any).contNotice.create.mockRejectedValue(new Error('Create failed'));
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    mockPrisma.contNotice.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app)
       .post('/api/notices')
       .send({ contractId: 'c-1', title: 'Notice', dueDate: '2026-03-01' });
@@ -174,11 +175,11 @@ describe('POST /api/notices', () => {
 
 describe('PUT /api/notices/:id', () => {
   it('should update a notice', async () => {
-    (prisma as any).contNotice.findFirst.mockResolvedValue({
+    mockPrisma.contNotice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Old Title',
     });
-    (prisma as any).contNotice.update.mockResolvedValue({
+    mockPrisma.contNotice.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated Title',
     });
@@ -190,7 +191,7 @@ describe('PUT /api/notices/:id', () => {
   });
 
   it('should return 404 if notice not found', async () => {
-    (prisma as any).contNotice.findFirst.mockResolvedValue(null);
+    mockPrisma.contNotice.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/notices/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Updated' });
@@ -200,10 +201,10 @@ describe('PUT /api/notices/:id', () => {
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).contNotice.findFirst.mockResolvedValue({
+    mockPrisma.contNotice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).contNotice.update.mockRejectedValue(new Error('Update failed'));
+    mockPrisma.contNotice.update.mockRejectedValue(new Error('Update failed'));
     const res = await request(app)
       .put('/api/notices/00000000-0000-0000-0000-000000000001')
       .send({ title: 'New' });
@@ -215,10 +216,10 @@ describe('PUT /api/notices/:id', () => {
 
 describe('DELETE /api/notices/:id', () => {
   it('should soft delete a notice', async () => {
-    (prisma as any).contNotice.findFirst.mockResolvedValue({
+    mockPrisma.contNotice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).contNotice.update.mockResolvedValue({
+    mockPrisma.contNotice.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -229,7 +230,7 @@ describe('DELETE /api/notices/:id', () => {
   });
 
   it('should return 404 if notice not found', async () => {
-    (prisma as any).contNotice.findFirst.mockResolvedValue(null);
+    mockPrisma.contNotice.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/notices/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -237,10 +238,10 @@ describe('DELETE /api/notices/:id', () => {
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).contNotice.findFirst.mockResolvedValue({
+    mockPrisma.contNotice.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).contNotice.update.mockRejectedValue(new Error('Delete failed'));
+    mockPrisma.contNotice.update.mockRejectedValue(new Error('Delete failed'));
     const res = await request(app).delete('/api/notices/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

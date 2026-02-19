@@ -21,6 +21,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/dashboard';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/dashboard', router);
@@ -30,9 +31,9 @@ beforeEach(() => {
 
 describe('GET /api/dashboard/stats', () => {
   it('should return audit dashboard stats', async () => {
-    (prisma as any).audAudit.count.mockResolvedValue(10);
-    (prisma as any).audFinding.count.mockResolvedValue(25);
-    (prisma as any).audChecklist.count.mockResolvedValue(8);
+    mockPrisma.audAudit.count.mockResolvedValue(10);
+    mockPrisma.audFinding.count.mockResolvedValue(25);
+    mockPrisma.audChecklist.count.mockResolvedValue(8);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -42,9 +43,9 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return zeros when no records exist', async () => {
-    (prisma as any).audAudit.count.mockResolvedValue(0);
-    (prisma as any).audFinding.count.mockResolvedValue(0);
-    (prisma as any).audChecklist.count.mockResolvedValue(0);
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -54,9 +55,9 @@ describe('GET /api/dashboard/stats', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).audAudit.count.mockRejectedValue(new Error('DB error'));
-    (prisma as any).audFinding.count.mockResolvedValue(0);
-    (prisma as any).audChecklist.count.mockResolvedValue(0);
+    mockPrisma.audAudit.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

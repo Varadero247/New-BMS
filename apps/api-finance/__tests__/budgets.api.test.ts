@@ -37,6 +37,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/budgets';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -67,8 +68,8 @@ describe('GET /api/budgets', () => {
         },
       },
     ];
-    (prisma as any).finBudget.findMany.mockResolvedValue(budgets);
-    (prisma as any).finBudget.count.mockResolvedValue(1);
+    mockPrisma.finBudget.findMany.mockResolvedValue(budgets);
+    mockPrisma.finBudget.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/budgets');
 
@@ -79,13 +80,13 @@ describe('GET /api/budgets', () => {
   });
 
   it('should filter by fiscalYear', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
-    (prisma as any).finBudget.count.mockResolvedValue(0);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/budgets?fiscalYear=2026');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finBudget.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finBudget.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ fiscalYear: 2026 }),
       })
@@ -93,8 +94,8 @@ describe('GET /api/budgets', () => {
   });
 
   it('should filter by accountId', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
-    (prisma as any).finBudget.count.mockResolvedValue(0);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/budgets?accountId=acc-1');
 
@@ -102,8 +103,8 @@ describe('GET /api/budgets', () => {
   });
 
   it('should filter by month and quarter', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
-    (prisma as any).finBudget.count.mockResolvedValue(0);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/budgets?month=3&quarter=1');
 
@@ -111,8 +112,8 @@ describe('GET /api/budgets', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).finBudget.findMany.mockResolvedValue([]);
-    (prisma as any).finBudget.count.mockResolvedValue(100);
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(100);
 
     const res = await request(app).get('/api/budgets?page=2&limit=10');
 
@@ -122,7 +123,7 @@ describe('GET /api/budgets', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finBudget.findMany.mockRejectedValue(new Error('DB connection failed'));
+    mockPrisma.finBudget.findMany.mockRejectedValue(new Error('DB connection failed'));
 
     const res = await request(app).get('/api/budgets');
 
@@ -163,7 +164,7 @@ describe('GET /api/budgets/variance-report', () => {
         },
       },
     ];
-    (prisma as any).finBudget.findMany.mockResolvedValue(budgets);
+    mockPrisma.finBudget.findMany.mockResolvedValue(budgets);
 
     const res = await request(app).get('/api/budgets/variance-report?fiscalYear=2026');
 
@@ -182,7 +183,7 @@ describe('GET /api/budgets/variance-report', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finBudget.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finBudget.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/budgets/variance-report?fiscalYear=2026');
 
@@ -208,7 +209,7 @@ describe('GET /api/budgets/:id', () => {
         type: 'EXPENSE',
       },
     };
-    (prisma as any).finBudget.findFirst.mockResolvedValue(budget);
+    mockPrisma.finBudget.findFirst.mockResolvedValue(budget);
 
     const res = await request(app).get('/api/budgets/00000000-0000-0000-0000-000000000001');
 
@@ -218,7 +219,7 @@ describe('GET /api/budgets/:id', () => {
   });
 
   it('should return 404 when budget not found', async () => {
-    (prisma as any).finBudget.findFirst.mockResolvedValue(null);
+    mockPrisma.finBudget.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/budgets/00000000-0000-0000-0000-000000000099');
 
@@ -227,7 +228,7 @@ describe('GET /api/budgets/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finBudget.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finBudget.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/budgets/00000000-0000-0000-0000-000000000001');
 
@@ -249,12 +250,12 @@ describe('POST /api/budgets', () => {
   };
 
   it('should create a budget successfully', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({
+    mockPrisma.finAccount.findFirst.mockResolvedValue({
       id: validBudget.accountId,
       code: '5000',
       name: 'Marketing',
     });
-    (prisma as any).finBudget.create.mockResolvedValue({
+    mockPrisma.finBudget.create.mockResolvedValue({
       id: 'bud-new',
       ...validBudget,
       actualAmount: 0,
@@ -270,7 +271,7 @@ describe('POST /api/budgets', () => {
   });
 
   it('should return 404 when account not found', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue(null);
+    mockPrisma.finAccount.findFirst.mockResolvedValue(null);
 
     const res = await request(app).post('/api/budgets').send(validBudget);
 
@@ -313,9 +314,9 @@ describe('POST /api/budgets', () => {
   });
 
   it('should return 409 on duplicate budget entry', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: validBudget.accountId });
+    mockPrisma.finAccount.findFirst.mockResolvedValue({ id: validBudget.accountId });
     const err = Object.assign(new Error('Unique violation'), { code: 'P2002' });
-    (prisma as any).finBudget.create.mockRejectedValue(err);
+    mockPrisma.finBudget.create.mockRejectedValue(err);
 
     const res = await request(app).post('/api/budgets').send(validBudget);
 
@@ -324,8 +325,8 @@ describe('POST /api/budgets', () => {
   });
 
   it('should return 500 on unexpected error', async () => {
-    (prisma as any).finAccount.findFirst.mockResolvedValue({ id: validBudget.accountId });
-    (prisma as any).finBudget.create.mockRejectedValue(new Error('Unexpected DB error'));
+    mockPrisma.finAccount.findFirst.mockResolvedValue({ id: validBudget.accountId });
+    mockPrisma.finBudget.create.mockRejectedValue(new Error('Unexpected DB error'));
 
     const res = await request(app).post('/api/budgets').send(validBudget);
 
@@ -344,8 +345,8 @@ describe('PUT /api/budgets/:id', () => {
       budgetAmount: 50000,
       actualAmount: 0,
     };
-    (prisma as any).finBudget.findFirst.mockResolvedValue(existing);
-    (prisma as any).finBudget.update.mockResolvedValue({
+    mockPrisma.finBudget.findFirst.mockResolvedValue(existing);
+    mockPrisma.finBudget.update.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
       budgetAmount: 60000,
       actualAmount: 0,
@@ -372,8 +373,8 @@ describe('PUT /api/budgets/:id', () => {
       budgetAmount: 50000,
       actualAmount: 0,
     };
-    (prisma as any).finBudget.findFirst.mockResolvedValue(existing);
-    (prisma as any).finBudget.update.mockResolvedValue({
+    mockPrisma.finBudget.findFirst.mockResolvedValue(existing);
+    mockPrisma.finBudget.update.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
       budgetAmount: 50000,
       actualAmount: 45000,
@@ -395,7 +396,7 @@ describe('PUT /api/budgets/:id', () => {
   });
 
   it('should return 404 when budget not found', async () => {
-    (prisma as any).finBudget.findFirst.mockResolvedValue(null);
+    mockPrisma.finBudget.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/budgets/00000000-0000-0000-0000-000000000099')
@@ -406,7 +407,7 @@ describe('PUT /api/budgets/:id', () => {
   });
 
   it('should return 400 for validation error (negative amount)', async () => {
-    (prisma as any).finBudget.findFirst.mockResolvedValue({
+    mockPrisma.finBudget.findFirst.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
       budgetAmount: 50000,
       actualAmount: 0,
@@ -420,12 +421,12 @@ describe('PUT /api/budgets/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finBudget.findFirst.mockResolvedValue({
+    mockPrisma.finBudget.findFirst.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
       budgetAmount: 50000,
       actualAmount: 0,
     });
-    (prisma as any).finBudget.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finBudget.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put('/api/budgets/00000000-0000-0000-0000-000000000001')
@@ -441,11 +442,11 @@ describe('PUT /api/budgets/:id', () => {
 
 describe('DELETE /api/budgets/:id', () => {
   it('should soft delete a budget', async () => {
-    (prisma as any).finBudget.findFirst.mockResolvedValue({
+    mockPrisma.finBudget.findFirst.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
       name: 'Q1 Marketing',
     });
-    (prisma as any).finBudget.update.mockResolvedValue({
+    mockPrisma.finBudget.update.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
     });
 
@@ -457,7 +458,7 @@ describe('DELETE /api/budgets/:id', () => {
   });
 
   it('should return 404 when budget not found', async () => {
-    (prisma as any).finBudget.findFirst.mockResolvedValue(null);
+    mockPrisma.finBudget.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/budgets/00000000-0000-0000-0000-000000000099');
 
@@ -466,10 +467,10 @@ describe('DELETE /api/budgets/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finBudget.findFirst.mockResolvedValue({
+    mockPrisma.finBudget.findFirst.mockResolvedValue({
       id: 'f3000000-0000-4000-a000-000000000001',
     });
-    (prisma as any).finBudget.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finBudget.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete('/api/budgets/00000000-0000-0000-0000-000000000001');
 

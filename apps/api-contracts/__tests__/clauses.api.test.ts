@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/clauses';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/clauses', router);
@@ -34,10 +35,10 @@ beforeEach(() => {
 
 describe('GET /api/clauses', () => {
   it('should return clauses list', async () => {
-    (prisma as any).contClause.findMany.mockResolvedValue([
+    mockPrisma.contClause.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Clause A' },
     ]);
-    (prisma as any).contClause.count.mockResolvedValue(1);
+    mockPrisma.contClause.count.mockResolvedValue(1);
     const res = await request(app).get('/api/clauses');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -46,16 +47,16 @@ describe('GET /api/clauses', () => {
   });
 
   it('should support search and status filters', async () => {
-    (prisma as any).contClause.findMany.mockResolvedValue([]);
-    (prisma as any).contClause.count.mockResolvedValue(0);
+    mockPrisma.contClause.findMany.mockResolvedValue([]);
+    mockPrisma.contClause.count.mockResolvedValue(0);
     const res = await request(app).get('/api/clauses?status=ACTIVE&search=payment');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
 
   it('should return 500 on db error', async () => {
-    (prisma as any).contClause.findMany.mockRejectedValue(new Error('DB error'));
-    (prisma as any).contClause.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.contClause.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.contClause.count.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/clauses');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -65,7 +66,7 @@ describe('GET /api/clauses', () => {
 
 describe('GET /api/clauses/:id', () => {
   it('should return clause by id', async () => {
-    (prisma as any).contClause.findFirst.mockResolvedValue({
+    mockPrisma.contClause.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Clause A',
     });
@@ -76,7 +77,7 @@ describe('GET /api/clauses/:id', () => {
   });
 
   it('should return 404 if not found', async () => {
-    (prisma as any).contClause.findFirst.mockResolvedValue(null);
+    mockPrisma.contClause.findFirst.mockResolvedValue(null);
     const res = await request(app).get('/api/clauses/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -84,7 +85,7 @@ describe('GET /api/clauses/:id', () => {
   });
 
   it('should return 500 on db error', async () => {
-    (prisma as any).contClause.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.contClause.findFirst.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/clauses/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
@@ -93,8 +94,8 @@ describe('GET /api/clauses/:id', () => {
 
 describe('POST /api/clauses', () => {
   it('should create a clause', async () => {
-    (prisma as any).contClause.count.mockResolvedValue(0);
-    (prisma as any).contClause.create.mockResolvedValue({
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    mockPrisma.contClause.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       contractId: 'c-1',
       title: 'New Clause',
@@ -122,8 +123,8 @@ describe('POST /api/clauses', () => {
   });
 
   it('should return 500 on create error', async () => {
-    (prisma as any).contClause.count.mockResolvedValue(0);
-    (prisma as any).contClause.create.mockRejectedValue(new Error('Create failed'));
+    mockPrisma.contClause.count.mockResolvedValue(0);
+    mockPrisma.contClause.create.mockRejectedValue(new Error('Create failed'));
     const res = await request(app)
       .post('/api/clauses')
       .send({ contractId: 'c-1', title: 'New Clause' });
@@ -135,11 +136,11 @@ describe('POST /api/clauses', () => {
 
 describe('PUT /api/clauses/:id', () => {
   it('should update a clause', async () => {
-    (prisma as any).contClause.findFirst.mockResolvedValue({
+    mockPrisma.contClause.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Old Title',
     });
-    (prisma as any).contClause.update.mockResolvedValue({
+    mockPrisma.contClause.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated Title',
     });
@@ -151,7 +152,7 @@ describe('PUT /api/clauses/:id', () => {
   });
 
   it('should return 404 if clause not found', async () => {
-    (prisma as any).contClause.findFirst.mockResolvedValue(null);
+    mockPrisma.contClause.findFirst.mockResolvedValue(null);
     const res = await request(app)
       .put('/api/clauses/00000000-0000-0000-0000-000000000099')
       .send({ title: 'Updated' });
@@ -161,10 +162,10 @@ describe('PUT /api/clauses/:id', () => {
   });
 
   it('should return 500 on update error', async () => {
-    (prisma as any).contClause.findFirst.mockResolvedValue({
+    mockPrisma.contClause.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).contClause.update.mockRejectedValue(new Error('Update failed'));
+    mockPrisma.contClause.update.mockRejectedValue(new Error('Update failed'));
     const res = await request(app)
       .put('/api/clauses/00000000-0000-0000-0000-000000000001')
       .send({ title: 'New' });
@@ -176,10 +177,10 @@ describe('PUT /api/clauses/:id', () => {
 
 describe('DELETE /api/clauses/:id', () => {
   it('should soft delete a clause', async () => {
-    (prisma as any).contClause.findFirst.mockResolvedValue({
+    mockPrisma.contClause.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).contClause.update.mockResolvedValue({
+    mockPrisma.contClause.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       deletedAt: new Date(),
     });
@@ -190,7 +191,7 @@ describe('DELETE /api/clauses/:id', () => {
   });
 
   it('should return 404 if clause not found', async () => {
-    (prisma as any).contClause.findFirst.mockResolvedValue(null);
+    mockPrisma.contClause.findFirst.mockResolvedValue(null);
     const res = await request(app).delete('/api/clauses/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
@@ -198,10 +199,10 @@ describe('DELETE /api/clauses/:id', () => {
   });
 
   it('should return 500 on delete error', async () => {
-    (prisma as any).contClause.findFirst.mockResolvedValue({
+    mockPrisma.contClause.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).contClause.update.mockRejectedValue(new Error('Delete failed'));
+    mockPrisma.contClause.update.mockRejectedValue(new Error('Delete failed'));
     const res = await request(app).delete('/api/clauses/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

@@ -25,6 +25,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/conflicts';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/conflicts', router);
@@ -34,7 +35,7 @@ beforeEach(() => {
 
 describe('GET /api/conflicts', () => {
   it('should return empty array when no active permits', async () => {
-    (prisma as any).ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
     const res = await request(app).get('/api/conflicts');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -62,7 +63,7 @@ describe('GET /api/conflicts', () => {
         type: 'CONFINED_SPACE',
       },
     ];
-    (prisma as any).ptwPermit.findMany.mockResolvedValue(permits);
+    mockPrisma.ptwPermit.findMany.mockResolvedValue(permits);
     const res = await request(app).get('/api/conflicts');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -93,7 +94,7 @@ describe('GET /api/conflicts', () => {
         type: 'CONFINED_SPACE',
       },
     ];
-    (prisma as any).ptwPermit.findMany.mockResolvedValue(permits);
+    mockPrisma.ptwPermit.findMany.mockResolvedValue(permits);
     const res = await request(app).get('/api/conflicts');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
@@ -121,7 +122,7 @@ describe('GET /api/conflicts', () => {
         type: 'CONFINED_SPACE',
       },
     ];
-    (prisma as any).ptwPermit.findMany.mockResolvedValue(permits);
+    mockPrisma.ptwPermit.findMany.mockResolvedValue(permits);
     const res = await request(app).get('/api/conflicts');
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(0);
@@ -157,7 +158,7 @@ describe('GET /api/conflicts', () => {
         type: 'ELECTRICAL',
       },
     ];
-    (prisma as any).ptwPermit.findMany.mockResolvedValue(permits);
+    mockPrisma.ptwPermit.findMany.mockResolvedValue(permits);
     const res = await request(app).get('/api/conflicts');
     expect(res.status).toBe(200);
     // 3 pairs: (1,2), (1,3), (2,3)
@@ -165,7 +166,7 @@ describe('GET /api/conflicts', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).ptwPermit.findMany.mockRejectedValue(new Error('DB failure'));
+    mockPrisma.ptwPermit.findMany.mockRejectedValue(new Error('DB failure'));
     const res = await request(app).get('/api/conflicts');
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);

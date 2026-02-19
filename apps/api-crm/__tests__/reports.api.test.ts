@@ -37,6 +37,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import reportsRouter from '../src/routes/reports';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -52,12 +53,12 @@ beforeEach(() => {
 
 describe('GET /api/reports/sales-dashboard', () => {
   it('should return overall sales metrics', async () => {
-    (prisma as any).crmDeal.count
+    mockPrisma.crmDeal.count
       .mockResolvedValueOnce(100) // totalDeals
       .mockResolvedValueOnce(40) // wonDeals
       .mockResolvedValueOnce(30) // lostDeals
       .mockResolvedValueOnce(30); // openDeals
-    (prisma as any).crmDeal.aggregate
+    mockPrisma.crmDeal.aggregate
       .mockResolvedValueOnce({ _sum: { value: 5000000 } }) // totalValue
       .mockResolvedValueOnce({ _sum: { value: 2000000 } }); // wonValue
 
@@ -76,8 +77,8 @@ describe('GET /api/reports/sales-dashboard', () => {
   });
 
   it('should handle zero deals', async () => {
-    (prisma as any).crmDeal.count.mockResolvedValue(0);
-    (prisma as any).crmDeal.aggregate.mockResolvedValue({ _sum: { value: null } });
+    mockPrisma.crmDeal.count.mockResolvedValue(0);
+    mockPrisma.crmDeal.aggregate.mockResolvedValue({ _sum: { value: null } });
 
     const res = await request(app).get('/api/reports/sales-dashboard');
 
@@ -88,7 +89,7 @@ describe('GET /api/reports/sales-dashboard', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmDeal.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmDeal.count.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/sales-dashboard');
 
@@ -105,7 +106,7 @@ describe('GET /api/reports/pipeline-velocity', () => {
     const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
     const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
 
-    (prisma as any).crmDeal.findMany.mockResolvedValue([
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
       { createdAt: fiveDaysAgo, stageId: 'stage-1' },
       { createdAt: tenDaysAgo, stageId: 'stage-1' },
       { createdAt: fiveDaysAgo, stageId: 'stage-2' },
@@ -121,7 +122,7 @@ describe('GET /api/reports/pipeline-velocity', () => {
   });
 
   it('should return zero avg when no open deals', async () => {
-    (prisma as any).crmDeal.findMany.mockResolvedValue([]);
+    mockPrisma.crmDeal.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/pipeline-velocity');
 
@@ -133,7 +134,7 @@ describe('GET /api/reports/pipeline-velocity', () => {
   it('should handle deals with no stageId', async () => {
     const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
 
-    (prisma as any).crmDeal.findMany.mockResolvedValue([{ createdAt: fiveDaysAgo, stageId: null }]);
+    mockPrisma.crmDeal.findMany.mockResolvedValue([{ createdAt: fiveDaysAgo, stageId: null }]);
 
     const res = await request(app).get('/api/reports/pipeline-velocity');
 
@@ -144,7 +145,7 @@ describe('GET /api/reports/pipeline-velocity', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmDeal.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmDeal.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/pipeline-velocity');
 
@@ -158,7 +159,7 @@ describe('GET /api/reports/pipeline-velocity', () => {
 
 describe('GET /api/reports/win-loss', () => {
   it('should return win/loss rates by source and assignee', async () => {
-    (prisma as any).crmDeal.findMany.mockResolvedValue([
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
       { status: 'WON', source: 'INBOUND', assignedTo: 'user-1' },
       { status: 'WON', source: 'INBOUND', assignedTo: 'user-1' },
       { status: 'LOST', source: 'OUTBOUND', assignedTo: 'user-2' },
@@ -176,7 +177,7 @@ describe('GET /api/reports/win-loss', () => {
   });
 
   it('should handle zero closed deals', async () => {
-    (prisma as any).crmDeal.findMany.mockResolvedValue([]);
+    mockPrisma.crmDeal.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/win-loss');
 
@@ -188,7 +189,7 @@ describe('GET /api/reports/win-loss', () => {
   });
 
   it('should group deals with no source as UNKNOWN', async () => {
-    (prisma as any).crmDeal.findMany.mockResolvedValue([
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
       { status: 'WON', source: null, assignedTo: 'user-1' },
     ]);
 
@@ -201,7 +202,7 @@ describe('GET /api/reports/win-loss', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmDeal.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmDeal.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/win-loss');
 
@@ -215,7 +216,7 @@ describe('GET /api/reports/win-loss', () => {
 
 describe('GET /api/reports/forecast', () => {
   it('should return revenue forecast grouped by month', async () => {
-    (prisma as any).crmDeal.findMany.mockResolvedValue([
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
       { value: 10000, probability: 50, expectedCloseDate: new Date('2026-03-15') },
       { value: 20000, probability: 80, expectedCloseDate: new Date('2026-03-20') },
       { value: 5000, probability: 30, expectedCloseDate: new Date('2026-04-10') },
@@ -231,7 +232,7 @@ describe('GET /api/reports/forecast', () => {
   });
 
   it('should handle deals with no expectedCloseDate', async () => {
-    (prisma as any).crmDeal.findMany.mockResolvedValue([
+    mockPrisma.crmDeal.findMany.mockResolvedValue([
       { value: 10000, probability: 50, expectedCloseDate: null },
     ]);
 
@@ -244,7 +245,7 @@ describe('GET /api/reports/forecast', () => {
   });
 
   it('should return zero forecast when no open deals', async () => {
-    (prisma as any).crmDeal.findMany.mockResolvedValue([]);
+    mockPrisma.crmDeal.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/forecast');
 
@@ -254,7 +255,7 @@ describe('GET /api/reports/forecast', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmDeal.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmDeal.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/forecast');
 
@@ -268,7 +269,7 @@ describe('GET /api/reports/forecast', () => {
 
 describe('GET /api/reports/partner-performance', () => {
   it('should return partner performance metrics', async () => {
-    (prisma as any).crmPartner.findMany.mockResolvedValue([
+    mockPrisma.crmPartner.findMany.mockResolvedValue([
       {
         id: 'p-1',
         tier: 'TIER_1_REFERRAL',
@@ -293,7 +294,7 @@ describe('GET /api/reports/partner-performance', () => {
   });
 
   it('should return zeros when no partners', async () => {
-    (prisma as any).crmPartner.findMany.mockResolvedValue([]);
+    mockPrisma.crmPartner.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/partner-performance');
 
@@ -303,7 +304,7 @@ describe('GET /api/reports/partner-performance', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmPartner.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmPartner.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/partner-performance');
 
@@ -320,7 +321,7 @@ describe('GET /api/reports/customer-health', () => {
     const recentDate = new Date();
     const oldDate = new Date(Date.now() - 120 * 24 * 60 * 60 * 1000);
 
-    (prisma as any).crmAccount.findMany.mockResolvedValue([
+    mockPrisma.crmAccount.findMany.mockResolvedValue([
       {
         id: 'a-1',
         name: 'Active Corp',
@@ -360,7 +361,7 @@ describe('GET /api/reports/customer-health', () => {
   });
 
   it('should handle zero customer accounts', async () => {
-    (prisma as any).crmAccount.findMany.mockResolvedValue([]);
+    mockPrisma.crmAccount.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/reports/customer-health');
 
@@ -371,7 +372,7 @@ describe('GET /api/reports/customer-health', () => {
   });
 
   it('should handle null lifetimeRevenue', async () => {
-    (prisma as any).crmAccount.findMany.mockResolvedValue([
+    mockPrisma.crmAccount.findMany.mockResolvedValue([
       {
         id: 'a-1',
         name: 'New Corp',
@@ -389,7 +390,7 @@ describe('GET /api/reports/customer-health', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).crmAccount.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.crmAccount.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/reports/customer-health');
 

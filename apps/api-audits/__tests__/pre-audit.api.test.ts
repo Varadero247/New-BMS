@@ -17,6 +17,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/pre-audit';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 const app = express();
 app.use(express.json());
 app.use('/api/pre-audit', router);
@@ -26,7 +27,7 @@ beforeEach(() => {
 
 describe('POST /api/pre-audit/:id/generate', () => {
   it('should generate a pre-audit report for a valid audit', async () => {
-    (prisma as any).audAudit.findFirst.mockResolvedValue({
+    mockPrisma.audAudit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       referenceNumber: 'AUD-2026-0001',
       title: 'Annual ISO 9001 Audit',
@@ -52,7 +53,7 @@ describe('POST /api/pre-audit/:id/generate', () => {
   });
 
   it('should return 404 when audit not found', async () => {
-    (prisma as any).audAudit.findFirst.mockResolvedValue(null);
+    mockPrisma.audAudit.findFirst.mockResolvedValue(null);
     const res = await request(app).post(
       '/api/pre-audit/00000000-0000-0000-0000-000000000099/generate'
     );
@@ -63,7 +64,7 @@ describe('POST /api/pre-audit/:id/generate', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).audAudit.findFirst.mockRejectedValue(new Error('DB connection failed'));
+    mockPrisma.audAudit.findFirst.mockRejectedValue(new Error('DB connection failed'));
     const res = await request(app).post(
       '/api/pre-audit/00000000-0000-0000-0000-000000000001/generate'
     );

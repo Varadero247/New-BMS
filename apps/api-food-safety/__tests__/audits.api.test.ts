@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import auditsRouter from '../src/routes/audits';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/audits', () => {
   it('should return audits with pagination', async () => {
-    (prisma as any).fsAudit.findMany.mockResolvedValue([
+    mockPrisma.fsAudit.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', title: 'Internal Audit' },
     ]);
-    (prisma as any).fsAudit.count.mockResolvedValue(1);
+    mockPrisma.fsAudit.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/audits');
     expect(res.status).toBe(200);
@@ -50,27 +51,27 @@ describe('GET /api/audits', () => {
   });
 
   it('should filter by type', async () => {
-    (prisma as any).fsAudit.findMany.mockResolvedValue([]);
-    (prisma as any).fsAudit.count.mockResolvedValue(0);
+    mockPrisma.fsAudit.findMany.mockResolvedValue([]);
+    mockPrisma.fsAudit.count.mockResolvedValue(0);
 
     await request(app).get('/api/audits?type=INTERNAL');
-    expect((prisma as any).fsAudit.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsAudit.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ type: 'INTERNAL' }) })
     );
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsAudit.findMany.mockResolvedValue([]);
-    (prisma as any).fsAudit.count.mockResolvedValue(0);
+    mockPrisma.fsAudit.findMany.mockResolvedValue([]);
+    mockPrisma.fsAudit.count.mockResolvedValue(0);
 
     await request(app).get('/api/audits?status=PLANNED');
-    expect((prisma as any).fsAudit.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsAudit.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'PLANNED' }) })
     );
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsAudit.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsAudit.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/audits');
     expect(res.status).toBe(500);
@@ -85,7 +86,7 @@ describe('POST /api/audits', () => {
       auditor: 'John',
       scheduledDate: '2026-03-01',
     };
-    (prisma as any).fsAudit.create.mockResolvedValue({
+    mockPrisma.fsAudit.create.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       ...input,
     });
@@ -101,7 +102,7 @@ describe('POST /api/audits', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsAudit.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsAudit.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/audits').send({
       title: 'Audit',
@@ -115,7 +116,7 @@ describe('POST /api/audits', () => {
 
 describe('GET /api/audits/:id', () => {
   it('should return an audit by id', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue({
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Internal Audit',
     });
@@ -126,7 +127,7 @@ describe('GET /api/audits/:id', () => {
   });
 
   it('should return 404 for non-existent audit', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue(null);
+    mockPrisma.fsAudit.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/audits/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -135,10 +136,10 @@ describe('GET /api/audits/:id', () => {
 
 describe('PUT /api/audits/:id', () => {
   it('should update an audit', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue({
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsAudit.update.mockResolvedValue({
+    mockPrisma.fsAudit.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       title: 'Updated',
     });
@@ -151,7 +152,7 @@ describe('PUT /api/audits/:id', () => {
   });
 
   it('should return 404 for non-existent audit', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue(null);
+    mockPrisma.fsAudit.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/audits/00000000-0000-0000-0000-000000000099')
@@ -162,10 +163,10 @@ describe('PUT /api/audits/:id', () => {
 
 describe('DELETE /api/audits/:id', () => {
   it('should soft delete an audit', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue({
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsAudit.update.mockResolvedValue({
+    mockPrisma.fsAudit.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -175,7 +176,7 @@ describe('DELETE /api/audits/:id', () => {
   });
 
   it('should return 404 for non-existent audit', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue(null);
+    mockPrisma.fsAudit.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/audits/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -184,11 +185,11 @@ describe('DELETE /api/audits/:id', () => {
 
 describe('PUT /api/audits/:id/complete', () => {
   it('should complete an audit', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue({
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'IN_PROGRESS',
     });
-    (prisma as any).fsAudit.update.mockResolvedValue({
+    mockPrisma.fsAudit.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
       completedDate: new Date(),
@@ -202,7 +203,7 @@ describe('PUT /api/audits/:id/complete', () => {
   });
 
   it('should reject completing an already completed audit', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue({
+    mockPrisma.fsAudit.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       status: 'COMPLETED',
     });
@@ -215,7 +216,7 @@ describe('PUT /api/audits/:id/complete', () => {
   });
 
   it('should return 404 for non-existent audit', async () => {
-    (prisma as any).fsAudit.findFirst.mockResolvedValue(null);
+    mockPrisma.fsAudit.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/audits/00000000-0000-0000-0000-000000000099/complete')

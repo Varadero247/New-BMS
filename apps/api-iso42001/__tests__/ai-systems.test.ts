@@ -36,6 +36,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import aiSystemsRouter from '../src/routes/ai-systems';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -76,8 +77,8 @@ const mockSystem = {
 // ===================================================================
 describe('GET /api/ai-systems', () => {
   it('should return a paginated list of AI systems', async () => {
-    (prisma as any).aiSystem.findMany.mockResolvedValue([mockSystem]);
-    (prisma as any).aiSystem.count.mockResolvedValue(1);
+    mockPrisma.aiSystem.findMany.mockResolvedValue([mockSystem]);
+    mockPrisma.aiSystem.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/ai-systems');
 
@@ -89,8 +90,8 @@ describe('GET /api/ai-systems', () => {
   });
 
   it('should return empty list when no systems exist', async () => {
-    (prisma as any).aiSystem.findMany.mockResolvedValue([]);
-    (prisma as any).aiSystem.count.mockResolvedValue(0);
+    mockPrisma.aiSystem.findMany.mockResolvedValue([]);
+    mockPrisma.aiSystem.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/ai-systems');
 
@@ -100,13 +101,13 @@ describe('GET /api/ai-systems', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).aiSystem.findMany.mockResolvedValue([]);
-    (prisma as any).aiSystem.count.mockResolvedValue(0);
+    mockPrisma.aiSystem.findMany.mockResolvedValue([]);
+    mockPrisma.aiSystem.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/ai-systems?status=ACTIVE');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiSystem.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiSystem.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ status: 'ACTIVE' }),
       })
@@ -114,13 +115,13 @@ describe('GET /api/ai-systems', () => {
   });
 
   it('should filter by category', async () => {
-    (prisma as any).aiSystem.findMany.mockResolvedValue([]);
-    (prisma as any).aiSystem.count.mockResolvedValue(0);
+    mockPrisma.aiSystem.findMany.mockResolvedValue([]);
+    mockPrisma.aiSystem.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/ai-systems?category=MACHINE_LEARNING');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiSystem.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiSystem.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ category: 'MACHINE_LEARNING' }),
       })
@@ -128,13 +129,13 @@ describe('GET /api/ai-systems', () => {
   });
 
   it('should filter by riskTier', async () => {
-    (prisma as any).aiSystem.findMany.mockResolvedValue([]);
-    (prisma as any).aiSystem.count.mockResolvedValue(0);
+    mockPrisma.aiSystem.findMany.mockResolvedValue([]);
+    mockPrisma.aiSystem.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/ai-systems?riskTier=HIGH');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiSystem.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiSystem.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ riskTier: 'HIGH' }),
       })
@@ -142,13 +143,13 @@ describe('GET /api/ai-systems', () => {
   });
 
   it('should support search query', async () => {
-    (prisma as any).aiSystem.findMany.mockResolvedValue([]);
-    (prisma as any).aiSystem.count.mockResolvedValue(0);
+    mockPrisma.aiSystem.findMany.mockResolvedValue([]);
+    mockPrisma.aiSystem.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/ai-systems?search=churn');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).aiSystem.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.aiSystem.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -160,8 +161,8 @@ describe('GET /api/ai-systems', () => {
   });
 
   it('should handle pagination params', async () => {
-    (prisma as any).aiSystem.findMany.mockResolvedValue([]);
-    (prisma as any).aiSystem.count.mockResolvedValue(100);
+    mockPrisma.aiSystem.findMany.mockResolvedValue([]);
+    mockPrisma.aiSystem.count.mockResolvedValue(100);
 
     const res = await request(app).get('/api/ai-systems?page=3&limit=10');
 
@@ -172,7 +173,7 @@ describe('GET /api/ai-systems', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiSystem.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSystem.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/ai-systems');
 
@@ -193,7 +194,7 @@ describe('POST /api/ai-systems', () => {
   };
 
   it('should create an AI system successfully', async () => {
-    (prisma as any).aiSystem.create.mockResolvedValue({
+    mockPrisma.aiSystem.create.mockResolvedValue({
       id: UUID1,
       reference: 'AI42-SYS-2602-5678',
       ...validPayload,
@@ -209,7 +210,7 @@ describe('POST /api/ai-systems', () => {
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
     expect(res.body.data.name).toBe('Fraud Detection Model');
-    expect((prisma as any).aiSystem.create).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.aiSystem.create).toHaveBeenCalledTimes(1);
   });
 
   it('should return 400 for missing name', async () => {
@@ -260,7 +261,7 @@ describe('POST /api/ai-systems', () => {
   });
 
   it('should return 500 on database error during creation', async () => {
-    (prisma as any).aiSystem.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSystem.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/ai-systems').send(validPayload);
 
@@ -274,7 +275,7 @@ describe('POST /api/ai-systems', () => {
 // ===================================================================
 describe('GET /api/ai-systems/:id', () => {
   it('should return an AI system when found', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
 
     const res = await request(app).get(`/api/ai-systems/${UUID1}`);
 
@@ -285,7 +286,7 @@ describe('GET /api/ai-systems/:id', () => {
   });
 
   it('should return 404 when AI system not found', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/ai-systems/${UUID2}`);
 
@@ -295,7 +296,7 @@ describe('GET /api/ai-systems/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).aiSystem.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSystem.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get(`/api/ai-systems/${UUID1}`);
 
@@ -309,8 +310,8 @@ describe('GET /api/ai-systems/:id', () => {
 // ===================================================================
 describe('GET /api/ai-systems/:id/risks', () => {
   it('should return risks for a valid AI system', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiRiskAssessment.findMany.mockResolvedValue([
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([
       { id: UUID2, title: 'Bias Risk', systemId: UUID1 },
     ]);
 
@@ -322,7 +323,7 @@ describe('GET /api/ai-systems/:id/risks', () => {
   });
 
   it('should return 404 when system not found for risks', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/ai-systems/${UUID2}/risks`);
 
@@ -336,8 +337,8 @@ describe('GET /api/ai-systems/:id/risks', () => {
 // ===================================================================
 describe('GET /api/ai-systems/:id/incidents', () => {
   it('should return incidents for a valid AI system', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiIncident.findMany.mockResolvedValue([
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiIncident.findMany.mockResolvedValue([
       { id: UUID2, title: 'Bias detected', systemId: UUID1 },
     ]);
 
@@ -349,7 +350,7 @@ describe('GET /api/ai-systems/:id/incidents', () => {
   });
 
   it('should return 404 when system not found for incidents', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get(`/api/ai-systems/${UUID2}/incidents`);
 
@@ -363,8 +364,8 @@ describe('GET /api/ai-systems/:id/incidents', () => {
 // ===================================================================
 describe('PUT /api/ai-systems/:id', () => {
   it('should update an AI system successfully', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiSystem.update.mockResolvedValue({
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiSystem.update.mockResolvedValue({
       ...mockSystem,
       name: 'Updated Predictor',
     });
@@ -379,7 +380,7 @@ describe('PUT /api/ai-systems/:id', () => {
   });
 
   it('should return 404 when updating non-existent system', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
 
     const res = await request(app).put(`/api/ai-systems/${UUID2}`).send({ name: 'Updated' });
 
@@ -388,7 +389,7 @@ describe('PUT /api/ai-systems/:id', () => {
   });
 
   it('should return 400 for invalid update data', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
 
     const res = await request(app)
       .put(`/api/ai-systems/${UUID1}`)
@@ -399,8 +400,8 @@ describe('PUT /api/ai-systems/:id', () => {
   });
 
   it('should return 500 on database error during update', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiSystem.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiSystem.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).put(`/api/ai-systems/${UUID1}`).send({ name: 'Updated' });
 
@@ -414,8 +415,8 @@ describe('PUT /api/ai-systems/:id', () => {
 // ===================================================================
 describe('DELETE /api/ai-systems/:id', () => {
   it('should soft delete an AI system', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiSystem.update.mockResolvedValue({
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiSystem.update.mockResolvedValue({
       ...mockSystem,
       deletedAt: new Date(),
     });
@@ -428,7 +429,7 @@ describe('DELETE /api/ai-systems/:id', () => {
   });
 
   it('should return 404 when deleting non-existent system', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(null);
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete(`/api/ai-systems/${UUID2}`);
 
@@ -437,8 +438,8 @@ describe('DELETE /api/ai-systems/:id', () => {
   });
 
   it('should return 500 on database error during delete', async () => {
-    (prisma as any).aiSystem.findFirst.mockResolvedValue(mockSystem);
-    (prisma as any).aiSystem.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiSystem.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete(`/api/ai-systems/${UUID1}`);
 

@@ -37,6 +37,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import router from '../src/routes/customers';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -66,8 +67,8 @@ describe('GET /api/customers', () => {
         _count: { invoices: 2 },
       },
     ];
-    (prisma as any).finCustomer.findMany.mockResolvedValue(customers);
-    (prisma as any).finCustomer.count.mockResolvedValue(2);
+    mockPrisma.finCustomer.findMany.mockResolvedValue(customers);
+    mockPrisma.finCustomer.count.mockResolvedValue(2);
 
     const res = await request(app).get('/api/customers');
 
@@ -78,13 +79,13 @@ describe('GET /api/customers', () => {
   });
 
   it('should search customers by name, code, email, contactPerson', async () => {
-    (prisma as any).finCustomer.findMany.mockResolvedValue([]);
-    (prisma as any).finCustomer.count.mockResolvedValue(0);
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/customers?search=acme');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finCustomer.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finCustomer.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
           OR: expect.arrayContaining([
@@ -96,13 +97,13 @@ describe('GET /api/customers', () => {
   });
 
   it('should filter by isActive', async () => {
-    (prisma as any).finCustomer.findMany.mockResolvedValue([]);
-    (prisma as any).finCustomer.count.mockResolvedValue(0);
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/customers?isActive=true');
 
     expect(res.status).toBe(200);
-    expect((prisma as any).finCustomer.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.finCustomer.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({ isActive: true }),
       })
@@ -110,8 +111,8 @@ describe('GET /api/customers', () => {
   });
 
   it('should filter by country', async () => {
-    (prisma as any).finCustomer.findMany.mockResolvedValue([]);
-    (prisma as any).finCustomer.count.mockResolvedValue(0);
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(0);
 
     const res = await request(app).get('/api/customers?country=GB');
 
@@ -119,8 +120,8 @@ describe('GET /api/customers', () => {
   });
 
   it('should handle pagination', async () => {
-    (prisma as any).finCustomer.findMany.mockResolvedValue([]);
-    (prisma as any).finCustomer.count.mockResolvedValue(50);
+    mockPrisma.finCustomer.findMany.mockResolvedValue([]);
+    mockPrisma.finCustomer.count.mockResolvedValue(50);
 
     const res = await request(app).get('/api/customers?page=2&limit=10');
 
@@ -130,7 +131,7 @@ describe('GET /api/customers', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finCustomer.findMany.mockRejectedValue(new Error('DB connection failed'));
+    mockPrisma.finCustomer.findMany.mockRejectedValue(new Error('DB connection failed'));
 
     const res = await request(app).get('/api/customers');
 
@@ -163,7 +164,7 @@ describe('GET /api/customers/:id', () => {
       ],
       _count: { invoices: 1 },
     };
-    (prisma as any).finCustomer.findFirst.mockResolvedValue(customer);
+    mockPrisma.finCustomer.findFirst.mockResolvedValue(customer);
 
     const res = await request(app).get('/api/customers/f4000000-0000-4000-a000-000000000001');
 
@@ -173,7 +174,7 @@ describe('GET /api/customers/:id', () => {
   });
 
   it('should return 404 when customer not found', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue(null);
+    mockPrisma.finCustomer.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/customers/00000000-0000-0000-0000-000000000099');
 
@@ -183,7 +184,7 @@ describe('GET /api/customers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finCustomer.findFirst.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finCustomer.findFirst.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/customers/f4000000-0000-4000-a000-000000000001');
 
@@ -206,7 +207,7 @@ describe('POST /api/customers', () => {
   };
 
   it('should create a customer successfully', async () => {
-    (prisma as any).finCustomer.create.mockResolvedValue({
+    mockPrisma.finCustomer.create.mockResolvedValue({
       id: 'cust-new',
       code: 'CUST-ACMEC-1234',
       ...validCustomer,
@@ -242,7 +243,7 @@ describe('POST /api/customers', () => {
 
   it('should return 409 on duplicate customer code', async () => {
     const err = Object.assign(new Error('Unique violation'), { code: 'P2002' });
-    (prisma as any).finCustomer.create.mockRejectedValue(err);
+    mockPrisma.finCustomer.create.mockRejectedValue(err);
 
     const res = await request(app).post('/api/customers').send(validCustomer);
 
@@ -252,7 +253,7 @@ describe('POST /api/customers', () => {
   });
 
   it('should return 500 on unexpected error', async () => {
-    (prisma as any).finCustomer.create.mockRejectedValue(new Error('Unexpected DB error'));
+    mockPrisma.finCustomer.create.mockRejectedValue(new Error('Unexpected DB error'));
 
     const res = await request(app).post('/api/customers').send(validCustomer);
 
@@ -266,11 +267,11 @@ describe('POST /api/customers', () => {
 
 describe('PUT /api/customers/:id', () => {
   it('should update a customer successfully', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finCustomer.update.mockResolvedValue({
+    mockPrisma.finCustomer.update.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       name: 'Updated Acme Corp',
     });
@@ -284,11 +285,11 @@ describe('PUT /api/customers/:id', () => {
   });
 
   it('should update isActive flag', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finCustomer.update.mockResolvedValue({
+    mockPrisma.finCustomer.update.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       isActive: false,
     });
@@ -301,7 +302,7 @@ describe('PUT /api/customers/:id', () => {
   });
 
   it('should return 404 when customer not found', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue(null);
+    mockPrisma.finCustomer.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/customers/00000000-0000-0000-0000-000000000099')
@@ -312,7 +313,7 @@ describe('PUT /api/customers/:id', () => {
   });
 
   it('should return 400 for validation error', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
@@ -325,11 +326,11 @@ describe('PUT /api/customers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finCustomer.update.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finCustomer.update.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app)
       .put('/api/customers/f4000000-0000-4000-a000-000000000001')
@@ -345,12 +346,12 @@ describe('PUT /api/customers/:id', () => {
 
 describe('DELETE /api/customers/:id', () => {
   it('should soft delete a customer with no invoices', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finInvoice.count.mockResolvedValue(0);
-    (prisma as any).finCustomer.update.mockResolvedValue({
+    mockPrisma.finInvoice.count.mockResolvedValue(0);
+    mockPrisma.finCustomer.update.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
     });
 
@@ -362,7 +363,7 @@ describe('DELETE /api/customers/:id', () => {
   });
 
   it('should return 404 when customer not found', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue(null);
+    mockPrisma.finCustomer.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/customers/00000000-0000-0000-0000-000000000099');
 
@@ -371,11 +372,11 @@ describe('DELETE /api/customers/:id', () => {
   });
 
   it('should return 409 when customer has existing invoices', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finInvoice.count.mockResolvedValue(3);
+    mockPrisma.finInvoice.count.mockResolvedValue(3);
 
     const res = await request(app).delete('/api/customers/f4000000-0000-4000-a000-000000000001');
 
@@ -385,11 +386,11 @@ describe('DELETE /api/customers/:id', () => {
   });
 
   it('should return 500 on database error', async () => {
-    (prisma as any).finCustomer.findFirst.mockResolvedValue({
+    mockPrisma.finCustomer.findFirst.mockResolvedValue({
       id: 'f4000000-0000-4000-a000-000000000001',
       deletedAt: null,
     });
-    (prisma as any).finInvoice.count.mockRejectedValue(new Error('DB error'));
+    mockPrisma.finInvoice.count.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).delete('/api/customers/f4000000-0000-4000-a000-000000000001');
 

@@ -27,6 +27,7 @@ jest.mock('@ims/monitoring', () => ({
 
 import suppliersRouter from '../src/routes/suppliers';
 import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
 const app = express();
 app.use(express.json());
@@ -38,10 +39,10 @@ beforeEach(() => {
 
 describe('GET /api/suppliers', () => {
   it('should return suppliers with pagination', async () => {
-    (prisma as any).fsSupplier.findMany.mockResolvedValue([
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([
       { id: '00000000-0000-0000-0000-000000000001', name: 'Supplier A' },
     ]);
-    (prisma as any).fsSupplier.count.mockResolvedValue(1);
+    mockPrisma.fsSupplier.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/suppliers');
     expect(res.status).toBe(200);
@@ -50,27 +51,27 @@ describe('GET /api/suppliers', () => {
   });
 
   it('should filter by status', async () => {
-    (prisma as any).fsSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).fsSupplier.count.mockResolvedValue(0);
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(0);
 
     await request(app).get('/api/suppliers?status=APPROVED');
-    expect((prisma as any).fsSupplier.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSupplier.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ status: 'APPROVED' }) })
     );
   });
 
   it('should filter by category', async () => {
-    (prisma as any).fsSupplier.findMany.mockResolvedValue([]);
-    (prisma as any).fsSupplier.count.mockResolvedValue(0);
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.count.mockResolvedValue(0);
 
     await request(app).get('/api/suppliers?category=RAW_MATERIAL');
-    expect((prisma as any).fsSupplier.findMany).toHaveBeenCalledWith(
+    expect(mockPrisma.fsSupplier.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: expect.objectContaining({ category: 'RAW_MATERIAL' }) })
     );
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsSupplier.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSupplier.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/suppliers');
     expect(res.status).toBe(500);
@@ -85,7 +86,7 @@ describe('POST /api/suppliers', () => {
       code: 'FS-SUP-1234',
       category: 'RAW_MATERIAL',
     };
-    (prisma as any).fsSupplier.create.mockResolvedValue(created);
+    mockPrisma.fsSupplier.create.mockResolvedValue(created);
 
     const res = await request(app).post('/api/suppliers').send({
       name: 'Supplier A',
@@ -101,7 +102,7 @@ describe('POST /api/suppliers', () => {
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsSupplier.create.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSupplier.create.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).post('/api/suppliers').send({
       name: 'Supplier A',
@@ -113,7 +114,7 @@ describe('POST /api/suppliers', () => {
 
 describe('GET /api/suppliers/:id', () => {
   it('should return a supplier by id', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue({
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Supplier A',
     });
@@ -124,7 +125,7 @@ describe('GET /api/suppliers/:id', () => {
   });
 
   it('should return 404 for non-existent supplier', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).get('/api/suppliers/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -133,10 +134,10 @@ describe('GET /api/suppliers/:id', () => {
 
 describe('PUT /api/suppliers/:id', () => {
   it('should update a supplier', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue({
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSupplier.update.mockResolvedValue({
+    mockPrisma.fsSupplier.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
       name: 'Updated',
     });
@@ -149,7 +150,7 @@ describe('PUT /api/suppliers/:id', () => {
   });
 
   it('should return 404 for non-existent supplier', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app)
       .put('/api/suppliers/00000000-0000-0000-0000-000000000099')
@@ -160,10 +161,10 @@ describe('PUT /api/suppliers/:id', () => {
 
 describe('DELETE /api/suppliers/:id', () => {
   it('should soft delete a supplier', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue({
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
-    (prisma as any).fsSupplier.update.mockResolvedValue({
+    mockPrisma.fsSupplier.update.mockResolvedValue({
       id: '00000000-0000-0000-0000-000000000001',
     });
 
@@ -173,7 +174,7 @@ describe('DELETE /api/suppliers/:id', () => {
   });
 
   it('should return 404 for non-existent supplier', async () => {
-    (prisma as any).fsSupplier.findFirst.mockResolvedValue(null);
+    mockPrisma.fsSupplier.findFirst.mockResolvedValue(null);
 
     const res = await request(app).delete('/api/suppliers/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
@@ -189,7 +190,7 @@ describe('GET /api/suppliers/due-audit', () => {
         nextAuditDate: '2026-02-20',
       },
     ];
-    (prisma as any).fsSupplier.findMany.mockResolvedValue(suppliers);
+    mockPrisma.fsSupplier.findMany.mockResolvedValue(suppliers);
 
     const res = await request(app).get('/api/suppliers/due-audit');
     expect(res.status).toBe(200);
@@ -198,14 +199,14 @@ describe('GET /api/suppliers/due-audit', () => {
   });
 
   it('should accept custom days parameter', async () => {
-    (prisma as any).fsSupplier.findMany.mockResolvedValue([]);
+    mockPrisma.fsSupplier.findMany.mockResolvedValue([]);
 
     const res = await request(app).get('/api/suppliers/due-audit?days=60');
     expect(res.status).toBe(200);
   });
 
   it('should handle database errors', async () => {
-    (prisma as any).fsSupplier.findMany.mockRejectedValue(new Error('DB error'));
+    mockPrisma.fsSupplier.findMany.mockRejectedValue(new Error('DB error'));
 
     const res = await request(app).get('/api/suppliers/due-audit');
     expect(res.status).toBe(500);

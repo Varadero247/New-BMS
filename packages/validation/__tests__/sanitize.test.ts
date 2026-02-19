@@ -225,8 +225,8 @@ describe('sanitizeObject', () => {
   });
 
   it('should return non-objects as-is', () => {
-    expect(sanitizeObject(null as any)).toBe(null);
-    expect(sanitizeObject(undefined as any)).toBe(undefined);
+    expect(sanitizeObject(null as unknown as Record<string, unknown>)).toBe(null);
+    expect(sanitizeObject(undefined as unknown as Record<string, unknown>)).toBe(undefined);
   });
 });
 
