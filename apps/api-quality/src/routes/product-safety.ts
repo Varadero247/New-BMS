@@ -12,6 +12,22 @@ const router: IRouter = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
 
+// Typed access for product safety models (correct Prisma names)
+type SafetyDelegate = {
+  findMany: (args?: Record<string, unknown>) => Promise<Record<string, unknown>[]>;
+  findFirst: (args?: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+  findUnique: (args?: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+  create: (args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  update: (args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  count: (args?: Record<string, unknown>) => Promise<number>;
+};
+type PrismaWithSafety = typeof prisma & {
+  productSafetyIncident: SafetyDelegate;
+  productRecall: SafetyDelegate;
+  qualComplianceRecord: SafetyDelegate;
+};
+const safetyDb = prisma as unknown as PrismaWithSafety;
+
 // =============================================
 // Reference number generators
 // =============================================
@@ -32,7 +48,7 @@ async function generateIncidentRef(): Promise<string> {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const prefix = `PSI-${yy}${mm}`;
-  const count = await (prisma as any).safetyIncident.count({
+  const count = await safetyDb.productSafetyIncident.count({
     where: { refNumber: { startsWith: prefix } },
   });
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
@@ -43,7 +59,7 @@ async function generateRecallRef(): Promise<string> {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const prefix = `RCL-${yy}${mm}`;
-  const count = await (prisma as any).recallAction.count({
+  const count = await safetyDb.productRecall.count({
     where: { refNumber: { startsWith: prefix } },
   });
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
@@ -261,7 +277,7 @@ router.post('/incidents', async (req: AuthRequest, res: Response) => {
     const data = schema.parse(req.body);
     const refNumber = await generateIncidentRef();
 
-    const incident = await (prisma as any).safetyIncident.create({
+    const incident = await safetyDb.productSafetyIncident.create({
       data: {
         refNumber,
         title: data.title,
@@ -313,13 +329,13 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
     if (product) where.product = { contains: product as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([
-      (prisma as any).safetyIncident.findMany({
+      safetyDb.productSafetyIncident.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      (prisma as any).safetyIncident.count({ where }),
+      safetyDb.productSafetyIncident.count({ where }),
     ]);
 
     res.json({
@@ -344,10 +360,10 @@ router.get('/incidents', scopeToUser, async (req: AuthRequest, res: Response) =>
 // PUT /incidents/:id - Update incident
 router.put(
   '/incidents/:id',
-  checkOwnership((prisma as any).safetyIncident),
+  checkOwnership(safetyDb.productSafetyIncident as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
-      const existing = await (prisma as any).safetyIncident.findUnique({
+      const existing = await safetyDb.productSafetyIncident.findUnique({
         where: { id: req.params.id },
       });
       if (!existing || existing.deletedAt) {
@@ -370,7 +386,7 @@ router.put(
 
       const data = schema.parse(req.body);
 
-      const incident = await (prisma as any).safetyIncident.update({
+      const incident = await safetyDb.productSafetyIncident.update({
         where: { id: req.params.id },
         data,
       });
@@ -418,7 +434,7 @@ router.post('/recalls', async (req: AuthRequest, res: Response) => {
     const data = schema.parse(req.body);
     const refNumber = await generateRecallRef();
 
-    const recall = await (prisma as any).recallAction.create({
+    const recall = await safetyDb.productRecall.create({
       data: {
         refNumber,
         product: data.product,
@@ -469,13 +485,13 @@ router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
     if (product) where.product = { contains: product as string, mode: 'insensitive' };
 
     const [items, total] = await Promise.all([
-      (prisma as any).recallAction.findMany({
+      safetyDb.productRecall.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      (prisma as any).recallAction.count({ where }),
+      safetyDb.productRecall.count({ where }),
     ]);
 
     res.json({
@@ -500,10 +516,10 @@ router.get('/recalls', scopeToUser, async (req: AuthRequest, res: Response) => {
 // PUT /recalls/:id - Update recall
 router.put(
   '/recalls/:id',
-  checkOwnership((prisma as any).recallAction),
+  checkOwnership(safetyDb.productRecall as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
-      const existing = await (prisma as any).recallAction.findUnique({
+      const existing = await safetyDb.productRecall.findUnique({
         where: { id: req.params.id },
       });
       if (!existing || existing.deletedAt) {
@@ -530,7 +546,7 @@ router.put(
 
       const data = schema.parse(req.body);
 
-      const recall = await (prisma as any).recallAction.update({
+      const recall = await safetyDb.productRecall.update({
         where: { id: req.params.id },
         data,
       });
@@ -574,13 +590,13 @@ router.get('/compliance', scopeToUser, async (req: AuthRequest, res: Response) =
     if (status) where.status = status;
 
     const [items, total] = await Promise.all([
-      (prisma as any).complianceRecord.findMany({
+      safetyDb.qualComplianceRecord.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      (prisma as any).complianceRecord.count({ where }),
+      safetyDb.qualComplianceRecord.count({ where }),
     ]);
 
     // Compute summary stats
@@ -630,7 +646,7 @@ router.post('/compliance', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const record = await (prisma as any).complianceRecord.create({
+    const record = await safetyDb.qualComplianceRecord.create({
       data: {
         partNumber: data.partNumber,
         partName: data.partName,

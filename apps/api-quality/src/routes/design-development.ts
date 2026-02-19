@@ -12,6 +12,21 @@ const router: IRouter = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
 
+// Typed access for qualDesignProject/qualDesignStageDoc (correct Prisma names)
+type DesignDelegate = {
+  findMany: (args?: Record<string, unknown>) => Promise<Record<string, unknown>[]>;
+  findFirst: (args?: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+  findUnique: (args?: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+  create: (args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  update: (args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  count: (args?: Record<string, unknown>) => Promise<number>;
+};
+type PrismaWithDesign = typeof prisma & {
+  qualDesignProject: DesignDelegate;
+  qualDesignStageDoc: DesignDelegate;
+};
+const designDb = prisma as unknown as PrismaWithDesign;
+
 // =============================================
 // Constants
 // =============================================
@@ -39,7 +54,7 @@ async function generateRefNumber(): Promise<string> {
   const yy = String(now.getFullYear()).slice(-2);
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const prefix = `DD-${yy}${mm}`;
-  const count = await (prisma as any).designDevelopment.count({
+  const count = await designDb.qualDesignProject.count({
     where: { refNumber: { startsWith: prefix } },
   });
   return `${prefix}-${String(count + 1).padStart(4, '0')}`;
@@ -72,7 +87,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const refNumber = await generateRefNumber();
 
     const project = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      const created = await (tx as any).designDevelopment.create({
+      const txDb = tx as unknown as PrismaWithDesign;
+      const created = await txDb.qualDesignProject.create({
         data: {
           refNumber,
           title: data.title,
@@ -91,7 +107,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
       // Create initial stage records for all 7 stages
       for (const stage of STAGES) {
-        await (tx as any).designStage.create({
+        await txDb.qualDesignStageDoc.create({
           data: {
             projectId: created.id,
             stage,
@@ -148,13 +164,13 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
 
     const [items, total] = await Promise.all([
-      (prisma as any).designDevelopment.findMany({
+      designDb.qualDesignProject.findMany({
         where,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
       }),
-      (prisma as any).designDevelopment.count({ where }),
+      designDb.qualDesignProject.count({ where }),
     ]);
 
     res.json({
@@ -182,10 +198,10 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
 router.get(
   '/:id',
-  checkOwnership((prisma as any).designDevelopment),
+  checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
-      const project = await (prisma as any).designDevelopment.findUnique({
+      const project = await designDb.qualDesignProject.findUnique({
         where: { id: req.params.id },
       });
 
@@ -196,7 +212,7 @@ router.get(
         });
       }
 
-      const stages = await (prisma as any).designStage.findMany({
+      const stages = await designDb.qualDesignStageDoc.findMany({
         where: { projectId: project.id },
         orderBy: { createdAt: 'asc' },
         take: 1000,
@@ -219,10 +235,10 @@ router.get(
 
 router.put(
   '/:id',
-  checkOwnership((prisma as any).designDevelopment),
+  checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
-      const existing = await (prisma as any).designDevelopment.findUnique({
+      const existing = await designDb.qualDesignProject.findUnique({
         where: { id: req.params.id },
       });
       if (!existing || existing.deletedAt) {
@@ -265,7 +281,7 @@ router.put(
         updateData.plannedEndDate = new Date(data.plannedEndDate);
       if (data.requirements !== undefined) updateData.requirements = data.requirements;
 
-      const project = await (prisma as any).designDevelopment.update({
+      const project = await designDb.qualDesignProject.update({
         where: { id: req.params.id },
         data: updateData,
       });
@@ -297,7 +313,7 @@ router.put(
 
 router.post(
   '/:id/stages/:stage/submit',
-  checkOwnership((prisma as any).designDevelopment),
+  checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id, stage } = req.params;
@@ -309,7 +325,7 @@ router.post(
         });
       }
 
-      const project = await (prisma as any).designDevelopment.findUnique({ where: { id } });
+      const project = await designDb.qualDesignProject.findUnique({ where: { id } });
       if (!project || project.deletedAt) {
         return res.status(404).json({
           success: false,
@@ -325,7 +341,7 @@ router.post(
 
       const data = schema.parse(req.body);
 
-      const stageRecord = await (prisma as any).designStage.findFirst({
+      const stageRecord = await designDb.qualDesignStageDoc.findFirst({
         where: { projectId: id, stage: stage as string },
       });
 
@@ -343,7 +359,7 @@ router.post(
         });
       }
 
-      const updated = await (prisma as any).designStage.update({
+      const updated = await designDb.qualDesignStageDoc.update({
         where: { id: stageRecord.id },
         data: {
           status: 'SUBMITTED',
@@ -382,7 +398,7 @@ router.post(
 
 router.post(
   '/:id/stages/:stage/approve',
-  checkOwnership((prisma as any).designDevelopment),
+  checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
       const { id, stage } = req.params;
@@ -394,7 +410,7 @@ router.post(
         });
       }
 
-      const project = await (prisma as any).designDevelopment.findUnique({ where: { id } });
+      const project = await designDb.qualDesignProject.findUnique({ where: { id } });
       if (!project || project.deletedAt) {
         return res.status(404).json({
           success: false,
@@ -408,7 +424,7 @@ router.post(
 
       const data = schema.parse(req.body);
 
-      const stageRecord = await (prisma as any).designStage.findFirst({
+      const stageRecord = await designDb.qualDesignStageDoc.findFirst({
         where: { projectId: id, stage: stage as string },
       });
 
@@ -431,7 +447,8 @@ router.post(
       const nextStage = stageIdx < STAGES.length - 1 ? STAGES[stageIdx + 1] : null;
 
       const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const approvedStage = await (tx as any).designStage.update({
+        const txDb = tx as unknown as PrismaWithDesign;
+        const approvedStage = await txDb.qualDesignStageDoc.update({
           where: { id: stageRecord.id },
           data: {
             status: 'APPROVED',
@@ -447,10 +464,10 @@ router.post(
           projectUpdate.currentStage = nextStage;
 
           // Set next stage to IN_PROGRESS
-          await (tx as any).designStage.update({
+          await txDb.qualDesignStageDoc.update({
             where: {
               id: (
-                await (tx as any).designStage.findFirst({
+                await txDb.qualDesignStageDoc.findFirst({
                   where: { projectId: id, stage: nextStage },
                 })
               ).id,
@@ -463,7 +480,7 @@ router.post(
           projectUpdate.completedAt = new Date();
         }
 
-        await (tx as any).designDevelopment.update({
+        await txDb.qualDesignProject.update({
           where: { id },
           data: projectUpdate,
         });
@@ -498,10 +515,10 @@ router.post(
 
 router.delete(
   '/:id',
-  checkOwnership((prisma as any).designDevelopment),
+  checkOwnership(designDb.qualDesignProject as unknown as Parameters<typeof checkOwnership>[0]),
   async (req: AuthRequest, res: Response) => {
     try {
-      const existing = await (prisma as any).designDevelopment.findUnique({
+      const existing = await designDb.qualDesignProject.findUnique({
         where: { id: req.params.id },
       });
       if (!existing || existing.deletedAt) {
@@ -511,7 +528,7 @@ router.delete(
         });
       }
 
-      await (prisma as any).designDevelopment.update({
+      await designDb.qualDesignProject.update({
         where: { id: req.params.id },
         data: { deletedAt: new Date(), deletedBy: req.user!.id },
       });

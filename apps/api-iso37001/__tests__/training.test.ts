@@ -3,7 +3,7 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    abTraining: {
+    abTrainingRecord: {
       findMany: jest.fn(),
       findFirst: jest.fn(),
       create: jest.fn(),
@@ -98,11 +98,11 @@ describe('ISO 37001 Training API', () => {
   // =========================================================================
   describe('GET /api/training', () => {
     it('should return paginated list of training records', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([
         mockTraining,
         mockTraining2,
       ]);
-      (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(2);
 
       const res = await request(app).get('/api/training');
 
@@ -113,8 +113,8 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should support pagination parameters', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
-      (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(30);
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(30);
 
       const res = await request(app).get('/api/training?page=2&limit=10');
 
@@ -125,12 +125,12 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([mockTraining2]);
-      (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining2]);
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app).get('/api/training?status=COMPLETED');
 
-      expect(mockPrisma.abTraining.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.abTrainingRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'COMPLETED' }),
         })
@@ -138,12 +138,12 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should filter by department', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
-      (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app).get('/api/training?department=Finance');
 
-      expect(mockPrisma.abTraining.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.abTrainingRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             department: expect.objectContaining({ contains: 'Finance' }),
@@ -153,12 +153,12 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should filter by courseType', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
-      (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockTraining]);
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app).get('/api/training?courseType=GENERAL_AWARENESS');
 
-      expect(mockPrisma.abTraining.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.abTrainingRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ courseType: 'GENERAL_AWARENESS' }),
         })
@@ -166,8 +166,8 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return empty list', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(0);
 
       const res = await request(app).get('/api/training');
 
@@ -176,8 +176,8 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
-      (mockPrisma.abTraining.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/training');
 
@@ -200,7 +200,7 @@ describe('ISO 37001 Training API', () => {
     };
 
     it('should create a training record and return 201', async () => {
-      (mockPrisma.abTraining.create as jest.Mock).mockResolvedValueOnce(mockTraining);
+      (mockPrisma.abTrainingRecord.create as jest.Mock).mockResolvedValueOnce(mockTraining);
 
       const res = await request(app).post('/api/training').send(validPayload);
 
@@ -246,7 +246,7 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return 500 on database create error', async () => {
-      (mockPrisma.abTraining.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abTrainingRecord.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).post('/api/training').send(validPayload);
 
@@ -260,7 +260,7 @@ describe('ISO 37001 Training API', () => {
   // =========================================================================
   describe('GET /api/training/:id', () => {
     it('should return a training record by ID', async () => {
-      (mockPrisma.abTraining.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
+      (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
 
       const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000001');
 
@@ -270,7 +270,7 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return 404 when not found', async () => {
-      (mockPrisma.abTraining.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/training/00000000-0000-0000-0000-000000000099');
 
@@ -284,8 +284,8 @@ describe('ISO 37001 Training API', () => {
   // =========================================================================
   describe('PUT /api/training/:id', () => {
     it('should update a training record', async () => {
-      (mockPrisma.abTraining.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
-      (mockPrisma.abTraining.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
+      (mockPrisma.abTrainingRecord.update as jest.Mock).mockResolvedValueOnce({
         ...mockTraining,
         department: 'Compliance',
       });
@@ -300,7 +300,7 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return 404 when not found for update', async () => {
-      (mockPrisma.abTraining.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/training/00000000-0000-0000-0000-000000000099')
@@ -316,8 +316,8 @@ describe('ISO 37001 Training API', () => {
   // =========================================================================
   describe('PUT /api/training/:id/complete', () => {
     it('should complete training with passing score', async () => {
-      (mockPrisma.abTraining.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
-      (mockPrisma.abTraining.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
+      (mockPrisma.abTrainingRecord.update as jest.Mock).mockResolvedValueOnce({
         ...mockTraining,
         status: 'COMPLETED',
         score: 90,
@@ -332,7 +332,7 @@ describe('ISO 37001 Training API', () => {
       expect(res.status).toBe(200);
       expect(res.body.data.status).toBe('COMPLETED');
       expect(res.body.data.passed).toBe(true);
-      expect(mockPrisma.abTraining.update).toHaveBeenCalledWith(
+      expect(mockPrisma.abTrainingRecord.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'COMPLETED',
@@ -344,8 +344,8 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should mark as FAILED when score below passMark', async () => {
-      (mockPrisma.abTraining.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
-      (mockPrisma.abTraining.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockTraining);
+      (mockPrisma.abTrainingRecord.update as jest.Mock).mockResolvedValueOnce({
         ...mockTraining,
         status: 'FAILED',
         score: 50,
@@ -357,7 +357,7 @@ describe('ISO 37001 Training API', () => {
         .send({ score: 50 });
 
       expect(res.status).toBe(200);
-      expect(mockPrisma.abTraining.update).toHaveBeenCalledWith(
+      expect(mockPrisma.abTrainingRecord.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'FAILED',
@@ -370,8 +370,8 @@ describe('ISO 37001 Training API', () => {
 
     it('should pass when passMark is null/undefined (no pass requirement)', async () => {
       const noPassMarkTraining = { ...mockTraining, passMark: null };
-      (mockPrisma.abTraining.findFirst as jest.Mock).mockResolvedValueOnce(noPassMarkTraining);
-      (mockPrisma.abTraining.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(noPassMarkTraining);
+      (mockPrisma.abTrainingRecord.update as jest.Mock).mockResolvedValueOnce({
         ...noPassMarkTraining,
         status: 'COMPLETED',
         score: 30,
@@ -383,7 +383,7 @@ describe('ISO 37001 Training API', () => {
         .send({ score: 30 });
 
       expect(res.status).toBe(200);
-      expect(mockPrisma.abTraining.update).toHaveBeenCalledWith(
+      expect(mockPrisma.abTrainingRecord.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'COMPLETED',
@@ -403,7 +403,7 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return 404 when not found for completion', async () => {
-      (mockPrisma.abTraining.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.abTrainingRecord.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/training/00000000-0000-0000-0000-000000000099/complete')
@@ -419,15 +419,15 @@ describe('ISO 37001 Training API', () => {
   // =========================================================================
   describe('GET /api/training/overdue', () => {
     it('should return overdue training records', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([mockOverdueTraining]);
-      (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockOverdueTraining]);
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(1);
 
       const res = await request(app).get('/api/training/overdue');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveLength(1);
-      expect(mockPrisma.abTraining.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.abTrainingRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             status: expect.objectContaining({ not: 'COMPLETED' }),
@@ -438,8 +438,8 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return empty list when no overdue records', async () => {
-      (mockPrisma.abTraining.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.abTraining.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.abTrainingRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockResolvedValueOnce(0);
 
       const res = await request(app).get('/api/training/overdue');
 
@@ -453,12 +453,12 @@ describe('ISO 37001 Training API', () => {
   // =========================================================================
   describe('GET /api/training/stats', () => {
     it('should return training completion statistics', async () => {
-      (mockPrisma.abTraining.count as jest.Mock)
+      (mockPrisma.abTrainingRecord.count as jest.Mock)
         .mockResolvedValueOnce(100) // total
         .mockResolvedValueOnce(60) // completed
         .mockResolvedValueOnce(20) // inProgress
         .mockResolvedValueOnce(10); // overdue
-      (mockPrisma.abTraining.groupBy as jest.Mock).mockResolvedValueOnce([
+      (mockPrisma.abTrainingRecord.groupBy as jest.Mock).mockResolvedValueOnce([
         { courseType: 'GENERAL_AWARENESS', _count: { id: 50 } },
         { courseType: 'ROLE_SPECIFIC', _count: { id: 30 } },
       ]);
@@ -476,12 +476,12 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return 0 completion rate when no records exist', async () => {
-      (mockPrisma.abTraining.count as jest.Mock)
+      (mockPrisma.abTrainingRecord.count as jest.Mock)
         .mockResolvedValueOnce(0)
         .mockResolvedValueOnce(0)
         .mockResolvedValueOnce(0)
         .mockResolvedValueOnce(0);
-      (mockPrisma.abTraining.groupBy as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.abTrainingRecord.groupBy as jest.Mock).mockResolvedValueOnce([]);
 
       const res = await request(app).get('/api/training/stats');
 
@@ -490,7 +490,7 @@ describe('ISO 37001 Training API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.abTraining.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abTrainingRecord.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/training/stats');
 

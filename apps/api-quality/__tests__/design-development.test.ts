@@ -5,14 +5,14 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    designDevelopment: {
+    qualDesignProject: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
     },
-    designStage: {
+    qualDesignStageDoc: {
       findMany: jest.fn(),
       findFirst: jest.fn(),
       create: jest.fn(),
@@ -170,7 +170,7 @@ describe('Quality Design & Development API Routes', () => {
   // ==========================================
   describe('POST /api/design-development', () => {
     it('should create a design project successfully', async () => {
-      (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.$transaction as jest.Mock).mockResolvedValueOnce(mockProject);
 
       const response = await request(app)
@@ -186,7 +186,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should create a project with only required fields', async () => {
-      (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(1);
       (mockPrisma.$transaction as jest.Mock).mockResolvedValueOnce({
         ...mockProject,
         refNumber: 'DD-2602-0002',
@@ -245,7 +245,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(0);
       (mockPrisma.$transaction as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
@@ -265,11 +265,11 @@ describe('Quality Design & Development API Routes', () => {
   // ==========================================
   describe('GET /api/design-development', () => {
     it('should return a list of projects with default pagination', async () => {
-      (mockPrisma.designDevelopment.findMany as jest.Mock).mockResolvedValueOnce([
+      (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValueOnce([
         mockProject,
         mockProject2,
       ]);
-      (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
         .get('/api/design-development')
@@ -285,8 +285,8 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should support custom pagination', async () => {
-      (mockPrisma.designDevelopment.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
-      (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValueOnce(30);
+      (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+      (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(30);
 
       const response = await request(app)
         .get('/api/design-development?page=2&limit=10')
@@ -297,20 +297,20 @@ describe('Quality Design & Development API Routes', () => {
       expect(response.body.data.limit).toBe(10);
       expect(response.body.data.totalPages).toBe(3);
 
-      expect(mockPrisma.designDevelopment.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.qualDesignProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ skip: 10, take: 10 })
       );
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.designDevelopment.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
-      (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValueOnce([mockProject]);
+      (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
         .get('/api/design-development?status=ACTIVE')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.designDevelopment.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.qualDesignProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'ACTIVE', deletedAt: null }),
         })
@@ -318,14 +318,14 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should filter by stage', async () => {
-      (mockPrisma.designDevelopment.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.designDevelopment.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.qualDesignProject.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.qualDesignProject.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
         .get('/api/design-development?stage=PLANNING')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.designDevelopment.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.qualDesignProject.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ currentStage: 'PLANNING' }),
         })
@@ -333,7 +333,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findMany as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.qualDesignProject.findMany as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -351,8 +351,8 @@ describe('Quality Design & Development API Routes', () => {
   // ==========================================
   describe('GET /api/design-development/:id', () => {
     it('should return a project with stages', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designStage.findMany as jest.Mock).mockResolvedValueOnce([mockStage]);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignStageDoc.findMany as jest.Mock).mockResolvedValueOnce([mockStage]);
 
       const response = await request(app)
         .get('/api/design-development/20000000-0000-4000-a000-000000000001')
@@ -365,7 +365,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 404 when not found', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .get('/api/design-development/00000000-0000-4000-a000-ffffffffffff')
@@ -376,7 +376,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 404 when soft-deleted', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce({
         ...mockProject,
         deletedAt: new Date(),
       });
@@ -390,7 +390,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -408,8 +408,8 @@ describe('Quality Design & Development API Routes', () => {
   // ==========================================
   describe('PUT /api/design-development/:id', () => {
     it('should update a project successfully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designDevelopment.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignProject.update as jest.Mock).mockResolvedValueOnce({
         ...mockProject,
         title: 'Updated Title',
         priority: 'CRITICAL',
@@ -426,8 +426,8 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should update status to ON_HOLD', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designDevelopment.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignProject.update as jest.Mock).mockResolvedValueOnce({
         ...mockProject,
         status: 'ON_HOLD',
       });
@@ -442,7 +442,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 404 when not found', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .put('/api/design-development/00000000-0000-4000-a000-ffffffffffff')
@@ -454,7 +454,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 400 for invalid priority', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
 
       const response = await request(app)
         .put('/api/design-development/20000000-0000-4000-a000-000000000001')
@@ -466,7 +466,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -485,9 +485,9 @@ describe('Quality Design & Development API Routes', () => {
   // ==========================================
   describe('POST /api/design-development/:id/stages/:stage/submit', () => {
     it('should submit a stage for review', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValueOnce(mockStage);
-      (mockPrisma.designStage.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignStageDoc.findFirst as jest.Mock).mockResolvedValueOnce(mockStage);
+      (mockPrisma.qualDesignStageDoc.update as jest.Mock).mockResolvedValueOnce({
         ...mockStage,
         status: 'SUBMITTED',
         deliverables: 'Design plan v1',
@@ -518,7 +518,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 404 when project not found', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .post('/api/design-development/00000000-0000-4000-a000-ffffffffffff/stages/PLANNING/submit')
@@ -530,8 +530,8 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 400 when stage is already approved', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignStageDoc.findFirst as jest.Mock).mockResolvedValueOnce({
         ...mockStage,
         status: 'APPROVED',
       });
@@ -546,8 +546,8 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 404 when stage record not found', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignStageDoc.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .post('/api/design-development/20000000-0000-4000-a000-000000000001/stages/PLANNING/submit')
@@ -559,7 +559,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -578,8 +578,8 @@ describe('Quality Design & Development API Routes', () => {
   // ==========================================
   describe('POST /api/design-development/:id/stages/:stage/approve', () => {
     it('should approve a submitted stage', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValueOnce(mockStageSubmitted);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignStageDoc.findFirst as jest.Mock).mockResolvedValueOnce(mockStageSubmitted);
       (mockPrisma.$transaction as jest.Mock).mockResolvedValueOnce({
         ...mockStageSubmitted,
         status: 'APPROVED',
@@ -612,8 +612,8 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 400 when stage is not submitted', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designStage.findFirst as jest.Mock).mockResolvedValueOnce(mockStage); // IN_PROGRESS
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignStageDoc.findFirst as jest.Mock).mockResolvedValueOnce(mockStage); // IN_PROGRESS
 
       const response = await request(app)
         .post(
@@ -627,7 +627,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 404 when project not found', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .post(
@@ -641,7 +641,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -662,8 +662,8 @@ describe('Quality Design & Development API Routes', () => {
   // ==========================================
   describe('DELETE /api/design-development/:id', () => {
     it('should soft-delete a project', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
-      (mockPrisma.designDevelopment.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(mockProject);
+      (mockPrisma.qualDesignProject.update as jest.Mock).mockResolvedValueOnce({
         ...mockProject,
         deletedAt: new Date(),
         deletedBy: 'user-1',
@@ -677,7 +677,7 @@ describe('Quality Design & Development API Routes', () => {
       expect(response.body.success).toBe(true);
       expect(response.body.data.message).toBe('Design project deleted');
 
-      expect(mockPrisma.designDevelopment.update).toHaveBeenCalledWith({
+      expect(mockPrisma.qualDesignProject.update).toHaveBeenCalledWith({
         where: { id: '20000000-0000-4000-a000-000000000001' },
         data: expect.objectContaining({
           deletedAt: expect.any(Date),
@@ -687,7 +687,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 404 when not found', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .delete('/api/design-development/00000000-0000-4000-a000-ffffffffffff')
@@ -698,7 +698,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should return 404 when already deleted', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockResolvedValueOnce({
         ...mockProject,
         deletedAt: new Date(),
       });
@@ -712,7 +712,7 @@ describe('Quality Design & Development API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.designDevelopment.findUnique as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.qualDesignProject.findUnique as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 

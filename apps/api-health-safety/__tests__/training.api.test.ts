@@ -4,11 +4,11 @@ import request from 'supertest';
 // Mock dependencies - use ../prisma (not @ims/database)
 jest.mock('../src/prisma', () => ({
   prisma: {
-    trainingCourse: {
+    trainCourse: {
       findMany: jest.fn(),
       create: jest.fn(),
     },
-    trainingRecord: {
+    trainRecord: {
       findMany: jest.fn(),
       create: jest.fn(),
     },
@@ -69,7 +69,7 @@ describe('Health & Safety Training API Routes', () => {
     ];
 
     it('should return list of active H&S training courses', async () => {
-      (mockPrisma.trainingCourse.findMany as jest.Mock).mockResolvedValueOnce(mockCourses);
+      (mockPrisma.trainCourse.findMany as jest.Mock).mockResolvedValueOnce(mockCourses);
 
       const response = await request(app)
         .get('/api/training/courses')
@@ -81,11 +81,11 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should filter for ISO_45001 or null standard and isActive true', async () => {
-      (mockPrisma.trainingCourse.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.trainCourse.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app).get('/api/training/courses').set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.trainingCourse.findMany).toHaveBeenCalledWith({
+      expect(mockPrisma.trainCourse.findMany).toHaveBeenCalledWith({
         where: {
           OR: [{ standard: 'ISO_45001' }, { standard: null }],
           isActive: true,
@@ -96,11 +96,11 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should order courses by title ascending', async () => {
-      (mockPrisma.trainingCourse.findMany as jest.Mock).mockResolvedValueOnce(mockCourses);
+      (mockPrisma.trainCourse.findMany as jest.Mock).mockResolvedValueOnce(mockCourses);
 
       await request(app).get('/api/training/courses').set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.trainingCourse.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.trainCourse.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           orderBy: { title: 'asc' },
         })
@@ -108,7 +108,7 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.trainingCourse.findMany as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.trainCourse.findMany as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -156,7 +156,7 @@ describe('Health & Safety Training API Routes', () => {
     ];
 
     it('should return list of training records', async () => {
-      (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce(mockRecords);
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce(mockRecords);
 
       const response = await request(app)
         .get('/api/training/records')
@@ -179,7 +179,7 @@ describe('Health & Safety Training API Routes', () => {
           course: { id: 'course-3', title: 'HR Training', standard: 'ISO_9001' },
         },
       ];
-      (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce(mixedRecords);
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce(mixedRecords);
 
       const response = await request(app)
         .get('/api/training/records')
@@ -191,13 +191,13 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should filter by userId', async () => {
-      (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce([mockRecords[0]]);
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce([mockRecords[0]]);
 
       await request(app)
         .get('/api/training/records?userId=20000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.trainingRecord.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             userId: '20000000-0000-4000-a000-000000000001',
@@ -207,13 +207,13 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should filter by courseId', async () => {
-      (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
         .get('/api/training/records?courseId=2d000000-0000-4000-a000-000000000001')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.trainingRecord.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             courseId: '2d000000-0000-4000-a000-000000000001',
@@ -223,13 +223,13 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
 
       await request(app)
         .get('/api/training/records?status=COMPLETED')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.trainingRecord.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             status: 'COMPLETED',
@@ -239,11 +239,11 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should include user and course data', async () => {
-      (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce(mockRecords);
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce(mockRecords);
 
       await request(app).get('/api/training/records').set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.trainingRecord.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           include: expect.objectContaining({
             user: expect.any(Object),
@@ -254,11 +254,11 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should order by createdAt descending', async () => {
-      (mockPrisma.trainingRecord.findMany as jest.Mock).mockResolvedValueOnce(mockRecords);
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockResolvedValueOnce(mockRecords);
 
       await request(app).get('/api/training/records').set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.trainingRecord.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           orderBy: { createdAt: 'desc' },
         })
@@ -266,7 +266,7 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.trainingRecord.findMany as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.trainRecord.findMany as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -289,7 +289,7 @@ describe('Health & Safety Training API Routes', () => {
     };
 
     it('should create a training course successfully', async () => {
-      (mockPrisma.trainingCourse.create as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.trainCourse.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         standard: 'ISO_45001',
         ...createPayload,
@@ -308,7 +308,7 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should set standard to ISO_45001 and isActive to true', async () => {
-      (mockPrisma.trainingCourse.create as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.trainCourse.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         standard: 'ISO_45001',
@@ -320,7 +320,7 @@ describe('Health & Safety Training API Routes', () => {
         .set('Authorization', 'Bearer token')
         .send(createPayload);
 
-      expect(mockPrisma.trainingCourse.create).toHaveBeenCalledWith(
+      expect(mockPrisma.trainCourse.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             standard: 'ISO_45001',
@@ -351,7 +351,7 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.trainingCourse.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.trainCourse.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .post('/api/training/courses')
@@ -374,7 +374,7 @@ describe('Health & Safety Training API Routes', () => {
     };
 
     it('should create a training record successfully', async () => {
-      (mockPrisma.trainingRecord.create as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.trainRecord.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         ...createPayload,
         completedAt: new Date(createPayload.completedAt),
@@ -396,7 +396,7 @@ describe('Health & Safety Training API Routes', () => {
         expiresAt: '2026-01-15T00:00:00.000Z',
       };
 
-      (mockPrisma.trainingRecord.create as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.trainRecord.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         ...payload,
       });
@@ -406,7 +406,7 @@ describe('Health & Safety Training API Routes', () => {
         .set('Authorization', 'Bearer token')
         .send(payload);
 
-      expect(mockPrisma.trainingRecord.create).toHaveBeenCalledWith(
+      expect(mockPrisma.trainRecord.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             completedAt: expect.any(Date),
@@ -422,7 +422,7 @@ describe('Health & Safety Training API Routes', () => {
         assessedBy: 'assessor-1',
       };
 
-      (mockPrisma.trainingRecord.create as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.trainRecord.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         ...payload,
       });
@@ -432,7 +432,7 @@ describe('Health & Safety Training API Routes', () => {
         .set('Authorization', 'Bearer token')
         .send(payload);
 
-      expect(mockPrisma.trainingRecord.create).toHaveBeenCalledWith(
+      expect(mockPrisma.trainRecord.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             assessedBy: 'assessor-1',
@@ -487,7 +487,7 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should default status to NOT_STARTED if not provided', async () => {
-      (mockPrisma.trainingRecord.create as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.trainRecord.create as jest.Mock).mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         userId: '20000000-0000-4000-a000-000000000001',
         courseId: '2d000000-0000-4000-a000-000000000001',
@@ -499,7 +499,7 @@ describe('Health & Safety Training API Routes', () => {
         courseId: '2d000000-0000-4000-a000-000000000001',
       });
 
-      expect(mockPrisma.trainingRecord.create).toHaveBeenCalledWith(
+      expect(mockPrisma.trainRecord.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'NOT_STARTED',
@@ -509,7 +509,7 @@ describe('Health & Safety Training API Routes', () => {
     });
 
     it('should handle database errors', async () => {
-      (mockPrisma.trainingRecord.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.trainRecord.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .post('/api/training/records')

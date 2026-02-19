@@ -9,6 +9,17 @@ const logger = createLogger('api-iso37001');
 const router: Router = Router();
 router.use(authenticate);
 
+// Typed access for abGiftRegister model (correct Prisma name for AB-37001 gift model)
+type GiftDelegate = {
+  findMany: (args?: Record<string, unknown>) => Promise<Record<string, unknown>[]>;
+  findFirst: (args?: Record<string, unknown>) => Promise<Record<string, unknown> | null>;
+  create: (args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  update: (args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  count: (args?: Record<string, unknown>) => Promise<number>;
+};
+type PrismaWithGift = typeof prisma & { abGiftRegister: GiftDelegate };
+const giftDb = prisma as unknown as PrismaWithGift;
+
 // ---------------------------------------------------------------------------
 // Reference number generator
 // ---------------------------------------------------------------------------
@@ -128,13 +139,13 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const [gifts, total] = await Promise.all([
-      (prisma as any).abGift.findMany({
+      giftDb.abGiftRegister.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      (prisma as any).abGift.count({ where }),
+      giftDb.abGiftRegister.count({ where }),
     ]);
 
     res.json({
@@ -170,7 +181,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const { value, ...rest } = parsed.data;
 
-    const gift = await (prisma as any).abGift.create({
+    const gift = await giftDb.abGiftRegister.create({
       data: {
         ...rest,
         value: new Prisma.Decimal(value),
@@ -199,7 +210,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
 
-    const gift = await (prisma as any).abGift.findFirst({
+    const gift = await giftDb.abGiftRegister.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
 
@@ -231,7 +242,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
       return res.status(400).json({ success: false, error: parsed.error.flatten() });
     }
 
-    const existing = await (prisma as any).abGift.findFirst({
+    const existing = await giftDb.abGiftRegister.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
@@ -252,7 +263,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
       updateData.value = new Prisma.Decimal(value);
     }
 
-    const gift = await (prisma as any).abGift.update({
+    const gift = await giftDb.abGiftRegister.update({
       where: { id: req.params.id },
       data: updateData,
     });
@@ -273,7 +284,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
 // PUT /:id/approve — Approve gift
 router.put('/:id/approve', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).abGift.findFirst({
+    const existing = await giftDb.abGiftRegister.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
@@ -284,7 +295,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
-    const gift = await (prisma as any).abGift.update({
+    const gift = await giftDb.abGiftRegister.update({
       where: { id: req.params.id },
       data: {
         status: 'APPROVED',
@@ -310,7 +321,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
 // PUT /:id/decline — Decline gift
 router.put('/:id/decline', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).abGift.findFirst({
+    const existing = await giftDb.abGiftRegister.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
@@ -321,7 +332,7 @@ router.put('/:id/decline', async (req: Request, res: Response) => {
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
-    const gift = await (prisma as any).abGift.update({
+    const gift = await giftDb.abGiftRegister.update({
       where: { id: req.params.id },
       data: {
         status: 'DECLINED',
@@ -347,7 +358,7 @@ router.put('/:id/decline', async (req: Request, res: Response) => {
 // DELETE /:id — Soft delete
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    const existing = await (prisma as any).abGift.findFirst({
+    const existing = await giftDb.abGiftRegister.findFirst({
       where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
@@ -358,7 +369,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const userId = (req as AuthRequest).user?.id || 'system';
 
-    await (prisma as any).abGift.update({
+    await giftDb.abGiftRegister.update({
       where: { id: req.params.id },
       data: {
         deletedAt: new Date(),

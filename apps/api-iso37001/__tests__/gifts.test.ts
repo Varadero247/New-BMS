@@ -3,7 +3,7 @@ import request from 'supertest';
 
 jest.mock('../src/prisma', () => ({
   prisma: {
-    abGift: {
+    abGiftRegister: {
       findMany: jest.fn(),
       findFirst: jest.fn(),
       create: jest.fn(),
@@ -88,8 +88,8 @@ describe('ISO 37001 Gifts API', () => {
   // =========================================================================
   describe('GET /api/gifts', () => {
     it('should return paginated list of gifts', async () => {
-      (mockPrisma.abGift.findMany as jest.Mock).mockResolvedValueOnce([mockGift, mockGift2]);
-      (mockPrisma.abGift.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift, mockGift2]);
+      (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(2);
 
       const res = await request(app).get('/api/gifts');
 
@@ -100,8 +100,8 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should support pagination', async () => {
-      (mockPrisma.abGift.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
-      (mockPrisma.abGift.count as jest.Mock).mockResolvedValueOnce(15);
+      (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
+      (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(15);
 
       const res = await request(app).get('/api/gifts?page=2&limit=10');
 
@@ -112,12 +112,12 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should filter by giftType', async () => {
-      (mockPrisma.abGift.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
-      (mockPrisma.abGift.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
+      (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app).get('/api/gifts?giftType=GIFT');
 
-      expect(mockPrisma.abGift.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.abGiftRegister.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ giftType: 'GIFT' }),
         })
@@ -125,12 +125,12 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should filter by direction', async () => {
-      (mockPrisma.abGift.findMany as jest.Mock).mockResolvedValueOnce([mockGift2]);
-      (mockPrisma.abGift.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift2]);
+      (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app).get('/api/gifts?direction=RECEIVED');
 
-      expect(mockPrisma.abGift.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.abGiftRegister.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ direction: 'RECEIVED' }),
         })
@@ -138,12 +138,12 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.abGift.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
-      (mockPrisma.abGift.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([mockGift]);
+      (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app).get('/api/gifts?status=PENDING');
 
-      expect(mockPrisma.abGift.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.abGiftRegister.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'PENDING' }),
         })
@@ -151,8 +151,8 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should return empty list', async () => {
-      (mockPrisma.abGift.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.abGift.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.abGiftRegister.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.abGiftRegister.count as jest.Mock).mockResolvedValueOnce(0);
 
       const res = await request(app).get('/api/gifts');
 
@@ -161,8 +161,8 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should return 500 on database error', async () => {
-      (mockPrisma.abGift.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
-      (mockPrisma.abGift.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abGiftRegister.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abGiftRegister.count as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).get('/api/gifts');
 
@@ -185,7 +185,7 @@ describe('ISO 37001 Gifts API', () => {
     };
 
     it('should create a gift record and return 201', async () => {
-      (mockPrisma.abGift.create as jest.Mock).mockResolvedValueOnce(mockGift);
+      (mockPrisma.abGiftRegister.create as jest.Mock).mockResolvedValueOnce(mockGift);
 
       const res = await request(app).post('/api/gifts').send(validPayload);
 
@@ -247,11 +247,11 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should store value as Decimal', async () => {
-      (mockPrisma.abGift.create as jest.Mock).mockResolvedValueOnce(mockGift);
+      (mockPrisma.abGiftRegister.create as jest.Mock).mockResolvedValueOnce(mockGift);
 
       await request(app).post('/api/gifts').send(validPayload);
 
-      expect(mockPrisma.abGift.create).toHaveBeenCalledWith(
+      expect(mockPrisma.abGiftRegister.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             value: expect.anything(),
@@ -261,7 +261,7 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should return 500 on database create error', async () => {
-      (mockPrisma.abGift.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.abGiftRegister.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const res = await request(app).post('/api/gifts').send(validPayload);
 
@@ -275,7 +275,7 @@ describe('ISO 37001 Gifts API', () => {
   // =========================================================================
   describe('GET /api/gifts/:id', () => {
     it('should return a gift by ID', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
 
       const res = await request(app).get('/api/gifts/00000000-0000-0000-0000-000000000001');
 
@@ -285,7 +285,7 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should return 404 when not found', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).get('/api/gifts/00000000-0000-0000-0000-000000000099');
 
@@ -299,8 +299,8 @@ describe('ISO 37001 Gifts API', () => {
   // =========================================================================
   describe('PUT /api/gifts/:id', () => {
     it('should update a gift record', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
-      (mockPrisma.abGift.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+      (mockPrisma.abGiftRegister.update as jest.Mock).mockResolvedValueOnce({
         ...mockGift,
         description: 'Updated gift description',
       });
@@ -315,7 +315,7 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should return 404 when not found', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app)
         .put('/api/gifts/00000000-0000-0000-0000-000000000099')
@@ -331,8 +331,8 @@ describe('ISO 37001 Gifts API', () => {
   // =========================================================================
   describe('PUT /api/gifts/:id/approve', () => {
     it('should approve a gift and set approvedBy/approvedAt', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
-      (mockPrisma.abGift.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+      (mockPrisma.abGiftRegister.update as jest.Mock).mockResolvedValueOnce({
         ...mockGift,
         status: 'APPROVED',
         approvedBy: 'user-123',
@@ -344,7 +344,7 @@ describe('ISO 37001 Gifts API', () => {
       expect(res.status).toBe(200);
       expect(res.body.data.status).toBe('APPROVED');
       expect(res.body.data.approvedBy).toBe('user-123');
-      expect(mockPrisma.abGift.update).toHaveBeenCalledWith(
+      expect(mockPrisma.abGiftRegister.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'APPROVED',
@@ -355,7 +355,7 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should return 404 when not found for approval', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).put('/api/gifts/00000000-0000-0000-0000-000000000099/approve');
 
@@ -369,8 +369,8 @@ describe('ISO 37001 Gifts API', () => {
   // =========================================================================
   describe('PUT /api/gifts/:id/decline', () => {
     it('should decline a gift and set declinedBy/declinedAt', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
-      (mockPrisma.abGift.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+      (mockPrisma.abGiftRegister.update as jest.Mock).mockResolvedValueOnce({
         ...mockGift,
         status: 'DECLINED',
         declinedBy: 'user-123',
@@ -381,7 +381,7 @@ describe('ISO 37001 Gifts API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.data.status).toBe('DECLINED');
-      expect(mockPrisma.abGift.update).toHaveBeenCalledWith(
+      expect(mockPrisma.abGiftRegister.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             status: 'DECLINED',
@@ -392,7 +392,7 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should return 404 when not found for decline', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).put('/api/gifts/00000000-0000-0000-0000-000000000099/decline');
 
@@ -406,8 +406,8 @@ describe('ISO 37001 Gifts API', () => {
   // =========================================================================
   describe('DELETE /api/gifts/:id', () => {
     it('should soft delete a gift record', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
-      (mockPrisma.abGift.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(mockGift);
+      (mockPrisma.abGiftRegister.update as jest.Mock).mockResolvedValueOnce({
         ...mockGift,
         deletedAt: new Date(),
       });
@@ -419,7 +419,7 @@ describe('ISO 37001 Gifts API', () => {
     });
 
     it('should return 404 when not found for deletion', async () => {
-      (mockPrisma.abGift.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.abGiftRegister.findFirst as jest.Mock).mockResolvedValueOnce(null);
 
       const res = await request(app).delete('/api/gifts/00000000-0000-0000-0000-000000000099');
 

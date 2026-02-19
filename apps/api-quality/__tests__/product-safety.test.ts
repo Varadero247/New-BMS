@@ -12,21 +12,21 @@ jest.mock('../src/prisma', () => ({
       update: jest.fn(),
       count: jest.fn(),
     },
-    safetyIncident: {
+    productSafetyIncident: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
     },
-    recallAction: {
+    productRecall: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       count: jest.fn(),
     },
-    complianceRecord: {
+    qualComplianceRecord: {
       findMany: jest.fn(),
       create: jest.fn(),
       count: jest.fn(),
@@ -640,8 +640,8 @@ describe('Product Safety Management API Routes', () => {
 
   describe('POST /api/product-safety/incidents', () => {
     it('should create a safety incident successfully', async () => {
-      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.safetyIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.productSafetyIncident.create as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const response = await request(app)
         .post('/api/product-safety/incidents')
@@ -657,8 +657,8 @@ describe('Product Safety Management API Routes', () => {
 
     it('should accept all severity levels', async () => {
       for (const severity of ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']) {
-        (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
-        (mockPrisma.safetyIncident.create as jest.Mock).mockResolvedValueOnce({
+        (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
+        (mockPrisma.productSafetyIncident.create as jest.Mock).mockResolvedValueOnce({
           ...mockIncident,
           severity,
         });
@@ -723,8 +723,8 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.safetyIncident.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.productSafetyIncident.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .post('/api/product-safety/incidents')
@@ -739,8 +739,8 @@ describe('Product Safety Management API Routes', () => {
 
   describe('GET /api/product-safety/incidents', () => {
     it('should return a list of incidents with default pagination', async () => {
-      (mockPrisma.safetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
-      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.productSafetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
+      (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
 
       const response = await request(app)
         .get('/api/product-safety/incidents')
@@ -753,14 +753,14 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.safetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
-      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.productSafetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
+      (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
         .get('/api/product-safety/incidents?status=OPEN')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.safetyIncident.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.productSafetyIncident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'OPEN', deletedAt: null }),
         })
@@ -768,14 +768,14 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should filter by severity', async () => {
-      (mockPrisma.safetyIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.productSafetyIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
         .get('/api/product-safety/incidents?severity=CRITICAL')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.safetyIncident.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.productSafetyIncident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ severity: 'CRITICAL' }),
         })
@@ -783,14 +783,14 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should filter by product (case-insensitive)', async () => {
-      (mockPrisma.safetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
-      (mockPrisma.safetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.productSafetyIncident.findMany as jest.Mock).mockResolvedValueOnce([mockIncident]);
+      (mockPrisma.productSafetyIncident.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
         .get('/api/product-safety/incidents?product=brake')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.safetyIncident.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.productSafetyIncident.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             product: { contains: 'brake', mode: 'insensitive' },
@@ -800,7 +800,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.safetyIncident.findMany as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.productSafetyIncident.findMany as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -815,8 +815,8 @@ describe('Product Safety Management API Routes', () => {
 
   describe('PUT /api/product-safety/incidents/:id', () => {
     it('should update an incident', async () => {
-      (mockPrisma.safetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(mockIncident);
-      (mockPrisma.safetyIncident.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.productSafetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.productSafetyIncident.update as jest.Mock).mockResolvedValueOnce({
         ...mockIncident,
         status: 'INVESTIGATING',
         rootCause: 'Adhesive batch contamination',
@@ -834,7 +834,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should return 404 when not found', async () => {
-      (mockPrisma.safetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.productSafetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .put('/api/product-safety/incidents/00000000-0000-4000-a000-ffffffffffff')
@@ -846,7 +846,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should return 400 for invalid status', async () => {
-      (mockPrisma.safetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(mockIncident);
+      (mockPrisma.productSafetyIncident.findUnique as jest.Mock).mockResolvedValueOnce(mockIncident);
 
       const response = await request(app)
         .put('/api/product-safety/incidents/20000000-0000-4000-a000-000000000001')
@@ -858,7 +858,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.safetyIncident.findUnique as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.productSafetyIncident.findUnique as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -878,8 +878,8 @@ describe('Product Safety Management API Routes', () => {
 
   describe('POST /api/product-safety/recalls', () => {
     it('should create a recall action successfully', async () => {
-      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.recallAction.create as jest.Mock).mockResolvedValueOnce(mockRecall);
+      (mockPrisma.productRecall.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.productRecall.create as jest.Mock).mockResolvedValueOnce(mockRecall);
 
       const response = await request(app)
         .post('/api/product-safety/recalls')
@@ -894,8 +894,8 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should generate sequential ref numbers', async () => {
-      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(3);
-      (mockPrisma.recallAction.create as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.productRecall.count as jest.Mock).mockResolvedValueOnce(3);
+      (mockPrisma.productRecall.create as jest.Mock).mockResolvedValueOnce({
         ...mockRecall,
         refNumber: 'RCL-2602-0004',
       });
@@ -906,7 +906,7 @@ describe('Product Safety Management API Routes', () => {
         .send(validRecallPayload);
 
       expect(response.status).toBe(201);
-      expect(mockPrisma.recallAction.create).toHaveBeenCalledWith({
+      expect(mockPrisma.productRecall.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           refNumber: expect.stringMatching(/^RCL-\d{4}-0004$/),
         }),
@@ -964,8 +964,8 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(0);
-      (mockPrisma.recallAction.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.productRecall.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.productRecall.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .post('/api/product-safety/recalls')
@@ -980,8 +980,8 @@ describe('Product Safety Management API Routes', () => {
 
   describe('GET /api/product-safety/recalls', () => {
     it('should return a list of recalls with default pagination', async () => {
-      (mockPrisma.recallAction.findMany as jest.Mock).mockResolvedValueOnce([mockRecall]);
-      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.productRecall.findMany as jest.Mock).mockResolvedValueOnce([mockRecall]);
+      (mockPrisma.productRecall.count as jest.Mock).mockResolvedValueOnce(1);
 
       const response = await request(app)
         .get('/api/product-safety/recalls')
@@ -994,14 +994,14 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.recallAction.findMany as jest.Mock).mockResolvedValueOnce([mockRecall]);
-      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.productRecall.findMany as jest.Mock).mockResolvedValueOnce([mockRecall]);
+      (mockPrisma.productRecall.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
         .get('/api/product-safety/recalls?status=INITIATED')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.recallAction.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.productRecall.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'INITIATED', deletedAt: null }),
         })
@@ -1009,14 +1009,14 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should filter by product (case-insensitive)', async () => {
-      (mockPrisma.recallAction.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.recallAction.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.productRecall.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.productRecall.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
         .get('/api/product-safety/recalls?product=brake')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.recallAction.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.productRecall.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             product: { contains: 'brake', mode: 'insensitive' },
@@ -1026,7 +1026,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.recallAction.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      (mockPrisma.productRecall.findMany as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
 
       const response = await request(app)
         .get('/api/product-safety/recalls')
@@ -1039,8 +1039,8 @@ describe('Product Safety Management API Routes', () => {
 
   describe('PUT /api/product-safety/recalls/:id', () => {
     it('should update a recall action', async () => {
-      (mockPrisma.recallAction.findUnique as jest.Mock).mockResolvedValueOnce(mockRecall);
-      (mockPrisma.recallAction.update as jest.Mock).mockResolvedValueOnce({
+      (mockPrisma.productRecall.findUnique as jest.Mock).mockResolvedValueOnce(mockRecall);
+      (mockPrisma.productRecall.update as jest.Mock).mockResolvedValueOnce({
         ...mockRecall,
         status: 'INVESTIGATING',
         customerNotified: true,
@@ -1060,7 +1060,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should return 404 when not found', async () => {
-      (mockPrisma.recallAction.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.productRecall.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
       const response = await request(app)
         .put('/api/product-safety/recalls/00000000-0000-4000-a000-ffffffffffff')
@@ -1072,7 +1072,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should return 400 for invalid status', async () => {
-      (mockPrisma.recallAction.findUnique as jest.Mock).mockResolvedValueOnce(mockRecall);
+      (mockPrisma.productRecall.findUnique as jest.Mock).mockResolvedValueOnce(mockRecall);
 
       const response = await request(app)
         .put('/api/product-safety/recalls/30000000-0000-4000-a000-000000000001')
@@ -1084,7 +1084,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.recallAction.findUnique as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.productRecall.findUnique as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -1104,11 +1104,11 @@ describe('Product Safety Management API Routes', () => {
 
   describe('GET /api/product-safety/compliance', () => {
     it('should return compliance records with summary', async () => {
-      (mockPrisma.complianceRecord.findMany as jest.Mock).mockResolvedValueOnce([
+      (mockPrisma.qualComplianceRecord.findMany as jest.Mock).mockResolvedValueOnce([
         { ...mockComplianceRecord, status: 'COMPLIANT' },
         { ...mockComplianceRecord, id: 'comp-0002', status: 'PENDING' },
       ]);
-      (mockPrisma.complianceRecord.count as jest.Mock).mockResolvedValueOnce(2);
+      (mockPrisma.qualComplianceRecord.count as jest.Mock).mockResolvedValueOnce(2);
 
       const response = await request(app)
         .get('/api/product-safety/compliance')
@@ -1123,16 +1123,16 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should filter by regulation', async () => {
-      (mockPrisma.complianceRecord.findMany as jest.Mock).mockResolvedValueOnce([
+      (mockPrisma.qualComplianceRecord.findMany as jest.Mock).mockResolvedValueOnce([
         mockComplianceRecord,
       ]);
-      (mockPrisma.complianceRecord.count as jest.Mock).mockResolvedValueOnce(1);
+      (mockPrisma.qualComplianceRecord.count as jest.Mock).mockResolvedValueOnce(1);
 
       await request(app)
         .get('/api/product-safety/compliance?regulation=REACH')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.complianceRecord.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.qualComplianceRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ regulation: 'REACH' }),
         })
@@ -1140,14 +1140,14 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should filter by status', async () => {
-      (mockPrisma.complianceRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
-      (mockPrisma.complianceRecord.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.qualComplianceRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.qualComplianceRecord.count as jest.Mock).mockResolvedValueOnce(0);
 
       await request(app)
         .get('/api/product-safety/compliance?status=NON_COMPLIANT')
         .set('Authorization', 'Bearer token');
 
-      expect(mockPrisma.complianceRecord.findMany).toHaveBeenCalledWith(
+      expect(mockPrisma.qualComplianceRecord.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({ status: 'NON_COMPLIANT' }),
         })
@@ -1155,7 +1155,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.complianceRecord.findMany as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.qualComplianceRecord.findMany as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 
@@ -1170,7 +1170,7 @@ describe('Product Safety Management API Routes', () => {
 
   describe('POST /api/product-safety/compliance', () => {
     it('should create a compliance record successfully', async () => {
-      (mockPrisma.complianceRecord.create as jest.Mock).mockResolvedValueOnce(mockComplianceRecord);
+      (mockPrisma.qualComplianceRecord.create as jest.Mock).mockResolvedValueOnce(mockComplianceRecord);
 
       const response = await request(app)
         .post('/api/product-safety/compliance')
@@ -1185,7 +1185,7 @@ describe('Product Safety Management API Routes', () => {
 
     it('should accept all regulation types', async () => {
       for (const regulation of ['REACH', 'RoHS', 'IMDS', 'TSCA', 'PROP65', 'OTHER']) {
-        (mockPrisma.complianceRecord.create as jest.Mock).mockResolvedValueOnce({
+        (mockPrisma.qualComplianceRecord.create as jest.Mock).mockResolvedValueOnce({
           ...mockComplianceRecord,
           regulation,
         });
@@ -1240,7 +1240,7 @@ describe('Product Safety Management API Routes', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      (mockPrisma.complianceRecord.create as jest.Mock).mockRejectedValueOnce(
+      (mockPrisma.qualComplianceRecord.create as jest.Mock).mockRejectedValueOnce(
         new Error('DB error')
       );
 

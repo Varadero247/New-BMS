@@ -13,10 +13,21 @@ const STANDARD = 'ISO_45001';
 
 router.use(authenticate);
 
+// Typed access for H&S training models (trainCourse/trainRecord from training schema)
+type HsTrainDelegate = {
+  findMany: (args?: Record<string, unknown>) => Promise<Record<string, unknown>[]>;
+  create: (args: Record<string, unknown>) => Promise<Record<string, unknown>>;
+};
+type PrismaWithHsTrain = typeof prisma & {
+  trainCourse: HsTrainDelegate;
+  trainRecord: HsTrainDelegate;
+};
+const hsTrainDb = prisma as unknown as PrismaWithHsTrain;
+
 // GET /api/training/courses - List H&S training courses
 router.get('/courses', async (req: AuthRequest, res: Response) => {
   try {
-    const courses = await (prisma as any).trainingCourse.findMany({
+    const courses = await hsTrainDb.trainCourse.findMany({
       where: {
         OR: [{ standard: STANDARD }, { standard: null }],
         isActive: true,
@@ -45,7 +56,7 @@ router.get('/records', async (req: AuthRequest, res: Response) => {
     if (courseId) where.courseId = courseId;
     if (status) where.status = status;
 
-    const records = await (prisma as any).trainingRecord.findMany({
+    const records = await hsTrainDb.trainRecord.findMany({
       where,
       include: {
         user: { select: { id: true, firstName: true, lastName: true, department: true } },
@@ -85,7 +96,7 @@ router.post('/courses', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const course = await (prisma as any).trainingCourse.create({
+    const course = await hsTrainDb.trainCourse.create({
       data: {
         id: uuidv4(),
         standard: STANDARD,
@@ -134,7 +145,7 @@ router.post('/records', async (req: AuthRequest, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const record = await (prisma as any).trainingRecord.create({
+    const record = await hsTrainDb.trainRecord.create({
       data: {
         id: uuidv4(),
         ...data,
