@@ -216,7 +216,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       updateData.scheduledDate = new Date(updateData.scheduledDate as string);
     }
     if (updateData.score !== undefined && updateData.score !== null) {
-      updateData.score = new Prisma.Decimal(updateData.score as any);
+      updateData.score = new Prisma.Decimal(updateData.score as number);
     }
 
     const audit = await prisma.energyAudit.update({

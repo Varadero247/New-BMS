@@ -143,7 +143,7 @@ router.get('/alerts/incompatible', authenticate, async (req: Request, res: Respo
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const alerts = await prisma.chemIncompatAlert.findMany({
-      where: { isActive: true, chemical: { orgId, isActive: true, deletedAt: null } as any },
+      where: { isActive: true, chemical: { orgId, isActive: true, deletedAt: null } },
       include: { chemical: { select: { id: true, productName: true, casNumber: true } } },
       orderBy: { createdAt: 'desc' },
       take: 1000,

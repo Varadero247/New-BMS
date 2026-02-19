@@ -205,7 +205,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.totalConsumption !== undefined) {
-      updateData.totalConsumption = new Prisma.Decimal(updateData.totalConsumption as any);
+      updateData.totalConsumption = new Prisma.Decimal(updateData.totalConsumption as number);
     }
 
     const baseline = await prisma.energyBaseline.update({

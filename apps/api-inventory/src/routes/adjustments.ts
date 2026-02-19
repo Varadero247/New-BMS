@@ -65,8 +65,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     if (warehouseId) where.warehouseId = warehouseId;
     if (startDate || endDate) {
       where.transactionDate = {};
-      if (startDate) (where.transactionDate as any).gte = new Date(startDate as string);
-      if (endDate) (where.transactionDate as any).lte = new Date(endDate as string);
+      if (startDate) (where.transactionDate as { gte?: Date; lte?: Date }).gte = new Date(startDate as string);
+      if (endDate) (where.transactionDate as { gte?: Date; lte?: Date }).lte = new Date(endDate as string);
     }
 
     const [items, total] = await Promise.all([

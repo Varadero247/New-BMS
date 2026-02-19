@@ -21,7 +21,7 @@ const updateSchema = createSchema.partial();
 async function generateRef(orgId: string): Promise<string> {
   const y = new Date().getFullYear();
   const c = await prisma.contApproval.count({
-    where: { orgId, referenceNumber: { startsWith: `CAP-${y}` } } as any,
+    where: { orgId, referenceNumber: { startsWith: `CAP-${y}` } },
   });
   return `CAP-${y}-${String(c + 1).padStart(4, '0')}`;
 }
@@ -65,7 +65,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.contApproval.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!item)
       return res
@@ -103,7 +103,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
         updatedBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
@@ -124,7 +124,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.contApproval.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -141,7 +141,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         comments,
         decidedAt,
         updatedBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.json({ success: true, data });
   } catch (error: unknown) {
@@ -156,7 +156,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.contApproval.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -164,7 +164,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'approval not found' } });
     await prisma.contApproval.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } as any,
+      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
     });
     res.json({ success: true, data: { message: 'approval deleted successfully' } });
   } catch (error: unknown) {

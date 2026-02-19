@@ -287,8 +287,8 @@ router.patch('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: 
     if (data.targetCompletionDate)
       updateData.targetCompletionDate = new Date(data.targetCompletionDate);
     if (data.status === 'CLOSED') {
-      (updateData as any).closedDate = new Date();
-      (updateData as any).closedBy = req.user?.id;
+      updateData.closedDate = new Date();
+      updateData.closedBy = req.user?.id;
     }
 
     const capa = await prisma.capa.update({
@@ -425,7 +425,7 @@ router.patch('/:id/actions/:aid', async (req: AuthRequest, res: Response) => {
     const updateData: Record<string, unknown> = { ...data };
     if (data.dueDate) updateData.dueDate = new Date(data.dueDate);
     if (data.status === 'COMPLETED' || data.status === 'VERIFIED') {
-      (updateData as any).completedAt = new Date();
+      updateData.completedAt = new Date();
     }
 
     const updated = await prisma.capaAction.update({

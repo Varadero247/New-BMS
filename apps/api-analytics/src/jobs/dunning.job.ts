@@ -81,7 +81,7 @@ export async function runDunningJob(): Promise<{ processed: number; cancelled: n
         await prisma.dunningSequence.update({
           where: { id: seq.id },
           data: {
-            currentStep: nextStep as any,
+            currentStep: nextStep as typeof seq.currentStep,
             nextActionAt,
           },
         });

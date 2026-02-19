@@ -169,7 +169,7 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
         userAgent: sig.userAgent || '',
         checksum: sig.checksum,
         valid: true,
-      } as any,
+      },
     });
 
     // Log the e-signature event to enhanced audit trail

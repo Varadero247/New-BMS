@@ -100,7 +100,7 @@ router.put('/:riskId/kri/:id', authenticate, async (req: Request, res: Response)
         riskId: req.params.riskId,
         deletedAt: null,
         risk: { orgId },
-      } as any,
+      },
     });
     if (!existing)
       return res
@@ -137,7 +137,7 @@ router.post('/:riskId/kri/:id/reading', authenticate, async (req: Request, res: 
         riskId: req.params.riskId,
         deletedAt: null,
         risk: { orgId },
-      } as any,
+      },
     });
     if (!kri)
       return res

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -101,7 +101,7 @@ router.post('/', async (req: Request, res: Response) => {
     const data = await prisma.fsSvcSite.create({
       data: {
         ...parsed.data,
-        address: parsed.data.address as any,
+        address: parsed.data.address as Prisma.InputJsonValue,
         coordinates: parsed.data.coordinates as any,
         specialRequirements: parsed.data.specialRequirements as any,
         equipment: parsed.data.equipment as any,
@@ -173,7 +173,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...parsed.data,
-        address: parsed.data.address as any,
+        address: parsed.data.address as Prisma.InputJsonValue,
         coordinates: parsed.data.coordinates as any,
         specialRequirements: parsed.data.specialRequirements as any,
         equipment: parsed.data.equipment as any,

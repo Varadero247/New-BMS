@@ -200,7 +200,7 @@ router.post('/', async (req: Request, res: Response) => {
         version: parsed.data.version || '1.0',
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('AI policy created', { policyId: policy.id, reference });
@@ -221,7 +221,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -244,7 +244,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
         approvedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('AI policy approved', { policyId: id });
@@ -269,7 +269,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const policy = await prisma.aiPolicy.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!policy) {
@@ -307,7 +307,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       });
     }
 
-    const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -333,7 +333,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
             : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('AI policy updated', { policyId: id });
@@ -356,7 +356,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiPolicy.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -369,7 +369,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('AI policy soft-deleted', { policyId: id });

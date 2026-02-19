@@ -335,7 +335,7 @@ router.post('/findings', async (req: AuthRequest, res: Response) => {
         targetDate: data.targetDate ? new Date(data.targetDate) : null,
         status: 'OPEN',
         raisedBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: finding });

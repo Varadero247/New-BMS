@@ -262,7 +262,7 @@ router.get('/dirty-dozen', async (req: AuthRequest, res: Response) => {
     const incidents = await prisma.humanFactorIncident.findMany({
       where: {
         deletedAt: null,
-        incidentDate: { gte: twelveMonthsAgo } as any,
+        incidentDate: { gte: twelveMonthsAgo },
       },
       select: {
         category: true,
@@ -345,12 +345,12 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
 
     // Open incidents (not CLOSED)
     const openIncidents = await prisma.humanFactorIncident.count({
-      where: { deletedAt: null, status: { not: 'CLOSED' } as any },
+      where: { deletedAt: null, status: { not: 'CLOSED' } },
     });
 
     // Recent incidents (last 30 days)
     const recentIncidents = await prisma.humanFactorIncident.count({
-      where: { deletedAt: null, incidentDate: { gte: thirtyDaysAgo } as any },
+      where: { deletedAt: null, incidentDate: { gte: thirtyDaysAgo } },
     });
 
     // Fatigue stats (last 30 days)

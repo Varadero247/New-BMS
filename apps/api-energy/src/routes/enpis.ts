@@ -219,13 +219,13 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.baselineValue !== undefined && updateData.baselineValue !== null) {
-      updateData.baselineValue = new Prisma.Decimal(updateData.baselineValue as any);
+      updateData.baselineValue = new Prisma.Decimal(updateData.baselineValue as number);
     }
     if (updateData.currentValue !== undefined && updateData.currentValue !== null) {
-      updateData.currentValue = new Prisma.Decimal(updateData.currentValue as any);
+      updateData.currentValue = new Prisma.Decimal(updateData.currentValue as number);
     }
     if (updateData.targetValue !== undefined && updateData.targetValue !== null) {
-      updateData.targetValue = new Prisma.Decimal(updateData.targetValue as any);
+      updateData.targetValue = new Prisma.Decimal(updateData.targetValue as number);
     }
 
     const enpi = await prisma.energyEnpi.update({

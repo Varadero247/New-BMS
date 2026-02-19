@@ -222,7 +222,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         effectivenessKPI: data.effectivenessKPI,
         effectivenessTarget: data.effectivenessTarget,
         effectivenessMethod: data.effectivenessMethod,
-        status: (data.status as any) || 'INITIATED',
+        status: data.status || 'INITIATED',
         progressNotes: data.progressNotes,
         percentComplete: data.percentComplete ?? 0,
         responsiblePerson: data.responsiblePerson,
@@ -252,7 +252,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
                 description: a.description,
                 assignedTo: a.assignedTo,
                 dueDate: new Date(a.dueDate),
-                priority: (a.priority as any) || 'MEDIUM',
+                priority: (a.priority || 'MEDIUM'),
               })),
             }
           : undefined,
@@ -425,7 +425,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
         description: data.description,
         assignedTo: data.assignedTo,
         dueDate: new Date(data.dueDate),
-        priority: (data.priority as any) || 'MEDIUM',
+        priority: data.priority || 'MEDIUM',
         notes: data.notes,
       },
     });

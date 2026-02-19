@@ -87,7 +87,7 @@ router.post('/characteristics', async (req: AuthRequest, res: Response) => {
         notes: data.notes,
         status: 'ACTIVE',
         createdBy: req.user!.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: characteristic });

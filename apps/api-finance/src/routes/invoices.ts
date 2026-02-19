@@ -552,7 +552,7 @@ router.get('/credit-notes', async (req: AuthRequest, res: Response) => {
         include: {
           customer: { select: { id: true, code: true, name: true } },
           invoice: { select: { id: true, reference: true } },
-        } as any,
+        },
       }),
       prisma.finCreditNote.count({ where }),
     ]);
@@ -664,7 +664,7 @@ router.get('/payments', async (req: AuthRequest, res: Response) => {
         include: {
           customer: { select: { id: true, code: true, name: true } },
           invoice: { select: { id: true, reference: true } },
-        } as any,
+        },
       }),
       (prisma as any).finPayment.count({ where }),
     ]);
@@ -741,7 +741,7 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
         include: {
           customer: { select: { id: true, code: true, name: true } },
           invoice: { select: { id: true, reference: true } },
-        } as any,
+        },
       });
 
       // Update invoice if payment is linked

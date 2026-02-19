@@ -79,7 +79,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           description: data.description,
           productName: data.productName,
           projectManager: data.projectManager,
-          priority: (data.priority as any) || 'MEDIUM',
+          priority: data.priority || 'MEDIUM',
           status: 'DRAFT',
           currentStage: 'PLANNING',
           plannedStartDate: data.plannedStartDate ? new Date(data.plannedStartDate) : undefined,
@@ -302,7 +302,7 @@ router.post(
     try {
       const { id, stage } = req.params;
 
-      if (!STAGES.includes(stage as any)) {
+      if (!STAGES.includes(stage as string)) {
         return res.status(400).json({
           success: false,
           error: { code: 'INVALID_STAGE', message: `Invalid stage: ${stage}` },
@@ -387,7 +387,7 @@ router.post(
     try {
       const { id, stage } = req.params;
 
-      if (!STAGES.includes(stage as any)) {
+      if (!STAGES.includes(stage as string)) {
         return res.status(400).json({
           success: false,
           error: { code: 'INVALID_STAGE', message: `Invalid stage: ${stage}` },
@@ -427,7 +427,7 @@ router.post(
       }
 
       // Approve the stage and advance to the next
-      const stageIdx = STAGES.indexOf(stage as any);
+      const stageIdx = STAGES.indexOf(stage as string);
       const nextStage = stageIdx < STAGES.length - 1 ? STAGES[stageIdx + 1] : null;
 
       const updated = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {

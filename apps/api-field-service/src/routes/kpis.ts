@@ -121,7 +121,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     const kpis = await prisma.fsSvcKpi.findMany({
       where: {
         deletedAt: null,
-        periodStart: { gte: thirtyDaysAgo } as any,
+        periodStart: { gte: thirtyDaysAgo },
       },
       include: { technician: true },
       take: 1000,
@@ -157,15 +157,15 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     // Job stats
     const [totalJobs, completedJobs, openJobs] = await Promise.all([
       prisma.fsSvcJob.count({
-        where: { deletedAt: null, createdAt: { gte: thirtyDaysAgo } as any },
+        where: { deletedAt: null, createdAt: { gte: thirtyDaysAgo } },
       }),
       prisma.fsSvcJob.count({
-        where: { deletedAt: null, status: 'COMPLETED', createdAt: { gte: thirtyDaysAgo } as any },
+        where: { deletedAt: null, status: 'COMPLETED', createdAt: { gte: thirtyDaysAgo } },
       }),
       prisma.fsSvcJob.count({
         where: {
           deletedAt: null,
-          status: { in: ['UNASSIGNED', 'ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any,
+          status: { in: ['UNASSIGNED', 'ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] },
         },
       }),
     ]);

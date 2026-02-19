@@ -110,7 +110,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         communicationMethod: data.communicationMethod,
         requirements: data.requirements,
         expectations: data.expectations,
-        status: (data.status as any) || 'ACTIVE',
+        status: data.status || 'ACTIVE',
       },
     });
 

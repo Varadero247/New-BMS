@@ -113,7 +113,9 @@ export async function collectHubSpotMetrics(): Promise<{
     const hs = new HubSpotClient();
 
     const rawDeals: unknown = await hs.getDeals(200);
-    const deals: HubSpotDeal[] = (rawDeals as any)?.results || (Array.isArray(rawDeals) ? rawDeals : []);
+    const deals: HubSpotDeal[] =
+      (rawDeals as { results?: HubSpotDeal[] })?.results ||
+      (Array.isArray(rawDeals) ? (rawDeals as HubSpotDeal[]) : []);
     const openDeals = deals.filter(
       (d: HubSpotDeal) => !['closedwon', 'closedlost'].includes(d.properties?.dealstage)
     );
@@ -410,7 +412,10 @@ export async function runMonthlySnapshot(): Promise<string> {
   // Run AI variance analysis
   if (planTarget) {
     try {
-      await runVarianceAnalysis(snapshot as any, planTarget as any);
+      await runVarianceAnalysis(
+        snapshot as Parameters<typeof runVarianceAnalysis>[0],
+        planTarget as Parameters<typeof runVarianceAnalysis>[1]
+      );
     } catch (err) {
       logger.error('AI variance analysis failed', { error: String(err) });
     }

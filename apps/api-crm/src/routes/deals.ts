@@ -369,9 +369,9 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
         orderBy: { createdAt: 'desc' },
         take: 20,
       }),
-      (deal as any).contactId
+      (deal as Record<string, unknown>).contactId
         ? prisma.crmContact.findMany({
-            where: { id: (deal as any).contactId, deletedAt: null },
+            where: { id: (deal as Record<string, unknown>).contactId, deletedAt: null },
             take: 1000,
           })
         : Promise.resolve([]),
@@ -487,7 +487,7 @@ router.put('/:id/stage', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: (deal as any).contactId || undefined,
+        contactId: (deal as Record<string, unknown>).contactId || undefined,
         type: 'NOTE',
         subject: `Deal moved to new stage`,
         description: `Stage changed to ${stageId}`,
@@ -535,7 +535,7 @@ router.put('/:id/won', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: (deal as any).contactId || undefined,
+        contactId: (deal as Record<string, unknown>).contactId || undefined,
         type: 'NOTE',
         subject: 'Deal closed — Won',
         createdBy: (req as AuthRequest).user?.id || 'system',
@@ -604,7 +604,7 @@ router.put('/:id/lost', async (req: Request, res: Response) => {
       data: {
         id: uuidv4(),
         dealId: req.params.id,
-        contactId: (deal as any).contactId || undefined,
+        contactId: (deal as Record<string, unknown>).contactId || undefined,
         type: 'NOTE',
         subject: `Deal closed — Lost: ${lostReason}`,
         createdBy: (req as AuthRequest).user?.id || 'system',

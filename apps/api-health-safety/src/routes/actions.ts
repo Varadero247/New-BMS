@@ -98,12 +98,12 @@ router.get('/stats', async (_req: Request, res: Response) => {
       prisma.hSAction.count({ where: { deletedAt: null, status: 'OPEN' } }),
       prisma.hSAction.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
       prisma.hSAction.count({
-        where: { deletedAt: null, status: { in: ['COMPLETED', 'VERIFIED'] } as any },
+        where: { deletedAt: null, status: { in: ['COMPLETED', 'VERIFIED'] } },
       }),
       prisma.hSAction.count({
         where: {
           deletedAt: null,
-          dueDate: { lt: new Date() } as any,
+          dueDate: { lt: new Date() },
           status: { notIn: ['COMPLETED', 'VERIFIED', 'CANCELLED'] },
         },
       }),

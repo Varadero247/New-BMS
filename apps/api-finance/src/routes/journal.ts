@@ -62,8 +62,8 @@ router.get('/', async (req: Request, res: Response) => {
     if (periodId && typeof periodId === 'string') where.periodId = periodId;
     if (dateFrom || dateTo) {
       where.date = {};
-      if (dateFrom) (where.date as any).gte = new Date(String(dateFrom));
-      if (dateTo) (where.date as any).lte = new Date(String(dateTo));
+      if (dateFrom) (where.date as { gte?: Date; lte?: Date }).gte = new Date(String(dateFrom));
+      if (dateTo) (where.date as { gte?: Date; lte?: Date }).lte = new Date(String(dateTo));
     }
 
     const [entries, total] = await Promise.all([

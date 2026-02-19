@@ -151,7 +151,7 @@ router.get('/compliance-summary', async (_req: AuthRequest, res: Response) => {
       prisma.customerReq.count({
         where: {
           deletedAt: null,
-          nextReviewDate: { lt: new Date() } as any,
+          nextReviewDate: { lt: new Date() },
           complianceStatus: { not: 'NOT_APPLICABLE' },
         },
       }),

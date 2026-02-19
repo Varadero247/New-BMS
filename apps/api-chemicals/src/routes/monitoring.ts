@@ -67,15 +67,15 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const [total, aboveWel, atWel, belowWel, overdue] = await Promise.all([
-      prisma.chemMonitoring.count({ where: { chemical: { orgId, deletedAt: null } as any } }),
+      prisma.chemMonitoring.count({ where: { chemical: { orgId, deletedAt: null } } }),
       prisma.chemMonitoring.count({
-        where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } as any },
+        where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } },
       }),
       prisma.chemMonitoring.count({
-        where: { resultVsWel: 'AT_WEL', chemical: { orgId, deletedAt: null } as any },
+        where: { resultVsWel: 'AT_WEL', chemical: { orgId, deletedAt: null } },
       }),
       prisma.chemMonitoring.count({
-        where: { resultVsWel: 'BELOW_WEL', chemical: { orgId, deletedAt: null } as any },
+        where: { resultVsWel: 'BELOW_WEL', chemical: { orgId, deletedAt: null } },
       }),
       prisma.chemMonitoring.count({
         where: { nextMonitoringDue: { lte: new Date() }, chemical: { orgId, deletedAt: null } },
@@ -167,7 +167,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         ...d,
         welTwaLimit: welLimit,
         percentageOfWel,
-        resultVsWel: resultVsWel as any,
+        resultVsWel: resultVsWel as string,
         actionRequired,
       },
     });

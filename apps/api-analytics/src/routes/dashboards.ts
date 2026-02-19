@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -209,7 +209,7 @@ router.post('/', async (req: Request, res: Response) => {
         isDefault: data.isDefault,
         isPublic: data.isPublic,
         ownerId: authReq.user!.id,
-        tags: (data.tags || null) as any,
+        tags: (data.tags ?? null) as Prisma.InputJsonValue | null,
         createdBy: authReq.user!.id,
       },
     });
@@ -251,12 +251,12 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
       data: {
         name: `${original.name} (Copy)`,
         description: original.description,
-        layout: original.layout as any,
-        widgets: original.widgets as any,
+        layout: original.layout as Prisma.InputJsonValue,
+        widgets: original.widgets as Prisma.InputJsonValue,
         isDefault: false,
         isPublic: false,
         ownerId: authReq.user!.id,
-        tags: original.tags as any,
+        tags: original.tags as Prisma.InputJsonValue,
         createdBy: authReq.user!.id,
       },
     });
@@ -268,10 +268,10 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
           dashboardId: clone.id,
           title: widget.title,
           type: widget.type,
-          config: widget.config as any,
+          config: widget.config as Prisma.InputJsonValue,
           dataSource: widget.dataSource,
-          query: widget.query as any,
-          position: widget.position as any,
+          query: widget.query as Prisma.InputJsonValue,
+          position: widget.position as Prisma.InputJsonValue,
           refreshInterval: widget.refreshInterval,
           createdBy: authReq.user!.id,
         })),
@@ -334,7 +334,7 @@ router.post('/:id/widgets', async (req: Request, res: Response) => {
         type: data.type,
         config: data.config,
         dataSource: data.dataSource,
-        query: (data.query || null) as any,
+        query: (data.query ?? null) as Prisma.InputJsonValue | null,
         position: data.position,
         refreshInterval: data.refreshInterval || null,
         createdBy: authReq.user!.id,
@@ -385,7 +385,7 @@ router.put('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsWidget.update({
       where: { id: widgetId },
-      data: parsed.data as any,
+      data: parsed.data as Record<string, unknown>,
     });
 
     res.json({ success: true, data: updated });
@@ -496,7 +496,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsDashboard.update({
       where: { id },
-      data: parsed.data as any,
+      data: parsed.data as Record<string, unknown>,
     });
 
     res.json({ success: true, data: updated });

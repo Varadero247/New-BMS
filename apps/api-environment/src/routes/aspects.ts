@@ -219,7 +219,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         responsiblePerson: data.responsiblePerson,
         reviewFrequency: data.reviewFrequency as any,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : null,
-        status: (data.status as any) || 'ACTIVE',
+        status: data.status || 'ACTIVE',
         aiSignificanceJustification: data.aiSignificanceJustification,
         aiControlRecommendations: data.aiControlRecommendations,
         aiLegalObligations: data.aiLegalObligations,

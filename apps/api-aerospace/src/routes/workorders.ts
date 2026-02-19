@@ -90,7 +90,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         aircraftType: data.aircraftType,
         aircraftReg: data.aircraftReg,
         description: data.description,
-        priority: (data.priority as any) || 'ROUTINE',
+        priority: (data.priority || 'ROUTINE') as string,
         status: 'OPEN',
         assignedTo: data.assignedTo,
         startDate: data.startDate ? new Date(data.startDate) : undefined,

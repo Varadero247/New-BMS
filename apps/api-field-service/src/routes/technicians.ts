@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -124,7 +124,7 @@ router.post('/', async (req: Request, res: Response) => {
     const data = await prisma.fsSvcTechnician.create({
       data: {
         ...parsed.data,
-        skills: parsed.data.skills as any,
+        skills: parsed.data.skills as Prisma.InputJsonValue,
         certifications: parsed.data.certifications as any,
         currentLocation: parsed.data.currentLocation as any,
         createdBy: authReq.user!.id,
@@ -164,7 +164,7 @@ router.get('/:id', async (req: Request, res: Response) => {
         jobs: {
           where: {
             deletedAt: null,
-            status: { in: ['ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any,
+            status: { in: ['ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] },
           },
         },
       },
@@ -210,7 +210,7 @@ router.get('/:id/schedule', async (req: Request, res: Response) => {
       where: {
         technicianId: req.params.id,
         deletedAt: null,
-        status: { notIn: ['CANCELLED', 'COMPLETED'] } as any,
+        status: { notIn: ['CANCELLED', 'COMPLETED'] },
         ...(Object.keys(dateFilter).length > 0 ? { scheduledStart: dateFilter } : {}),
       },
       orderBy: { scheduledStart: 'asc' },
@@ -255,7 +255,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...parsed.data,
-        skills: parsed.data.skills as any,
+        skills: parsed.data.skills as Prisma.InputJsonValue,
         certifications: parsed.data.certifications as any,
         currentLocation: parsed.data.currentLocation as any,
       },

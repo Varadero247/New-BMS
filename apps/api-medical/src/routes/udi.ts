@@ -76,7 +76,7 @@ router.post('/devices', async (req: AuthRequest, res: Response) => {
         riskClass: data.riskClass,
         gmdn: data.gmdn,
         emdn: data.emdn,
-        status: (data.status as any) || 'DRAFT',
+        status: data.status || 'DRAFT',
         createdBy: req.user?.id,
       },
     });

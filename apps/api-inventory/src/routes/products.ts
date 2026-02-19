@@ -156,7 +156,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
     const product = await prisma.product.findFirst({
       where: {
         deletedAt: null,
-        OR: [{ sku: q as string } as any, { barcode: q as string }],
+        OR: [{ sku: q as string }, { barcode: q as string }],
       },
       include: {
         category: true,

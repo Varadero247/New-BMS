@@ -293,7 +293,7 @@ router.post('/rules/:id/execute', async (req: Request, res: Response) => {
           startedAt: new Date(startTime),
           completedAt: new Date(),
           durationMs: Date.now() - startTime,
-          result: result as any,
+          result: result as string,
           output: JSON.stringify(result),
         },
       });

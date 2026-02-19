@@ -122,7 +122,7 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
       where: {
         technicianId,
         deletedAt: null,
-        status: { notIn: ['CANCELLED'] } as any,
+        status: { notIn: ['CANCELLED'] },
         ...(startDate || endDate
           ? {
               scheduledStart: {

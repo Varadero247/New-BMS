@@ -22,7 +22,7 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
     const monthlyConsumption = await prisma.energyReading.aggregate({
       where: {
         deletedAt: null,
-        readingDate: { gte: startOfMonth, lte: endOfMonth } as any,
+        readingDate: { gte: startOfMonth, lte: endOfMonth },
       },
       _sum: { value: true, cost: true },
     });
@@ -31,7 +31,7 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
     const yearlyConsumption = await prisma.energyReading.aggregate({
       where: {
         deletedAt: null,
-        readingDate: { gte: startOfYear, lte: now } as any,
+        readingDate: { gte: startOfYear, lte: now },
       },
       _sum: { value: true, cost: true },
     });
@@ -109,7 +109,7 @@ router.get('/esos', async (_req: Request, res: Response) => {
   try {
     // Energy Savings Opportunity Scheme data
     const audits = await prisma.energyAudit.findMany({
-      where: { deletedAt: null, type: { in: ['EXTERNAL', 'REGULATORY', 'ISO_50001'] } as any },
+      where: { deletedAt: null, type: { in: ['EXTERNAL', 'REGULATORY', 'ISO_50001'] } },
       orderBy: { scheduledDate: 'desc' },
       take: 1000,
     });
@@ -184,7 +184,7 @@ router.get('/secr', async (req: Request, res: Response) => {
     const readings = await prisma.energyReading.findMany({
       where: {
         deletedAt: null,
-        readingDate: { gte: startOfYear, lte: endOfYear } as any,
+        readingDate: { gte: startOfYear, lte: endOfYear },
       },
       include: {
         meter: { select: { type: true, unit: true } },
@@ -207,7 +207,7 @@ router.get('/secr', async (req: Request, res: Response) => {
     const bills = await prisma.energyBill.aggregate({
       where: {
         deletedAt: null,
-        periodStart: { gte: startOfYear } as any,
+        periodStart: { gte: startOfYear },
         periodEnd: { lte: endOfYear },
       },
       _sum: { cost: true, consumption: true },

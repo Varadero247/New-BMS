@@ -189,8 +189,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     }
     if (dateFrom || dateTo) {
       where.complaintDate = {};
-      if (dateFrom) (where.complaintDate as any).gte = new Date(dateFrom as string);
-      if (dateTo) (where.complaintDate as any).lte = new Date(dateTo as string);
+      if (dateFrom) (where.complaintDate as { gte?: Date; lte?: Date }).gte = new Date(dateFrom as string);
+      if (dateTo) (where.complaintDate as { gte?: Date; lte?: Date }).lte = new Date(dateTo as string);
     }
 
     const [complaints, total] = await Promise.all([

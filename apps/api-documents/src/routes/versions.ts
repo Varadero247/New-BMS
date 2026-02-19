@@ -57,7 +57,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.docVersion.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!item)
       return res
@@ -112,7 +112,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.docVersion.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -136,7 +136,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.docVersion.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -144,7 +144,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'version not found' } });
     await prisma.docVersion.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } as any,
+      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
     });
     res.json({ success: true, data: { message: 'version deleted successfully' } });
   } catch (error: unknown) {

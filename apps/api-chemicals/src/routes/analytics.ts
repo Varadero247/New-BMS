@@ -31,7 +31,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
         where: {
           orgId,
           deletedAt: null,
-          residualRiskLevel: { in: ['VERY_HIGH', 'UNACCEPTABLE'] } as any,
+          residualRiskLevel: { in: ['VERY_HIGH', 'UNACCEPTABLE'] },
         },
       }),
       prisma.chemSds.count({
@@ -46,11 +46,11 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
           orgId,
           status: 'ACTIVE',
           deletedAt: null,
-          reviewDate: { lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) } as any,
+          reviewDate: { lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) },
         },
       }),
       prisma.chemMonitoring.count({
-        where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } as any },
+        where: { resultVsWel: 'ABOVE_WEL', chemical: { orgId, deletedAt: null } },
       }),
       prisma.chemInventory.count({
         where: {
@@ -61,7 +61,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
       }),
       prisma.chemIncident.count({ where: { orgId } }),
       prisma.chemIncompatAlert.count({
-        where: { isActive: true, chemical: { orgId, deletedAt: null } as any },
+        where: { isActive: true, chemical: { orgId, deletedAt: null } },
       }),
       // Risk level breakdown from COSHH assessments
       prisma.chemCoshh.groupBy({

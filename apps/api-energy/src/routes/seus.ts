@@ -198,11 +198,11 @@ router.put('/:id', async (req: Request, res: Response) => {
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.consumptionPercentage !== undefined) {
       updateData.consumptionPercentage = new Prisma.Decimal(
-        updateData.consumptionPercentage as any
+        Number(updateData.consumptionPercentage)
       );
     }
     if (updateData.annualConsumption !== undefined) {
-      updateData.annualConsumption = new Prisma.Decimal(updateData.annualConsumption as any);
+      updateData.annualConsumption = new Prisma.Decimal(updateData.annualConsumption as number);
     }
 
     const seu = await prisma.energySeu.update({

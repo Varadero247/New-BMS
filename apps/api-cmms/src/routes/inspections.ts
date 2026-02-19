@@ -79,7 +79,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
     const inspections = await prisma.cmmsInspection.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['SCHEDULED', 'OVERDUE'] } as any,
+        status: { in: ['SCHEDULED', 'OVERDUE'] },
         scheduledDate: { lt: now },
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
@@ -166,7 +166,7 @@ router.post('/', async (req: Request, res: Response) => {
         inspector: data.inspector,
         scheduledDate: new Date(data.scheduledDate),
         completedDate: data.completedDate ? new Date(data.completedDate) : null,
-        status: (data.status as any) || 'SCHEDULED',
+        status: data.status || 'SCHEDULED',
         result: data.result,
         findings: data.findings,
         nextInspectionDate: data.nextInspectionDate ? new Date(data.nextInspectionDate) : null,

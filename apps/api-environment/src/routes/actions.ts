@@ -152,7 +152,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         estimatedHours: data.estimatedHours,
         estimatedCost: data.estimatedCost,
         resourcesRequired: data.resourcesRequired,
-        status: (data.status as any) || 'OPEN',
+        status: data.status || 'OPEN',
         progressNotes: data.progressNotes,
         completionDate: data.completionDate ? new Date(data.completionDate) : null,
         percentComplete: data.percentComplete ?? 0,

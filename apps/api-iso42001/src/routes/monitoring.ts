@@ -240,7 +240,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: status as any,
         organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('AI monitoring record created', {

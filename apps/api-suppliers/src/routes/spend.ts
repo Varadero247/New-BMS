@@ -22,7 +22,7 @@ const updateSchema = createSchema.partial();
 async function generateRef(orgId: string): Promise<string> {
   const y = new Date().getFullYear();
   const c = await prisma.suppSpend.count({
-    where: { orgId, referenceNumber: { startsWith: `SSP-${y}` } } as any,
+    where: { orgId, referenceNumber: { startsWith: `SSP-${y}` } },
   });
   return `SSP-${y}-${String(c + 1).padStart(4, '0')}`;
 }

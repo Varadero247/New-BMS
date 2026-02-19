@@ -11,7 +11,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       where: {
         orgId,
         deletedAt: null,
-        slaDeadline: { lt: new Date() } as any,
+        slaDeadline: { lt: new Date() },
         status: { notIn: ['RESOLVED', 'CLOSED'] },
       },
     });
@@ -19,7 +19,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
       where: {
         orgId,
         deletedAt: null,
-        slaDeadline: { gte: new Date() } as any,
+        slaDeadline: { gte: new Date() },
         status: { notIn: ['RESOLVED', 'CLOSED'] },
       },
     });

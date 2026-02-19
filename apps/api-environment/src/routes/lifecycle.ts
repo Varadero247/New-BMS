@@ -57,7 +57,7 @@ router.post('/assessments', async (req: AuthRequest, res: Response) => {
         title: data.title,
         productProcess: data.productProcess,
         description: data.description,
-        status: (data.status as any) || 'DRAFT',
+        status: data.status || 'DRAFT',
         createdBy: req.user?.id,
         stages: {
           create: LCA_STAGE_NAMES.map((stageName) => ({
@@ -170,7 +170,7 @@ router.put(
       const { id, stage } = req.params;
 
       // Validate stage name
-      if (!LCA_STAGE_NAMES.includes(stage as any)) {
+      if (!LCA_STAGE_NAMES.includes(stage as string)) {
         return res.status(400).json({
           success: false,
           error: {
@@ -203,7 +203,7 @@ router.put(
         where: {
           assessmentId_stageName: {
             assessmentId: id,
-            stageName: stage as any,
+            stageName: stage as string,
           },
         },
         update: {
@@ -216,7 +216,7 @@ router.put(
         },
         create: {
           assessmentId: id,
-          stageName: stage as any,
+          stageName: stage as string,
           aspects: data.aspects,
           impacts: data.impacts,
           severity: data.severity,

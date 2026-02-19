@@ -84,7 +84,7 @@ router.get('/active', async (req: Request, res: Response) => {
     const data = await prisma.fsRecall.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['INITIATED', 'IN_PROGRESS'] } as any,
+        status: { in: ['INITIATED', 'IN_PROGRESS'] },
       },
       orderBy: { initiatedDate: 'desc' },
       take: 500,

@@ -112,7 +112,7 @@ router.get('/optimize/:technicianId/:date', async (req: Request, res: Response) 
       where: {
         technicianId,
         deletedAt: null,
-        status: { in: ['ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] } as any,
+        status: { in: ['ASSIGNED', 'EN_ROUTE', 'ON_SITE', 'IN_PROGRESS'] },
         scheduledStart: { gte: d, lt: nextDay },
       },
       include: { site: true, customer: true },
@@ -125,9 +125,9 @@ router.get('/optimize/:technicianId/:date', async (req: Request, res: Response) 
       order: index + 1,
       jobId: job.id,
       jobNumber: job.number,
-      customer: (job as any).customer?.name,
-      site: (job as any).site?.name,
-      address: (job as any).site?.address,
+      customer: (job as { customer?: { name?: string } }).customer?.name,
+      site: (job as { site?: { name?: string; address?: string } }).site?.name,
+      address: (job as { site?: { name?: string; address?: string } }).site?.address,
       scheduledStart: job.scheduledStart,
       estimatedDuration: job.estimatedDuration,
     }));
@@ -170,8 +170,8 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         date: new Date(parsed.data.date),
-        stops: parsed.data.stops as any,
-        optimizedOrder: parsed.data.optimizedOrder as any,
+        stops: parsed.data.stops as Prisma.InputJsonValue,
+        optimizedOrder: parsed.data.optimizedOrder as Prisma.InputJsonValue,
         totalDistance: parsed.data.totalDistance
           ? new Prisma.Decimal(parsed.data.totalDistance)
           : null,
@@ -241,9 +241,9 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
-    if (parsed.data.stops) updateData.stops = parsed.data.stops as any;
+    if (parsed.data.stops) updateData.stops = parsed.data.stops as Prisma.InputJsonValue;
     if (parsed.data.optimizedOrder !== undefined)
-      updateData.optimizedOrder = parsed.data.optimizedOrder as any;
+      updateData.optimizedOrder = parsed.data.optimizedOrder as Prisma.InputJsonValue;
     if (parsed.data.totalDistance !== undefined)
       updateData.totalDistance = parsed.data.totalDistance
         ? new Prisma.Decimal(parsed.data.totalDistance)

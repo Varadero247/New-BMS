@@ -22,7 +22,7 @@ const programmeUpdateSchema = programmeCreateSchema.partial();
 async function generateRef(orgId: string): Promise<string> {
   const y = new Date().getFullYear();
   const c = await prisma.audProgramme.count({
-    where: { orgId, referenceNumber: { startsWith: `APR-${y}` } } as any,
+    where: { orgId, referenceNumber: { startsWith: `APR-${y}` } },
   });
   return `APR-${y}-${String(c + 1).padStart(4, '0')}`;
 }
@@ -68,7 +68,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.audProgramme.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!item)
       return res
@@ -103,7 +103,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         orgId,
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
@@ -128,7 +128,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
     }
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.audProgramme.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -154,7 +154,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.audProgramme.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res

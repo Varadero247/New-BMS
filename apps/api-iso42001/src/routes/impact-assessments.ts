@@ -171,7 +171,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Verify system exists
     const system = await prisma.aiSystem.findFirst({
-      where: { id: parsed.data.systemId, deletedAt: null } as any,
+      where: { id: parsed.data.systemId, deletedAt: null },
     });
     if (!system) {
       return res
@@ -229,7 +229,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.aiImpactAssessment.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -282,7 +282,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const assessment = await prisma.aiImpactAssessment.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         system: { select: { id: true, name: true, riskTier: true } },
       },
@@ -326,7 +326,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     }
 
     const existing = await prisma.aiImpactAssessment.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -375,7 +375,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const existing = await prisma.aiImpactAssessment.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -390,7 +390,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Impact assessment soft-deleted', { assessmentId: id });

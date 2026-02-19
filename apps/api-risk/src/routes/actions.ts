@@ -89,7 +89,7 @@ router.put('/:riskId/actions/:id', authenticate, async (req: Request, res: Respo
         riskId: req.params.riskId,
         deletedAt: null,
         risk: { orgId },
-      } as any,
+      },
     });
     if (!existing)
       return res
@@ -129,7 +129,7 @@ router.post('/:riskId/actions/:id/complete', authenticate, async (req: Request, 
         riskId: req.params.riskId,
         deletedAt: null,
         risk: { orgId },
-      } as any,
+      },
     });
     if (!existing)
       return res

@@ -354,7 +354,7 @@ router.get('/:id/invoices', async (req: Request, res: Response) => {
 
     // Fetch invoices from the Finance service filtered by this account's name
     const headers = { ...createServiceHeaders('api-crm'), 'Content-Type': 'application/json' };
-    const params = new URLSearchParams({ search: (account as any).name || '', limit: '50' });
+    const params = new URLSearchParams({ search: (account as Record<string, unknown>).name || '', limit: '50' });
     const financeRes = await fetch(`${FINANCE_SERVICE_URL}/api/invoices?${params}`, {
       headers,
       signal: AbortSignal.timeout(5000),

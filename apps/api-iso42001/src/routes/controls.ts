@@ -410,7 +410,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
         justification: parsed.data.justification ?? null,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('Control status updated', {
@@ -474,7 +474,7 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
             : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('Control implementation updated', { controlId: id });

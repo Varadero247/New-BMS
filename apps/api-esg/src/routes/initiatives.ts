@@ -114,7 +114,7 @@ router.post('/', async (req: Request, res: Response) => {
         title: data.title,
         description: data.description || null,
         category: data.category,
-        status: (data.status as any) || 'PLANNED',
+        status: data.status || 'PLANNED',
         startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
         budget: data.budget !== null ? new Prisma.Decimal(data.budget) : null,

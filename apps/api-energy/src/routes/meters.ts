@@ -300,7 +300,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.multiplier !== undefined) {
-      updateData.multiplier = new Prisma.Decimal(updateData.multiplier as any);
+      updateData.multiplier = new Prisma.Decimal(updateData.multiplier as number);
     }
 
     const meter = await prisma.energyMeter.update({

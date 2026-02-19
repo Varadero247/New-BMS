@@ -80,7 +80,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
     const workOrders = await prisma.cmmsWorkOrder.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['OPEN', 'IN_PROGRESS'] } as any,
+        status: { in: ['OPEN', 'IN_PROGRESS'] },
         scheduledEnd: { lt: now },
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
@@ -111,7 +111,7 @@ router.get('/upcoming', async (req: Request, res: Response) => {
     const workOrders = await prisma.cmmsWorkOrder.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['OPEN'] } as any,
+        status: { in: ['OPEN'] },
         scheduledStart: { gte: now, lte: future },
       },
       include: { asset: { select: { id: true, name: true, code: true } } },
@@ -200,7 +200,7 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         assetId: data.assetId,
         type: data.type,
-        priority: (data.priority as any) || 'MEDIUM',
+        priority: data.priority || 'MEDIUM',
         assignedTo: data.assignedTo,
         requestedBy: data.requestedBy,
         scheduledStart: data.scheduledStart ? new Date(data.scheduledStart) : null,

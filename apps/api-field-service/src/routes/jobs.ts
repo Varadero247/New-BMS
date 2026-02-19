@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -131,7 +131,7 @@ router.get('/dispatch-board', async (req: Request, res: Response) => {
     const results = await Promise.all(
       statuses.map((s) =>
         prisma.fsSvcJob.findMany({
-          where: { deletedAt: null, status: s as any },
+          where: { deletedAt: null, status: s as string },
           include: { customer: true, site: true, technician: true },
           orderBy: { priority: 'asc' },
           take: 50,
@@ -201,7 +201,7 @@ router.post('/', async (req: Request, res: Response) => {
         status,
         scheduledStart: parsed.data.scheduledStart ? new Date(parsed.data.scheduledStart) : null,
         scheduledEnd: parsed.data.scheduledEnd ? new Date(parsed.data.scheduledEnd) : null,
-        skills: parsed.data.skills as any,
+        skills: parsed.data.skills as Prisma.InputJsonValue,
         createdBy: authReq.user!.id,
       },
     });
@@ -279,7 +279,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     if (parsed.data.scheduledStart)
       updateData.scheduledStart = new Date(parsed.data.scheduledStart);
     if (parsed.data.scheduledEnd) updateData.scheduledEnd = new Date(parsed.data.scheduledEnd);
-    if (parsed.data.skills !== undefined) updateData.skills = parsed.data.skills as any;
+    if (parsed.data.skills !== undefined) updateData.skills = parsed.data.skills as Prisma.InputJsonValue;
 
     const data = await prisma.fsSvcJob.update({ where: { id: req.params.id }, data: updateData });
     res.json({ success: true, data });

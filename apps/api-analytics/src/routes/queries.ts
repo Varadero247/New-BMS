@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -117,7 +117,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: data.name,
         description: data.description || null,
         sql: data.sql,
-        parameters: (data.parameters || null) as any,
+        parameters: (data.parameters ?? null) as Prisma.InputJsonValue | null,
         isPublic: data.isPublic,
         ownerId: authReq.user!.id,
         createdBy: authReq.user!.id,
@@ -174,7 +174,7 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
     const cappedSql = `SELECT * FROM (${trimmedSql}) _q LIMIT 1000`;
 
     const startTime = Date.now();
-    const rows = (await (prisma as any).$transaction(async (tx) => {
+    const rows = (await prisma.$transaction(async (tx) => {
       await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '10s'`);
       return tx.$queryRawUnsafe(cappedSql);
     })) as Record<string, unknown>[];
@@ -263,7 +263,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsQuery.update({
       where: { id },
-      data: parsed.data as any,
+      data: parsed.data as Record<string, unknown>,
     });
 
     res.json({ success: true, data: updated });

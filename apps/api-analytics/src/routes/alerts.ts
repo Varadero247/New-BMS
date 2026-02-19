@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -145,7 +145,7 @@ router.post('/', async (req: Request, res: Response) => {
         condition: data.condition,
         threshold: data.threshold,
         status: data.status,
-        notificationChannels: (data.notificationChannels || null) as any,
+        notificationChannels: (data.notificationChannels ?? null) as Prisma.InputJsonValue | null,
         cooldownMinutes: data.cooldownMinutes,
         createdBy: authReq.user!.id,
       },
@@ -308,7 +308,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsAlert.update({
       where: { id },
-      data: parsed.data as any,
+      data: parsed.data as Record<string, unknown>,
     });
 
     res.json({ success: true, data: updated });

@@ -105,7 +105,7 @@ router.post('/', async (req: Request, res: Response) => {
         actualValue: data.actualValue !== null ? new Prisma.Decimal(data.actualValue) : null,
         baselineYear: data.baselineYear || null,
         baselineValue: data.baselineValue !== null ? new Prisma.Decimal(data.baselineValue) : null,
-        status: (data.status as any) || 'ON_TRACK',
+        status: data.status || 'ON_TRACK',
         createdBy: authReq.user?.id || 'system',
       },
     });

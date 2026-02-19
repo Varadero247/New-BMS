@@ -107,7 +107,7 @@ router.get('/overdue', async (req: Request, res: Response) => {
     const where: Record<string, unknown> = {
       deletedAt: null,
       dueDate: { lt: new Date() },
-      status: { not: 'COMPLETED' } as any,
+      status: { not: 'COMPLETED' },
     };
 
     const [items, total] = await Promise.all([
@@ -140,7 +140,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       prisma.envTraining.count({
         where: {
           deletedAt: null,
-          dueDate: { lt: new Date() } as any,
+          dueDate: { lt: new Date() },
           status: { not: 'COMPLETED' },
         },
       }),

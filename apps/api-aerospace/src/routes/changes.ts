@@ -242,7 +242,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
 
     const changeRequest = await prisma.aeroChangeRequest.update({
       where: { id: req.params.id },
-      data: data as any,
+      data: data as Record<string, unknown>,
     });
 
     res.json({ success: true, data: changeRequest });

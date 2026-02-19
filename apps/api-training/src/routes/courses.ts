@@ -29,7 +29,7 @@ const updateSchema = createSchema.partial();
 async function generateRef(orgId: string): Promise<string> {
   const y = new Date().getFullYear();
   const c = await prisma.trainCourse.count({
-    where: { orgId, referenceNumber: { startsWith: `CRS-${y}` } } as any,
+    where: { orgId, referenceNumber: { startsWith: `CRS-${y}` } },
   });
   return `CRS-${y}-${String(c + 1).padStart(4, '0')}`;
 }

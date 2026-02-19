@@ -203,7 +203,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           partName: data.partName,
           customer: data.customer,
           programName: data.programName,
-          status: (data.status as any) || 'PLANNING',
+          status: data.status || 'PLANNING',
           currentPhase: 1,
           startDate: new Date(data.startDate),
           targetDate: new Date(data.targetDate),

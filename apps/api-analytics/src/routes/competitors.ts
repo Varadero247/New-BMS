@@ -187,7 +187,7 @@ router.post('/:id/intel', async (req: Request, res: Response) => {
 
     const { type, detail } = parsed.data;
 
-    const currentIntel = (existing.intel as any[]) || [];
+    const currentIntel = (existing.intel as Array<Record<string, unknown>>) || [];
     const newEntry = { date: new Date().toISOString(), type, detail };
     const updatedIntel = [...currentIntel, newEntry];
 

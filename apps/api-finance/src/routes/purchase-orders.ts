@@ -78,8 +78,8 @@ router.get('/', async (req: Request, res: Response) => {
     if (status && typeof status === 'string') where.status = status;
     if (dateFrom || dateTo) {
       where.orderDate = {};
-      if (dateFrom) (where.orderDate as any).gte = new Date(String(dateFrom));
-      if (dateTo) (where.orderDate as any).lte = new Date(String(dateTo));
+      if (dateFrom) (where.orderDate as { gte?: Date; lte?: Date }).gte = new Date(String(dateFrom));
+      if (dateTo) (where.orderDate as { gte?: Date; lte?: Date }).lte = new Date(String(dateTo));
     }
 
     const [orders, total] = await Promise.all([

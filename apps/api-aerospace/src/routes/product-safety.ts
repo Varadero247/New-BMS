@@ -447,7 +447,7 @@ router.put('/reviews/:id/complete', async (req: AuthRequest, res: Response) => {
         notes: data.notes
           ? `${existing.notes ? existing.notes + '\n' : ''}${data.notes}`
           : existing.notes,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: review });

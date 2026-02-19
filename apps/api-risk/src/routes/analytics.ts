@@ -175,7 +175,7 @@ router.get('/analytics/by-module', authenticate, async (req: Request, res: Respo
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const raw = await prisma.riskRegister.groupBy({
       by: ['sourceModule'],
-      where: { orgId, deletedAt: null, status: { not: 'CLOSED' } as any },
+      where: { orgId, deletedAt: null, status: { not: 'CLOSED' } },
       _count: true,
     });
     const result = raw.map((r: Record<string, unknown>) => ({

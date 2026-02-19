@@ -155,7 +155,7 @@ router.post('/', async (req: Request, res: Response) => {
         supportingEvidence: parsed.data.supportingEvidence ?? null,
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Self-declaration created', { declarationId: declaration.id, reference });
@@ -177,7 +177,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.aiSelfDeclaration.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -207,7 +207,7 @@ router.put('/:id/publish', async (req: Request, res: Response) => {
         publishedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('Self-declaration published', { declarationId: id });
@@ -232,7 +232,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const declaration = await prisma.aiSelfDeclaration.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!declaration) {
@@ -273,7 +273,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     }
 
     const existing = await prisma.aiSelfDeclaration.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -298,7 +298,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
             : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('Self-declaration updated', { declarationId: id });
@@ -322,7 +322,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const existing = await prisma.aiSelfDeclaration.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -337,7 +337,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Self-declaration soft-deleted', { declarationId: id });

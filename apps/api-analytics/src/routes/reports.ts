@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -128,10 +128,10 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description || null,
         type: data.type,
         format: data.format,
-        schedule: (data.schedule || null) as any,
-        query: data.query as any,
-        filters: (data.filters || null) as any,
-        recipients: (data.recipients || null) as any,
+        schedule: (data.schedule ?? null) as Prisma.InputJsonValue | null,
+        query: data.query as Prisma.InputJsonValue,
+        filters: (data.filters ?? null) as Prisma.InputJsonValue | null,
+        recipients: (data.recipients ?? null) as Prisma.InputJsonValue | null,
         isActive: data.isActive,
         createdBy: authReq.user!.id,
       },
@@ -183,7 +183,7 @@ router.post('/:id/run', async (req: Request, res: Response) => {
       data: {
         reportId: id,
         status: 'QUEUED',
-        parameters: (runParsed.data.parameters ?? null) as any,
+        parameters: (runParsed.data.parameters ?? null) as Prisma.InputJsonValue | null,
         createdBy: authReq.user!.id,
       },
     });
@@ -344,7 +344,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updated = await prisma.analyticsReport.update({
       where: { id },
-      data: parsed.data as any,
+      data: parsed.data as Record<string, unknown>,
     });
 
     res.json({ success: true, data: updated });

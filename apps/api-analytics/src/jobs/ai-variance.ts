@@ -21,6 +21,10 @@ interface SnapshotData {
   activeTrials: number;
   trialConversionPct: number | null;
   avgHealthScore: number | null;
+  founderDirLoanPayment?: number | null;
+  founderDirLoanBalance?: number | null;
+  founderStarterLoanPayment?: number | null;
+  founderStarterLoanBalance?: number | null;
 }
 
 interface PlanTargetData {
@@ -68,8 +72,8 @@ Analyse the following Month ${snapshot.monthNumber} performance data and provide
 - Avg health score: ${Number(snapshot.avgHealthScore).toFixed(0)}
 
 ## Dual Loan Status
-- Director's Loan (£320K/8%/36mo, starts M3): payment £${Number((snapshot as any).founderDirLoanPayment || 0).toFixed(2)}, balance £${Number((snapshot as any).founderDirLoanBalance || 0).toFixed(2)}
-- Starter Loan (£30K/8%/24mo, starts M2): payment £${Number((snapshot as any).founderStarterLoanPayment || 0).toFixed(2)}, balance £${Number((snapshot as any).founderStarterLoanBalance || 0).toFixed(2)}
+- Director's Loan (£320K/8%/36mo, starts M3): payment £${Number(snapshot.founderDirLoanPayment || 0).toFixed(2)}, balance £${Number(snapshot.founderDirLoanBalance || 0).toFixed(2)}
+- Starter Loan (£30K/8%/24mo, starts M2): payment £${Number(snapshot.founderStarterLoanPayment || 0).toFixed(2)}, balance £${Number(snapshot.founderStarterLoanBalance || 0).toFixed(2)}
 
 ## Plan Targets (Month ${snapshot.monthNumber})
 - Planned MRR: £${Number(planTarget.plannedMrr).toLocaleString()}
@@ -130,8 +134,8 @@ export async function runVarianceAnalysis(
       throw new Error(`Anthropic API error: ${response.status} ${response.statusText}`);
     }
 
-    const data = (await response.json()) as Record<string, unknown>;
-    const text: string = (data as any).content?.[0]?.text || '';
+    const data = (await response.json()) as { content?: Array<{ text?: string }> };
+    const text: string = data.content?.[0]?.text || '';
     const result = parseAIResponse(text);
 
     // Store results on snapshot

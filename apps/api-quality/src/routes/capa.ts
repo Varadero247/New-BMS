@@ -458,7 +458,7 @@ router.delete('/:id', checkOwnership(prisma.qualCapa), async (req: AuthRequest, 
 
     await prisma.qualCapa.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date() } as any,
+      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();
@@ -613,7 +613,7 @@ router.delete('/:id/actions/:actionId', async (req: AuthRequest, res: Response) 
 
     await prisma.qualCapaAction.update({
       where: { id: req.params.actionId },
-      data: { deletedAt: new Date() } as any,
+      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();

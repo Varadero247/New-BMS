@@ -266,7 +266,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
     const nlqResult = parseNaturalLanguage(query, {
       userId: user.id,
       role: user.role || 'USER',
-      modulePermissions: (user as any).permissions || {},
+      modulePermissions: (user as { permissions?: Record<string, unknown> }).permissions || {},
     });
 
     // If the engine found a pattern match with high confidence, return structured data

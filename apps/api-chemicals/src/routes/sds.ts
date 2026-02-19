@@ -106,7 +106,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     if (status) where.status = status;
     if (search) {
       where.chemical = {
-        ...((where.chemical as any) || {}),
+        ...(where.chemical as Record<string, unknown> || {}),
         OR: [
           { productName: { contains: search, mode: 'insensitive' } },
           { casNumber: { contains: search, mode: 'insensitive' } },

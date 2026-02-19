@@ -23,7 +23,7 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     // Pull latest revenue snapshot from analytics DB
     let snapshot: Record<string, unknown> | null = null;
     try {
-      snapshot = await (prisma as any).monthlySnapshot.findFirst({ orderBy: { month: 'desc' } });
+      snapshot = await prisma.monthlySnapshot.findFirst({ orderBy: { month: 'desc' } });
     } catch {
       /* DB unavailable — fall through to defaults */
     }
@@ -31,7 +31,7 @@ router.get('/', requirePermission('analytics', 1), async (req: Request, res: Res
     // Pull pre-computed KPIs if available
     let storedKpis: Record<string, unknown>[] = [];
     try {
-      storedKpis = await (prisma as any).analyticsKpi.findMany({
+      storedKpis = await prisma.analyticsKpi.findMany({
         where: { deletedAt: null },
         orderBy: { lastCalculated: 'desc' },
         take: 100,

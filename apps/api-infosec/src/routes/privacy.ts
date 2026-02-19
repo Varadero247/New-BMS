@@ -683,7 +683,7 @@ router.get('/consents', async (req: Request, res: Response) => {
         where,
         skip,
         take: limit,
-        orderBy: { consentedAt: 'desc' } as any,
+        orderBy: { consentedAt: 'desc' },
       }),
       prisma.isConsent.count({ where }),
     ]);

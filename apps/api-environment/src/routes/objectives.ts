@@ -164,7 +164,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         category: data.category as any,
         targetDate: new Date(data.targetDate),
         owner: data.owner,
-        status: (data.status as any) || 'NOT_STARTED',
+        status: data.status || 'NOT_STARTED',
         policyCommitment: data.policyCommitment,
         iso14001Clause: data.iso14001Clause,
         linkedAspects: data.linkedAspects,

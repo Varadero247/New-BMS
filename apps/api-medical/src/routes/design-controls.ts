@@ -167,7 +167,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         patientPopulation: data.patientPopulation,
         regulatoryPathway: data.regulatoryPathway,
         currentStage: 'PLANNING',
-        status: (data.status as any) || 'ACTIVE',
+        status: data.status || 'ACTIVE',
         projectLead: data.projectLead,
         teamMembers: data.teamMembers,
         startDate: new Date(data.startDate),
@@ -354,7 +354,7 @@ router.post('/:id/inputs', async (req: AuthRequest, res: Response) => {
         category: data.category,
         requirement: data.requirement,
         source: data.source,
-        priority: (data.priority as any) || 'MEDIUM',
+        priority: data.priority || 'MEDIUM',
         traceToOutput: data.traceToOutput,
         traceToVerification: data.traceToVerification,
       },
@@ -421,7 +421,7 @@ router.post('/:id/outputs', async (req: AuthRequest, res: Response) => {
         documentRef: data.documentRef,
         acceptanceCriteria: data.acceptanceCriteria,
         traceToInput: data.traceToInput,
-        status: (data.status as any) || 'DRAFT',
+        status: data.status || 'DRAFT',
       },
     });
 
@@ -686,7 +686,7 @@ router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response)
     const review = await prisma.designReview.create({
       data: {
         projectId: id,
-        stage: stage as any,
+        stage: stage as string,
         reviewDate: new Date(),
         reviewers: data.reviewers,
         decision: data.decision,

@@ -7,7 +7,7 @@ const logger = createLogger('documents-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
-    const where = { orgId, deletedAt: null } as any;
+    const where: Record<string, unknown> = { orgId, deletedAt: null };
     const [totalDocuments, totalVersions, pendingApprovals] = await Promise.all([
       prisma.docDocument.count({ where }),
       prisma.docVersion.count({ where }),

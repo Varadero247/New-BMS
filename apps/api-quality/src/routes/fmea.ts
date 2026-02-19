@@ -175,7 +175,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         teamMembers: data.teamMembers,
         scopeDescription: data.scopeDescription,
         linkedProcess: data.linkedProcess,
-        status: (data.status as any) || 'DRAFT',
+        status: data.status || 'DRAFT',
         dateInitiated: data.dateInitiated ? new Date(data.dateInitiated) : new Date(),
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : undefined,
         fmeaFormat: data.fmeaFormat || 'TRADITIONAL',
@@ -293,7 +293,7 @@ router.delete('/:id', checkOwnership(prisma.qualFmea), async (req: AuthRequest, 
 
     await prisma.qualFmea.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date() } as any,
+      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();
@@ -379,7 +379,7 @@ router.post('/:id/rows', async (req: AuthRequest, res: Response) => {
         assignedTo: data.assignedTo,
         dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
         actionsTaken: data.actionsTaken,
-        status: (data.status as any) || 'OPEN',
+        status: data.status || 'OPEN',
       },
     });
 
@@ -510,7 +510,7 @@ router.delete('/:id/rows/:rowId', async (req: AuthRequest, res: Response) => {
 
     await prisma.qualFmeaRow.update({
       where: { id: req.params.rowId },
-      data: { deletedAt: new Date() } as any,
+      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();

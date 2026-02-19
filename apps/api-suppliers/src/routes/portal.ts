@@ -11,7 +11,7 @@ router.get('/profile', authenticate, async (req: Request, res: Response) => {
         orgId: ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default',
         email: (req as AuthRequest).user?.email,
         deletedAt: null,
-      } as any,
+      },
     });
     if (!supplier)
       return res

@@ -193,7 +193,7 @@ router.get('/upcoming', async (req: AuthRequest, res: Response) => {
     const events = await (prisma as any).complianceEvent.findMany({
       where: {
         deletedAt: null,
-        status: { not: 'COMPLETED' } as any,
+        status: { not: 'COMPLETED' },
         dueDate: { gte: now, lte: futureDate },
       },
       orderBy: { dueDate: 'asc' },

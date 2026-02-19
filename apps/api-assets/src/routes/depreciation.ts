@@ -8,7 +8,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const assets = await prisma.assetRegister.findMany({
-      where: { orgId, deletedAt: null, purchaseCost: { not: null } as any },
+      where: { orgId, deletedAt: null, purchaseCost: { not: null } },
       select: { id: true, name: true, purchaseCost: true, currentValue: true, purchaseDate: true },
       take: 500,
     });

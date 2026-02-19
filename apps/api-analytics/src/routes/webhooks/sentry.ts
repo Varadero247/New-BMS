@@ -50,14 +50,14 @@ router.post('/', async (req: Request, res: Response) => {
 
     const { event, data } = parsed.data;
 
-    const sentryEvent: Record<string, unknown> = data?.event || event || {};
-    const sentryEventId = (sentryEvent as any).event_id || (sentryEvent as any).id || null;
-    const title = (sentryEvent as any).title || (sentryEvent as any).message || 'Unknown error';
-    const level = (sentryEvent as any).level || 'error';
-    const platform = (sentryEvent as any).platform || 'unknown';
+    const sentryEvent = (data?.event || event || {}) as { event_id?: string; id?: string; title?: string; message?: string; level?: string; platform?: string; environment?: string; tags?: { environment?: string } };
+    const sentryEventId = sentryEvent.event_id || sentryEvent.id || null;
+    const title = sentryEvent.title || sentryEvent.message || 'Unknown error';
+    const level = sentryEvent.level || 'error';
+    const platform = sentryEvent.platform || 'unknown';
     const environment =
-      (sentryEvent as any).environment || (sentryEvent as any).tags?.environment || 'production';
-    const errorMessage = (sentryEvent as any).message || (sentryEvent as any).title || '';
+      sentryEvent.environment || sentryEvent.tags?.environment || 'production';
+    const errorMessage = sentryEvent.message || sentryEvent.title || '';
 
     if (!sentryEventId) {
       return res

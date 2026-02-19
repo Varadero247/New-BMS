@@ -338,10 +338,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.consumption !== undefined) {
-      updateData.consumption = new Prisma.Decimal(updateData.consumption as any);
+      updateData.consumption = new Prisma.Decimal(updateData.consumption as number);
     }
     if (updateData.cost !== undefined) {
-      updateData.cost = new Prisma.Decimal(updateData.cost as any);
+      updateData.cost = new Prisma.Decimal(updateData.cost as number);
     }
     if (updateData.periodStart) {
       updateData.periodStart = new Date(updateData.periodStart as string);

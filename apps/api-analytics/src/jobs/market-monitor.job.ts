@@ -23,9 +23,9 @@ export async function runMarketMonitorJob(): Promise<void> {
     logger.info(`Processing ${competitors.length} competitors`);
 
     for (const competitor of competitors) {
-      const intel = (competitor.intel as any[]) || [];
+      const intel = (competitor.intel as Array<Record<string, unknown>>) || [];
       const recentIntel = intel.filter((entry: Record<string, unknown>) => {
-        const entryDate = new Date(entry.date as any);
+        const entryDate = new Date(entry.date as string);
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         return entryDate >= weekAgo;

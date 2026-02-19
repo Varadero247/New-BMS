@@ -369,7 +369,7 @@ router.get('/:id/results', async (req: AuthRequest, res: Response) => {
         where: { id },
         data: {
           status: 'COMPLETED',
-          result: resultStr as any,
+          result: resultStr as string,
           grrPercent: Math.round(grrPercent * 100) / 100,
           ndc,
           ev: Math.round(ev * 100000) / 100000,

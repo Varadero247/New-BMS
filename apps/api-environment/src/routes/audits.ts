@@ -120,13 +120,13 @@ router.post('/schedule', async (req: AuthRequest, res: Response) => {
       data: {
         title: data.title,
         type: data.type as any,
-        frequency: data.frequency as any,
+        frequency: data.frequency as string,
         nextDueDate: new Date(data.nextDueDate),
         iso14001Clauses: data.iso14001Clauses,
         description: data.description,
         assignedAuditor: data.assignedAuditor,
         active: data.active ?? true,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: schedule });
@@ -229,7 +229,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         objective: data.objective,
         criteria: data.criteria,
         methodology: data.methodology,
-        status: (data.status as any) || 'PLANNED',
+        status: data.status || 'PLANNED',
         openingMeetingDate: data.openingMeetingDate ? new Date(data.openingMeetingDate) : null,
         closingMeetingDate: data.closingMeetingDate ? new Date(data.closingMeetingDate) : null,
         reportDueDate: data.reportDueDate ? new Date(data.reportDueDate) : null,
@@ -241,7 +241,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         aiRiskAssessment: data.aiRiskAssessment,
         aiRecommendations: data.aiRecommendations,
         aiGenerated: data.aiGenerated ?? false,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: audit });
@@ -409,8 +409,8 @@ router.post('/:id/findings', async (req: AuthRequest, res: Response) => {
         correctiveAction: data.correctiveAction,
         assignedTo: data.assignedTo,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
-        status: (data.status as any) || 'OPEN',
-      } as any,
+        status: data.status || 'OPEN',
+      },
     });
 
     res.status(201).json({ success: true, data: finding });
@@ -580,7 +580,7 @@ router.post('/:id/complete', async (req: AuthRequest, res: Response) => {
     const audit = await prisma.envAudit.update({
       where: { id: req.params.id },
       data: {
-        status: 'COMPLETED' as any,
+        status: 'COMPLETED',
         summary: data.summary,
         conclusions: data.conclusions ?? (existing as any).conclusions,
         recommendations: data.recommendations ?? (existing as any).recommendations,

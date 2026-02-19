@@ -77,7 +77,7 @@ router.post('/lock', authenticate, (req: Request, res: Response) => {
       recordType,
       recordId,
       user!.id,
-      (user as any).name || user!.email || 'Unknown User',
+      (user as { name?: string }).name || user!.email || 'Unknown User',
       user!.avatar ?? undefined,
       !!force
     );

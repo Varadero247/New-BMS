@@ -8,7 +8,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const risks = await prisma.riskRegister.findMany({
-      where: { orgId, deletedAt: null, status: { not: 'CLOSED' } as any },
+      where: { orgId, deletedAt: null, status: { not: 'CLOSED' } },
       select: { id: true, title: true, likelihood: true, consequence: true, inherentScore: true },
       take: 500,
     });

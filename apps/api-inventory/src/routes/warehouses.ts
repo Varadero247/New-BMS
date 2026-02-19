@@ -324,7 +324,7 @@ router.patch('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, 
         ...updateData,
         version: { increment: 1 },
         updatedById: req.user?.id,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: warehouse });

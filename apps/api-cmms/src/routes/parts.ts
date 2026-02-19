@@ -69,7 +69,7 @@ router.get('/low-stock', async (req: Request, res: Response) => {
     const parts = await prisma.cmmsPart.findMany({
       where: {
         deletedAt: null,
-        OR: [{ reorderPoint: { not: null } as any }, { minStock: { gt: 0 } }],
+        OR: [{ reorderPoint: { not: null } }, { minStock: { gt: 0 } }],
       },
       orderBy: { quantity: 'asc' },
       take: 1000,

@@ -233,7 +233,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         processImpact: data.processImpact || 'NONE',
         environmentalImpact: data.environmentalImpact || 'NONE',
         priorityScore,
-        status: (data.status as any) || 'IDEA_SUBMITTED',
+        status: data.status || 'IDEA_SUBMITTED',
         evaluationNotes: data.evaluationNotes,
         approvedBy: data.approvedBy,
         approvalDate: data.approvalDate ? new Date(data.approvalDate) : undefined,

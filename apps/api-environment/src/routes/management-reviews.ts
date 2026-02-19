@@ -358,7 +358,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
         owner: data.owner,
         dueDate: new Date(data.dueDate),
         notes: data.notes,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: mrAction });

@@ -84,10 +84,10 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         scheduledDate: data.scheduledDate ? new Date(data.scheduledDate) : undefined,
         attendees: data.attendees,
         location: data.location,
-        priority: (data.priority as any) || 'MEDIUM',
-        status: 'DRAFT' as any,
+        priority: data.priority || 'MEDIUM',
+        status: 'DRAFT',
         createdBy: req.user!.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: communication });
@@ -137,8 +137,8 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
     if (status) where.status = status;
     if (dateFrom || dateTo) {
       where.createdAt = {};
-      if (dateFrom) (where.createdAt as any).gte = new Date(dateFrom as string);
-      if (dateTo) (where.createdAt as any).lte = new Date(dateTo as string);
+      if (dateFrom) (where.createdAt as { gte?: Date; lte?: Date }).gte = new Date(dateFrom as string);
+      if (dateTo) (where.createdAt as { gte?: Date; lte?: Date }).lte = new Date(dateTo as string);
     }
     if (search) {
       where.OR = [
@@ -189,7 +189,7 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
       prisma.hSCommunication.count({ where }),
       prisma.hSCommunication.findMany({
         where,
-        select: { type: true, direction: true, status: true, createdAt: true } as any,
+        select: { type: true, direction: true, status: true, createdAt: true },
         take: 1000,
       }),
     ]);
@@ -201,7 +201,7 @@ router.get('/participation', scopeToUser, async (req: AuthRequest, res: Response
     let toolboxTalks = 0;
     let committeeMeetings = 0;
 
-    for (const c of communications as any[]) {
+    for (const c of communications as Array<Record<string, unknown>>) {
       byType[c.type] = (byType[c.type] || 0) + 1;
       byDirection[c.direction] = (byDirection[c.direction] || 0) + 1;
       byStatus[c.status] = (byStatus[c.status] || 0) + 1;
@@ -362,7 +362,7 @@ router.delete(
 
       await prisma.hSCommunication.update({
         where: { id: req.params.id },
-        data: { deletedAt: new Date(), deletedBy: req.user!.id } as any,
+        data: { deletedAt: new Date(), deletedBy: req.user!.id },
       });
 
       res.json({ success: true, data: { message: 'Communication deleted' } });

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 
@@ -40,7 +40,7 @@ router.get('/:id/history', async (req: Request, res: Response) => {
     const [incidents, total] = await Promise.all([
       prisma.uptimeIncident.findMany({
         where: { uptimeCheckId: id },
-        orderBy: { detectedAt: 'desc' } as any,
+        orderBy: { detectedAt: 'desc' as const },
         skip,
         take: limit,
       }),
@@ -78,7 +78,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     const recentIncidents = await prisma.uptimeIncident.findMany({
       where: { uptimeCheckId: id },
-      orderBy: { detectedAt: 'desc' } as any,
+      orderBy: { detectedAt: 'desc' as const },
       take: 10,
     });
 

@@ -183,7 +183,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       (prisma as any).abTraining.count({
         where: {
           deletedAt: null,
-          dueDate: { lt: new Date() } as any,
+          dueDate: { lt: new Date() },
           status: { not: 'COMPLETED' },
         },
       }),

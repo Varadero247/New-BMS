@@ -73,7 +73,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         deviceClass: data.deviceClass,
         intendedUse: data.intendedUse,
         riskPolicy: data.riskPolicy,
-        status: 'DRAFT' as any,
+        status: 'DRAFT',
         createdBy: req.user?.id,
       },
     });

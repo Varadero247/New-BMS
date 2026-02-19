@@ -273,10 +273,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.targetValue !== undefined) {
-      updateData.targetValue = new Prisma.Decimal(updateData.targetValue as any);
+      updateData.targetValue = new Prisma.Decimal(updateData.targetValue as number);
     }
     if (updateData.actualValue !== undefined && updateData.actualValue !== null) {
-      updateData.actualValue = new Prisma.Decimal(updateData.actualValue as any);
+      updateData.actualValue = new Prisma.Decimal(updateData.actualValue as number);
     }
 
     const target = await prisma.energyTarget.update({

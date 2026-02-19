@@ -164,7 +164,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         relevantSection: data.relevantSection,
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
         expiryReviewDate: data.expiryReviewDate ? new Date(data.expiryReviewDate) : null,
-        status: (data.status as any) || 'ACTIVE',
+        status: data.status || 'ACTIVE',
         applicableSites: data.applicableSites,
         linkedAspects: data.linkedAspects,
         penalties: data.penalties,

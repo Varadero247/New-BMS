@@ -178,7 +178,7 @@ router.get(
         where: {
           id: req.params.id,
           deletedAt: null,
-          referenceNumber: { startsWith: 'QMS-CTX' } as any,
+          referenceNumber: { startsWith: 'QMS-CTX' },
         },
       });
       if (!item)
@@ -237,7 +237,7 @@ router.put(
         where: {
           id: req.params.id,
           deletedAt: null,
-          referenceNumber: { startsWith: 'QMS-CTX' } as any,
+          referenceNumber: { startsWith: 'QMS-CTX' },
         },
       });
       if (!existing)
@@ -296,7 +296,7 @@ router.delete(
         where: {
           id: req.params.id,
           deletedAt: null,
-          referenceNumber: { startsWith: 'QMS-CTX' } as any,
+          referenceNumber: { startsWith: 'QMS-CTX' },
         },
       });
       if (!existing)

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 
@@ -148,7 +148,7 @@ router.post('/categories', async (req: Request, res: Response) => {
         category: categoryName,
         legalBasis,
         retentionDays: retentionDays || 730,
-        systems: (systems || null) as any,
+        systems: (systems ?? null) as Prisma.InputJsonValue | null,
         complianceStatus: complianceStatus || 'COMPLIANT',
       },
     });

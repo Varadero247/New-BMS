@@ -161,7 +161,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
         where: { deletedAt: null },
       }),
       prisma.eightDReport.count({
-        where: { deletedAt: null, status: { not: 'CLOSED' } as any, severity: 'CRITICAL' },
+        where: { deletedAt: null, status: { not: 'CLOSED' }, severity: 'CRITICAL' },
       }),
     ]);
 

@@ -150,7 +150,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       recordType,
       recordId,
       userId: user!.id,
-      userName: (user as any).name || user!.email || 'Unknown User',
+      userName: (user as { name?: string }).name || user!.email || 'Unknown User',
       userAvatar: user!.avatar ?? undefined,
       action,
       field,

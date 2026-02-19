@@ -102,13 +102,19 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           message: 'AI provider not configured. Please set up API key in settings.' } });
     }
 
-    // Get source data
+    // Get source data (cross-schema access via untyped prisma)
+    type CrossSchemaModel = {
+      findUnique: (args: { where: { id: string } }) => Promise<Record<string, unknown> | null>;
+    };
+    const prismaCross = prisma as unknown as Record<string, CrossSchemaModel>;
+
     let sourceData: Record<string, unknown> | null = null;
 
     if (data.sourceType === 'risk' || data.sourceType === 'aspect') {
-      sourceData = await (prisma as any).risk.findUnique({ where: { id: data.sourceId } });
+      sourceData = (await prismaCross['risk']?.findUnique({ where: { id: data.sourceId } })) ?? null;
     } else {
-      sourceData = await (prisma as any).incident.findUnique({ where: { id: data.sourceId } });
+      sourceData =
+        (await prismaCross['incident']?.findUnique({ where: { id: data.sourceId } })) ?? null;
     }
 
     if (!sourceData) {

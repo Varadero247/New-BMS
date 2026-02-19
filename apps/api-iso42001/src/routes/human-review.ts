@@ -105,7 +105,7 @@ router.get('/pending', async (req: Request, res: Response) => {
       where: {
         deletedAt: null,
         status: 'PENDING',
-        OR: [{ reviewerUserId: authReq.user?.id } as any, { reviewerUserId: null }],
+        OR: [{ reviewerUserId: authReq.user?.id }, { reviewerUserId: null }],
       },
       orderBy: { createdAt: 'asc' },
       take: 50,

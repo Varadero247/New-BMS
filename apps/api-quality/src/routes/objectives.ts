@@ -162,7 +162,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         title: data.title,
         objectiveStatement: data.objectiveStatement,
         category: data.category,
-        status: (data.status as any) || 'NOT_STARTED',
+        status: data.status || 'NOT_STARTED',
         policyCommitment: data.policyCommitment,
         isoClause: data.isoClause,
         linkedProcesses: data.linkedProcesses,
@@ -325,7 +325,7 @@ router.delete(
 
       await prisma.qualObjective.update({
         where: { id: req.params.id },
-        data: { deletedAt: new Date() } as any,
+        data: { deletedAt: new Date() },
       });
 
       res.status(204).send();
@@ -374,7 +374,7 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
         objectiveId: req.params.id,
         title: data.title,
         targetDate: new Date(data.targetDate),
-        status: (data.status as any) || 'PENDING',
+        status: data.status || 'PENDING',
         notes: data.notes,
         completedDate: data.completedDate ? new Date(data.completedDate) : undefined,
       },
@@ -475,7 +475,7 @@ router.delete('/:id/milestones/:milestoneId', async (req: AuthRequest, res: Resp
 
     await prisma.qualMilestone.update({
       where: { id: req.params.milestoneId },
-      data: { deletedAt: new Date() } as any,
+      data: { deletedAt: new Date() },
     });
 
     res.status(204).send();

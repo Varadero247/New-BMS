@@ -116,7 +116,7 @@ router.get('/due-audit', async (req: Request, res: Response) => {
     const data = await prisma.fsSupplier.findMany({
       where: {
         deletedAt: null,
-        nextAuditDate: { lte: futureDate } as any,
+        nextAuditDate: { lte: futureDate },
         status: { not: 'REJECTED' },
       },
       orderBy: { nextAuditDate: 'asc' },

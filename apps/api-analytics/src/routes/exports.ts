@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -105,7 +105,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: data.name,
         type: data.type,
         format: data.format,
-        filters: (data.filters || null) as any,
+        filters: (data.filters ?? null) as Prisma.InputJsonValue | null,
         status: 'QUEUED',
         requestedBy: authReq.user!.id,
         createdBy: authReq.user!.id,

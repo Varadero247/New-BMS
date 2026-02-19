@@ -186,7 +186,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
       where: {
         deletedAt: null,
         isActive: true,
-        nextDue: { gte: start, lte: end } as any,
+        nextDue: { gte: start, lte: end },
       },
       orderBy: { nextDue: 'asc' },
       include: { asset: { select: { id: true, name: true } } },
@@ -197,7 +197,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
     const workOrders = await prisma.cmmsWorkOrder.findMany({
       where: {
         deletedAt: null,
-        scheduledStart: { gte: start, lte: end } as any,
+        scheduledStart: { gte: start, lte: end },
       },
       orderBy: { scheduledStart: 'asc' },
       include: { asset: { select: { id: true, name: true } } },
@@ -288,7 +288,7 @@ router.post('/', async (req: Request, res: Response) => {
         name: parsed.data.name,
         assetId: parsed.data.assetId,
         description: parsed.data.description ?? null,
-        frequency: parsed.data.frequency as any,
+        frequency: parsed.data.frequency as string,
         tasks: parsed.data.tasks,
         assignedTo: parsed.data.assignedTo ?? null,
         estimatedDuration: parsed.data.estimatedDuration ?? null,

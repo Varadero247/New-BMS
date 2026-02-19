@@ -181,7 +181,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         aiEvidenceRequired: data.aiEvidenceRequired,
         aiPenaltyForNonCompliance: data.aiPenaltyForNonCompliance,
         aiAssessmentGenerated: data.aiAssessmentGenerated ?? false,
-        status: (data.status as any) || 'ACTIVE',
+        status: data.status || 'ACTIVE',
       },
     });
 

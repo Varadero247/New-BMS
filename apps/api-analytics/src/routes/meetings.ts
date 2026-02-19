@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
@@ -103,7 +103,7 @@ router.post('/', async (req: Request, res: Response) => {
     const meeting = await prisma.meetingNote.create({
       data: {
         title,
-        type: type as any,
+        type: type as string,
         date: new Date(date),
         attendees: attendees || [],
         summary: summary || '',
@@ -155,7 +155,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
         ...(attendees !== undefined && { attendees }),
         ...(summary !== undefined && { summary }),
         ...(actionItems !== undefined && { actionItems }),
-      } as any,
+      },
     });
 
     logger.info('Meeting updated', { id: meeting.id });
@@ -215,7 +215,7 @@ router.patch('/:id/actions/:actionIndex', async (req: Request, res: Response) =>
     }
 
     const actionIndex = parseInt(req.params.actionIndex, 10);
-    const actionItems = (meeting.actionItems as any[]) || [];
+    const actionItems = (meeting.actionItems as Array<Record<string, unknown>>) || [];
 
     if (isNaN(actionIndex) || actionIndex < 0 || actionIndex >= actionItems.length) {
       return res.status(400).json({

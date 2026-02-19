@@ -173,7 +173,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       prisma.medCapa.count({
         where: {
           deletedAt: null,
-          status: { notIn: ['CLOSED', 'CANCELLED'] } as any,
+          status: { notIn: ['CLOSED', 'CANCELLED'] },
           plannedDate: { lt: new Date() },
         },
       }),

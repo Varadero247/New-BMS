@@ -78,12 +78,12 @@ router.get('/dashboard', async (req: Request, res: Response) => {
       where: { deletedAt: null, status: 'ACTIVE' },
     });
     const openWorkOrders = await prisma.cmmsWorkOrder.count({
-      where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS'] } as any },
+      where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS'] } },
     });
     const overdueWorkOrders = await prisma.cmmsWorkOrder.count({
       where: {
         deletedAt: null,
-        status: { in: ['OPEN', 'IN_PROGRESS'] } as any,
+        status: { in: ['OPEN', 'IN_PROGRESS'] },
         scheduledEnd: { lt: new Date() },
       },
     });

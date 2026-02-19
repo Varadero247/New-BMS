@@ -94,7 +94,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         deliverables: data.deliverables,
         requiresApproval: data.requiresApproval ?? true,
         isCritical: data.isCritical ?? false,
-        status: (data.status as any) || 'UPCOMING',
+        status: data.status || 'UPCOMING',
         approvalStatus: 'PENDING',
         achievementPercentage: 0,
       },

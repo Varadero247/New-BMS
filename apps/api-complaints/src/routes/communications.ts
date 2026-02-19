@@ -22,7 +22,7 @@ const updateSchema = createSchema.partial();
 async function generateRef(orgId: string): Promise<string> {
   const y = new Date().getFullYear();
   const c = await prisma.compCommunication.count({
-    where: { orgId, referenceNumber: { startsWith: `CMC-${y}` } } as any,
+    where: { orgId, referenceNumber: { startsWith: `CMC-${y}` } },
   });
   return `CMC-${y}-${String(c + 1).padStart(4, '0')}`;
 }

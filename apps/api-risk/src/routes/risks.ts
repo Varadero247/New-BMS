@@ -302,7 +302,7 @@ router.get('/overdue-review', authenticate, async (req: Request, res: Response) 
       where: {
         orgId,
         deletedAt: null,
-        status: { not: 'CLOSED' } as any,
+        status: { not: 'CLOSED' },
         nextReviewDate: { lt: new Date() },
       },
       orderBy: { nextReviewDate: 'asc' },
@@ -336,7 +336,7 @@ router.get('/exceeds-appetite', authenticate, async (req: Request, res: Response
         orgId,
         deletedAt: null,
         appetiteStatus: 'EXCEEDS',
-        status: { not: 'CLOSED' } as any,
+        status: { not: 'CLOSED' },
       },
       orderBy: { residualScore: 'desc' },
       select: {
@@ -555,7 +555,7 @@ router.post('/from-audit/:id', authenticate, async (req: Request, res: Response)
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
         updatedBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

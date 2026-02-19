@@ -126,7 +126,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       if (!summary[tid]) {
         summary[tid] = {
           technicianId: tid,
-          technicianName: (entry as any).technician?.name || 'Unknown',
+          technicianName: (entry as { technician?: { name?: string } }).technician?.name || 'Unknown',
           totalHours: 0,
           billableHours: 0,
           breakdown: { TRAVEL: 0, WORK: 0, BREAK: 0, ADMIN: 0 },

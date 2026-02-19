@@ -9,7 +9,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const thirtyDays = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const data = await prisma.contContract.findMany({
-      where: { orgId, deletedAt: null, renewalDate: { lte: thirtyDays } as any, status: 'ACTIVE' },
+      where: { orgId, deletedAt: null, renewalDate: { lte: thirtyDays }, status: 'ACTIVE' },
       orderBy: { renewalDate: 'asc' },
       take: 500,
     });

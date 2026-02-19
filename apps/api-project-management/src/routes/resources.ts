@@ -95,7 +95,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         costPerHour: data.costPerHour,
         totalAllocatedCost: data.totalAllocatedCost,
         plannedHours: data.plannedHours,
-        status: (data.status as any) || 'ASSIGNED',
+        status: data.status || 'ASSIGNED',
       },
     });
 

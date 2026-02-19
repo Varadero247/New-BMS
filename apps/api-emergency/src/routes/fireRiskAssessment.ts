@@ -107,7 +107,7 @@ router.get('/overdue', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.femFireRiskAssessment.findMany({
-      where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: new Date() } as any },
+      where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: new Date() } },
       include: { premises: { select: { name: true } } },
       orderBy: { nextReviewDate: 'asc' },
       take: 1000,

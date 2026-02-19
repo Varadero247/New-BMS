@@ -234,7 +234,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         responsible: data.responsible,
         legalReference: data.legalReference,
         createdBy: req.user?.id,
-        status: (data.status as any) || 'ACTIVE',
+        status: data.status || 'ACTIVE',
         reviewDate,
       },
     });

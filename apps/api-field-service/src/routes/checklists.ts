@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -101,7 +101,7 @@ router.post('/', async (req: Request, res: Response) => {
     const data = await prisma.fsSvcChecklist.create({
       data: {
         ...parsed.data,
-        items: parsed.data.items as any,
+        items: parsed.data.items as Prisma.InputJsonValue,
         createdBy: authReq.user!.id,
       },
     });
@@ -168,7 +168,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcChecklist.update({
       where: { id: req.params.id },
-      data: { ...parsed.data, items: parsed.data.items as any },
+      data: { ...parsed.data, items: parsed.data.items as Prisma.InputJsonValue },
     });
 
     res.json({ success: true, data });
@@ -242,7 +242,7 @@ router.post('/:id/results', async (req: Request, res: Response) => {
         jobId: parsed.data.jobId,
         completedBy: authReq.user!.id,
         completedAt: new Date(parsed.data.completedAt),
-        results: parsed.data.results as any,
+        results: parsed.data.results as Prisma.InputJsonValue,
         overallResult: parsed.data.overallResult,
         notes: parsed.data.notes,
         signature: parsed.data.signature,

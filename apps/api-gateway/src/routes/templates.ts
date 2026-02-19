@@ -238,7 +238,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
         where: { deletedAt: null },
       }),
       (prisma as any).template.findMany({
-        where: { deletedAt: null, usageCount: { gt: 0 } as any },
+        where: { deletedAt: null, usageCount: { gt: 0 } },
         orderBy: { usageCount: 'desc' },
         take: 10,
         select: { id: true, code: true, name: true, module: true, usageCount: true },

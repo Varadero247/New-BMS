@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -110,7 +110,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         code: generateCustomerCode(),
-        address: parsed.data.address as any,
+        address: parsed.data.address as Prisma.InputJsonValue,
         billingAddress: parsed.data.billingAddress as any,
         createdBy: authReq.user!.id,
       },
@@ -256,7 +256,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         ...parsed.data,
-        address: parsed.data.address as any,
+        address: parsed.data.address as Prisma.InputJsonValue,
         billingAddress: parsed.data.billingAddress as any,
       },
     });

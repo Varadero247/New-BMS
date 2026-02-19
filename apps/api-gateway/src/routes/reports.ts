@@ -140,7 +140,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeRisks && standard) {
       const risks = await prisma.risk.findMany({
-        where: { standard: standard as any, deletedAt: null } as any,
+        where: { standard: standard as any, deletedAt: null },
         orderBy: { createdAt: 'desc' },
         take: 50,
         select: {
@@ -173,7 +173,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeIncidents && standard) {
       const incidents = await prisma.incident.findMany({
-        where: { standard: standard as any, deletedAt: null } as any,
+        where: { standard: standard as any, deletedAt: null },
         orderBy: { dateOccurred: 'desc' },
         take: 50,
         select: {
@@ -203,7 +203,7 @@ router.post('/management-review/:module', async (req: AuthRequest, res: Response
 
     if (data.includeActions && standard) {
       const actions = await prisma.action.findMany({
-        where: { standard: standard as any, deletedAt: null } as any,
+        where: { standard: standard as any, deletedAt: null },
         orderBy: { dueDate: 'asc' },
         take: 50,
         select: {
@@ -423,7 +423,7 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
     // Fetch action stats
     const now = new Date();
     const allActions = await prisma.action.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       select: { status: true, dueDate: true, standard: true },
       take: 1000,
     });
@@ -444,7 +444,7 @@ router.post('/kpi-pack', async (req: AuthRequest, res: Response) => {
 
     // Fetch incident stats
     const allIncidents = await prisma.incident.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       select: { status: true, severity: true, standard: true, dateOccurred: true },
       take: 1000,
     });

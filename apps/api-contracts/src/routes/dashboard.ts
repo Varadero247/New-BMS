@@ -7,7 +7,7 @@ const logger = createLogger('contracts-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
-    const where = { orgId, deletedAt: null } as any;
+    const where: Record<string, unknown> = { orgId, deletedAt: null };
     const [totalContracts, upcomingNotices] = await Promise.all([
       prisma.contContract.count({ where }),
       prisma.contNotice.count({ where }),

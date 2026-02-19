@@ -226,7 +226,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.totalAmount) {
-      updateData.totalAmount = new Prisma.Decimal(updateData.totalAmount as any);
+      updateData.totalAmount = new Prisma.Decimal(updateData.totalAmount as number);
     }
     if (updateData.expectedDelivery) {
       updateData.expectedDelivery = new Date(updateData.expectedDelivery as string);

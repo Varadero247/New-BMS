@@ -206,7 +206,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         monitoringRequired: data.monitoringRequired,
         monitoringDescription: data.monitoringDescription,
         followUpDate: data.followUpDate ? new Date(data.followUpDate) : null,
-        status: (data.status as any) || 'REPORTED',
+        status: data.status || 'REPORTED',
         closedBy: data.closedBy,
         closureDate: data.closureDate ? new Date(data.closureDate) : null,
         lessonsLearned: data.lessonsLearned,

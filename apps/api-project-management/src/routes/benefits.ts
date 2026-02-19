@@ -87,7 +87,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           ? new Date(data.expectedRealisationDate)
           : undefined,
         financialValue: data.financialValue,
-        priority: (data.priority as any) || 'MEDIUM',
+        priority: data.priority || 'MEDIUM',
         status: 'IDENTIFIED',
         createdBy: req.user!.id,
       },
@@ -186,7 +186,7 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
           status: true,
           currentValue: true,
           targetValue: true,
-        } as any,
+        },
         take: 1000,
       }),
     ]);

@@ -338,7 +338,7 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
         endDate: new Date(data.endDate),
         value: data.value !== null ? new Prisma.Decimal(data.value) : null,
         type: data.type,
-        status: (data.status as any) || 'PENDING',
+        status: data.status || 'PENDING',
         slaResponseHours: data.slaResponseHours,
         slaResolutionHours: data.slaResolutionHours,
         createdBy: authReq.user?.id || 'system',

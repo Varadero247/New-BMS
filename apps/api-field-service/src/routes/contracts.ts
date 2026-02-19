@@ -130,7 +130,7 @@ router.get('/expiring', async (req: Request, res: Response) => {
       where: {
         deletedAt: null,
         status: 'ACTIVE',
-        endDate: { gte: now, lte: futureDate } as any,
+        endDate: { gte: now, lte: futureDate },
       },
       include: { customer: true },
       orderBy: { endDate: 'asc' },

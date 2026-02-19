@@ -109,7 +109,7 @@ router.put('/:riskId/controls/:id', authenticate, async (req: Request, res: Resp
         riskId: req.params.riskId,
         deletedAt: null,
         risk: { orgId },
-      } as any,
+      },
     });
     if (!existing)
       return res
@@ -147,7 +147,7 @@ router.delete('/:riskId/controls/:id', authenticate, async (req: Request, res: R
         riskId: req.params.riskId,
         deletedAt: null,
         risk: { orgId },
-      } as any,
+      },
     });
     if (!existing)
       return res
@@ -184,7 +184,7 @@ router.post('/:riskId/controls/:id/test', authenticate, async (req: Request, res
         riskId: req.params.riskId,
         deletedAt: null,
         risk: { orgId },
-      } as any,
+      },
     });
     if (!existing)
       return res

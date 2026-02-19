@@ -80,7 +80,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 router.get('/roi-summary', async (_req: Request, res: Response) => {
   try {
     const projects = await prisma.energyProject.findMany({
-      where: { deletedAt: null, status: { in: ['COMPLETED', 'IN_PROGRESS'] } as any },
+      where: { deletedAt: null, status: { in: ['COMPLETED', 'IN_PROGRESS'] } },
       take: 1000,
     });
 
@@ -282,16 +282,16 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 
     const updateData: Record<string, unknown> = { ...parsed.data };
     if (updateData.estimatedSavings !== undefined && updateData.estimatedSavings !== null) {
-      updateData.estimatedSavings = new Prisma.Decimal(updateData.estimatedSavings as any);
+      updateData.estimatedSavings = new Prisma.Decimal(updateData.estimatedSavings as number);
     }
     if (updateData.actualSavings !== undefined && updateData.actualSavings !== null) {
-      updateData.actualSavings = new Prisma.Decimal(updateData.actualSavings as any);
+      updateData.actualSavings = new Prisma.Decimal(updateData.actualSavings as number);
     }
     if (updateData.investmentCost !== undefined && updateData.investmentCost !== null) {
-      updateData.investmentCost = new Prisma.Decimal(updateData.investmentCost as any);
+      updateData.investmentCost = new Prisma.Decimal(updateData.investmentCost as number);
     }
     if (updateData.roi !== undefined && updateData.roi !== null) {
-      updateData.roi = new Prisma.Decimal(updateData.roi as any);
+      updateData.roi = new Prisma.Decimal(updateData.roi as number);
     }
     if (updateData.startDate) {
       updateData.startDate = new Date(updateData.startDate as string);

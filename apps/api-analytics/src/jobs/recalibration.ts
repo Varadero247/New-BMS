@@ -115,7 +115,9 @@ export async function runRecalibration(snapshotId: string): Promise<void> {
     return;
   }
 
-  const averages = calculateRollingAverages(history as any);
+  const averages = calculateRollingAverages(
+    history as { mrrGrowthPct: number | null; revenueChurnPct: number | null; newCustomers: number }[]
+  );
   const currentMrr = Number(snapshot.mrr);
 
   // Project 3 months forward using rolling average growth
@@ -144,7 +146,7 @@ export async function runRecalibration(snapshotId: string): Promise<void> {
   }));
 
   // Update snapshot with recalibration data
-  const existingRecs = (snapshot.aiRecommendations as any[]) || [];
+  const existingRecs = (snapshot.aiRecommendations as Array<Record<string, unknown>>) || [];
   await prisma.monthlySnapshot.update({
     where: { id: snapshotId },
     data: {

@@ -42,7 +42,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
     const [emissions, targets, initiatives, reports, socialMetrics, governanceMetrics] =
       await Promise.all([
         prisma.esgEmission.findMany({
-          where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
+          where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear}-01-01`) } },
           take: 1000,
         }),
         prisma.esgTarget.findMany({
@@ -55,11 +55,11 @@ router.get('/dashboard', async (req: Request, res: Response) => {
           take: 1000,
         }),
         prisma.esgSocialMetric.findMany({
-          where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
+          where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear}-01-01`) } },
           take: 1000,
         }),
         prisma.esgGovernanceMetric.findMany({
-          where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear} as any-01-01`) } },
+          where: { deletedAt: null, periodStart: { gte: new Date(`${currentYear}-01-01`) } },
           take: 1000,
         }),
       ]);
@@ -113,7 +113,7 @@ router.get('/csrd', async (req: Request, res: Response) => {
       prisma.esgEmission.findMany({
         where: {
           deletedAt: null,
-          periodStart: { gte: new Date(`${year} as any-01-01`) },
+          periodStart: { gte: new Date(`${year}-01-01`) },
           periodEnd: { lte: new Date(`${year}-12-31`) },
         },
         take: 1000,
@@ -121,7 +121,7 @@ router.get('/csrd', async (req: Request, res: Response) => {
       prisma.esgSocialMetric.findMany({
         where: {
           deletedAt: null,
-          periodStart: { gte: new Date(`${year} as any-01-01`) },
+          periodStart: { gte: new Date(`${year}-01-01`) },
           periodEnd: { lte: new Date(`${year}-12-31`) },
         },
         take: 1000,
@@ -129,7 +129,7 @@ router.get('/csrd', async (req: Request, res: Response) => {
       prisma.esgGovernanceMetric.findMany({
         where: {
           deletedAt: null,
-          periodStart: { gte: new Date(`${year} as any-01-01`) },
+          periodStart: { gte: new Date(`${year}-01-01`) },
           periodEnd: { lte: new Date(`${year}-12-31`) },
         },
         take: 1000,
@@ -182,7 +182,7 @@ router.get('/tcfd', async (req: Request, res: Response) => {
       prisma.esgEmission.findMany({
         where: {
           deletedAt: null,
-          periodStart: { gte: new Date(`${year} as any-01-01`) },
+          periodStart: { gte: new Date(`${year}-01-01`) },
           periodEnd: { lte: new Date(`${year}-12-31`) },
         },
         take: 1000,
@@ -296,7 +296,7 @@ router.post('/', async (req: Request, res: Response) => {
         reportType: data.reportType,
         year: data.year,
         quarter: data.quarter || null,
-        status: (data.status as any) || 'DRAFT',
+        status: data.status || 'DRAFT',
         content: data.content || null,
         generatedBy: data.generatedBy || null,
         createdBy: authReq.user?.id || 'system',

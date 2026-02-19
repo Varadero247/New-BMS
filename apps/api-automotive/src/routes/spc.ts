@@ -161,9 +161,9 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     const where: Record<string, unknown> = { deletedAt: null };
 
-    if (query.status) where.status = query.status as any;
+    if (query.status) where.status = query.status;
     if (query.partNumber) where.partNumber = { contains: query.partNumber, mode: 'insensitive' };
-    if (query.chartType) where.chartType = query.chartType as any;
+    if (query.chartType) where.chartType = query.chartType;
     if (query.search) {
       where.OR = [
         { title: { contains: query.search, mode: 'insensitive' } },
@@ -212,7 +212,7 @@ router.get('/alerts', async (req: AuthRequest, res: Response) => {
         dataPoints: {
           some: {
             outOfControl: true,
-          } as any,
+          },
         },
       },
       include: {

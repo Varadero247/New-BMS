@@ -33,7 +33,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
     ] = await Promise.all([
       prisma.femPremises.count({ where: { organisationId: orgId, isActive: true } }),
       prisma.femFireRiskAssessment.count({
-        where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: now } as any },
+        where: { organisationId: orgId, deletedAt: null, nextReviewDate: { lt: now } },
       }),
       prisma.femEmergencyIncident.count({
         where: { organisationId: orgId, status: { in: ['ACTIVE', 'ELEVATED', 'CONTAINED'] } },

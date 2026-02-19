@@ -95,7 +95,7 @@ router.get('/open', async (req: Request, res: Response) => {
     const data = await prisma.fsNcr.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['OPEN', 'INVESTIGATING', 'CORRECTIVE_ACTION'] } as any,
+        status: { in: ['OPEN', 'INVESTIGATING', 'CORRECTIVE_ACTION'] },
       },
       orderBy: { createdAt: 'desc' },
       take: 500,

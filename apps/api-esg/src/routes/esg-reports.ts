@@ -53,7 +53,7 @@ router.post('/generate', authenticate, async (req: Request, res: Response) => {
         status: 'DRAFT',
         aiGenerated: true,
         createdBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

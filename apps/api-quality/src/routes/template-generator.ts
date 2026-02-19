@@ -802,7 +802,7 @@ router.delete(
     try {
       await prisma.qualGeneratedTemplate.update({
         where: { id: req.params.id },
-        data: { deletedAt: new Date() } as any,
+        data: { deletedAt: new Date() },
       });
       res.json({ success: true, data: { message: 'Template deleted' } });
     } catch (error: unknown) {

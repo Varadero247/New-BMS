@@ -404,7 +404,7 @@ router.post('/dispatch', async (req: AuthRequest, res: Response) => {
       where: {
         isActive: true,
         deletedAt: null,
-        events: { has: input.event } as any,
+        events: { has: input.event },
       },
       take: 1000,
     });

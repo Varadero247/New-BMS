@@ -276,7 +276,7 @@ router.post('/targets', async (req: AuthRequest, res: Response) => {
         targetValue: data.targetValue,
         targetYear: data.targetYear,
         unit: data.unit,
-        status: (data.status as any) || 'ON_TRACK',
+        status: data.status || 'ON_TRACK',
         currentValue: data.currentValue ?? data.baselineValue,
         notes: data.notes,
         createdBy: req.user?.id,

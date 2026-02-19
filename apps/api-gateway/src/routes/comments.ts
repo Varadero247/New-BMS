@@ -62,7 +62,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       recordId,
       parentId: parentId || null,
       authorId: user!.id,
-      authorName: (user as any).name || user!.email || 'Unknown',
+      authorName: (user as { name?: string }).name || user!.email || 'Unknown',
       authorAvatar: user!.avatar ?? undefined,
       body,
     });
@@ -208,7 +208,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
     const commentId = req.params.id;
-    const roles: string[] = (user as any).roles || [(user as any).role] || [];
+    const roles: string[] = (user as { roles?: string[] }).roles || [(user as { role?: string }).role] || [];
     const isAdmin =
       roles.includes('SUPER_ADMIN') || roles.includes('ORG_ADMIN') || roles.includes('ADMIN');
 

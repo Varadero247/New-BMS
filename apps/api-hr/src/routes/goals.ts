@@ -120,7 +120,7 @@ router.get('/overdue', async (_req: Request, res: Response) => {
     const goals = await prisma.performanceGoal.findMany({
       where: {
         dueDate: { lt: new Date() },
-        status: { in: ['NOT_STARTED', 'IN_PROGRESS', 'ON_HOLD'] } as any,
+        status: { in: ['NOT_STARTED', 'IN_PROGRESS', 'ON_HOLD'] },
       },
       orderBy: { dueDate: 'asc' },
       include: {

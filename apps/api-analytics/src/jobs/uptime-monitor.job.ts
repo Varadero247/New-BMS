@@ -53,7 +53,7 @@ export async function runUptimeMonitorJob(): Promise<void> {
             httpStatus: status,
             errorMessage:
               status === 0 ? 'Connection failed or timeout' : `Unexpected status ${status}`,
-          } as any,
+          },
         });
         logger.warn('Uptime incident detected', { checkId: check.id, url: check.url, status });
       } else {
@@ -63,7 +63,7 @@ export async function runUptimeMonitorJob(): Promise<void> {
             uptimeCheckId: check.id,
             resolvedAt: null,
           },
-          orderBy: { detectedAt: 'desc' } as any,
+          orderBy: { detectedAt: 'desc' as const },
         });
 
         if (openIncident) {

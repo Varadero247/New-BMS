@@ -199,7 +199,7 @@ router.post('/', async (req: Request, res: Response) => {
         userBase: parsed.data.userBase ?? null,
         notes: parsed.data.notes ?? null,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('AI system created', { systemId: system.id, reference });
@@ -220,7 +220,7 @@ router.get('/:id/risks', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
+    const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } });
     if (!system) {
       return res
         .status(404)
@@ -228,7 +228,7 @@ router.get('/:id/risks', async (req: Request, res: Response) => {
     }
 
     const risks = await prisma.aiRiskAssessment.findMany({
-      where: { systemId: id, deletedAt: null } as any,
+      where: { systemId: id, deletedAt: null },
       orderBy: { createdAt: 'desc' },
       take: 1000,
     });
@@ -251,7 +251,7 @@ router.get('/:id/incidents', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
+    const system = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } });
     if (!system) {
       return res
         .status(404)
@@ -259,7 +259,7 @@ router.get('/:id/incidents', async (req: Request, res: Response) => {
     }
 
     const incidents = await prisma.aiIncident.findMany({
-      where: { systemId: id, deletedAt: null } as any,
+      where: { systemId: id, deletedAt: null },
       orderBy: { createdAt: 'desc' },
       take: 1000,
     });
@@ -285,7 +285,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const system = await prisma.aiSystem.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!system) {
@@ -324,7 +324,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       });
     }
 
-    const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -344,7 +344,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
             : undefined,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('AI system updated', { systemId: id });
@@ -367,7 +367,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.aiSystem.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -380,7 +380,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('AI system soft-deleted', { systemId: id });

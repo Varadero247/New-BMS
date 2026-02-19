@@ -130,7 +130,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         duration: data.duration,
         plannedVelocity: data.plannedVelocity,
         teamCapacity: data.teamCapacity,
-        status: (data.status as any) || 'PLANNED',
+        status: data.status || 'PLANNED',
         committedStoryPoints: 0,
         completedStoryPoints: 0,
       },

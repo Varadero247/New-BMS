@@ -7,7 +7,7 @@ const logger = createLogger('complaints-dashboard');
 router.get('/stats', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
-    const where = { orgId, deletedAt: null } as any;
+    const where: Record<string, unknown> = { orgId, deletedAt: null };
     const [totalComplaints, totalActions] = await Promise.all([
       prisma.compComplaint.count({ where }),
       prisma.compAction.count({ where }),

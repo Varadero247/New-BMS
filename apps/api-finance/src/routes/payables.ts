@@ -325,7 +325,7 @@ router.delete('/suppliers/:id', async (req: Request, res: Response) => {
       where: {
         supplierId: req.params.id,
         deletedAt: null,
-        status: { in: ['DRAFT', 'RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] } as any,
+        status: { in: ['DRAFT', 'RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] },
       },
     });
 
@@ -1209,7 +1209,7 @@ router.get('/aging', async (_req: Request, res: Response) => {
     const bills = await prisma.finBill.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] } as any,
+        status: { in: ['RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] },
         amountDue: { gt: 0 },
       },
       include: {
@@ -1301,7 +1301,7 @@ router.post('/payment-run', async (req: Request, res: Response) => {
     const dueBills = await prisma.finBill.findMany({
       where: {
         deletedAt: null,
-        status: { in: ['RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] } as any,
+        status: { in: ['RECEIVED', 'PARTIALLY_PAID', 'OVERDUE'] },
         dueDate: { lte: cutoffDate },
         amountDue: { gt: 0 },
       },

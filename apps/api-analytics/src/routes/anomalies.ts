@@ -440,7 +440,7 @@ router.put(
       // Try DB-backed alert first (real UUID records from monitoring system)
       let dbAlert: Record<string, unknown> | null = null;
       try {
-        dbAlert = await (prisma as any).analyticsAlert.findUnique({ where: { id } });
+        dbAlert = await prisma.analyticsAlert.findUnique({ where: { id } });
       } catch {
         /* DB unavailable or model mismatch — fall through to seed data */
       }
@@ -453,7 +453,7 @@ router.put(
           });
         }
         const now = new Date().toISOString();
-        await (prisma as any).analyticsAlert.update({
+        await prisma.analyticsAlert.update({
           where: { id },
           data: {
             status: 'RESOLVED',

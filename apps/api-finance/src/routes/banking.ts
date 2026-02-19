@@ -219,7 +219,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Bank account not found' } });
     }
 
-    if ((existing as any)._count?.transactions > 0) {
+    if ((existing._count as { transactions?: number })?.transactions ?? 0 > 0) {
       return res.status(409).json({
         success: false,
         error: { code: 'IN_USE', message: 'Bank account has unreconciled transactions' },
@@ -261,8 +261,8 @@ router.get('/transactions/list', async (req: Request, res: Response) => {
     if (isReconciled !== undefined) where.isReconciled = isReconciled === 'true';
     if (dateFrom || dateTo) {
       where.date = {};
-      if (dateFrom) (where.date as any).gte = new Date(dateFrom as string);
-      if (dateTo) (where.date as any).lte = new Date(dateTo as string);
+      if (dateFrom) (where.date as { gte?: Date; lte?: Date }).gte = new Date(dateFrom as string);
+      if (dateTo) (where.date as { gte?: Date; lte?: Date }).lte = new Date(dateTo as string);
     }
 
     const [transactions, total] = await Promise.all([

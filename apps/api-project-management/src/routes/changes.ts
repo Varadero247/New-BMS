@@ -102,7 +102,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         impactOnResources: data.impactOnResources,
         benefits: data.benefits,
         implementationPlan: data.implementationPlan,
-        priority: (data.priority as any) || 'MEDIUM',
+        priority: data.priority || 'MEDIUM',
         urgency: data.urgency || 'NORMAL',
         status: 'SUBMITTED',
       },
