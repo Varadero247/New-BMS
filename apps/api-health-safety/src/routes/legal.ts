@@ -172,7 +172,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         applicableAreas: data.applicableAreas,
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
         reviewDate: data.reviewDate ? new Date(data.reviewDate) : null,
-        complianceStatus: data.complianceStatus || 'NOT_ASSESSED',
+        complianceStatus: (data.complianceStatus as any) || 'NOT_ASSESSED',
         complianceNotes: data.complianceNotes,
         responsiblePerson: data.responsiblePerson,
         aiKeyObligations: data.aiKeyObligations,
@@ -181,7 +181,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         aiEvidenceRequired: data.aiEvidenceRequired,
         aiPenaltyForNonCompliance: data.aiPenaltyForNonCompliance,
         aiAssessmentGenerated: data.aiAssessmentGenerated ?? false,
-        status: data.status || 'ACTIVE',
+        status: (data.status as any) || 'ACTIVE',
       },
     });
 

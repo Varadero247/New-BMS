@@ -57,7 +57,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const { recordType, recordId, parentId, body } = parsed.data;
 
     const comment = await createComment({
-      orgId: (user as any).organisationId || (user as any).orgId || 'default',
+      orgId: (user as { organisationId?: string }).organisationId || (user as { orgId?: string }).orgId || 'default',
       recordType,
       recordId,
       parentId: parentId || null,

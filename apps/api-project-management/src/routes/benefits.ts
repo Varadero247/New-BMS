@@ -87,7 +87,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           ? new Date(data.expectedRealisationDate)
           : undefined,
         financialValue: data.financialValue,
-        priority: data.priority || 'MEDIUM',
+        priority: (data.priority as any) || 'MEDIUM',
         status: 'IDENTIFIED',
         createdBy: req.user!.id,
       } as any,

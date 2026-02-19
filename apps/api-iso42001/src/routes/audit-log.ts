@@ -99,7 +99,7 @@ router.get('/stats', async (req: Request, res: Response) => {
     const dailyCounts: Record<string, number> = {};
     for (const entry of dailyEntries) {
       const dateKey = entry.createdAt.toISOString().split('T')[0];
-      dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + (entry as any)._count.id;
+      dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + (entry as { _count: { id: number } })._count.id;
     }
 
     res.json({
@@ -108,7 +108,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         totalEntries,
         byAction: actionCounts.reduce(
           (acc, g) => {
-            acc[g.action] = (g as any)._count.id;
+            acc[g.action] = (g as { _count: { id: number } })._count.id;
             return acc;
           },
           {} as Record<string, number>
@@ -117,7 +117,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         topUsers: topUsers.map((u) => ({
           userId: u.userId,
           userName: u.userName,
-          count: (u as any)._count.id,
+          count: (u as { _count: { id: number } })._count.id,
         })),
         recent: recentEntries,
       },

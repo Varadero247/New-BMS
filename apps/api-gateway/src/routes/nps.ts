@@ -41,7 +41,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     }
 
     const { score, comment } = parsed.data;
-    const orgId = (user as any).organisationId || 'default';
+    const orgId = (user as { organisationId?: string }).organisationId || 'default';
     const response = submitResponse(user!.id, orgId, score, comment);
 
     logger.info('NPS response submitted', { responseId: response.id, score, userId: user!.id });
@@ -67,7 +67,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.get('/analytics', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const orgId = (user as any).organisationId || 'default';
+    const orgId = (user as { organisationId?: string }).organisationId || 'default';
     const analytics = getAnalytics(orgId);
 
     res.json({
@@ -105,7 +105,7 @@ router.get('/responses', authenticate, async (req: Request, res: Response) => {
     }
 
     const { limit, offset } = parsed.data;
-    const orgId = (user as any).organisationId || 'default';
+    const orgId = (user as { organisationId?: string }).organisationId || 'default';
     const result = listResponses(orgId, limit, offset);
 
     res.json({

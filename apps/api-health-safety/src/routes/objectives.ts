@@ -194,7 +194,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         progressNotes: data.progressNotes,
         aiRecommendations: data.aiRecommendations,
         aiGenerated: data.aiGenerated ?? false,
-        status: data.status || 'ACTIVE',
+        status: (data.status as any) || 'ACTIVE',
         milestones: data.milestones
           ? {
               create: data.milestones.map((m, i) => ({

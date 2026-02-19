@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
@@ -152,7 +153,7 @@ export default function WorkOrdersPage() {
       setCreateOpen(false);
       await loadOrders();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to create work order');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to create work order');
     } finally {
       setSaving(false);
     }
@@ -173,7 +174,7 @@ export default function WorkOrdersPage() {
       setEditOpen(false);
       await loadOrders();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to update work order');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to update work order');
     } finally {
       setSaving(false);
     }
@@ -186,7 +187,7 @@ export default function WorkOrdersPage() {
       setDeleteOpen(false);
       await loadOrders();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to delete work order');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to delete work order');
     } finally {
       setSaving(false);
     }

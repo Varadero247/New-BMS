@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
 import {
@@ -134,8 +135,8 @@ export default function JobsPage() {
       }
       setModalOpen(false);
       await load();
-    } catch (e: any) {
-      setError((e as any)?.response?.data?.message || 'Failed to save job.');
+    } catch (e) {
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to save job.');
     } finally {
       setSaving(false);
     }

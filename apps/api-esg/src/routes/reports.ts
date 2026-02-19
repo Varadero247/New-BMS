@@ -296,7 +296,7 @@ router.post('/', async (req: Request, res: Response) => {
         reportType: data.reportType,
         year: data.year,
         quarter: data.quarter || null,
-        status: data.status || 'DRAFT',
+        status: (data.status as any) || 'DRAFT',
         content: data.content || null,
         generatedBy: data.generatedBy || null,
         createdBy: authReq.user?.id || 'system',

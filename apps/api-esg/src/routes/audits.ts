@@ -115,7 +115,7 @@ router.post('/', async (req: Request, res: Response) => {
         auditor: data.auditor || null,
         startDate: data.startDate ? new Date(data.startDate) : null,
         endDate: data.endDate ? new Date(data.endDate) : null,
-        status: data.status || 'PLANNED',
+        status: (data.status as any) || 'PLANNED',
         findings: data.findings || null,
         score: data.score !== null ? new Prisma.Decimal(data.score) : null,
         createdBy: authReq.user?.id || 'system',

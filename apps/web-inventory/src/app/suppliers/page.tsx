@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import {
@@ -119,8 +120,8 @@ export default function SuppliersPage() {
       }
       setModalOpen(false);
       load();
-    } catch (e: any) {
-      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save supplier');
+    } catch (e) {
+      setFormError(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed to save supplier');
     } finally {
       setSubmitting(false);
     }
@@ -131,8 +132,8 @@ export default function SuppliersPage() {
     try {
       await api.delete(`/suppliers/${id}`);
       load();
-    } catch (e: any) {
-      alert((e as any)?.response?.data?.error?.message || 'Cannot delete supplier');
+    } catch (e) {
+      alert(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Cannot delete supplier');
     }
   }
 

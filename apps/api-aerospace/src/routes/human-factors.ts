@@ -393,10 +393,10 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
         totalIncidents,
         openIncidents,
         recentIncidents,
-        bySeverity: bySeverity.map((s) => ({ severity: s.severity, count: (s as any)._count.id })),
+        bySeverity: bySeverity.map((s) => ({ severity: s.severity, count: (s as { _count: { id: number } })._count.id })),
         topCategories: byCategory.map((c) => ({
           category: c.category,
-          count: (c as any)._count.id,
+          count: (c as { _count: { id: number } })._count.id,
         })),
         fatigueStats,
       },

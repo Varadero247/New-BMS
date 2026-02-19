@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@ims/ui';
 import {
@@ -24,7 +25,7 @@ export default function DashboardPage() {
         setStats(r.data.data || {});
       } catch (e) {
         setError(
-          (e as any)?.response?.status === 401
+          axios.isAxiosError(e) && e.response?.status === 401
             ? 'Session expired. Please log in again.'
             : 'Failed to load dashboard data.'
         );

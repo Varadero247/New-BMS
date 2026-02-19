@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
 import { Plus, Search, StickyNote, AlertCircle, CheckCircle, MessageSquare } from 'lucide-react';
@@ -107,8 +108,8 @@ export default function JobNotesPage() {
       else await api.post('/job-notes', form);
       setModalOpen(false);
       await load();
-    } catch (e: any) {
-      setError((e as any)?.response?.data?.message || 'Failed to save.');
+    } catch (e) {
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to save.');
     } finally {
       setSaving(false);
     }

@@ -96,7 +96,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         completed,
         byPriority: byPriority.map((p: Record<string, unknown>) => ({
           priority: p.priority,
-          count: (p as any)._count.id,
+          count: (p as { _count: { id: number } })._count.id,
         })),
       },
     });
@@ -248,10 +248,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.targetDate) data.targetDate = new Date(parsed.data.targetDate);
-    if ((parsed.data as any).completedDate)
-      data.completedDate = new Date((parsed.data as any).completedDate);
-    if ((parsed.data as any).approvedDate)
-      data.approvedDate = new Date((parsed.data as any).approvedDate);
+    if (parsed.data.completedDate)
+      data.completedDate = new Date(parsed.data.completedDate);
+    if (parsed.data.approvedDate)
+      data.approvedDate = new Date(parsed.data.approvedDate);
 
     const item = await prisma.qualContinuousImprovement.update({
       where: { id: req.params.id },

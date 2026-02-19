@@ -143,7 +143,7 @@ router.get('/summary', async (req: Request, res: Response) => {
         totalCost: Number(result._sum.cost || 0),
         totalConsumption: Number(result._sum.consumption || 0),
         averageCost: Number(result._avg.cost || 0),
-        billCount: (result as any)._count,
+        billCount: (result as { _count: number })._count,
         byProvider: Object.entries(byProvider).map(([provider, data]) => ({
           provider,
           ...data,

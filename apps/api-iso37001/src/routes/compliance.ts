@@ -108,7 +108,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         complianceRate,
         byCategory: byCategory.map((c: Record<string, unknown>) => ({
           category: c.category,
-          count: (c as any)._count.id,
+          count: (c as { _count: { id: number } })._count.id,
         })),
       },
     });
@@ -263,8 +263,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (parsed.data.assessmentDate) data.assessmentDate = new Date(parsed.data.assessmentDate);
     if (parsed.data.nextReviewDate) data.nextReviewDate = new Date(parsed.data.nextReviewDate);
     if (parsed.data.remediationDue) data.remediationDue = new Date(parsed.data.remediationDue);
-    if ((parsed.data as any).closedDate)
-      data.closedDate = new Date((parsed.data as any).closedDate);
+    if (parsed.data.closedDate)
+      data.closedDate = new Date(parsed.data.closedDate);
 
     const record = await prisma.abCompliance.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: record });

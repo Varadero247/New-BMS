@@ -43,7 +43,7 @@ router.get('/valuation', async (req: AuthRequest, res: Response) => {
       success: true,
       data: {
         summary: {
-          totalItems: (totals as any)._count.id,
+          totalItems: (totals as { _count: { id: number } })._count.id,
           totalQuantity: totals._sum.quantityOnHand ?? 0,
           totalValue: totals._sum.inventoryValue ?? 0,
         },

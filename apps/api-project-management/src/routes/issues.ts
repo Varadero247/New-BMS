@@ -96,7 +96,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         issueType: data.issueType,
         category: data.category,
         severity: data.severity || 'MEDIUM',
-        priority: data.priority || 'MEDIUM',
+        priority: (data.priority as any) || 'MEDIUM',
         reportedBy: req.user?.id,
         assignedTo: data.assignedTo,
         raisedDate: new Date(),

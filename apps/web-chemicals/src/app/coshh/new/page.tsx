@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -125,7 +126,7 @@ export default function NewCoshhPage() {
       const created = res.data.data;
       router.push(`/coshh/${created?.id || ''}`);
     } catch (e) {
-      setError((e as any)?.response?.data?.message || 'Failed to create COSHH assessment.');
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to create COSHH assessment.');
     } finally {
       setSaving(false);
     }

@@ -123,7 +123,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         responseOwner: data.responseOwner,
         mitigationActions: data.mitigationActions,
         contingencyPlan: data.contingencyPlan,
-        status: data.status || 'IDENTIFIED',
+        status: (data.status as any) || 'IDENTIFIED',
         identifiedBy: req.user?.id,
         identifiedDate: new Date(),
         reviewDate: data.reviewDate ? new Date(data.reviewDate) : null,

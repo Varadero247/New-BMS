@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@ims/ui';
@@ -148,7 +149,7 @@ function EditModal({ stmt, onClose, onSave }: EditModalProps) {
       onSave();
       onClose();
     } catch (e) {
-      setError((e as any)?.response?.data?.error?.message || 'Failed to save');
+      setError(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed to save');
     } finally {
       setSaving(false);
     }
@@ -317,7 +318,7 @@ export default function AppetitePage() {
       setFramework(fwRes.data.data || null);
     } catch (e) {
       setError(
-        (e as any)?.response?.status === 401
+        axios.isAxiosError(e) && e.response?.status === 401
           ? 'Session expired. Please log in.'
           : 'Failed to load appetite data.'
       );

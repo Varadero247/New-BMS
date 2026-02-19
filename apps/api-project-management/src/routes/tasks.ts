@@ -200,9 +200,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         isCriticalPath: data.isCriticalPath || false,
         plannedCost: data.plannedCost,
         acceptanceCriteria: data.acceptanceCriteria,
-        priority: data.priority || 'MEDIUM',
+        priority: (data.priority as any) || 'MEDIUM',
         tags: data.tags,
-        status: data.status || 'NOT_STARTED',
+        status: (data.status as any) || 'NOT_STARTED',
       },
     });
 

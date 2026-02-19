@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -174,7 +175,7 @@ export default function BCPNewPage() {
       await api.post('/bcp', form);
       router.push('/bcp');
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to save BCP. Please try again.');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to save BCP. Please try again.');
     } finally {
       setSaving(false);
     }

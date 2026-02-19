@@ -79,7 +79,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
           description: data.description,
           productName: data.productName,
           projectManager: data.projectManager,
-          priority: data.priority || 'MEDIUM',
+          priority: (data.priority as any) || 'MEDIUM',
           status: 'DRAFT',
           currentStage: 'PLANNING',
           plannedStartDate: data.plannedStartDate ? new Date(data.plannedStartDate) : undefined,

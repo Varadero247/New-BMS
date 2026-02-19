@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
@@ -144,7 +145,7 @@ export default function AssetsPage() {
       setCreateOpen(false);
       await loadAssets();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to create asset');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to create asset');
     } finally {
       setSaving(false);
     }
@@ -162,7 +163,7 @@ export default function AssetsPage() {
       setEditOpen(false);
       await loadAssets();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to update asset');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to update asset');
     } finally {
       setSaving(false);
     }
@@ -175,7 +176,7 @@ export default function AssetsPage() {
       setDeleteOpen(false);
       await loadAssets();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to delete asset');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to delete asset');
     } finally {
       setSaving(false);
     }

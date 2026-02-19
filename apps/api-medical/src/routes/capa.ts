@@ -184,9 +184,9 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       data: {
         total,
         overdue,
-        byStatus: byStatus.map((s) => ({ status: s.status, count: (s as any)._count.id })),
-        byType: byType.map((t) => ({ type: t.capaType, count: (t as any)._count.id })),
-        bySeverity: bySeverity.map((s) => ({ severity: s.severity, count: (s as any)._count.id })),
+        byStatus: byStatus.map((s) => ({ status: s.status, count: (s as { _count: { id: number } })._count.id })),
+        byType: byType.map((t) => ({ type: t.capaType, count: (t as { _count: { id: number } })._count.id })),
+        bySeverity: bySeverity.map((s) => ({ severity: s.severity, count: (s as { _count: { id: number } })._count.id })),
       },
     });
   } catch (error) {

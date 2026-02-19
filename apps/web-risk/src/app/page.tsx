@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -160,7 +161,7 @@ export default function DashboardPage() {
         }
       } catch (e) {
         setError(
-          (e as any)?.response?.status === 401
+          axios.isAxiosError(e) && e.response?.status === 401
             ? 'Session expired. Please log in again.'
             : 'Failed to load dashboard data.'
         );

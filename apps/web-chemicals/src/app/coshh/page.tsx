@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -47,7 +48,7 @@ export default function CoshhListPage() {
         setAssessments(res.data.data || []);
       } catch (e) {
         setError(
-          (e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load COSHH assessments.'
+          axios.isAxiosError(e) && e.response?.status === 401 ? 'Session expired.' : 'Failed to load COSHH assessments.'
         );
       } finally {
         setLoading(false);

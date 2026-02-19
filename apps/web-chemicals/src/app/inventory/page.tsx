@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -52,7 +53,7 @@ export default function InventoryPage() {
       const res = await api.get('/inventory', { params });
       setRecords(res.data.data || []);
     } catch (e) {
-      setError((e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load inventory.');
+      setError(axios.isAxiosError(e) && e.response?.status === 401 ? 'Session expired.' : 'Failed to load inventory.');
     } finally {
       setLoading(false);
     }
@@ -96,7 +97,7 @@ export default function InventoryPage() {
       });
       fetchRecords();
     } catch (e) {
-      setError((e as any)?.response?.data?.message || 'Failed to add stock.');
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to add stock.');
     } finally {
       setSaving(false);
     }

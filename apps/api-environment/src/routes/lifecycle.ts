@@ -61,7 +61,7 @@ router.post('/assessments', async (req: AuthRequest, res: Response) => {
         createdBy: req.user?.id,
         stages: {
           create: LCA_STAGE_NAMES.map((stageName) => ({
-            stageName: stageName as any,
+            stageName: stageName,
           })),
         },
       },

@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import {
@@ -107,7 +108,7 @@ export default function HazardsPage() {
       setModalOpen(false);
       load();
     } catch (e) {
-      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save');
+      setFormError(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed to save');
     } finally {
       setSubmitting(false);
     }
@@ -119,7 +120,7 @@ export default function HazardsPage() {
       await api.delete(`/hazards/${id}`);
       load();
     } catch (e) {
-      alert((e as any)?.response?.data?.error?.message || 'Failed');
+      alert(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed');
     }
   }
 

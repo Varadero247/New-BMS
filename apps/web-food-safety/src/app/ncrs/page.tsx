@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import {
@@ -116,7 +117,7 @@ export default function NCRsPage() {
       setModalOpen(false);
       load();
     } catch (e) {
-      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save');
+      setFormError(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed to save');
     } finally {
       setSubmitting(false);
     }

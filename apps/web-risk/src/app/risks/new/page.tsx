@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -411,7 +412,7 @@ export default function NewRiskPage() {
 
       router.push(newRiskId ? `/risks/${newRiskId}` : '/risks');
     } catch (e) {
-      setError((e as any)?.response?.data?.error?.message || 'Failed to create risk. Please try again.');
+      setError(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed to create risk. Please try again.');
       setSaving(false);
     }
   }

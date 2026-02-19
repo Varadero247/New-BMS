@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@ims/ui';
@@ -66,7 +67,7 @@ export default function BowtiePage() {
         setBowties(r.data.data || []);
       } catch (e) {
         setError(
-          (e as any)?.response?.status === 401
+          axios.isAxiosError(e) && e.response?.status === 401
             ? 'Session expired. Please log in.'
             : 'Failed to load bow-tie library.'
         );

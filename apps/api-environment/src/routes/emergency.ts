@@ -264,7 +264,7 @@ router.post('/drills', async (req: AuthRequest, res: Response) => {
         drillType: data.drillType,
         participants: data.participants,
         scenario: data.scenario,
-        outcome: (data.outcome as any) || 'SATISFACTORY',
+        outcome: data.outcome || 'SATISFACTORY',
         lessonsLearned: data.lessonsLearned,
         actionsRequired: data.actionsRequired,
         conductedBy: data.conductedBy,

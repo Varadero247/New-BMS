@@ -270,7 +270,7 @@ router.post('/:id/links', async (req: AuthRequest, res: Response) => {
     const data = linkCreateSchema.parse(req.body);
 
     const link = await prisma.traceabilityLink.create({
-      data: { matrixId: req.params.id, ...data, status: data.status || 'OPEN' },
+      data: { matrixId: req.params.id, ...data, status: (data.status as any) || 'OPEN' },
     });
 
     res.status(201).json({ success: true, data: link });

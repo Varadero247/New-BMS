@@ -373,7 +373,7 @@ router.get('/by-category', authenticate, async (req: Request, res: Response) => 
       success: true,
       data: raw.map((r: Record<string, unknown>) => ({
         category: r.category,
-        count: (r as any)._count,
+        count: (r as { _count: number })._count,
       })),
     });
   } catch (error: unknown) {
@@ -401,7 +401,7 @@ router.get('/aggregate', authenticate, async (req: Request, res: Response) => {
       success: true,
       data: raw.map((r: Record<string, unknown>) => ({
         group: r[field],
-        count: (r as any)._count,
+        count: (r as { _count: number })._count,
       })),
     });
   } catch (error: unknown) {

@@ -82,7 +82,7 @@ export default function DashboardPage() {
             : 0,
           activeSodRules: Array.isArray(sod) ? sod.length : 0,
         });
-      } catch (err: any) {
+      } catch (err) {
         setError((err as Error).message || 'Failed to load dashboard data');
       } finally {
         setLoading(false);

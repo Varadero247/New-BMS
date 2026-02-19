@@ -104,7 +104,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         description: data.description,
         keywords: data.keywords,
         accessLevel: data.accessLevel || 'PROJECT_TEAM',
-        status: data.status || 'DRAFT',
+        status: (data.status as any) || 'DRAFT',
         createdBy: req.user?.id,
       },
     });

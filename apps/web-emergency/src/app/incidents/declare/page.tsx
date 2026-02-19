@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -142,7 +143,7 @@ export default function DeclarePage() {
         router.push('/incidents');
       }
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to declare emergency. Please try again.');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to declare emergency. Please try again.');
       setSubmitting(false);
     }
   }

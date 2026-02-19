@@ -143,7 +143,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         mitigated,
         byStatus: byStatus.map((s: Record<string, unknown>) => ({
           status: s.status,
-          count: (s as any)._count.id,
+          count: (s as { _count: { id: number } })._count.id,
         })),
       },
     });
@@ -319,8 +319,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     if (parsed.data.reviewDate) data.reviewDate = new Date(parsed.data.reviewDate);
     if (parsed.data.nextReviewDate) data.nextReviewDate = new Date(parsed.data.nextReviewDate);
-    if ((parsed.data as any).lastReviewDate)
-      data.lastReviewDate = new Date((parsed.data as any).lastReviewDate);
+    if (parsed.data.lastReviewDate)
+      data.lastReviewDate = new Date(parsed.data.lastReviewDate);
 
     const item = await prisma.qualRiskRegister.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });

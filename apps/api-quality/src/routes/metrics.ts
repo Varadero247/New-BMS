@@ -86,7 +86,7 @@ router.get('/summary', async (req: Request, res: Response) => {
         offTrack,
         byCategory: byCategory.map((c: Record<string, unknown>) => ({
           category: c.category,
-          count: (c as any)._count.id,
+          count: (c as { _count: { id: number } })._count.id,
         })),
       },
     });

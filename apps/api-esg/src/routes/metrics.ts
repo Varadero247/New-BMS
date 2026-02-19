@@ -109,7 +109,7 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
         unit: data.unit,
         source: data.source || null,
         notes: data.notes || null,
-        status: data.status || 'DRAFT',
+        status: (data.status as any) || 'DRAFT',
         createdBy: authReq.user?.id || 'system',
       },
     });

@@ -91,7 +91,7 @@ router.get('/summary', async (req: Request, res: Response) => {
         totalConsumption: Number(result._sum.value || 0),
         totalCost: Number(result._sum.cost || 0),
         averageConsumption: Number(result._avg.value || 0),
-        readingCount: (result as any)._count,
+        readingCount: (result as { _count: number })._count,
         periodStart: result._min.readingDate,
         periodEnd: result._max.readingDate,
       },

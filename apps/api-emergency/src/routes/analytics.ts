@@ -106,13 +106,13 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
         riskLevelBreakdown: Object.fromEntries(
           riskLevelBreakdown.map((r: Record<string, unknown>) => [
             r.overallRiskLevel,
-            (r as any)._count,
+            (r as { _count: number })._count,
           ])
         ),
         incidentTypeBreakdown: Object.fromEntries(
           incidentTypeBreakdown.map((r: Record<string, unknown>) => [
             r.emergencyType,
-            (r as any)._count,
+            (r as { _count: number })._count,
           ])
         ),
         recentIncidents,

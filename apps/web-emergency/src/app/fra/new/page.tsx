@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, Button, Input, Label, Select, Textarea } from '@ims/ui';
@@ -291,8 +292,8 @@ export default function FRANewPage() {
       const payload = { ...form };
       await api.post('/fra', payload);
       router.push('/fra');
-    } catch (e: any) {
-      setError((e as any).response?.data?.error || 'Failed to save FRA. Please try again.');
+    } catch (e) {
+      setError((axios.isAxiosError(e) && e.response?.data?.error) || 'Failed to save FRA. Please try again.');
     } finally {
       setSaving(false);
     }

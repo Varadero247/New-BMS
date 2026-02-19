@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, Modal, ModalFooter } from '@ims/ui';
 import { Plus, Search, BarChart3, TrendingUp, TrendingDown, Minus } from 'lucide-react';
@@ -121,8 +122,8 @@ export default function KPIsPage() {
       else await api.post('/kpis', form);
       setModalOpen(false);
       await load();
-    } catch (e: any) {
-      setError((e as any)?.response?.data?.message || 'Failed to save.');
+    } catch (e) {
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to save.');
     } finally {
       setSaving(false);
     }

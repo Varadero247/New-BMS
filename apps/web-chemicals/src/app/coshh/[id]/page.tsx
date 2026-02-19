@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -71,7 +72,7 @@ export default function CoshhDetailPage() {
         setCoshh(res.data.data);
       } catch (e) {
         setError(
-          (e as any)?.response?.status === 404 ? 'COSHH assessment not found.' : 'Failed to load assessment.'
+          axios.isAxiosError(e) && e.response?.status === 404 ? 'COSHH assessment not found.' : 'Failed to load assessment.'
         );
       } finally {
         setLoading(false);
@@ -86,7 +87,7 @@ export default function CoshhDetailPage() {
       const newId = res.data.data?.id;
       if (newId) router.push(`/coshh/${newId}`);
     } catch (e) {
-      setError((e as any)?.response?.data?.message || 'Failed to supersede.');
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to supersede.');
     } finally {
       setActionLoading('');
     }
@@ -99,7 +100,7 @@ export default function CoshhDetailPage() {
       const res = await api.get(`/coshh/${id}`);
       setCoshh(res.data.data);
     } catch (e) {
-      setError((e as any)?.response?.data?.message || 'Failed to mark as reviewed.');
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to mark as reviewed.');
     } finally {
       setActionLoading('');
     }

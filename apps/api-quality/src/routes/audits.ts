@@ -195,10 +195,10 @@ router.put('/:id', async (req: Request, res: Response) => {
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.scheduledDate) data.scheduledDate = new Date(parsed.data.scheduledDate);
     if (parsed.data.dueDate) data.dueDate = new Date(parsed.data.dueDate);
-    if ((parsed.data as any).completedDate)
-      data.completedDate = new Date((parsed.data as any).completedDate);
-    if ((parsed.data as any).nextAuditDate)
-      data.nextAuditDate = new Date((parsed.data as any).nextAuditDate);
+    if (parsed.data.completedDate)
+      data.completedDate = new Date(parsed.data.completedDate);
+    if (parsed.data.nextAuditDate)
+      data.nextAuditDate = new Date(parsed.data.nextAuditDate);
 
     const item = await prisma.qualAudit.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });

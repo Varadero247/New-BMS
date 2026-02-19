@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
 import { Plus, Search, FileText, DollarSign, AlertCircle, CheckCircle } from 'lucide-react';
@@ -120,8 +121,8 @@ export default function InvoicesPage() {
       else await api.post('/invoices', form);
       setModalOpen(false);
       await load();
-    } catch (e: any) {
-      setError((e as any)?.response?.data?.message || 'Failed to save.');
+    } catch (e) {
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to save.');
     } finally {
       setSaving(false);
     }

@@ -99,7 +99,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
         critical,
         byMetricType: byMetricType.map((m: Record<string, unknown>) => ({
           metricType: m.metricType,
-          count: (m as any)._count.id,
+          count: (m as { _count: { id: number } })._count.id,
         })),
         recentAlerts: recent,
       },
@@ -309,8 +309,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.measurementDate) data.measurementDate = new Date(parsed.data.measurementDate);
-    if ((parsed.data as any).resolvedAt)
-      data.resolvedAt = new Date((parsed.data as any).resolvedAt);
+    if (parsed.data.resolvedAt)
+      data.resolvedAt = new Date(parsed.data.resolvedAt);
 
     const record = await prisma.aiMonitoring.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: record });

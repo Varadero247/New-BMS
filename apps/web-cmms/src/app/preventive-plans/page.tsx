@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
@@ -139,7 +140,7 @@ export default function PreventivePlansPage() {
       setCreateOpen(false);
       await load();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to create plan');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to create plan');
     } finally {
       setSaving(false);
     }
@@ -161,7 +162,7 @@ export default function PreventivePlansPage() {
       setEditOpen(false);
       await load();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to update plan');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to update plan');
     } finally {
       setSaving(false);
     }
@@ -174,7 +175,7 @@ export default function PreventivePlansPage() {
       setDeleteOpen(false);
       await load();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to delete');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to delete');
     } finally {
       setSaving(false);
     }

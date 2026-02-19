@@ -178,7 +178,7 @@ router.post('/test', authenticate, (req: Request, res: Response) => {
       module: module ?? 'system',
       severity,
       userId: recipientId,
-      orgId: (user as any).organisationId,
+      orgId: (user as { organisationId?: string }).organisationId,
       createdAt: new Date(),
       read: false,
       data: { testNotification: true, sentBy: user!.id },

@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
 import { Plus, Search, Clock, CheckCircle, Timer } from 'lucide-react';
@@ -119,8 +120,8 @@ export default function TimeEntriesPage() {
       else await api.post('/time-entries', form);
       setModalOpen(false);
       await load();
-    } catch (e: any) {
-      setError((e as any)?.response?.data?.message || 'Failed to save.');
+    } catch (e) {
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to save.');
     } finally {
       setSaving(false);
     }

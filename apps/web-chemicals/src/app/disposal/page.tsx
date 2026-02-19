@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, Modal } from '@ims/ui';
@@ -70,7 +71,7 @@ export default function DisposalPage() {
       setRecords(res.data.data || []);
     } catch (e) {
       setError(
-        (e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load disposal records.'
+        axios.isAxiosError(e) && e.response?.status === 401 ? 'Session expired.' : 'Failed to load disposal records.'
       );
     } finally {
       setLoading(false);
@@ -113,7 +114,7 @@ export default function DisposalPage() {
       });
       fetchRecords();
     } catch (e) {
-      setError((e as any)?.response?.data?.message || 'Failed to create disposal record.');
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to create disposal record.');
     } finally {
       setSaving(false);
     }

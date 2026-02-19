@@ -206,7 +206,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         completionRate,
         byType: byType.map((t: any) => ({
           courseType: t.courseType,
-          count: (t as any)._count.id,
+          count: (t as { _count: { id: number } })._count.id,
         })),
       },
     });

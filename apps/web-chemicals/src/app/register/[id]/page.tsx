@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -127,7 +128,7 @@ export default function ChemicalDetailPage() {
         setChemical(res.data.data);
       } catch (e) {
         setError(
-          (e as any)?.response?.status === 404 ? 'Chemical not found.' : 'Failed to load chemical details.'
+          axios.isAxiosError(e) && e.response?.status === 404 ? 'Chemical not found.' : 'Failed to load chemical details.'
         );
       } finally {
         setLoading(false);

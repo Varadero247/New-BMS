@@ -166,7 +166,7 @@ router.post('/', async (req: Request, res: Response) => {
         inspector: data.inspector,
         scheduledDate: new Date(data.scheduledDate),
         completedDate: data.completedDate ? new Date(data.completedDate) : null,
-        status: data.status || 'SCHEDULED',
+        status: (data.status as any) || 'SCHEDULED',
         result: data.result,
         findings: data.findings,
         nextInspectionDate: data.nextInspectionDate ? new Date(data.nextInspectionDate) : null,

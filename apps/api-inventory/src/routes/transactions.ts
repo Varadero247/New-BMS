@@ -164,7 +164,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
         totals,
         byType: transactionsByType.map((t) => ({
           type: t.transactionType,
-          count: (t as any)._count.id,
+          count: (t as { _count: { id: number } })._count.id,
           quantityChange: t._sum.quantityChange,
           totalValue: t._sum.totalCost,
         })),

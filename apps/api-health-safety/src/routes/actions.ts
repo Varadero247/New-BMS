@@ -124,7 +124,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         overdue,
         byType: byType.map((t: Record<string, unknown>) => ({
           type: t.type,
-          count: (t as any)._count.id,
+          count: (t as { _count: { id: number } })._count.id,
         })),
       },
     });
@@ -256,10 +256,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.dueDate) data.dueDate = new Date(parsed.data.dueDate);
-    if ((parsed.data as any).completedAt)
-      data.completedAt = new Date((parsed.data as any).completedAt);
-    if ((parsed.data as any).verifiedAt)
-      data.verifiedAt = new Date((parsed.data as any).verifiedAt);
+    if (parsed.data.completedAt)
+      data.completedAt = new Date(parsed.data.completedAt);
+    if (parsed.data.verifiedAt)
+      data.verifiedAt = new Date(parsed.data.verifiedAt);
 
     const action = await prisma.hSAction.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: action });

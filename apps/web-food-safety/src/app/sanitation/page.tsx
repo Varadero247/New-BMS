@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import {
@@ -128,8 +129,8 @@ export default function SanitationPage() {
       }
       setModalOpen(false);
       load();
-    } catch (e: any) {
-      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save');
+    } catch (e) {
+      setFormError(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed to save');
     } finally {
       setSubmitting(false);
     }

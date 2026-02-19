@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
 import { Plus, Search, Route, MapPin, Clock, CheckCircle } from 'lucide-react';
@@ -116,8 +117,8 @@ export default function RoutesPage() {
       else await api.post('/routes', form);
       setModalOpen(false);
       await load();
-    } catch (e: any) {
-      setError((e as any)?.response?.data?.message || 'Failed to save.');
+    } catch (e) {
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to save.');
     } finally {
       setSaving(false);
     }

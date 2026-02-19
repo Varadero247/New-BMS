@@ -54,7 +54,7 @@ const updateTaskSchema = z.object({
 router.get('/my-tasks', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const orgId = (user as any).organisationId || (user as any).orgId || 'default';
+    const orgId = (user as { organisationId?: string }).organisationId || (user as { orgId?: string }).orgId || 'default';
 
     const grouped = await getMyTasks(orgId, user!.id);
 
@@ -92,7 +92,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       });
     }
 
-    const orgId = (user as any).organisationId || (user as any).orgId || 'default';
+    const orgId = (user as { organisationId?: string }).organisationId || (user as { orgId?: string }).orgId || 'default';
 
     const task = await createTask({
       orgId,
@@ -135,7 +135,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const user = (req as AuthRequest).user;
-    const orgId = (user as any).organisationId || (user as any).orgId || 'default';
+    const orgId = (user as { organisationId?: string }).organisationId || (user as { orgId?: string }).orgId || 'default';
 
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string, 10) || 20));

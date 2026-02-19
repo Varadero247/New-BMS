@@ -304,7 +304,7 @@ function WarehouseModal({
         await inventoryApi.createWarehouse(data);
       }
       onSave();
-    } catch (err: any) {
+    } catch (err) {
       setError((axios.isAxiosError(err) && err.response?.data?.error)?.message || 'Failed to save warehouse');
     } finally {
       setLoading(false);

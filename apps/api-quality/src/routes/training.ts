@@ -159,7 +159,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         completionRate,
         byType: byType.map((t: Record<string, unknown>) => ({
           trainingType: t.trainingType,
-          count: (t as any)._count.id,
+          count: (t as { _count: { id: number } })._count.id,
         })),
       },
     });
@@ -363,8 +363,8 @@ router.put('/:id', async (req: Request, res: Response) => {
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.assignedDate) data.assignedDate = new Date(parsed.data.assignedDate);
     if (parsed.data.dueDate) data.dueDate = new Date(parsed.data.dueDate);
-    if ((parsed.data as any).completedDate)
-      data.completedDate = new Date((parsed.data as any).completedDate);
+    if (parsed.data.completedDate)
+      data.completedDate = new Date(parsed.data.completedDate);
 
     const item = await prisma.qualTraining.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });

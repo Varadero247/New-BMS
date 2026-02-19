@@ -200,7 +200,7 @@ router.post('/', async (req: Request, res: Response) => {
         description: data.description,
         assetId: data.assetId,
         type: data.type,
-        priority: data.priority || 'MEDIUM',
+        priority: (data.priority as any) || 'MEDIUM',
         assignedTo: data.assignedTo,
         requestedBy: data.requestedBy,
         scheduledStart: data.scheduledStart ? new Date(data.scheduledStart) : null,

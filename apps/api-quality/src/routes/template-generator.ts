@@ -616,7 +616,7 @@ router.get('/', authenticate as any, async (req: Request, res: Response) => {
       Math.max(1, parseInt(limit as string, 10) || 20);
 
     const where: Record<string, unknown> = {
-      organisationId: (user as any).organisationId || 'default',
+      organisationId: (user as { organisationId?: string }).organisationId || 'default',
     };
     if (category) where.category = category;
     if (isoStandard) where.isoStandard = { contains: String(isoStandard) };
@@ -687,7 +687,7 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
 
     // Get next sequence number
     const existingCount = await prisma.qualGeneratedTemplate.count({
-      where: { category, organisationId: (user as any).organisationId || 'default' },
+      where: { category, organisationId: (user as { organisationId?: string }).organisationId || 'default' },
     });
     const sequence = existingCount + 100; // Start AI-generated at 100 to avoid conflicts
     const docNumber = generateDocNumber(catDef.prefix, sequence);
@@ -718,7 +718,7 @@ router.post('/', authenticate as any, async (req: Request, res: Response) => {
         configJson: JSON.stringify(configJson),
         prompt: prompt.trim(),
         generatedBy: user!.id || 'system',
-        organisationId: (user as any).organisationId || 'default',
+        organisationId: (user as { organisationId?: string }).organisationId || 'default',
       },
     });
 

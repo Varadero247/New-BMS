@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import {
@@ -98,7 +99,7 @@ export default function CCPsPage() {
       setModalOpen(false);
       load();
     } catch (e) {
-      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save');
+      setFormError(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed to save');
     } finally {
       setSubmitting(false);
     }
@@ -110,7 +111,7 @@ export default function CCPsPage() {
       await api.delete(`/ccps/${id}`);
       load();
     } catch (e) {
-      alert((e as any)?.response?.data?.error?.message || 'Failed');
+      alert(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed');
     }
   }
 

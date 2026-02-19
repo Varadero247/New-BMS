@@ -167,7 +167,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         patientPopulation: data.patientPopulation,
         regulatoryPathway: data.regulatoryPathway,
         currentStage: 'PLANNING',
-        status: data.status || 'ACTIVE',
+        status: (data.status as any) || 'ACTIVE',
         projectLead: data.projectLead,
         teamMembers: data.teamMembers,
         startDate: new Date(data.startDate),
@@ -354,7 +354,7 @@ router.post('/:id/inputs', async (req: AuthRequest, res: Response) => {
         category: data.category,
         requirement: data.requirement,
         source: data.source,
-        priority: data.priority || 'MEDIUM',
+        priority: (data.priority as any) || 'MEDIUM',
         traceToOutput: data.traceToOutput,
         traceToVerification: data.traceToVerification,
       },
@@ -421,7 +421,7 @@ router.post('/:id/outputs', async (req: AuthRequest, res: Response) => {
         documentRef: data.documentRef,
         acceptanceCriteria: data.acceptanceCriteria,
         traceToInput: data.traceToInput,
-        status: data.status || 'DRAFT',
+        status: (data.status as any) || 'DRAFT',
       },
     });
 

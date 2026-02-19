@@ -104,7 +104,7 @@ router.get('/recent', authenticate, async (req: Request, res: Response) => {
     }
 
     const { limit } = parsed.data;
-    const orgId = (user as any).organisationId || 'default';
+    const orgId = (user as { organisationId?: string }).organisationId || 'default';
 
     const entries = await getRecentActivity(orgId, limit);
 
@@ -146,7 +146,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
       parsed.data;
 
     await logActivity({
-      orgId: (user as any).organisationId || 'default',
+      orgId: (user as { organisationId?: string }).organisationId || 'default',
       recordType,
       recordId,
       userId: user!.id,

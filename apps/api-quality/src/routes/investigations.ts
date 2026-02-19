@@ -80,7 +80,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         closed,
         bySeverity: bySeverity.map((s: Record<string, unknown>) => ({
           severity: s.severity,
-          count: (s as any)._count.id,
+          count: (s as { _count: { id: number } })._count.id,
         })),
       },
     });
@@ -228,8 +228,8 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data: Record<string, unknown> = { ...parsed.data };
     if (parsed.data.dueDate) data.dueDate = new Date(parsed.data.dueDate);
-    if ((parsed.data as any).completedDate)
-      data.completedDate = new Date((parsed.data as any).completedDate);
+    if (parsed.data.completedDate)
+      data.completedDate = new Date(parsed.data.completedDate);
 
     const item = await prisma.qualInvestigation.update({ where: { id: req.params.id }, data });
     res.json({ success: true, data: item });

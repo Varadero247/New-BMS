@@ -85,7 +85,7 @@ router.post('/plans', async (req: AuthRequest, res: Response) => {
         deviceClass: data.deviceClass,
         dataSources: data.dataSources || [],
         reviewFrequency: data.reviewFrequency,
-        status: data.status || 'DRAFT',
+        status: (data.status as any) || 'DRAFT',
         lastReviewDate: data.lastReviewDate ? new Date(data.lastReviewDate) : undefined,
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : undefined,
         createdBy: req.user?.id,

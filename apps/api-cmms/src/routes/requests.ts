@@ -129,7 +129,7 @@ router.post('/', async (req: Request, res: Response) => {
         requestedBy: data.requestedBy,
         assetId: data.assetId,
         locationId: data.locationId,
-        priority: data.priority || 'MEDIUM',
+        priority: (data.priority as any) || 'MEDIUM',
         notes: data.notes,
         createdBy: authReq.user?.id || 'system',
       },

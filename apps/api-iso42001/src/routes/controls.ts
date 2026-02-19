@@ -458,8 +458,8 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
       where: { id },
       data: {
         implementationNotes: parsed.data.implementationNotes ?? null,
-        evidence: (parsed.data as any).evidence ?? null,
-        responsiblePerson: (parsed.data as any).responsiblePerson ?? null,
+        evidence: parsed.data.evidence ?? null,
+        responsiblePerson: parsed.data.responsiblePerson ?? null,
         targetDate:
           parsed.data.targetDate !== undefined
             ? parsed.data.targetDate

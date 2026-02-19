@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, Modal } from '@ims/ui';
@@ -70,7 +71,7 @@ export default function SdsLibraryPage() {
       const res = await api.get('/sds', { params });
       setRecords(res.data.data || []);
     } catch (e) {
-      setError((e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load SDS records.');
+      setError(axios.isAxiosError(e) && e.response?.status === 401 ? 'Session expired.' : 'Failed to load SDS records.');
     } finally {
       setLoading(false);
     }
@@ -107,7 +108,7 @@ export default function SdsLibraryPage() {
       });
       fetchRecords();
     } catch (e) {
-      setError((e as any)?.response?.data?.message || 'Failed to create SDS record.');
+      setError(axios.isAxiosError(e) && e.response?.data?.message || 'Failed to create SDS record.');
     } finally {
       setSaving(false);
     }

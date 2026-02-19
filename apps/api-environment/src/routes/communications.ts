@@ -84,7 +84,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         scheduledDate: data.scheduledDate ? new Date(data.scheduledDate) : undefined,
         attendees: data.attendees,
         location: data.location,
-        priority: data.priority || 'MEDIUM',
+        priority: (data.priority as any) || 'MEDIUM',
         status: 'DRAFT',
         createdBy: req.user!.id,
       } as any,

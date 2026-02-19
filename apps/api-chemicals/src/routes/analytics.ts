@@ -79,7 +79,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
 
     const riskLevelBreakdown: Record<string, number> = {};
     for (const r of riskLevels) {
-      riskLevelBreakdown[r.residualRiskLevel] = (r as any)._count;
+      riskLevelBreakdown[r.residualRiskLevel] = (r as { _count: number })._count;
     }
 
     res.json({

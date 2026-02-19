@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, Button, Badge } from '@ims/ui';
@@ -87,9 +88,9 @@ export default function PremisesDetailPage() {
       try {
         const r = await api.get(`/premises/${id}`);
         setPremises(r.data.data);
-      } catch (e: any) {
+      } catch (e) {
         setError(
-          (e as any).response?.status === 404 ? 'Premises not found.' : 'Failed to load premises details.'
+          (axios.isAxiosError(e) && e.response?.status === 404) ? 'Premises not found.' : 'Failed to load premises details.'
         );
       } finally {
         setLoading(false);

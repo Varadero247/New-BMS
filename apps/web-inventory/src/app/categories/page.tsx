@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import {
@@ -93,8 +94,8 @@ export default function CategoriesPage() {
       }
       setModalOpen(false);
       load();
-    } catch (e: any) {
-      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save category');
+    } catch (e) {
+      setFormError(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Failed to save category');
     } finally {
       setSubmitting(false);
     }
@@ -105,8 +106,8 @@ export default function CategoriesPage() {
     try {
       await api.delete(`/categories/${id}`);
       load();
-    } catch (e: any) {
-      alert((e as any)?.response?.data?.error?.message || 'Cannot delete category');
+    } catch (e) {
+      alert(axios.isAxiosError(e) && e.response?.data?.error?.message || 'Cannot delete category');
     }
   }
 

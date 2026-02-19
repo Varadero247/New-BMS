@@ -1,4 +1,5 @@
 'use client';
+import axios from 'axios';
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, Modal, ModalFooter } from '@ims/ui';
@@ -138,7 +139,7 @@ export default function KPIsPage() {
       setCreateOpen(false);
       await load();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to create');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to create');
     } finally {
       setSaving(false);
     }
@@ -159,7 +160,7 @@ export default function KPIsPage() {
       setEditOpen(false);
       await load();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to update');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to update');
     } finally {
       setSaving(false);
     }
@@ -171,7 +172,7 @@ export default function KPIsPage() {
       setDeleteOpen(false);
       await load();
     } catch (e) {
-      setError((e as any)?.response?.data?.error || 'Failed to delete');
+      setError(axios.isAxiosError(e) && e.response?.data?.error || 'Failed to delete');
     } finally {
       setSaving(false);
     }

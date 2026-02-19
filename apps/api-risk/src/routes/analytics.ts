@@ -92,15 +92,15 @@ router.get('/analytics/dashboard', authenticate, async (req: Request, res: Respo
     ]);
 
     const byStatus: Record<string, number> = {};
-    for (const s of byStatusRaw) byStatus[s.status] = (s as any)._count;
+    for (const s of byStatusRaw) byStatus[s.status] = (s as { _count: number })._count;
 
     const byCategory = byCategoryRaw.map((c: Record<string, unknown>) => ({
       category: c.category,
-      count: (c as any)._count,
+      count: (c as { _count: number })._count,
     }));
     const byLevel: Record<string, number> = {};
     for (const l of byLevelRaw)
-      if (l.residualRiskLevel) byLevel[l.residualRiskLevel] = (l as any)._count;
+      if (l.residualRiskLevel) byLevel[l.residualRiskLevel] = (l as { _count: number })._count;
 
     // Build 5x5 heatmap
     const heatmapData: Array<{
@@ -138,7 +138,7 @@ router.get('/analytics/dashboard', authenticate, async (req: Request, res: Respo
     });
     const moduleBreakdown = moduleBreakdownRaw.map((m: Record<string, unknown>) => ({
       module: m.sourceModule,
-      count: (m as any)._count,
+      count: (m as { _count: number })._count,
     }));
 
     res.json({
@@ -180,7 +180,7 @@ router.get('/analytics/by-module', authenticate, async (req: Request, res: Respo
     });
     const result = raw.map((r: Record<string, unknown>) => ({
       module: r.sourceModule,
-      count: (r as any)._count,
+      count: (r as { _count: number })._count,
     }));
     res.json({ success: true, data: result });
   } catch (error: unknown) {
