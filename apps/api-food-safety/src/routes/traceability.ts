@@ -172,7 +172,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const record = await prisma.fsTraceability.create({
       data: {
-        ...(body as any),
+        ...(body as Record<string, unknown>),
         productionDate: new Date(body.productionDate),
         expiryDate: body.expiryDate ? new Date(body.expiryDate) : null,
         createdBy: user?.id || 'system',

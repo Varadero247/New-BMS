@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 
 const logger = createLogger('api-marketing:chat');
 const router = Router();
@@ -168,7 +168,7 @@ router.post('/message', async (req: Request, res: Response) => {
       where: { id: sessionId },
       data: {
         messages: JSON.stringify(history),
-        ...(capturedData ? { captured: true, capturedData: capturedData as any } : {}),
+        ...(capturedData ? { captured: true, capturedData: capturedData as Prisma.InputJsonValue } : {}),
       },
     });
 

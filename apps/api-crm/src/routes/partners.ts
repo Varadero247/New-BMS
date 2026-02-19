@@ -397,7 +397,7 @@ router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
         partnerId: req.params.id,
         status: 'PENDING',
         deletedAt: null,
-      } as any,
+      },
       select: { id: true, amount: true },
       take: 1000,
     });

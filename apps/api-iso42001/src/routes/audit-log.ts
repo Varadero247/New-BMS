@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -218,7 +218,7 @@ router.post('/', async (req: Request, res: Response) => {
         description: parsed.data.description,
         inputSummary: parsed.data.inputSummary ?? null,
         outputSummary: parsed.data.outputSummary ?? null,
-        metadata: (parsed.data.metadata ?? undefined) as any,
+        metadata: (parsed.data.metadata ?? undefined) as Prisma.InputJsonValue,
         riskScore: parsed.data.riskScore ?? null,
         userId: authReq.user?.id || 'system',
         userName: authReq.user?.email || 'system',

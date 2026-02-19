@@ -142,7 +142,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const declaration = await prisma.aiSelfDeclaration.create({
       data: {
-        reference: reference as any,
+        reference: reference as string,
         title: parsed.data.title,
         scope: parsed.data.scope,
         conformanceStatement: parsed.data.conformanceStatement,

@@ -436,7 +436,7 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
     const control = await prisma.isControl.update({
       where: { id },
       data: {
-        implementationStatus: parsed.data.implementationStatus as any,
+        implementationStatus: parsed.data.implementationStatus as string,
         implementationNotes: parsed.data.implementationNotes || null,
         evidence: parsed.data.evidence || null,
         owner: parsed.data.owner || null,

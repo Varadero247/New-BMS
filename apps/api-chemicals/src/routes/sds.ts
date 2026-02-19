@@ -239,7 +239,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     });
 
     const data = await prisma.chemSds.create({
-      data: { ...(parsed.data as any), chemicalId, createdBy: (req as AuthRequest).user?.id },
+      data: { ...(parsed.data as Record<string, unknown>), chemicalId, createdBy: (req as AuthRequest).user?.id },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {

@@ -491,7 +491,7 @@ router.post('/dhr/:id/records', async (req: AuthRequest, res: Response) => {
     const record = await prisma.dHRRecord.create({
       data: {
         dhrId: req.params.id,
-        recordType: data.recordType as any,
+        recordType: data.recordType as string,
         title: data.title,
         description: data.description,
         result: data.result,

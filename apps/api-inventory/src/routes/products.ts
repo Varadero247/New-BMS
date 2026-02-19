@@ -380,7 +380,7 @@ router.patch('/:id', checkOwnership(prisma.product), async (req: AuthRequest, re
         ...updateData,
         version: { increment: 1 },
         updatedById: req.user?.id,
-      } as any,
+      },
       include: {
         category: true,
         supplier: true,

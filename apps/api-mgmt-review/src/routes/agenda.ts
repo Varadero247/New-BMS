@@ -36,7 +36,7 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Review not found' } });
 
-    const reviewRecord = review as any;
+    const reviewRecord = review as Record<string, unknown>;
     const customItems: string[] = parsed.data.customItems ?? [];
     const baseItems = [
       '1. Review of actions from previous management review',

@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -138,7 +138,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
         enrollmentDate: new Date(),
         status: 'ACTIVE',
         coverageLevel: data.coverageLevel,
-        dependents: data.dependents as any,
+        dependents: data.dependents as Prisma.InputJsonValue,
         employeeContribution: data.employeeContribution,
         employerContribution: data.employerContribution,
         effectiveFrom: new Date(data.effectiveFrom),

@@ -570,7 +570,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
         failedEnrollments,
         completedThisMonth,
         completionRate,
-        avgScore: Math.round((((scoreStats._avg?.assessmentScore || 0) as any) || 0) * 10) / 10,
+        avgScore: Math.round(((Number(scoreStats._avg?.assessmentScore) || 0) || 0) * 10) / 10,
         expiringCertifications,
         upcomingCourses: upcomingCourses.map((c) => ({
           id: c.id,

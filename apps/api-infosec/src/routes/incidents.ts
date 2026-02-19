@@ -105,7 +105,7 @@ router.post('/', async (req: Request, res: Response) => {
       data.gdprNotificationDeadline = new Date(Date.now() + 72 * 60 * 60 * 1000);
     }
 
-    const incident = await prisma.isIncident.create({ data: data as any });
+    const incident = await prisma.isIncident.create({ data: data as Record<string, unknown> });
 
     logger.info('Security incident reported', {
       incidentId: incident.id,

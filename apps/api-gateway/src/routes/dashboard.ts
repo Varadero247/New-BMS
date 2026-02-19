@@ -214,12 +214,12 @@ router.get('/trends', async (req: AuthRequest, res: Response) => {
     const { standard, metric, year } = req.query;
     const currentYear = year ? parseInt(year as string, 10) : new Date().getFullYear();
 
-    const where: Record<string, any> = { year: currentYear };
+    const where: Record<string, unknown> = { year: currentYear };
     if (standard) where.standard = standard as string;
     if (metric) where.metric = metric as string;
 
     const trends = await prisma.monthlyTrend.findMany({
-      where: where as any,
+      where: where as Parameters<typeof prisma.monthlyTrend.findMany>[0]['where'],
       orderBy: [{ standard: 'asc' }, { metric: 'asc' }, { month: 'asc' }],
       take: 120,
     });

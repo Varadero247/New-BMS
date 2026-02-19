@@ -254,7 +254,7 @@ router.get('/summary', async (req: Request, res: Response) => {
         taxYear: year,
         status: { in: ['PENDING', 'PREPARED'] },
         filingDeadline: { gte: new Date() },
-      } as any,
+      },
       orderBy: { filingDeadline: 'asc' },
       take: 5,
     });

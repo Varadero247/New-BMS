@@ -360,7 +360,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
       where: { id: req.params.id },
       data: {
         status: 'CLOSED',
-        outcome: parsed.data.outcome as any,
+        outcome: parsed.data.outcome as string,
         findings: parsed.data.findings,
         actions: parsed.data.actions,
         lessonsLearned: parsed.data.lessonsLearned,

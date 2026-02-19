@@ -91,7 +91,7 @@ router.put('/', async (req: Request, res: Response) => {
           interestedParties: parsed.data.interestedParties || [],
           applicableRequirements: parsed.data.applicableRequirements || [],
           interfaces: parsed.data.interfaces || [],
-          status: (parsed.data.status || 'DRAFT') as any,
+          status: (parsed.data.status || 'DRAFT') as string,
           createdBy: authReq.user?.id || 'system',
         },
       });

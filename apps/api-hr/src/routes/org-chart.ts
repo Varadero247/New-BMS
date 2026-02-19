@@ -118,7 +118,7 @@ router.get('/by-department', async (_req: Request, res: Response) => {
           orderBy: { lastName: 'asc' },
         },
         manager: { select: { id: true, firstName: true, lastName: true, jobTitle: true } },
-      } as any,
+      },
       orderBy: { name: 'asc' },
       take: 1000,
     });

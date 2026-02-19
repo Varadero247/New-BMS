@@ -237,7 +237,7 @@ router.post('/', async (req: Request, res: Response) => {
         measurementDate: parsed.data.measurementDate
           ? new Date(parsed.data.measurementDate)
           : new Date(),
-        status: status as any,
+        status: status as string,
         organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
         createdBy: authReq.user?.id || 'system',
       },

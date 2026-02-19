@@ -153,7 +153,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         data: {
           productId,
           warehouseId,
-          transactionType: adjustmentType as any,
+          transactionType: adjustmentType as string,
           referenceType: 'ADJUSTMENT',
           quantityBefore,
           quantityAfter,

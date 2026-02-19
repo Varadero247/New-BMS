@@ -82,7 +82,7 @@ router.get('/summary', async (req: Request, res: Response) => {
     };
 
     if (departmentId) {
-      where.employee = { departmentId } as any;
+      where.employee = { departmentId };
     }
 
     // Get attendance records grouped by status

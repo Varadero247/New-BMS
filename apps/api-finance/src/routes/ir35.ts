@@ -64,7 +64,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         contractorEmail,
         engagementDesc,
         clientName,
-        determination: determination as any,
+        determination: determination as string,
         assessmentDate,
         assessedBy,
         reasoning,

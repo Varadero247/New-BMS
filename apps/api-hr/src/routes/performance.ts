@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -462,7 +462,7 @@ router.post('/goals/:id/update', async (req: Request, res: Response) => {
           progressAfter: data.progressAfter,
           updateNotes: data.updateNotes,
           updatedById: data.updatedById,
-          evidence: data.evidence as any,
+          evidence: data.evidence as Prisma.InputJsonValue,
         },
       }),
       prisma.performanceGoal.update({

@@ -106,8 +106,8 @@ Return only the message text, nothing else.`;
         });
 
         if (resp.ok) {
-          const aiData = (await resp.json()) as any;
-          const text = aiData.content?.[0]?.text || '';
+          const aiData = (await resp.json()) as Record<string, unknown>;
+          const text = (aiData.content as Array<Record<string, unknown>>)?.[0]?.text as string || '';
           if (text.length > 0 && text.length <= 300) {
             generatedMsg = text.trim();
           }

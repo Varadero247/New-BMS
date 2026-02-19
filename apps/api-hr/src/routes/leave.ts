@@ -542,7 +542,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
     };
 
     if (departmentId) {
-      where.employee = { departmentId } as any;
+      where.employee = { departmentId };
     }
 
     const leaves = await prisma.leaveRequest.findMany({

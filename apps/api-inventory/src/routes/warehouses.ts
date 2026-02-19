@@ -106,7 +106,7 @@ router.get('/:id', checkOwnership(prisma.warehouse), async (req: AuthRequest, re
       data: {
         ...warehouse,
         stats: {
-          totalProducts: (inventoryStats as any)._count.productId,
+          totalProducts: inventoryStats._count.productId,
           totalQuantity: inventoryStats._sum.quantityOnHand || 0,
           totalReserved: inventoryStats._sum.quantityReserved || 0,
           totalValue: inventoryStats._sum.inventoryValue || 0,

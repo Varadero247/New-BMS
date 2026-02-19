@@ -186,7 +186,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     const policy = await prisma.aiPolicy.create({
       data: {
-        reference: reference as any,
+        reference: reference as string,
         title: parsed.data.title,
         content: parsed.data.content,
         policyType: parsed.data.policyType,

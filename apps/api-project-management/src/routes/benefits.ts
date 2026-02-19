@@ -195,11 +195,11 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
     const byType: Record<string, number> = {};
     const financialSummary = { totalExpected: 0, totalRealised: 0 };
 
-    for (const b of benefits as any[]) {
-      byType[b.type] = (byType[b.type] || 0) + 1;
-      if (b.financialValue) financialSummary.totalExpected += b.financialValue;
+    for (const b of benefits as Array<Record<string, unknown>>) {
+      byType[b.type as string] = (byType[b.type as string] || 0) + 1;
+      if (b.financialValue) financialSummary.totalExpected += b.financialValue as number;
       if (b.status === 'REALISED' && b.financialValue)
-        financialSummary.totalRealised += b.financialValue;
+        financialSummary.totalRealised += b.financialValue as number;
     }
 
     // Calculate realisation rate
