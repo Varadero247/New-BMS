@@ -27,7 +27,8 @@
     "zod": "^3.22.0",
     "@ims/validation": "workspace:*",
     "@ims/service-auth": "workspace:*",
-    "@ims/shared": "workspace:*"
+    "@ims/shared": "workspace:*",
+    "@ims/sentry": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

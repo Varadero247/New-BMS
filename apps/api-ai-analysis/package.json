@@ -25,7 +25,11 @@
     "morgan": "^1.10.0",
     "openai": "^4.20.0",
     "uuid": "^9.0.0",
-    "zod": "^3.22.0"
+    "zod": "^3.22.0",
+    "@ims/service-auth": "workspace:*",
+    "@ims/validation": "workspace:*",
+    "@ims/sentry": "workspace:*",
+    "@ims/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

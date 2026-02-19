@@ -136,6 +136,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
@@ -227,9 +230,21 @@ importers:
       '@ims/resilience':
         specifier: workspace:*
         version: link:../../packages/resilience
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -324,6 +339,9 @@ importers:
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/stripe-client':
         specifier: workspace:*
         version: link:../../packages/stripe-client
@@ -415,6 +433,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -485,6 +512,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -561,6 +597,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
@@ -652,6 +691,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -722,9 +770,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -801,6 +861,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -871,6 +940,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -941,9 +1019,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1020,6 +1110,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -1090,6 +1189,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -1160,9 +1268,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1236,9 +1356,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1315,9 +1447,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1394,9 +1538,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1473,9 +1629,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1552,9 +1720,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1812,9 +1992,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -1891,6 +2083,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
@@ -1979,6 +2174,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -2049,6 +2253,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
@@ -2140,6 +2347,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
@@ -2228,9 +2438,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -2307,9 +2529,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -2389,6 +2623,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -2471,6 +2714,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
@@ -2559,6 +2805,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -2623,6 +2878,15 @@ importers:
       '@ims/monitoring':
         specifier: workspace:*
         version: link:../../packages/monitoring
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -2711,6 +2975,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
@@ -2802,9 +3069,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -2881,6 +3160,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth
@@ -2969,6 +3251,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3042,9 +3333,21 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -3121,6 +3424,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3191,6 +3503,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3258,6 +3579,15 @@ importers:
       '@ims/monitoring':
         specifier: workspace:*
         version: link:../../packages/monitoring
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cors:
         specifier: ^2.8.5
         version: 2.8.5
@@ -3322,6 +3652,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3392,6 +3731,15 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
+      '@ims/service-auth':
+        specifier: workspace:*
+        version: link:../../packages/service-auth
+      '@ims/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@ims/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -3462,6 +3810,9 @@ importers:
       '@ims/rbac':
         specifier: workspace:*
         version: link:../../packages/rbac
+      '@ims/sentry':
+        specifier: workspace:*
+        version: link:../../packages/sentry
       '@ims/service-auth':
         specifier: workspace:*
         version: link:../../packages/service-auth

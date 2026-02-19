@@ -27,7 +27,8 @@
     "@ims/validation": "workspace:*",
     "@ims/service-auth": "workspace:*",
     "@ims/shared": "workspace:*",
-    "@ims/tax-engine": "workspace:*"
+    "@ims/tax-engine": "workspace:*",
+    "@ims/sentry": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

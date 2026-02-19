@@ -21,7 +21,8 @@
     "@ims/service-auth": "workspace:*",
     "@ims/shared": "workspace:*",
     "dotenv": "~16.3.1",
-    "@ims/auth": "workspace:*"
+    "@ims/auth": "workspace:*",
+    "@ims/sentry": "workspace:*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
