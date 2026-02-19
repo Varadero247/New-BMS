@@ -130,8 +130,8 @@ export default function CustomersPage() {
       await api.post('/customers', payload);
       setCreateModalOpen(false);
       loadCustomers();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create customer.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create customer.');
     } finally {
       setSubmitting(false);
     }
@@ -156,8 +156,8 @@ export default function CustomersPage() {
       await api.put(`/customers/${editingId}`, payload);
       setEditModalOpen(false);
       loadCustomers();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to update customer.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to update customer.');
     } finally {
       setSubmitting(false);
     }

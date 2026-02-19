@@ -30,9 +30,9 @@ export default function ConflictsClient() {
     try {
       const response = await api.get('/conflicts');
       setConflicts(response.data.data || []);
-    } catch (err: unknown) {
+    } catch (err) {
       setError(
-        err.response?.status === 401
+        (err as any).response?.status === 401
           ? 'Session expired. Please log in again.'
           : 'Failed to load conflicts.'
       );

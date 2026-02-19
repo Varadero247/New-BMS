@@ -66,8 +66,8 @@ export default function RegisterPage() {
         specialisms: form.specialisms,
       });
       router.push('/login?registered=true');
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } catch (err) {
+      setError((err as any).response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

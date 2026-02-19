@@ -18,7 +18,7 @@ interface QueryResult {
   query: string;
   timestamp: string;
   resultType: 'table' | 'chart' | 'metric' | 'text';
-  data: Record<string, unknown>;
+  data: Record<string, any>;
   sql?: string;
   duration: number;
 }
@@ -283,18 +283,18 @@ export default function NlqClient() {
                 <div className="flex items-center gap-6">
                   <div>
                     <p className="text-4xl font-bold text-purple-700">
-                      {(r.data as Record<string, unknown>).value as number}
+                      {(r.data as Record<string, any>).value as number}
                     </p>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {(r.data as Record<string, unknown>).label as string}
+                      {(r.data as Record<string, any>).label as string}
                     </p>
                   </div>
                   <div className="flex items-center gap-1 text-sm">
                     <TrendingUp
-                      className={`h-4 w-4 ${(r.data as Record<string, unknown>).trend === 'down' ? 'text-green-600 rotate-180' : 'text-red-600'}`}
+                      className={`h-4 w-4 ${(r.data as Record<string, any>).trend === 'down' ? 'text-green-600 rotate-180' : 'text-red-600'}`}
                     />
                     <span className="text-gray-500 dark:text-gray-400">
-                      was {(r.data as Record<string, unknown>).previousValue as number} last period
+                      was {(r.data as Record<string, any>).previousValue as number} last period
                     </span>
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export default function NlqClient() {
 
               {r.resultType === 'text' && (
                 <p className="text-sm text-gray-600">
-                  {(r.data as Record<string, unknown>).text as string}
+                  {(r.data as Record<string, any>).text as string}
                 </p>
               )}
             </div>

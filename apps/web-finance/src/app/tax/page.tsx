@@ -126,8 +126,8 @@ export default function TaxPage() {
       });
       setCreateRateOpen(false);
       loadData();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create tax rate.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create tax rate.');
     } finally {
       setSubmitting(false);
     }
@@ -161,8 +161,8 @@ export default function TaxPage() {
       });
       setCreateReturnOpen(false);
       loadData();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create tax return.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create tax return.');
     } finally {
       setSubmitting(false);
     }

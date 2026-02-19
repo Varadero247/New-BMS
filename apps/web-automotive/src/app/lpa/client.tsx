@@ -29,6 +29,7 @@ import {
   Play,
   Eye,
   Layers,
+  Edit2,
 } from 'lucide-react';
 import { api } from '@/lib/api';
 

@@ -321,7 +321,7 @@ export default function EightDClient() {
                         const isDone = d.num < report.currentStep;
                         const isCurrent = d.num === report.currentStep;
                         const isPending = d.num > report.currentStep;
-                        const hasContent = !!(report as Record<string, string>)[d.key];
+                        const hasContent = !!(report as unknown as Record<string, string>)[d.key];
                         return (
                           <div key={d.num} className="flex-1 flex flex-col items-center gap-1">
                             <div
@@ -347,7 +347,7 @@ export default function EightDClient() {
                 {isExpanded && (
                   <div className="border-t border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700">
                     {DISCIPLINES.map((d) => {
-                      const content = (report as Record<string, string>)[d.key];
+                      const content = (report as unknown as Record<string, string>)[d.key];
                       const isDone = d.num < report.currentStep || !!content;
                       return (
                         <div key={d.num} className={`px-5 py-3 ${!content ? 'opacity-50' : ''}`}>

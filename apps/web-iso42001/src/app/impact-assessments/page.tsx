@@ -213,7 +213,7 @@ function RiskHeatmap({
                   {a.system || a.title}
                 </td>
                 {dimensions.map((d) => {
-                  const score = ((a as Record<string, unknown>)[d.key] as number) || 1;
+                  const score = ((a as Record<string, any>)[d.key] as number) || 1;
                   return (
                     <td key={d.key} className="py-2 px-2 text-center">
                       <span
@@ -623,7 +623,7 @@ export default function ImpactAssessmentsPage() {
                     {(a.accuracyScore || 0) > 0 && (
                       <div className="grid grid-cols-5 gap-1 mb-3">
                         {dimensions.map((d) => {
-                          const score = ((a as Record<string, unknown>)[d.key] as number) || 1;
+                          const score = ((a as Record<string, any>)[d.key] as number) || 1;
                           return (
                             <div key={d.key} className="text-center">
                               <div
@@ -1203,7 +1203,7 @@ export default function ImpactAssessmentsPage() {
                 <div className="grid grid-cols-5 gap-3">
                   {dimensions.map((d) => {
                     const score =
-                      ((viewAssessment as Record<string, unknown>)[d.key] as number) || 1;
+                      ((viewAssessment as Record<string, any>)[d.key] as number) || 1;
                     return (
                       <div key={d.key} className="text-center">
                         <div className="text-2xl font-bold" style={{ color: d.color }}>

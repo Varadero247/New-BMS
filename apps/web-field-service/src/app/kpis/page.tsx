@@ -122,7 +122,7 @@ export default function KPIsPage() {
       setModalOpen(false);
       await load();
     } catch (e: any) {
-      setError(e?.response?.data?.message || 'Failed to save.');
+      setError((e as any)?.response?.data?.message || 'Failed to save.');
     } finally {
       setSaving(false);
     }

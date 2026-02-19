@@ -31,8 +31,8 @@ export default function LoginPage() {
       localStorage.setItem('token', data.accessToken);
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/growth-dashboard');
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Invalid credentials');
+    } catch (err) {
+      setError((err as any).response?.data?.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }

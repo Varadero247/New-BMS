@@ -181,8 +181,8 @@ export default function InvoicesPage() {
       });
       setCreateModalOpen(false);
       loadInvoices();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create invoice.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create invoice.');
     } finally {
       setSubmitting(false);
     }

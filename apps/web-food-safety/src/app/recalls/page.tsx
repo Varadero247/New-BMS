@@ -139,7 +139,7 @@ export default function RecallsPage() {
       setModalOpen(false);
       load();
     } catch (e: any) {
-      setFormError(e?.response?.data?.error?.message || 'Failed to save');
+      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save');
     } finally {
       setSubmitting(false);
     }

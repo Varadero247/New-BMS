@@ -133,8 +133,8 @@ export default function InspectionsPage() {
       await api.post('/inspections', form);
       setCreateOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to create');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to create');
     } finally {
       setSaving(false);
     }
@@ -150,8 +150,8 @@ export default function InspectionsPage() {
       await api.put(`/inspections/${selected!.id}`, form);
       setEditOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to update');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to update');
     } finally {
       setSaving(false);
     }
@@ -162,8 +162,8 @@ export default function InspectionsPage() {
       await api.delete(`/inspections/${selected!.id}`);
       setDeleteOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to delete');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to delete');
     } finally {
       setSaving(false);
     }

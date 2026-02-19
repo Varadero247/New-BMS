@@ -883,7 +883,7 @@ export default function ControlsPage() {
                             {cs?.evidence ? (
                               <ExternalLink
                                 className="w-3.5 h-3.5 text-indigo-500"
-                                title="Evidence linked"
+                                aria-label="Evidence linked"
                               />
                             ) : null}
                           </div>

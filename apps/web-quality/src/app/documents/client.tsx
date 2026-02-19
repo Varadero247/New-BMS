@@ -308,7 +308,7 @@ export default function DocumentsClient() {
     setFormError(null);
     setSubmitting(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         title: form.title,
         documentType: form.documentType,
         isoClause: form.isoClause || undefined,

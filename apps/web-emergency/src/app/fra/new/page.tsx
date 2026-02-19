@@ -292,7 +292,7 @@ export default function FRANewPage() {
       await api.post('/fra', payload);
       router.push('/fra');
     } catch (e: any) {
-      setError(e.response?.data?.error || 'Failed to save FRA. Please try again.');
+      setError((e as any).response?.data?.error || 'Failed to save FRA. Please try again.');
     } finally {
       setSaving(false);
     }

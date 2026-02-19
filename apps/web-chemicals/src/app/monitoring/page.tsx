@@ -50,8 +50,8 @@ export default function MonitoringPage() {
       if (search) params.search = search;
       const res = await api.get('/monitoring', { params });
       setRecords(res.data.data || []);
-    } catch (e: unknown) {
-      setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load monitoring data.');
+    } catch (e) {
+      setError((e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load monitoring data.');
     } finally {
       setLoading(false);
     }
@@ -87,8 +87,8 @@ export default function MonitoringPage() {
         notes: '',
       });
       fetchRecords();
-    } catch (e: unknown) {
-      setError(e.response?.data?.message || 'Failed to create monitoring record.');
+    } catch (e) {
+      setError((e as any)?.response?.data?.message || 'Failed to create monitoring record.');
     } finally {
       setSaving(false);
     }

@@ -142,7 +142,7 @@ export default function JobsPage() {
       setModalOpen(false);
       await load();
     } catch (e: any) {
-      setError(e?.response?.data?.message || 'Failed to save job.');
+      setError((e as any)?.response?.data?.message || 'Failed to save job.');
     } finally {
       setSaving(false);
     }

@@ -152,8 +152,8 @@ export default function LinkedInTrackerPage() {
       setProspectName('');
       setCompany('');
       setCustomContext('');
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to create outreach');
+    } catch (err) {
+      setError((err as any).response?.data?.message || 'Failed to create outreach');
     } finally {
       setSubmitting(false);
     }

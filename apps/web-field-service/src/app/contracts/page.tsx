@@ -124,7 +124,7 @@ export default function ContractsPage() {
       setModalOpen(false);
       await load();
     } catch (e: any) {
-      setError(e?.response?.data?.message || 'Failed to save.');
+      setError((e as any)?.response?.data?.message || 'Failed to save.');
     } finally {
       setSaving(false);
     }
@@ -304,7 +304,7 @@ export default function ContractsPage() {
                           </td>
                           <td className="py-3 px-4 text-gray-600">
                             {item.expiresAt || item.endDate
-                              ? new Date(item.expiresAt || item.endDate).toLocaleDateString()
+                              ? new Date((item.expiresAt || item.endDate) as string).toLocaleDateString()
                               : '-'}
                           </td>
                           <td className="py-3 px-4">

@@ -94,7 +94,7 @@ export default function CategoriesPage() {
       setModalOpen(false);
       load();
     } catch (e: any) {
-      setFormError(e?.response?.data?.error?.message || 'Failed to save category');
+      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save category');
     } finally {
       setSubmitting(false);
     }
@@ -106,7 +106,7 @@ export default function CategoriesPage() {
       await api.delete(`/categories/${id}`);
       load();
     } catch (e: any) {
-      alert(e?.response?.data?.error?.message || 'Cannot delete category');
+      alert((e as any)?.response?.data?.error?.message || 'Cannot delete category');
     }
   }
 

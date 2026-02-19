@@ -215,7 +215,7 @@ export default function GoalsPage() {
       return;
     setCreateSubmitting(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         cycleId: formCycleId,
         employeeId: formEmployeeId,
         title: formTitle,

@@ -263,8 +263,8 @@ export default function DeviceRecordsClient() {
         setShowCreateDmrModal(false);
         setDmrForm(emptyDmrForm);
         fetchDmrs();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to create DMR');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to create DMR');
       } finally {
         setSubmitting(false);
       }
@@ -279,8 +279,8 @@ export default function DeviceRecordsClient() {
         await api.post(`/dmr/${id}/approve`);
         fetchDmrDetail(id);
         fetchDmrs();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to approve DMR');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to approve DMR');
       } finally {
         setSubmitting(false);
       }
@@ -305,8 +305,8 @@ export default function DeviceRecordsClient() {
         setShowCreateDhrModal(false);
         setDhrForm(emptyDhrForm);
         fetchDhrs();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to create DHR');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to create DHR');
       } finally {
         setSubmitting(false);
       }
@@ -325,8 +325,8 @@ export default function DeviceRecordsClient() {
         setShowAddRecordModal(false);
         setRecordForm(emptyRecordForm);
         fetchDhrDetail(selectedDhr.id);
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to add production record');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to add production record');
       } finally {
         setSubmitting(false);
       }
@@ -341,8 +341,8 @@ export default function DeviceRecordsClient() {
         await api.post(`/dhr/${id}/release`);
         fetchDhrDetail(id);
         fetchDhrs();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to release DHR');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to release DHR');
       } finally {
         setSubmitting(false);
       }

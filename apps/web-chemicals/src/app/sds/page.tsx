@@ -69,8 +69,8 @@ export default function SdsLibraryPage() {
       if (search) params.search = search;
       const res = await api.get('/sds', { params });
       setRecords(res.data.data || []);
-    } catch (e: unknown) {
-      setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load SDS records.');
+    } catch (e) {
+      setError((e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load SDS records.');
     } finally {
       setLoading(false);
     }
@@ -106,8 +106,8 @@ export default function SdsLibraryPage() {
         language: 'en',
       });
       fetchRecords();
-    } catch (e: unknown) {
-      setError(e.response?.data?.message || 'Failed to create SDS record.');
+    } catch (e) {
+      setError((e as any)?.response?.data?.message || 'Failed to create SDS record.');
     } finally {
       setSaving(false);
     }

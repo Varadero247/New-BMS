@@ -59,8 +59,8 @@ export default function FeatureFlagsPage() {
       const json = await res.json();
       setFlags(json.data || []);
       setError(null);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to load feature flags');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Failed to load feature flags');
     } finally {
       setLoading(false);
     }
@@ -91,8 +91,8 @@ export default function FeatureFlagsPage() {
       setNewName('');
       setNewDescription('');
       await fetchFlags();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to create flag');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Failed to create flag');
     } finally {
       setCreating(false);
     }
@@ -107,8 +107,8 @@ export default function FeatureFlagsPage() {
       });
       if (!res.ok) throw new Error('Failed to update flag');
       await fetchFlags();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to toggle flag');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Failed to toggle flag');
     }
   };
 
@@ -122,8 +122,8 @@ export default function FeatureFlagsPage() {
       setDeleteConfirm(null);
       setExpandedFlag(null);
       await fetchFlags();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to delete flag');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Failed to delete flag');
     }
   };
 
@@ -142,8 +142,8 @@ export default function FeatureFlagsPage() {
       setNewOrgId('');
       setNewOrgEnabled(false);
       await fetchFlags();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to add org override');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Failed to add org override');
     }
   };
 
@@ -159,8 +159,8 @@ export default function FeatureFlagsPage() {
       );
       if (!res.ok) throw new Error('Failed to update org override');
       await fetchFlags();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to update org override');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Failed to update org override');
     }
   };
 
@@ -175,8 +175,8 @@ export default function FeatureFlagsPage() {
       );
       if (!res.ok) throw new Error('Failed to remove org override');
       await fetchFlags();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to remove org override');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Failed to remove org override');
     }
   };
 

@@ -61,9 +61,9 @@ export default function DashboardPage() {
         if (incidentsRes.status === 'fulfilled') {
           setRecentIncidents(incidentsRes.value.data.data || []);
         }
-      } catch (e: unknown) {
+      } catch (e) {
         setError(
-          e.response?.status === 401
+          (e as any)?.response?.status === 401
             ? 'Session expired. Please log in again.'
             : 'Failed to load dashboard data.'
         );

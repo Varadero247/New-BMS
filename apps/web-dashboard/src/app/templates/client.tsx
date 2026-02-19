@@ -51,7 +51,7 @@ export default function TemplatesClient() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [showUseModal, setShowUseModal] = useState(false);
-  const [formData, setFormData] = useState<Record<string, unknown>>({});
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const [submitting, setSubmitting] = useState(false);
 
   const fetchTemplates = useCallback(async () => {

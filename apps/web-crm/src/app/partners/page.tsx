@@ -108,8 +108,8 @@ export default function PartnersPage() {
       await api.post('/partners', payload);
       setCreateModalOpen(false);
       loadPartners();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to register partner.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to register partner.');
     } finally {
       setSubmitting(false);
     }

@@ -16,6 +16,7 @@ interface Expense {
   expenseDate: string;
   status: string;
   hasReceipt: boolean;
+  isBillable?: boolean;
   employee: {
     firstName: string;
     lastName: string;

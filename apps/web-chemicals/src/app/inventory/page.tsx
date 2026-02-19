@@ -51,8 +51,8 @@ export default function InventoryPage() {
       if (search) params.search = search;
       const res = await api.get('/inventory', { params });
       setRecords(res.data.data || []);
-    } catch (e: unknown) {
-      setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load inventory.');
+    } catch (e) {
+      setError((e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load inventory.');
     } finally {
       setLoading(false);
     }
@@ -95,8 +95,8 @@ export default function InventoryPage() {
         storageCondition: '',
       });
       fetchRecords();
-    } catch (e: unknown) {
-      setError(e.response?.data?.message || 'Failed to add stock.');
+    } catch (e) {
+      setError((e as any)?.response?.data?.message || 'Failed to add stock.');
     } finally {
       setSaving(false);
     }

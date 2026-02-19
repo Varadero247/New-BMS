@@ -115,8 +115,8 @@ export default function UsersPage() {
       setShowInviteModal(false);
       setInviteForm({ email: '', firstName: '', lastName: '', password: '', role: 'USER' });
       loadUsers();
-    } catch (err: unknown) {
-      alert(err.response?.data?.error?.message || 'Failed to create user');
+    } catch (err) {
+      alert((err as any).response?.data?.error?.message || 'Failed to create user');
     }
   }
 

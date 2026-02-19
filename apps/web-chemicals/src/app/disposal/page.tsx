@@ -68,9 +68,9 @@ export default function DisposalPage() {
       if (search) params.search = search;
       const res = await api.get('/disposal', { params });
       setRecords(res.data.data || []);
-    } catch (e: unknown) {
+    } catch (e) {
       setError(
-        e.response?.status === 401 ? 'Session expired.' : 'Failed to load disposal records.'
+        (e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load disposal records.'
       );
     } finally {
       setLoading(false);
@@ -112,8 +112,8 @@ export default function DisposalPage() {
         notes: '',
       });
       fetchRecords();
-    } catch (e: unknown) {
-      setError(e.response?.data?.message || 'Failed to create disposal record.');
+    } catch (e) {
+      setError((e as any)?.response?.data?.message || 'Failed to create disposal record.');
     } finally {
       setSaving(false);
     }

@@ -78,7 +78,7 @@ export default function ControlsClient() {
       const res = await api.get('/controls');
       setItems(res.data.data || []);
       setError('');
-    } catch (err: unknown) {
+    } catch (err) {
       setError((err as Error).message || 'Failed to load controls');
     } finally {
       setLoading(false);
@@ -131,8 +131,8 @@ export default function ControlsClient() {
       }
       setModalOpen(false);
       fetchData();
-    } catch (err: unknown) {
-      alert(err.response?.data?.error?.message || 'Save failed');
+    } catch (err) {
+      alert((err as any).response?.data?.error?.message || 'Save failed');
     } finally {
       setSaving(false);
     }

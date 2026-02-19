@@ -178,8 +178,8 @@ export default function PayablesPage() {
       });
       setCreateModalOpen(false);
       loadBills();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create bill.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create bill.');
     } finally {
       setSubmitting(false);
     }

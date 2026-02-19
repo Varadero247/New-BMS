@@ -182,8 +182,8 @@ export default function JournalPage() {
       });
       setCreateModalOpen(false);
       loadEntries();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create journal entry.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create journal entry.');
     } finally {
       setSubmitting(false);
     }

@@ -276,8 +276,8 @@ export default function FAIClient() {
         setShowCreateModal(false);
         setForm(emptyForm);
         fetchItems();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to create FAI');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to create FAI');
         console.error('Failed to create FAI:', err);
       } finally {
         setSubmitting(false);
@@ -292,9 +292,9 @@ export default function FAIClient() {
     try {
       await api.put(`/fai/${selectedItem.id}/part1`, { characteristics: part1Data });
       await fetchDetail(selectedItem.id);
-    } catch (err: unknown) {
+    } catch (err) {
       console.error('Failed to save Part 1:', err);
-      alert(err.response?.data?.message || 'Failed to save Part 1 data');
+      alert((err as any).response?.data?.message || 'Failed to save Part 1 data');
     } finally {
       setPartSaving(false);
     }
@@ -306,9 +306,9 @@ export default function FAIClient() {
     try {
       await api.put(`/fai/${selectedItem.id}/part2`, { documents: part2Data });
       await fetchDetail(selectedItem.id);
-    } catch (err: unknown) {
+    } catch (err) {
       console.error('Failed to save Part 2:', err);
-      alert(err.response?.data?.message || 'Failed to save Part 2 data');
+      alert((err as any).response?.data?.message || 'Failed to save Part 2 data');
     } finally {
       setPartSaving(false);
     }
@@ -320,9 +320,9 @@ export default function FAIClient() {
     try {
       await api.put(`/fai/${selectedItem.id}/part3`, { tests: part3Data });
       await fetchDetail(selectedItem.id);
-    } catch (err: unknown) {
+    } catch (err) {
       console.error('Failed to save Part 3:', err);
-      alert(err.response?.data?.message || 'Failed to save Part 3 data');
+      alert((err as any).response?.data?.message || 'Failed to save Part 3 data');
     } finally {
       setPartSaving(false);
     }
@@ -335,9 +335,9 @@ export default function FAIClient() {
       await api.post(`/fai/${selectedItem.id}/approve`);
       await fetchDetail(selectedItem.id);
       fetchItems();
-    } catch (err: unknown) {
+    } catch (err) {
       console.error('Failed to approve FAI:', err);
-      alert(err.response?.data?.message || 'Failed to approve FAI');
+      alert((err as any).response?.data?.message || 'Failed to approve FAI');
     }
   }, [selectedItem, fetchDetail, fetchItems]);
 
@@ -349,9 +349,9 @@ export default function FAIClient() {
       setPartialOpenItems('');
       await fetchDetail(selectedItem.id);
       fetchItems();
-    } catch (err: unknown) {
+    } catch (err) {
       console.error('Failed to mark partial approval:', err);
-      alert(err.response?.data?.message || 'Failed to mark partial approval');
+      alert((err as any).response?.data?.message || 'Failed to mark partial approval');
     }
   }, [selectedItem, partialOpenItems, fetchDetail, fetchItems]);
 

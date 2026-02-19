@@ -158,7 +158,7 @@ export default function LeavePage() {
     setCreateError('');
 
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         employeeId: formEmployeeId,
         leaveTypeId: formLeaveTypeId,
         startDate: formStartDate,
@@ -175,8 +175,8 @@ export default function LeavePage() {
       await api.post('/leave/requests', payload);
       setCreateModalOpen(false);
       loadRequests();
-    } catch (error: unknown) {
-      const msg = error.response?.data?.error?.message;
+    } catch (error) {
+      const msg = (error as any).response?.data?.error?.message;
       setCreateError(typeof msg === 'string' ? msg : 'Failed to create leave request.');
     } finally {
       setCreating(false);
@@ -206,8 +206,8 @@ export default function LeavePage() {
       });
       setActionModalOpen(false);
       loadRequests();
-    } catch (error: unknown) {
-      const msg = error.response?.data?.error?.message;
+    } catch (error) {
+      const msg = (error as any).response?.data?.error?.message;
       setActionError(
         typeof msg === 'string'
           ? msg

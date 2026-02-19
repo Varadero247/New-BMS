@@ -267,8 +267,8 @@ export default function ConfigurationClient() {
         setAiAnalysis('');
         setAiExpanded(false);
         fetchItems();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to create configuration item');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to create configuration item');
         console.error('Failed to create configuration item:', err);
       } finally {
         setSubmitting(false);
@@ -294,8 +294,8 @@ export default function ConfigurationClient() {
         setForm(emptyForm);
         setSelectedItem(null);
         fetchItems();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to update configuration item');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to update configuration item');
         console.error('Failed to update configuration item:', err);
       } finally {
         setSubmitting(false);
@@ -315,9 +315,9 @@ export default function ConfigurationClient() {
       try {
         await api.delete(`/configuration/${id}`);
         fetchItems();
-      } catch (err: unknown) {
+      } catch (err) {
         console.error('Failed to delete configuration item:', err);
-        alert(err.response?.data?.message || 'Failed to delete configuration item');
+        alert((err as any).response?.data?.message || 'Failed to delete configuration item');
       }
     },
     [fetchItems]

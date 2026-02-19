@@ -120,7 +120,7 @@ export default function SuppliersPage() {
       setModalOpen(false);
       load();
     } catch (e: any) {
-      setFormError(e?.response?.data?.error?.message || 'Failed to save supplier');
+      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save supplier');
     } finally {
       setSubmitting(false);
     }
@@ -132,7 +132,7 @@ export default function SuppliersPage() {
       await api.delete(`/suppliers/${id}`);
       load();
     } catch (e: any) {
-      alert(e?.response?.data?.error?.message || 'Cannot delete supplier');
+      alert((e as any)?.response?.data?.error?.message || 'Cannot delete supplier');
     }
   }
 

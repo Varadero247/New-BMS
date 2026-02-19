@@ -125,6 +125,6 @@ export async function showLocalNotification(options: PushNotificationOptions): P
     badge: options.badge || '/icons/badge-72x72.png',
     tag: options.tag,
     data: options.data,
-    actions: options.actions,
-  });
+    ...(options.actions && { actions: options.actions }),
+  } as NotificationOptions);
 }

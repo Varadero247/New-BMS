@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 export default function ApiDocsPage() {
-  const [spec, setSpec] = useState<Record<string, unknown> | null>(null);
+  const [spec, setSpec] = useState<Record<string, any> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);

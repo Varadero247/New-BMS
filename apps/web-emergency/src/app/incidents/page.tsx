@@ -106,7 +106,7 @@ export default function IncidentsPage() {
       if (searchTerm) params.search = searchTerm;
       const r = await api.get('/incidents', { params });
       setIncidents(r.data.data || []);
-    } catch (e: unknown) {
+    } catch (e) {
       setError('Failed to load incidents.');
     } finally {
       setLoading(false);

@@ -44,8 +44,8 @@ function SignupForm() {
       }
 
       setSuccess(true);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong.');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Something went wrong.');
     } finally {
       setLoading(false);
     }

@@ -124,8 +124,8 @@ export default function AccountsPage() {
       await api.post('/accounts', formData);
       setCreateModalOpen(false);
       loadAccounts();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create account.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create account.');
     } finally {
       setSubmitting(false);
     }
@@ -143,8 +143,8 @@ export default function AccountsPage() {
       await api.put(`/accounts/${editingId}`, formData);
       setEditModalOpen(false);
       loadAccounts();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to update account.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to update account.');
     } finally {
       setSubmitting(false);
     }

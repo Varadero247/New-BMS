@@ -88,7 +88,7 @@ export function useCamera(options: CameraOptions = {}): CameraState {
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current.getTracks().forEach((track: MediaStreamTrack) => track.stop());
       streamRef.current = null;
     }
     setIsActive(false);

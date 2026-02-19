@@ -75,8 +75,8 @@ export default function IncidentsPage() {
       if (search) params.search = search;
       const res = await api.get('/incidents', { params });
       setIncidents(res.data.data || []);
-    } catch (e: unknown) {
-      setError(e.response?.status === 401 ? 'Session expired.' : 'Failed to load incidents.');
+    } catch (e) {
+      setError((e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load incidents.');
     } finally {
       setLoading(false);
     }
@@ -115,8 +115,8 @@ export default function IncidentsPage() {
         immediateActions: '',
       });
       fetchIncidents();
-    } catch (e: unknown) {
-      setError(e.response?.data?.message || 'Failed to report incident.');
+    } catch (e) {
+      setError((e as any)?.response?.data?.message || 'Failed to report incident.');
     } finally {
       setSaving(false);
     }

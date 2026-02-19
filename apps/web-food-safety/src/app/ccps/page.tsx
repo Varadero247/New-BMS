@@ -97,8 +97,8 @@ export default function CCPsPage() {
       }
       setModalOpen(false);
       load();
-    } catch (e: unknown) {
-      setFormError(e?.response?.data?.error?.message || 'Failed to save');
+    } catch (e) {
+      setFormError((e as any)?.response?.data?.error?.message || 'Failed to save');
     } finally {
       setSubmitting(false);
     }
@@ -109,8 +109,8 @@ export default function CCPsPage() {
     try {
       await api.delete(`/ccps/${id}`);
       load();
-    } catch (e: unknown) {
-      alert(e?.response?.data?.error?.message || 'Failed');
+    } catch (e) {
+      alert((e as any)?.response?.data?.error?.message || 'Failed');
     }
   }
 

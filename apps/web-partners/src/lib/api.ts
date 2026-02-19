@@ -16,7 +16,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && typeof window !== 'undefined') {
+    if ((error as any).response?.status === 401 && typeof window !== 'undefined') {
       localStorage.removeItem('partner_token');
       window.location.href = '/login';
     }

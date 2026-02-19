@@ -141,8 +141,8 @@ export default function DeclarePage() {
       } else {
         router.push('/incidents');
       }
-    } catch (e: unknown) {
-      setError(e.response?.data?.error || 'Failed to declare emergency. Please try again.');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to declare emergency. Please try again.');
       setSubmitting(false);
     }
   }

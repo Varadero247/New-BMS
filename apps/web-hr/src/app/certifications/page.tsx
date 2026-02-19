@@ -165,7 +165,7 @@ export default function CertificationsPage() {
     if (!formEmployeeId || !formName || !formIssuingOrganization || !formIssueDate) return;
     setCreating(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         employeeId: formEmployeeId,
         name: formName,
         issuingOrganization: formIssuingOrganization,
@@ -207,7 +207,7 @@ export default function CertificationsPage() {
       // Looking at the route, there's no PUT endpoint for certifications, so we'll note this.
       // However, the task spec says "Edit modal for updating status/dates (PUT /training/certifications/:id)"
       // We'll call it anyway as the task expects it.
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         status: editStatus,
       };
       if (editExpiryDate) payload.expiryDate = editExpiryDate;
@@ -408,7 +408,7 @@ export default function CertificationsPage() {
                 {complianceResult.expiringCerts?.length > 0 && (
                   <div>
                     <h4 className="font-medium text-amber-700 mb-2">Expiring Certifications</h4>
-                    {complianceResult.expiringCerts.map((c: Record<string, unknown>, i: number) => (
+                    {complianceResult.expiringCerts.map((c: Record<string, any>, i: number) => (
                       <div key={i} className="text-sm mb-2 p-2 bg-amber-50 rounded">
                         <p className="font-medium">{c.name}</p>
                         <p className="text-gray-600">
@@ -424,7 +424,7 @@ export default function CertificationsPage() {
                 {complianceResult.missingCerts?.length > 0 && (
                   <div>
                     <h4 className="font-medium text-red-700 mb-2">Missing Certifications</h4>
-                    {complianceResult.missingCerts.map((c: Record<string, unknown>, i: number) => (
+                    {complianceResult.missingCerts.map((c: Record<string, any>, i: number) => (
                       <div key={i} className="text-sm mb-2 p-2 bg-red-50 rounded">
                         <p className="font-medium">{c.name}</p>
                         <p className="text-gray-600">

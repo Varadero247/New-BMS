@@ -324,8 +324,8 @@ export default function ComplaintsClient() {
         setForm(emptyComplaintForm);
         fetchComplaints();
         fetchMdrPending();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to create complaint');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to create complaint');
       } finally {
         setSubmitting(false);
       }
@@ -341,8 +341,8 @@ export default function ComplaintsClient() {
       await api.put(`/complaints/${selectedComplaint.id}`, investigationForm);
       fetchComplaintDetail(selectedComplaint.id);
       fetchComplaints();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to update investigation');
+    } catch (err) {
+      setError((err as any).response?.data?.message || 'Failed to update investigation');
     } finally {
       setSubmitting(false);
     }
@@ -357,8 +357,8 @@ export default function ComplaintsClient() {
       fetchComplaintDetail(selectedComplaint.id);
       fetchComplaints();
       fetchMdrPending();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to submit MDR decision');
+    } catch (err) {
+      setError((err as any).response?.data?.message || 'Failed to submit MDR decision');
     } finally {
       setSubmitting(false);
     }
@@ -372,8 +372,8 @@ export default function ComplaintsClient() {
       await api.post(`/complaints/${selectedComplaint.id}/close`);
       fetchComplaintDetail(selectedComplaint.id);
       fetchComplaints();
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Failed to close complaint');
+    } catch (err) {
+      setError((err as any).response?.data?.message || 'Failed to close complaint');
     } finally {
       setSubmitting(false);
     }

@@ -93,7 +93,7 @@ export default function PremisesDetailPage() {
         setPremises(r.data.data);
       } catch (e: any) {
         setError(
-          e.response?.status === 404 ? 'Premises not found.' : 'Failed to load premises details.'
+          (e as any).response?.status === 404 ? 'Premises not found.' : 'Failed to load premises details.'
         );
       } finally {
         setLoading(false);

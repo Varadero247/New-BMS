@@ -86,8 +86,8 @@ export default function ROICalculatorPage() {
       const data = await res.json();
       setResult(data.data || data);
       setStep(2);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? (err as Error).message : 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }

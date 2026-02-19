@@ -20,7 +20,7 @@ gateway.interceptors.request.use(
 gateway.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if ((error as any).response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

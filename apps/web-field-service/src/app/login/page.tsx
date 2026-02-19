@@ -18,8 +18,8 @@ export default function LoginPage() {
       const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
       localStorage.setItem('token', res.data.data.accessToken);
       window.location.href = '/';
-    } catch (err: unknown) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch (err) {
+      setError((err as any).response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }

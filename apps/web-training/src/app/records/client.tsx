@@ -24,7 +24,7 @@ import { api } from '@/lib/api';
 
 const STATUSES = ['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'EXPIRED', 'CANCELLED'] as const;
 
-interface Record {
+interface TrainingRecord {
   id: string;
   referenceNumber: string;
   courseId: string;
@@ -82,7 +82,7 @@ const emptyForm: RecordForm = {
 };
 
 export default function RecordsClient() {
-  const [records, setRecords] = useState<Record[]>([]);
+  const [records, setRecords] = useState<TrainingRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -114,7 +114,7 @@ export default function RecordsClient() {
     setEditId(null);
     setModalOpen(true);
   }
-  function openEdit(rec: Record) {
+  function openEdit( rec: TrainingRecord) {
     setForm({
       courseId: rec.courseId || '',
       employeeId: rec.employeeId || '',

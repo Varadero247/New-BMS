@@ -109,8 +109,8 @@ export default function LeadsPage() {
       await api.post('/leads', payload);
       setCreateModalOpen(false);
       loadLeads();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create lead.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create lead.');
     } finally {
       setSubmitting(false);
     }

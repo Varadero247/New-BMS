@@ -35,7 +35,7 @@ interface RuleCondition {
 interface RuleAction {
   type: string;
   target: string;
-  params: Record<string, unknown>;
+  params: Record<string, any>;
 }
 
 interface AutomationRule {

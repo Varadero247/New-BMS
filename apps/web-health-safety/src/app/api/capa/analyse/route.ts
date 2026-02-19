@@ -104,14 +104,14 @@ Rules:
       rootCauseAnalysis: analysis.rootCauseAnalysis || '',
       containmentActions: analysis.containmentActions || '',
       correctiveActions: Array.isArray(analysis.correctiveActions)
-        ? analysis.correctiveActions.map((a: Record<string, unknown>) => ({
+        ? analysis.correctiveActions.map((a: Record<string, any>) => ({
             title: a.title || '',
             owner: a.owner || '',
             timeframe: a.timeframe || '',
           }))
         : [],
       preventiveActions: Array.isArray(analysis.preventiveActions)
-        ? analysis.preventiveActions.map((a: Record<string, unknown>) => ({
+        ? analysis.preventiveActions.map((a: Record<string, any>) => ({
             title: a.title || '',
             owner: a.owner || '',
             timeframe: a.timeframe || '',

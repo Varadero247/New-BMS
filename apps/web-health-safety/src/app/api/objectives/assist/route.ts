@@ -103,7 +103,7 @@ Rules:
       kpiDescription: analysis.kpiDescription || '',
       resourcesRequired: analysis.resourcesRequired || '',
       suggestedMilestones: Array.isArray(analysis.suggestedMilestones)
-        ? analysis.suggestedMilestones.map((m: Record<string, unknown>) => ({
+        ? analysis.suggestedMilestones.map((m: Record<string, any>) => ({
             title: m.title || '',
             weeksFromStart: m.weeksFromStart || 4,
           }))

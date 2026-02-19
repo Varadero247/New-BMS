@@ -145,8 +145,8 @@ export default function InterestedPartiesPage() {
       }
       setModalOpen(false);
       fetchItems();
-    } catch (err: unknown) {
-      setError(err.response?.data?.error?.message || 'Failed to save');
+    } catch (err) {
+      setError((err as any).response?.data?.error?.message || 'Failed to save');
     }
     setSaving(false);
   };

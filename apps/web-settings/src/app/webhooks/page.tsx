@@ -37,7 +37,7 @@ interface WebhookDelivery {
   id: string;
   endpointId: string;
   event: string;
-  payload: Record<string, unknown>;
+  payload: Record<string, any>;
   responseCode: number | null;
   status: 'PENDING' | 'SUCCESS' | 'FAILED';
   attempts: number;

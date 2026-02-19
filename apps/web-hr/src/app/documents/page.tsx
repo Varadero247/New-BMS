@@ -208,7 +208,7 @@ export default function DocumentsPage() {
     if (!formEmployeeId || !formDocumentType || !formTitle || !formFileName || !formFileUrl) return;
     setCreating(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         employeeId: formEmployeeId,
         documentType: formDocumentType,
         title: formTitle,
@@ -246,7 +246,7 @@ export default function DocumentsPage() {
     if (!editDoc) return;
     setEditing(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         status: editStatus,
       };
       if (editTitle !== editDoc.title) payload.title = editTitle;
@@ -444,7 +444,7 @@ export default function DocumentsPage() {
                                   {doc.title}
                                 </span>
                                 {doc.isConfidential && (
-                                  <Lock className="h-3 w-3 text-red-500" title="Confidential" />
+                                  <Lock className="h-3 w-3 text-red-500" aria-label="Confidential" />
                                 )}
                               </div>
                               <p className="text-xs text-gray-500 dark:text-gray-400">

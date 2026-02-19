@@ -313,7 +313,7 @@ export default function ActionsClient() {
     setFormError(null);
     setSubmitting(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         title: form.title,
         actionType: form.actionType,
         priority: form.priority,

@@ -169,7 +169,7 @@ export default function SuppliersClient() {
     if (!form.name) return;
     setSaving(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         ...form,
         annualSpend: form.annualSpend ? parseFloat(form.annualSpend) : undefined,
         approvedDate: form.approvedDate ? new Date(form.approvedDate).toISOString() : undefined,

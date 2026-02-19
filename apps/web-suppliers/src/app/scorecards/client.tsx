@@ -144,7 +144,7 @@ export default function ScorecardsClient() {
     setSaving(true);
     try {
       const overall = calcOverall();
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         supplierId: form.supplierId,
         period: form.period,
         quality: form.quality ? parseInt(form.quality) : undefined,

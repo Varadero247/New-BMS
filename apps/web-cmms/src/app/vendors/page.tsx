@@ -128,8 +128,8 @@ export default function VendorsPage() {
       await api.post('/vendors', { ...form, rating: parseInt(form.rating) || 3 });
       setCreateOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to create vendor');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to create vendor');
     } finally {
       setSaving(false);
     }
@@ -146,8 +146,8 @@ export default function VendorsPage() {
       await api.put(`/vendors/${selected!.id}`, { ...form, rating: parseInt(form.rating) || 3 });
       setEditOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to update vendor');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to update vendor');
     } finally {
       setSaving(false);
     }
@@ -159,8 +159,8 @@ export default function VendorsPage() {
       await api.delete(`/vendors/${selected!.id}`);
       setDeleteOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to delete');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to delete');
     } finally {
       setSaving(false);
     }

@@ -68,8 +68,8 @@ const preset: Partial<Config> = {
         critical: '#F04B5A',
         neutral: '#5A7099',
       },
-      fontFamily,
-      fontSize,
+      fontFamily: fontFamily as unknown as Record<string, string[]>,
+      fontSize: fontSize as unknown as Record<string, [string, object]>,
       borderRadius,
       boxShadow,
       backgroundImage: {

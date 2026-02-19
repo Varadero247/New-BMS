@@ -74,7 +74,7 @@ export default function SodMatrixClient() {
       const res = await api.get('/sod-matrix');
       setItems(res.data.data || []);
       setError('');
-    } catch (err: unknown) {
+    } catch (err) {
       setError((err as Error).message || 'Failed to load SoD rules');
     } finally {
       setLoading(false);
@@ -101,8 +101,8 @@ export default function SodMatrixClient() {
       await api.post('/sod-matrix', form);
       setModalOpen(false);
       fetchData();
-    } catch (err: unknown) {
-      alert(err.response?.data?.error?.message || 'Save failed');
+    } catch (err) {
+      alert((err as any).response?.data?.error?.message || 'Save failed');
     } finally {
       setSaving(false);
     }

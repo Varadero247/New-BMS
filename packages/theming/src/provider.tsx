@@ -137,7 +137,7 @@ export function ThemingProvider({ children, apiUrl, staticTheme }: ThemingProvid
   }, [apiUrl, staticTheme]);
 
   const updateTheme = useCallback((partial: Partial<ThemeConfig>) => {
-    setTheme((prev) => {
+    setTheme((prev: ThemeConfig | null) => {
       const updated = { ...(prev || DEFAULT_THEME), ...partial };
       applyThemeVars(updated);
       localStorage.setItem('ims-theme', JSON.stringify(updated));

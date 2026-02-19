@@ -173,8 +173,8 @@ export default function BCPNewPage() {
     try {
       await api.post('/bcp', form);
       router.push('/bcp');
-    } catch (e: unknown) {
-      setError(e.response?.data?.error || 'Failed to save BCP. Please try again.');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to save BCP. Please try again.');
     } finally {
       setSaving(false);
     }

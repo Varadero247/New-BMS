@@ -185,7 +185,7 @@ export default function RolesPage() {
       }
       setModalOpen(false);
       await loadRoles();
-    } catch (err: unknown) {
+    } catch (err) {
       const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
       setError(axiosErr.response?.data?.error?.message || 'Failed to save role');
     } finally {
@@ -199,7 +199,7 @@ export default function RolesPage() {
       await api.delete(`/api/roles/${role.id}`);
       setDeleteConfirm(null);
       await loadRoles();
-    } catch (err: unknown) {
+    } catch (err) {
       const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
       setError(axiosErr.response?.data?.error?.message || 'Failed to delete role');
     } finally {

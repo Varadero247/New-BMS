@@ -71,9 +71,9 @@ export default function DashboardPage() {
       try {
         const r = await api.get('/analytics/dashboard');
         setData(r.data.data);
-      } catch (e: unknown) {
+      } catch (e) {
         setError(
-          e.response?.status === 401
+          (e as any)?.response?.status === 401
             ? 'Session expired. Please log in again.'
             : 'Failed to load dashboard data.'
         );
@@ -252,7 +252,7 @@ export default function DashboardPage() {
                       kpi.urgent ? 'ring-2' : ''
                     }`}
                     style={
-                      kpi.urgent ? { ringColor: '#F04B5A', borderColor: '#F04B5A' } : undefined
+                      kpi.urgent ? { borderColor: '#F04B5A' } : undefined
                     }
                   >
                     <CardContent className="p-4">

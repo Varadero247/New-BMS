@@ -148,10 +148,10 @@ export default function AttendancePage() {
       setLoading(true);
       loadAttendance();
       loadSummary();
-    } catch (error: unknown) {
-      const msg = error?.response?.data?.error?.message;
+    } catch (error) {
+      const msg = (error as any)?.response?.data?.error?.message;
       if (Array.isArray(msg)) {
-        setFormError(msg.map((e: Record<string, unknown>) => e.message).join(', '));
+        setFormError(msg.map((e: Record<string, any>) => e.message).join(', '));
       } else if (typeof msg === 'string') {
         setFormError(msg);
       } else {

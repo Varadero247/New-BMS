@@ -145,8 +145,8 @@ export default function QuotesPage() {
       });
       setCreateModalOpen(false);
       loadQuotes();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create quote.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create quote.');
     } finally {
       setSubmitting(false);
     }

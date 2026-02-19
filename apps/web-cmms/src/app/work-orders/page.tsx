@@ -159,8 +159,8 @@ export default function WorkOrdersPage() {
       });
       setCreateOpen(false);
       await loadOrders();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to create work order');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to create work order');
     } finally {
       setSaving(false);
     }
@@ -181,8 +181,8 @@ export default function WorkOrdersPage() {
       });
       setEditOpen(false);
       await loadOrders();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to update work order');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to update work order');
     } finally {
       setSaving(false);
     }
@@ -194,8 +194,8 @@ export default function WorkOrdersPage() {
       await api.delete(`/work-orders/${selected!.id}`);
       setDeleteOpen(false);
       await loadOrders();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to delete work order');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to delete work order');
     } finally {
       setSaving(false);
     }

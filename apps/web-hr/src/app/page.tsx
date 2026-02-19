@@ -70,15 +70,15 @@ export default function HRDashboard() {
         attendance: {
           presentToday:
             attendanceStats.data.data.byStatus?.find(
-              (s: Record<string, unknown>) => s.status === 'PRESENT'
+              (s: Record<string, any>) => s.status === 'PRESENT'
             )?._count || 0,
           lateToday:
             attendanceStats.data.data.byStatus?.find(
-              (s: Record<string, unknown>) => s.status === 'LATE'
+              (s: Record<string, any>) => s.status === 'LATE'
             )?._count || 0,
           absentToday:
             attendanceStats.data.data.byStatus?.find(
-              (s: Record<string, unknown>) => s.status === 'ABSENT'
+              (s: Record<string, any>) => s.status === 'ABSENT'
             )?._count || 0,
         },
         leave: {

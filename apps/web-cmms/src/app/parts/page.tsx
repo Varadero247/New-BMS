@@ -139,8 +139,8 @@ export default function PartsPage() {
       });
       setCreateOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to create part');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to create part');
     } finally {
       setSaving(false);
     }
@@ -163,8 +163,8 @@ export default function PartsPage() {
       });
       setEditOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to update part');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to update part');
     } finally {
       setSaving(false);
     }
@@ -176,8 +176,8 @@ export default function PartsPage() {
       await api.delete(`/parts/${selected!.id}`);
       setDeleteOpen(false);
       await load();
-    } catch (e: unknown) {
-      setError(e?.response?.data?.error || 'Failed to delete');
+    } catch (e) {
+      setError((e as any)?.response?.data?.error || 'Failed to delete');
     } finally {
       setSaving(false);
     }

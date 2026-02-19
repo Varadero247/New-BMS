@@ -212,9 +212,9 @@ export default function AnalyticsPage() {
     try {
       const r = await api.get('/risks/analytics/dashboard');
       setData(r.data.data || null);
-    } catch (e: unknown) {
+    } catch (e) {
       setError(
-        e.response?.status === 401
+        (e as any)?.response?.status === 401
           ? 'Session expired. Please log in.'
           : 'Failed to load analytics data.'
       );

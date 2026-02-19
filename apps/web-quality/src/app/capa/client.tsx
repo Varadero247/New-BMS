@@ -440,7 +440,7 @@ export default function CapaClient() {
     setFormError(null);
     setSubmitting(true);
     try {
-      const payload: Record<string, unknown> = {
+      const payload: Record<string, any> = {
         capaType: form.capaType,
         title: form.title,
         severity: form.severity,

@@ -313,8 +313,8 @@ export default function RiskManagementClient() {
         setShowCreateModal(false);
         setRmfForm(emptyRmfForm);
         fetchRiskFiles();
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to create risk management file');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to create risk management file');
       } finally {
         setSubmitting(false);
       }
@@ -337,8 +337,8 @@ export default function RiskManagementClient() {
         setShowAddHazardModal(false);
         setHazardForm(emptyHazardForm);
         fetchRmfDetail(selectedRmf.id);
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to add hazard');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to add hazard');
       } finally {
         setSubmitting(false);
       }
@@ -365,8 +365,8 @@ export default function RiskManagementClient() {
           (h: Hazard) => h.id === selectedHazard.id
         );
         if (updatedHazard) setSelectedHazard(updatedHazard);
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to add control');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to add control');
       } finally {
         setSubmitting(false);
       }
@@ -384,8 +384,8 @@ export default function RiskManagementClient() {
         await api.post(`/risk/${selectedRmf.id}/benefit-risk`, benefitRiskForm);
         setShowBenefitRiskModal(false);
         fetchRmfDetail(selectedRmf.id);
-      } catch (err: unknown) {
-        setError(err.response?.data?.message || 'Failed to save benefit-risk analysis');
+      } catch (err) {
+        setError((err as any).response?.data?.message || 'Failed to save benefit-risk analysis');
       } finally {
         setSubmitting(false);
       }

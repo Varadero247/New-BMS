@@ -351,7 +351,7 @@ export default function ActionsClient() {
     if (!form.title || !form.description || !form.assignedTo || !form.dueDate) return;
     setSubmitting(true);
     try {
-      const payload: Record<string, unknown> = { ...form };
+      const payload: Record<string, any> = { ...form };
       // Convert numeric strings
       payload.estimatedHours = Number(form.estimatedHours) || 0;
       payload.estimatedCost = Number(form.estimatedCost) || 0;

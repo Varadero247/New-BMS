@@ -45,9 +45,9 @@ export default function CoshhListPage() {
         if (search) params.search = search;
         const res = await api.get('/coshh', { params });
         setAssessments(res.data.data || []);
-      } catch (e: unknown) {
+      } catch (e) {
         setError(
-          e.response?.status === 401 ? 'Session expired.' : 'Failed to load COSHH assessments.'
+          (e as any)?.response?.status === 401 ? 'Session expired.' : 'Failed to load COSHH assessments.'
         );
       } finally {
         setLoading(false);

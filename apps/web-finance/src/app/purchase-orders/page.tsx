@@ -177,8 +177,8 @@ export default function PurchaseOrdersPage() {
       });
       setCreateModalOpen(false);
       loadOrders();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create purchase order.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create purchase order.');
     } finally {
       setSubmitting(false);
     }

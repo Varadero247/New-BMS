@@ -79,7 +79,7 @@ export default function WarehousesPage() {
       await inventoryApi.deleteWarehouse(id);
       loadWarehouses();
     } catch (error: any) {
-      alert(error.response?.data?.error?.message || 'Failed to delete warehouse');
+      alert((error as any).response?.data?.error?.message || 'Failed to delete warehouse');
     }
   }
 
@@ -317,7 +317,7 @@ function WarehouseModal({
       }
       onSave();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to save warehouse');
+      setError((err as any).response?.data?.error?.message || 'Failed to save warehouse');
     } finally {
       setLoading(false);
     }

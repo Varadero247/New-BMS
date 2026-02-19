@@ -136,7 +136,7 @@ export default function PremisesPage() {
       if (typeFilter !== 'all') params.type = typeFilter;
       const r = await api.get('/premises', { params });
       setPremises(r.data.data || []);
-    } catch (e: unknown) {
+    } catch (e) {
       setError('Failed to load premises.');
     } finally {
       setLoading(false);
@@ -181,7 +181,7 @@ export default function PremisesPage() {
       }
       setModalOpen(false);
       loadPremises();
-    } catch (e: unknown) {
+    } catch (e) {
       setError('Failed to save premises.');
     } finally {
       setSaving(false);
@@ -353,9 +353,9 @@ export default function PremisesPage() {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              <Button size="sm" variant="outline" asChild>
-                                <Link href={`/premises/${p.id}`}>View</Link>
-                              </Button>
+                              <Link href={`/premises/${p.id}`}>
+                                <Button size="sm" variant="outline">View</Button>
+                              </Link>
                               <Button size="sm" variant="outline" onClick={() => openEdit(p)}>
                                 Edit
                               </Button>

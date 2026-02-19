@@ -232,7 +232,7 @@ export default function CapaClient() {
         const data = await res.json();
         const allActions: CapaForm['actions'] = [];
         if (data.correctiveActions) {
-          data.correctiveActions.forEach((a: Record<string, unknown>) => {
+          data.correctiveActions.forEach((a: Record<string, any>) => {
             allActions.push({
               title: a.title,
               description: '',
@@ -243,7 +243,7 @@ export default function CapaClient() {
           });
         }
         if (data.preventiveActions) {
-          data.preventiveActions.forEach((a: Record<string, unknown>) => {
+          data.preventiveActions.forEach((a: Record<string, any>) => {
             allActions.push({
               title: a.title,
               description: '',

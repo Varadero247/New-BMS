@@ -154,8 +154,8 @@ export default function BankingPage() {
       });
       setCreateAccountOpen(false);
       loadAccounts();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create bank account.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create bank account.');
     } finally {
       setSubmitting(false);
     }
@@ -190,8 +190,8 @@ export default function BankingPage() {
       if (selectedAccount) loadTransactions(selectedAccount);
       else loadAllTransactions();
       loadAccounts();
-    } catch (err: unknown) {
-      setFormError(err?.response?.data?.error?.message || 'Failed to create transaction.');
+    } catch (err) {
+      setFormError((err as any)?.response?.data?.error?.message || 'Failed to create transaction.');
     } finally {
       setSubmitting(false);
     }
