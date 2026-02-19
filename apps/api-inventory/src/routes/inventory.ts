@@ -347,7 +347,7 @@ router.post('/transfer', async (req: AuthRequest, res: Response) => {
     }
 
     // Get or create destination inventory
-    let destInventory = await prisma.inventory.findUnique({
+    const destInventory = await prisma.inventory.findUnique({
       where: {
         productId_warehouseId: {
           productId: data.productId,

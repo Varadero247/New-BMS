@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma} from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';

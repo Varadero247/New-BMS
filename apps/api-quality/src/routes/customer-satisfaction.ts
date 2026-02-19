@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Response } from 'express';
-import { prisma, Prisma } from '../prisma';
+import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';

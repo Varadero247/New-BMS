@@ -10,7 +10,6 @@ import {
   metricsMiddleware,
   metricsHandler,
   correlationIdMiddleware,
-  createHealthCheck,
 } from '@ims/monitoring';
 import { validateStartupSecrets } from '@ims/secrets';
 import { prisma, createSessionCleanupJob } from '@ims/database';
