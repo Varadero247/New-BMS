@@ -2,7 +2,6 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
-import { type AuthRequest } from '@ims/auth';
 
 const logger = createLogger('api-gateway:scim');
 const router = Router();

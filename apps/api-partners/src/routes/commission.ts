@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
-import { type AuthRequest } from '@ims/auth';
 
 const logger = createLogger('api-partners:commission');
 const router = Router();

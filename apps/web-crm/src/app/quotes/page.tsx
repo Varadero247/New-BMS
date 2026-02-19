@@ -82,7 +82,7 @@ export default function QuotesPage() {
       setError(null);
       const res = await api.get('/quotes');
       setQuotes(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load quotes.');
     } finally {
       setLoading(false);

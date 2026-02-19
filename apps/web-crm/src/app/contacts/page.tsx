@@ -73,7 +73,7 @@ export default function ContactsPage() {
       setError(null);
       const res = await api.get('/contacts');
       setContacts(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load contacts.');
     } finally {
       setLoading(false);

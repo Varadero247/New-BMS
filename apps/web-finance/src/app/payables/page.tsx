@@ -99,7 +99,7 @@ export default function PayablesPage() {
       if (statusFilter) params.append('status', statusFilter);
       const res = await api.get(`/payables?${params.toString()}`);
       setBills(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load bills.');
     } finally {
       setLoading(false);

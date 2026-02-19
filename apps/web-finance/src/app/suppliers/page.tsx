@@ -66,7 +66,7 @@ export default function SuppliersPage() {
       setError(null);
       const res = await api.get('/suppliers');
       setSuppliers(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load suppliers.');
     } finally {
       setLoading(false);

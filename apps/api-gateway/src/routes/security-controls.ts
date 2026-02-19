@@ -125,7 +125,7 @@ const CONTROL_DOMAINS = [
         id: 'A.9.4.1',
         title: 'Information access restriction',
         status: 'IMPLEMENTED',
-        evidence: 'Ownership-scoped queries (scopeToUser, checkOwnership middleware)',
+        evidence: 'Ownership-scoped queries (scopeToUser middleware)',
       },
       {
         id: 'A.9.4.2',

@@ -96,7 +96,7 @@ export default function TaxPage() {
       ]);
       setTaxRates(ratesRes.data.data || []);
       setTaxReturns(returnsRes.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load tax data.');
     } finally {
       setLoading(false);

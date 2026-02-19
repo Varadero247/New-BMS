@@ -117,7 +117,7 @@ export default function SequencesPage() {
       setError(null);
       const res = await api.get('/sequences');
       setSequences(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load email sequences.');
     } finally {
       setLoading(false);

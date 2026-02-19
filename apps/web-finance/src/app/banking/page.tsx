@@ -106,7 +106,7 @@ export default function BankingPage() {
       setError(null);
       const res = await api.get('/banking/accounts');
       setAccounts(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load bank accounts.');
     } finally {
       setLoading(false);

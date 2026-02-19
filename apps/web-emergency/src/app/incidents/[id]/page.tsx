@@ -121,7 +121,7 @@ export default function IncidentDetailPage() {
     try {
       const r = await api.get(`/incidents/${id}`);
       setIncident(r.data.data);
-    } catch (e) {
+    } catch {
       setError('Failed to load incident details.');
     } finally {
       setLoading(false);
@@ -140,7 +140,7 @@ export default function IncidentDetailPage() {
     try {
       await api.post(`/incidents/${id}/timeline`, { entryType: type, description, ...extra });
       await loadIncident();
-    } catch (e) {
+    } catch {
       setError('Failed to log entry.');
     } finally {
       setLogSubmitting(false);

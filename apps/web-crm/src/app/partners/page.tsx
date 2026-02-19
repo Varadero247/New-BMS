@@ -74,7 +74,7 @@ export default function PartnersPage() {
       setError(null);
       const res = await api.get('/partners');
       setPartners(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load partners.');
     } finally {
       setLoading(false);

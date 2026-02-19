@@ -89,7 +89,7 @@ export default function DealsPage() {
       setError(null);
       const res = await api.get('/deals');
       setDeals(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load deals.');
     } finally {
       setLoading(false);

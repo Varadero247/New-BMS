@@ -77,7 +77,7 @@ export default function FRAPage() {
       if (searchTerm) params.search = searchTerm;
       const r = await api.get('/fra', { params });
       setFras(r.data.data || []);
-    } catch (e) {
+    } catch {
       setError('Failed to load fire risk assessments.');
     } finally {
       setLoading(false);

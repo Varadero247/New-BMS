@@ -5,7 +5,7 @@ import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
-import { checkOwnership, scopeToUser } from '@ims/service-auth';
+import { scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-ai-analysis');
 

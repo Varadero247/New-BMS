@@ -136,7 +136,7 @@ export default function PremisesPage() {
       if (typeFilter !== 'all') params.type = typeFilter;
       const r = await api.get('/premises', { params });
       setPremises(r.data.data || []);
-    } catch (e) {
+    } catch {
       setError('Failed to load premises.');
     } finally {
       setLoading(false);
@@ -181,7 +181,7 @@ export default function PremisesPage() {
       }
       setModalOpen(false);
       loadPremises();
-    } catch (e) {
+    } catch {
       setError('Failed to save premises.');
     } finally {
       setSaving(false);

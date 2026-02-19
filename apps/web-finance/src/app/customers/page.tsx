@@ -68,7 +68,7 @@ export default function CustomersPage() {
       setError(null);
       const res = await api.get('/customers');
       setCustomers(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load customers.');
     } finally {
       setLoading(false);

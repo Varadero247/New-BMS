@@ -228,7 +228,7 @@ export default function RisksPage() {
       setError(null);
       const response = await api.get('/risks');
       setRisks(response.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load risks. Please try again.');
     } finally {
       setLoading(false);

@@ -78,7 +78,7 @@ export default function AccountsPage() {
       setError(null);
       const res = await api.get('/accounts');
       setAccounts(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load accounts.');
     } finally {
       setLoading(false);

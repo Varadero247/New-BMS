@@ -99,7 +99,7 @@ export default function InvoicesPage() {
       if (statusFilter) params.append('status', statusFilter);
       const res = await api.get(`/invoices?${params.toString()}`);
       setInvoices(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load invoices.');
     } finally {
       setLoading(false);

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { createCircuitBreaker } from '@ims/resilience';
-import { checkOwnership, scopeToUser } from '@ims/service-auth';
+import { scopeToUser } from '@ims/service-auth';
 
 interface AIProviderResponse {
   content: string;

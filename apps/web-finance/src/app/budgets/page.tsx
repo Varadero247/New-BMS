@@ -88,7 +88,7 @@ export default function BudgetsPage() {
       if (monthFilter > 0) params.append('month', monthFilter.toString());
       const res = await api.get(`/budgets?${params.toString()}`);
       setBudgets(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load budgets.');
     } finally {
       setLoading(false);

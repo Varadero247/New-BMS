@@ -4,7 +4,7 @@ import { prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
-import { checkOwnership, scopeToUser } from '@ims/service-auth';
+import { scopeToUser } from '@ims/service-auth';
 
 interface AIProviderResponse {
   content: string;

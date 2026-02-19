@@ -146,7 +146,7 @@ export default function ForecastPage() {
       }
 
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Failed to load forecast data.');
     } finally {
       setLoading(false);

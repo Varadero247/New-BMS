@@ -2,7 +2,6 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { prisma } from '../prisma';
-import { type AuthRequest } from '@ims/auth';
 import { validateIdParam } from '@ims/shared';
 
 const logger = createLogger('api-partners:deals');

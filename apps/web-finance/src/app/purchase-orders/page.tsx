@@ -98,7 +98,7 @@ export default function PurchaseOrdersPage() {
       if (statusFilter) params.append('status', statusFilter);
       const res = await api.get(`/purchase-orders?${params.toString()}`);
       setOrders(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load purchase orders.');
     } finally {
       setLoading(false);

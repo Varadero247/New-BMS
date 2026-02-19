@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { portalPrisma } from '../prisma-portal';
 import { prisma } from '../prisma';
-import { type AuthRequest } from '@ims/auth';
 
 const logger = createLogger('api-partners:referrals');
 const router = Router();

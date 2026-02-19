@@ -5,7 +5,7 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { checkOwnership, scopeToUser } from '@ims/service-auth';
+import { scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-automotive');
 

@@ -98,7 +98,7 @@ export default function UsersPage() {
       await api.patch(`/api/users/${selectedUser.id}/roles`, { roles: selectedRoles });
       setShowRoleModal(false);
       loadUsers();
-    } catch (err) {
+    } catch {
       alert('Failed to update roles');
     }
   }

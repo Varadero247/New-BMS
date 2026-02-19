@@ -99,7 +99,7 @@ app.use('/api/product-safety', productSafetyRouter);
 app.use('/api/special-processes', specialProcessesRouter);
 
 // 404 handler
-app.use((_req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((_req: express.Request, res: express.Response, _next: express.NextFunction) => {
   res
     .status(404)
     .json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
@@ -111,7 +111,7 @@ app.use(
     err: Error & { statusCode?: number; code?: string },
     req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    _next: express.NextFunction
   ) => {
     logger.error('Unhandled error', { error: err.message, stack: err.stack });
     res.status(err.statusCode || 500).json({

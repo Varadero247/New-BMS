@@ -99,7 +99,7 @@ app.use(
     err: Error & { statusCode?: number; code?: string },
     req: express.Request,
     res: express.Response,
-    next: express.NextFunction
+    _next: express.NextFunction
   ) => {
     logger.error('Unhandled error', { error: err.message, stack: err.stack });
     res.status(err.statusCode || 500).json({

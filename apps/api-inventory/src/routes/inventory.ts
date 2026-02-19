@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { checkOwnership, scopeToUser } from '@ims/service-auth';
+import { scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-inventory');
 

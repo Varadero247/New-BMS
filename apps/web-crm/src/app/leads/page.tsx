@@ -67,7 +67,7 @@ export default function LeadsPage() {
       setError(null);
       const res = await api.get('/leads');
       setLeads(res.data.data || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load leads.');
     } finally {
       setLoading(false);

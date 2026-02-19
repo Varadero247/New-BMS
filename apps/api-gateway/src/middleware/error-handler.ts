@@ -8,7 +8,7 @@ export interface AppError extends Error {
   code?: string;
 }
 
-export function errorHandler(err: AppError, req: Request, res: Response, next: NextFunction) {
+export function errorHandler(err: AppError, req: Request, res: Response, _next: NextFunction) {
   logger.error('Unhandled error', {
     error: err.message,
     code: err.code,
