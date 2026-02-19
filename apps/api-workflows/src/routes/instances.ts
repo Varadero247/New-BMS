@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -191,7 +191,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'IN_PROGRESS',
         entityType: data.entityType,
         entityId: data.entityId,
-        contextData: data.contextData as any,
+        contextData: data.contextData as Prisma.InputJsonValue,
         slaDeadline: data.slaDeadline ? new Date(data.slaDeadline) : undefined,
       },
       include: {

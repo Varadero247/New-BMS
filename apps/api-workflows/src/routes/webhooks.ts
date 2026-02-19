@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import type { Router as IRouter } from 'express';
-import { prisma} from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
@@ -476,7 +476,7 @@ router.post('/dispatch', async (req: AuthRequest, res: Response) => {
         data: {
           webhookId: webhook.id,
           event: input.event,
-          payload: payload as any,
+          payload: payload as Prisma.InputJsonValue,
           statusCode,
           response: responseBody,
           success,

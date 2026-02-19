@@ -237,8 +237,8 @@ router.get('/stats', async (_req: Request, res: Response) => {
           })
         ),
         recentHires,
-        avgSalary: Math.round(((salaryData._avg?.baseSalary || 0) as any) || 0),
-        totalSalaryExpense: Math.round(((salaryData._sum?.baseSalary || 0) as any) || 0),
+        avgSalary: Math.round((salaryData._avg?.baseSalary || 0) || 0),
+        totalSalaryExpense: Math.round((salaryData._sum?.baseSalary || 0) || 0),
       },
     });
   } catch (error) {

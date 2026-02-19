@@ -344,7 +344,7 @@ async function main() {
         inherentLikelihood: c.likelihood,
         inherentSeverity: c.severity,
         inherentRiskScore: inherentScore,
-        inherentRiskLevel: getLevel(inherentScore) as any,
+        inherentRiskLevel: getLevel(inherentScore) as string,
         controlMeasures: [
           {
             type: 'ENGINEERING',
@@ -365,7 +365,7 @@ async function main() {
         residualLikelihood,
         residualSeverity,
         residualRiskScore: residualScore,
-        residualRiskLevel: getLevel(residualScore) as any,
+        residualRiskLevel: getLevel(residualScore) as string,
         residualRiskAccepted: residualScore <= 9,
         spillMinorProcedure: 'Absorb with inert material, collect in waste container',
         spillMajorProcedure: 'Evacuate area, contact emergency services, use spill kit',

@@ -1,5 +1,5 @@
 import { Router, Response } from 'express';
-import { prisma } from '@ims/database';
+import { prisma, Prisma } from '@ims/database';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { renderTemplateToHtml } from '@ims/templates';
 import { z } from 'zod';
@@ -371,7 +371,7 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
         category: data.category,
         status: data.status,
         tags: data.tags,
-        fields: data.fields as any,
+        fields: data.fields as Prisma.InputJsonValue,
         defaultContent: data.defaultContent ?? null,
         isBuiltIn: false,
         createdBy: req.user!.id,
@@ -567,7 +567,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
           templateCode: template.code,
           templateName: template.name,
           module: template.module,
-          filledData: parsed.data.filledData as any,
+          filledData: parsed.data.filledData as Prisma.InputJsonValue,
           createdById: req.user!.id,
           referenceId: parsed.data.referenceId ?? null,
         },
@@ -733,7 +733,7 @@ router.get('/:id/export', async (req: AuthRequest, res: Response) => {
         code: template.code,
         name: template.name,
         description: template.description,
-        fields: template.fields as any,
+        fields: template.fields as Prisma.InputJsonValue,
       },
       undefined
     );

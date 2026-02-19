@@ -63,7 +63,7 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
 
     // Users with critically low health scores — at risk of churning
     try {
-      const atRisk = await (prisma as any).mktHealthScore.findMany({
+      const atRisk = await prisma.mktHealthScore.findMany({
         where: { ...(orgId ? { orgId } : {}), score: { lt: 40 } },
         orderBy: { score: 'asc' },
         take: userLimit,
@@ -88,7 +88,7 @@ router.post('/check', authenticate, async (req: Request, res: Response) => {
 
     // Users with IMPROVING health score trend — expansion opportunity
     try {
-      const improving = await (prisma as any).mktHealthScore.findMany({
+      const improving = await prisma.mktHealthScore.findMany({
         where: { ...(orgId ? { orgId } : {}), trend: 'IMPROVING' },
         take: 10,
         orderBy: { createdAt: 'desc' },

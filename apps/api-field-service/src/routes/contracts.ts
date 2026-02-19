@@ -169,7 +169,7 @@ router.post('/', async (req: Request, res: Response) => {
         number: generateContractNumber(),
         startDate: new Date(parsed.data.startDate),
         endDate: parsed.data.endDate ? new Date(parsed.data.endDate) : null,
-        coveredEquipment: parsed.data.coveredEquipment as any,
+        coveredEquipment: parsed.data.coveredEquipment as Prisma.InputJsonValue,
         createdBy: authReq.user!.id,
       },
     });
@@ -239,7 +239,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (parsed.data.startDate) updateData.startDate = new Date(parsed.data.startDate);
     if (parsed.data.endDate) updateData.endDate = new Date(parsed.data.endDate);
     if (parsed.data.coveredEquipment !== undefined)
-      updateData.coveredEquipment = parsed.data.coveredEquipment as any;
+      updateData.coveredEquipment = parsed.data.coveredEquipment as Prisma.InputJsonValue;
 
     const data = await prisma.fsSvcContract.update({
       where: { id: req.params.id },

@@ -111,7 +111,7 @@ router.post('/', async (req: Request, res: Response) => {
         ...parsed.data,
         code: generateCustomerCode(),
         address: parsed.data.address as Prisma.InputJsonValue,
-        billingAddress: parsed.data.billingAddress as any,
+        billingAddress: parsed.data.billingAddress as Prisma.InputJsonValue,
         createdBy: authReq.user!.id,
       },
     });
@@ -257,7 +257,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         address: parsed.data.address as Prisma.InputJsonValue,
-        billingAddress: parsed.data.billingAddress as any,
+        billingAddress: parsed.data.billingAddress as Prisma.InputJsonValue,
       },
     });
 

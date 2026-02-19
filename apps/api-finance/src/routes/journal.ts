@@ -246,7 +246,7 @@ router.post('/', async (req: Request, res: Response) => {
             description: l.description ?? null,
           })),
         },
-      } as any,
+      },
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },
@@ -372,7 +372,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
                 description: l.description ?? null,
               })),
             },
-          } as any,
+          },
           include: {
             lines: {
               include: { account: { select: { id: true, code: true, name: true, type: true } } },
@@ -394,7 +394,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         ...(memo !== undefined && { memo }),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },

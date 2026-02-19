@@ -8,7 +8,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.trainRecord.findMany({
-      where: { orgId, deletedAt: null, course: { type: 'INDUCTION' } as any },
+      where: { orgId, deletedAt: null, course: { type: 'INDUCTION' } },
       include: { course: { select: { title: true, code: true } } },
       take: 500,
       orderBy: { createdAt: 'desc' },

@@ -21,7 +21,7 @@ jest.mock('../src/prisma', () => ({
     finInvoiceLine: {
       deleteMany: jest.fn(),
     },
-    finPayment: {
+    finPaymentReceived: {
       findMany: jest.fn(),
       create: jest.fn(),
       count: jest.fn(),
@@ -644,8 +644,8 @@ describe('GET /api/invoices/payments', () => {
         invoice: null,
       },
     ];
-    (prisma as any).finPayment.findMany.mockResolvedValue(payments);
-    (prisma as any).finPayment.count.mockResolvedValue(1);
+    (prisma as any).finPaymentReceived.findMany.mockResolvedValue(payments);
+    (prisma as any).finPaymentReceived.count.mockResolvedValue(1);
 
     const res = await request(app).get('/api/invoices/payments');
 
@@ -654,8 +654,8 @@ describe('GET /api/invoices/payments', () => {
   });
 
   it('should filter by customerId', async () => {
-    (prisma as any).finPayment.findMany.mockResolvedValue([]);
-    (prisma as any).finPayment.count.mockResolvedValue(0);
+    (prisma as any).finPaymentReceived.findMany.mockResolvedValue([]);
+    (prisma as any).finPaymentReceived.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/invoices/payments?customerId=f4000000-0000-4000-a000-000000000001'
@@ -665,8 +665,8 @@ describe('GET /api/invoices/payments', () => {
   });
 
   it('should filter by date range', async () => {
-    (prisma as any).finPayment.findMany.mockResolvedValue([]);
-    (prisma as any).finPayment.count.mockResolvedValue(0);
+    (prisma as any).finPaymentReceived.findMany.mockResolvedValue([]);
+    (prisma as any).finPaymentReceived.count.mockResolvedValue(0);
 
     const res = await request(app).get(
       '/api/invoices/payments?dateFrom=2026-01-01&dateTo=2026-01-31'
@@ -699,7 +699,7 @@ describe('POST /api/invoices/payments', () => {
     });
     (prisma as any).$transaction.mockImplementation(async (fn: any) => {
       const tx = {
-        finPayment: {
+        finPaymentReceived: {
           create: jest.fn().mockResolvedValue({
             id: 'pmt-new',
             reference: 'FIN-PMT-2601-5678',

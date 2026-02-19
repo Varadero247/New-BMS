@@ -257,7 +257,7 @@ router.post('/analyse', authenticate, validate(analyseSchema), async (req, res, 
         userId: req.user!.id,
         sourceType,
         sourceId,
-        sourceData: sourceData as any,
+        sourceData: sourceData as Record<string, unknown>,
         prompt: fullPrompt,
         provider: settings.provider,
         model: settings.model,
@@ -432,7 +432,7 @@ router.post('/analyses/:id/accept', authenticate, async (req, res, next) => {
     }
 
     // Create actions from suggestions
-    const suggestedActions = (analysis.suggestedActions as any[]) || [];
+    const suggestedActions = (analysis.suggestedActions as Array<Record<string, unknown>>) || [];
     const actionsToCreate = acceptAll
       ? suggestedActions
       : suggestedActions.filter((_, i) => selectedActions?.includes(i));

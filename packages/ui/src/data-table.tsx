@@ -315,7 +315,7 @@ export function DataTable<T>({
                       )}
                       {visibleColumns.map((col) => (
                         <td key={col.key} className={cn('p-3', col.className)}>
-                          {col.render ? col.render(item) : String((item as any)[col.key] ?? '')}
+                          {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? '')}
                         </td>
                       ))}
                     </tr>

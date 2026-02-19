@@ -830,7 +830,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     const taxRates =
       taxRateIds.length > 0
         ? await prisma.finTaxRate.findMany({
-            where: { id: { in: taxRateIds }, isActive: true },,
+            where: { id: { in: taxRateIds }, isActive: true },
             take: 1000,
           })
         : [];
@@ -880,7 +880,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         lines: {
           create: lineData as Record<string, unknown>,
         },
-      },,
+      },
       include: {
         customer: { select: { id: true, code: true, name: true } },
         lines: { orderBy: { sortOrder: 'asc' } },
@@ -957,7 +957,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
       const updateTaxRates =
         updateTaxRateIds.length > 0
           ? await prisma.finTaxRate.findMany({
-              where: { id: { in: updateTaxRateIds }, isActive: true },,
+              where: { id: { in: updateTaxRateIds }, isActive: true },
               take: 1000,
             })
           : [];

@@ -89,7 +89,7 @@ router.post('/', async (req: Request, res: Response) => {
     const data = await prisma.fsSvcJobNote.create({
       data: {
         ...parsed.data,
-        attachments: parsed.data.attachments as any,
+        attachments: parsed.data.attachments as Prisma.InputJsonValue,
         authorId: authReq.user!.id,
         createdBy: authReq.user!.id,
       },
@@ -157,7 +157,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcJobNote.update({
       where: { id: req.params.id },
-      data: { ...parsed.data, attachments: parsed.data.attachments as any },
+      data: { ...parsed.data, attachments: parsed.data.attachments as Prisma.InputJsonValue },
     });
 
     res.json({ success: true, data });

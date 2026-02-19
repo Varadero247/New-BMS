@@ -112,7 +112,7 @@ router.get('/:id', checkOwnership(prisma.ohsObjective), async (req: AuthRequest,
       include: { milestones: { orderBy: { sortOrder: 'asc' } } },
     });
 
-    if (!objective || (objective as any).deletedAt) {
+    if (!objective || (objective as Record<string, unknown>).deletedAt) {
       return res
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });
@@ -350,7 +350,7 @@ router.post('/:id/milestones', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       include: { milestones: true },
     });
-    if (!objective || (objective as any).deletedAt) {
+    if (!objective || (objective as Record<string, unknown>).deletedAt) {
       return res
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Objective not found' } });

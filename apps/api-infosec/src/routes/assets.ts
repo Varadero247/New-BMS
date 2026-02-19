@@ -86,8 +86,8 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         refNumber,
         name: parsed.data.name,
-        type: parsed.data.type as any,
-        classification: parsed.data.classification as any,
+        type: parsed.data.type as string,
+        classification: parsed.data.classification as string,
         description: parsed.data.description || null,
         owner: parsed.data.owner || null,
         custodian: parsed.data.custodian || null,

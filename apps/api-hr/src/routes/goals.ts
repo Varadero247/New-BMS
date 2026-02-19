@@ -242,7 +242,7 @@ router.post('/', async (req: Request, res: Response) => {
         employeeId: data.employeeId,
         title: data.title,
         description: data.description,
-        category: data.category as any,
+        category: data.category as string,
         weight: data.weight !== undefined ? data.weight : 0,
         measurementCriteria: data.measurementCriteria,
         targetValue: data.targetValue,
@@ -361,7 +361,7 @@ router.post('/:id/updates', async (req: Request, res: Response) => {
           progressAfter: data.progressAfter,
           updateNotes: data.updateNotes,
           updatedById: authReq.user?.id || 'system',
-          evidence: data.evidence as any,
+          evidence: data.evidence as Record<string, unknown>,
         },
       });
 

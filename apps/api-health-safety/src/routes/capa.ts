@@ -124,7 +124,7 @@ router.get('/:id', checkOwnership(prisma.capa), async (req: AuthRequest, res: Re
       include: { actions: { orderBy: { sortOrder: 'asc' } } },
     });
 
-    if (!capa || (capa as any).deletedAt) {
+    if (!capa || (capa as Record<string, unknown>).deletedAt) {
       return res
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });
@@ -345,7 +345,7 @@ router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
       where: { id: req.params.id },
       include: { actions: true },
     });
-    if (!capa || (capa as any).deletedAt) {
+    if (!capa || (capa as Record<string, unknown>).deletedAt) {
       return res
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'CAPA not found' } });

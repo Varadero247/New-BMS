@@ -171,7 +171,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         date: new Date(parsed.data.date),
-        slots: parsed.data.slots as any,
+        slots: parsed.data.slots as Prisma.InputJsonValue,
         createdBy: authReq.user!.id,
       },
     });
@@ -246,7 +246,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const data = await prisma.fsSvcSchedule.update({
       where: { id: req.params.id },
-      data: { ...parsed.data, slots: parsed.data.slots as any },
+      data: { ...parsed.data, slots: parsed.data.slots as Prisma.InputJsonValue },
     });
 
     res.json({ success: true, data });

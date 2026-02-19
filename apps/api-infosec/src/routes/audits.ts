@@ -372,7 +372,7 @@ router.post('/penetration-tests', async (req: Request, res: Response) => {
         highFindings: parsed.data.highFindings || 0,
         summary: parsed.data.summary || null,
         reportUrl: parsed.data.reportUrl || null,
-        status: (parsed.data.status || 'PLANNED') as any,
+        status: (parsed.data.status || 'PLANNED') as string,
         createdBy: authReq.user?.id || 'system',
       },
     });
@@ -502,12 +502,12 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
     });
     const findingsByClause = new Map<string, { count: number; hasOpen: boolean }>();
     for (const f of findings || []) {
-      const clause = (f as any).clause as string | undefined;
+      const clause = (f as Record<string, unknown>).clause as string | undefined;
       if (!clause) continue;
       const entry = findingsByClause.get(clause) ?? { count: 0, hasOpen: false };
       findingsByClause.set(clause, {
         count: entry.count + 1,
-        hasOpen: entry.hasOpen || (f as any).status !== 'CLOSED',
+        hasOpen: entry.hasOpen || (f as Record<string, unknown>).status !== 'CLOSED',
       });
     }
 

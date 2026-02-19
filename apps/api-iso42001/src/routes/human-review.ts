@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -148,7 +148,7 @@ router.post('/', async (req: Request, res: Response) => {
         aiConfidence: parsed.data.aiConfidence ?? null,
         aiReasoning: parsed.data.aiReasoning ?? null,
         expiresAt: parsed.data.expiresAt ? new Date(parsed.data.expiresAt) : null,
-        metadata: (parsed.data.metadata ?? undefined) as any,
+        metadata: (parsed.data.metadata ?? undefined) as Prisma.InputJsonValue,
         status: 'PENDING',
         createdBy: authReq.user?.id || 'system',
         organisationId: (authReq.user as { organisationId?: string })?.organisationId || 'default',
@@ -218,7 +218,7 @@ router.put('/:id/decide', async (req: Request, res: Response) => {
     const review = await prisma.aiHumanReview.update({
       where: { id },
       data: {
-        status: statusMap[parsed.data.decision] as any,
+        status: statusMap[parsed.data.decision] as string,
         decision: parsed.data.decision,
         justification: parsed.data.justification,
         reviewerUserId: authReq.user?.id || 'system',

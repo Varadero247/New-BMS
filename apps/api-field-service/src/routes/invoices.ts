@@ -123,7 +123,7 @@ router.post('/', async (req: Request, res: Response) => {
       data: {
         ...parsed.data,
         number: generateInvoiceNumber(),
-        lineItems: parsed.data.lineItems as any,
+        lineItems: parsed.data.lineItems as Prisma.InputJsonValue,
         laborTotal: new Prisma.Decimal(parsed.data.laborTotal),
         partsTotal: new Prisma.Decimal(parsed.data.partsTotal),
         total: new Prisma.Decimal(parsed.data.total),
@@ -195,7 +195,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const updateData: Record<string, unknown> = { ...parsed.data };
-    if (parsed.data.lineItems) updateData.lineItems = parsed.data.lineItems as any;
+    if (parsed.data.lineItems) updateData.lineItems = parsed.data.lineItems as Prisma.InputJsonValue;
     if (parsed.data.laborTotal !== undefined)
       updateData.laborTotal = new Prisma.Decimal(parsed.data.laborTotal);
     if (parsed.data.partsTotal !== undefined)

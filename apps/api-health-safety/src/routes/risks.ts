@@ -30,7 +30,7 @@ function getRiskLevel(
 // Helper: generate reference number HS-001, HS-002, etc.
 async function generateReferenceNumber(): Promise<string> {
   const lastRisk = await prisma.risk.findFirst({
-    where: { referenceNumber: { not: null }, deletedAt: null } as any,
+    where: { referenceNumber: { not: null }, deletedAt: null },
     orderBy: { createdAt: 'desc' },
     select: { referenceNumber: true },
   });
@@ -141,7 +141,7 @@ router.get('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Re
       include: { actions: true },
     });
 
-    if (!risk || (risk as any).deletedAt) {
+    if (!risk || (risk as Record<string, unknown>).deletedAt) {
       return res
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Risk not found' } });
@@ -351,7 +351,7 @@ router.patch('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: 
 router.put('/:id', checkOwnership(prisma.risk), async (req: AuthRequest, res: Response) => {
   // Forward to PATCH handler
   req.method = 'PATCH';
-  return (router as any).handle(req, res, () => {});
+  return router(req, res, () => {});
 });
 
 // DELETE /api/risks/:id - Delete risk

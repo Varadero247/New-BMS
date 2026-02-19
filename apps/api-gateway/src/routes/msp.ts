@@ -161,7 +161,7 @@ router.post('/msp-link', async (req: AuthRequest, res: Response) => {
             action: 'MSP_LINK_CREATED',
             entity: 'msp_link',
             entityId: id,
-            newData: link as any,
+            newData: link as Record<string, unknown>,
           },
         });
       } catch (e: unknown) {
@@ -398,7 +398,7 @@ router.put('/msp-link/:id', async (req: AuthRequest, res: Response) => {
             action: 'MSP_LINK_UPDATED',
             entity: 'msp_link',
             entityId: req.params.id,
-            newData: { status, permissions, whiteLabel } as any,
+            newData: { status, permissions, whiteLabel } as Record<string, unknown>,
           },
         });
       } catch (e: unknown) {

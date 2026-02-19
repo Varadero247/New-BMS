@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -183,11 +183,11 @@ router.post('/', async (req: Request, res: Response) => {
 
     const system = await prisma.aiSystem.create({
       data: {
-        reference: reference as any,
+        reference: reference as string,
         name: parsed.data.name,
         description: parsed.data.description,
-        category: parsed.data.category as any,
-        riskTier: parsed.data.riskTier as any,
+        category: parsed.data.category as Prisma.AiSystemCategory,
+        riskTier: parsed.data.riskTier as Prisma.AiSystemRiskTier,
         status: 'ACTIVE',
         purpose: parsed.data.purpose ?? null,
         vendor: parsed.data.vendor ?? null,

@@ -317,7 +317,7 @@ router.get('/pareto/auto-generate', authenticate, async (req, res, next) => {
       const percentage = total > 0 ? (count / total) * 100 : 0;
       cumulative += percentage;
       return {
-        category: (item as any)[groupField] || 'Unknown',
+        category: (item as Record<string, unknown>)[groupField] || 'Unknown',
         count,
         percentage: Math.round(percentage * 10) / 10,
         cumulative: Math.round(cumulative * 10) / 10,
@@ -739,7 +739,7 @@ router.put(
       let totalIdentifiedWastes = 0;
 
       wastes.forEach((waste) => {
-        const item = req.body[waste] || (existing as any)[waste];
+        const item = req.body[waste] || (existing as Record<string, unknown>)[waste];
         if (item?.identified) {
           totalIdentifiedWastes++;
           totalEstimatedCost += item.estimatedCost || 0;

@@ -25,7 +25,7 @@ async function generateRefNumber(): Promise<string> {
   const prefix = `HS-MR-${year}-`;
 
   const last = await prisma.hSManagementReview.findFirst({
-    where: { refNumber: { startsWith: prefix }, deletedAt: null } as any,
+    where: { refNumber: { startsWith: prefix }, deletedAt: null },
     orderBy: { createdAt: 'desc' },
     select: { refNumber: true },
   });
@@ -99,7 +99,7 @@ router.get(
         include: { actions: true },
       });
 
-      if (!review || (review as any).deletedAt) {
+      if (!review || (review as Record<string, unknown>).deletedAt) {
         return res.status(404).json({
           success: false,
           error: { code: 'NOT_FOUND', message: 'Management review not found' },
@@ -306,7 +306,7 @@ router.post(
 router.post('/:id/actions', async (req: AuthRequest, res: Response) => {
   try {
     const review = await prisma.hSManagementReview.findUnique({ where: { id: req.params.id } });
-    if (!review || (review as any).deletedAt) {
+    if (!review || (review as Record<string, unknown>).deletedAt) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: 'Management review not found' },

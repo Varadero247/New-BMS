@@ -166,7 +166,7 @@ router.patch('/step/:stepIndex', async (req: Request, res: Response) => {
         },
         data: {
           status: 'COMPLETED',
-          data: (parsed.data.data || {}) as any,
+          data: (parsed.data.data || {}) as Record<string, unknown>,
           completedAt: new Date(),
         },
       }),

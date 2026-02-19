@@ -106,7 +106,7 @@ router.get(
         where: { id: req.params.id },
       });
 
-      if (!requirement || (requirement as any).deletedAt) {
+      if (!requirement || (requirement as Record<string, unknown>).deletedAt) {
         return res.status(404).json({
           success: false,
           error: { code: 'NOT_FOUND', message: 'Legal requirement not found' },
@@ -172,7 +172,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         applicableAreas: data.applicableAreas,
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : null,
         reviewDate: data.reviewDate ? new Date(data.reviewDate) : null,
-        complianceStatus: (data.complianceStatus as any) || 'NOT_ASSESSED',
+        complianceStatus: data.complianceStatus || 'NOT_ASSESSED',
         complianceNotes: data.complianceNotes,
         responsiblePerson: data.responsiblePerson,
         aiKeyObligations: data.aiKeyObligations,

@@ -208,7 +208,7 @@ router.post('/', async (req: Request, res: Response) => {
         ...parsed.data,
         referenceNumber,
         riskScore,
-        riskLevel: riskLevel as any,
+        riskLevel: riskLevel as string,
         status: 'IDENTIFIED',
         createdBy: userId,
         updatedBy: userId,
@@ -294,7 +294,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
       data: {
         ...parsed.data,
         riskScore,
-        riskLevel: riskLevel as any,
+        riskLevel: riskLevel as string,
         updatedBy: userId,
       },
     });
@@ -341,7 +341,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
     const assessment = await prisma.abRiskAssessment.update({
       where: { id: req.params.id },
       data: {
-        mitigationPlan: parsed.data.mitigationPlan as any,
+        mitigationPlan: parsed.data.mitigationPlan as string,
         residualLikelihood: parsed.data.residualLikelihood,
         residualImpact: parsed.data.residualImpact,
         residualRiskScore,

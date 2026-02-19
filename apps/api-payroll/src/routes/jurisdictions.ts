@@ -194,7 +194,7 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const rules = JURISDICTION_RULES[code] as any;
+    const rules = JURISDICTION_RULES[code] as Record<string, unknown>;
     const jurisdiction = {
       code,
       name: rules.name,
@@ -292,7 +292,7 @@ router.put('/:code/rules', async (req: Request, res: Response) => {
     const existing = activeJurisdictions.get(code);
     if (!existing) {
       // Auto-activate if not active
-      const rules = JURISDICTION_RULES[code] as any;
+      const rules = JURISDICTION_RULES[code] as Record<string, unknown>;
       activeJurisdictions.set(code, {
         code,
         name: rules.name,

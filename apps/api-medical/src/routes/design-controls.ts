@@ -707,7 +707,7 @@ router.post('/:id/stages/:stage/review', async (req: AuthRequest, res: Response)
         updatedProject = await prisma.designProject.update({
           where: { id },
           data: {
-            currentStage: nextStage as any,
+            currentStage: nextStage as string,
             completedDate: nextStage === 'COMPLETE' ? new Date() : null,
             status: nextStage === 'COMPLETE' ? 'COMPLETED' : project.status,
           },
@@ -892,7 +892,7 @@ router.post('/:id/transfer', async (req: AuthRequest, res: Response) => {
         qaApproval: data.qaApproval,
         raApproval: data.raApproval,
         notes: data.notes,
-        status: status as any,
+        status: status as string,
       },
     });
 

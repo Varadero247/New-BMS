@@ -126,7 +126,7 @@ router.get('/bowtie/all', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const bowties = await prisma.riskBowtie.findMany({
-      where: { risk: { orgId, deletedAt: null } } as any,
+      where: { risk: { orgId, deletedAt: null } },
       include: {
         risk: {
           select: {

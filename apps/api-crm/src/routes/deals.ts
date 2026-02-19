@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -112,7 +112,7 @@ router.post('/pipelines', async (req: Request, res: Response) => {
           create: stages.map((stage) => ({
             id: uuidv4(),
             ...stage,
-          })) as any,
+          })) as Prisma.InputJsonValue,
         },
       },
       include: { stages: { orderBy: { order: 'asc' } } },
@@ -167,7 +167,7 @@ router.put('/pipelines/:id/stages', async (req: Request, res: Response) => {
         name: stage.name,
         order: stage.order,
         probability: stage.probability,
-      })) as any,
+      })) as Prisma.InputJsonValue,
     });
 
     const updated = await prisma.crmPipeline.findUnique({
@@ -425,7 +425,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const deal = await prisma.crmDeal.update({
       where: { id: req.params.id },
-      data: data as any,
+      data: data as Record<string, unknown>,
     });
 
     logger.info('Deal updated', { dealId: deal.id });

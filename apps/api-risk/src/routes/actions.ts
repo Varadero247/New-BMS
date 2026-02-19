@@ -30,7 +30,7 @@ router.get('/:id/actions', authenticate, async (req: Request, res: Response) => 
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const actions = await prisma.riskAction.findMany({
-      where: { riskId: req.params.id, risk: { orgId } } as any,
+      where: { riskId: req.params.id, risk: { orgId } },
       orderBy: { targetDate: 'asc' },
       take: 1000,
     });
@@ -157,7 +157,7 @@ router.get('/actions/overdue', authenticate, async (req: Request, res: Response)
         status: { in: ['OPEN', 'IN_PROGRESS'] },
         targetDate: { lt: new Date() },
         risk: { orgId, deletedAt: null },
-      } as any,
+      },
       include: {
         risk: { select: { id: true, title: true, referenceNumber: true, residualRiskLevel: true } },
       },
@@ -185,7 +185,7 @@ router.get('/actions/due-soon', authenticate, async (req: Request, res: Response
         status: { in: ['OPEN', 'IN_PROGRESS'] },
         targetDate: { lte: twoWeeks, gte: new Date() },
         risk: { orgId, deletedAt: null },
-      } as any,
+      },
       include: { risk: { select: { id: true, title: true, referenceNumber: true } } },
       orderBy: { targetDate: 'asc' },
       take: 1000,

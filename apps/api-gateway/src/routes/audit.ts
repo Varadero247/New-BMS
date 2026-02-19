@@ -14,7 +14,7 @@ import { createEnhancedAuditService } from '@ims/audit';
 const logger = createLogger('api-gateway-audit');
 const router = Router();
 router.param('id', validateIdParam());
-const auditService = createEnhancedAuditService(prisma as any) as any;
+const auditService = createEnhancedAuditService(prisma as unknown as Parameters<typeof createEnhancedAuditService>[0]);
 
 router.use(authenticate);
 
@@ -134,7 +134,7 @@ router.post('/esignature', async (req: AuthRequest, res: Response) => {
         userEmail: user.email,
         userFullName: `${user.firstName} ${user.lastName}`,
         password: data.password,
-        meaning: data.meaning as any,
+        meaning: data.meaning as string,
         reason: data.reason,
         resourceType: data.resourceType,
         resourceId: data.resourceId,
