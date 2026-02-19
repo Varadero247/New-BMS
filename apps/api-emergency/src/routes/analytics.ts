@@ -62,7 +62,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
       prisma.femFireRiskAssessment.groupBy({
         by: ['overallRiskLevel'],
         _count: true,
-        where: { organisationId: orgId, deletedAt: null } as any,
+        where: { organisationId: orgId, deletedAt: null },
       }),
       prisma.femEmergencyIncident.groupBy({
         by: ['emergencyType'],

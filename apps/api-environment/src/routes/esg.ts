@@ -83,7 +83,7 @@ router.get('/summary', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     // Get targets for progress context
     const targets = await prisma.esgTarget.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       take: 1000,
     });
 
@@ -385,7 +385,7 @@ router.get('/report', scopeToUser, async (req: AuthRequest, res: Response) => {
 
     // Get targets
     const targets = await prisma.esgTarget.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       take: 1000,
     });
 

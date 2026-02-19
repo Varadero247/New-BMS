@@ -97,7 +97,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 router.get('/batch/:batchNumber', async (req: Request, res: Response) => {
   try {
     const record = await prisma.fsTraceability.findFirst({
-      where: { batchNumber: req.params.batchNumber, deletedAt: null } as any,
+      where: { batchNumber: req.params.batchNumber, deletedAt: null },
     });
 
     if (!record) {
@@ -198,7 +198,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const record = await prisma.fsTraceability.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!record) {
@@ -226,7 +226,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsTraceability.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -272,7 +272,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsTraceability.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({

@@ -186,7 +186,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.chemCoshh.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
       include: { chemical: true, exposureMonitoring: true },
     });
     if (!item)
@@ -217,7 +217,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
     const d = parsed.data;
 
     const chemical = await prisma.chemRegister.findFirst({
-      where: { id: d.chemicalId, orgId, deletedAt: null } as any,
+      where: { id: d.chemicalId, orgId, deletedAt: null },
     });
     if (!chemical)
       return res
@@ -246,7 +246,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         recordRetentionYears,
         orgId,
         createdBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
@@ -269,7 +269,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemCoshh.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -317,7 +317,7 @@ router.post('/:id/sign-off', authenticate, async (req: Request, res: Response) =
     const { role, name } = parsed.data;
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.chemCoshh.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({

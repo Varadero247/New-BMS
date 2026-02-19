@@ -91,7 +91,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/available', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcTechnician.findMany({
-      where: { deletedAt: null, status: 'AVAILABLE' } as any,
+      where: { deletedAt: null, status: 'AVAILABLE' },
       orderBy: { name: 'asc' },
       take: 1000,
     });
@@ -159,7 +159,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcTechnician.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
         jobs: {
           where: {
@@ -193,7 +193,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.get('/:id/schedule', async (req: Request, res: Response) => {
   try {
     const technician = await prisma.fsSvcTechnician.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!technician) {
       return res
@@ -235,7 +235,7 @@ router.get('/:id/schedule', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcTechnician.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -279,7 +279,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcTechnician.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

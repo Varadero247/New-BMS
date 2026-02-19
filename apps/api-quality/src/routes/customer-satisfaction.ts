@@ -581,7 +581,7 @@ router.get('/metrics', async (req: AuthRequest, res: Response) => {
 router.get('/dashboard', async (req: AuthRequest, res: Response) => {
   try {
     // Total surveys
-    const totalSurveys = await prisma.customerSurvey.count({ where: { deletedAt: null } as any });
+    const totalSurveys = await prisma.customerSurvey.count({ where: { deletedAt: null } });
 
     // Total responses
     const totalResponses = await prisma.surveyResponse.count();

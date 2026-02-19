@@ -134,7 +134,7 @@ router.get('/:id/download', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const exportRecord = await prisma.analyticsExport.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!exportRecord) {
@@ -181,7 +181,7 @@ router.get('/:id/download', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const exportRecord = await prisma.analyticsExport.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!exportRecord) {
@@ -210,7 +210,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsExport.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res

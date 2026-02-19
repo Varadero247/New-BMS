@@ -160,7 +160,7 @@ router.get('/dispatch-board', async (req: Request, res: Response) => {
 router.get('/unassigned', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcJob.findMany({
-      where: { deletedAt: null, status: 'UNASSIGNED' } as any,
+      where: { deletedAt: null, status: 'UNASSIGNED' },
       include: { customer: true, site: true },
       orderBy: [{ priority: 'asc' }, { createdAt: 'asc' }],
       take: 1000,
@@ -224,15 +224,15 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const data = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
         customer: true,
         site: true,
         technician: true,
         contract: true,
-        timeEntries: { where: { deletedAt: null } as any },
-        partsUsed: { where: { deletedAt: null } as any },
-        jobNotes: { where: { deletedAt: null } as any },
+        timeEntries: { where: { deletedAt: null } },
+        partsUsed: { where: { deletedAt: null } },
+        jobNotes: { where: { deletedAt: null } },
       },
     });
 
@@ -259,7 +259,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const existing = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -299,7 +299,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -325,7 +325,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.put('/:id/assign', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -349,7 +349,7 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
     }
 
     const technician = await prisma.fsSvcTechnician.findFirst({
-      where: { id: technicianId, deletedAt: null } as any,
+      where: { id: technicianId, deletedAt: null },
     });
     if (!technician) {
       return res
@@ -379,7 +379,7 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
 router.put('/:id/dispatch', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -417,7 +417,7 @@ router.put('/:id/dispatch', async (req: Request, res: Response) => {
 router.put('/:id/en-route', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -448,7 +448,7 @@ router.put('/:id/en-route', async (req: Request, res: Response) => {
 router.put('/:id/on-site', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -479,7 +479,7 @@ router.put('/:id/on-site', async (req: Request, res: Response) => {
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -523,7 +523,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 router.put('/:id/cancel', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcJob.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

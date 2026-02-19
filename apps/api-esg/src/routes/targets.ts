@@ -126,11 +126,11 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id/trajectory', async (req: Request, res: Response) => {
   try {
     const target = await prisma.esgTarget.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
         metric: {
           include: {
-            dataPoints: { where: { deletedAt: null } as any, orderBy: { periodStart: 'asc' } },
+            dataPoints: { where: { deletedAt: null }, orderBy: { periodStart: 'asc' } },
           },
         },
       },
@@ -177,7 +177,7 @@ router.get('/:id/trajectory', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const target = await prisma.esgTarget.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: { metric: true },
     });
     if (!target) {
@@ -213,7 +213,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.esgTarget.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -251,7 +251,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.esgTarget.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

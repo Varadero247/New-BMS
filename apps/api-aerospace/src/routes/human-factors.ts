@@ -324,20 +324,20 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
 
     // Total incidents
     const totalIncidents = await prisma.humanFactorIncident.count({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
     });
 
     // Incidents by severity
     const bySeverity = await prisma.humanFactorIncident.groupBy({
       by: ['severity'],
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       _count: { id: true },
     });
 
     // Incidents by category (top 5)
     const byCategory = await prisma.humanFactorIncident.groupBy({
       by: ['category'],
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 5,

@@ -171,7 +171,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.femFireRiskAssessment.findFirst({
-      where: { id: req.params.id, organisationId: orgId, deletedAt: null } as any,
+      where: { id: req.params.id, organisationId: orgId, deletedAt: null },
       include: { premises: true },
     });
     if (!item)
@@ -198,7 +198,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femFireRiskAssessment.findFirst({
-      where: { id: req.params.id, organisationId: orgId, deletedAt: null } as any,
+      where: { id: req.params.id, organisationId: orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -240,7 +240,7 @@ router.post('/:id/approve', authenticate, async (req: Request, res: Response) =>
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.femFireRiskAssessment.findFirst({
-      where: { id: req.params.id, organisationId: orgId, deletedAt: null } as any,
+      where: { id: req.params.id, organisationId: orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -270,7 +270,7 @@ router.get('/:id/action-plan', authenticate, async (req: Request, res: Response)
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.femFireRiskAssessment.findFirst({
-      where: { id: req.params.id, organisationId: orgId, deletedAt: null } as any,
+      where: { id: req.params.id, organisationId: orgId, deletedAt: null },
       select: { id: true, referenceNumber: true, actionPlan: true, overallRiskLevel: true },
     });
     if (!item)

@@ -59,7 +59,7 @@ const RESERVED_PATHS = new Set(['executive-dashboard', 'modules']);
 router.get('/executive-dashboard', async (req: Request, res: Response) => {
   try {
     const kpis = await prisma.analyticsKpi.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: [{ module: 'asc' }, { name: 'asc' }],
       take: Math.min(Math.max(1, parseInt(req.query.limit as string, 10) || 50), 200),
       skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
@@ -92,7 +92,7 @@ router.get('/modules/:module', async (req: Request, res: Response) => {
     const { module } = req.params;
 
     const kpis = await prisma.analyticsKpi.findMany({
-      where: { module, deletedAt: null } as any,
+      where: { module, deletedAt: null },
       orderBy: { name: 'asc' },
       take: Math.min(Math.max(1, parseInt(req.query.limit as string, 10) || 50), 200),
       skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
@@ -211,7 +211,7 @@ router.post('/:id/calculate', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const kpi = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } as any });
+    const kpi = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
     if (!kpi) {
       return res
         .status(404)
@@ -263,7 +263,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED_PATHS.has(req.params.id)) return;
 
     const kpi = await prisma.analyticsKpi.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!kpi) {
@@ -291,7 +291,7 @@ router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -334,7 +334,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.analyticsKpi.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)

@@ -15,7 +15,7 @@ router.use(authenticate);
 router.get('/', async (_req: Request, res: Response) => {
   try {
     const employees = await prisma.employee.findMany({
-      where: { employmentStatus: 'ACTIVE', deletedAt: null } as any,
+      where: { employmentStatus: 'ACTIVE', deletedAt: null },
       select: {
         id: true,
         employeeNumber: true,
@@ -64,7 +64,7 @@ router.get('/', async (_req: Request, res: Response) => {
 router.get('/flat', async (_req: Request, res: Response) => {
   try {
     const employees = await prisma.employee.findMany({
-      where: { employmentStatus: 'ACTIVE', deletedAt: null } as any,
+      where: { employmentStatus: 'ACTIVE', deletedAt: null },
       select: {
         id: true,
         employeeNumber: true,
@@ -105,7 +105,7 @@ router.get('/by-department', async (_req: Request, res: Response) => {
       where: { isActive: true },
       include: {
         employees: {
-          where: { employmentStatus: 'ACTIVE', deletedAt: null } as any,
+          where: { employmentStatus: 'ACTIVE', deletedAt: null },
           select: {
             id: true,
             employeeNumber: true,

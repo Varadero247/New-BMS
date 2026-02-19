@@ -120,7 +120,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Validate baseline if provided
     if (data.baselineId) {
       const baseline = await prisma.energyBaseline.findFirst({
-        where: { id: data.baselineId, deletedAt: null } as any,
+        where: { id: data.baselineId, deletedAt: null },
       });
       if (!baseline) {
         return res
@@ -167,7 +167,7 @@ router.get('/:id/progress', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const target = await prisma.energyTarget.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         baseline: { select: { id: true, name: true, totalConsumption: true } },
       },
@@ -221,7 +221,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const target = await prisma.energyTarget.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         baseline: { select: { id: true, name: true, year: true, totalConsumption: true } },
       },
@@ -264,7 +264,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -306,7 +306,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyTarget.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)

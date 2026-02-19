@@ -229,7 +229,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
     const emission = await prisma.esgEmission.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!emission) {
       return res
@@ -264,7 +264,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.esgEmission.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -300,7 +300,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.esgEmission.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

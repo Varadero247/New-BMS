@@ -232,7 +232,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         safetyImpact: data.safetyImpact,
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: report });
@@ -345,7 +345,7 @@ router.post('/suspect-parts', async (req: AuthRequest, res: Response) => {
         sources: data.sources,
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: part });

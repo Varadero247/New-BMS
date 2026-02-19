@@ -119,7 +119,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
     const order = await prisma.finPurchaseOrder.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         supplier: true,
         lines: { orderBy: { sortOrder: 'asc' } },
@@ -164,7 +164,7 @@ router.post('/', async (req: Request, res: Response) => {
     const { supplierId, orderDate, expectedDate, currency, notes, lines } = parsed.data;
 
     const supplier = await prisma.finSupplier.findFirst({
-      where: { id: supplierId, deletedAt: null, isActive: true } as any,
+      where: { id: supplierId, deletedAt: null, isActive: true },
     });
     if (!supplier) {
       return res.status(404).json({
@@ -241,7 +241,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     }
 
     const existing = await prisma.finPurchaseOrder.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -300,7 +300,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const existing = await prisma.finPurchaseOrder.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({

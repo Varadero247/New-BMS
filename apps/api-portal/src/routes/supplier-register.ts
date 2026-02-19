@@ -37,7 +37,7 @@ router.post('/', async (req: Request, res: Response) => {
     const data = parsed.data;
 
     const existing = await prisma.portalUser.findFirst({
-      where: { email: data.email, deletedAt: null } as any,
+      where: { email: data.email, deletedAt: null },
     });
 
     if (existing) {
@@ -83,7 +83,7 @@ router.get('/status', async (req: Request, res: Response) => {
   try {
     const auth = req as AuthRequest;
     const user = await prisma.portalUser.findFirst({
-      where: { id: auth.user!.id, deletedAt: null } as any,
+      where: { id: auth.user!.id, deletedAt: null },
     });
 
     if (!user) {

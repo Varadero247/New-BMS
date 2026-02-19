@@ -160,7 +160,7 @@ router.post('/:id/run', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const report = await prisma.analyticsReport.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!report) {
       return res
@@ -218,7 +218,7 @@ router.get('/:id/runs', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const report = await prisma.analyticsReport.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!report) {
       return res
@@ -228,12 +228,12 @@ router.get('/:id/runs', async (req: Request, res: Response) => {
 
     const [runs, total] = await Promise.all([
       prisma.analyticsReportRun.findMany({
-        where: { reportId: id, deletedAt: null } as any,
+        where: { reportId: id, deletedAt: null },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      prisma.analyticsReportRun.count({ where: { reportId: id, deletedAt: null } as any }),
+      prisma.analyticsReportRun.count({ where: { reportId: id, deletedAt: null } }),
     ]);
 
     res.json({
@@ -261,7 +261,7 @@ router.get('/:id/runs/:runId', async (req: Request, res: Response) => {
     const { id, runId } = req.params;
 
     const run = await prisma.analyticsReportRun.findFirst({
-      where: { id: runId, reportId: id, deletedAt: null } as any,
+      where: { id: runId, reportId: id, deletedAt: null },
       include: { report: true },
     });
 
@@ -292,7 +292,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED_PATHS.has(req.params.id)) return;
 
     const report = await prisma.analyticsReport.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: { runs: { take: 5, orderBy: { createdAt: 'desc' } } },
     });
 
@@ -322,7 +322,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsReport.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -368,7 +368,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsReport.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res

@@ -77,7 +77,7 @@ router.put('/', async (req: Request, res: Response) => {
           ...parsed.data,
           updatedBy: authReq.user?.id || 'system',
           updatedAt: new Date(),
-        } as any,
+        },
       });
     } else {
       scope = await prisma.isScope.create({
@@ -93,7 +93,7 @@ router.put('/', async (req: Request, res: Response) => {
           interfaces: parsed.data.interfaces || [],
           status: (parsed.data.status || 'DRAFT') as any,
           createdBy: authReq.user?.id || 'system',
-        } as any,
+        },
       });
     }
 

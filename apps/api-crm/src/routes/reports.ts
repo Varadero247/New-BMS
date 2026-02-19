@@ -12,24 +12,24 @@ router.use(authenticate);
 // GET /sales-dashboard — Overall sales metrics
 router.get('/sales-dashboard', async (_req: Request, res: Response) => {
   try {
-    const totalDeals = await prisma.crmDeal.count({ where: { deletedAt: null } as any });
+    const totalDeals = await prisma.crmDeal.count({ where: { deletedAt: null } });
     const wonDeals = await prisma.crmDeal.count({
-      where: { status: 'WON', deletedAt: null } as any,
+      where: { status: 'WON', deletedAt: null },
     });
     const lostDeals = await prisma.crmDeal.count({
-      where: { status: 'LOST', deletedAt: null } as any,
+      where: { status: 'LOST', deletedAt: null },
     });
     const openDeals = await prisma.crmDeal.count({
-      where: { status: 'OPEN', deletedAt: null } as any,
+      where: { status: 'OPEN', deletedAt: null },
     });
 
     const totalValueAgg = await prisma.crmDeal.aggregate({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       _sum: { value: true },
     });
 
     const wonValueAgg = await prisma.crmDeal.aggregate({
-      where: { status: 'WON', deletedAt: null } as any,
+      where: { status: 'WON', deletedAt: null },
       _sum: { value: true },
     });
 
@@ -66,7 +66,7 @@ router.get('/sales-dashboard', async (_req: Request, res: Response) => {
 router.get('/pipeline-velocity', async (_req: Request, res: Response) => {
   try {
     const openDeals = await prisma.crmDeal.findMany({
-      where: { status: 'OPEN', deletedAt: null } as any,
+      where: { status: 'OPEN', deletedAt: null },
       select: { createdAt: true, stageId: true },
       take: 1000,
     });
@@ -181,7 +181,7 @@ router.get('/win-loss', async (_req: Request, res: Response) => {
 router.get('/forecast', async (_req: Request, res: Response) => {
   try {
     const openDeals = await prisma.crmDeal.findMany({
-      where: { status: 'OPEN', deletedAt: null } as any,
+      where: { status: 'OPEN', deletedAt: null },
       select: { value: true, probability: true, expectedCloseDate: true },
       take: 1000,
     });
@@ -238,11 +238,11 @@ router.get('/forecast', async (_req: Request, res: Response) => {
 router.get('/partner-performance', async (_req: Request, res: Response) => {
   try {
     const partners = await prisma.crmPartner.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       include: {
         account: { select: { name: true } },
         referrals: {
-          where: { deletedAt: null } as any,
+          where: { deletedAt: null },
           include: { deal: { select: { value: true, status: true } } },
         },
       },
@@ -295,7 +295,7 @@ router.get('/partner-performance', async (_req: Request, res: Response) => {
 router.get('/customer-health', async (_req: Request, res: Response) => {
   try {
     const accounts = await prisma.crmAccount.findMany({
-      where: { deletedAt: null, type: 'CUSTOMER' } as any,
+      where: { deletedAt: null, type: 'CUSTOMER' },
       select: {
         id: true,
         name: true,

@@ -404,10 +404,10 @@ router.get('/dashboard', async (req: AuthRequest, res: Response) => {
 
     const [totalPlans, activePlans, pendingReports, overdueReviews] = await Promise.all([
       // Total plans (non-deleted)
-      prisma.pmsPlan.count({ where: { deletedAt: null } as any }),
+      prisma.pmsPlan.count({ where: { deletedAt: null } }),
 
       // Active plans
-      prisma.pmsPlan.count({ where: { deletedAt: null, status: 'ACTIVE' } as any }),
+      prisma.pmsPlan.count({ where: { deletedAt: null, status: 'ACTIVE' } }),
 
       // Pending reports (DRAFT or REVIEW status)
       prisma.pmsReport.count({

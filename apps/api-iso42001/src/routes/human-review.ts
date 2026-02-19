@@ -185,7 +185,7 @@ router.put('/:id/decide', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.aiHumanReview.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -246,7 +246,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const review = await prisma.aiHumanReview.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!review) {
@@ -273,7 +273,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const existing = await prisma.aiHumanReview.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res

@@ -60,7 +60,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/gantt/:projectId', async (req: AuthRequest, res: Response) => {
   try {
     const tasks = await prisma.projectTask.findMany({
-      where: { projectId: req.params.projectId, deletedAt: null } as any,
+      where: { projectId: req.params.projectId, deletedAt: null },
       orderBy: [{ wbsLevel: 'asc' }, { sortOrder: 'asc' }],
       select: {
         id: true,

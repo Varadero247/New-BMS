@@ -53,7 +53,7 @@ const RESERVED_PATHS = new Set(['triggered']);
 router.get('/triggered', async (req: Request, res: Response) => {
   try {
     const alerts = await prisma.analyticsAlert.findMany({
-      where: { status: 'TRIGGERED', deletedAt: null } as any,
+      where: { status: 'TRIGGERED', deletedAt: null },
       orderBy: { triggeredAt: 'desc' },
       take: Math.min(Math.max(1, parseInt(req.query.limit as string, 10) || 50), 200),
       skip: Math.max(0, parseInt(req.query.offset as string, 10) || 0),
@@ -173,7 +173,7 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
     const { id } = req.params;
 
-    const alert = await prisma.analyticsAlert.findFirst({ where: { id, deletedAt: null } as any });
+    const alert = await prisma.analyticsAlert.findFirst({ where: { id, deletedAt: null } });
     if (!alert) {
       return res
         .status(404)
@@ -216,7 +216,7 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const alert = await prisma.analyticsAlert.findFirst({ where: { id, deletedAt: null } as any });
+    const alert = await prisma.analyticsAlert.findFirst({ where: { id, deletedAt: null } });
     if (!alert) {
       return res
         .status(404)
@@ -257,7 +257,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED_PATHS.has(req.params.id)) return;
 
     const alert = await prisma.analyticsAlert.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!alert) {
@@ -286,7 +286,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsAlert.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -332,7 +332,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsAlert.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res

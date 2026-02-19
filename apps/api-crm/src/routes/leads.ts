@@ -139,7 +139,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const lead = await prisma.crmLead.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!lead) {
@@ -163,7 +163,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmLead.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -213,7 +213,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.put('/:id/qualify', async (req: Request, res: Response) => {
   try {
     const lead = await prisma.crmLead.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!lead) {
@@ -332,7 +332,7 @@ router.put('/:id/qualify', async (req: Request, res: Response) => {
 router.put('/:id/disqualify', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmLead.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {

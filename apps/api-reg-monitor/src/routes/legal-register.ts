@@ -79,7 +79,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.regLegalRegister.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!item)
       return res.status(404).json({
@@ -155,7 +155,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.regLegalRegister.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -212,7 +212,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.regLegalRegister.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({

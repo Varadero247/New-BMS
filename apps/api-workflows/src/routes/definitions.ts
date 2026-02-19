@@ -178,7 +178,7 @@ router.put(
         data: {
           ...data,
           version: current.version + 1,
-        } as any,
+        },
       });
 
       res.json({ success: true, data: definition });

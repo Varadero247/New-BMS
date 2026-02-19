@@ -218,7 +218,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         targetDate: data.targetDate ? new Date(data.targetDate) : null,
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: item });
@@ -265,7 +265,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
         nextReviewDate: data.nextReviewDate
           ? new Date(data.nextReviewDate)
           : existing.nextReviewDate,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: item });
@@ -319,21 +319,21 @@ router.get('/dashboard/summary', async (_req: AuthRequest, res: Response) => {
   try {
     const [total, compliant, partiallyCompliant, nonCompliant, notApplicable, underReview] =
       await Promise.all([
-        prisma.aeroComplianceItem.count({ where: { deletedAt: null } as any }),
+        prisma.aeroComplianceItem.count({ where: { deletedAt: null } }),
         prisma.aeroComplianceItem.count({
-          where: { deletedAt: null, complianceStatus: 'COMPLIANT' } as any,
+          where: { deletedAt: null, complianceStatus: 'COMPLIANT' },
         }),
         prisma.aeroComplianceItem.count({
-          where: { deletedAt: null, complianceStatus: 'PARTIALLY_COMPLIANT' } as any,
+          where: { deletedAt: null, complianceStatus: 'PARTIALLY_COMPLIANT' },
         }),
         prisma.aeroComplianceItem.count({
-          where: { deletedAt: null, complianceStatus: 'NON_COMPLIANT' } as any,
+          where: { deletedAt: null, complianceStatus: 'NON_COMPLIANT' },
         }),
         prisma.aeroComplianceItem.count({
-          where: { deletedAt: null, complianceStatus: 'NOT_APPLICABLE' } as any,
+          where: { deletedAt: null, complianceStatus: 'NOT_APPLICABLE' },
         }),
         prisma.aeroComplianceItem.count({
-          where: { deletedAt: null, complianceStatus: 'UNDER_REVIEW' } as any,
+          where: { deletedAt: null, complianceStatus: 'UNDER_REVIEW' },
         }),
       ]);
 

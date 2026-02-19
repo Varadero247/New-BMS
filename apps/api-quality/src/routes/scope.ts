@@ -45,7 +45,7 @@ router.get(
           title: SCOPE_TITLE,
           documentType: 'POLICY',
           deletedAt: null,
-        } as any,
+        },
         orderBy: { createdAt: 'desc' },
       });
 
@@ -139,7 +139,7 @@ router.put(
           title: SCOPE_TITLE,
           documentType: 'POLICY',
           deletedAt: null,
-        } as any,
+        },
         orderBy: { createdAt: 'desc' },
       });
 

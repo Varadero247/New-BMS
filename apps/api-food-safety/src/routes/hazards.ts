@@ -72,7 +72,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 router.get('/summary', async (req: Request, res: Response) => {
   try {
     const hazards = await prisma.fsHazard.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       select: { type: true, severity: true, isSignificant: true },
       take: 10000,
       orderBy: { createdAt: 'desc' },
@@ -184,7 +184,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const hazard = await prisma.fsHazard.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: { ccps: true },
     });
 
@@ -212,7 +212,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsHazard.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -257,7 +257,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsHazard.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

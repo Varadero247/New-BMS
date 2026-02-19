@@ -77,7 +77,7 @@ router.post('/filings', async (req: Request, res: Response) => {
         totalTax: data.taxWithheld + data.employerTax,
         paymentDue: data.taxWithheld + data.employerTax,
         status: 'PENDING',
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: filing });

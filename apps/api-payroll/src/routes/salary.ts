@@ -101,7 +101,7 @@ router.post('/component-types', async (req: Request, res: Response) => {
 router.get('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const salaries = await prisma.employeeSalary.findMany({
-      where: { employeeId: req.params.employeeId, deletedAt: null } as any,
+      where: { employeeId: req.params.employeeId, deletedAt: null },
       include: {
         components: {
           include: { componentType: true },
@@ -175,7 +175,7 @@ router.post('/employees/:employeeId', async (req: Request, res: Response) => {
 
     // Get previous salary for history
     const prevSalary = await prisma.employeeSalary.findFirst({
-      where: { employeeId: req.params.employeeId, deletedAt: null } as any,
+      where: { employeeId: req.params.employeeId, deletedAt: null },
       orderBy: { effectiveFrom: 'desc' },
     });
 

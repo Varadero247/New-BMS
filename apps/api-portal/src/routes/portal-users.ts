@@ -127,7 +127,7 @@ router.post('/', async (req: Request, res: Response) => {
     const data = parsed.data;
 
     const existing = await prisma.portalUser.findFirst({
-      where: { email: data.email, deletedAt: null } as any,
+      where: { email: data.email, deletedAt: null },
     });
     if (existing) {
       return res
@@ -233,7 +233,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
 
     const user = await prisma.portalUser.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       select: {
         id: true,
         email: true,
@@ -281,7 +281,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalUser.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -327,7 +327,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.portalUser.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

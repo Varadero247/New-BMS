@@ -75,7 +75,7 @@ router.get('/', async (req: Request, res: Response) => {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { metrics: { where: { deletedAt: null } as any } },
+        include: { metrics: { where: { deletedAt: null } } },
       }),
       prisma.esgFramework.count({ where }),
     ]);
@@ -157,7 +157,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id/metrics', async (req: Request, res: Response) => {
   try {
     const framework = await prisma.esgFramework.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!framework) {
       return res
@@ -166,7 +166,7 @@ router.get('/:id/metrics', async (req: Request, res: Response) => {
     }
 
     const metrics = await prisma.esgMetric.findMany({
-      where: { frameworkId: req.params.id, deletedAt: null } as any,
+      where: { frameworkId: req.params.id, deletedAt: null },
       orderBy: { code: 'asc' },
       take: 1000,
     });
@@ -188,7 +188,7 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
     const framework = await prisma.esgFramework.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!framework) {
       return res
@@ -252,8 +252,8 @@ router.post('/:id/metrics', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const framework = await prisma.esgFramework.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
-      include: { metrics: { where: { deletedAt: null } as any } },
+      where: { id: req.params.id, deletedAt: null },
+      include: { metrics: { where: { deletedAt: null } } },
     });
     if (!framework) {
       return res
@@ -288,7 +288,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.esgFramework.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -316,7 +316,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.esgFramework.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

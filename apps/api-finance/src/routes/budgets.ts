@@ -92,7 +92,7 @@ router.get('/variance-report', async (req: Request, res: Response) => {
     }
 
     const budgets = await prisma.finBudget.findMany({
-      where: { deletedAt: null, fiscalYear: parseInt(String(fiscalYear), 10) } as any,
+      where: { deletedAt: null, fiscalYear: parseInt(String(fiscalYear), 10) },
       include: {
         account: { select: { id: true, code: true, name: true, type: true } },
       },
@@ -139,7 +139,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
     const budget = await prisma.finBudget.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         account: { select: { id: true, code: true, name: true, type: true } },
       },
@@ -182,7 +182,7 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
 
     const account = await prisma.finAccount.findFirst({
-      where: { id: accountId, deletedAt: null } as any,
+      where: { id: accountId, deletedAt: null },
     });
     if (!account) {
       return res
@@ -252,7 +252,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       });
     }
 
-    const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -301,7 +301,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.finBudget.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)

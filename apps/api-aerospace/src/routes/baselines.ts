@@ -168,7 +168,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         approvedBy: data.approvedBy,
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: baseline });
@@ -209,7 +209,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
         ...data,
         effectiveDate: data.effectiveDate ? new Date(data.effectiveDate) : existing.effectiveDate,
         approvedDate: data.approvedDate ? new Date(data.approvedDate) : existing.approvedDate,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: baseline });

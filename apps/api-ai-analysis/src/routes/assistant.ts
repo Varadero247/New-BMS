@@ -241,7 +241,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     // Try AI provider
     let aiAnswer: string | null = null;
     try {
-      const settings = await prisma.aISettings.findFirst({ where: { isActive: true } as any });
+      const settings = await prisma.aISettings.findFirst({ where: { isActive: true } });
       if (settings?.apiKey) {
         const moduleList = Object.entries(MODULE_KB)
           .map(

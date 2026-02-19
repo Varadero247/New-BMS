@@ -180,7 +180,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const order = await prisma.portalOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!order) {
@@ -216,7 +216,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -265,7 +265,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

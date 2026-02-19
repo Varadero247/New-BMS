@@ -17,7 +17,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.esgReport.findMany({
-      where: { orgId, deletedAt: null } as any,
+      where: { orgId, deletedAt: null },
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
@@ -41,7 +41,7 @@ router.post('/generate', authenticate, async (req: Request, res: Response) => {
     }
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const y = new Date().getFullYear();
-    const c = await prisma.esgReport.count({ where: { orgId } as any });
+    const c = await prisma.esgReport.count({ where: { orgId } });
     const { title, framework, period } = parsed.data;
     const data = await prisma.esgReport.create({
       data: {

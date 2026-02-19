@@ -17,7 +17,7 @@ router.use(authenticate);
 router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
   try {
     const settings = await prisma.aISettings.findFirst({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -78,7 +78,7 @@ router.post('/', requireRole('ADMIN'), async (req: AuthRequest, res: Response) =
 
     // Check if settings exist
     const existing = await prisma.aISettings.findFirst({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { createdAt: 'desc' },
     });
 

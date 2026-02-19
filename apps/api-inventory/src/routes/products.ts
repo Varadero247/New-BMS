@@ -104,7 +104,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/low-stock', async (req: AuthRequest, res: Response) => {
   try {
     const products = await prisma.product.findMany({
-      where: { status: 'ACTIVE', deletedAt: null } as any,
+      where: { status: 'ACTIVE', deletedAt: null },
       include: {
         category: { select: { id: true, name: true } },
         inventoryItems: {
@@ -271,7 +271,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: 'ACTIVE',
         createdById: req.user?.id,
         updatedById: req.user?.id,
-      } as any,
+      },
       include: {
         category: true,
         supplier: true,

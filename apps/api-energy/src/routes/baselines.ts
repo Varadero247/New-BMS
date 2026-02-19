@@ -155,8 +155,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const baseline = await prisma.energyBaseline.findFirst({
-      where: { id, deletedAt: null } as any,
-      include: { targets: { where: { deletedAt: null } as any } },
+      where: { id, deletedAt: null },
+      include: { targets: { where: { deletedAt: null } } },
     });
 
     if (!baseline) {
@@ -195,7 +195,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.energyBaseline.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -236,7 +236,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.energyBaseline.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -273,7 +273,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
 
     const existing = await prisma.energyBaseline.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res

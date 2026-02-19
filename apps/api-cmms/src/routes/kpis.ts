@@ -60,7 +60,7 @@ const RESERVED_PATHS = new Set(['dashboard']);
 router.get('/dashboard', async (req: Request, res: Response) => {
   try {
     const kpis = await prisma.cmmsKpi.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { periodEnd: 'desc' },
       take: 1000,
     });
@@ -75,7 +75,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
 
     // Summary stats
     const totalAssets = await prisma.cmmsAsset.count({
-      where: { deletedAt: null, status: 'ACTIVE' } as any,
+      where: { deletedAt: null, status: 'ACTIVE' },
     });
     const openWorkOrders = await prisma.cmmsWorkOrder.count({
       where: { deletedAt: null, status: { in: ['OPEN', 'IN_PROGRESS'] } as any },
@@ -87,7 +87,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
         scheduledEnd: { lt: new Date() },
       },
     });
-    const lowStockParts = await prisma.cmmsPart.count({ where: { deletedAt: null } as any });
+    const lowStockParts = await prisma.cmmsPart.count({ where: { deletedAt: null } });
 
     res.json({
       success: true,
@@ -196,7 +196,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const kpi = await prisma.cmmsKpi.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: { asset: { select: { id: true, name: true, code: true } } },
     });
 
@@ -229,7 +229,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsKpi.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -264,7 +264,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsKpi.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

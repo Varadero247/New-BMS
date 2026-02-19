@@ -42,7 +42,7 @@ const CAPA_ACTION_STATUSES = [
 // Generate reference number CAPA-001, CAPA-002, etc.
 async function generateReferenceNumber(): Promise<string> {
   const last = await prisma.capa.findFirst({
-    where: { deletedAt: null } as any,
+    where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
     select: { referenceNumber: true },
   });

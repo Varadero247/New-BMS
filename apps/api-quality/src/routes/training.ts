@@ -132,9 +132,9 @@ router.get('/overdue', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, completed, inProgress, overdue, byType] = await Promise.all([
-      prisma.qualTraining.count({ where: { deletedAt: null } as any }),
-      prisma.qualTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
-      prisma.qualTraining.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } as any }),
+      prisma.qualTraining.count({ where: { deletedAt: null } }),
+      prisma.qualTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } }),
+      prisma.qualTraining.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
       prisma.qualTraining.count({
         where: {
           deletedAt: null,
@@ -144,7 +144,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       }),
       prisma.qualTraining.groupBy({
         by: ['trainingType'],
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         _count: { id: true },
       }),
     ]);
@@ -279,7 +279,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.qualTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -317,7 +317,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.qualTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!item)
       return res.status(404).json({
@@ -352,7 +352,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.qualTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -383,7 +383,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({

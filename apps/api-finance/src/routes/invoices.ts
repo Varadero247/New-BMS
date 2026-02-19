@@ -215,7 +215,7 @@ router.post('/customers', async (req: AuthRequest, res: Response) => {
         isActive: true,
         createdById: req.user?.id,
         updatedById: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: customer });
@@ -255,7 +255,7 @@ router.put('/customers/:id', async (req: AuthRequest, res: Response) => {
       data: {
         ...data,
         updatedById: req.user?.id,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: customer });
@@ -311,7 +311,7 @@ router.delete('/customers/:id', async (req: AuthRequest, res: Response) => {
 
     await prisma.finCustomer.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), isActive: false, updatedById: req.user?.id } as any,
+      data: { deletedAt: new Date(), isActive: false, updatedById: req.user?.id },
     });
 
     res.json({ success: true, data: { message: 'Customer deleted' } });
@@ -611,7 +611,7 @@ router.post('/credit-notes', async (req: AuthRequest, res: Response) => {
         amount: data.amount,
         reason: data.reason,
         createdById: req.user?.id,
-      } as any,
+      },
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },
@@ -737,7 +737,7 @@ router.post('/payments', async (req: AuthRequest, res: Response) => {
           bankAccountId: data.bankAccountId || null,
           notes: data.notes || null,
           createdById: req.user?.id,
-        } as any,
+        },
         include: {
           customer: { select: { id: true, code: true, name: true } },
           invoice: { select: { id: true, reference: true } },
@@ -1051,7 +1051,7 @@ router.post('/:id/send', async (req: AuthRequest, res: Response) => {
         status: 'SENT',
         sentAt: new Date(),
         updatedById: req.user?.id,
-      } as any,
+      },
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },
@@ -1107,7 +1107,7 @@ router.post('/:id/void', async (req: AuthRequest, res: Response) => {
         voidReason: reason,
         amountDue: 0,
         updatedById: req.user?.id,
-      } as any,
+      },
       include: {
         customer: { select: { id: true, code: true, name: true } },
       },

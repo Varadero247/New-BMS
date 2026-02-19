@@ -352,7 +352,7 @@ router.put('/:id', checkOwnership(prisma.envAspect), async (req: AuthRequest, re
         nextReviewDate: data.nextReviewDate
           ? new Date(data.nextReviewDate)
           : existing.nextReviewDate,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: aspect });

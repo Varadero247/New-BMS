@@ -313,7 +313,7 @@ router.put('/:id/part1', async (req: AuthRequest, res: Response) => {
         part1Data: JSON.stringify(data.characteristics),
         part1Status,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
-      } as any,
+      },
     });
 
     logger.info('FAI Part 1 updated', {
@@ -376,7 +376,7 @@ router.put('/:id/part2', async (req: AuthRequest, res: Response) => {
         part2Data: JSON.stringify(data.documents),
         part2Status,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
-      } as any,
+      },
     });
 
     logger.info('FAI Part 2 updated', {
@@ -439,7 +439,7 @@ router.put('/:id/part3', async (req: AuthRequest, res: Response) => {
         part3Data: JSON.stringify(data.testResults),
         part3Status,
         status: existing.status === 'PLANNING' ? 'IN_PROGRESS' : existing.status,
-      } as any,
+      },
     });
 
     logger.info('FAI Part 3 updated', {

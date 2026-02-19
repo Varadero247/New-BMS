@@ -154,21 +154,21 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [total, byStatus, byType, bySeverity, overdue] = await Promise.all([
-      prisma.medCapa.count({ where: { deletedAt: null } as any }),
+      prisma.medCapa.count({ where: { deletedAt: null } }),
       prisma.medCapa.groupBy({
         by: ['status'],
         _count: { id: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       prisma.medCapa.groupBy({
         by: ['capaType'],
         _count: { id: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       prisma.medCapa.groupBy({
         by: ['severity'],
         _count: { id: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       prisma.medCapa.count({
         where: {

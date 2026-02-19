@@ -181,12 +181,12 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const asset = await prisma.cmmsAsset.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
-        workOrders: { where: { deletedAt: null } as any, take: 10, orderBy: { createdAt: 'desc' } },
-        preventivePlans: { where: { deletedAt: null } as any },
+        workOrders: { where: { deletedAt: null }, take: 10, orderBy: { createdAt: 'desc' } },
+        preventivePlans: { where: { deletedAt: null } },
         inspections: {
-          where: { deletedAt: null } as any,
+          where: { deletedAt: null },
           take: 10,
           orderBy: { createdAt: 'desc' },
         },
@@ -222,7 +222,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsAsset.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -257,7 +257,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsAsset.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -285,7 +285,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.get('/:id/history', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsAsset.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -295,22 +295,22 @@ router.get('/:id/history', async (req: Request, res: Response) => {
 
     const [workOrders, inspections, meterReadings, downtimes] = await Promise.all([
       prisma.cmmsWorkOrder.findMany({
-        where: { assetId: req.params.id, deletedAt: null } as any,
+        where: { assetId: req.params.id, deletedAt: null },
         orderBy: { createdAt: 'desc' },
         take: 1000,
       }),
       prisma.cmmsInspection.findMany({
-        where: { assetId: req.params.id, deletedAt: null } as any,
+        where: { assetId: req.params.id, deletedAt: null },
         orderBy: { createdAt: 'desc' },
         take: 1000,
       }),
       prisma.cmmsMeterReading.findMany({
-        where: { assetId: req.params.id, deletedAt: null } as any,
+        where: { assetId: req.params.id, deletedAt: null },
         orderBy: { readingDate: 'desc' },
         take: 1000,
       }),
       prisma.cmmsDowntime.findMany({
-        where: { assetId: req.params.id, deletedAt: null } as any,
+        where: { assetId: req.params.id, deletedAt: null },
         orderBy: { startTime: 'desc' },
         take: 1000,
       }),
@@ -332,7 +332,7 @@ router.get('/:id/history', async (req: Request, res: Response) => {
 router.get('/:id/qr-code', async (req: Request, res: Response) => {
   try {
     const asset = await prisma.cmmsAsset.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       select: {
         id: true,
         code: true,

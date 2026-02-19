@@ -151,7 +151,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const seu = await prisma.energySeu.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!seu) {
@@ -188,7 +188,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -231,7 +231,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energySeu.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)

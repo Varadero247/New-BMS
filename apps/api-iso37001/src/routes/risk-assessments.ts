@@ -212,7 +212,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'IDENTIFIED',
         createdBy: userId,
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Risk assessment created', {
@@ -239,7 +239,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
 
     const assessment = await prisma.abRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!assessment) {
@@ -272,7 +272,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const existing = await prisma.abRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -296,7 +296,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
         riskScore,
         riskLevel: riskLevel as any,
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Risk assessment updated', { id: assessment.id, riskScore, riskLevel });
@@ -321,7 +321,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -351,7 +351,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
         targetDate: parsed.data.targetDate,
         status: 'MITIGATED',
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Risk assessment mitigated', {
@@ -375,7 +375,7 @@ router.put('/:id/mitigate', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abRiskAssessment.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -391,7 +391,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: {
         deletedAt: new Date(),
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Risk assessment deleted', { id: req.params.id });

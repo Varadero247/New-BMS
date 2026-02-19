@@ -32,7 +32,7 @@ const dataPointCreateSchema = z.object({
 router.get('/:id/data-points', async (req: Request, res: Response) => {
   try {
     const metric = await prisma.esgMetric.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!metric) {
       return res
@@ -79,7 +79,7 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthRequest;
     const metric = await prisma.esgMetric.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!metric) {
       return res

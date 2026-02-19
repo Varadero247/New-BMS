@@ -46,12 +46,12 @@ router.get('/dashboard', async (req: Request, res: Response) => {
           take: 1000,
         }),
         prisma.esgTarget.findMany({
-          where: { deletedAt: null, year: currentYear } as any,
+          where: { deletedAt: null, year: currentYear },
           take: 1000,
         }),
-        prisma.esgInitiative.findMany({ where: { deletedAt: null } as any, take: 1000 }),
+        prisma.esgInitiative.findMany({ where: { deletedAt: null }, take: 1000 }),
         prisma.esgReport.findMany({
-          where: { deletedAt: null, year: currentYear } as any,
+          where: { deletedAt: null, year: currentYear },
           take: 1000,
         }),
         prisma.esgSocialMetric.findMany({
@@ -134,7 +134,7 @@ router.get('/csrd', async (req: Request, res: Response) => {
         },
         take: 1000,
       }),
-      prisma.esgTarget.findMany({ where: { deletedAt: null, year } as any, take: 1000 }),
+      prisma.esgTarget.findMany({ where: { deletedAt: null, year }, take: 1000 }),
     ]);
 
     res.json({
@@ -187,9 +187,9 @@ router.get('/tcfd', async (req: Request, res: Response) => {
         },
         take: 1000,
       }),
-      prisma.esgTarget.findMany({ where: { deletedAt: null, year } as any, take: 1000 }),
+      prisma.esgTarget.findMany({ where: { deletedAt: null, year }, take: 1000 }),
       prisma.esgInitiative.findMany({
-        where: { deletedAt: null, category: 'ENVIRONMENTAL' } as any,
+        where: { deletedAt: null, category: 'ENVIRONMENTAL' },
         take: 1000,
       }),
     ]);
@@ -320,7 +320,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
     const report = await prisma.esgReport.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!report) {
       return res
@@ -355,7 +355,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.esgReport.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -386,7 +386,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.esgReport.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

@@ -125,12 +125,12 @@ router.get('/heatmap', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, open, mitigated, byStatus] = await Promise.all([
-      prisma.qualRiskRegister.count({ where: { deletedAt: null } as any }),
-      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'OPEN' } as any }),
-      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'MITIGATED' } as any }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null } }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'OPEN' } }),
+      prisma.qualRiskRegister.count({ where: { deletedAt: null, status: 'MITIGATED' } }),
       prisma.qualRiskRegister.groupBy({
         by: ['status'],
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         _count: { id: true },
       }),
     ]);
@@ -258,7 +258,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.qualRiskRegister.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!item)
       return res
@@ -291,7 +291,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.qualRiskRegister.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res
@@ -339,7 +339,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualRiskRegister.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res

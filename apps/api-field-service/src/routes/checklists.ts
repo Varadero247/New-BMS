@@ -124,7 +124,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!data) {
@@ -150,7 +150,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -189,7 +189,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -219,7 +219,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.post('/:id/results', async (req: Request, res: Response) => {
   try {
     const checklist = await prisma.fsSvcChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!checklist) {
       return res
@@ -268,7 +268,7 @@ router.post('/:id/results', async (req: Request, res: Response) => {
 router.get('/:id/results', async (req: Request, res: Response) => {
   try {
     const checklist = await prisma.fsSvcChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!checklist) {
       return res
@@ -277,7 +277,7 @@ router.get('/:id/results', async (req: Request, res: Response) => {
     }
 
     const data = await prisma.fsSvcChecklistResult.findMany({
-      where: { checklistId: req.params.id, deletedAt: null } as any,
+      where: { checklistId: req.params.id, deletedAt: null },
       orderBy: { completedAt: 'desc' },
       take: 1000,
     });

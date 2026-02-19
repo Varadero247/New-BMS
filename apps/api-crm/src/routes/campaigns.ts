@@ -112,7 +112,7 @@ campaignRouter.get('/', async (req: Request, res: Response) => {
 campaignRouter.get('/:id', async (req: Request, res: Response) => {
   try {
     const campaign = await prisma.crmCampaign.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!campaign) {
@@ -122,7 +122,7 @@ campaignRouter.get('/:id', async (req: Request, res: Response) => {
     }
 
     const memberCount = await prisma.crmCampaignMember.count({
-      where: { campaignId: req.params.id, deletedAt: null } as any,
+      where: { campaignId: req.params.id, deletedAt: null },
     });
 
     return res.json({
@@ -144,7 +144,7 @@ campaignRouter.get('/:id', async (req: Request, res: Response) => {
 campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
   try {
     const campaign = await prisma.crmCampaign.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!campaign) {
@@ -154,7 +154,7 @@ campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
     }
 
     const members = await prisma.crmCampaignMember.findMany({
-      where: { campaignId: req.params.id, deletedAt: null } as any,
+      where: { campaignId: req.params.id, deletedAt: null },
       take: 1000,
     });
 
@@ -197,7 +197,7 @@ campaignRouter.get('/:id/performance', async (req: Request, res: Response) => {
 campaignRouter.post('/:id/contacts', async (req: Request, res: Response) => {
   try {
     const campaign = await prisma.crmCampaign.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!campaign) {
@@ -354,7 +354,7 @@ emailSequenceRouter.get('/', async (req: Request, res: Response) => {
 emailSequenceRouter.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmEmailSequence.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -397,7 +397,7 @@ emailSequenceRouter.put('/:id', async (req: Request, res: Response) => {
 emailSequenceRouter.put('/:id/enroll', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmEmailSequence.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {

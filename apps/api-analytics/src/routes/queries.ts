@@ -145,7 +145,7 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const query = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } as any });
+    const query = await prisma.analyticsQuery.findFirst({ where: { id, deletedAt: null } });
     if (!query) {
       return res
         .status(404)
@@ -212,7 +212,7 @@ router.post('/:id/execute', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const query = await prisma.analyticsQuery.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!query) {
@@ -241,7 +241,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsQuery.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -287,7 +287,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsQuery.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res

@@ -148,7 +148,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id/complete', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualManagementReview.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -184,7 +184,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.qualManagementReview.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!item)
       return res.status(404).json({
@@ -219,7 +219,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.qualManagementReview.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -248,7 +248,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualManagementReview.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({

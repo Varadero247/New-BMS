@@ -125,7 +125,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Validate meter if provided
     if (data.meterId) {
       const meter = await prisma.energyMeter.findFirst({
-        where: { id: data.meterId, deletedAt: null } as any,
+        where: { id: data.meterId, deletedAt: null },
       });
       if (!meter) {
         return res
@@ -170,7 +170,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const alert = await prisma.energyAlert.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         meter: { select: { id: true, name: true, code: true, type: true } },
       },
@@ -210,7 +210,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -244,7 +244,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -279,7 +279,7 @@ router.put('/:id/acknowledge', async (req: Request, res: Response) => {
     const { id } = req.params;
     const authReq = req as AuthRequest;
 
-    const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -324,7 +324,7 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyAlert.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)

@@ -131,7 +131,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         isActive: true,
         createdById: req.user?.id,
         updatedById: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: supplier });
@@ -199,7 +199,7 @@ router.patch('/:id', checkOwnership(prisma.supplier), async (req: AuthRequest, r
       data: {
         ...data,
         updatedById: req.user?.id,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: supplier });

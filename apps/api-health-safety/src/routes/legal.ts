@@ -37,7 +37,7 @@ const LEGAL_STATUSES = ['ACTIVE', 'REVIEW_DUE', 'SUPERSEDED', 'ARCHIVED'] as con
 // Generate reference number LR-001, LR-002, etc.
 async function generateReferenceNumber(): Promise<string> {
   const last = await prisma.legalRequirement.findFirst({
-    where: { deletedAt: null } as any,
+    where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
     select: { referenceNumber: true },
   });

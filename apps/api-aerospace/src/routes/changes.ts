@@ -204,7 +204,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: 'DRAFT',
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: changeRequest });
@@ -361,7 +361,7 @@ router.put('/:id/review', async (req: AuthRequest, res: Response) => {
         reviewedBy: data.reviewedBy || req.user?.id,
         reviewedDate: new Date(),
         conditions: data.conditions,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: changeRequest });

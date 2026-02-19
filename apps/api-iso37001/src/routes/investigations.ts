@@ -208,7 +208,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'REPORTED',
         createdBy: userId,
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Investigation created', { id: investigation.id, referenceNumber });
@@ -230,7 +230,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
 
     const investigation = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!investigation) {
@@ -262,7 +262,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const existing = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -277,7 +277,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
       data: {
         ...parsed.data,
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Investigation updated', { id: investigation.id });
@@ -302,7 +302,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -321,7 +321,7 @@ router.put('/:id/investigate', async (req: Request, res: Response) => {
         investigationNotes: parsed.data.investigationNotes,
         investigationStartDate: new Date(),
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Investigation started', { id: investigation.id });
@@ -346,7 +346,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -370,7 +370,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
         closedAt: new Date(),
         closedBy: userId,
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Investigation closed', { id: investigation.id, outcome: parsed.data.outcome });
@@ -390,7 +390,7 @@ router.put('/:id/close', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -405,7 +405,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: {
         deletedAt: new Date(),
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Investigation deleted', { id: req.params.id });

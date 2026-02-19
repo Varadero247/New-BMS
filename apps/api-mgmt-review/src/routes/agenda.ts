@@ -29,7 +29,7 @@ router.post('/:id/generate', authenticate, async (req: Request, res: Response) =
 
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const review = await prisma.mgmtReview.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!review)
       return res

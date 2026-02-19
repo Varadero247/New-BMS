@@ -132,7 +132,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'PENDING',
         purpose: data.purpose,
         notes: data.notes,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: loan });

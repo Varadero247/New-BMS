@@ -72,7 +72,7 @@ function buildMeterTree(meters: Record<string, unknown>[]): Record<string, unkno
 router.get('/hierarchy', async (_req: Request, res: Response) => {
   try {
     const meters = await prisma.energyMeter.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { name: 'asc' },
       take: 1000,
     });
@@ -171,7 +171,7 @@ router.post('/', async (req: Request, res: Response) => {
 
     // Check duplicate code
     const existing = await prisma.energyMeter.findFirst({
-      where: { code: data.code, deletedAt: null } as any,
+      where: { code: data.code, deletedAt: null },
     });
     if (existing) {
       return res.status(409).json({
@@ -183,7 +183,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Validate parent if provided
     if (data.parentMeterId) {
       const parent = await prisma.energyMeter.findFirst({
-        where: { id: data.parentMeterId, deletedAt: null } as any,
+        where: { id: data.parentMeterId, deletedAt: null },
       });
       if (!parent) {
         return res.status(404).json({
@@ -244,11 +244,11 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const meter = await prisma.energyMeter.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         parent: { select: { id: true, name: true, code: true } },
         children: {
-          where: { deletedAt: null } as any,
+          where: { deletedAt: null },
           select: { id: true, name: true, code: true, type: true, status: true },
         },
       },
@@ -291,7 +291,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -330,7 +330,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -367,7 +367,7 @@ router.get('/:id/readings', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 50, 100);
     const skip = (page - 1) * limit;
 
-    const meter = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } as any });
+    const meter = await prisma.energyMeter.findFirst({ where: { id, deletedAt: null } });
     if (!meter) {
       return res
         .status(404)

@@ -60,13 +60,13 @@ const updateSchema = createSchema.partial().extend({
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, open, inProgress, closed, bySeverity] = await Promise.all([
-      prisma.qualInvestigation.count({ where: { deletedAt: null } as any }),
-      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'OPEN' } as any }),
-      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } as any }),
-      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'CLOSED' } as any }),
+      prisma.qualInvestigation.count({ where: { deletedAt: null } }),
+      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'OPEN' } }),
+      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'IN_PROGRESS' } }),
+      prisma.qualInvestigation.count({ where: { deletedAt: null, status: 'CLOSED' } }),
       prisma.qualInvestigation.groupBy({
         by: ['severity'],
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         _count: { id: true },
       }),
     ]);
@@ -185,7 +185,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.qualInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!item)
       return res
@@ -219,7 +219,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.qualInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res
@@ -248,7 +248,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualInvestigation.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res

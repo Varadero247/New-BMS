@@ -119,7 +119,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
 router.get('/org-chart', async (_req: Request, res: Response) => {
   try {
     const employees = await prisma.employee.findMany({
-      where: { employmentStatus: 'ACTIVE', deletedAt: null } as any,
+      where: { employmentStatus: 'ACTIVE', deletedAt: null },
       select: {
         id: true,
         firstName: true,
@@ -395,7 +395,7 @@ router.delete('/:id', checkOwnership(prisma.employee), async (req: Request, res:
 router.get('/:id/subordinates', async (req: Request, res: Response) => {
   try {
     const subordinates = await prisma.employee.findMany({
-      where: { managerId: req.params.id, employmentStatus: 'ACTIVE', deletedAt: null } as any,
+      where: { managerId: req.params.id, employmentStatus: 'ACTIVE', deletedAt: null },
       include: {
         department: true,
         position: true,

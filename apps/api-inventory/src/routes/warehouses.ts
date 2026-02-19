@@ -234,7 +234,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         isActive: true,
         createdById: req.user?.id,
         updatedById: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: warehouse });

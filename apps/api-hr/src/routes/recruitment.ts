@@ -632,7 +632,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
 
     // Calculate average time to hire (for completed hires)
     const hiredApplicants = await prisma.applicant.findMany({
-      where: { status: 'HIRED', deletedAt: null } as any,
+      where: { status: 'HIRED', deletedAt: null },
       select: { createdAt: true, updatedAt: true },
       take: 50,
       orderBy: { updatedAt: 'desc' },

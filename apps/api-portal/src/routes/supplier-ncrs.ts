@@ -93,7 +93,7 @@ router.post('/:id/response', async (req: Request, res: Response) => {
         portalUserId: auth.user!.id,
         reportType: 'NCR',
         deletedAt: null,
-      } as any,
+      },
     });
 
     if (!ncr) {

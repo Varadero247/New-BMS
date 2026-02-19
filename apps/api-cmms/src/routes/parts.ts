@@ -185,9 +185,9 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const part = await prisma.cmmsPart.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
-        partUsages: { where: { deletedAt: null } as any, take: 20, orderBy: { usedAt: 'desc' } },
+        partUsages: { where: { deletedAt: null }, take: 20, orderBy: { usedAt: 'desc' } },
       },
     });
 
@@ -220,7 +220,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsPart.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -250,7 +250,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsPart.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -286,7 +286,7 @@ router.post('/:id/usage', async (req: Request, res: Response) => {
     const data = parsed.data;
 
     const part = await prisma.cmmsPart.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!part) {
       return res

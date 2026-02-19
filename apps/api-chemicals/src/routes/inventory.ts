@@ -184,7 +184,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
 
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const chemical = await prisma.chemRegister.findFirst({
-      where: { id: parsed.data.chemicalId, orgId, deletedAt: null } as any,
+      where: { id: parsed.data.chemicalId, orgId, deletedAt: null },
     });
     if (!chemical)
       return res

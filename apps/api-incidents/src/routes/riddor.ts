@@ -18,7 +18,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.incIncident.findMany({
-      where: { orgId, deletedAt: null, riddorReportable: 'YES' } as any,
+      where: { orgId, deletedAt: null, riddorReportable: 'YES' },
       orderBy: { dateOccurred: 'desc' },
       take: 500,
     });

@@ -101,10 +101,10 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
     const customer = await prisma.finCustomer.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         invoices: {
-          where: { deletedAt: null } as any,
+          where: { deletedAt: null },
           orderBy: { issueDate: 'desc' },
           take: 10,
           select: {
@@ -210,7 +210,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       });
     }
 
-    const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -251,7 +251,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.finCustomer.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -259,7 +259,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     }
 
     const invoiceCount = await prisma.finInvoice.count({
-      where: { customerId: id, deletedAt: null } as any,
+      where: { customerId: id, deletedAt: null },
     });
     if (invoiceCount > 0) {
       return res.status(409).json({

@@ -91,7 +91,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     // Get AI settings
     const settings = await prisma.aISettings.findFirst({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { createdAt: 'desc' } });
 
     if (!settings?.apiKey) {

@@ -66,7 +66,7 @@ router.get('/dashboard', authenticate, async (req: Request, res: Response) => {
       // Risk level breakdown from COSHH assessments
       prisma.chemCoshh.groupBy({
         by: ['residualRiskLevel'],
-        where: { orgId, status: 'ACTIVE', deletedAt: null } as any,
+        where: { orgId, status: 'ACTIVE', deletedAt: null },
         _count: true,
       }),
       prisma.chemIncident.findMany({

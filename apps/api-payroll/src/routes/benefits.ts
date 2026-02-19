@@ -77,7 +77,7 @@ router.post('/plans', async (req: Request, res: Response) => {
       data: {
         ...data,
         effectiveFrom: new Date(data.effectiveFrom),
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: plan });
@@ -99,7 +99,7 @@ router.post('/plans', async (req: Request, res: Response) => {
 router.get('/employees/:employeeId', async (req: Request, res: Response) => {
   try {
     const benefits = await prisma.employeeBenefit.findMany({
-      where: { employeeId: req.params.employeeId, deletedAt: null } as any,
+      where: { employeeId: req.params.employeeId, deletedAt: null },
       include: {
         benefitPlan: true,
       },

@@ -160,11 +160,11 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED.has(req.params.id)) return undefined as any;
 
     const ccp = await prisma.fsCcp.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
         hazard: true,
         monitoringRecords: {
-          where: { deletedAt: null } as any,
+          where: { deletedAt: null },
           orderBy: { monitoredAt: 'desc' },
           take: 20,
         },
@@ -194,7 +194,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsCcp.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -233,7 +233,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsCcp.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -268,7 +268,7 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const ccp = await prisma.fsCcp.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!ccp) {
       return res
@@ -310,7 +310,7 @@ router.get('/:id/monitoring-records', async (req: Request, res: Response) => {
 router.post('/:id/monitoring-records', async (req: Request, res: Response) => {
   try {
     const ccp = await prisma.fsCcp.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!ccp) {
       return res

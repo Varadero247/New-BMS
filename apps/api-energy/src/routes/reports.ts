@@ -38,12 +38,12 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
 
     // Active meters count
     const activeMeters = await prisma.energyMeter.count({
-      where: { status: 'ACTIVE', deletedAt: null } as any,
+      where: { status: 'ACTIVE', deletedAt: null },
     });
 
     // Active targets
     const targets = await prisma.energyTarget.findMany({
-      where: { deletedAt: null, year: now.getFullYear() } as any,
+      where: { deletedAt: null, year: now.getFullYear() },
       take: 1000,
     });
     const onTrackTargets = targets.filter(
@@ -57,17 +57,17 @@ router.get('/dashboard', async (_req: Request, res: Response) => {
 
     // Unresolved alerts
     const unresolvedAlerts = await prisma.energyAlert.count({
-      where: { resolvedAt: null, deletedAt: null } as any,
+      where: { resolvedAt: null, deletedAt: null },
     });
 
     // SEU count
     const seuCount = await prisma.energySeu.count({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
     });
 
     // Bills pending verification
     const pendingBills = await prisma.energyBill.count({
-      where: { status: 'PENDING', deletedAt: null } as any,
+      where: { status: 'PENDING', deletedAt: null },
     });
 
     res.json({
@@ -115,13 +115,13 @@ router.get('/esos', async (_req: Request, res: Response) => {
     });
 
     const seus = await prisma.energySeu.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { consumptionPercentage: 'desc' },
       take: 1000,
     });
 
     const projects = await prisma.energyProject.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { estimatedSavings: 'desc' },
       take: 1000,
     });
@@ -215,7 +215,7 @@ router.get('/secr', async (req: Request, res: Response) => {
 
     // EnPI performance
     const enpis = await prisma.energyEnpi.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       select: {
         name: true,
         unit: true,

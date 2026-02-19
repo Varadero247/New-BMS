@@ -8,7 +8,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.compComplaint.findMany({
-      where: { orgId, deletedAt: null, isRegulatory: true } as any,
+      where: { orgId, deletedAt: null, isRegulatory: true },
       orderBy: { createdAt: 'desc' },
       take: 500,
     });

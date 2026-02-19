@@ -24,7 +24,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.finHmrcDeadline.findMany({
-      where: { orgId, deletedAt: null } as any,
+      where: { orgId, deletedAt: null },
       orderBy: { dueDate: 'asc' },
       take: 365,
     });

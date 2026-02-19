@@ -66,7 +66,7 @@ router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const item = await prisma.compCommunication.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!item)
       return res
@@ -105,7 +105,7 @@ router.post('/', authenticate, async (req: Request, res: Response) => {
         referenceNumber,
         createdBy: (req as AuthRequest).user?.id,
         updatedBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.status(201).json({ success: true, data });
   } catch (error: unknown) {
@@ -126,7 +126,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.compCommunication.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -144,7 +144,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
         sentAt,
         sentBy,
         updatedBy: (req as AuthRequest).user?.id,
-      } as any,
+      },
     });
     res.json({ success: true, data });
   } catch (error: unknown) {
@@ -159,7 +159,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const existing = await prisma.compCommunication.findFirst({
-      where: { id: req.params.id, orgId, deletedAt: null } as any,
+      where: { id: req.params.id, orgId, deletedAt: null },
     });
     if (!existing)
       return res
@@ -167,7 +167,7 @@ router.delete('/:id', authenticate, async (req: Request, res: Response) => {
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'communication not found' } });
     await prisma.compCommunication.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id } as any,
+      data: { deletedAt: new Date(), updatedBy: (req as AuthRequest).user?.id },
     });
     res.json({ success: true, data: { message: 'communication deleted successfully' } });
   } catch (error: unknown) {

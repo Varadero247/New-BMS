@@ -216,7 +216,7 @@ router.post('/ropa', async (req: Request, res: Response) => {
         description: parsed.data.description || null,
         status: 'ACTIVE',
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('ROPA entry created', { ropaId: entry.id, refNumber });
@@ -240,7 +240,7 @@ router.get('/ropa/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const entry = await prisma.isRopa.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!entry) {
@@ -280,7 +280,7 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.isRopa.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.isRopa.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -294,7 +294,7 @@ router.put('/ropa/:id', async (req: Request, res: Response) => {
         ...parsed.data,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('ROPA entry updated', { ropaId: id });
@@ -347,7 +347,7 @@ router.post('/dpia', async (req: Request, res: Response) => {
         ropaId: parsed.data.ropaId || null,
         status: 'DRAFT',
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('DPIA created', { dpiaId: dpia.id, refNumber });
@@ -418,7 +418,7 @@ router.get('/dpia/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const dpia = await prisma.isDpia.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!dpia) {
@@ -457,7 +457,7 @@ router.put('/dpia/:id/approve', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.isDpia.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.isDpia.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -474,7 +474,7 @@ router.put('/dpia/:id/approve', async (req: Request, res: Response) => {
         status: 'APPROVED',
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('DPIA approved', { dpiaId: id, approvedBy: authReq.user?.id });
@@ -580,7 +580,7 @@ router.post('/dsar', async (req: Request, res: Response) => {
         deadline,
         status: 'RECEIVED',
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('DSAR logged', {
@@ -634,7 +634,7 @@ router.put('/dsar/:id/respond', async (req: Request, res: Response) => {
         status: 'COMPLETED',
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('DSAR responded', { dsarId: id });
@@ -715,12 +715,12 @@ router.get('/retention', async (req: Request, res: Response) => {
 
     const [schedules, total] = await Promise.all([
       prisma.isRetentionSchedule.findMany({
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         skip,
         take: limit,
         orderBy: { dataCategory: 'asc' },
       }),
-      prisma.isRetentionSchedule.count({ where: { deletedAt: null } as any }),
+      prisma.isRetentionSchedule.count({ where: { deletedAt: null } }),
     ]);
 
     res.json({

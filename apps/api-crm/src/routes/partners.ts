@@ -135,7 +135,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/leaderboard', async (_req: Request, res: Response) => {
   try {
     const partners = await prisma.crmPartner.findMany({
-      where: { deletedAt: null, status: 'ACTIVE' } as any,
+      where: { deletedAt: null, status: 'ACTIVE' },
       orderBy: { totalReferrals: 'desc' },
       take: 50,
       include: { account: true },
@@ -163,7 +163,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 
     const partner = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: { account: true },
     });
 
@@ -189,7 +189,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id/tier', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -238,7 +238,7 @@ router.put('/:id/tier', async (req: Request, res: Response) => {
 router.post('/:id/referrals', async (req: Request, res: Response) => {
   try {
     const partner = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!partner) {
@@ -259,7 +259,7 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
     }
 
     const deal = await prisma.crmDeal.findFirst({
-      where: { id: validation.data.dealId, deletedAt: null } as any,
+      where: { id: validation.data.dealId, deletedAt: null },
     });
 
     if (!deal) {
@@ -322,7 +322,7 @@ router.post('/:id/referrals', async (req: Request, res: Response) => {
 router.get('/:id/commissions', async (req: Request, res: Response) => {
   try {
     const partner = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!partner) {
@@ -368,7 +368,7 @@ router.get('/:id/commissions', async (req: Request, res: Response) => {
 router.post('/:id/commissions/pay', async (req: Request, res: Response) => {
   try {
     const partner = await prisma.crmPartner.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!partner) {

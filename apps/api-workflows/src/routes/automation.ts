@@ -490,7 +490,7 @@ router.get('/stats', async (req: Request, res: Response) => {
           _count: { status: true },
         }),
         prisma.automationExecution.findMany({
-          where: { deletedAt: null } as any,
+          where: { deletedAt: null },
           take: 10,
           orderBy: { createdAt: 'desc' },
           include: {
@@ -498,7 +498,7 @@ router.get('/stats', async (req: Request, res: Response) => {
           },
         }),
         prisma.automationRule.findMany({
-          where: { deletedAt: null } as any,
+          where: { deletedAt: null },
           take: 5,
           orderBy: { executionCount: 'desc' },
           select: {

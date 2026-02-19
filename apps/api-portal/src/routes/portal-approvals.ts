@@ -127,7 +127,7 @@ router.put('/:id/approve', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalApproval.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -180,7 +180,7 @@ router.put('/:id/reject', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.portalApproval.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

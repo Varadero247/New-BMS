@@ -352,7 +352,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         });
 
       const entry = await prisma.$transaction(async (tx) => {
-        await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } as any });
+        await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } });
         return tx.finJournalEntry.update({
           where: { id },
           data: {
@@ -440,7 +440,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } as any });
+      await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } });
       await tx.finJournalEntry.delete({ where: { id } });
     });
 
@@ -492,7 +492,7 @@ router.post('/:id/post', async (req: Request, res: Response) => {
         status: 'POSTED',
         postedAt: new Date(),
         postedBy: authReq.user?.id || 'system',
-      } as any,
+      },
       include: {
         lines: {
           include: { account: { select: { id: true, code: true, name: true, type: true } } },

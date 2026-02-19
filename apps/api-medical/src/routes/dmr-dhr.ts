@@ -163,7 +163,7 @@ router.get(
         where: { id: req.params.id },
         include: {
           dhrs: {
-            where: { deletedAt: null } as any,
+            where: { deletedAt: null },
             orderBy: { createdAt: 'desc' },
           },
           _count: {

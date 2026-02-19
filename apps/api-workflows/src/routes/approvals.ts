@@ -265,7 +265,7 @@ router.get('/requests/pending/:userId', async (req: Request, res: Response) => {
         approverId: req.params.userId,
         status: 'PENDING',
         deletedAt: null,
-      } as any,
+      },
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
@@ -719,7 +719,7 @@ router.get('/stats', async (req: Request, res: Response) => {
         },
       }),
       prisma.approvalRequest.findMany({
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         take: 10,
         orderBy: { createdAt: 'desc' },
         select: {

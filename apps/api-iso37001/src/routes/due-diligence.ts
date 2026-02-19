@@ -181,7 +181,7 @@ router.post('/', async (req: Request, res: Response) => {
         status: 'PENDING',
         createdBy: userId,
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Due diligence assessment created', { id: assessment.id, referenceNumber });
@@ -203,7 +203,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
 
     const assessment = await prisma.abDueDiligence.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!assessment) {
@@ -236,7 +236,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const existing = await prisma.abDueDiligence.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -252,7 +252,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
       data: {
         ...parsed.data,
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Due diligence assessment updated', { id: assessment.id });
@@ -277,7 +277,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abDueDiligence.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -299,7 +299,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
         completedAt: new Date(),
         completedBy: userId,
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Due diligence assessment completed', { id: assessment.id });
@@ -319,7 +319,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 router.put('/:id/expire', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abDueDiligence.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -335,7 +335,7 @@ router.put('/:id/expire', async (req: Request, res: Response) => {
       data: {
         status: 'EXPIRED',
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Due diligence assessment expired', { id: assessment.id });
@@ -355,7 +355,7 @@ router.put('/:id/expire', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abDueDiligence.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -371,7 +371,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: {
         deletedAt: new Date(),
         updatedBy: userId,
-      } as any,
+      },
     });
 
     logger.info('Due diligence assessment deleted', { id: req.params.id });

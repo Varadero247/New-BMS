@@ -140,7 +140,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const auth = req as AuthRequest;
     const complaint = await prisma.portalQualityReport.findFirst({
-      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null } as any,
+      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null },
     });
 
     if (!complaint) {

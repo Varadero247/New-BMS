@@ -96,7 +96,7 @@ router.post('/', async (req: Request, res: Response) => {
         riskLevel: parsed.data.riskLevel || null,
         status: 'ACTIVE',
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Information asset created', { assetId: asset.id, refNumber });
@@ -172,7 +172,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const asset = await prisma.isAsset.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!asset) {
@@ -210,7 +210,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({
         success: false,
@@ -225,7 +225,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...parsed.data,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('Information asset updated', { assetId: id });
@@ -249,7 +249,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.isAsset.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res.status(404).json({
         success: false,
@@ -263,7 +263,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       data: {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Information asset soft-deleted', { assetId: id });

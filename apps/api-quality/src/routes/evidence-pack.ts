@@ -491,29 +491,29 @@ async function buildEvidencePackSections(
       changeCount,
     ] = await Promise.all([
       prisma.qualDocument
-        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .count({ where: { deletedAt: null, ...dateFilter } })
         .catch(() => 0),
       prisma.qualNonConformance
-        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .count({ where: { deletedAt: null, ...dateFilter } })
         .catch(() => 0),
-      prisma.qualCapa.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
-      prisma.qualRisk.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualCapa.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
+      prisma.qualRisk.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
       prisma.qualObjective
-        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .count({ where: { deletedAt: null, ...dateFilter } })
         .catch(() => 0),
       prisma.qualInterestedParty
-        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .count({ where: { deletedAt: null, ...dateFilter } })
         .catch(() => 0),
-      prisma.qualLegal.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualLegal.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
       prisma.qualSupplier
-        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .count({ where: { deletedAt: null, ...dateFilter } })
         .catch(() => 0),
       prisma.qualImprovement
-        .count({ where: { deletedAt: null, ...dateFilter } as any })
+        .count({ where: { deletedAt: null, ...dateFilter } })
         .catch(() => 0),
-      prisma.qualProcess.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
-      prisma.qualFmea.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
-      prisma.qualChange.count({ where: { deletedAt: null, ...dateFilter } as any }).catch(() => 0),
+      prisma.qualProcess.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
+      prisma.qualFmea.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
+      prisma.qualChange.count({ where: { deletedAt: null, ...dateFilter } }).catch(() => 0),
     ]);
   } catch {
     // If any count fails, continue with zeros

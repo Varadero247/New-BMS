@@ -211,7 +211,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/tree', async (_req: Request, res: Response) => {
   try {
     const accounts = await prisma.finAccount.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { code: 'asc' },
       include: {
         _count: { select: { journalLines: true } },
@@ -773,11 +773,11 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const account = await prisma.finAccount.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         parent: { select: { id: true, code: true, name: true, type: true } },
         children: {
-          where: { deletedAt: null } as any,
+          where: { deletedAt: null },
           select: { id: true, code: true, name: true, type: true, isActive: true },
           orderBy: { code: 'asc' },
         },
@@ -832,7 +832,7 @@ router.post('/', async (req: Request, res: Response) => {
     const authReq = req as AuthRequest;
 
     // Check duplicate code
-    const existing = await prisma.finAccount.findFirst({ where: { code, deletedAt: null } as any });
+    const existing = await prisma.finAccount.findFirst({ where: { code, deletedAt: null } });
     if (existing) {
       return res.status(409).json({
         success: false,
@@ -843,7 +843,7 @@ router.post('/', async (req: Request, res: Response) => {
     // Validate parent exists if provided
     if (parentId) {
       const parent = await prisma.finAccount.findFirst({
-        where: { id: parentId, deletedAt: null } as any,
+        where: { id: parentId, deletedAt: null },
       });
       if (!parent) {
         return res.status(404).json({
@@ -913,7 +913,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       });
     }
 
-    const existing = await prisma.finAccount.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.finAccount.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -929,7 +929,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         });
       }
       const parent = await prisma.finAccount.findFirst({
-        where: { id: parsed.data.parentId, deletedAt: null } as any,
+        where: { id: parsed.data.parentId, deletedAt: null },
       });
       if (!parent) {
         return res.status(404).json({
@@ -946,7 +946,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         ...parsed.data,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         parent: { select: { id: true, code: true, name: true } },
       },
@@ -972,7 +972,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const account = await prisma.finAccount.findFirst({ where: { id, deletedAt: null } as any });
+    const account = await prisma.finAccount.findFirst({ where: { id, deletedAt: null } });
     if (!account) {
       return res
         .status(404)
@@ -998,7 +998,7 @@ router.delete('/:id', async (req: Request, res: Response, next) => {
         deletedAt: new Date(),
         deletedBy: authReq.user?.id || 'system',
         isActive: false,
-      } as any,
+      },
     });
 
     logger.info('Account soft-deleted', { accountId: id });
@@ -1341,7 +1341,7 @@ router.put('/entries/:id', async (req: Request, res: Response) => {
 
       // Replace lines in a transaction
       const entry = await prisma.$transaction(async (tx) => {
-        await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } as any });
+        await tx.finJournalLine.deleteMany({ where: { journalEntryId: id } });
 
         return tx.finJournalEntry.update({
           where: { id },
@@ -1450,7 +1450,7 @@ router.post('/entries/:id/post', async (req: Request, res: Response) => {
         status: 'POSTED',
         postedAt: new Date(),
         postedBy: authReq.user?.id || 'system',
-      } as any,
+      },
       include: {
         lines: {
           include: {
@@ -1553,7 +1553,7 @@ router.post('/entries/:id/reverse', async (req: Request, res: Response) => {
     // Mark original as reversed
     await prisma.finJournalEntry.update({
       where: { id },
-      data: { status: 'REVERSED', reversedBy: reversal.id } as any,
+      data: { status: 'REVERSED', reversedBy: reversal.id },
     });
 
     logger.info('Journal entry reversed', { originalId: id, reversalId: reversal.id, reversalRef });

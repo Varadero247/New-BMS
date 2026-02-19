@@ -140,7 +140,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const checklist = await prisma.cmmsChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!checklist) {
@@ -173,7 +173,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -201,7 +201,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -237,7 +237,7 @@ router.post('/:id/results', async (req: Request, res: Response) => {
     }
 
     const checklist = await prisma.cmmsChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!checklist) {
       return res
@@ -278,7 +278,7 @@ router.post('/:id/results', async (req: Request, res: Response) => {
 router.get('/:id/results', async (req: Request, res: Response) => {
   try {
     const checklist = await prisma.cmmsChecklist.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!checklist) {
       return res
@@ -287,7 +287,7 @@ router.get('/:id/results', async (req: Request, res: Response) => {
     }
 
     const results = await prisma.cmmsChecklistResult.findMany({
-      where: { checklistId: req.params.id, deletedAt: null } as any,
+      where: { checklistId: req.params.id, deletedAt: null },
       include: {
         asset: { select: { id: true, name: true, code: true } },
       },

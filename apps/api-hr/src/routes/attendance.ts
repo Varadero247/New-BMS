@@ -509,7 +509,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/shifts/all', async (_req: Request, res: Response) => {
   try {
     const shifts = await prisma.workShift.findMany({
-      where: { isActive: true, deletedAt: null } as any,
+      where: { isActive: true, deletedAt: null },
       include: { _count: { select: { employees: true } } },
       take: 1000,
     });

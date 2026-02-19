@@ -277,7 +277,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         nextReviewDate: data.nextReviewDate ? new Date(data.nextReviewDate) : null,
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: item });
@@ -325,7 +325,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
         nextReviewDate: data.nextReviewDate
           ? new Date(data.nextReviewDate)
           : existing.nextReviewDate,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: item });
@@ -399,7 +399,7 @@ router.post('/reviews', async (req: AuthRequest, res: Response) => {
         status: 'PLANNED',
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: review });

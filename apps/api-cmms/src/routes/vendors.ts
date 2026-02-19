@@ -182,8 +182,8 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const vendor = await prisma.cmmsVendor.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
-      include: { serviceContracts: { where: { deletedAt: null } as any } },
+      where: { id: req.params.id, deletedAt: null },
+      include: { serviceContracts: { where: { deletedAt: null } } },
     });
 
     if (!vendor) {
@@ -215,7 +215,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsVendor.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -250,7 +250,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsVendor.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -278,7 +278,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.get('/:id/contracts', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsVendor.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -287,7 +287,7 @@ router.get('/:id/contracts', async (req: Request, res: Response) => {
     }
 
     const contracts = await prisma.cmmsServiceContract.findMany({
-      where: { vendorId: req.params.id, deletedAt: null } as any,
+      where: { vendorId: req.params.id, deletedAt: null },
       orderBy: { createdAt: 'desc' },
       take: 1000,
     });
@@ -316,7 +316,7 @@ router.post('/:id/contracts', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsVendor.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -375,7 +375,7 @@ router.put('/contracts/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsServiceContract.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

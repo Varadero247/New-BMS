@@ -230,12 +230,12 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       (prisma as any).template.groupBy({
         by: ['module'],
         _count: true,
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       (prisma as any).template.groupBy({
         by: ['category'],
         _count: true,
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       (prisma as any).template.findMany({
         where: { deletedAt: null, usageCount: { gt: 0 } as any },
@@ -246,7 +246,7 @@ router.get('/stats', async (_req: AuthRequest, res: Response) => {
       (prisma as any).template.aggregate({
         _count: true,
         _sum: { usageCount: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
     ]);
 
@@ -330,7 +330,7 @@ router.get('/search', async (req: AuthRequest, res: Response) => {
 router.get('/:id', async (req: AuthRequest, res: Response) => {
   try {
     const template = await (prisma as any).template.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!template) {
       return res
@@ -397,7 +397,7 @@ router.post('/', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: 
 router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await (prisma as any).template.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -449,7 +449,7 @@ router.put('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res
 router.delete('/:id', requireRole('MANAGER', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await (prisma as any).template.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -495,7 +495,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const original = await (prisma as any).template.findFirst({
-        where: { id: req.params.id, deletedAt: null } as any,
+        where: { id: req.params.id, deletedAt: null },
       });
       if (!original) {
         return res
@@ -547,7 +547,7 @@ router.post(
 router.post('/:id/use', async (req: AuthRequest, res: Response) => {
   try {
     const template = await (prisma as any).template.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!template) {
       return res
@@ -597,7 +597,7 @@ router.post('/:id/use', async (req: AuthRequest, res: Response) => {
 router.get('/:id/versions', async (req: AuthRequest, res: Response) => {
   try {
     const template = await (prisma as any).template.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       select: { id: true },
     });
     if (!template) {
@@ -650,7 +650,7 @@ router.post(
       }
 
       const current = await (prisma as any).template.findFirst({
-        where: { id: req.params.id, deletedAt: null } as any,
+        where: { id: req.params.id, deletedAt: null },
       });
       if (!current) {
         return res
@@ -699,7 +699,7 @@ router.post(
 router.get('/:id/export', async (req: AuthRequest, res: Response) => {
   try {
     const template = await (prisma as any).template.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!template) {
       return res

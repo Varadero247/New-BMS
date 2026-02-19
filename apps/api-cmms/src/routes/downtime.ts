@@ -59,7 +59,7 @@ const RESERVED_PATHS = new Set(['pareto']);
 router.get('/pareto', async (req: Request, res: Response) => {
   try {
     const downtimes = await prisma.cmmsDowntime.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       select: { reason: true, duration: true, impact: true },
       take: 1000,
     });
@@ -187,7 +187,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const downtime = await prisma.cmmsDowntime.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
         asset: { select: { id: true, name: true, code: true } },
         workOrder: { select: { id: true, number: true, title: true } },
@@ -225,7 +225,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsDowntime.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -267,7 +267,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsDowntime.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({

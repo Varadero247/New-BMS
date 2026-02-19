@@ -389,7 +389,7 @@ router.put('/:id/status', async (req: Request, res: Response) => {
         justification: parsed.data.justification,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('Control applicability updated', {
@@ -442,7 +442,7 @@ router.put('/:id/implementation', async (req: Request, res: Response) => {
         reviewDate: parsed.data.reviewDate ? new Date(parsed.data.reviewDate) : null,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('Control implementation updated', {

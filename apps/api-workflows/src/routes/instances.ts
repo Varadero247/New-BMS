@@ -82,7 +82,7 @@ router.get('/stats/summary', async (_req: Request, res: Response) => {
         _count: true,
       }),
       prisma.workflowInstance.findMany({
-        where: { status: 'IN_PROGRESS', deletedAt: null } as any,
+        where: { status: 'IN_PROGRESS', deletedAt: null },
         take: 5,
         orderBy: { createdAt: 'desc' },
         include: {

@@ -16,7 +16,7 @@ router.param('id', validateIdParam());
 router.get('/types', async (_req: Request, res: Response) => {
   try {
     const types = await prisma.leaveType.findMany({
-      where: { isActive: true, deletedAt: null } as any,
+      where: { isActive: true, deletedAt: null },
       orderBy: { sortOrder: 'asc' },
       take: 100,
     });
@@ -457,7 +457,7 @@ router.get('/balances/:employeeId', async (req: Request, res: Response) => {
         employeeId: req.params.employeeId,
         year: parseInt(year as string, 10),
         deletedAt: null,
-      } as any,
+      },
       include: { leaveType: true },
       take: 100,
       orderBy: { createdAt: 'desc' },
@@ -546,7 +546,7 @@ router.get('/calendar', async (req: Request, res: Response) => {
     }
 
     const leaves = await prisma.leaveRequest.findMany({
-      where: { ...where, deletedAt: null } as any,
+      where: { ...where, deletedAt: null },
       include: {
         employee: { select: { id: true, firstName: true, lastName: true, departmentId: true } },
         leaveType: { select: { name: true, color: true } },
@@ -572,7 +572,7 @@ router.get('/holidays', async (req: Request, res: Response) => {
     const { year = new Date().getFullYear() } = req.query;
 
     const holidays = await prisma.holiday.findMany({
-      where: { year: parseInt(year as string, 10), deletedAt: null } as any,
+      where: { year: parseInt(year as string, 10), deletedAt: null },
       orderBy: { date: 'asc' },
       take: 100,
     });

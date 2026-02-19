@@ -72,7 +72,7 @@ router.get('/dashboard', async (req: Request, res: Response) => {
 
     // Cash position (sum of all bank account balances)
     const cashResult = await prisma.finBankAccount.aggregate({
-      where: { isActive: true, deletedAt: null } as any,
+      where: { isActive: true, deletedAt: null },
       _sum: { currentBalance: true },
     });
 
@@ -335,7 +335,7 @@ router.get('/budget-vs-actual', async (req: Request, res: Response) => {
     const year = parseInt(fiscalYear as string, 10);
 
     const budgets = await prisma.finBudget.findMany({
-      where: { fiscalYear: year, deletedAt: null } as any,
+      where: { fiscalYear: year, deletedAt: null },
       include: { account: { select: { id: true, code: true, name: true, type: true } } },
       orderBy: [{ account: { code: 'asc' } }, { month: 'asc' }],
       take: 1000,
@@ -512,7 +512,7 @@ router.get('/cash-forecast', async (req: Request, res: Response) => {
 
     // Current cash position
     const cashResult = await prisma.finBankAccount.aggregate({
-      where: { isActive: true, deletedAt: null } as any,
+      where: { isActive: true, deletedAt: null },
       _sum: { currentBalance: true },
     });
     const currentCash = Number(cashResult._sum.currentBalance || 0);

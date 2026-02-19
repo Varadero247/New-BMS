@@ -90,7 +90,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         priority: (data.priority as any) || 'MEDIUM',
         status: 'IDENTIFIED',
         createdBy: req.user!.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: benefit });
@@ -379,7 +379,7 @@ router.post(
           measuredAt: data.measuredAt ? new Date(data.measuredAt) : new Date(),
           source: data.source,
           measuredBy: req.user!.id,
-        } as any,
+        },
       });
 
       // Update current value on the benefit
@@ -427,7 +427,7 @@ router.delete('/:id', checkOwnership(prisma.benefit), async (req: AuthRequest, r
 
     await prisma.benefit.update({
       where: { id: req.params.id },
-      data: { deletedAt: new Date(), deletedBy: req.user!.id } as any,
+      data: { deletedAt: new Date(), deletedBy: req.user!.id },
     });
 
     res.json({ success: true, data: { message: 'Benefit deleted' } });

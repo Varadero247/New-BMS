@@ -484,12 +484,12 @@ router.post(
 router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [totalPlugins, publishedPlugins, totalInstalls, totalDownloads] = await Promise.all([
-      (prisma as any).mktPlugin.count({ where: { deletedAt: null } as any }),
-      (prisma as any).mktPlugin.count({ where: { deletedAt: null, status: 'PUBLISHED' } as any }),
+      (prisma as any).mktPlugin.count({ where: { deletedAt: null } }),
+      (prisma as any).mktPlugin.count({ where: { deletedAt: null, status: 'PUBLISHED' } }),
       (prisma as any).mktPluginInstall.count({ where: { status: 'ACTIVE' } }),
       (prisma as any).mktPlugin.aggregate({
         _sum: { downloads: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
     ]);
 

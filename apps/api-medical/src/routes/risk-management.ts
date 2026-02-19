@@ -216,7 +216,7 @@ router.post('/:id/hazards', async (req: AuthRequest, res: Response) => {
 
     // Auto-generate hazardId: H-001 incrementing
     const existingCount = await prisma.hazard.count({
-      where: { fileId: req.params.id } as any,
+      where: { fileId: req.params.id },
     });
     const hazardId = `H-${String(existingCount + 1).padStart(3, '0')}`;
 

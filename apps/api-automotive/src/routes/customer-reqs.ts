@@ -116,7 +116,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/customers', async (_req: AuthRequest, res: Response) => {
   try {
     const customers = await prisma.customerReq.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       select: { customer: true },
       distinct: ['customer'],
       orderBy: { customer: 'asc' },
@@ -137,16 +137,16 @@ router.get('/customers', async (_req: AuthRequest, res: Response) => {
 router.get('/compliance-summary', async (_req: AuthRequest, res: Response) => {
   try {
     const [total, byStatus, byCustomer, overdue] = await Promise.all([
-      prisma.customerReq.count({ where: { deletedAt: null } as any }),
+      prisma.customerReq.count({ where: { deletedAt: null } }),
       prisma.customerReq.groupBy({
         by: ['complianceStatus'],
         _count: { id: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       prisma.customerReq.groupBy({
         by: ['customer'],
         _count: { id: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       prisma.customerReq.count({
         where: {

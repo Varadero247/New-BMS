@@ -109,7 +109,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/matrix', async (req: AuthRequest, res: Response) => {
   try {
     const risks = await prisma.risk.findMany({
-      where: { status: 'ACTIVE', deletedAt: null } as any,
+      where: { status: 'ACTIVE', deletedAt: null },
       select: { id: true, title: true, likelihood: true, severity: true, riskScore: true },
       take: 500,
       orderBy: { createdAt: 'desc' },

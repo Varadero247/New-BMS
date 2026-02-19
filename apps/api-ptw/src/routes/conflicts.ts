@@ -8,7 +8,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const active = await prisma.ptwPermit.findMany({
-      where: { orgId, deletedAt: null, status: 'ACTIVE' } as any,
+      where: { orgId, deletedAt: null, status: 'ACTIVE' },
       select: {
         id: true,
         title: true,

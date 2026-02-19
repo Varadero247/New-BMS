@@ -154,8 +154,8 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const ticket = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
-      include: { messages: { where: { deletedAt: null } as any, orderBy: { createdAt: 'asc' } } },
+      where: { id: req.params.id, deletedAt: null },
+      include: { messages: { where: { deletedAt: null }, orderBy: { createdAt: 'asc' } } },
     });
 
     if (!ticket) {
@@ -193,7 +193,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const existing = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -235,7 +235,7 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
     }
 
     const ticket = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!ticket) {
       return res
@@ -282,7 +282,7 @@ router.post('/:id/messages', async (req: Request, res: Response) => {
 router.get('/:id/messages', async (req: Request, res: Response) => {
   try {
     const ticket = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!ticket) {
       return res
@@ -291,7 +291,7 @@ router.get('/:id/messages', async (req: Request, res: Response) => {
     }
 
     const messages = await prisma.portalTicketMessage.findMany({
-      where: { ticketId: req.params.id, deletedAt: null } as any,
+      where: { ticketId: req.params.id, deletedAt: null },
       orderBy: { createdAt: 'asc' },
       take: 1000,
     });
@@ -320,7 +320,7 @@ router.put('/:id/resolve', async (req: Request, res: Response) => {
     const resolution = resolutionParsed.success ? resolutionParsed.data.resolution : undefined;
 
     const ticket = await prisma.portalTicket.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!ticket) {
       return res

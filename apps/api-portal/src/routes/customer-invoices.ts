@@ -76,7 +76,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   try {
     const auth = req as AuthRequest;
     const invoice = await prisma.portalOrder.findFirst({
-      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null } as any,
+      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null },
     });
 
     if (!invoice) {
@@ -113,7 +113,7 @@ router.post('/:id/pay', async (req: Request, res: Response) => {
     }
 
     const invoice = await prisma.portalOrder.findFirst({
-      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null } as any,
+      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null },
     });
 
     if (!invoice) {

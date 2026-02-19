@@ -298,7 +298,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: 'ACTIVE',
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: process });

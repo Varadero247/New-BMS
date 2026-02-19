@@ -126,7 +126,7 @@ router.get('/summary', async (req: AuthRequest, res: Response) => {
 router.get('/availability/:productId', async (req: AuthRequest, res: Response) => {
   try {
     const inventory = await prisma.inventory.findMany({
-      where: { productId: req.params.productId, deletedAt: null } as any,
+      where: { productId: req.params.productId, deletedAt: null },
       include: {
         warehouse: { select: { id: true, code: true, name: true, isActive: true } },
       },

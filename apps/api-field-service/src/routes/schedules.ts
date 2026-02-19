@@ -96,7 +96,7 @@ router.get('/calendar/:technicianId', async (req: Request, res: Response) => {
     const { startDate, endDate } = req.query;
 
     const technician = await prisma.fsSvcTechnician.findFirst({
-      where: { id: technicianId, deletedAt: null } as any,
+      where: { id: technicianId, deletedAt: null },
     });
     if (!technician) {
       return res
@@ -196,7 +196,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const data = await prisma.fsSvcSchedule.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: { technician: true },
     });
 
@@ -225,7 +225,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcSchedule.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -268,7 +268,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcSchedule.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

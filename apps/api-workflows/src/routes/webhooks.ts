@@ -129,7 +129,7 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
   try {
     const webhook = await prisma.webhook.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
         deliveries: {
           orderBy: { createdAt: 'desc' },
@@ -172,7 +172,7 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
     const data = schema.parse(req.body);
 
     const existing = await prisma.webhook.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -209,7 +209,7 @@ router.put('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res:
 router.delete('/:id', checkOwnership(prisma.webhook), async (req: AuthRequest, res: Response) => {
   try {
     const existing = await prisma.webhook.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -244,7 +244,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const webhook = await prisma.webhook.findFirst({
-        where: { id: req.params.id, deletedAt: null } as any,
+        where: { id: req.params.id, deletedAt: null },
       });
 
       if (!webhook) {

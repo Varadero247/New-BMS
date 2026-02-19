@@ -88,7 +88,7 @@ router.put('/read-all', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
 
     const result = await prisma.portalNotification.updateMany({
-      where: { portalUserId: auth.user!.id, isRead: false, deletedAt: null } as any,
+      where: { portalUserId: auth.user!.id, isRead: false, deletedAt: null },
       data: { isRead: true, readAt: new Date() },
     });
 
@@ -125,7 +125,7 @@ router.put('/:id/read', async (req: Request, res: Response) => {
     const auth = req as AuthRequest;
 
     const notification = await prisma.portalNotification.findFirst({
-      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null } as any,
+      where: { id: req.params.id, portalUserId: auth.user!.id, deletedAt: null },
     });
 
     if (!notification) {

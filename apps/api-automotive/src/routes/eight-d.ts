@@ -149,16 +149,16 @@ router.get('/', scopeToUser, async (req: AuthRequest, res: Response) => {
 router.get('/stats', async (_req: AuthRequest, res: Response) => {
   try {
     const [total, byStatus, bySeverity, openCritical] = await Promise.all([
-      prisma.eightDReport.count({ where: { deletedAt: null } as any }),
+      prisma.eightDReport.count({ where: { deletedAt: null } }),
       prisma.eightDReport.groupBy({
         by: ['status'],
         _count: { id: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       prisma.eightDReport.groupBy({
         by: ['severity'],
         _count: { id: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       prisma.eightDReport.count({
         where: { deletedAt: null, status: { not: 'CLOSED' } as any, severity: 'CRITICAL' },

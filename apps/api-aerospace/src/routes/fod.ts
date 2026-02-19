@@ -255,7 +255,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         status: 'OPEN',
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: incident });
@@ -295,7 +295,7 @@ router.put('/:id', async (req: AuthRequest, res: Response) => {
       data: {
         ...data,
         closedDate: data.closedDate ? new Date(data.closedDate) : existing.closedDate,
-      } as any,
+      },
     });
 
     res.json({ success: true, data: incident });
@@ -365,7 +365,7 @@ router.post('/inspections', async (req: AuthRequest, res: Response) => {
         status: 'SCHEDULED',
         notes: data.notes,
         createdBy: req.user?.id,
-      } as any,
+      },
     });
 
     res.status(201).json({ success: true, data: inspection });

@@ -72,7 +72,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
 router.get('/dashboard', async (_req: Request, res: Response) => {
   try {
     const obligations = await prisma.energyComplianceObligation.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       take: 1000,
     });
 
@@ -236,7 +236,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const obligation = await prisma.energyComplianceObligation.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!obligation) {
@@ -276,7 +276,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.energyComplianceObligation.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -318,7 +318,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.energyComplianceObligation.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -377,7 +377,7 @@ router.put('/:id/assess', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.energyComplianceObligation.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({

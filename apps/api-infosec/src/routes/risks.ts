@@ -108,7 +108,7 @@ router.post('/', async (req: Request, res: Response) => {
         owner: parsed.data.owner || null,
         status: 'IDENTIFIED' as any,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Information security risk created', {
@@ -189,7 +189,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/heat-map', async (_req: Request, res: Response) => {
   try {
     const risks = await prisma.isRisk.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       select: { likelihood: true, impact: true },
       take: 1000,
     });
@@ -236,7 +236,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const risk = await prisma.isRisk.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!risk) {
@@ -273,7 +273,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
       });
     }
 
-    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -296,7 +296,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
         riskLevel: riskLevel as any,
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
     });
 
     logger.info('Risk updated', { riskId: id, riskScore, riskLevel });
@@ -328,7 +328,7 @@ router.put('/:id/treatment', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.isRisk.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)

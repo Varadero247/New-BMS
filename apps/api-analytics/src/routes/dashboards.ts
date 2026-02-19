@@ -103,8 +103,8 @@ router.get('/default', async (req: Request, res: Response) => {
         isDefault: true,
         ownerId: authReq.user!.id,
         deletedAt: null,
-      } as any,
-      include: { analyticsWidgets: { where: { deletedAt: null } as any } },
+      },
+      include: { analyticsWidgets: { where: { deletedAt: null } } },
     });
 
     if (!dashboard) {
@@ -159,7 +159,7 @@ router.get('/', async (req: Request, res: Response) => {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: { analyticsWidgets: { where: { deletedAt: null } as any } },
+        include: { analyticsWidgets: { where: { deletedAt: null } } },
       }),
       prisma.analyticsDashboard.count({ where }),
     ]);
@@ -237,8 +237,8 @@ router.post('/:id/clone', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const original = await prisma.analyticsDashboard.findFirst({
-      where: { id, deletedAt: null } as any,
-      include: { analyticsWidgets: { where: { deletedAt: null } as any } },
+      where: { id, deletedAt: null },
+      include: { analyticsWidgets: { where: { deletedAt: null } } },
     });
 
     if (!original) {
@@ -306,7 +306,7 @@ router.post('/:id/widgets', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const dashboard = await prisma.analyticsDashboard.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!dashboard) {
       return res
@@ -363,7 +363,7 @@ router.put('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
     const { id, widgetId } = req.params;
 
     const widget = await prisma.analyticsWidget.findFirst({
-      where: { id: widgetId, dashboardId: id, deletedAt: null } as any,
+      where: { id: widgetId, dashboardId: id, deletedAt: null },
     });
     if (!widget) {
       return res
@@ -409,7 +409,7 @@ router.delete('/:id/widgets/:widgetId', async (req: Request, res: Response) => {
     const { id, widgetId } = req.params;
 
     const widget = await prisma.analyticsWidget.findFirst({
-      where: { id: widgetId, dashboardId: id, deletedAt: null } as any,
+      where: { id: widgetId, dashboardId: id, deletedAt: null },
     });
     if (!widget) {
       return res
@@ -443,8 +443,8 @@ router.get('/:id', async (req: Request, res: Response) => {
     if (RESERVED_PATHS.has(req.params.id)) return;
 
     const dashboard = await prisma.analyticsDashboard.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
-      include: { analyticsWidgets: { where: { deletedAt: null } as any } },
+      where: { id: req.params.id, deletedAt: null },
+      include: { analyticsWidgets: { where: { deletedAt: null } } },
     });
 
     if (!dashboard) {
@@ -474,7 +474,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsDashboard.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -520,7 +520,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.analyticsDashboard.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -535,7 +535,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     // Soft delete all widgets
     await prisma.analyticsWidget.updateMany({
-      where: { dashboardId: id, deletedAt: null } as any,
+      where: { dashboardId: id, deletedAt: null },
       data: { deletedAt: new Date() },
     });
 

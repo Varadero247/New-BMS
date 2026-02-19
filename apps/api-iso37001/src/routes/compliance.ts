@@ -83,15 +83,15 @@ const updateSchema = createSchema.partial().extend({
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, compliant, nonCompliant, partial, byCategory] = await Promise.all([
-      prisma.abCompliance.count({ where: { deletedAt: null } as any }),
-      prisma.abCompliance.count({ where: { deletedAt: null, status: 'COMPLIANT' } as any }),
-      prisma.abCompliance.count({ where: { deletedAt: null, status: 'NON_COMPLIANT' } as any }),
+      prisma.abCompliance.count({ where: { deletedAt: null } }),
+      prisma.abCompliance.count({ where: { deletedAt: null, status: 'COMPLIANT' } }),
+      prisma.abCompliance.count({ where: { deletedAt: null, status: 'NON_COMPLIANT' } }),
       prisma.abCompliance.count({
-        where: { deletedAt: null, status: 'PARTIALLY_COMPLIANT' } as any,
+        where: { deletedAt: null, status: 'PARTIALLY_COMPLIANT' },
       }),
       prisma.abCompliance.groupBy({
         by: ['category'],
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         _count: { id: true },
       }),
     ]);
@@ -214,7 +214,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const record = await prisma.abCompliance.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!record)
       return res.status(404).json({
@@ -249,7 +249,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.abCompliance.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -283,7 +283,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.abCompliance.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({

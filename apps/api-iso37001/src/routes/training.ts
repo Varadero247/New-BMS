@@ -175,10 +175,10 @@ router.get('/overdue', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, completed, inProgress, overdue, byType] = await Promise.all([
-      (prisma as any).abTraining.count({ where: { deletedAt: null } as any }),
-      (prisma as any).abTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
+      (prisma as any).abTraining.count({ where: { deletedAt: null } }),
+      (prisma as any).abTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } }),
       (prisma as any).abTraining.count({
-        where: { deletedAt: null, status: 'IN_PROGRESS' } as any,
+        where: { deletedAt: null, status: 'IN_PROGRESS' },
       }),
       (prisma as any).abTraining.count({
         where: {
@@ -189,7 +189,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       }),
       (prisma as any).abTraining.groupBy({
         by: ['courseType'],
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         _count: { id: true },
       }),
     ]);
@@ -319,7 +319,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
 
     const record = await (prisma as any).abTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!record) {
@@ -352,7 +352,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const existing = await (prisma as any).abTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -393,7 +393,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     }
 
     const existing = await (prisma as any).abTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({

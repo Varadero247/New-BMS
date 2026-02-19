@@ -16,7 +16,7 @@ router.param('id', validateIdParam());
 // Helper: generate project code PRJ0001, PRJ0002, etc.
 async function generateProjectCode(): Promise<string> {
   const lastProject = await prisma.project.findFirst({
-    where: { deletedAt: null } as any,
+    where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
     select: { projectCode: true },
   });

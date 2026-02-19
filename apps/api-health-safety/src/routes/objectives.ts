@@ -39,7 +39,7 @@ const OBJECTIVE_STATUSES = [
 // Generate reference number OBJ-001, OBJ-002, etc.
 async function generateReferenceNumber(): Promise<string> {
   const last = await prisma.ohsObjective.findFirst({
-    where: { deletedAt: null } as any,
+    where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
     select: { referenceNumber: true },
   });

@@ -63,7 +63,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
 router.get('/:id', authenticate, async (req: Request, res: Response) => {
   try {
     const item = await prisma.finControl.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!item)
       return res
@@ -141,7 +141,7 @@ router.put('/:id', authenticate, async (req: Request, res: Response) => {
       });
     }
     const existing = await prisma.finControl.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res

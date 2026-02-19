@@ -33,7 +33,7 @@ const RESERVED_PATHS = new Set(['matrix']);
 router.get('/matrix', async (req: Request, res: Response) => {
   try {
     const topics = await prisma.esgMateriality.findMany({
-      where: { deletedAt: null } as any,
+      where: { deletedAt: null },
       orderBy: { importanceToStakeholders: 'desc' },
       take: 500,
     });
@@ -164,7 +164,7 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (RESERVED_PATHS.has(req.params.id)) return next('route');
     const materiality = await prisma.esgMateriality.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!materiality) {
       return res.status(404).json({
@@ -200,7 +200,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.esgMateriality.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({
@@ -235,7 +235,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.esgMateriality.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res.status(404).json({

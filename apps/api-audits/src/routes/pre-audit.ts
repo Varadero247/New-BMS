@@ -119,7 +119,7 @@ function buildChecklist(audit: AuditRecord): string[] {
 router.post('/:id/generate', authenticate, async (req: Request, res: Response) => {
   try {
     const audit = await prisma.audAudit.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!audit) {

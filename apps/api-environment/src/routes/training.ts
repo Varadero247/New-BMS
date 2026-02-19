@@ -135,8 +135,8 @@ router.get('/overdue', async (req: Request, res: Response) => {
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, completed, overdue, byType] = await Promise.all([
-      prisma.envTraining.count({ where: { deletedAt: null } as any }),
-      prisma.envTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } as any }),
+      prisma.envTraining.count({ where: { deletedAt: null } }),
+      prisma.envTraining.count({ where: { deletedAt: null, status: 'COMPLETED' } }),
       prisma.envTraining.count({
         where: {
           deletedAt: null,
@@ -146,7 +146,7 @@ router.get('/stats', async (_req: Request, res: Response) => {
       }),
       prisma.envTraining.groupBy({
         by: ['trainingType'],
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         _count: { id: true },
       }),
     ]);
@@ -272,7 +272,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.envTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -310,7 +310,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.envTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!item)
       return res.status(404).json({
@@ -345,7 +345,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.envTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -376,7 +376,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.envTraining.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({

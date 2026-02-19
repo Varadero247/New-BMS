@@ -68,20 +68,20 @@ const updateSchema = createSchema.partial().extend({
 router.get('/stats', async (_req: Request, res: Response) => {
   try {
     const [total, ideas, approved, inProgress, completed, byPriority] = await Promise.all([
-      prisma.qualContinuousImprovement.count({ where: { deletedAt: null } as any }),
-      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'IDEA' } as any }),
+      prisma.qualContinuousImprovement.count({ where: { deletedAt: null } }),
+      prisma.qualContinuousImprovement.count({ where: { deletedAt: null, status: 'IDEA' } }),
       prisma.qualContinuousImprovement.count({
-        where: { deletedAt: null, status: 'APPROVED' } as any,
+        where: { deletedAt: null, status: 'APPROVED' },
       }),
       prisma.qualContinuousImprovement.count({
-        where: { deletedAt: null, status: 'IN_PROGRESS' } as any,
+        where: { deletedAt: null, status: 'IN_PROGRESS' },
       }),
       prisma.qualContinuousImprovement.count({
-        where: { deletedAt: null, status: 'COMPLETED' } as any,
+        where: { deletedAt: null, status: 'COMPLETED' },
       }),
       prisma.qualContinuousImprovement.groupBy({
         by: ['priority'],
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         _count: { id: true },
       }),
     ]);
@@ -203,7 +203,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const item = await prisma.qualContinuousImprovement.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!item)
       return res.status(404).json({
@@ -238,7 +238,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.qualContinuousImprovement.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({
@@ -273,7 +273,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.qualContinuousImprovement.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing)
       return res.status(404).json({

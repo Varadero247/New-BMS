@@ -62,7 +62,7 @@ router.post('/', async (req: Request, res: Response) => {
         ...validation.data,
         createdBy: (req as AuthRequest).user?.id || 'system',
         updatedBy: (req as AuthRequest).user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Contact created', { contactId: contact.id });
@@ -146,7 +146,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const contact = await prisma.crmContact.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!contact) {
@@ -182,7 +182,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.crmContact.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -196,7 +196,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       data: {
         ...validation.data,
         updatedBy: (req as AuthRequest).user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Contact updated', { contactId: contact.id });
@@ -216,7 +216,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmContact.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -258,7 +258,7 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
     }
 
     const contact = await prisma.crmContact.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!contact) {
@@ -294,7 +294,7 @@ router.post('/:id/activities', async (req: Request, res: Response) => {
 router.get('/:id/activities', async (req: Request, res: Response) => {
   try {
     const contact = await prisma.crmContact.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!contact) {

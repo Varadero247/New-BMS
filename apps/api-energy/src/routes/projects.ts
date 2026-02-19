@@ -232,7 +232,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const project = await prisma.energyProject.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!project) {
@@ -272,7 +272,7 @@ router.put('/:id', async (req: Request, res: Response, next) => {
     }
 
     const existing = await prisma.energyProject.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -325,7 +325,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const existing = await prisma.energyProject.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -369,7 +369,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     const { actualSavings } = _parsed.data;
 
     const existing = await prisma.energyProject.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
     if (!existing) {
       return res

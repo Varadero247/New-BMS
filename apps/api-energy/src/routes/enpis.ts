@@ -170,7 +170,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const enpi = await prisma.energyEnpi.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         _count: { select: { dataPoints: true } },
       },
@@ -210,7 +210,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -255,7 +255,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -297,7 +297,7 @@ router.post('/:id/data-points', async (req: Request, res: Response) => {
       });
     }
 
-    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
+    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
     if (!enpi) {
       return res
         .status(404)
@@ -352,7 +352,7 @@ router.get('/:id/data-points', async (req: Request, res: Response) => {
     const limit = parseIntParam(req.query.limit, 100, 100);
     const skip = (page - 1) * limit;
 
-    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
+    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
     if (!enpi) {
       return res
         .status(404)
@@ -398,7 +398,7 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
     const { periods } = req.query;
     const numPeriods = parseIntParam(periods, 12);
 
-    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } as any });
+    const enpi = await prisma.energyEnpi.findFirst({ where: { id, deletedAt: null } });
     if (!enpi) {
       return res
         .status(404)
@@ -406,7 +406,7 @@ router.get('/:id/trend', async (req: Request, res: Response) => {
     }
 
     const dataPoints = await prisma.energyEnpiData.findMany({
-      where: { enpiId: id, deletedAt: null } as any,
+      where: { enpiId: id, deletedAt: null },
       orderBy: { periodStart: 'desc' },
       take: numPeriods,
     });

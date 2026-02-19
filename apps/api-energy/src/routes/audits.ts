@@ -167,7 +167,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const audit = await prisma.energyAudit.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
     });
 
     if (!audit) {
@@ -204,7 +204,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -246,7 +246,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -292,7 +292,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
       });
     const { score, findings, recommendations } = _parsed.data;
 
-    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.energyAudit.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)

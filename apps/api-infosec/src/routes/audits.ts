@@ -151,7 +151,7 @@ router.post('/', async (req: Request, res: Response) => {
         auditType: parsed.data.auditType || 'INTERNAL',
         status: 'PLANNED',
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('ISMS audit created', { auditId: audit.id, refNumber });
@@ -229,12 +229,12 @@ router.get('/vulnerability-scans', async (req: Request, res: Response) => {
 
     const [scans, total] = await Promise.all([
       prisma.isVulnerabilityScan.findMany({
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         skip,
         take: limit,
         orderBy: { scanDate: 'desc' },
       }),
-      prisma.isVulnerabilityScan.count({ where: { deletedAt: null } as any }),
+      prisma.isVulnerabilityScan.count({ where: { deletedAt: null } }),
     ]);
 
     res.json({
@@ -288,7 +288,7 @@ router.post('/vulnerability-scans', async (req: Request, res: Response) => {
         summary: parsed.data.summary || null,
         reportUrl: parsed.data.reportUrl || null,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Vulnerability scan logged', { scanId: scan.id, refNumber });
@@ -315,12 +315,12 @@ router.get('/penetration-tests', async (req: Request, res: Response) => {
 
     const [tests, total] = await Promise.all([
       prisma.isPenetrationTest.findMany({
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
         skip,
         take: limit,
         orderBy: { testDate: 'desc' },
       }),
-      prisma.isPenetrationTest.count({ where: { deletedAt: null } as any }),
+      prisma.isPenetrationTest.count({ where: { deletedAt: null } }),
     ]);
 
     res.json({
@@ -374,7 +374,7 @@ router.post('/penetration-tests', async (req: Request, res: Response) => {
         reportUrl: parsed.data.reportUrl || null,
         status: (parsed.data.status || 'PLANNED') as any,
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Penetration test logged', { testId: test.id, refNumber });
@@ -399,7 +399,7 @@ router.get('/:id', async (req: Request, res: Response, next) => {
     const { id } = req.params;
 
     const audit = await prisma.isAudit.findFirst({
-      where: { id, deletedAt: null } as any,
+      where: { id, deletedAt: null },
       include: {
         findings: {
           orderBy: { createdAt: 'asc' },
@@ -434,7 +434,7 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
   try {
     const { id } = req.params;
 
-    const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
+    const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } });
     if (!audit) {
       return res
         .status(404)
@@ -497,7 +497,7 @@ router.get('/:id/checklist', async (req: Request, res: Response, next) => {
 
     // Enrich each clause with finding counts from this specific audit
     const findings = await prisma.isAuditFinding.findMany({
-      where: { auditId: id } as any,
+      where: { auditId: id },
       take: 1000,
     });
     const findingsByClause = new Map<string, { count: number; hasOpen: boolean }>();
@@ -556,7 +556,7 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
       });
     }
 
-    const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
+    const audit = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } });
     if (!audit) {
       return res
         .status(404)
@@ -574,7 +574,7 @@ router.post('/:id/findings', async (req: Request, res: Response, next) => {
         recommendation: parsed.data.recommendation || null,
         status: 'OPEN',
         createdBy: authReq.user?.id || 'system',
-      } as any,
+      },
     });
 
     logger.info('Audit finding added', {
@@ -614,7 +614,7 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
       });
     }
 
-    const existing = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } as any });
+    const existing = await prisma.isAudit.findFirst({ where: { id, deletedAt: null } });
     if (!existing) {
       return res
         .status(404)
@@ -631,7 +631,7 @@ router.put('/:id/complete', async (req: Request, res: Response, next) => {
         completedAt: new Date(),
         updatedBy: authReq.user?.id || 'system',
         updatedAt: new Date(),
-      } as any,
+      },
       include: {
         findings: true,
       },

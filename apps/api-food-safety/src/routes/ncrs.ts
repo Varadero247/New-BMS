@@ -192,7 +192,7 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const ncr = await prisma.fsNcr.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!ncr) {
@@ -221,7 +221,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (RESERVED.has(req.params.id)) return undefined as any;
 
     const existing = await prisma.fsNcr.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -264,7 +264,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsNcr.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -295,7 +295,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 router.put('/:id/close', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsNcr.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

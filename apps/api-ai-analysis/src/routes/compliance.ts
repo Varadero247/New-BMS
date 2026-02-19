@@ -16,7 +16,7 @@ interface AIProviderResponse {
 
 async function getSettings() {
   return prisma.aISettings.findFirst({
-    where: { deletedAt: null } as any,
+    where: { deletedAt: null },
     orderBy: { createdAt: 'desc' },
   });
 }

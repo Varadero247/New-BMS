@@ -428,15 +428,15 @@ router.get('/dashboard', scopeToUser, async (req: AuthRequest, res: Response) =>
       plansByStatus,
       drillsByOutcome,
     ] = await Promise.all([
-      prisma.envEmergencyPlan.count({ where: { deletedAt: null } as any }),
-      prisma.envEmergencyPlan.count({ where: { deletedAt: null, status: 'ACTIVE' } as any }),
+      prisma.envEmergencyPlan.count({ where: { deletedAt: null } }),
+      prisma.envEmergencyPlan.count({ where: { deletedAt: null, status: 'ACTIVE' } }),
       prisma.envEmergencyDrill.count({ where: { drillDate: { gte: twelveMonthsAgo } } }),
       prisma.envEmergencyIncident.count({ where: { status: { in: ['ACTIVE', 'CONTAINED'] } } }),
       prisma.envEmergencyIncident.count(),
       prisma.envEmergencyPlan.groupBy({
         by: ['status'],
         _count: { id: true },
-        where: { deletedAt: null } as any,
+        where: { deletedAt: null },
       }),
       prisma.envEmergencyDrill.groupBy({
         by: ['outcome'],

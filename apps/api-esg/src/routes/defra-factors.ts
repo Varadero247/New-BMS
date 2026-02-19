@@ -22,7 +22,7 @@ router.get('/', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = ((req as AuthRequest).user as { orgId?: string })?.orgId || 'default';
     const data = await prisma.esgDefraFactor.findMany({
-      where: { orgId, deletedAt: null } as any,
+      where: { orgId, deletedAt: null },
       take: 2000,
       orderBy: { category: 'asc' },
     });

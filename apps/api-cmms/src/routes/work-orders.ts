@@ -230,11 +230,11 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   if (RESERVED_PATHS.has(req.params.id)) return next('route');
   try {
     const workOrder = await prisma.cmmsWorkOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
         asset: { select: { id: true, name: true, code: true } },
-        partUsages: { where: { deletedAt: null } as any, include: { part: true } },
-        downtimes: { where: { deletedAt: null } as any },
+        partUsages: { where: { deletedAt: null }, include: { part: true } },
+        downtimes: { where: { deletedAt: null } },
       },
     });
 
@@ -269,7 +269,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const existing = await prisma.cmmsWorkOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -312,7 +312,7 @@ router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsWorkOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -355,7 +355,7 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
     }
 
     const existing = await prisma.cmmsWorkOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -384,7 +384,7 @@ router.put('/:id/assign', async (req: Request, res: Response) => {
 router.put('/:id/start', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsWorkOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -426,7 +426,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
     const { completionNotes, laborHours, partsCost } = _parsed.data;
 
     const existing = await prisma.cmmsWorkOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -463,7 +463,7 @@ router.put('/:id/complete', async (req: Request, res: Response) => {
 router.put('/:id/close', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.cmmsWorkOrder.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res

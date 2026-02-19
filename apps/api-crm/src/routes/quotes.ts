@@ -175,8 +175,8 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const quote = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
-      include: { lines: { where: { deletedAt: null } as any, orderBy: { sortOrder: 'asc' } } },
+      where: { id: req.params.id, deletedAt: null },
+      include: { lines: { where: { deletedAt: null }, orderBy: { sortOrder: 'asc' } } },
     });
 
     if (!quote) {
@@ -200,7 +200,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -292,7 +292,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.post('/:id/send', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -329,7 +329,7 @@ router.post('/:id/send', async (req: Request, res: Response) => {
 router.post('/:id/accept', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
 
     if (!existing) {
@@ -545,7 +545,7 @@ function buildQuotePdf(quote: Record<string, unknown>): Buffer {
 router.get('/:id/pdf', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.crmQuote.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: { lines: { orderBy: { sortOrder: 'asc' } } },
     });
 

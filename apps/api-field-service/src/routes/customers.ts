@@ -134,10 +134,10 @@ router.post('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const data = await prisma.fsSvcCustomer.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
       include: {
-        sites: { where: { deletedAt: null } as any },
-        contracts: { where: { deletedAt: null } as any },
+        sites: { where: { deletedAt: null } },
+        contracts: { where: { deletedAt: null } },
       },
     });
 
@@ -164,7 +164,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.get('/:id/sites', async (req: Request, res: Response) => {
   try {
     const customer = await prisma.fsSvcCustomer.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!customer) {
       return res
@@ -173,7 +173,7 @@ router.get('/:id/sites', async (req: Request, res: Response) => {
     }
 
     const data = await prisma.fsSvcSite.findMany({
-      where: { customerId: req.params.id, deletedAt: null } as any,
+      where: { customerId: req.params.id, deletedAt: null },
       orderBy: { createdAt: 'desc' },
       take: 1000,
     });
@@ -196,7 +196,7 @@ router.get('/:id/sites', async (req: Request, res: Response) => {
 router.get('/:id/jobs', async (req: Request, res: Response) => {
   try {
     const customer = await prisma.fsSvcCustomer.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!customer) {
       return res
@@ -236,7 +236,7 @@ router.get('/:id/jobs', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcCustomer.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
@@ -279,7 +279,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const existing = await prisma.fsSvcCustomer.findFirst({
-      where: { id: req.params.id, deletedAt: null } as any,
+      where: { id: req.params.id, deletedAt: null },
     });
     if (!existing) {
       return res
