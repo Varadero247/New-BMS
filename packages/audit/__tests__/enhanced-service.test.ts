@@ -1,0 +1,606 @@
+/**
+ * Tests for the EnhancedAuditService (21 CFR Part 11 compliance layer).
+ * Covers: createEntry, logCreate, logUpdate, logDelete, logApproval,
+ * query, getResourceHistory, verifyEntry, and createEnhancedAuditService.
+ */
+
+// ── Mocks ─────────────────────────────────────────────────────────────────────
+
+jest.mock('@ims/database', () => {
+  const mockEnhancedAuditTrail = {
+    create: jest.fn(),
+    findMany: jest.fn(),
+    count: jest.fn(),
+    findUnique: jest.fn(),
+  };
+  return {
+    PrismaClient: jest.fn().mockImplementation(() => ({
+      enhancedAuditTrail: mockEnhancedAuditTrail,
+    })),
+  };
+});
+
+const mockLogger = { error: jest.fn(), warn: jest.fn(), info: jest.fn() };
+jest.mock('@ims/monitoring', () => ({
+  createLogger: jest.fn(() => mockLogger),
+}));
+
+jest.mock('@ims/esig', () => ({
+  computeAuditChecksum: jest.fn(() => 'sha256-abc123'),
+  verifyAuditChecksum: jest.fn(() => true),
+  computeChanges: jest.fn(() => [{ field: 'status', oldValue: 'draft', newValue: 'active' }]),
+}));
+
+// ── Imports (after mocks) ─────────────────────────────────────────────────────
+
+import { PrismaClient } from '@ims/database';
+import * as esig from '@ims/esig';
+import {
+  EnhancedAuditService,
+  createEnhancedAuditService,
+  type EnhancedAuditCreateParams,
+} from '../src/enhanced-service';
+
+// Typed references to the jest mocks exposed via the esig module mock
+const mockComputeChecksum = esig.computeAuditChecksum as jest.Mock;
+const mockVerifyChecksum = esig.verifyAuditChecksum as jest.Mock;
+const mockComputeChanges = esig.computeChanges as jest.Mock;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function makeParams(overrides: Partial<EnhancedAuditCreateParams> = {}): EnhancedAuditCreateParams {
+  return {
+    userId: 'user-1',
+    userEmail: 'alice@example.com',
+    userFullName: 'Alice Smith',
+    action: 'CREATE',
+    resourceType: 'Document',
+    resourceId: 'doc-42',
+    resourceRef: 'DOC-2026-042',
+    changes: [{ field: 'title', oldValue: null, newValue: 'My Doc' }],
+    ipAddress: '127.0.0.1',
+    userAgent: 'Mozilla/5.0',
+    ...overrides,
+  };
+}
+
+type PrismaInstance = InstanceType<typeof PrismaClient>;
+
+function makePrisma(): PrismaInstance {
+  return new PrismaClient() as PrismaInstance;
+}
+
+function getAuditMock(prisma: PrismaInstance) {
+  return (prisma as unknown as { enhancedAuditTrail: Record<string, jest.Mock> })
+    .enhancedAuditTrail;
+}
+
+// ── EnhancedAuditService ───────────────────────────────────────────────────────
+
+describe('EnhancedAuditService', () => {
+  let prisma: PrismaInstance;
+  let service: EnhancedAuditService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    prisma = makePrisma();
+    service = new EnhancedAuditService(prisma as unknown as InstanceType<typeof PrismaClient>);
+  });
+
+  // ── createEntry ─────────────────────────────────────────────────────────────
+
+  describe('createEntry', () => {
+    it('creates an audit entry and returns the entry id', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'entry-id-1' });
+
+      const result = await service.createEntry(makeParams());
+
+      expect(result).toBe('entry-id-1');
+      expect(getAuditMock(prisma).create).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls computeAuditChecksum with correct args', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'e1' });
+      const params = makeParams({ userId: 'user-xyz', action: 'UPDATE', resourceId: 'res-1' });
+
+      await service.createEntry(params);
+
+      expect(mockComputeChecksum).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'user-xyz',
+          action: 'UPDATE',
+          resourceId: 'res-1',
+        })
+      );
+    });
+
+    it('stores the checksum in the created record', async () => {
+      mockComputeChecksum.mockReturnValueOnce('sha256-xyz');
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'e2' });
+
+      await service.createEntry(makeParams());
+
+      expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ checksum: 'sha256-xyz' }),
+        })
+      );
+    });
+
+    it('defaults tenantId to "default" when not provided', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'e3' });
+
+      await service.createEntry(makeParams({ tenantId: undefined }));
+
+      expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ tenantId: 'default' }),
+        })
+      );
+    });
+
+    it('uses provided tenantId when given', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'e4' });
+
+      await service.createEntry(makeParams({ tenantId: 'tenant-acme' }));
+
+      expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ tenantId: 'tenant-acme' }),
+        })
+      );
+    });
+
+    it('uses provided systemVersion over constructor default', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'e5' });
+
+      await service.createEntry(makeParams({ systemVersion: '2.5.0' }));
+
+      expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ systemVersion: '2.5.0' }),
+        })
+      );
+    });
+
+    it('falls back to constructor systemVersion when not in params', async () => {
+      const svc = new EnhancedAuditService(
+        prisma as unknown as InstanceType<typeof PrismaClient>,
+        '3.0.0'
+      );
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'e6' });
+
+      await svc.createEntry(makeParams({ systemVersion: undefined }));
+
+      expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ systemVersion: '3.0.0' }),
+        })
+      );
+    });
+
+    it('redacts sensitive fields before storage', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'e7' });
+
+      await service.createEntry(
+        makeParams({
+          changes: [
+            { field: 'password', oldValue: 'old-secret', newValue: 'new-secret' },
+            { field: 'email', oldValue: 'a@b.com', newValue: 'c@d.com' },
+          ],
+        })
+      );
+
+      const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+      const changes = data.changes as Array<{ field: string; oldValue: unknown; newValue: unknown }>;
+      const pwChange = changes.find((c) => c.field === 'password');
+      const emailChange = changes.find((c) => c.field === 'email');
+
+      expect(pwChange?.oldValue).toBe('[REDACTED]');
+      expect(pwChange?.newValue).toBe('[REDACTED]');
+      // Non-sensitive fields pass through
+      expect(emailChange?.oldValue).toBe('a@b.com');
+    });
+
+    it('redacts salary, bankAccount, and token fields', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'e8' });
+
+      await service.createEntry(
+        makeParams({
+          changes: [
+            { field: 'baseSalary', oldValue: 50000, newValue: 55000 },
+            { field: 'bankAccountNumber', oldValue: '111', newValue: '222' },
+            { field: 'refreshToken', oldValue: 'tkn1', newValue: 'tkn2' },
+          ],
+        })
+      );
+
+      const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+      const changes = data.changes as Array<{ field: string; oldValue: unknown; newValue: unknown }>;
+
+      for (const c of changes) {
+        expect(c.oldValue).toBe('[REDACTED]');
+        expect(c.newValue).toBe('[REDACTED]');
+      }
+    });
+
+    it('returns null and logs error when prisma throws', async () => {
+      getAuditMock(prisma).create.mockRejectedValueOnce(new Error('DB error'));
+
+      const result = await service.createEntry(makeParams());
+
+      expect(result).toBeNull();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to create enhanced audit entry',
+        expect.objectContaining({ error: 'DB error' })
+      );
+    });
+
+    it('returns null and logs error with non-Error thrown value', async () => {
+      getAuditMock(prisma).create.mockRejectedValueOnce('plain string error');
+
+      const result = await service.createEntry(makeParams());
+
+      expect(result).toBeNull();
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        'Failed to create enhanced audit entry',
+        expect.objectContaining({ error: 'plain string error' })
+      );
+    });
+  });
+
+  // ── logCreate ───────────────────────────────────────────────────────────────
+
+  describe('logCreate', () => {
+    it('calls createEntry with action=CREATE and change list derived from newData', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'lc-1' });
+
+      const result = await service.logCreate({
+        userId: 'u1',
+        userEmail: 'u@test.com',
+        userFullName: 'User One',
+        resourceType: 'Risk',
+        resourceId: 'risk-1',
+        resourceRef: 'RISK-001',
+        ipAddress: '10.0.0.1',
+        userAgent: 'curl/7',
+        newData: { title: 'New Risk', severity: 'HIGH' },
+      });
+
+      expect(result).toBe('lc-1');
+
+      const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+      const changes = data.changes as Array<{ field: string; oldValue: unknown; newValue: unknown }>;
+      expect(data.action).toBe('CREATE');
+      expect(changes.some((c) => c.field === 'title' && c.newValue === 'New Risk')).toBe(true);
+      expect(changes.some((c) => c.field === 'severity' && c.oldValue === null)).toBe(true);
+    });
+  });
+
+  // ── logUpdate ───────────────────────────────────────────────────────────────
+
+  describe('logUpdate', () => {
+    it('calls computeChanges for the diff and stores action=UPDATE', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'lu-1' });
+      mockComputeChanges.mockReturnValueOnce([
+        { field: 'status', oldValue: 'draft', newValue: 'published' },
+      ]);
+
+      const result = await service.logUpdate({
+        userId: 'u1',
+        userEmail: 'u@test.com',
+        userFullName: 'User One',
+        resourceType: 'Doc',
+        resourceId: 'd1',
+        resourceRef: 'D-001',
+        ipAddress: '10.0.0.1',
+        userAgent: 'curl/7',
+        oldData: { status: 'draft' },
+        newData: { status: 'published' },
+      });
+
+      expect(result).toBe('lu-1');
+      expect(mockComputeChanges).toHaveBeenCalledWith(
+        { status: 'draft' },
+        { status: 'published' }
+      );
+
+      const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+      expect(data.action).toBe('UPDATE');
+    });
+  });
+
+  // ── logDelete ───────────────────────────────────────────────────────────────
+
+  describe('logDelete', () => {
+    it('calls createEntry with action=DELETE and newValue=null for each field', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'ld-1' });
+
+      const result = await service.logDelete({
+        userId: 'u1',
+        userEmail: 'u@test.com',
+        userFullName: 'User One',
+        resourceType: 'Incident',
+        resourceId: 'inc-1',
+        resourceRef: 'INC-001',
+        ipAddress: '10.0.0.1',
+        userAgent: 'curl/7',
+        deletedData: { title: 'Old Incident', severity: 'LOW' },
+      });
+
+      expect(result).toBe('ld-1');
+
+      const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+      const changes = data.changes as Array<{ field: string; oldValue: unknown; newValue: unknown }>;
+      expect(data.action).toBe('DELETE');
+      expect(changes.some((c) => c.field === 'title' && c.oldValue === 'Old Incident' && c.newValue === null)).toBe(true);
+    });
+  });
+
+  // ── logApproval ─────────────────────────────────────────────────────────────
+
+  describe('logApproval', () => {
+    it('calls createEntry with action=APPROVE and signature change', async () => {
+      getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'la-1' });
+
+      const result = await service.logApproval({
+        userId: 'u1',
+        userEmail: 'u@test.com',
+        userFullName: 'User One',
+        resourceType: 'Document',
+        resourceId: 'doc-1',
+        resourceRef: 'DOC-001',
+        ipAddress: '10.0.0.1',
+        userAgent: 'curl/7',
+        esignatureId: 'sig-99',
+        meaning: 'APPROVED',
+      });
+
+      expect(result).toBe('la-1');
+
+      const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+      const changes = data.changes as Array<{ field: string; oldValue: unknown; newValue: unknown }>;
+      expect(data.action).toBe('APPROVE');
+      expect(changes[0].field).toBe('signature');
+      expect(changes[0].newValue).toBe('APPROVED');
+      expect(changes[0].oldValue).toBeNull();
+    });
+  });
+
+  // ── query ───────────────────────────────────────────────────────────────────
+
+  describe('query', () => {
+    const fakeEntries = [
+      {
+        id: 'e1',
+        tenantId: 'default',
+        userId: 'u1',
+        userEmail: 'a@b.com',
+        userFullName: 'Alice',
+        action: 'CREATE',
+        resourceType: 'Risk',
+        resourceId: 'r1',
+        resourceRef: 'R-001',
+        changes: [],
+        ipAddress: '10.0.0.1',
+        userAgent: 'browser',
+        sessionId: 'sess-1',
+        createdAt: new Date('2026-01-01'),
+        esignatureId: null,
+        systemVersion: '1.0.0',
+        checksum: 'abc',
+        esignature: null,
+      },
+    ];
+
+    beforeEach(() => {
+      getAuditMock(prisma).findMany.mockResolvedValue(fakeEntries);
+      getAuditMock(prisma).count.mockResolvedValue(1);
+    });
+
+    it('returns entries and total count', async () => {
+      const result = await service.query({});
+
+      expect(result.total).toBe(1);
+      expect(result.entries).toHaveLength(1);
+      expect(result.entries[0].id).toBe('e1');
+      expect(result.entries[0].action).toBe('CREATE');
+    });
+
+    it('maps createdAt to timestamp', async () => {
+      const result = await service.query({});
+
+      expect(result.entries[0].timestamp).toEqual(new Date('2026-01-01'));
+    });
+
+    it('passes where filters for tenantId, userId, resourceType, action', async () => {
+      await service.query({
+        tenantId: 't1',
+        userId: 'u1',
+        resourceType: 'Risk',
+        action: 'CREATE',
+      });
+
+      expect(getAuditMock(prisma).findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            tenantId: 't1',
+            userId: 'u1',
+            resourceType: 'Risk',
+            action: 'CREATE',
+          }),
+        })
+      );
+    });
+
+    it('applies date range filter when startDate and endDate provided', async () => {
+      const start = new Date('2026-01-01');
+      const end = new Date('2026-12-31');
+
+      await service.query({ startDate: start, endDate: end });
+
+      expect(getAuditMock(prisma).findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            createdAt: { gte: start, lte: end },
+          }),
+        })
+      );
+    });
+
+    it('caps limit at 100', async () => {
+      await service.query({ limit: 999, page: 1 });
+
+      expect(getAuditMock(prisma).findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 100 })
+      );
+    });
+
+    it('calculates skip from page and limit', async () => {
+      await service.query({ page: 3, limit: 10 });
+
+      expect(getAuditMock(prisma).findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 20, take: 10 })
+      );
+    });
+
+    it('defaults page=1 and limit=50 when not provided', async () => {
+      await service.query({});
+
+      expect(getAuditMock(prisma).findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 0, take: 50 })
+      );
+    });
+
+    it('omits esignatureId from entry when null', async () => {
+      const result = await service.query({});
+
+      expect(result.entries[0].esignatureId).toBeUndefined();
+    });
+
+    it('includes esignatureId when present', async () => {
+      getAuditMock(prisma).findMany.mockResolvedValueOnce([
+        { ...fakeEntries[0], esignatureId: 'sig-42' },
+      ]);
+
+      const result = await service.query({});
+
+      expect(result.entries[0].esignatureId).toBe('sig-42');
+    });
+  });
+
+  // ── getResourceHistory ───────────────────────────────────────────────────────
+
+  describe('getResourceHistory', () => {
+    it('delegates to query with resourceType and resourceId', async () => {
+      getAuditMock(prisma).findMany.mockResolvedValue([]);
+      getAuditMock(prisma).count.mockResolvedValue(0);
+
+      const result = await service.getResourceHistory('Document', 'doc-99', { page: 2, limit: 5 });
+
+      expect(result.total).toBe(0);
+      expect(getAuditMock(prisma).findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            resourceType: 'Document',
+            resourceId: 'doc-99',
+          }),
+          skip: 5,
+          take: 5,
+        })
+      );
+    });
+  });
+
+  // ── verifyEntry ─────────────────────────────────────────────────────────────
+
+  describe('verifyEntry', () => {
+    const fakeEntry = {
+      id: 've-1',
+      userId: 'u1',
+      action: 'CREATE',
+      resourceType: 'Doc',
+      resourceId: 'd1',
+      createdAt: new Date('2026-01-01'),
+      checksum: 'sha256-abc',
+      changes: [],
+    };
+
+    it('returns valid=true when checksum matches', async () => {
+      getAuditMock(prisma).findUnique.mockResolvedValueOnce(fakeEntry);
+      mockVerifyChecksum.mockReturnValueOnce(true);
+
+      const result = await service.verifyEntry('ve-1');
+
+      expect(result).toEqual({ valid: true, entryId: 've-1', checksumMatch: true });
+    });
+
+    it('returns valid=false when checksum does not match', async () => {
+      getAuditMock(prisma).findUnique.mockResolvedValueOnce(fakeEntry);
+      mockVerifyChecksum.mockReturnValueOnce(false);
+
+      const result = await service.verifyEntry('ve-1');
+
+      expect(result).toEqual({ valid: false, entryId: 've-1', checksumMatch: false });
+      expect(mockLogger.warn).toHaveBeenCalledWith(
+        'Audit entry checksum mismatch — possible tampering',
+        expect.objectContaining({ entryId: 've-1' })
+      );
+    });
+
+    it('returns valid=false when entry not found', async () => {
+      getAuditMock(prisma).findUnique.mockResolvedValueOnce(null);
+
+      const result = await service.verifyEntry('nonexistent');
+
+      expect(result).toEqual({ valid: false, entryId: 'nonexistent', checksumMatch: false });
+      expect(mockVerifyChecksum).not.toHaveBeenCalled();
+    });
+
+    it('passes correct fields to verifyAuditChecksum', async () => {
+      getAuditMock(prisma).findUnique.mockResolvedValueOnce(fakeEntry);
+      mockVerifyChecksum.mockReturnValueOnce(true);
+
+      await service.verifyEntry('ve-1');
+
+      expect(mockVerifyChecksum).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: 'u1',
+          action: 'CREATE',
+          resourceId: 'd1',
+          storedChecksum: 'sha256-abc',
+        })
+      );
+    });
+  });
+});
+
+// ── createEnhancedAuditService factory ────────────────────────────────────────
+
+describe('createEnhancedAuditService', () => {
+  it('returns an EnhancedAuditService instance', () => {
+    const prisma = makePrisma();
+    const svc = createEnhancedAuditService(
+      prisma as unknown as InstanceType<typeof PrismaClient>
+    );
+    expect(svc).toBeInstanceOf(EnhancedAuditService);
+  });
+
+  it('passes systemVersion to the service', async () => {
+    const prisma = makePrisma();
+    getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'fac-1' });
+
+    const svc = createEnhancedAuditService(
+      prisma as unknown as InstanceType<typeof PrismaClient>,
+      '9.9.9'
+    );
+
+    await svc.createEntry(makeParams({ systemVersion: undefined }));
+
+    expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ systemVersion: '9.9.9' }),
+      })
+    );
+  });
+});
