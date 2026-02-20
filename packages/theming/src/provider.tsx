@@ -76,7 +76,7 @@ export function ThemingProvider({ children, apiUrl, staticTheme }: ThemingProvid
     }
 
     // Try to load cached theme first for instant render
-    const cached = localStorage.getItem('ims-theme');
+    const cached = localStorage.getItem('nexara-org-branding');
     if (cached) {
       try {
         const parsed = JSON.parse(cached) as ThemeConfig;
@@ -119,7 +119,7 @@ export function ThemingProvider({ children, apiUrl, staticTheme }: ThemingProvid
           };
           setTheme(merged);
           applyThemeVars(merged);
-          localStorage.setItem('ims-theme', JSON.stringify(merged));
+          localStorage.setItem('nexara-org-branding', JSON.stringify(merged));
         } else {
           setTheme(DEFAULT_THEME);
           applyThemeVars(DEFAULT_THEME);
@@ -140,7 +140,7 @@ export function ThemingProvider({ children, apiUrl, staticTheme }: ThemingProvid
     setTheme((prev: ThemeConfig | null) => {
       const updated = { ...(prev || DEFAULT_THEME), ...partial };
       applyThemeVars(updated);
-      localStorage.setItem('ims-theme', JSON.stringify(updated));
+      localStorage.setItem('nexara-org-branding', JSON.stringify(updated));
       return updated;
     });
   }, []);

@@ -32,7 +32,7 @@ export default function AppearancePage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem('ims-theme');
+    const stored = localStorage.getItem('nexara-theme');
     if (stored) setTheme(stored);
     const storedAccent = localStorage.getItem('ims-accent');
     if (storedAccent) setAccentColor(storedAccent);
@@ -48,7 +48,7 @@ export default function AppearancePage() {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.classList.toggle('dark', prefersDark);
     }
-    localStorage.setItem('ims-theme', t);
+    localStorage.setItem('nexara-theme', t);
   };
 
   const handleSave = () => {

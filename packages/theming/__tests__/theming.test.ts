@@ -421,12 +421,12 @@ describe('localStorage caching behavior', () => {
     delete (global as Record<string, unknown>).localStorage;
   });
 
-  it('should read cached theme from localStorage key "ims-theme"', () => {
+  it('should read cached org branding from localStorage key "nexara-org-branding"', () => {
     const cachedTheme = JSON.stringify(DEFAULT_THEME);
     localStorageMock.getItem.mockReturnValue(cachedTheme);
 
-    const result = localStorage.getItem('ims-theme');
-    expect(localStorageMock.getItem).toHaveBeenCalledWith('ims-theme');
+    const result = localStorage.getItem('nexara-org-branding');
+    expect(localStorageMock.getItem).toHaveBeenCalledWith('nexara-org-branding');
     expect(result).toBe(cachedTheme);
   });
 
@@ -434,7 +434,7 @@ describe('localStorage caching behavior', () => {
     const cachedTheme = JSON.stringify(DEFAULT_THEME);
     localStorageMock.getItem.mockReturnValue(cachedTheme);
 
-    const raw = localStorage.getItem('ims-theme');
+    const raw = localStorage.getItem('nexara-org-branding');
     const parsed = JSON.parse(raw!) as ThemeConfig;
     expect(parsed.primaryColor).toBe('#3B78F5');
     expect(parsed.brandName).toBe('IMS Platform');
@@ -442,21 +442,21 @@ describe('localStorage caching behavior', () => {
 
   it('should handle null (no cached theme) gracefully', () => {
     localStorageMock.getItem.mockReturnValue(null);
-    const raw = localStorage.getItem('ims-theme');
+    const raw = localStorage.getItem('nexara-org-branding');
     expect(raw).toBeNull();
   });
 
   it('should handle invalid JSON in cache gracefully', () => {
     localStorageMock.getItem.mockReturnValue('not-valid-json{{{');
-    const raw = localStorage.getItem('ims-theme');
+    const raw = localStorage.getItem('nexara-org-branding');
     expect(() => JSON.parse(raw!)).toThrow();
   });
 
   it('should store theme to localStorage with correct key', () => {
     const theme = { ...DEFAULT_THEME, brandName: 'Custom Brand' };
-    localStorage.setItem('ims-theme', JSON.stringify(theme));
+    localStorage.setItem('nexara-org-branding', JSON.stringify(theme));
     expect(localStorageMock.setItem).toHaveBeenCalledWith(
-      'ims-theme',
+      'nexara-org-branding',
       expect.stringContaining('"Custom Brand"')
     );
   });
