@@ -8,6 +8,7 @@
  */
 
 /// <reference lib="webworker" />
+export {}; // Treat as ES module so `declare const self` below is module-scoped
 declare const self: ServiceWorkerGlobalScope;
 
 const STATIC_CACHE = 'ims-offline-v1';

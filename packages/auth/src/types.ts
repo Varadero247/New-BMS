@@ -9,6 +9,8 @@ export interface AuthRequest extends Request {
 
 export interface JWTPayload {
   userId: string;
+  /** Standard JWT subject claim — used as userId fallback for OIDC compatibility */
+  sub?: string;
   email?: string;
   role?: string;
   iat?: number;

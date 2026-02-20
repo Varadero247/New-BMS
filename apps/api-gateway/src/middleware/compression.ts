@@ -79,10 +79,7 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
         chunk: unknown,
         ...rest: unknown[]
       ): boolean => {
-        stream.write(
-          chunk instanceof Buffer ? chunk : Buffer.from(String(chunk)),
-          rest[0] as BufferEncoding | undefined
-        );
+        stream.write(chunk instanceof Buffer ? chunk : Buffer.from(String(chunk)));
         return true;
       };
 
@@ -90,11 +87,9 @@ export function compressionMiddleware(opts: CompressionOptions = {}) {
         chunk?: unknown,
         ...rest: unknown[]
       ): Response => {
+        void rest;
         if (chunk != null) {
-          stream.write(
-            chunk instanceof Buffer ? chunk : Buffer.from(String(chunk)),
-            rest[0] as BufferEncoding | undefined
-          );
+          stream.write(chunk instanceof Buffer ? chunk : Buffer.from(String(chunk)));
         }
 
         stream.on('data', (data: Buffer) => {

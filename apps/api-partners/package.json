@@ -24,6 +24,7 @@
     "jsonwebtoken": "^9.0.2",
     "uuid": "^9.0.0",
     "zod": "^3.22.0",
+    "@ims/auth": "workspace:*",
     "@ims/service-auth": "workspace:*",
     "@ims/sentry": "workspace:*",
     "@ims/shared": "workspace:*"

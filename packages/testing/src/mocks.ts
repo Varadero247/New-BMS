@@ -151,10 +151,19 @@ export function createMockRedis() {
   };
 }
 
+/** Shape of a mock logger returned by createMockLogger. */
+export interface MockLogger {
+  info: jest.Mock;
+  warn: jest.Mock;
+  error: jest.Mock;
+  debug: jest.Mock;
+  child: jest.Mock;
+}
+
 /**
  * Create a mock logger
  */
-export function createMockLogger() {
+export function createMockLogger(): MockLogger {
   return {
     info: jest.fn(),
     warn: jest.fn(),
@@ -164,10 +173,24 @@ export function createMockLogger() {
   };
 }
 
+/** Mirrors Express.Multer.File without requiring @types/multer. */
+export interface MockMulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+  buffer: Buffer;
+  stream: NodeJS.ReadableStream;
+}
+
 /**
  * Create a mock file for upload testing
  */
-export function createMockFile(overrides: Partial<Express.Multer.File> = {}): Express.Multer.File {
+export function createMockFile(overrides: Partial<MockMulterFile> = {}): MockMulterFile {
   return {
     fieldname: 'file',
     originalname: 'test.txt',
@@ -187,8 +210,8 @@ export function createMockFile(overrides: Partial<Express.Multer.File> = {}): Ex
  * Create a mock image file
  */
 export function createMockImageFile(
-  overrides: Partial<Express.Multer.File> = {}
-): Express.Multer.File {
+  overrides: Partial<MockMulterFile> = {}
+): MockMulterFile {
   // PNG magic bytes
   const pngHeader = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
@@ -204,8 +227,8 @@ export function createMockImageFile(
  * Create a mock PDF file
  */
 export function createMockPdfFile(
-  overrides: Partial<Express.Multer.File> = {}
-): Express.Multer.File {
+  overrides: Partial<MockMulterFile> = {}
+): MockMulterFile {
   // PDF magic bytes
   const pdfHeader = Buffer.from('%PDF-1.4');
 

@@ -71,7 +71,7 @@ export function monthlyReportEmail(vars: MonthlyReportVars) {
     year: 'numeric',
   });
   const alerts: string[] = Array.isArray(snapshot.aiAlerts) ? snapshot.aiAlerts : [];
-  const recommendations: unknown[] = Array.isArray(snapshot.aiRecommendations)
+  const recommendations: Record<string, unknown>[] = Array.isArray(snapshot.aiRecommendations)
     ? snapshot.aiRecommendations
     : [];
   const greenFlags: string[] = [];
@@ -179,7 +179,7 @@ export function monthlyReportEmail(vars: MonthlyReportVars) {
         </tr></thead>
         <tbody>${recommendations
           .map(
-            (r: Record<string, unknown>) =>
+            (r) =>
               `<tr>
             <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;">${r.metric}</td>
             <td style="padding:8px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(r.current)}</td>

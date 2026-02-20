@@ -50,7 +50,7 @@ export function signPortalToken(
     expiresIn,
     issuer,
     subject: user.id,
-  });
+  } as jwt.SignOptions);
 }
 
 /**
