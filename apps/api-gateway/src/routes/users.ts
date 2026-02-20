@@ -3,7 +3,7 @@ import type { Router as IRouter } from 'express';
 import { prisma } from '@ims/database';
 import { authenticate, requireRole, hashPassword, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, parsePagination} from '@ims/shared';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,9 +19,7 @@ router.get('/', requireRole('ADMIN', 'MANAGER'), async (req: Request, res: Respo
   try {
     const { page = '1', limit = '20', search, role, department } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, any> = { deletedAt: null };
 

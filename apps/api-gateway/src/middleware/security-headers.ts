@@ -7,6 +7,9 @@ import { RequestHandler } from 'express';
  */
 
 const isProduction = process.env.NODE_ENV === 'production';
+// Disable strict headers only in local development and test runs.
+// Staging / preview / CI integration envs still get security headers.
+const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test';
 
 /**
  * Content Security Policy configuration
@@ -17,8 +20,8 @@ const contentSecurityPolicy = {
     // Default: only allow resources from same origin
     defaultSrc: ["'self'"],
 
-    // Scripts: same origin only, no inline scripts in production
-    scriptSrc: isProduction ? ["'self'"] : ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Allow for dev tools
+    // Scripts: same origin only; allow unsafe-inline/eval in local dev for hot-reload tooling
+    scriptSrc: isDevelopment ? ["'self'", "'unsafe-inline'", "'unsafe-eval'"] : ["'self'"],
 
     // Styles: same origin, allow inline for UI frameworks
     styleSrc: ["'self'", "'unsafe-inline'"],
@@ -57,8 +60,8 @@ const contentSecurityPolicy = {
     // Object sources: block plugins
     objectSrc: ["'none'"],
 
-    // Upgrade insecure requests in production
-    ...(isProduction ? { upgradeInsecureRequests: [] } : {}),
+    // Upgrade insecure requests in production and staging (not local dev where HTTPS isn't set up)
+    ...(isDevelopment ? {} : { upgradeInsecureRequests: [] }),
 
     // Block mixed content
     blockAllMixedContent: [],
@@ -69,8 +72,8 @@ const contentSecurityPolicy = {
  * Helmet configuration with all security headers
  */
 export const securityHeaders: RequestHandler = helmet({
-  // Content Security Policy
-  contentSecurityPolicy: isProduction ? contentSecurityPolicy : false,
+  // Content Security Policy — enabled in production and staging; disabled only in local dev
+  contentSecurityPolicy: isDevelopment ? false : contentSecurityPolicy,
 
   // Cross-Origin-Embedder-Policy
   crossOriginEmbedderPolicy: false, // Disabled for compatibility with external resources
@@ -94,13 +97,12 @@ export const securityHeaders: RequestHandler = helmet({
   hidePoweredBy: true,
 
   // HSTS - force HTTPS
-  hsts: isProduction
-    ? {
-        maxAge: 31536000, // 1 year
-        includeSubDomains: true,
-        preload: true,
-      }
-    : false,
+  // Production: 1-year preload. Staging: 1-day (validates config). Development: disabled.
+  hsts: isDevelopment
+    ? false
+    : isProduction
+      ? { maxAge: 31536000, includeSubDomains: true, preload: true }
+      : { maxAge: 86400, includeSubDomains: true, preload: false },
 
   // IE No Open - prevent IE from executing downloads
   ieNoOpen: true,

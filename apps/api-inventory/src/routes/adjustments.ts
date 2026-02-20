@@ -16,6 +16,7 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
+// UI-facing adjustment types (superset of DB TransactionType enum)
 const ADJUSTMENT_TYPES = [
   'ADJUSTMENT_IN',
   'ADJUSTMENT_OUT',
@@ -25,6 +26,16 @@ const ADJUSTMENT_TYPES = [
   'FOUND',
   'RECOUNT',
 ] as const;
+
+// Valid DB TransactionType enum values for adjustments
+const DB_ADJUSTMENT_TYPES = ['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'CYCLE_COUNT'] as const;
+
+// Map UI adjustment types to valid DB TransactionType enum values
+function toDbTransactionType(t: string): 'ADJUSTMENT_IN' | 'ADJUSTMENT_OUT' | 'CYCLE_COUNT' {
+  if (t === 'ADJUSTMENT_IN' || t === 'FOUND') return 'ADJUSTMENT_IN';
+  if (t === 'RECOUNT') return 'CYCLE_COUNT';
+  return 'ADJUSTMENT_OUT'; // DAMAGE, EXPIRED, WRITE_OFF, ADJUSTMENT_OUT
+}
 
 const createSchema = z.object({
   productId: z.string().trim().min(1).max(200),
@@ -53,9 +64,7 @@ router.get('/', async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {
-      transactionType: {
-        in: ['ADJUSTMENT_IN', 'ADJUSTMENT_OUT', 'DAMAGE', 'EXPIRED', 'WRITE_OFF', 'FOUND'],
-      },
+      transactionType: { in: DB_ADJUSTMENT_TYPES },
     };
 
     if (adjustmentType && typeof adjustmentType === 'string') {
@@ -128,10 +137,9 @@ router.post('/', async (req: Request, res: Response) => {
     } = parsed.data;
 
     // Determine quantity change direction
-    const isNegative = ['ADJUSTMENT_OUT', 'DAMAGE', 'EXPIRED', 'WRITE_OFF'].includes(
-      adjustmentType
-    );
+    const isNegative = ['ADJUSTMENT_OUT', 'DAMAGE', 'EXPIRED', 'WRITE_OFF'].includes(adjustmentType);
     const quantityChange = isNegative ? -quantity : quantity;
+    const dbTransactionType = toDbTransactionType(adjustmentType);
 
     // Get current inventory level
     const inventory = await prisma.inventory.findFirst({ where: { productId, warehouseId } });
@@ -154,8 +162,8 @@ router.post('/', async (req: Request, res: Response) => {
         data: {
           productId,
           warehouseId,
-          transactionType: adjustmentType as 'ADJUSTMENT_IN' | 'ADJUSTMENT_OUT' | 'DAMAGE' | 'EXPIRED',
-          referenceType: 'ADJUSTMENT',
+          transactionType: dbTransactionType,
+          referenceType: adjustmentType, // preserve original UI type (DAMAGE, EXPIRED, etc.) for display
           quantityBefore,
           quantityAfter,
           quantityChange,

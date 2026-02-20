@@ -3,7 +3,7 @@ import { prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, formatRefNumber} from '@ims/shared';
 
 const logger = createLogger('api-quality');
 const router: Router = Router();
@@ -15,14 +15,6 @@ function parseIntParam(val: unknown, fallback: number, max = Infinity): number {
   return Number.isFinite(n) && n > 0 ? Math.min(n, max) : fallback;
 }
 
-async function generateRefNumber(): Promise<string> {
-  const year = new Date().getFullYear();
-  const prefix = 'QMS-RR';
-  const count = await prisma.qualRiskRegister.count({
-    where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
-  });
-  return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
-}
 
 // Calculate risk score: likelihood (1-5) * impact (1-5)
 const LIKELIHOOD_SCORES: Record<string, number> = {
@@ -221,7 +213,10 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const authReq = req as AuthRequest;
-    const referenceNumber = await generateRefNumber();
+    const _refPrefix = 'QMS-RR';
+    const _refYear = new Date().getFullYear();
+    const _refCount = await prisma.qualRiskRegister.count({ where: { referenceNumber: { startsWith: `${_refPrefix}-${_refYear}` } } });
+    const referenceNumber = formatRefNumber(_refPrefix, _refCount);
     const riskScore = calcRiskScore(parsed.data.likelihood, parsed.data.impact);
     const residualScore =
       parsed.data.residualLikelihood && parsed.data.residualImpact

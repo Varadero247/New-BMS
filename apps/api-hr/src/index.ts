@@ -2,6 +2,7 @@ import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-hr');
+initTracing({ serviceName: 'api-hr' });
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];
@@ -21,6 +22,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -41,6 +44,9 @@ import documentsRouter from './routes/documents';
 import certificationsRouter from './routes/certifications';
 import goalsRouter from './routes/goals';
 import orgChartRouter from './routes/org-chart';
+import gdprRouter from './routes/gdpr';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4006;
@@ -48,6 +54,7 @@ const PORT = process.env.PORT || 4006;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-hr'));
 app.use(express.json({ limit: '1mb' }));
@@ -70,6 +77,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // API Routes
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/employees', employeesRouter);
 app.use('/api/departments', departmentsRouter);
 app.use('/api/attendance', attendanceRouter);
@@ -81,6 +89,7 @@ app.use('/api/documents', documentsRouter);
 app.use('/api/certifications', certificationsRouter);
 app.use('/api/goals', goalsRouter);
 app.use('/api/org-chart', orgChartRouter);
+app.use('/api/gdpr', gdprRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
@@ -90,17 +99,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use(sentryErrorHandler());
-// Error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'Internal server error',
-    },
-  });
-});
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   logger.info(`HR API server running on port ${PORT}`);
@@ -120,10 +119,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

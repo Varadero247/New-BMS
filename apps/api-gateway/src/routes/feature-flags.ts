@@ -19,9 +19,6 @@ import {
 const logger = createLogger('api-gateway:feature-flags');
 const router = Router();
 
-// All routes require authentication
-router.use(authenticate);
-
 // ─── Validation Schemas ──────────────────────────────────────────────────────
 
 const createFlagSchema = z.object({
@@ -64,7 +61,7 @@ try {
 // ============================================
 
 // GET /api/admin/feature-flags — List all flags with org overrides
-router.get('/admin/feature-flags', requireRole('ADMIN'), (_req: Request, res: Response) => {
+router.get('/admin/feature-flags', authenticate, requireRole('ADMIN'), (_req: Request, res: Response) => {
   try {
     const flags = getAllFlags();
     const overrides = getAllOrgOverrides();
@@ -92,7 +89,7 @@ router.get('/admin/feature-flags', requireRole('ADMIN'), (_req: Request, res: Re
 });
 
 // POST /api/admin/feature-flags — Create a new flag
-router.post('/admin/feature-flags', requireRole('ADMIN'), (req: Request, res: Response) => {
+router.post('/admin/feature-flags', authenticate, requireRole('ADMIN'), (req: Request, res: Response) => {
   try {
     const parsed = createFlagSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -133,6 +130,7 @@ router.post('/admin/feature-flags', requireRole('ADMIN'), (req: Request, res: Re
 // PUT /api/admin/feature-flags/:name — Update a flag
 router.put(
   '/admin/feature-flags/:name',
+  authenticate,
   requireRole('ADMIN'),
   (req: Request, res: Response) => {
     try {
@@ -178,6 +176,7 @@ router.put(
 // DELETE /api/admin/feature-flags/:name — Delete a flag
 router.delete(
   '/admin/feature-flags/:name',
+  authenticate,
   requireRole('ADMIN'),
   (req: Request, res: Response) => {
     try {
@@ -207,6 +206,7 @@ router.delete(
 // PUT /api/admin/feature-flags/:name/orgs/:orgId — Set org override
 router.put(
   '/admin/feature-flags/:name/orgs/:orgId',
+  authenticate,
   requireRole('ADMIN'),
   (req: Request, res: Response) => {
     try {
@@ -253,6 +253,7 @@ router.put(
 // DELETE /api/admin/feature-flags/:name/orgs/:orgId — Remove org override
 router.delete(
   '/admin/feature-flags/:name/orgs/:orgId',
+  authenticate,
   requireRole('ADMIN'),
   (req: Request, res: Response) => {
     try {
@@ -288,7 +289,7 @@ router.delete(
 // ============================================
 
 // GET /api/feature-flags/check — Check single flag (?name=xxx)
-router.get('/feature-flags/check', async (req: Request, res: Response) => {
+router.get('/feature-flags/check', authenticate, async (req: Request, res: Response) => {
   try {
     const nameSchema = z.object({
       name: z.string().trim().min(1, 'Flag name is required'),
@@ -325,7 +326,7 @@ router.get('/feature-flags/check', async (req: Request, res: Response) => {
 });
 
 // GET /api/feature-flags — Get all flags for current org
-router.get('/feature-flags', async (req: Request, res: Response) => {
+router.get('/feature-flags', authenticate, async (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || undefined;
     const flags = await getAll(orgId);

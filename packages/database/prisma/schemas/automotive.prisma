@@ -879,3 +879,32 @@ enum CsrCategory {
   OTHER
 }
 
+
+// ============================================
+// SUPPLIER DEVELOPMENT (IATF 16949 Section 8.4)
+// ============================================
+
+model SupplierDevelopment {
+  id            String    @id @default(cuid())
+  orgId         String?
+  devNumber     String    @unique
+  supplierName  String
+  supplierCode  String?
+  program       String?
+  status        String    @default("UNDER_DEVELOPMENT")
+  tier          String    @default("TIER_1")
+  score         Int       @default(70)
+  sqa           String?
+  targetDate    DateTime?
+  issues        String?
+  createdBy     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@index([status])
+  @@index([tier])
+  @@index([orgId])
+
+  @@map("supplier_developments")
+}

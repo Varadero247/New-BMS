@@ -4,7 +4,7 @@ import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, parsePagination} from '@ims/shared';
 import { scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-aerospace');
@@ -122,9 +122,7 @@ const closeFindingSchema = z.object({
 router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, auditType, search } = req.query;
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, unknown> = { deletedAt: null };
     if (status) where.status = status;

@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-quality');
+initTracing({ serviceName: 'api-quality' });
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];
@@ -22,6 +23,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -67,12 +70,15 @@ import contextFactorsRouter from './routes/context-factors';
 import scopeRouter from './routes/scope';
 import policyRouter from './routes/policy';
 import templateGeneratorRouter from './routes/template-generator';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4003;
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-quality'));
@@ -96,6 +102,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // Routes — gateway rewrites /api/quality/* → /api/*
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/parties', partiesRouter);
 app.use('/api/issues', issuesRouter);
 app.use('/api/risks', risksRouter);
@@ -141,21 +148,7 @@ app.use((_req: express.Request, res: express.Response) => {
 });
 
 app.use(sentryErrorHandler());
-// Error handling
-app.use(
-  (
-    err: Error & { statusCode?: number; code?: string },
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction
-  ) => {
-    logger.error('Unhandled error', { error: err.message, stack: err.stack });
-    res.status(err.statusCode || 500).json({
-      success: false,
-      error: { code: err.code || 'INTERNAL_ERROR', message: 'Internal server error' },
-    });
-  }
-);
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   logger.info(`Quality API running on port ${PORT}`);
@@ -175,10 +168,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

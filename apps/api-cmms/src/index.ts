@@ -2,6 +2,7 @@ import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-cmms');
+initTracing({ serviceName: 'api-cmms' });
 
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {
@@ -20,6 +21,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { attachPermissions } from '@ims/rbac';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -41,6 +44,8 @@ import requestsRouter from './routes/requests';
 import checklistsRouter from './routes/checklists';
 import kpisRouter from './routes/kpis';
 import schedulerRouter from './routes/scheduler';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4017;
@@ -48,6 +53,7 @@ const PORT = process.env.PORT || 4017;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-cmms'));
 app.use(express.json({ limit: '1mb' }));
@@ -70,6 +76,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // API Routes
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/assets', assetsRouter);
 app.use('/api/work-orders', workOrdersRouter);
 app.use('/api/preventive-plans', preventivePlansRouter);
@@ -93,17 +100,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use(sentryErrorHandler());
-// Error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'Internal server error',
-    },
-  });
-});
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   logger.info(`CMMS API server running on port ${PORT}`);
@@ -123,10 +120,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

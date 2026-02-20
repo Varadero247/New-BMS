@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-medical');
+initTracing({ serviceName: 'api-medical' });
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];
@@ -22,6 +23,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -34,6 +37,9 @@ import designControlsRouter from './routes/design-controls';
 import complaintsRouter from './routes/complaints';
 import dmrDhrRouter from './routes/dmr-dhr';
 import riskManagementRouter from './routes/risk-management';
+import deviceRecordsRouter from './routes/device-records';
+import dhfRouter from './routes/dhf';
+import suppliersRouter from './routes/suppliers';
 import udiRouter from './routes/udi';
 import pmsRouter from './routes/pms';
 import softwareRouter from './routes/software';
@@ -42,6 +48,8 @@ import capaRouter from './routes/capa';
 import traceabilityRouter from './routes/traceability';
 import validationRouter from './routes/validation';
 import verificationRouter from './routes/verification';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4011;
@@ -49,6 +57,7 @@ const PORT = process.env.PORT || 4011;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-medical'));
 app.use(express.json({ limit: '1mb' }));
@@ -71,6 +80,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // Routes - Design Controls (ISO 13485 Clause 7.3)
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/design-controls', designControlsRouter);
 
 // Routes - Complaint Handling & MDR/Vigilance (21 CFR 803 / EU MDR Art 87)
@@ -81,6 +91,7 @@ app.use('/api', dmrDhrRouter);
 
 // Routes - Risk Management (ISO 14971:2019)
 app.use('/api/risk', riskManagementRouter);
+app.use('/api/risk-management', riskManagementRouter); // alias — web app calls /risk-management
 
 // Routes - UDI Management (EU MDR / FDA)
 app.use('/api/udi', udiRouter);
@@ -105,6 +116,11 @@ app.use('/api/validation', validationRouter);
 
 // Routes - Design Verification (ISO 13485 Clause 7.3.6)
 app.use('/api/verification', verificationRouter);
+
+// Additional routes
+app.use('/api/device-records', deviceRecordsRouter);
+app.use('/api/dhf', dhfRouter);
+app.use('/api/suppliers', suppliersRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -148,10 +164,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

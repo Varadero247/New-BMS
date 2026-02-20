@@ -42,17 +42,24 @@ export const createLogger = (serviceName: string) => {
     }),
   ];
 
-  // Only add file transports in non-production (containers should use stdout/stderr only)
+  // Only add file transports in non-production (containers should use stdout/stderr only).
+  // Rotation: 10 MB per file, 5 files retained — prevents unbounded disk growth.
   if (process.env.NODE_ENV !== 'production' && fs.existsSync(logsDir)) {
     transports.push(
       new winston.transports.File({
         filename: path.join(logsDir, `${serviceName}-error.log`),
         level: 'error',
         format: logFormat,
+        maxsize: 10 * 1024 * 1024, // 10 MB
+        maxFiles: 5,
+        tailable: true,
       }),
       new winston.transports.File({
         filename: path.join(logsDir, `${serviceName}-combined.log`),
         format: logFormat,
+        maxsize: 10 * 1024 * 1024, // 10 MB
+        maxFiles: 5,
+        tailable: true,
       })
     );
   }

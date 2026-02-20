@@ -3,7 +3,7 @@ import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, formatRefNumber, parsePagination} from '@ims/shared';
 import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
@@ -13,24 +13,13 @@ const router: Router = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
 
-// Generate reference number
-async function generateRefNumber(): Promise<string> {
-  const year = new Date().getFullYear();
-  const prefix = 'QMS-PRO';
-  const count = await prisma.qualProcess.count({
-    where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
-  });
-  return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
-}
 
 // GET / - List processes
 router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', processType, status, search } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, unknown> = { deletedAt: null };
     if (processType) where.processType = processType;
@@ -139,7 +128,10 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     const data = schema.parse(req.body);
-    const referenceNumber = await generateRefNumber();
+    const _refPrefix = 'QMS-PRO';
+    const _refYear = new Date().getFullYear();
+    const _refCount = await prisma.qualProcess.count({ where: { referenceNumber: { startsWith: `${_refPrefix}-${_refYear}` } } });
+    const referenceNumber = formatRefNumber(_refPrefix, _refCount);
 
     const qualProcess = await prisma.qualProcess.create({
       data: {

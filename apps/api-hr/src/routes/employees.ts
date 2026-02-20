@@ -1,12 +1,36 @@
 import { Router, Request, Response } from 'express';
 import { prisma} from '../prisma';
 import { z } from 'zod';
-import { authenticate } from '@ims/auth';
+import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, parsePagination} from '@ims/shared';
 import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
+
+const PRIVILEGED_ROLES = new Set(['ADMIN', 'HR_MANAGER', 'MANAGER']);
+
+/**
+ * Mask sensitive PII for non-privileged roles.
+ * ADMIN / HR_MANAGER / MANAGER see full data; other roles see redacted fields.
+ */
+function maskEmployeePII(
+  employee: Record<string, unknown>,
+  userRole: string
+): Record<string, unknown> {
+  if (PRIVILEGED_ROLES.has(userRole)) return employee;
+  return {
+    ...employee,
+    // Financial PII — always mask for non-privileged roles
+    accountNumber: employee.accountNumber
+      ? `****${String(employee.accountNumber).slice(-4)}`
+      : null,
+    bankName: undefined,
+    // Sensitive personal data — omit entirely for non-privileged roles
+    personalEmail: undefined,
+    dateOfBirth: undefined,
+  };
+}
 
 const router: Router = Router();
 router.use(authenticate);
@@ -57,9 +81,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
       employmentType,
     } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, unknown> = { deletedAt: null };
 
@@ -96,9 +118,14 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
       prisma.employee.count({ where }),
     ]);
 
+    const userRole = ((req as AuthRequest).user?.role) || 'USER';
+    const maskedEmployees = employees.map((e) =>
+      maskEmployeePII(e as unknown as Record<string, unknown>, userRole)
+    );
+
     res.json({
       success: true,
-      data: employees,
+      data: maskedEmployees,
       meta: {
         page: pageNum,
         limit: limitNum,
@@ -295,7 +322,9 @@ router.get('/:id', checkOwnership(prisma.employee), async (req: Request, res: Re
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Employee not found' } });
     }
 
-    res.json({ success: true, data: employee });
+    const userRole = ((req as AuthRequest).user?.role) || 'USER';
+    const maskedEmployee = maskEmployeePII(employee as unknown as Record<string, unknown>, userRole);
+    res.json({ success: true, data: maskedEmployee });
   } catch (error) {
     logger.error('Error fetching employee', { error: (error as Error).message });
     res.status(500).json({

@@ -27,12 +27,12 @@ describe('DEFAULT_THEME', () => {
     expect(DEFAULT_THEME).not.toBeNull();
   });
 
-  it('should have primaryColor "#2563eb"', () => {
-    expect(DEFAULT_THEME.primaryColor).toBe('#2563eb');
+  it('should have primaryColor "#3B78F5"', () => {
+    expect(DEFAULT_THEME.primaryColor).toBe('#3B78F5');
   });
 
-  it('should have accentColor "#7c3aed"', () => {
-    expect(DEFAULT_THEME.accentColor).toBe('#7c3aed');
+  it('should have accentColor "#00C4A8"', () => {
+    expect(DEFAULT_THEME.accentColor).toBe('#00C4A8');
   });
 
   it('should have logoUrl "/logo.svg"', () => {
@@ -51,33 +51,33 @@ describe('DEFAULT_THEME', () => {
     expect(DEFAULT_THEME.customCSS).toBe('');
   });
 
-  it('should have backgroundColor "#f8fafc"', () => {
-    expect(DEFAULT_THEME.backgroundColor).toBe('#f8fafc');
+  it('should not set backgroundColor (controlled by CSS tokens/dark mode)', () => {
+    expect(DEFAULT_THEME.backgroundColor).toBeUndefined();
   });
 
-  it('should have surfaceColor "#ffffff"', () => {
-    expect(DEFAULT_THEME.surfaceColor).toBe('#ffffff');
+  it('should not set surfaceColor (controlled by CSS tokens/dark mode)', () => {
+    expect(DEFAULT_THEME.surfaceColor).toBeUndefined();
   });
 
-  it('should have textColor "#111827"', () => {
-    expect(DEFAULT_THEME.textColor).toBe('#111827');
+  it('should not set textColor (controlled by CSS tokens/dark mode)', () => {
+    expect(DEFAULT_THEME.textColor).toBeUndefined();
   });
 
-  it('should have sidebarColor "#1e293b"', () => {
-    expect(DEFAULT_THEME.sidebarColor).toBe('#1e293b');
+  it('should not set sidebarColor (controlled by CSS tokens/dark mode)', () => {
+    expect(DEFAULT_THEME.sidebarColor).toBeUndefined();
   });
 
-  it('should have borderRadius 8', () => {
-    expect(DEFAULT_THEME.borderRadius).toBe(8);
+  it('should not set borderRadius (uses CSS token default)', () => {
+    expect(DEFAULT_THEME.borderRadius).toBeUndefined();
   });
 
-  it('should have fontFamily "Inter, system-ui, sans-serif"', () => {
-    expect(DEFAULT_THEME.fontFamily).toBe('Inter, system-ui, sans-serif');
+  it('should not set fontFamily (uses CSS token default)', () => {
+    expect(DEFAULT_THEME.fontFamily).toBeUndefined();
   });
 
-  it('should contain exactly 12 keys', () => {
+  it('should contain exactly 6 keys (required fields only)', () => {
     const keys = Object.keys(DEFAULT_THEME);
-    expect(keys).toHaveLength(12);
+    expect(keys).toHaveLength(6);
   });
 
   it('should have all required ThemeConfig fields', () => {
@@ -94,7 +94,7 @@ describe('DEFAULT_THEME', () => {
     });
   });
 
-  it('should have all optional ThemeConfig fields populated', () => {
+  it('should leave optional color/layout fields undefined (dark mode CSS tokens own them)', () => {
     const optionalKeys: (keyof ThemeConfig)[] = [
       'backgroundColor',
       'surfaceColor',
@@ -104,7 +104,7 @@ describe('DEFAULT_THEME', () => {
       'fontFamily',
     ];
     optionalKeys.forEach((key) => {
-      expect(DEFAULT_THEME[key]).toBeDefined();
+      expect(DEFAULT_THEME[key]).toBeUndefined();
     });
   });
 
@@ -244,47 +244,47 @@ describe('CSS variable mapping (applyThemeVars logic)', () => {
 
   it('should set --accent-primary to primaryColor', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledWith('--accent-primary', '#2563eb');
+    expect(setPropertyMock).toHaveBeenCalledWith('--accent-primary', '#3B78F5');
   });
 
   it('should set --accent-secondary to accentColor', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledWith('--accent-secondary', '#7c3aed');
+    expect(setPropertyMock).toHaveBeenCalledWith('--accent-secondary', '#00C4A8');
   });
 
-  it('should set --bg-page when backgroundColor is defined', () => {
+  it('should NOT set --bg-page because DEFAULT_THEME leaves backgroundColor undefined', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledWith('--bg-page', '#f8fafc');
+    expect(setPropertyMock).not.toHaveBeenCalledWith('--bg-page', expect.anything());
   });
 
-  it('should set --bg-surface when surfaceColor is defined', () => {
+  it('should NOT set --bg-surface because DEFAULT_THEME leaves surfaceColor undefined', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledWith('--bg-surface', '#ffffff');
+    expect(setPropertyMock).not.toHaveBeenCalledWith('--bg-surface', expect.anything());
   });
 
-  it('should set --text-primary when textColor is defined', () => {
+  it('should NOT set --text-primary because DEFAULT_THEME leaves textColor undefined', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledWith('--text-primary', '#111827');
+    expect(setPropertyMock).not.toHaveBeenCalledWith('--text-primary', expect.anything());
   });
 
-  it('should set --bg-sidebar when sidebarColor is defined', () => {
+  it('should NOT set --bg-sidebar because DEFAULT_THEME leaves sidebarColor undefined', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledWith('--bg-sidebar', '#1e293b');
+    expect(setPropertyMock).not.toHaveBeenCalledWith('--bg-sidebar', expect.anything());
   });
 
-  it('should set --radius with px suffix when borderRadius is defined', () => {
+  it('should NOT set --radius because DEFAULT_THEME leaves borderRadius undefined', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledWith('--radius', '8px');
+    expect(setPropertyMock).not.toHaveBeenCalledWith('--radius', expect.anything());
   });
 
-  it('should set --font-family when fontFamily is defined', () => {
+  it('should NOT set --font-family because DEFAULT_THEME leaves fontFamily undefined', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledWith('--font-family', 'Inter, system-ui, sans-serif');
+    expect(setPropertyMock).not.toHaveBeenCalledWith('--font-family', expect.anything());
   });
 
-  it('should set all 8 CSS variables for DEFAULT_THEME', () => {
+  it('should set only 2 CSS variables for DEFAULT_THEME (accent-primary + accent-secondary)', () => {
     applyThemeVars(DEFAULT_THEME);
-    expect(setPropertyMock).toHaveBeenCalledTimes(8);
+    expect(setPropertyMock).toHaveBeenCalledTimes(2);
   });
 
   it('should NOT set optional CSS vars when they are undefined', () => {
@@ -436,7 +436,7 @@ describe('localStorage caching behavior', () => {
 
     const raw = localStorage.getItem('ims-theme');
     const parsed = JSON.parse(raw!) as ThemeConfig;
-    expect(parsed.primaryColor).toBe('#2563eb');
+    expect(parsed.primaryColor).toBe('#3B78F5');
     expect(parsed.brandName).toBe('IMS Platform');
   });
 
@@ -547,7 +547,7 @@ describe('API fetch behavior', () => {
     expect(merged.primaryColor).toBe('#ff0000');
     expect(merged.brandName).toBe('Acme Corp');
     // Fields not in API response should keep defaults
-    expect(merged.accentColor).toBe('#7c3aed');
+    expect(merged.accentColor).toBe('#00C4A8');
     expect(merged.logoUrl).toBe('/logo.svg');
     expect(merged.favicon).toBe('/favicon.ico');
     expect(merged.customCSS).toBe('');
@@ -580,7 +580,7 @@ describe('API fetch behavior', () => {
 
     // Provider logic: if !token || !apiUrl, fall back to defaults
     if (!token || !apiUrl) {
-      expect(DEFAULT_THEME.primaryColor).toBe('#2563eb');
+      expect(DEFAULT_THEME.primaryColor).toBe('#3B78F5');
       return;
     }
     // Should not reach here
@@ -627,8 +627,8 @@ describe('API fetch behavior', () => {
     expect(merged.brandName).toBe('Custom Co');
     expect(merged.favicon).toBe('/custom.ico');
     expect(merged.customCSS).toBe('body { background: red; }');
-    // backgroundColor should remain default because the merge logic only spreads 6 fields
-    expect(merged.backgroundColor).toBe('#f8fafc');
+    // backgroundColor is not set in DEFAULT_THEME (controlled by dark mode CSS tokens)
+    expect(merged.backgroundColor).toBeUndefined();
     expect((merged as unknown as Record<string, unknown>).unknownField).toBeUndefined();
   });
 });
@@ -647,7 +647,7 @@ describe('Static theme override mode', () => {
 
     expect(merged.primaryColor).toBe('#ff6600');
     expect(merged.brandName).toBe('Static Brand');
-    expect(merged.accentColor).toBe('#7c3aed'); // keeps default
+    expect(merged.accentColor).toBe('#00C4A8'); // keeps default
     expect(merged.logoUrl).toBe('/logo.svg'); // keeps default
   });
 
@@ -782,7 +782,7 @@ describe('Theme immutability', () => {
     const original = { ...DEFAULT_THEME };
     const _merged = { ...DEFAULT_THEME, primaryColor: '#ff0000' };
 
-    expect(DEFAULT_THEME.primaryColor).toBe('#2563eb');
+    expect(DEFAULT_THEME.primaryColor).toBe('#3B78F5');
     expect(DEFAULT_THEME).toEqual(original);
   });
 

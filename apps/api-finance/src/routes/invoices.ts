@@ -4,7 +4,7 @@ import { prisma} from '../prisma';
 import { z } from 'zod';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, parsePagination} from '@ims/shared';
 
 const logger = createLogger('api-finance');
 const router: Router = Router();
@@ -124,9 +124,7 @@ router.get('/customers', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', search, isActive } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, unknown> = { deletedAt: null };
 
@@ -339,9 +337,7 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', status, customerId, dateFrom, dateTo, search } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, unknown> = {};
 
@@ -546,9 +542,7 @@ router.get('/credit-notes', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', customerId } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, unknown> = {};
     if (customerId) where.customerId = customerId as string;
@@ -653,9 +647,7 @@ router.get('/payments', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', customerId, dateFrom, dateTo } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, unknown> = {};
     if (customerId) where.customerId = customerId as string;

@@ -2,6 +2,7 @@ import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-food-safety');
+initTracing({ serviceName: 'api-food-safety' });
 
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {
@@ -20,6 +21,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { attachPermissions } from '@ims/rbac';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -42,6 +45,10 @@ import ncrsRouter from './routes/ncrs';
 import trainingRouter from './routes/training';
 import environmentalMonitoringRouter from './routes/environmental-monitoring';
 import foodDefenseRouter from './routes/food-defense';
+import dashboardRouter from './routes/dashboard';
+import haccpFlowRouter from './routes/haccp-flow';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4019;
@@ -49,6 +56,7 @@ const PORT = process.env.PORT || 4019;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-food-safety'));
 app.use(express.json({ limit: '1mb' }));
@@ -71,6 +79,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // API Routes
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/hazards', hazardsRouter);
 app.use('/api/ccps', ccpsRouter);
 app.use('/api/monitoring', monitoringRouter);
@@ -85,6 +94,8 @@ app.use('/api/ncrs', ncrsRouter);
 app.use('/api/training', trainingRouter);
 app.use('/api/environmental-monitoring', environmentalMonitoringRouter);
 app.use('/api/food-defense', foodDefenseRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/haccp-flow', haccpFlowRouter);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {
@@ -94,17 +105,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use(sentryErrorHandler());
-// Error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'Internal server error',
-    },
-  });
-});
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   logger.info(`Food Safety API server running on port ${PORT}`);
@@ -124,10 +125,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

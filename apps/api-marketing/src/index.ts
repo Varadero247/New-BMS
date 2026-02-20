@@ -2,6 +2,7 @@ import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-marketing');
+initTracing({ serviceName: 'api-marketing' });
 
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {
@@ -20,6 +21,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { attachPermissions } from '@ims/rbac';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -43,6 +46,8 @@ import stripeWebhooksRouter from './routes/stripe-webhooks';
 import growthRouter from './routes/growth';
 import digestRouter from './routes/digest';
 import partnerOnboardingRouter from './routes/partner-onboarding';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4025;
@@ -50,6 +55,7 @@ const PORT = process.env.PORT || 4025;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-marketing'));
 app.use(express.json({ limit: '1mb' }));
@@ -72,10 +78,47 @@ app.use(
 );
 
 // Public routes (no auth required)
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/roi', roiRouter);
 app.use('/api/chat', chatRouter);
 app.post('/api/leads/capture', express.json(), leadsRouter);
 app.get('/api/winback/reason/:reason', winbackRouter);
+
+// Public signup endpoint — creates a trial lead
+app.post('/api/signup', express.json(), async (req: Request, res: Response) => {
+  try {
+    const { email, name, company, plan, source } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Email is required' } });
+    }
+
+    // Check if lead already exists
+    const existing = await prisma.mktLead.findFirst({ where: { email } });
+    if (existing) {
+      return res.status(200).json({ success: true, data: { id: existing.id, email, alreadyExists: true } });
+    }
+
+    const sourceMap: Record<string, string> = {
+      website: 'LANDING_PAGE', roi: 'ROI_CALCULATOR', chat: 'CHATBOT',
+      partner: 'PARTNER_REFERRAL', linkedin: 'LINKEDIN', direct: 'DIRECT',
+    };
+    const resolvedSource = sourceMap[source as string] || 'LANDING_PAGE';
+
+    const lead = await prisma.mktLead.create({
+      data: {
+        email,
+        name: name || email.split('@')[0],
+        company: company || null,
+        source: resolvedSource as 'LANDING_PAGE',
+      },
+    });
+
+    res.status(201).json({ success: true, data: { id: lead.id, email: lead.email, message: 'Signup successful' } });
+  } catch (error) {
+    logger.error('Signup error', { error: (error as Error).message });
+    res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Signup failed' } });
+  }
+});
 
 // Auth middleware for protected routes
 app.use(optionalServiceAuth);
@@ -114,17 +157,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use(sentryErrorHandler());
-// Error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'Internal server error',
-    },
-  });
-});
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   logger.info(`Marketing API server running on port ${PORT}`);
@@ -146,10 +179,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

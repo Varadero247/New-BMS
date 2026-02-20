@@ -3,7 +3,7 @@ import type { Router as IRouter } from 'express';
 import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, parsePagination} from '@ims/shared';
 import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-inventory');
@@ -29,9 +29,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
       performedById,
     } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query, { defaultLimit: 50 });
 
     const where: Record<string, unknown> = { deletedAt: null };
 
@@ -52,14 +50,38 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const [transactions, total] = await Promise.all([
       prisma.inventoryTransaction.findMany({
         where,
-        skip,
-        take: limitNum,
-        orderBy: { transactionDate: 'desc' },
-        include: {
+        // FINDING-040: select list fields only — exclude free-text notes to reduce bandwidth
+        select: {
+          id: true,
+          orgId: true,
+          productId: true,
+          transactionType: true,
+          referenceNumber: true,
+          referenceType: true,
+          referenceId: true,
+          quantityBefore: true,
+          quantityAfter: true,
+          quantityChange: true,
+          warehouseId: true,
+          fromWarehouseId: true,
+          toWarehouseId: true,
+          binLocation: true,
+          lotNumber: true,
+          serialNumber: true,
+          expiryDate: true,
+          unitCost: true,
+          totalCost: true,
+          reason: true,
+          performedById: true,
+          transactionDate: true,
+          createdAt: true,
           product: { select: { id: true, sku: true, name: true } },
           warehouse: { select: { id: true, code: true, name: true } },
           fromWarehouse: { select: { id: true, code: true, name: true } },
         },
+        skip,
+        take: limitNum,
+        orderBy: { transactionDate: 'desc' },
       }),
       prisma.inventoryTransaction.count({ where }),
     ]);
@@ -186,9 +208,7 @@ router.get('/product/:productId', async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '50' } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query, { defaultLimit: 50 });
 
     const [transactions, total, product] = await Promise.all([
       prisma.inventoryTransaction.findMany({

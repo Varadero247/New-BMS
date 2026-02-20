@@ -7,6 +7,14 @@ import { authenticate, type AuthRequest } from '@ims/auth';
 const router: IRouter = Router();
 router.use(authenticate);
 
+// Minimal typed interfaces for external AI API responses
+interface OpenAIApiResponse {
+  choices?: Array<{ message?: { content?: string } }>;
+}
+interface AnthropicApiResponse {
+  content?: Array<{ text?: string }>;
+}
+
 const assistantSchema = z.object({
   question: z.string().trim().min(1).max(1000),
   context: z.string().trim().max(500).optional(),
@@ -288,8 +296,7 @@ router.post('/', async (req: Request, res: Response) => {
         });
 
         if (response.ok) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const data = await response.json() as any;
+          const data = (await response.json()) as AnthropicApiResponse & OpenAIApiResponse;
           if (provider === 'ANTHROPIC') {
             aiAnswer = data.content?.[0]?.text || null;
           } else {

@@ -33,16 +33,13 @@ export interface ThemeContextValue {
 }
 
 export const DEFAULT_THEME: ThemeConfig = {
-  primaryColor: '#2563eb',
-  accentColor: '#7c3aed',
+  primaryColor: '#3B78F5',
+  accentColor: '#00C4A8',
   logoUrl: '/logo.svg',
   brandName: 'IMS Platform',
   favicon: '/favicon.ico',
   customCSS: '',
-  backgroundColor: '#f8fafc',
-  surfaceColor: '#ffffff',
-  textColor: '#111827',
-  sidebarColor: '#1e293b',
-  borderRadius: 8,
-  fontFamily: 'Inter, system-ui, sans-serif',
+  // Do NOT set backgroundColor/surfaceColor/textColor/sidebarColor/fontFamily here.
+  // These are controlled by the dark/light mode CSS token system (tokens.css + ThemeSwitch).
+  // Overriding them here with hardcoded values breaks dark mode.
 };

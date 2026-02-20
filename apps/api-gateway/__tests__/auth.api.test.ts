@@ -207,10 +207,11 @@ describe('Auth API Routes', () => {
 
       await request(app).post('/api/auth/login').send(loginPayload);
 
+      // FINDING-031: token stored as SHA-256 hash, not raw JWT
       expect(mockPrisma.session.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           userId: mockUser.id,
-          token: 'mock-access-token',
+          token: 'b3ca3f56ac8c98cd3b7cf59a1391c64462183f7c5fa4462805ada7c362919fd6',
         }),
       });
     });
@@ -234,7 +235,7 @@ describe('Auth API Routes', () => {
       lastName: 'User',
     };
 
-    it('should register successfully with valid data', async () => {
+    it('should register successfully with valid data and return pending approval', async () => {
       mockPrisma.user.findUnique.mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
@@ -242,17 +243,18 @@ describe('Auth API Routes', () => {
         firstName: registerPayload.firstName,
         lastName: registerPayload.lastName,
         role: 'USER',
+        isActive: false,
       });
-      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       const response = await request(app).post('/api/auth/register').send(registerPayload);
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
-      expect(response.body.data).toHaveProperty('accessToken');
-      expect(response.body.data).toHaveProperty('refreshToken');
-      expect(response.body.data).toHaveProperty('expiresAt');
-      expect(response.body.data).toHaveProperty('refreshExpiresAt');
+      // Pending approval: no tokens issued
+      expect(response.body.data).not.toHaveProperty('accessToken');
+      expect(response.body.data).not.toHaveProperty('refreshToken');
+      expect(response.body.data).toHaveProperty('pendingApproval', true);
+      expect(response.body.data).toHaveProperty('message');
       expect(response.body.data).toHaveProperty('user');
     });
 
@@ -294,14 +296,16 @@ describe('Auth API Routes', () => {
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
 
-    it('should hash the password before storing', async () => {
+    it('should hash the password and create user with isActive: false', async () => {
       (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
       mockPrisma.user.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         email: registerPayload.email,
+        firstName: registerPayload.firstName,
+        lastName: registerPayload.lastName,
         role: 'USER',
+        isActive: false,
       });
-      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       await request(app).post('/api/auth/register').send(registerPayload);
 
@@ -309,6 +313,7 @@ describe('Auth API Routes', () => {
       expect(mockPrisma.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           password: 'hashed-password',
+          isActive: false,
         }),
       });
     });
@@ -318,9 +323,11 @@ describe('Auth API Routes', () => {
       mockPrisma.user.create.mockResolvedValueOnce({
         id: '30000000-0000-4000-a000-000000000123',
         email: registerPayload.email,
+        firstName: registerPayload.firstName,
+        lastName: registerPayload.lastName,
         role: 'USER',
+        isActive: false,
       });
-      (mockPrisma.session.create as jest.Mock).mockResolvedValueOnce({});
 
       const payload = {
         ...registerPayload,
@@ -435,10 +442,11 @@ describe('Auth API Routes', () => {
 
       await request(app).post('/api/auth/refresh').send({ refreshToken: 'valid-refresh-token' });
 
+      // FINDING-031: token stored as SHA-256 hash
       expect(mockPrisma.session.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           userId: mockUser.id,
-          token: 'mock-access-token',
+          token: 'b3ca3f56ac8c98cd3b7cf59a1391c64462183f7c5fa4462805ada7c362919fd6',
         }),
       });
     });
@@ -461,8 +469,9 @@ describe('Auth API Routes', () => {
 
       await request(app).post('/api/auth/logout').set('Authorization', 'Bearer mock-jwt-token');
 
+      // FINDING-031: token lookup uses SHA-256 hash, not raw JWT
       expect(mockPrisma.session.deleteMany).toHaveBeenCalledWith({
-        where: { token: 'mock-jwt-token' },
+        where: { token: '6e21b2d686605222c514d90f82d9d27e633025ddbdd0b061686e8c70c92c2721' },
       });
     });
   });

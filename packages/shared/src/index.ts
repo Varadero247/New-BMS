@@ -34,15 +34,80 @@ export function asyncHandler(
 }
 
 /**
- * Parse pagination parameters from query string with safe defaults and max limit cap.
+ * Centralised Express error handler — place after all routes and sentryErrorHandler().
+ *
+ * Handles:
+ *  - ZodError (has `issues` array)  → 400 VALIDATION_ERROR
+ *  - Prisma P2002 (unique)          → 409 CONFLICT
+ *  - Prisma P2025 (not found)       → 404 NOT_FOUND
+ *  - err.statusCode                 → that status code
+ *  - Everything else                → 500 INTERNAL_ERROR
  */
-export function parsePagination(query: Record<string, any>): {
+export function errorHandler(
+  err: Error & { statusCode?: number; code?: string; issues?: unknown[] },
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+): void {
+  // ZodError — duck-typed by presence of issues array
+  if (Array.isArray((err as any).issues)) {
+    res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid input',
+        details: (err as any).issues,
+      },
+    });
+    return;
+  }
+
+  // Prisma unique constraint violation
+  if (err.code === 'P2002') {
+    res.status(409).json({
+      success: false,
+      error: { code: 'CONFLICT', message: 'A record with those values already exists' },
+    });
+    return;
+  }
+
+  // Prisma record not found
+  if (err.code === 'P2025') {
+    res.status(404).json({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Record not found' },
+    });
+    return;
+  }
+
+  // Custom statusCode attached by route code
+  const status = err.statusCode || 500;
+  res.status(status).json({
+    success: false,
+    error: {
+      code: err.code || 'INTERNAL_ERROR',
+      message: status === 500 ? 'Internal server error' : err.message,
+    },
+  });
+}
+
+/**
+ * Parse pagination parameters from query string with safe defaults and max limit cap.
+ * @param query   - req.query (or any record with page/limit keys)
+ * @param options - optional overrides: defaultLimit (default 20), maxLimit (default 100)
+ */
+export function parsePagination(
+  query: Record<string, any>,
+  options?: { defaultLimit?: number; maxLimit?: number }
+): {
   page: number;
   limit: number;
   skip: number;
 } {
+  const defaultLimit = options?.defaultLimit ?? 20;
+  const maxLimit = options?.maxLimit ?? 100;
   const page = Math.max(1, parseInt(query.page as string, 10) || 1);
-  const limit = Math.min(Math.max(1, parseInt(query.limit as string, 10) || 20), 100);
+  const limit = Math.min(Math.max(1, parseInt(query.limit as string, 10) || defaultLimit), maxLimit);
   const skip = (page - 1) * limit;
   return { page, limit, skip };
 }

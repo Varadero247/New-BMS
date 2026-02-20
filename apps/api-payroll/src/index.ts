@@ -2,6 +2,7 @@ import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-payroll');
+initTracing({ serviceName: 'api-payroll' });
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];
@@ -21,6 +22,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -37,6 +40,8 @@ import expensesRouter from './routes/expenses';
 import loansRouter from './routes/loans';
 import taxRouter from './routes/tax';
 import jurisdictionsRouter from './routes/jurisdictions';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4007;
@@ -44,6 +49,7 @@ const PORT = process.env.PORT || 4007;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-payroll'));
 app.use(express.json({ limit: '1mb' }));
@@ -67,6 +73,7 @@ app.get('/metrics', metricsHandler);
 
 // API Routes (gateway rewrites /api/v1/payroll/* → /api/*)
 app.use('/api', payrollRouter);
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/salary', salaryRouter);
 app.use('/api/benefits', benefitsRouter);
 app.use('/api/expenses', expensesRouter);
@@ -82,17 +89,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use(sentryErrorHandler());
-// Error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({
-    success: false,
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: 'Internal server error',
-    },
-  });
-});
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   logger.info(`Payroll API server running on port ${PORT}`);
@@ -112,10 +109,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

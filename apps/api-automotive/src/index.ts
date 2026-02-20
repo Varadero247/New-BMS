@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-automotive');
+initTracing({ serviceName: 'api-automotive' });
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];
@@ -22,6 +23,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -40,6 +43,10 @@ import lpaRouter from './routes/lpa';
 import eightDRouter from './routes/eight-d';
 import fmeaRouter from './routes/fmea';
 import customerReqsRouter from './routes/customer-reqs';
+import supplierDevRouter from './routes/supplier-dev';
+import templatesRouter from './routes/templates';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4010;
@@ -47,6 +54,7 @@ const PORT = process.env.PORT || 4010;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-automotive'));
 app.use(express.json({ limit: '1mb' }));
@@ -69,6 +77,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // Routes - IATF 16949 Automotive
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/apqp', apqpRouter);
 app.use('/api/ppap', ppapRouter);
 app.use('/api/control-plans', controlPlansRouter);
@@ -79,6 +88,8 @@ app.use('/api/lpa', lpaRouter);
 app.use('/api/8d', eightDRouter);
 app.use('/api/fmea', fmeaRouter);
 app.use('/api/customer-reqs', customerReqsRouter);
+app.use('/api/supplier-dev', supplierDevRouter);
+app.use('/api/templates', templatesRouter);
 
 // 404 handler
 app.use((_req: express.Request, res: express.Response, _next: express.NextFunction) => {
@@ -122,10 +133,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

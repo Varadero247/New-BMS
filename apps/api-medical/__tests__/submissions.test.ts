@@ -42,6 +42,13 @@ jest.mock('@ims/monitoring', () => ({
 
 jest.mock('@ims/shared', () => ({
   validateIdParam: () => (_req: any, _res: any, next: any) => next(),
+  parsePagination: (query: Record<string, any>, opts?: { defaultLimit?: number }) => {
+    const defaultLimit = opts?.defaultLimit ?? 20;
+    const page = Math.max(1, parseInt(query.page as string, 10) || 1);
+    const limit = Math.min(Math.max(1, parseInt(query.limit as string, 10) || defaultLimit), 100);
+    const skip = (page - 1) * limit;
+    return { page, limit, skip };
+  },
 }));
 
 import { prisma } from '../src/prisma';

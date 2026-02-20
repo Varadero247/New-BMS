@@ -3,7 +3,7 @@ import { prisma} from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, formatRefNumber, parsePagination} from '@ims/shared';
 import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-quality');
@@ -13,24 +13,13 @@ const router: Router = Router();
 router.use(authenticate);
 router.param('id', validateIdParam());
 
-// Generate reference number
-async function generateRefNumber(): Promise<string> {
-  const year = new Date().getFullYear();
-  const prefix = 'QMS-DOC';
-  const count = await prisma.qualDocument.count({
-    where: { referenceNumber: { startsWith: `${prefix}-${year}` } },
-  });
-  return `${prefix}-${year}-${String(count + 1).padStart(3, '0')}`;
-}
 
 // GET / - List documents
 router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { page = '1', limit = '20', documentType, status, accessLevel, search } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query);
 
     const where: Record<string, unknown> = { deletedAt: null };
     if (documentType) where.documentType = documentType;
@@ -43,6 +32,33 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
     const [items, total] = await Promise.all([
       prisma.qualDocument.findMany({
         where,
+        // FINDING-040: select list fields only — exclude large text bodies and AI analysis
+        select: {
+          id: true,
+          referenceNumber: true,
+          title: true,
+          documentType: true,
+          isoClause: true,
+          linkedProcess: true,
+          version: true,
+          status: true,
+          language: true,
+          author: true,
+          ownerCustodian: true,
+          reviewer: true,
+          approvedBy: true,
+          issueDate: true,
+          effectiveDate: true,
+          nextReviewDate: true,
+          accessLevel: true,
+          locationUrl: true,
+          controlledCopies: true,
+          aiGenerated: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          createdBy: true,
+        },
         skip,
         take: limitNum,
         orderBy: { updatedAt: 'desc' },
@@ -146,7 +162,10 @@ router.post('/', async (req: Request, res: Response) => {
     });
 
     const data = schema.parse(req.body);
-    const referenceNumber = await generateRefNumber();
+    const _refPrefix = 'QMS-DOC';
+    const _refYear = new Date().getFullYear();
+    const _refCount = await prisma.qualDocument.count({ where: { referenceNumber: { startsWith: `${_refPrefix}-${_refYear}` } } });
+    const referenceNumber = formatRefNumber(_refPrefix, _refCount);
 
     const document = await prisma.qualDocument.create({
       data: {

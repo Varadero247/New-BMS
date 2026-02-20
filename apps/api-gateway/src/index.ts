@@ -1,7 +1,6 @@
 import { initSentry, sentryErrorHandler, Sentry } from '@ims/sentry';
 import express from 'express';
 import type { Express, Request } from 'express';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
@@ -10,11 +9,13 @@ import {
   metricsMiddleware,
   metricsHandler,
   correlationIdMiddleware,
+  initTracing,
 } from '@ims/monitoring';
 import { validateStartupSecrets } from '@ims/secrets';
 import { prisma, createSessionCleanupJob } from '@ims/database';
 import { generateServiceToken } from '@ims/service-auth';
 
+import { createProxyCircuitBreaker } from './middleware/circuit-breaker';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/users';
 import dashboardRoutes from './routes/dashboard';
@@ -61,6 +62,7 @@ import { addVersionHeader, deprecatedRoute } from './middleware/api-version';
 
 dotenv.config();
 initSentry('api-gateway');
+initTracing({ serviceName: 'api-gateway' });
 
 const logger = createLogger('api-gateway');
 
@@ -138,6 +140,19 @@ const SERVICES = {
   emergency:
     process.env.SERVICE_EMERGENCY_URL || process.env.EMERGENCY_URL || 'http://localhost:4041',
 };
+
+// FINDING-027: Warn in production when service URLs fall back to localhost defaults
+// In production, all SERVICE_*_URL env vars should be explicitly configured.
+if (process.env.NODE_ENV === 'production') {
+  const localhostServices = Object.entries(SERVICES)
+    .filter(([, url]) => url.includes('localhost'))
+    .map(([name]) => name);
+  if (localhostServices.length > 0) {
+    logger.warn('Production: service URLs using localhost fallbacks — set SERVICE_*_URL env vars', {
+      services: localhostServices,
+    });
+  }
+}
 
 // Generate service token for inter-service authentication
 // Token is generated once at startup and refreshed periodically
@@ -253,21 +268,6 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
   }
   next();
 });
-// CORS must run BEFORE security middleware
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, origin || '*');
-      } else {
-        callback(null, false);
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'X-Correlation-ID'],
-  })
-);
 // Security middleware (Helmet with strict CSP, HSTS, etc.)
 createSecurityMiddleware().forEach((mw) => app.use(mw));
 app.use(cookieParser());
@@ -456,8 +456,10 @@ const createServiceProxy = (
   target: string,
   basePath: string,
   errorMessage: string
-) =>
-  createProxyMiddleware({
+) => {
+  const cb = createProxyCircuitBreaker({ name: serviceName });
+
+  const proxy = createProxyMiddleware({
     target,
     changeOrigin: true,
     proxyTimeout: 30000,
@@ -481,6 +483,12 @@ const createServiceProxy = (
       }
     },
     onProxyRes: (proxyRes) => {
+      // Track circuit breaker health: 5xx = failure, else = success
+      if (proxyRes.statusCode && proxyRes.statusCode >= 500) {
+        cb.onFailure();
+      } else {
+        cb.onSuccess();
+      }
       // Remove downstream CORS headers - gateway handles CORS
       delete proxyRes.headers['access-control-allow-origin'];
       delete proxyRes.headers['access-control-allow-credentials'];
@@ -488,13 +496,20 @@ const createServiceProxy = (
       delete proxyRes.headers['access-control-allow-headers'];
     },
     onError: (err, req, res) => {
-      logger.error(`${serviceName} Proxy Error`, { error: err.message });
+      cb.onFailure(); // Network-level failure (connection refused, timeout, etc.)
+      logger.error(`${serviceName} Proxy Error`, { error: err.message, stack: err.stack });
       (res as express.Response).status(502).json({
         success: false,
         error: { code: 'SERVICE_UNAVAILABLE', message: errorMessage },
       });
     },
   });
+
+  // Return a combined middleware: circuit breaker gate → proxy
+  return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    cb.middleware(req, res, () => proxy(req, res, next));
+  };
+};
 
 // v1 proxy routes
 app.use(
@@ -1217,11 +1232,11 @@ process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

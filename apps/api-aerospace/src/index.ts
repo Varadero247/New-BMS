@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-aerospace');
+initTracing({ serviceName: 'api-aerospace' });
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];
@@ -22,6 +23,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -43,6 +46,8 @@ import counterfeitRouter from './routes/counterfeit';
 import fodRouter from './routes/fod';
 import productSafetyRouter from './routes/product-safety';
 import specialProcessesRouter from './routes/special-processes';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4012;
@@ -50,6 +55,7 @@ const PORT = process.env.PORT || 4012;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-aerospace'));
 app.use(express.json({ limit: '1mb' }));
@@ -72,6 +78,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // Routes - AS9100D Aerospace Configuration Management
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/configuration', configRouter);
 // Routes - AS9102 First Article Inspection
 app.use('/api/fai', faiRouter);
@@ -140,10 +147,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

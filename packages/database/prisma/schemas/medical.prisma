@@ -1235,3 +1235,32 @@ enum TraceabilityLinkStatus {
   COMPLETE
   GAP
 }
+
+// ============================================
+// MEDICAL DEVICE SUPPLIERS (ISO 13485:2016 Section 7.4)
+// ============================================
+
+model MedicalSupplier {
+  id                  String    @id @default(cuid())
+  orgId               String?
+  referenceNumber     String    @unique
+  name                String
+  classification      String    @default("MAJOR")
+  qualificationStatus String    @default("PENDING")
+  iso13485Certified   Boolean   @default(false)
+  lastAuditDate       DateTime?
+  nextAuditDate       DateTime?
+  riskLevel           String    @default("MEDIUM")
+  products            String?
+  notes               String?
+  createdBy           String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  deletedAt           DateTime?
+
+  @@index([qualificationStatus])
+  @@index([riskLevel])
+  @@index([orgId])
+
+  @@map("medical_suppliers")
+}

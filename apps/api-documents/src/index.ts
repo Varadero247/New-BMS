@@ -2,6 +2,7 @@ import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-documents');
+initTracing({ serviceName: 'api-documents' });
 const requiredEnvVars = ['JWT_SECRET'];
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
@@ -18,6 +19,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { attachPermissions } from '@ims/rbac';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -30,10 +33,13 @@ import approvalsRouter from './routes/approvals';
 import readReceiptsRouter from './routes/read-receipts';
 import dashboardRouter from './routes/dashboard';
 import searchRouter from './routes/search';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 const app: Express = express();
 const PORT = process.env.PORT || 4031;
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-documents'));
 app.use(express.json({ limit: '1mb' }));
@@ -52,6 +58,7 @@ app.get('/ready', async (_req, res) => {
   }
 });
 app.get('/metrics', metricsHandler);
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/documents', documentsRouter);
 app.use('/api/versions', versionsRouter);
 app.use('/api/approvals', approvalsRouter);
@@ -64,12 +71,7 @@ app.use((_req: Request, res: Response) => {
     .json({ success: false, error: { code: 'NOT_FOUND', message: 'Endpoint not found' } });
 });
 app.use(sentryErrorHandler());
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res
-    .status(500)
-    .json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } });
-});
+app.use(errorHandler);
 const server = app.listen(PORT, () => {
   logger.info(`Documents API server running on port ${PORT}`);
 });
@@ -86,10 +88,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 export default app;

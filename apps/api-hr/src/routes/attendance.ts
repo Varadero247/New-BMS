@@ -3,7 +3,7 @@ import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
-import { validateIdParam } from '@ims/shared';
+import { validateIdParam, parsePagination} from '@ims/shared';
 import { checkOwnership, scopeToUser } from '@ims/service-auth';
 
 const logger = createLogger('api-hr');
@@ -17,9 +17,7 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const { employeeId, startDate, endDate, status, page = '1', limit = '50' } = req.query;
 
-    const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
-    const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const skip = (pageNum - 1) * limitNum;
+    const { page: pageNum, limit: limitNum, skip } = parsePagination(req.query, { defaultLimit: 50 });
 
     const where: Record<string, unknown> = { deletedAt: null };
     if (employeeId) where.employeeId = employeeId as string;
@@ -144,7 +142,20 @@ router.get('/summary', async (req: Request, res: Response) => {
       },
     });
 
-    // Get last 7 days trends
+    // Get last 7 days trends — single query then group in JS (avoids 7 sequential DB calls)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const weekRecords = await prisma.attendance.findMany({
+      where: {
+        date: { gte: sevenDaysAgo },
+        ...(departmentId ? { employee: { departmentId: departmentId as string } } : {}),
+      },
+      select: { date: true, status: true },
+      take: 10000,
+    });
+
     const trends = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date();
@@ -153,19 +164,12 @@ router.get('/summary', async (req: Request, res: Response) => {
       const nextDay = new Date(date);
       nextDay.setDate(nextDay.getDate() + 1);
 
-      const dayRecords = await prisma.attendance.groupBy({
-        by: ['status'],
-        where: {
-          date: { gte: date, lt: nextDay },
-          ...(departmentId ? { employee: { departmentId: departmentId as string } } : {}),
-        },
-        _count: { id: true },
-      });
-
       const dayCounts: Record<string, number> = {};
-      dayRecords.forEach((r) => {
-        dayCounts[r.status] = r._count.id;
-      });
+      weekRecords
+        .filter((r) => r.date >= date && r.date < nextDay)
+        .forEach((r) => {
+          dayCounts[r.status] = (dayCounts[r.status] || 0) + 1;
+        });
 
       trends.push({
         date: date.toISOString().split('T')[0],

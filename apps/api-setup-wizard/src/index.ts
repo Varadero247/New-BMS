@@ -2,6 +2,7 @@ import { initSentry, sentryErrorHandler } from '@ims/sentry';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-setup-wizard');
+initTracing({ serviceName: 'api-setup-wizard' });
 
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
@@ -12,8 +13,10 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
-import { authenticate } from '@ims/auth';
+import { authenticate, writeRoleGuard } from '@ims/auth';
 import { attachPermissions } from '@ims/rbac';
 import { optionalServiceAuth } from '@ims/service-auth';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
@@ -22,6 +25,7 @@ import { prisma } from './prisma';
 const logger = createLogger('api-setup-wizard');
 
 import wizardRouter from './routes/wizard';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4039;
@@ -29,6 +33,7 @@ const PORT = process.env.PORT || 4039;
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-setup-wizard'));
 app.use(express.json({ limit: '1mb' }));
@@ -52,6 +57,7 @@ app.get('/metrics', metricsHandler);
 
 // All wizard routes require authentication
 // Gateway rewrites /api/wizard/* → /api/*, so mount at /api
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api', authenticate, wizardRouter);
 
 // 404 handler
@@ -62,14 +68,7 @@ app.use((_req: Request, res: Response) => {
 });
 
 app.use(sentryErrorHandler());
-// Error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error('Unhandled error', { error: err.message, stack: err.stack });
-  res.status(500).json({
-    success: false,
-    error: { code: 'INTERNAL_ERROR', message: 'Internal server error' },
-  });
-});
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   logger.info(`Setup Wizard API server running on port ${PORT}`);
@@ -89,10 +88,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 dotenv.config();
 initSentry('api-environment');
+initTracing({ serviceName: 'api-environment' });
 
 // Validate required configuration
 const requiredEnvVars = ['JWT_SECRET'];
@@ -22,6 +23,8 @@ import {
   metricsHandler,
   correlationIdMiddleware,
   createHealthCheck,
+  createDownstreamRateLimiter,
+  initTracing,
 } from '@ims/monitoring';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { optionalServiceAuth } from '@ims/service-auth';
@@ -43,12 +46,15 @@ import lifecycleRouter from './routes/lifecycle';
 import esgRouter from './routes/esg';
 import communicationsRouter from './routes/communications';
 import trainingRouter from './routes/training';
+import { writeRoleGuard } from '@ims/auth';
+import { errorHandler } from '@ims/shared';
 
 const app: Express = express();
 const PORT = process.env.PORT || 4002;
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
+app.use(createDownstreamRateLimiter());
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(correlationIdMiddleware());
 app.use(metricsMiddleware('api-environment'));
@@ -72,6 +78,7 @@ app.get('/ready', async (_req, res) => {
 app.get('/metrics', metricsHandler);
 
 // Routes — gateway rewrites /api/environment/* → /api/*
+app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
 app.use('/api/aspects', aspectsRouter);
 app.use('/api/events', eventsRouter);
 app.use('/api/legal', legalRouter);
@@ -94,21 +101,7 @@ app.use((_req: express.Request, res: express.Response) => {
 });
 
 app.use(sentryErrorHandler());
-// Error handling
-app.use(
-  (
-    err: Error & { statusCode?: number; code?: string },
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction
-  ) => {
-    logger.error('Unhandled error', { error: err.message, stack: err.stack });
-    res.status(err.statusCode || 500).json({
-      success: false,
-      error: { code: err.code || 'INTERNAL_ERROR', message: 'Internal server error' },
-    });
-  }
-);
+app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   logger.info(`Environment API running on port ${PORT}`);
@@ -128,10 +121,10 @@ const gracefulShutdown = async (signal: string) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('unhandledRejection', (reason) => {
-  logger.error('Unhandled rejection', { reason: String(reason) });
+  logger.error('Unhandled rejection', { reason: String(reason), stack: reason instanceof Error ? reason.stack : undefined });
 });
 process.on('uncaughtException', (error) => {
-  logger.error('Uncaught exception', { error: error.message });
+  logger.error('Uncaught exception', { error: error.message, stack: error.stack });
   process.exit(1);
 });
 

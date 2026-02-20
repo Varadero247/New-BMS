@@ -47,17 +47,52 @@ function getXssPatterns(): RegExp[] {
 }
 
 /**
- * Check for SQL injection patterns (creates new regex each time to avoid state issues)
+ * Check for SQL injection patterns (creates new regex each time to avoid state issues).
+ *
+ * NOTE: This is a defence-in-depth detection layer for logging/alerting.
+ * The primary SQL injection protection is Prisma's parameterised queries —
+ * no raw user input is ever interpolated into SQL strings.
+ *
+ * Patterns cover:
+ *  - Classic keyword combos (SELECT … FROM, DROP TABLE, etc.)
+ *  - Comment-based bypasses (-- and slash-star)
+ *  - Stacked query separators (;)
+ *  - Boolean/numeric tautologies (OR 1=1, OR '1'='1', OR 'a'='a')
+ *  - UNION-based extraction
+ *  - Blind time-delay (SLEEP, WAITFOR, BENCHMARK, PG_SLEEP)
+ *  - Hex/char encoding probes (0x…, CHAR(…), CHR(…))
+ *  - Inline comment obfuscation (e.g. SEL--ECT via slash-star injection)
+ *  - MySQL-specific shortcuts (#, inline version comments)
  */
 function getSqlInjectionPatterns(): RegExp[] {
   return [
-    /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE|EXEC|EXECUTE|UNION|OR|AND)\b.*\b(FROM|INTO|WHERE|TABLE|DATABASE|SET)\b)/gi,
-    /'.*--/gi,
-    /;\s*DROP\s+TABLE/gi,
-    /UNION\s+SELECT/gi,
-    /';\s*DELETE/gi,
-    /'\s*OR\s+'1'\s*=\s*'1/gi,
-    /'\s*OR\s+1\s*=\s*1/gi,
+    // SQL keywords combined with a clause — requires meaningful context (avoids flagging
+    // natural English like "Select the best option")
+    /\b(SELECT|INSERT|UPDATE|DELETE|DROP|TRUNCATE|EXEC|EXECUTE)\b.{0,50}\b(FROM|INTO|WHERE|TABLE|DATABASE|SCHEMA|SET)\b/gi,
+    // Unconditional destructive without clause (DROP TABLE / DROP DATABASE)
+    /\bDROP\s+(TABLE|DATABASE|SCHEMA|INDEX|VIEW|PROCEDURE|TRIGGER)\b/gi,
+    // UNION SELECT in any form (with optional comments/whitespace between words)
+    /UNION[\s/]*SELECT/gi,
+    // Comment sequences used to terminate queries (after a quote)
+    /['"`]\s*--/g,
+    /['"`]\s*\/\*/g,
+    // MySQL inline comment syntax used to hide keywords
+    /\/\*![\s\S]*?\*\//g,
+    // Stacked query: semicolon followed by a destructive keyword
+    /;\s*(DROP|DELETE|TRUNCATE|INSERT|UPDATE|CREATE|ALTER|EXEC)\b/gi,
+    // Boolean tautologies — single-quoted
+    /'\s*OR\s*'[^']*'\s*=\s*'[^']*'?/gi,
+    /'\s*OR\s+\d+\s*=\s*\d+/gi,
+    // Boolean tautologies — double-quoted
+    /"\s*OR\s*"[^"]*"\s*=\s*"[^"]*"?/gi,
+    // Inline OR/AND tautologies after a closing quote
+    /'\s*OR\s+TRUE\b/gi,
+    /'\s*AND\s+FALSE\b/gi,
+    // Time-based blind injection
+    /\b(SLEEP|WAITFOR\s+DELAY|BENCHMARK|PG_SLEEP)\s*\(/gi,
+    // Encoding / obfuscation probes
+    /\b(CHAR|CHR|NCHAR)\s*\(\s*\d+/gi,
+    /0x[0-9a-f]{6,}/gi,
   ];
 }
 

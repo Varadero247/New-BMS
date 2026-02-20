@@ -916,7 +916,7 @@ export function WorkflowBuilderClient() {
     }
     setSaving(true);
     try {
-      await api.post('/workflows/definitions', {
+      await api.post('/definitions', {
         name: workflow.name,
         description: workflow.description,
         category: 'CUSTOM',

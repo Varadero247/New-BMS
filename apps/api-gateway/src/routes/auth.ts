@@ -24,6 +24,15 @@ const logger = createLogger('auth-routes');
 const router: IRouter = Router();
 const lockoutManager = getAccountLockoutManager();
 
+/**
+ * FINDING-031: Hash JWT before storing in DB session table.
+ * If the DB is compromised, hashed tokens cannot be replayed directly.
+ * The full JWT is only ever in memory/transit; the DB stores a SHA-256 digest.
+ */
+function hashTokenForStorage(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
 // Validation schemas
 const loginSchema = z.object({
   email: z.string().trim().email(),
@@ -111,12 +120,12 @@ router.post('/login', authLimiter, checkAccountLockout(), async (req, res) => {
     const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
     const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    // Create session with access token
+    // Create session — store hashed token (FINDING-031: never store raw JWT in DB)
     await prisma.session.create({
       data: {
         id: uuidv4(),
         userId: user.id,
-        token: accessToken,
+        token: hashTokenForStorage(accessToken),
         expiresAt: accessTokenExpiresAt,
         userAgent: req.headers['user-agent'] || null,
         ipAddress: req.ip || null,
@@ -192,63 +201,38 @@ router.post('/register', registerLimiter, async (req, res) => {
     }
 
     const hashedPassword = await hashPassword(data.password);
-
-    // Pre-compute tokens before the transaction (CPU-only, no I/O)
     const userId = uuidv4();
-    const accessToken = generateToken({
-      userId,
-      email: data.email,
-      role: 'USER',
-      expiresIn: '15m',
+
+    // User is created inactive — requires admin approval before they can log in.
+    // This enforces ISO 27001 A.9.2.1: user provisioning requires authorization.
+    const user = await prisma.user.create({
+      data: {
+        id: userId,
+        email: data.email,
+        password: hashedPassword,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        department: data.department,
+        jobTitle: data.jobTitle,
+        role: 'USER',
+        isActive: false,
+      },
     });
-    const refreshToken = generateRefreshToken(userId);
-    const accessTokenExpiresAt = new Date(Date.now() + 15 * 60 * 1000);
-    const refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-    // Atomic: user + session created together or not at all
-    const [user] = await prisma.$transaction([
-      prisma.user.create({
-        data: {
-          id: userId,
-          email: data.email,
-          password: hashedPassword,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          phone: data.phone,
-          department: data.department,
-          jobTitle: data.jobTitle,
-          role: 'USER',
-          isActive: true,
-        },
-      }),
-      prisma.session.create({
-        data: {
-          id: uuidv4(),
-          userId,
-          token: accessToken,
-          expiresAt: accessTokenExpiresAt,
-          userAgent: req.headers['user-agent'] || null,
-          ipAddress: req.ip || null,
-        },
-      }),
-    ]);
-
-    logger.info('Registration successful', { userId: user.id, ip: req.ip });
+    logger.info('Registration pending admin approval', { userId: user.id, ip: req.ip });
 
     res.status(201).json({
       success: true,
       data: {
+        message: 'Registration received. Your account is pending administrator approval.',
+        pendingApproval: true,
         user: {
           id: user.id,
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          role: user.role,
         },
-        accessToken,
-        refreshToken,
-        expiresAt: accessTokenExpiresAt.toISOString(),
-        refreshExpiresAt: refreshTokenExpiresAt.toISOString(),
       },
     });
   } catch (error) {
@@ -277,7 +261,7 @@ router.post('/logout', authenticate, async (req: Request, res: Response) => {
     const token = authHeader?.substring(7);
 
     if (token) {
-      await prisma.session.deleteMany({ where: { token } });
+      await prisma.session.deleteMany({ where: { token: hashTokenForStorage(token) } });
       logger.info('Logout successful', { userId: (req as AuthRequest).user?.id });
     }
 
@@ -362,7 +346,7 @@ router.post('/refresh', async (req, res) => {
       data: {
         id: uuidv4(),
         userId: user.id,
-        token: newAccessToken,
+        token: hashTokenForStorage(newAccessToken),
         expiresAt: accessTokenExpiresAt,
         userAgent: req.headers['user-agent'] || null,
         ipAddress: req.ip || null,

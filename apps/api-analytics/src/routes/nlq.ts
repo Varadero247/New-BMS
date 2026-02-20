@@ -9,6 +9,14 @@ const logger = createLogger('api-analytics:nlq');
 const router: Router = Router();
 router.use(authenticate);
 
+// Minimal typed interfaces for external AI API responses
+interface OpenAIApiResponse {
+  choices?: Array<{ message?: { content?: string } }>;
+}
+interface AnthropicApiResponse {
+  content?: Array<{ text?: string }>;
+}
+
 // ---------------------------------------------------------------------------
 // Schemas
 // ---------------------------------------------------------------------------
@@ -347,8 +355,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const aiData = (await aiRes.json()) as any;
+              const aiData = (await aiRes.json()) as OpenAIApiResponse;
               const content = aiData.choices?.[0]?.message?.content || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;
@@ -377,8 +384,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const aiData = (await aiRes.json()) as any;
+              const aiData = (await aiRes.json()) as AnthropicApiResponse;
               const content = aiData.content?.[0]?.text || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;
@@ -405,8 +411,7 @@ router.post('/query', requirePermission('analytics', 1), async (req: Request, re
               signal: ctrl.signal,
             });
             if (aiRes.ok) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const aiData = (await aiRes.json()) as any;
+              const aiData = (await aiRes.json()) as OpenAIApiResponse;
               const content = aiData.choices?.[0]?.message?.content || '';
               const parsed = JSON.parse(content.replace(/```json|```/g, '').trim());
               aiInterpretation = parsed.interpretation || content;

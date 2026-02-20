@@ -121,19 +121,25 @@ export async function trackDbQuery<T>(
 /** Alias for databaseQueryDuration histogram — convenient named export */
 export const dbQueryHistogram = databaseQueryDuration;
 
+/** Shared param shape for Prisma $use() middleware (Prisma v5, deprecated API). */
+interface PrismaMiddlewareParams {
+  model?: string;
+  action: string;
+  args: unknown;
+  dataPath: string[];
+  runInTransaction: boolean;
+}
+
 /**
  * Prisma middleware to record query duration metrics.
- * Usage: prisma.$use(prismaMetricsMiddleware);
+ * Usage: prisma.$use(prismaMetricsMiddleware)
+ *
+ * NOTE: Prisma's $use() API is deprecated in v5 and will be removed in v6.
+ * A $extends()-based replacement should be adopted when upgrading to Prisma 6.
  */
 export async function prismaMetricsMiddleware(
-  params: {
-    model?: string;
-    action: string;
-    args: unknown;
-    dataPath: string[];
-    runInTransaction: boolean;
-  },
-  next: (params: Record<string, unknown>) => Promise<unknown>
+  params: PrismaMiddlewareParams,
+  next: (params: PrismaMiddlewareParams) => Promise<unknown>
 ): Promise<unknown> {
   const start = Date.now();
   const result = await next(params);

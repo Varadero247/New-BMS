@@ -1,0 +1,39 @@
+# OpenTelemetry Collector configuration for IMS development tracing
+# Used with: docker compose --profile tracing up
+# Jaeger UI: http://localhost:16686
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+
+  # Add IMS resource attributes
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: development
+        action: insert
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+
+  debug:
+    verbosity: normal
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [resource, batch]
+      exporters: [otlp/jaeger]
