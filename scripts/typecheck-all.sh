@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# typecheck-all.sh — Run TypeScript checks across all API services and packages.
+# typecheck-all.sh — Run TypeScript checks across all API services, web apps, and packages.
 # Exits 0 if all pass, 1 if any errors found.
 
 set -euo pipefail
@@ -20,10 +20,14 @@ check() {
   fi
 }
 
-echo "Checking TypeScript across all API services and packages..."
+echo "Checking TypeScript across all API services, web apps, and packages..."
 echo ""
 
 for dir in apps/api-*/; do
+  check "$dir"
+done
+
+for dir in apps/web-*/; do
   check "$dir"
 done
 
