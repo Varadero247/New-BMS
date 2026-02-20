@@ -1,0 +1,361 @@
+/**
+ * Property-Based Tests for @ims/validation sanitizers
+ *
+ * Uses fast-check to generate arbitrary inputs and verify that
+ * the sanitization functions uphold invariants regardless of input.
+ *
+ * Key invariants tested:
+ *   - Output length never exceeds configured max
+ *   - Functions never throw (total / crash-free)
+ *   - Output is always a string
+ *   - Idempotency: sanitizing twice gives the same result as sanitizing once
+ *   - Email output is always lowercase
+ *   - URL output never starts with a dangerous protocol
+ *   - containsXss / containsSqlInjection always return a boolean
+ */
+
+import * as fc from 'fast-check';
+import {
+  sanitizeString,
+  sanitizeEmail,
+  sanitizeUrl,
+  sanitizeFilename,
+  containsXss,
+  containsSqlInjection,
+} from '../src/sanitize';
+
+// ── Arbitraries ────────────────────────────────────────────────────────────
+
+/** Arbitrary that can produce any JS value (stress-tests type coercion). */
+const anyValue = fc.oneof(
+  fc.string(),
+  fc.integer(),
+  fc.float(),
+  fc.boolean(),
+  fc.constant(null),
+  fc.constant(undefined),
+  fc.constant(''),
+);
+
+/** ASCII printable string (no control chars that corrupt terminals). */
+const printable = fc.string({ minLength: 0, maxLength: 500 });
+
+/** String that might contain HTML/XSS payload fragments. */
+const htmlLike = fc.oneof(
+  printable,
+  fc.constant('<script>alert(1)</script>'),
+  fc.constant('"><img src=x onerror=alert(1)>'),
+  fc.constant('javascript:void(0)'),
+  fc.constant('<b onclick="alert()">bold</b>'),
+  fc.constant('normal text without anything dangerous'),
+);
+
+/** String that might contain SQL injection patterns. */
+const sqlLike = fc.oneof(
+  printable,
+  fc.constant("' OR '1'='1"),
+  fc.constant('1; DROP TABLE users --'),
+  fc.constant('UNION SELECT * FROM secrets'),
+  fc.constant('admin@example.com'),
+  fc.constant('SELECT name FROM products WHERE id = 1'),
+);
+
+// ── sanitizeString() ───────────────────────────────────────────────────────
+
+describe('sanitizeString() — property-based', () => {
+  it('never throws on arbitrary input', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(() => sanitizeString(input)).not.toThrow();
+      }),
+      { numRuns: 500 }
+    );
+  });
+
+  it('always returns a string', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(typeof sanitizeString(input)).toBe('string');
+      }),
+      { numRuns: 500 }
+    );
+  });
+
+  it('output length never exceeds maxLength', () => {
+    fc.assert(
+      fc.property(printable, fc.integer({ min: 0, max: 2000 }), (input, maxLength) => {
+        const result = sanitizeString(input, { maxLength });
+        expect(result.length).toBeLessThanOrEqual(maxLength);
+      }),
+      { numRuns: 500 }
+    );
+  });
+
+  it('output never exceeds default maxLength (1000)', () => {
+    fc.assert(
+      fc.property(fc.string({ minLength: 0, maxLength: 5000 }), (input) => {
+        expect(sanitizeString(input).length).toBeLessThanOrEqual(1000);
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('idempotent: sanitizing twice equals sanitizing once', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const once = sanitizeString(input);
+        const twice = sanitizeString(once);
+        expect(twice).toBe(once);
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('never returns a string longer than the input (HTML stripping may reduce length)', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const result = sanitizeString(input, { maxLength: 10_000 });
+        // After stripping HTML & trimming, output ≤ input length
+        expect(result.length).toBeLessThanOrEqual(input.length);
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('with lowercase:true, output is always lowercase', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const result = sanitizeString(input, { lowercase: true });
+        expect(result).toBe(result.toLowerCase());
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('with trim:true, output has no leading/trailing whitespace', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const result = sanitizeString(input, { trim: true });
+        expect(result).toBe(result.trim());
+      }),
+      { numRuns: 300 }
+    );
+  });
+});
+
+// ── sanitizeEmail() ────────────────────────────────────────────────────────
+
+describe('sanitizeEmail() — property-based', () => {
+  it('never throws on arbitrary input', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(() => sanitizeEmail(input)).not.toThrow();
+      }),
+      { numRuns: 500 }
+    );
+  });
+
+  it('always returns a string', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(typeof sanitizeEmail(input)).toBe('string');
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('output is always lowercase', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const result = sanitizeEmail(input);
+        expect(result).toBe(result.toLowerCase());
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('falsy input returns empty string', () => {
+    fc.assert(
+      fc.property(fc.oneof(fc.constant(null), fc.constant(undefined), fc.constant('')), (input) => {
+        expect(sanitizeEmail(input)).toBe('');
+      }),
+      { numRuns: 50 }
+    );
+  });
+});
+
+// ── sanitizeUrl() ──────────────────────────────────────────────────────────
+
+describe('sanitizeUrl() — property-based', () => {
+  it('never throws on arbitrary input', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(() => sanitizeUrl(input)).not.toThrow();
+      }),
+      { numRuns: 500 }
+    );
+  });
+
+  it('always returns a string', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(typeof sanitizeUrl(input)).toBe('string');
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('never returns a URL starting with a dangerous protocol', () => {
+    const dangerous = ['javascript:', 'vbscript:', 'data:', 'file:'];
+    fc.assert(
+      fc.property(printable, (input) => {
+        const result = sanitizeUrl(input).toLowerCase();
+        for (const proto of dangerous) {
+          expect(result.startsWith(proto)).toBe(false);
+        }
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('dangerous protocols always return empty string', () => {
+    fc.assert(
+      fc.property(
+        fc.oneof(
+          fc.constant('javascript:alert(1)'),
+          fc.constant('vbscript:msgbox(1)'),
+          fc.constant('data:text/html,<script>'),
+          fc.constant('file:///etc/passwd'),
+        ),
+        (url) => {
+          expect(sanitizeUrl(url)).toBe('');
+        }
+      ),
+      { numRuns: 20 }
+    );
+  });
+});
+
+// ── sanitizeFilename() ─────────────────────────────────────────────────────
+
+describe('sanitizeFilename() — property-based', () => {
+  it('never throws on arbitrary input', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(() => sanitizeFilename(input)).not.toThrow();
+      }),
+      { numRuns: 500 }
+    );
+  });
+
+  it('always returns a string', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(typeof sanitizeFilename(input)).toBe('string');
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('never contains path traversal sequences', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        const result = sanitizeFilename(input);
+        expect(result).not.toContain('..');
+        expect(result).not.toContain('/');
+        expect(result).not.toContain('\\');
+      }),
+      { numRuns: 300 }
+    );
+  });
+});
+
+// ── containsXss() ──────────────────────────────────────────────────────────
+
+describe('containsXss() — property-based', () => {
+  it('never throws on arbitrary input', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(() => containsXss(input as string)).not.toThrow();
+      }),
+      { numRuns: 500 }
+    );
+  });
+
+  it('always returns a boolean', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        expect(typeof containsXss(input)).toBe('boolean');
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('known XSS payloads return true', () => {
+    fc.assert(
+      fc.property(
+        fc.oneof(
+          fc.constant('<script>alert(1)</script>'),
+          fc.constant('"><img src=x onerror=alert(1)>'),
+          fc.constant('javascript:alert(1)'),
+          fc.constant('<iframe src="evil.html">'),
+        ),
+        (payload) => {
+          expect(containsXss(payload)).toBe(true);
+        }
+      ),
+      { numRuns: 20 }
+    );
+  });
+
+  it('plain text strings (no HTML) return false', () => {
+    fc.assert(
+      fc.property(
+        fc.stringMatching(/^[a-zA-Z0-9 ,.\-_@]+$/),
+        (safe) => {
+          expect(containsXss(safe)).toBe(false);
+        }
+      ),
+      { numRuns: 200 }
+    );
+  });
+});
+
+// ── containsSqlInjection() ─────────────────────────────────────────────────
+
+describe('containsSqlInjection() — property-based', () => {
+  it('never throws on arbitrary input', () => {
+    fc.assert(
+      fc.property(anyValue, (input) => {
+        expect(() => containsSqlInjection(input as string)).not.toThrow();
+      }),
+      { numRuns: 500 }
+    );
+  });
+
+  it('always returns a boolean', () => {
+    fc.assert(
+      fc.property(printable, (input) => {
+        expect(typeof containsSqlInjection(input)).toBe('boolean');
+      }),
+      { numRuns: 300 }
+    );
+  });
+
+  it('known SQLi payloads return true', () => {
+    fc.assert(
+      fc.property(
+        fc.oneof(
+          fc.constant("' OR '1'='1"),
+          fc.constant('UNION SELECT * FROM users'),
+          fc.constant('1; DROP TABLE orders'),
+          fc.constant("SELECT * FROM users WHERE name='admin'"),
+        ),
+        (payload) => {
+          expect(containsSqlInjection(payload)).toBe(true);
+        }
+      ),
+      { numRuns: 20 }
+    );
+  });
+});

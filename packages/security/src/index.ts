@@ -16,3 +16,27 @@ export {
   type AnomalyResult,
   type AnomalyLevel,
 } from './behavioral-analytics';
+
+export {
+  SiemEngine,
+  globalSiem,
+  DEFAULT_RULES,
+  type SiemEvent,
+  type SiemRule,
+  type SiemAlert,
+  type SiemEventType,
+  type AlertSeverity,
+  type RuleType,
+  type SiemEngineOptions,
+} from './siem';
+
+export {
+  encryptEnvelope,
+  decryptEnvelope,
+  decryptEnvelopeToString,
+  rotateKek,
+  deriveKey,
+  type EncryptedEnvelope,
+  type EnvelopeOptions,
+  type KeyRotationResult,
+} from './envelope-encryption';
