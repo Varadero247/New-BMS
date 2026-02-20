@@ -76,5 +76,8 @@ jobs:
       - name: Build shared packages
         run: pnpm --filter './packages/*' build
 
+      - name: Generate Prisma clients
+        run: pnpm --filter @ims/database generate:all
+
       - name: Type check
-        run: pnpm -r run build
+        run: pnpm typecheck

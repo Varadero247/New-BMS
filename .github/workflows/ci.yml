@@ -60,7 +60,7 @@ jobs:
         run: pnpm --filter @ims/database generate:all
 
       - name: Type check
-        run: pnpm tsc --noEmit
+        run: pnpm typecheck
 
   test:
     name: Test

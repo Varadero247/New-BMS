@@ -23,6 +23,7 @@
     "build": "turbo build",
     "build:packages": "turbo build --filter=./packages/*",
     "lint": "turbo lint",
+    "typecheck": "./scripts/typecheck-all.sh",
     "test": "jest",
     "test:unit": "jest",
     "test:coverage": "jest --coverage",
@@ -55,6 +56,11 @@
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=9.0.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "fast-xml-parser": ">=5.3.5"
+    }
   },
   "dependencies": {
     "docx": "^9.5.2",
