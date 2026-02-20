@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { locales, type Locale } from './index';
+import { useI18n } from './provider';
 
 const LOCALE_LABELS: Record<Locale, string> = {
   en: 'English',
@@ -17,16 +18,9 @@ const LOCALE_FLAGS: Record<Locale, string> = {
 };
 
 export function LocaleSwitcher() {
-  const [current, setCurrent] = useState<Locale>('en');
+  const { locale: current, switchLocale } = useI18n();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('ims-locale') as Locale | null;
-    if (stored && locales.includes(stored)) {
-      setCurrent(stored);
-    }
-  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -38,12 +32,9 @@ export function LocaleSwitcher() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  function switchLocale(locale: Locale) {
-    setCurrent(locale);
-    localStorage.setItem('ims-locale', locale);
+  function handleSwitch(locale: Locale) {
+    switchLocale(locale);
     setOpen(false);
-    // Reload to pick up new messages via I18nProvider
-    window.location.reload();
   }
 
   return (
@@ -104,7 +95,7 @@ export function LocaleSwitcher() {
               <button
                 role="option"
                 aria-selected={locale === current}
-                onClick={() => switchLocale(locale)}
+                onClick={() => handleSwitch(locale)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

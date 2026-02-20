@@ -173,7 +173,7 @@ describe('localStorage ims-locale contract', () => {
     });
   });
 
-  test('window.location.reload exists as a function (used by switchLocale)', () => {
+  test('window.location.reload exists as a function', () => {
     expect(typeof window.location.reload).toBe('function');
   });
 });
