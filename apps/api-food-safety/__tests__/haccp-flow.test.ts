@@ -1,0 +1,419 @@
+import express from 'express';
+import request from 'supertest';
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    fsCcp: {
+      count: jest.fn(),
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+    fsHazard: {
+      findMany: jest.fn(),
+    },
+  },
+  Prisma: { Decimal: jest.fn((v: any) => v) },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: '00000000-0000-0000-0000-000000000001', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+  AuthRequest: {},
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
+}));
+
+jest.mock('@ims/shared', () => ({
+  validateIdParam: () => (_req: any, _res: any, next: any) => next(),
+}));
+
+import haccpFlowRouter from '../src/routes/haccp-flow';
+import { prisma } from '../src/prisma';
+
+const app = express();
+app.use(express.json());
+app.use('/api/haccp-flow', haccpFlowRouter);
+
+const TEST_ID = '00000000-0000-0000-0000-000000000001';
+const NOT_FOUND_ID = '00000000-0000-0000-0000-000000000099';
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('GET /api/haccp-flow', () => {
+  it('returns 200 with list of CCPs', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: TEST_ID,
+        processStep: 'Cooking',
+        criticalLimit: '75°C',
+        monitoringMethod: 'Thermometer',
+        correctiveAction: 'Reheat',
+        verificationMethod: 'Daily check',
+        recordKeeping: 'Log sheet',
+        isActive: true,
+        hazardId: null,
+        hazard: null,
+        number: 'CCP-001',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+
+    const res = await request(app).get('/api/haccp-flow');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('returns mapped step objects with expected shape', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: TEST_ID,
+        processStep: 'Cooling',
+        criticalLimit: '< 4°C within 2h',
+        monitoringMethod: 'Probe thermometer',
+        correctiveAction: 'Discard product',
+        verificationMethod: 'Calibration check',
+        recordKeeping: 'Temp log',
+        isActive: true,
+        hazardId: null,
+        hazard: null,
+        number: 'CCP-002',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+
+    const res = await request(app).get('/api/haccp-flow');
+
+    expect(res.status).toBe(200);
+    const step = res.body.data[0];
+    expect(step).toHaveProperty('id', TEST_ID);
+    expect(step).toHaveProperty('isCCP', true);
+    expect(step).toHaveProperty('processStep', 'Cooling');
+    expect(step).toHaveProperty('criticalLimit', '< 4°C within 2h');
+    expect(step).toHaveProperty('step', 1);
+    expect(step).toHaveProperty('status', 'ACTIVE');
+  });
+
+  it('returns empty array when no CCPs exist', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/haccp-flow');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('returns 500 when findMany throws', async () => {
+    (prisma.fsCcp.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/haccp-flow');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+describe('GET /api/haccp-flow/:id', () => {
+  it('returns 200 with single CCP step', async () => {
+    (prisma.fsCcp.findFirst as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Pasteurisation',
+      criticalLimit: '72°C for 15s',
+      monitoringMethod: 'Continuous temp sensor',
+      correctiveAction: 'Divert flow',
+      verificationMethod: 'Calibration log',
+      recordKeeping: 'Chart recorder',
+      isActive: true,
+      hazardId: null,
+      hazard: null,
+      number: 'CCP-003',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const res = await request(app).get(`/api/haccp-flow/${TEST_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(TEST_ID);
+    expect(res.body.data.processStep).toBe('Pasteurisation');
+  });
+
+  it('returns 404 when CCP not found', async () => {
+    (prisma.fsCcp.findFirst as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get(`/api/haccp-flow/${NOT_FOUND_ID}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 500 when findFirst throws', async () => {
+    (prisma.fsCcp.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get(`/api/haccp-flow/${TEST_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('queries findFirst with id and deletedAt: null', async () => {
+    (prisma.fsCcp.findFirst as jest.Mock).mockResolvedValue({
+      id: TEST_ID, processStep: 'Step', criticalLimit: 'Limit',
+      monitoringMethod: 'Method', isActive: true, hazard: null,
+      number: 'CCP-001', createdAt: new Date(), updatedAt: new Date(),
+    });
+
+    await request(app).get(`/api/haccp-flow/${TEST_ID}`);
+
+    expect(prisma.fsCcp.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: TEST_ID, deletedAt: null }),
+      })
+    );
+  });
+});
+
+describe('POST /api/haccp-flow', () => {
+  it('creates a new CCP step and returns 201', async () => {
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(3);
+    (prisma.fsCcp.create as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Metal Detection',
+      criticalLimit: 'No metal > 2mm',
+      monitoringMethod: 'Metal detector',
+      correctiveAction: 'Reject product',
+      verificationMethod: 'Test pieces',
+      recordKeeping: 'Detection log',
+      isActive: true,
+      hazard: null,
+      number: 'CCP-004',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const res = await request(app).post('/api/haccp-flow').send({
+      processStep: 'Metal Detection',
+      criticalLimit: 'No metal > 2mm',
+      controlMeasures: 'Metal detector',
+      correctiveAction: 'Reject product',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.processStep).toBe('Metal Detection');
+  });
+
+  it('auto-generates a CCP number from count', async () => {
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(9);
+    (prisma.fsCcp.create as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'New Step',
+      criticalLimit: 'Limit',
+      monitoringMethod: 'Method',
+      isActive: true,
+      hazard: null,
+      number: 'CCP-010',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await request(app).post('/api/haccp-flow').send({ processStep: 'New Step' });
+
+    expect(prisma.fsCcp.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ number: 'CCP-010' }),
+      })
+    );
+  });
+
+  it('uses processStep as name when provided', async () => {
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.create as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Freezing',
+      criticalLimit: '< -18°C',
+      monitoringMethod: 'Thermometer',
+      isActive: true,
+      hazard: null,
+      number: 'CCP-001',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await request(app).post('/api/haccp-flow').send({ processStep: 'Freezing' });
+
+    expect(prisma.fsCcp.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ name: 'Freezing', processStep: 'Freezing' }),
+      })
+    );
+  });
+
+  it('returns 500 when create throws', async () => {
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/haccp-flow').send({ processStep: 'Cooking' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('PUT /api/haccp-flow/:id', () => {
+  it('updates CCP step and returns 200', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Updated Cooking',
+      criticalLimit: '80°C',
+      monitoringMethod: 'Thermometer',
+      isActive: true,
+      hazard: null,
+      number: 'CCP-001',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    const res = await request(app)
+      .put(`/api/haccp-flow/${TEST_ID}`)
+      .send({ processStep: 'Updated Cooking', criticalLimit: '80°C' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.processStep).toBe('Updated Cooking');
+  });
+
+  it('returns 404 when update target does not exist', async () => {
+    const notFoundError = Object.assign(new Error('Record not found'), { code: 'P2025' });
+    (prisma.fsCcp.update as jest.Mock).mockRejectedValue(notFoundError);
+
+    const res = await request(app)
+      .put(`/api/haccp-flow/${NOT_FOUND_ID}`)
+      .send({ processStep: 'Ghost Step' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('updates isActive when isCCP is provided', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Step',
+      criticalLimit: 'Limit',
+      monitoringMethod: 'Method',
+      isActive: false,
+      hazard: null,
+      number: 'CCP-001',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await request(app)
+      .put(`/api/haccp-flow/${TEST_ID}`)
+      .send({ isCCP: false });
+
+    expect(prisma.fsCcp.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ isActive: false }),
+      })
+    );
+  });
+
+  it('updates isActive when status is ACTIVE', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      processStep: 'Step',
+      criticalLimit: 'Limit',
+      monitoringMethod: 'Method',
+      isActive: true,
+      hazard: null,
+      number: 'CCP-001',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    await request(app)
+      .put(`/api/haccp-flow/${TEST_ID}`)
+      .send({ status: 'ACTIVE' });
+
+    expect(prisma.fsCcp.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ isActive: true }),
+      })
+    );
+  });
+
+  it('returns 500 when update throws generic error', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put(`/api/haccp-flow/${TEST_ID}`)
+      .send({ criticalLimit: '90°C' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('DELETE /api/haccp-flow/:id', () => {
+  it('soft deletes a CCP step and returns 200', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({
+      id: TEST_ID,
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete(`/api/haccp-flow/${TEST_ID}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(TEST_ID);
+  });
+
+  it('sets deletedAt on soft delete', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockResolvedValue({ id: TEST_ID, deletedAt: new Date() });
+
+    await request(app).delete(`/api/haccp-flow/${TEST_ID}`);
+
+    expect(prisma.fsCcp.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: TEST_ID },
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('returns 500 when delete target does not exist', async () => {
+    const notFoundError = Object.assign(new Error('Record not found'), { code: 'P2025' });
+    (prisma.fsCcp.update as jest.Mock).mockRejectedValue(notFoundError);
+
+    const res = await request(app).delete(`/api/haccp-flow/${NOT_FOUND_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returns 500 when update throws generic error during delete', async () => {
+    (prisma.fsCcp.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete(`/api/haccp-flow/${TEST_ID}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

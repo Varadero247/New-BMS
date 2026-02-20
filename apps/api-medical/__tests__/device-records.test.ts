@@ -1,0 +1,423 @@
+import express from 'express';
+import request from 'supertest';
+
+// ── Mocks ───────────────────────────────────────────────────────────
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    deviceHistoryRecord: {
+      count: jest.fn(),
+      findMany: jest.fn(),
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+    },
+    deviceMasterRecord: {
+      findFirst: jest.fn(),
+      create: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+  Prisma: {},
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-1', email: 'test@test.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/service-auth', () => ({
+  checkOwnership: () => (_req: any, _res: any, next: any) => next(),
+  scopeToUser: (_req: any, _res: any, next: any) => next(),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+  metricsMiddleware: () => (_req: any, _res: any, next: any) => next(),
+  metricsHandler: (_req: any, res: any) => res.json({}),
+  correlationIdMiddleware: () => (_req: any, _res: any, next: any) => next(),
+  createHealthCheck: () => (_req: any, res: any) => res.json({ status: 'ok' }),
+}));
+
+jest.mock('@ims/validation', () => ({
+  sanitizeMiddleware: () => (_req: any, _res: any, next: any) => next(),
+  sanitizeQueryMiddleware: () => (_req: any, _res: any, next: any) => next(),
+}));
+
+jest.mock('@ims/shared', () => ({
+  validateIdParam: () => (_req: any, _res: any, next: any) => next(),
+  parsePagination: (query: Record<string, any>, opts?: { defaultLimit?: number }) => {
+    const defaultLimit = opts?.defaultLimit ?? 20;
+    const page = Math.max(1, parseInt(query.page as string, 10) || 1);
+    const limit = Math.min(Math.max(1, parseInt(query.limit as string, 10) || defaultLimit), 100);
+    const skip = (page - 1) * limit;
+    return { page, limit, skip };
+  },
+}));
+
+import { prisma } from '../src/prisma';
+import deviceRecordsRouter from '../src/routes/device-records';
+
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+// ── Test data ────────────────────────────────────────────────────────
+
+const RECORD_ID = '00000000-0000-0000-0000-000000000001';
+const DMR_ID = '00000000-0000-0000-0000-000000000002';
+
+const mockDmr = {
+  id: DMR_ID,
+  refNumber: 'DMR-2602-0001',
+  deviceName: 'Cardiac Sensor A1',
+  deviceId: 'MODEL-A1',
+  deviceClass: 'CLASS_II',
+  status: 'ACTIVE',
+  createdBy: 'test@test.com',
+  deletedAt: null,
+  createdAt: new Date('2026-01-01'),
+  updatedAt: new Date('2026-01-01'),
+};
+
+const mockRecord = {
+  id: RECORD_ID,
+  refNumber: 'DHR-2602-0001',
+  dmrId: DMR_ID,
+  batchNumber: 'LOT-001',
+  primaryId: 'SN-001',
+  manufacturingDate: new Date('2026-01-15'),
+  releaseDate: new Date('2026-01-20'),
+  releasedBy: 'inspector@test.com',
+  status: 'RELEASED',
+  quantityManufactured: 1,
+  createdBy: 'test@test.com',
+  deletedAt: null,
+  createdAt: new Date('2026-01-15'),
+  updatedAt: new Date('2026-01-15'),
+  dmr: mockDmr,
+  productionRecords: [],
+};
+
+describe('Device Records API Routes', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/device-records', deviceRecordsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // ── GET /api/device-records ──────────────────────────────────────────
+  describe('GET /api/device-records', () => {
+    it('should return 200 with paginated list of device records', async () => {
+      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([mockRecord]);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app).get('/api/device-records');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0].dhrNumber).toBe('DHR-2602-0001');
+      expect(response.body.data[0].deviceName).toBe('Cardiac Sensor A1');
+    });
+
+    it('should return 200 with empty list when no records exist', async () => {
+      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app).get('/api/device-records');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveLength(0);
+      expect(response.body.total).toBe(0);
+    });
+
+    it('should apply status filter to findMany query', async () => {
+      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([mockRecord]);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app).get('/api/device-records?status=RELEASED');
+
+      expect(response.status).toBe(200);
+      expect(mockPrisma.deviceHistoryRecord.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: 'RELEASED', deletedAt: null }),
+        })
+      );
+    });
+
+    it('should filter by search term on client side', async () => {
+      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([mockRecord]);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app).get('/api/device-records?search=cardiac');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(1);
+    });
+
+    it('should return correct mapped fields', async () => {
+      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([mockRecord]);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app).get('/api/device-records');
+
+      expect(response.status).toBe(200);
+      const item = response.body.data[0];
+      expect(item).toHaveProperty('id', RECORD_ID);
+      expect(item).toHaveProperty('dhrNumber', 'DHR-2602-0001');
+      expect(item).toHaveProperty('deviceName', 'Cardiac Sensor A1');
+      expect(item).toHaveProperty('serialNumber', 'SN-001');
+      expect(item).toHaveProperty('lotNumber', 'LOT-001');
+      expect(item).toHaveProperty('status', 'RELEASED');
+      expect(item).toHaveProperty('deviceClass', 'CLASS_II');
+    });
+
+    it('should support pagination parameters', async () => {
+      (mockPrisma.deviceHistoryRecord.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(50);
+
+      const response = await request(app).get('/api/device-records?page=2&limit=10');
+
+      expect(response.status).toBe(200);
+      expect(mockPrisma.deviceHistoryRecord.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 10, take: 10 })
+      );
+    });
+  });
+
+  // ── GET /api/device-records/:id ──────────────────────────────────────
+  describe('GET /api/device-records/:id', () => {
+    it('should return 200 with single device record', async () => {
+      (mockPrisma.deviceHistoryRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockRecord);
+
+      const response = await request(app).get(`/api/device-records/${RECORD_ID}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.id).toBe(RECORD_ID);
+      expect(response.body.data.refNumber).toBe('DHR-2602-0001');
+    });
+
+    it('should return 404 when record not found', async () => {
+      (mockPrisma.deviceHistoryRecord.findFirst as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app).get(`/api/device-records/${RECORD_ID}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('should query with deletedAt null filter', async () => {
+      (mockPrisma.deviceHistoryRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockRecord);
+
+      await request(app).get(`/api/device-records/${RECORD_ID}`);
+
+      expect(mockPrisma.deviceHistoryRecord.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: RECORD_ID, deletedAt: null },
+        })
+      );
+    });
+  });
+
+  // ── POST /api/device-records ──────────────────────────────────────────
+  describe('POST /api/device-records', () => {
+    const newRecordBody = {
+      deviceName: 'Cardiac Sensor A1',
+      deviceModel: 'MODEL-A1',
+      serialNumber: 'SN-NEW-001',
+      lotNumber: 'LOT-NEW-001',
+      status: 'IN_PRODUCTION',
+      deviceClass: 'CLASS_II',
+      manufactureDate: '2026-02-01',
+      owner: 'engineer@test.com',
+    };
+
+    it('should create device history record using existing DMR and return 201', async () => {
+      (mockPrisma.deviceMasterRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockDmr);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRecord,
+        dmr: mockDmr,
+      });
+
+      const response = await request(app)
+        .post('/api/device-records')
+        .send(newRecordBody);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toHaveProperty('dhrNumber');
+      expect(response.body.data).toHaveProperty('deviceName', 'Cardiac Sensor A1');
+      expect(mockPrisma.deviceMasterRecord.create).not.toHaveBeenCalled();
+    });
+
+    it('should create new DMR when none found and return 201', async () => {
+      (mockPrisma.deviceMasterRecord.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.deviceMasterRecord.create as jest.Mock).mockResolvedValueOnce(mockDmr);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRecord,
+        dmr: mockDmr,
+      });
+
+      const response = await request(app)
+        .post('/api/device-records')
+        .send(newRecordBody);
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(mockPrisma.deviceMasterRecord.create).toHaveBeenCalledTimes(1);
+      expect(mockPrisma.deviceHistoryRecord.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('should create DHR with correct data fields', async () => {
+      (mockPrisma.deviceMasterRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockDmr);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(5);
+      (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRecord,
+        dmr: mockDmr,
+      });
+
+      await request(app).post('/api/device-records').send(newRecordBody);
+
+      expect(mockPrisma.deviceHistoryRecord.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            dmrId: DMR_ID,
+            status: 'IN_PRODUCTION',
+            primaryId: 'SN-NEW-001',
+            batchNumber: 'LOT-NEW-001',
+            createdBy: 'test@test.com',
+          }),
+        })
+      );
+    });
+
+    it('should use defaults when optional fields are missing', async () => {
+      (mockPrisma.deviceMasterRecord.findFirst as jest.Mock).mockResolvedValueOnce(mockDmr);
+      (mockPrisma.deviceHistoryRecord.count as jest.Mock).mockResolvedValueOnce(0);
+      (mockPrisma.deviceHistoryRecord.create as jest.Mock).mockResolvedValueOnce({
+        ...mockRecord,
+        dmr: mockDmr,
+      });
+
+      const response = await request(app)
+        .post('/api/device-records')
+        .send({ deviceName: 'Generic Device' });
+
+      expect(response.status).toBe(201);
+      expect(mockPrisma.deviceHistoryRecord.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: 'IN_PRODUCTION',
+          }),
+        })
+      );
+    });
+  });
+
+  // ── PUT /api/device-records/:id ──────────────────────────────────────
+  describe('PUT /api/device-records/:id', () => {
+    it('should update device record and return 200', async () => {
+      const updatedRecord = { ...mockRecord, status: 'RELEASED', dmr: mockDmr };
+      (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce(updatedRecord);
+
+      const response = await request(app)
+        .put(`/api/device-records/${RECORD_ID}`)
+        .send({ status: 'RELEASED', owner: 'qc@test.com' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.status).toBe('RELEASED');
+    });
+
+    it('should call update with correct id and data', async () => {
+      const updatedRecord = { ...mockRecord, batchNumber: 'LOT-UPDATED', dmr: mockDmr };
+      (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce(updatedRecord);
+
+      await request(app)
+        .put(`/api/device-records/${RECORD_ID}`)
+        .send({ lotNumber: 'LOT-UPDATED' });
+
+      expect(mockPrisma.deviceHistoryRecord.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: RECORD_ID },
+          data: expect.objectContaining({ batchNumber: 'LOT-UPDATED' }),
+        })
+      );
+    });
+
+    it('should return 500 when Prisma update throws', async () => {
+      (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockRejectedValueOnce(
+        new Error('Record to update not found')
+      );
+
+      const response = await request(app)
+        .put(`/api/device-records/${RECORD_ID}`)
+        .send({ status: 'RELEASED' });
+
+      expect(response.status).toBe(500);
+      expect(response.body.success).toBe(false);
+    });
+  });
+
+  // ── DELETE /api/device-records/:id ───────────────────────────────────
+  describe('DELETE /api/device-records/:id', () => {
+    it('should soft delete device record and return 200', async () => {
+      (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({
+        ...mockRecord,
+        deletedAt: new Date(),
+      });
+
+      const response = await request(app).delete(`/api/device-records/${RECORD_ID}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.id).toBe(RECORD_ID);
+    });
+
+    it('should call update with deletedAt set', async () => {
+      (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockResolvedValueOnce({
+        ...mockRecord,
+        deletedAt: new Date(),
+      });
+
+      await request(app).delete(`/api/device-records/${RECORD_ID}`);
+
+      expect(mockPrisma.deviceHistoryRecord.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: RECORD_ID },
+          data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+        })
+      );
+    });
+
+    it('should return 500 when Prisma update throws', async () => {
+      (mockPrisma.deviceHistoryRecord.update as jest.Mock).mockRejectedValueOnce(
+        new Error('Record to delete not found')
+      );
+
+      const response = await request(app).delete(`/api/device-records/${RECORD_ID}`);
+
+      expect(response.status).toBe(500);
+      expect(response.body.success).toBe(false);
+    });
+  });
+});

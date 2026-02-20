@@ -1,0 +1,303 @@
+import express from 'express';
+import request from 'supertest';
+
+// Mock dependencies BEFORE importing any modules that use them
+
+jest.mock('../src/prisma', () => ({
+  prisma: {
+    crmDeal: {
+      findMany: jest.fn(),
+      update: jest.fn(),
+      count: jest.fn(),
+    },
+  },
+}));
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((req: any, _res: any, next: any) => {
+    req.user = { id: 'user-1', email: 't@t.com', role: 'ADMIN' };
+    next();
+  }),
+}));
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: () => ({
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+  }),
+  metricsMiddleware: jest.fn((_: any, __: any, next: any) => next()),
+  correlationIdMiddleware: jest.fn((_: any, __: any, next: any) => next()),
+  createHealthCheck: jest.fn(),
+}));
+
+jest.mock('@ims/shared', () => ({
+  validateIdParam: () => (_req: any, _res: any, next: any) => next(),
+}));
+
+import forecastRouter from '../src/routes/forecast';
+import { prisma } from '../src/prisma';
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
+
+const app = express();
+app.use(express.json());
+app.use('/api/forecast', forecastRouter);
+
+const ID1 = '00000000-0000-0000-0000-000000000001';
+const ID2 = '00000000-0000-0000-0000-000000000002';
+const ID3 = '00000000-0000-0000-0000-000000000003';
+
+const makeDeal = (id: string, probability: number, value: number) => ({
+  id,
+  title: `Deal ${id}`,
+  value,
+  probability,
+  expectedCloseDate: new Date('2026-06-30'),
+  stage: { name: 'Proposal' },
+  assignedTo: 'user-1',
+});
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+// ─── GET / ───────────────────────────────────────────────────────────────────
+
+describe('GET /api/forecast', () => {
+  it('returns 200 with pipeline forecast data for open deals', async () => {
+    const deals = [
+      makeDeal(ID1, 80, 10000),
+      makeDeal(ID2, 50, 20000),
+      makeDeal(ID3, 30, 5000),
+    ];
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue(deals);
+
+    const res = await request(app).get('/api/forecast');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('includes weighted values computed from probability and deal value', async () => {
+    const deals = [makeDeal(ID1, 80, 10000)];
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue(deals);
+
+    const res = await request(app).get('/api/forecast');
+
+    expect(res.status).toBe(200);
+    const item = res.body.data[0];
+    expect(item.weightedValue).toBe(8000); // 10000 * 0.80
+    expect(item.probability).toBe(80);
+    expect(item.value).toBe(10000);
+  });
+
+  it('includes stage name from nested stage object', async () => {
+    const deals = [makeDeal(ID1, 60, 5000)];
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue(deals);
+
+    const res = await request(app).get('/api/forecast');
+
+    expect(res.body.data[0].stage).toBe('Proposal');
+  });
+
+  it('falls back to "Unknown" stage when stage is null', async () => {
+    const deal = { ...makeDeal(ID1, 60, 5000), stage: null };
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([deal]);
+
+    const res = await request(app).get('/api/forecast');
+
+    expect(res.body.data[0].stage).toBe('Unknown');
+  });
+
+  it('returns 200 with empty array when no open deals exist', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/forecast');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('returns correct id, title, assignedTo fields in each forecast item', async () => {
+    const deals = [makeDeal(ID1, 70, 15000)];
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockResolvedValue(deals);
+
+    const res = await request(app).get('/api/forecast');
+
+    const item = res.body.data[0];
+    expect(item.id).toBe(ID1);
+    expect(item.title).toBe(`Deal ${ID1}`);
+    expect(item.assignedTo).toBe('user-1');
+  });
+
+  it('returns 500 when database throws', async () => {
+    (mockPrisma.crmDeal.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/forecast');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── POST / ──────────────────────────────────────────────────────────────────
+
+describe('POST /api/forecast', () => {
+  it('returns 200 when updating deal probability', async () => {
+    const updated = { id: ID1, probability: 75 };
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue(updated);
+
+    const res = await request(app)
+      .post('/api/forecast')
+      .send({ dealId: ID1, probability: 75 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.probability).toBe(75);
+  });
+
+  it('clamps probability to 100 max', async () => {
+    const updated = { id: ID1, probability: 100 };
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue(updated);
+
+    const res = await request(app)
+      .post('/api/forecast')
+      .send({ dealId: ID1, probability: 150 });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { probability: 100 } }),
+    );
+  });
+
+  it('clamps probability to 0 min', async () => {
+    const updated = { id: ID1, probability: 0 };
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue(updated);
+
+    const res = await request(app)
+      .post('/api/forecast')
+      .send({ dealId: ID1, probability: -20 });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { probability: 0 } }),
+    );
+  });
+
+  it('returns 400 when dealId is missing', async () => {
+    const res = await request(app)
+      .post('/api/forecast')
+      .send({ probability: 70 });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 500 when update throws', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .post('/api/forecast')
+      .send({ dealId: ID1, probability: 60 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── PUT /:id ─────────────────────────────────────────────────────────────────
+
+describe('PUT /api/forecast/:id', () => {
+  it('returns 200 when updating deal probability by id', async () => {
+    const updated = { id: ID1, probability: 65 };
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue(updated);
+
+    const res = await request(app)
+      .put(`/api/forecast/${ID1}`)
+      .send({ probability: 65 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(ID1);
+  });
+
+  it('calls update with correct where clause containing the id', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID1 });
+
+    await request(app).put(`/api/forecast/${ID1}`).send({ probability: 50 });
+
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: ID1 } }),
+    );
+  });
+
+  it('defaults probability to 50 when not supplied', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID1, probability: 50 });
+
+    await request(app).put(`/api/forecast/${ID1}`).send({});
+
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { probability: 50 } }),
+    );
+  });
+
+  it('returns 500 when update throws', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).put(`/api/forecast/${ID1}`).send({ probability: 40 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── DELETE /:id ──────────────────────────────────────────────────────────────
+
+describe('DELETE /api/forecast/:id', () => {
+  it('returns 200 when marking deal as LOST', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID1, status: 'LOST' });
+
+    const res = await request(app).delete(`/api/forecast/${ID1}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe(ID1);
+  });
+
+  it('calls update with status LOST', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockResolvedValue({ id: ID1 });
+
+    await request(app).delete(`/api/forecast/${ID1}`);
+
+    expect(mockPrisma.crmDeal.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: ID1 },
+        data: { status: 'LOST' },
+      }),
+    );
+  });
+
+  it('returns 500 when update throws P2025 (deal not found)', async () => {
+    const err = Object.assign(new Error('Record not found'), { code: 'P2025' });
+    (mockPrisma.crmDeal.update as jest.Mock).mockRejectedValue(err);
+
+    const res = await request(app).delete(`/api/forecast/${ID1}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('returns 500 when update throws a generic error', async () => {
+    (mockPrisma.crmDeal.update as jest.Mock).mockRejectedValue(new Error('Connection lost'));
+
+    const res = await request(app).delete(`/api/forecast/${ID1}`);
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
