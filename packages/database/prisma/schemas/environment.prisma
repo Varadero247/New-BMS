@@ -307,6 +307,8 @@ model EnvMilestone {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
+  createdBy     String?
+  updatedBy     String?
   objective     EnvObjective @relation(fields: [objectiveId], references: [id], onDelete: Cascade)
 
   @@index([objectiveId])
@@ -482,6 +484,8 @@ model EnvCapaAction {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
+  createdBy     String?
+  updatedBy     String?
   capa        EnvCapa  @relation(fields: [capaId], references: [id], onDelete: Cascade)
 
   @@index([capaId])
@@ -532,6 +536,7 @@ model EnvAudit {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
+  updatedBy       String?
 
   @@index([tenantId, status])
   @@index([tenantId, auditDate])
@@ -558,6 +563,9 @@ model EnvAuditFinding {
   closedDate      DateTime?
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   audit       EnvAudit            @relation(fields: [auditId], references: [id], onDelete: Cascade)
 
@@ -585,6 +593,9 @@ model EnvAuditSchedule {
   isActive      Boolean   @default(true)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+  createdBy     String?
+  updatedBy     String?
 
   @@index([tenantId, nextDueDate])
   @@index([isActive])
@@ -624,6 +635,7 @@ model EnvManagementReview {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
+  updatedBy             String?
 
   @@index([tenantId, status])
   @@index([reviewDate])
@@ -644,6 +656,9 @@ model EnvMRAction {
   completedAt DateTime?
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
+  deletedAt   DateTime?
+  createdBy   String?
+  updatedBy   String?
 
   review      EnvManagementReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
@@ -676,6 +691,10 @@ model MonitoringData {
   calibrationDate        DateTime?
   notes                  String?
   createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  deletedAt              DateTime?
+  createdBy              String?
+  updatedBy              String?
 
   @@index([monitoringPoint])
   @@index([parameter])
@@ -712,6 +731,9 @@ model WasteRecord {
   generatedDate   DateTime @default(now())
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   @@index([wasteType])
   @@index([status])
@@ -751,6 +773,9 @@ model EnvironmentalMetric {
   carbonIntensity     Decimal? @db.Decimal(14, 4)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  deletedAt           DateTime?
+  createdBy           String?
+  updatedBy           String?
 
   @@unique([year, month])
   @@index([orgId])
@@ -1149,6 +1174,7 @@ model EnvEmergencyPlan {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
+  updatedBy       String?
 
   @@index([tenantId, status])
   @@index([orgId])
@@ -1170,6 +1196,9 @@ model EnvEmergencyDrill {
   conductedBy     String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   plan            EnvEmergencyPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
 
@@ -1196,6 +1225,8 @@ model EnvEmergencyIncident {
   createdBy       String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  updatedBy       String?
 
   @@index([tenantId, status])
   @@index([orgId])
@@ -1241,6 +1272,7 @@ model LifeCycleAssessment {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
+  updatedBy       String?
 
   @@index([tenantId, status])
   @@index([orgId])
@@ -1261,6 +1293,9 @@ model LifeCycleStage {
   notes           String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  createdBy       String?
+  updatedBy       String?
 
   assessment      LifeCycleAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
 
@@ -1306,6 +1341,8 @@ model EsgMetric {
   createdBy       String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+  updatedBy       String?
 
   @@index([tenantId, category])
   @@index([period])
@@ -1334,6 +1371,7 @@ model EsgTarget {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
+  updatedBy       String?
 
   @@index([tenantId, category])
   @@index([status])
@@ -1399,6 +1437,7 @@ model EnvCommunication {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
+  updatedBy       String?
 
   @@index([tenantId, direction])
   @@index([status])
@@ -1484,6 +1523,7 @@ model EnvTraining {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   deletedAt       DateTime?
+  updatedBy       String?
 
   @@index([tenantId, deletedAt])
   @@index([status])

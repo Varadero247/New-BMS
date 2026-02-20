@@ -1,9 +1,20 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from 'react';
-import { Chart, registerables } from 'chart.js';
+import {
+  Chart,
+  DoughnutController,
+  ArcElement,
+  BarController,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Title,
+  Tooltip,
+} from 'chart.js';
 
-Chart.register(...registerables);
+Chart.register(DoughnutController, ArcElement, BarController, BarElement, CategoryScale, LinearScale, Legend, Title, Tooltip);
 
 interface COQCategory {
   category: string;

@@ -3,6 +3,7 @@ export {
   AuditAction,
   AuditEntity,
   SENSITIVE_FIELDS,
+  redactFields,
   type AuditLogEntry,
   type AuditLogQueryOptions,
   type AuditLogResult,

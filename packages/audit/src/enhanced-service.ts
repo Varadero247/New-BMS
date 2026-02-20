@@ -7,8 +7,23 @@ import {
   type ChangeDetail,
   type EnhancedAuditEntry,
 } from '@ims/esig';
+import { SENSITIVE_FIELDS } from './types';
 
 const logger = createLogger('audit-enhanced');
+
+/**
+ * Redact sensitive field values from a ChangeDetail array.
+ * If the field name matches SENSITIVE_FIELDS, both oldValue and newValue
+ * are replaced with '[REDACTED]' before storage.
+ */
+function redactChanges(changes: ChangeDetail[]): ChangeDetail[] {
+  return changes.map((change) => {
+    if (SENSITIVE_FIELDS.some((field) => change.field.toLowerCase().includes(field.toLowerCase()))) {
+      return { ...change, oldValue: '[REDACTED]', newValue: '[REDACTED]' };
+    }
+    return change;
+  });
+}
 
 export interface EnhancedAuditCreateParams {
   tenantId?: string;
@@ -62,12 +77,14 @@ export class EnhancedAuditService {
   async createEntry(params: EnhancedAuditCreateParams): Promise<string | null> {
     try {
       const now = new Date();
+      // Redact sensitive field values before checksum and storage
+      const safeChanges = redactChanges(params.changes);
       const checksum = computeAuditChecksum({
         userId: params.userId,
         action: params.action,
         resourceId: params.resourceId,
         timestamp: now,
-        changes: params.changes,
+        changes: safeChanges,
       });
 
       const entry = await this.prisma.enhancedAuditTrail.create({
@@ -80,7 +97,7 @@ export class EnhancedAuditService {
           resourceType: params.resourceType,
           resourceId: params.resourceId,
           resourceRef: params.resourceRef,
-          changes: params.changes as unknown as object,
+          changes: safeChanges as unknown as object,
           ipAddress: params.ipAddress,
           userAgent: params.userAgent,
           sessionId: params.sessionId || '',

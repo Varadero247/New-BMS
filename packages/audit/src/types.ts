@@ -162,3 +162,34 @@ export const SENSITIVE_FIELDS = [
   'emergencyContact',
   'bankDetails',
 ];
+
+/**
+ * Redact sensitive fields from a data object before writing to audit logs.
+ *
+ * Uses SENSITIVE_FIELDS with case-insensitive substring matching so variants
+ * like "passwordHash", "bankAccountNumber", "refreshToken" are all caught.
+ * Recursively handles nested objects and arrays.
+ *
+ * GDPR Article 5(1)(f) / CWE-532 — prevents PII leakage into audit trails.
+ */
+export function redactFields(data: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    if (SENSITIVE_FIELDS.some((field) => key.toLowerCase().includes(field.toLowerCase()))) {
+      result[key] = '[REDACTED]';
+    } else if (value && typeof value === 'object' && !Array.isArray(value)) {
+      result[key] = redactFields(value as Record<string, unknown>);
+    } else if (Array.isArray(value)) {
+      result[key] = value.map((item) =>
+        typeof item === 'object' && item !== null
+          ? redactFields(item as Record<string, unknown>)
+          : item
+      );
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
+}

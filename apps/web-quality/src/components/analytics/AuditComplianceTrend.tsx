@@ -1,9 +1,22 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Chart, registerables } from 'chart.js';
+import {
+  Chart,
+  LineController,
+  LineElement,
+  BarController,
+  BarElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Title,
+  Tooltip,
+  Filler,
+} from 'chart.js';
 
-Chart.register(...registerables);
+Chart.register(LineController, LineElement, BarController, BarElement, PointElement, CategoryScale, LinearScale, Legend, Title, Tooltip, Filler);
 
 interface ComplianceDataPoint {
   period: string;

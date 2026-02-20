@@ -120,6 +120,49 @@ export function requireRole(...roles: string[]) {
 }
 
 /**
+ * Protect write operations (POST/PUT/PATCH/DELETE) by requiring specific roles.
+ *
+ * This middleware:
+ * - Allows GET/HEAD/OPTIONS through unconditionally (individual routes still call authenticate)
+ * - On write methods, authenticates the request and checks the user's role
+ *
+ * Usage in service index.ts (before route registrations):
+ *   app.use('/api', writeRoleGuard('ADMIN', 'MANAGER'));
+ */
+export function writeRoleGuard(...allowedRoles: string[]) {
+  const WRITE_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!WRITE_METHODS.has(req.method)) {
+      next();
+      return;
+    }
+
+    // Authenticate the request to populate req.user
+    await new Promise<void>((resolve) => {
+      authenticate(req, res, () => resolve());
+    }).catch(() => {
+      // authenticate already sent a 401 response
+    });
+
+    // If authenticate sent a response (user not authenticated), stop here
+    if (res.headersSent) return;
+
+    // Check the user's role
+    const authReq = req as AuthRequest;
+    if (!authReq.user || !allowedRoles.includes(authReq.user.role)) {
+      res.status(403).json({
+        success: false,
+        error: { code: 'FORBIDDEN', message: 'Insufficient permissions for write operations' },
+      });
+      return;
+    }
+
+    next();
+  };
+}
+
+/**
  * Optional authentication - doesn't fail if no token provided
  */
 export function optionalAuth(req: Request, res: Response, next: NextFunction): void {

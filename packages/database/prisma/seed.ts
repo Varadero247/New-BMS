@@ -18,10 +18,18 @@ import * as bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'Seed script must not be run in production. Provision admin credentials via environment variables.'
+    );
+  }
+
   console.log('🌱 Starting database seed...');
 
-  // Create admin user
-  const hashedPassword = await bcrypt.hash('admin123', 12);
+  // Create admin user — development/test only. admin123 is intentionally weak to enable easy setup.
+  // In staging/production, provision admin credentials via ADMIN_EMAIL/ADMIN_PASSWORD env vars.
+  const seedPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123';
+  const hashedPassword = await bcrypt.hash(seedPassword, 12);
 
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@ims.local' },

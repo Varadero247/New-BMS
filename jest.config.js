@@ -48,6 +48,7 @@ module.exports = {
     // Web apps
     '<rootDir>/apps/web-dashboard',
     // Shared packages
+    '<rootDir>/packages/shared',
     '<rootDir>/packages/audit',
     '<rootDir>/packages/auth',
     '<rootDir>/packages/automation-rules',

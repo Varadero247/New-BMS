@@ -1,5 +1,5 @@
 import { PrismaClient } from '@ims/database';
-import { AuditLogEntry, AuditLogQueryOptions, AuditLogResult, SENSITIVE_FIELDS } from './types';
+import { AuditLogEntry, AuditLogQueryOptions, AuditLogResult, redactFields } from './types';
 import { createLogger } from '@ims/monitoring';
 
 const logger = createLogger('audit');
@@ -251,7 +251,7 @@ export class AuditService {
   }
 
   /**
-   * Redact sensitive fields from data
+   * Redact sensitive fields from data using the shared redactFields utility.
    */
   private redactSensitive(
     data: Record<string, unknown> | undefined
@@ -259,30 +259,7 @@ export class AuditService {
     if (!data || !this.redactSensitiveFields) {
       return data;
     }
-
-    return this.redactObject(data);
-  }
-
-  private redactObject(obj: Record<string, unknown>): Record<string, unknown> {
-    const result: Record<string, unknown> = {};
-
-    for (const [key, value] of Object.entries(obj)) {
-      if (SENSITIVE_FIELDS.some((field) => key.toLowerCase().includes(field.toLowerCase()))) {
-        result[key] = '[REDACTED]';
-      } else if (value && typeof value === 'object' && !Array.isArray(value)) {
-        result[key] = this.redactObject(value as Record<string, unknown>);
-      } else if (Array.isArray(value)) {
-        result[key] = value.map((item) =>
-          typeof item === 'object' && item !== null
-            ? this.redactObject(item as Record<string, unknown>)
-            : item
-        );
-      } else {
-        result[key] = value;
-      }
-    }
-
-    return result;
+    return redactFields(data);
   }
 }
 

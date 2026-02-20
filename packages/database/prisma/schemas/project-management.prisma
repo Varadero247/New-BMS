@@ -24,7 +24,7 @@ model Project {
   projectCode              String    @unique
   projectName              String
   projectDescription       String?   @db.Text
-  projectType              String    // INTERNAL, CLIENT, R_D, IMPROVEMENT, COMPLIANCE
+  projectType              ProjectType
 
   // Business Case
   businessCase             String?   @db.Text
@@ -69,15 +69,15 @@ model Project {
   teamMembers              String?   @db.Text
 
   // Methodology
-  methodology              String    @default("WATERFALL")
+  methodology              ProjectMethodology @default(WATERFALL)
 
   // Status
-  status                   String    @default("PLANNING")
-  healthStatus             String    @default("GREEN")
+  status                   PmProjectStatus @default(PLANNING)
+  healthStatus             ProjectHealthStatus @default(GREEN)
   progressPercentage       Int       @default(0)
 
   // Priority
-  priority                 String    @default("MEDIUM")
+  priority                 ProjectPriority @default(MEDIUM)
 
   // Quality
   qualityScore             Float?
@@ -155,7 +155,7 @@ model ProjectTask {
   sortOrder          Int       @default(0)
 
   // Task Type
-  taskType           String    @default("TASK")
+  taskType           TaskType  @default(TASK)
 
   // Assignment
   assignedToId       String?
@@ -190,7 +190,7 @@ model ProjectTask {
 
   // Progress
   progressPercentage Int       @default(0)
-  status             String    @default("NOT_STARTED")
+  status             TaskStatus @default(NOT_STARTED)
 
   // Budget
   plannedCost        Float?
@@ -202,7 +202,7 @@ model ProjectTask {
   defectCount        Int       @default(0)
 
   // Priority
-  priority           String    @default("MEDIUM")
+  priority           ProjectPriority @default(MEDIUM)
 
   // Tags
   tags               String?   @db.Text
@@ -210,6 +210,8 @@ model ProjectTask {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
+  createdBy          String?
+  updatedBy          String?
 
   timesheets         ProjectTimesheet[]
 
@@ -250,12 +252,12 @@ model ProjectMilestone {
 
   // Approval
   requiresApproval      Boolean   @default(true)
-  approvalStatus        String    @default("PENDING")
+  approvalStatus        PmApprovalStatus @default(PENDING)
   approvedBy            String?
   approvedAt            DateTime?
 
   // Status
-  status                String    @default("UPCOMING")
+  status                PmMilestoneStatus @default(UPCOMING)
   achievementPercentage Int       @default(0)
 
   // Critical
@@ -264,6 +266,8 @@ model ProjectMilestone {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
+  createdBy             String?
+  updatedBy             String?
 
   @@index([projectId, status])
   @@index([projectId])
@@ -290,7 +294,7 @@ model ProjectRisk {
   riskCode              String
   riskTitle             String
   riskDescription       String    @db.Text
-  riskCategory          String
+  riskCategory          PmRiskCategory
   riskTrigger           String?   @db.Text
 
   // Risk Analysis (Qualitative)
@@ -313,7 +317,7 @@ model ProjectRisk {
   contingencyPlan       String?   @db.Text
 
   // Status
-  status                String    @default("IDENTIFIED")
+  status                PmRiskStatus @default(IDENTIFIED)
 
   // Monitoring
   residualProbability   Int?
@@ -330,6 +334,8 @@ model ProjectRisk {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
+  createdBy             String?
+  updatedBy             String?
 
   @@unique([projectId, riskCode])
   @@index([projectId, status])
@@ -356,12 +362,12 @@ model ProjectIssue {
   issueCode             String
   issueTitle            String
   issueDescription      String    @db.Text
-  issueType             String
+  issueType             PmIssueType
 
   // Categorization
   category              String?
-  severity              String    @default("MEDIUM")
-  priority              String    @default("MEDIUM")
+  severity              ProjectPriority @default(MEDIUM)
+  priority              ProjectPriority @default(MEDIUM)
 
   // Assignment
   reportedBy            String?
@@ -373,7 +379,7 @@ model ProjectIssue {
   actualResolutionDate  DateTime?
 
   // Status
-  status                String    @default("OPEN")
+  status                PmIssueStatus @default(OPEN)
 
   // Resolution
   resolutionDescription String?   @db.Text
@@ -393,6 +399,8 @@ model ProjectIssue {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
+  createdBy             String?
+  updatedBy             String?
 
   @@unique([projectId, issueCode])
   @@index([projectId, status])
@@ -421,7 +429,7 @@ model ProjectChange {
   changeTitle         String
   changeDescription   String    @db.Text
   changeReason        String    @db.Text
-  changeType          String
+  changeType          PmChangeType
 
   // Requestor
   requestedBy         String?
@@ -439,7 +447,7 @@ model ProjectChange {
   benefits            String?   @db.Text
 
   // Approval Workflow
-  status              String    @default("SUBMITTED")
+  status              PmChangeStatus @default(SUBMITTED)
   reviewedBy          String?
   reviewedAt          DateTime?
   reviewerComments    String?   @db.Text
@@ -454,12 +462,14 @@ model ProjectChange {
   implementedAt       DateTime?
 
   // Priority
-  priority            String    @default("MEDIUM")
-  urgency             String    @default("NORMAL")
+  priority            ProjectPriority @default(MEDIUM)
+  urgency             ChangeUrgency @default(NORMAL)
 
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
   deletedAt           DateTime?
+  createdBy           String?
+  updatedBy           String?
 
   @@unique([projectId, changeCode])
   @@index([projectId, status])
@@ -483,13 +493,13 @@ model ProjectResource {
   project               Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Resource Details
-  resourceType          String
+  resourceType          ResourceType
   resourceId            String?
   resourceName          String
   resourceRole          String?
 
   // RACI
-  responsibility        String    @default("RESPONSIBLE")
+  responsibility        RaciRole  @default(RESPONSIBLE)
 
   // Allocation
   allocationPercentage  Int       @default(100)
@@ -507,11 +517,13 @@ model ProjectResource {
   remainingHours        Float?
   utilization           Float?
 
-  status                String    @default("ASSIGNED")
+  status                ResourceStatus @default(ASSIGNED)
 
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
+  createdBy             String?
+  updatedBy             String?
 
   @@index([projectId, status])
   @@index([projectId])
@@ -537,7 +549,7 @@ model ProjectStakeholder {
   stakeholderName        String
   stakeholderOrg         String?
   stakeholderRole        String
-  stakeholderType        String
+  stakeholderType        StakeholderType
 
   // Contact
   email                  String?
@@ -549,23 +561,25 @@ model ProjectStakeholder {
   stakeholderCategory    String
 
   // Engagement
-  currentEngagement      String    @default("NEUTRAL")
-  desiredEngagement      String    @default("SUPPORTIVE")
+  currentEngagement      EngagementLevel @default(NEUTRAL)
+  desiredEngagement      EngagementLevel @default(SUPPORTIVE)
   engagementStrategy     String?   @db.Text
 
   // Communication
-  communicationFrequency String    @default("MONTHLY")
+  communicationFrequency CommunicationFrequency @default(MONTHLY)
   communicationMethod    String?
 
   // Requirements & Expectations
   requirements           String?   @db.Text
   expectations           String?   @db.Text
 
-  status                 String    @default("ACTIVE")
+  status                 StakeholderStatus @default(ACTIVE)
 
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
   deletedAt              DateTime?
+  createdBy              String?
+  updatedBy              String?
 
   @@index([projectId])
   @@index([status])
@@ -589,12 +603,12 @@ model ProjectDocument {
   // Document Details
   documentCode      String
   documentTitle     String
-  documentType      String
+  documentType      PmDocumentType
   documentCategory  String?
 
   // Version Control
   version           String    @default("1.0")
-  status            String    @default("DRAFT")
+  status            PmDocumentStatus @default(DRAFT)
 
   // File
   fileUrl           String?
@@ -612,7 +626,7 @@ model ProjectDocument {
   approvedAt        DateTime?
 
   // Access Control
-  accessLevel       String    @default("PROJECT_TEAM")
+  accessLevel       DocumentAccessLevel @default(PROJECT_TEAM)
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -659,7 +673,7 @@ model ProjectSprint {
   completedStoryPoints  Int       @default(0)
 
   // Status
-  status                String    @default("PLANNED")
+  status                SprintStatus @default(PLANNED)
 
   // Retrospective
   whatWentWell          String?   @db.Text
@@ -669,6 +683,8 @@ model ProjectSprint {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   deletedAt             DateTime?
+  createdBy             String?
+  updatedBy             String?
 
   userStories           ProjectUserStory[]
 
@@ -700,7 +716,7 @@ model ProjectUserStory {
 
   // Backlog
   backlogPriority    Int       @default(999)
-  backlogStatus      String    @default("BACKLOG")
+  backlogStatus      BacklogStatus @default(BACKLOG)
 
   // Estimation
   storyPoints        Int?
@@ -714,7 +730,7 @@ model ProjectUserStory {
   assignedTo         String?
 
   // Status
-  status             String    @default("TO_DO")
+  status             StoryStatus @default(TO_DO)
 
   // Definition of Done
   definitionOfDone   String?   @db.Text
@@ -729,6 +745,8 @@ model ProjectUserStory {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
   deletedAt          DateTime?
+  createdBy          String?
+  updatedBy          String?
 
   @@unique([projectId, storyCode])
   @@index([sprintId])
@@ -763,7 +781,7 @@ model ProjectTimesheet {
   overtime       Float     @default(0)
 
   // Activity
-  activityType   String
+  activityType   ActivityType
   description    String?   @db.Text
 
   // Billing
@@ -773,13 +791,15 @@ model ProjectTimesheet {
   totalCost      Float?
 
   // Approval
-  status         String    @default("PENDING")
+  status         TimesheetStatus @default(PENDING)
   approvedBy     String?
   approvedAt     DateTime?
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
+  createdBy      String?
+  updatedBy      String?
 
   @@index([projectId, employeeId])
   @@index([projectId])
@@ -818,13 +838,15 @@ model ProjectExpense {
   receiptUrl   String?
 
   // Approval
-  status       String    @default("PENDING")
+  status       TimesheetStatus @default(PENDING)
   approvedBy   String?
   approvedAt   DateTime?
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
+  createdBy    String?
+  updatedBy    String?
 
   @@index([projectId, status])
   @@index([projectId])
@@ -850,7 +872,7 @@ model ProjectStatusReport {
   // Report Details
   reportPeriod        String
   reportDate          DateTime  @default(now())
-  reportType          String    @default("WEEKLY")
+  reportType          ReportType @default(WEEKLY)
 
   // Executive Summary
   executiveSummary    String    @db.Text
@@ -861,12 +883,12 @@ model ProjectStatusReport {
   upcomingMilestones  String?   @db.Text
 
   // Health Status
-  overallStatus       String
-  scheduleStatus      String
-  budgetStatus        String
-  scopeStatus         String
-  qualityStatus       String
-  riskStatus          String
+  overallStatus       RAGStatus
+  scheduleStatus      RAGStatus
+  budgetStatus        RAGStatus
+  scopeStatus         RAGStatus
+  qualityStatus       RAGStatus
+  riskStatus          RAGStatus
 
   // Issues & Risks
   keyIssues           String?   @db.Text
@@ -885,6 +907,7 @@ model ProjectStatusReport {
   costVariance        Float?
 
   createdBy           String?
+  updatedBy           String?
 
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -967,4 +990,280 @@ enum BenefitStatus {
   REALISED
   EXCEEDED
   NOT_ACHIEVED
+}
+
+// ============================================
+// PROJECT MANAGEMENT ENUMS (converted from String)
+// ============================================
+
+enum ProjectType {
+  INTERNAL
+  CLIENT
+  R_D
+  IMPROVEMENT
+  COMPLIANCE
+}
+
+enum ProjectMethodology {
+  WATERFALL
+  AGILE
+  HYBRID
+  PRINCE2
+  SCRUM
+  KANBAN
+}
+
+enum PmProjectStatus {
+  INITIATION
+  PLANNING
+  IN_PROGRESS
+  EXECUTING
+  MONITORING
+  ON_HOLD
+  CLOSING
+  COMPLETED
+  CANCELLED
+  CLOSED
+}
+
+enum ProjectHealthStatus {
+  GREEN
+  AMBER
+  RED
+  ON_HOLD
+}
+
+enum ProjectPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskType {
+  TASK
+  MILESTONE
+  PHASE
+  DELIVERABLE
+  SUMMARY
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+  ON_HOLD
+  CANCELLED
+}
+
+enum PmMilestoneStatus {
+  UPCOMING
+  IN_PROGRESS
+  ACHIEVED
+  MISSED
+  CANCELLED
+}
+
+enum PmApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DEFERRED
+}
+
+enum PmRiskCategory {
+  TECHNICAL
+  RESOURCE
+  SCHEDULE
+  BUDGET
+  QUALITY
+  EXTERNAL
+  OTHER
+}
+
+enum PmRiskStatus {
+  IDENTIFIED
+  ANALYSED
+  MITIGATED
+  MONITORING
+  CLOSED
+  ACCEPTED
+}
+
+enum PmIssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  DEFERRED
+}
+
+enum PmIssueType {
+  DEFECT
+  BLOCKER
+  DEPENDENCY
+  RESOURCE
+  SCOPE_CREEP
+  CHANGE
+  OTHER
+}
+
+enum PmChangeType {
+  SCOPE
+  SCHEDULE
+  BUDGET
+  QUALITY
+  RESOURCE
+  PROCESS
+  OTHER
+}
+
+enum PmChangeStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  IMPLEMENTED
+  CANCELLED
+}
+
+enum ChangeUrgency {
+  NORMAL
+  URGENT
+  CRITICAL
+}
+
+enum ResourceType {
+  HUMAN
+  EQUIPMENT
+  MATERIAL
+  FACILITY
+  OTHER
+}
+
+enum RaciRole {
+  RESPONSIBLE
+  ACCOUNTABLE
+  CONSULTED
+  INFORMED
+}
+
+enum ResourceStatus {
+  ASSIGNED
+  AVAILABLE
+  UNAVAILABLE
+  ON_LEAVE
+}
+
+enum StakeholderType {
+  INTERNAL
+  EXTERNAL
+  SPONSOR
+  CUSTOMER
+  SUPPLIER
+  REGULATOR
+  OTHER
+}
+
+enum EngagementLevel {
+  UNAWARE
+  RESISTANT
+  NEUTRAL
+  SUPPORTIVE
+  LEADING
+}
+
+enum CommunicationFrequency {
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  AS_NEEDED
+}
+
+enum StakeholderStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PmDocumentType {
+  CHARTER
+  PLAN
+  REPORT
+  SPECIFICATION
+  DESIGN
+  DRAWING
+  CONTRACT
+  OTHER
+}
+
+enum PmDocumentStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  CURRENT
+  OBSOLETE
+}
+
+enum DocumentAccessLevel {
+  PROJECT_TEAM
+  MANAGEMENT
+  BOARD
+  PUBLIC
+  CONFIDENTIAL
+}
+
+enum SprintStatus {
+  PLANNED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum StoryStatus {
+  TO_DO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+enum BacklogStatus {
+  BACKLOG
+  GROOMED
+  READY
+  DEFERRED
+}
+
+enum TimesheetStatus {
+  PENDING
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum ActivityType {
+  DEVELOPMENT
+  TESTING
+  DESIGN
+  MEETING
+  DOCUMENTATION
+  ADMIN
+  OTHER
+}
+
+enum RAGStatus {
+  GREEN
+  AMBER
+  RED
+}
+
+enum ReportType {
+  WEEKLY
+  MONTHLY
+  MILESTONE
+  EXCEPTION
+  CLOSEOUT
 }

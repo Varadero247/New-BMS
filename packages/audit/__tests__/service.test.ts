@@ -1,5 +1,5 @@
 import { AuditService, createAuditService } from '../src/service';
-import { AuditAction, AuditEntity, SENSITIVE_FIELDS } from '../src/types';
+import { AuditAction, AuditEntity, SENSITIVE_FIELDS, redactFields } from '../src/types';
 
 // Mock Prisma client
 const mockPrisma = {
@@ -297,5 +297,81 @@ describe('SENSITIVE_FIELDS', () => {
     expect(SENSITIVE_FIELDS).toContain('token');
     expect(SENSITIVE_FIELDS).toContain('secret');
     expect(SENSITIVE_FIELDS).toContain('apiKey');
+  });
+});
+
+describe('redactFields', () => {
+  it('should redact exact sensitive field names', () => {
+    const result = redactFields({ username: 'alice', password: 'secret123' });
+    expect(result.username).toBe('alice');
+    expect(result.password).toBe('[REDACTED]');
+  });
+
+  it('should redact fields containing sensitive substrings (case-insensitive)', () => {
+    const result = redactFields({
+      name: 'John',
+      passwordHash: 'bcrypt$...',
+      bankAccountNumber: '1234567890',
+      refreshToken: 'eyJhb...',
+    });
+    expect(result.name).toBe('John');
+    expect(result.passwordHash).toBe('[REDACTED]');
+    expect(result.bankAccountNumber).toBe('[REDACTED]');
+    expect(result.refreshToken).toBe('[REDACTED]');
+  });
+
+  it('should recursively redact nested objects', () => {
+    const result = redactFields({
+      user: {
+        email: 'test@example.com',
+        personalEmail: 'personal@example.com',
+        nested: { apiKey: 'key-abc' },
+      },
+    });
+    expect((result.user as Record<string, unknown>).email).toBe('test@example.com');
+    expect((result.user as Record<string, unknown>).personalEmail).toBe('[REDACTED]');
+    expect(
+      ((result.user as Record<string, unknown>).nested as Record<string, unknown>).apiKey
+    ).toBe('[REDACTED]');
+  });
+
+  it('should handle arrays and redact objects within them', () => {
+    const result = redactFields({
+      items: [
+        { id: '1', salary: 50000 },
+        { id: '2', jobTitle: 'Engineer' },
+      ],
+    });
+    const items = result.items as Array<Record<string, unknown>>;
+    expect(items[0].id).toBe('1');
+    expect(items[0].salary).toBe('[REDACTED]');
+    expect(items[1].jobTitle).toBe('Engineer');
+  });
+
+  it('should leave non-sensitive fields untouched', () => {
+    const result = redactFields({
+      id: 'abc',
+      name: 'Test',
+      status: 'ACTIVE',
+      createdAt: '2024-01-01',
+    });
+    expect(result).toEqual({ id: 'abc', name: 'Test', status: 'ACTIVE', createdAt: '2024-01-01' });
+  });
+
+  it('should handle empty object', () => {
+    expect(redactFields({})).toEqual({});
+  });
+
+  it('should redact PII fields from SENSITIVE_FIELDS list', () => {
+    const result = redactFields({
+      dateOfBirth: '1990-01-01',
+      ssn: '123-45-6789',
+      nationalId: 'ID123',
+      medicalInfo: 'Diabetic',
+    });
+    expect(result.dateOfBirth).toBe('[REDACTED]');
+    expect(result.ssn).toBe('[REDACTED]');
+    expect(result.nationalId).toBe('[REDACTED]');
+    expect(result.medicalInfo).toBe('[REDACTED]');
   });
 });

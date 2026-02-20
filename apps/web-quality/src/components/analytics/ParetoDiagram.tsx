@@ -1,9 +1,21 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Chart, registerables } from 'chart.js';
+import {
+  Chart,
+  BarController,
+  BarElement,
+  LineController,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Title,
+  Tooltip,
+} from 'chart.js';
 
-Chart.register(...registerables);
+Chart.register(BarController, BarElement, LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Title, Tooltip);
 
 interface ParetoData {
   category: string;

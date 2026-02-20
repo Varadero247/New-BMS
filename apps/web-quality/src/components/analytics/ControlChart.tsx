@@ -1,10 +1,20 @@
 'use client';
 
 import { useEffect, useRef, useMemo } from 'react';
-import { Chart, registerables } from 'chart.js';
+import {
+  Chart,
+  LineController,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Legend,
+  Title,
+  Tooltip,
+} from 'chart.js';
 import annotationPlugin from 'chartjs-plugin-annotation';
 
-Chart.register(...registerables, annotationPlugin);
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Legend, Title, Tooltip, annotationPlugin);
 
 interface DataPoint {
   date: string | Date;

@@ -804,52 +804,73 @@ router.post('/trends/calculate', authenticate, async (req, res, next) => {
 
     const metrics: { metric: string; value: number; month: number }[] = [];
 
-    // Calculate monthly incident counts
+    // Fetch ALL incidents + actions for the year in 2 queries, then aggregate in JS
+    // (avoids 24 sequential count() calls — one per metric per month)
+    const yearStart = new Date(targetYear, 0, 1);
+    const yearEnd = new Date(targetYear + 1, 0, 1);
+
+    const incidentWhere: Record<string, unknown> = {
+      dateOccurred: { gte: yearStart, lt: yearEnd },
+    };
+    if (standard) incidentWhere.standard = standard;
+
+    const actionsWhere: Record<string, unknown> = {
+      completedAt: { gte: yearStart, lt: yearEnd },
+    };
+    if (standard) actionsWhere.standard = standard;
+
+    const [incidents, actionsClosed] = await Promise.all([
+      prisma.incident.findMany({
+        where: incidentWhere,
+        select: { dateOccurred: true },
+        take: 50000,
+      }),
+      prisma.action.findMany({
+        where: actionsWhere,
+        select: { completedAt: true },
+        take: 50000,
+      }),
+    ]);
+
+    // Group by month in JS
     for (let month = 1; month <= 12; month++) {
-      const startDate = new Date(targetYear, month - 1, 1);
-      const endDate = new Date(targetYear, month, 0);
+      const monthStart = new Date(targetYear, month - 1, 1);
+      const monthEnd = new Date(targetYear, month, 1);
 
-      const where: Record<string, unknown> = {
-        dateOccurred: { gte: startDate, lte: endDate },
-      };
-      if (standard) where.standard = standard;
-
-      const incidentCount = await prisma.incident.count({ where });
+      const incidentCount = incidents.filter(
+        (i) => i.dateOccurred && i.dateOccurred >= monthStart && i.dateOccurred < monthEnd
+      ).length;
       metrics.push({ metric: 'incidents', value: incidentCount, month });
 
-      // Actions closed
-      const actionsWhere: Record<string, unknown> = {
-        completedAt: { gte: startDate, lte: endDate },
-      };
-      if (standard) actionsWhere.standard = standard;
-
-      const actionsClosedCount = await prisma.action.count({ where: actionsWhere });
-      metrics.push({ metric: 'actions_closed', value: actionsClosedCount, month });
+      const actionsCount = actionsClosed.filter(
+        (a) => a.completedAt && a.completedAt >= monthStart && a.completedAt < monthEnd
+      ).length;
+      metrics.push({ metric: 'actions_closed', value: actionsCount, month });
     }
 
-    // Upsert trends
-    for (const m of metrics) {
-      await prisma.monthlyTrend.upsert({
-        where: {
-          standard_metric_year_month: {
+    // Batch upsert all trends in a single transaction (avoids 24 sequential upserts)
+    await prisma.$transaction(
+      metrics.map((m) =>
+        prisma.monthlyTrend.upsert({
+          where: {
+            standard_metric_year_month: {
+              standard: standard || 'ISO_45001',
+              metric: m.metric,
+              year: targetYear,
+              month: m.month,
+            },
+          },
+          create: {
             standard: standard || 'ISO_45001',
             metric: m.metric,
             year: targetYear,
             month: m.month,
+            value: m.value,
           },
-        },
-        create: {
-          standard: standard || 'ISO_45001',
-          metric: m.metric,
-          year: targetYear,
-          month: m.month,
-          value: m.value,
-        },
-        update: {
-          value: m.value,
-        },
-      });
-    }
+          update: { value: m.value },
+        })
+      )
+    );
 
     res.json({ success: true, data: { message: 'Trends calculated', count: metrics.length } });
   } catch (error) {

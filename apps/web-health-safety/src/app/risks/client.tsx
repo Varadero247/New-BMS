@@ -236,11 +236,7 @@ export default function RiskRegisterClient() {
 
   // ── Data loading ──
 
-  useEffect(() => {
-    loadRisks();
-  }, []);
-
-  async function loadRisks() {
+  const loadRisks = useCallback(async () => {
     try {
       setError(null);
       const response = await api.get('/risks');
@@ -251,7 +247,11 @@ export default function RiskRegisterClient() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadRisks();
+  }, [loadRisks]);
 
   // ── AI control generation ──
 
@@ -300,7 +300,9 @@ export default function RiskRegisterClient() {
       const info = getRiskScoreInfo(form.likelihood, form.severity);
       setForm((prev) => ({ ...prev, reviewDate: getDefaultReviewDate(info.level) }));
     }
-  }, [form.likelihood, form.severity]);
+    // form.reviewDate included to avoid stale closure — effect re-runs when user clears the date
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.likelihood, form.severity, form.reviewDate]);
 
   // ── Form helpers ──
 

@@ -15,6 +15,9 @@ function getJwtSecret(): string {
     throw new Error('JWT_SECRET environment variable is required');
   }
   if (secret.length < 32) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET must be at least 32 characters in production');
+    }
     console.warn(
       '[SECURITY WARNING] JWT_SECRET is shorter than 32 characters. Use a stronger secret in production.'
     );
