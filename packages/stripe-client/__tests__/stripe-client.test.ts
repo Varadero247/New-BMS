@@ -1,0 +1,190 @@
+import { StripeClient } from '../src/index';
+
+let mockFetch: jest.Mock;
+
+beforeEach(() => {
+  mockFetch = jest.fn();
+  (global as unknown as { fetch: jest.Mock }).fetch = mockFetch;
+  delete process.env.STRIPE_SECRET_KEY;
+});
+
+afterEach(() => jest.restoreAllMocks());
+
+function ok(data: unknown) {
+  return Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve(data),
+  });
+}
+
+function err(status = 400) {
+  return Promise.resolve({
+    ok: false,
+    status,
+    json: () => Promise.resolve({ error: { message: 'Stripe error' } }),
+  });
+}
+
+describe('StripeClient', () => {
+  // ── No secret key (short-circuit) ────────────────────────────
+
+  describe('when no secret key is provided', () => {
+    it('returns null without calling fetch', async () => {
+      const client = new StripeClient();
+      const result = await client.getSubscriptions();
+      expect(result).toBeNull();
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+
+    it('accepts key via constructor arg', async () => {
+      const client = new StripeClient('sk_test_123');
+      mockFetch.mockReturnValueOnce(ok({ data: [] }));
+      await client.getSubscriptions();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('falls back to STRIPE_SECRET_KEY env var', async () => {
+      process.env.STRIPE_SECRET_KEY = 'sk_env_456';
+      const client = new StripeClient();
+      mockFetch.mockReturnValueOnce(ok({ data: [] }));
+      await client.getSubscriptions();
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // ── Common headers ────────────────────────────────────────────
+
+  describe('Authorization header', () => {
+    it('sends Bearer token and form-urlencoded Content-Type', async () => {
+      const client = new StripeClient('sk_test_abc');
+      mockFetch.mockReturnValueOnce(ok({ data: [] }));
+      await client.getSubscriptions();
+      expect(mockFetch.mock.calls[0][1].headers).toMatchObject({
+        Authorization: 'Bearer sk_test_abc',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      });
+    });
+  });
+
+  // ── getSubscriptions ──────────────────────────────────────────
+
+  describe('getSubscriptions', () => {
+    let client: StripeClient;
+    beforeEach(() => { client = new StripeClient('sk_test'); });
+
+    it('sends GET to /v1/subscriptions with default limit=100 and status=active', async () => {
+      mockFetch.mockReturnValueOnce(ok({ data: [] }));
+      await client.getSubscriptions();
+      const url = mockFetch.mock.calls[0][0] as string;
+      expect(url).toBe('https://api.stripe.com/v1/subscriptions?limit=100&status=active');
+    });
+
+    it('accepts a custom limit', async () => {
+      mockFetch.mockReturnValueOnce(ok({ data: [] }));
+      await client.getSubscriptions(10);
+      expect(mockFetch.mock.calls[0][0]).toContain('limit=10');
+    });
+
+    it('returns null on non-ok response', async () => {
+      mockFetch.mockReturnValueOnce(err(403));
+      expect(await client.getSubscriptions()).toBeNull();
+    });
+
+    it('returns null when fetch throws', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('network'));
+      expect(await client.getSubscriptions()).toBeNull();
+    });
+  });
+
+  // ── createCoupon ──────────────────────────────────────────────
+
+  describe('createCoupon', () => {
+    let client: StripeClient;
+    beforeEach(() => { client = new StripeClient('sk_test'); });
+
+    it('sends POST to /v1/coupons with form-encoded body', async () => {
+      mockFetch.mockReturnValueOnce(ok({ id: 'coup_1' }));
+      await client.createCoupon({ percent_off: 20, duration: 'repeating', duration_in_months: 3 });
+      const [url, opts] = mockFetch.mock.calls[0];
+      expect(url).toBe('https://api.stripe.com/v1/coupons');
+      expect(opts.method).toBe('POST');
+      // Body is form-encoded (URLSearchParams.toString())
+      const params = new URLSearchParams(opts.body as string);
+      expect(params.get('percent_off')).toBe('20');
+      expect(params.get('duration')).toBe('repeating');
+      expect(params.get('duration_in_months')).toBe('3');
+    });
+
+    it('omits optional fields when not provided', async () => {
+      mockFetch.mockReturnValueOnce(ok({ id: 'coup_2' }));
+      await client.createCoupon({ percent_off: 10, duration: 'once' });
+      const params = new URLSearchParams(mockFetch.mock.calls[0][1].body as string);
+      expect(params.get('percent_off')).toBe('10');
+      expect(params.get('duration_in_months')).toBeNull();
+    });
+
+    it('returns null on non-ok response', async () => {
+      mockFetch.mockReturnValueOnce(err(400));
+      expect(
+        await client.createCoupon({ percent_off: 0, duration: 'once' })
+      ).toBeNull();
+    });
+  });
+
+  // ── createTransfer ────────────────────────────────────────────
+
+  describe('createTransfer', () => {
+    let client: StripeClient;
+    beforeEach(() => { client = new StripeClient('sk_test'); });
+
+    it('sends POST to /v1/transfers with amount, currency, destination', async () => {
+      mockFetch.mockReturnValueOnce(ok({ id: 'tr_1' }));
+      await client.createTransfer({ amount: 5000, currency: 'gbp', destination: 'acct_1' });
+      const [url, opts] = mockFetch.mock.calls[0];
+      expect(url).toBe('https://api.stripe.com/v1/transfers');
+      expect(opts.method).toBe('POST');
+      const params = new URLSearchParams(opts.body as string);
+      expect(params.get('amount')).toBe('5000');
+      expect(params.get('currency')).toBe('gbp');
+      expect(params.get('destination')).toBe('acct_1');
+    });
+
+    it('returns null on non-ok response', async () => {
+      mockFetch.mockReturnValueOnce(err(402));
+      expect(
+        await client.createTransfer({ amount: 1, currency: 'usd', destination: 'acct_x' })
+      ).toBeNull();
+    });
+  });
+
+  // ── getBillingPortalUrl ───────────────────────────────────────
+
+  describe('getBillingPortalUrl', () => {
+    let client: StripeClient;
+    beforeEach(() => { client = new StripeClient('sk_test'); });
+
+    it('sends POST to /v1/billing_portal/sessions', async () => {
+      mockFetch.mockReturnValueOnce(ok({ url: 'https://billing.stripe.com/session/xxx' }));
+      await client.getBillingPortalUrl('cus_123', 'https://myapp.com/return');
+      const [url, opts] = mockFetch.mock.calls[0];
+      expect(url).toBe('https://api.stripe.com/v1/billing_portal/sessions');
+      expect(opts.method).toBe('POST');
+      const params = new URLSearchParams(opts.body as string);
+      expect(params.get('customer')).toBe('cus_123');
+      expect(params.get('return_url')).toBe('https://myapp.com/return');
+    });
+
+    it('returns the session object on success', async () => {
+      const session = { url: 'https://billing.stripe.com/session/abc', id: 'bps_1' };
+      mockFetch.mockReturnValueOnce(ok(session));
+      const result = await client.getBillingPortalUrl('cus_456', 'https://app.com');
+      expect(result).toEqual(session);
+    });
+
+    it('returns null on non-ok response', async () => {
+      mockFetch.mockReturnValueOnce(err(404));
+      expect(await client.getBillingPortalUrl('cus_999', 'https://app.com')).toBeNull();
+    });
+  });
+});

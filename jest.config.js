@@ -110,6 +110,14 @@ module.exports = {
     '<rootDir>/packages/sdk',
     // OpenAPI spec generator
     '<rootDir>/packages/openapi',
+    // Third-party API clients
+    '<rootDir>/packages/hubspot-client',
+    '<rootDir>/packages/intercom-client',
+    '<rootDir>/packages/stripe-client',
+    // Presence / record locking
+    '<rootDir>/packages/presence',
+    // Shared type utilities
+    '<rootDir>/packages/types',
   ],
 
   // Global settings

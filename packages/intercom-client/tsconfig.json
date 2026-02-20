@@ -2,11 +2,12 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "strict": true,
+    "isolatedModules": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "module": "CommonJS",
     "moduleResolution": "node"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "__tests__/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
