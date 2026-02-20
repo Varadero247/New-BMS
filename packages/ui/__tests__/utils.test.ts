@@ -1,0 +1,149 @@
+import { cn, formatDate, formatNumber, formatCurrency } from '../src/utils';
+
+// ── cn (className merger) ───────────────────────────────────────
+
+describe('cn', () => {
+  it('merges class strings', () => {
+    expect(cn('foo', 'bar')).toBe('foo bar');
+  });
+
+  it('deduplicates conflicting tailwind utilities (last wins)', () => {
+    // tailwind-merge ensures p-2 wins over p-4 when both present
+    const result = cn('p-4', 'p-2');
+    expect(result).toBe('p-2');
+  });
+
+  it('handles conditional classes with objects', () => {
+    expect(cn('base', { active: true, hidden: false })).toBe('base active');
+  });
+
+  it('filters out falsy values', () => {
+    expect(cn('a', undefined, null, false, 'b')).toBe('a b');
+  });
+
+  it('handles empty input', () => {
+    expect(cn()).toBe('');
+  });
+
+  it('handles arrays', () => {
+    expect(cn(['foo', 'bar'])).toBe('foo bar');
+  });
+
+  it('merges background color utilities correctly', () => {
+    // bg-red-500 should be replaced by bg-blue-500
+    const result = cn('bg-red-500', 'bg-blue-500');
+    expect(result).toBe('bg-blue-500');
+  });
+});
+
+// ── formatDate ─────────────────────────────────────────────────
+
+describe('formatDate', () => {
+  it('formats a Date object as a readable string', () => {
+    const date = new Date('2026-02-20T12:00:00Z');
+    const result = formatDate(date);
+    expect(typeof result).toBe('string');
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('accepts an ISO date string', () => {
+    const result = formatDate('2026-01-15T10:30:00Z');
+    expect(typeof result).toBe('string');
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('includes the year in the output', () => {
+    const result = formatDate('2026-06-01T00:00:00Z');
+    expect(result).toContain('2026');
+  });
+
+  it('accepts custom dateStyle option', () => {
+    const result = formatDate('2026-02-20', { dateStyle: 'short' });
+    expect(typeof result).toBe('string');
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('produces different output for different dates', () => {
+    const jan = formatDate('2026-01-01T00:00:00Z');
+    const dec = formatDate('2026-12-31T00:00:00Z');
+    expect(jan).not.toBe(dec);
+  });
+});
+
+// ── formatNumber ────────────────────────────────────────────────
+
+describe('formatNumber', () => {
+  it('formats an integer with US locale comma separators', () => {
+    const result = formatNumber(1000000);
+    // en-US formats millions with commas
+    expect(result).toContain(',');
+  });
+
+  it('formats zero', () => {
+    expect(formatNumber(0)).toBe('0');
+  });
+
+  it('formats a small number without commas', () => {
+    const result = formatNumber(42);
+    expect(result).toBe('42');
+  });
+
+  it('accepts minimumFractionDigits option', () => {
+    const result = formatNumber(3.1, { minimumFractionDigits: 2 });
+    expect(result).toBe('3.10');
+  });
+
+  it('accepts maximumFractionDigits option', () => {
+    const result = formatNumber(3.14159, { maximumFractionDigits: 2 });
+    expect(result).toBe('3.14');
+  });
+
+  it('formats negative numbers', () => {
+    const result = formatNumber(-500);
+    expect(result).toContain('500');
+    expect(result).toContain('-');
+  });
+});
+
+// ── formatCurrency ──────────────────────────────────────────────
+
+describe('formatCurrency', () => {
+  it('formats USD by default', () => {
+    const result = formatCurrency(1000);
+    expect(result).toContain('$');
+    expect(result).toContain('1,000');
+  });
+
+  it('formats with two decimal places for whole dollar amounts', () => {
+    const result = formatCurrency(50);
+    expect(result).toContain('50.00');
+  });
+
+  it('formats GBP currency', () => {
+    const result = formatCurrency(500, 'GBP');
+    // British pound symbol or GBP code
+    expect(result).toMatch(/£|GBP/);
+  });
+
+  it('formats EUR currency', () => {
+    const result = formatCurrency(250, 'EUR');
+    expect(result).toMatch(/€|EUR/);
+  });
+
+  it('formats zero correctly', () => {
+    const result = formatCurrency(0);
+    expect(result).toContain('$');
+    expect(result).toContain('0.00');
+  });
+
+  it('formats negative amounts', () => {
+    const result = formatCurrency(-99.99);
+    expect(result).toContain('99.99');
+  });
+
+  it('returns different strings for different currencies', () => {
+    const usd = formatCurrency(100, 'USD');
+    const eur = formatCurrency(100, 'EUR');
+    expect(usd).not.toBe(eur);
+  });
+});

@@ -118,6 +118,8 @@ module.exports = {
     '<rootDir>/packages/presence',
     // Shared type utilities
     '<rootDir>/packages/types',
+    // UI package utility functions
+    '<rootDir>/packages/ui',
   ],
 
   // Global settings
