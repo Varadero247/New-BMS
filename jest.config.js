@@ -103,6 +103,9 @@ module.exports = {
     // New test suites added Feb 20 (Session 23+)
     '<rootDir>/packages/comments',
     '<rootDir>/packages/cache',
+    '<rootDir>/packages/dpa',
+    '<rootDir>/packages/dsar',
+    '<rootDir>/packages/scheduled-reports',
   ],
 
   // Global settings
