@@ -100,6 +100,9 @@ module.exports = {
     '<rootDir>/packages/csv-import',
     '<rootDir>/packages/encryption',
     '<rootDir>/packages/performance',
+    // New test suites added Feb 20 (Session 23+)
+    '<rootDir>/packages/comments',
+    '<rootDir>/packages/cache',
   ],
 
   // Global settings
