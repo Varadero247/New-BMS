@@ -133,6 +133,7 @@ module.exports = {
   },
 
   // Coverage (applied when --coverage is passed)
+  coverageReporters: ['text', 'lcov'],
   coverageDirectory: '<rootDir>/coverage',
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
