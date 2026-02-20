@@ -1,0 +1,288 @@
+/**
+ * Tests for NotificationBellState — in-memory notification store.
+ * Covers: addNotification (FIFO eviction), getUnread, getAll (pagination),
+ * markRead, markAllRead, getUnreadCount, clear, getTrackedUsers.
+ */
+
+import { NotificationBellState } from '../src/notification-bell';
+import type { WSNotification } from '../src/websocket';
+
+// ── Helper ─────────────────────────────────────────────────────────────────────
+
+let _idCounter = 0;
+function makeNotification(overrides: Partial<WSNotification> = {}): WSNotification {
+  return {
+    id: `notif-${++_idCounter}`,
+    type: 'INFO',
+    title: 'Test notification',
+    message: 'This is a test',
+    severity: 'LOW',
+    createdAt: new Date(),
+    read: false,
+    ...overrides,
+  };
+}
+
+// ── addNotification ────────────────────────────────────────────────────────────
+
+describe('NotificationBellState — addNotification', () => {
+  it('adds a notification for a new user', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'n1' }));
+    expect(state.getUnread('u1')).toHaveLength(1);
+  });
+
+  it('prepends new notifications (newest first)', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'first' }));
+    state.addNotification('u1', makeNotification({ id: 'second' }));
+    const all = state.getAll('u1').items;
+    expect(all[0].id).toBe('second');
+    expect(all[1].id).toBe('first');
+  });
+
+  it('evicts oldest notifications when exceeding 200 per user', () => {
+    const state = new NotificationBellState();
+    for (let i = 0; i < 201; i++) {
+      state.addNotification('u1', makeNotification());
+    }
+    const result = state.getAll('u1', 1, 300);
+    expect(result.total).toBe(200);
+  });
+
+  it('keeps exactly 200 notifications at the cap', () => {
+    const state = new NotificationBellState();
+    for (let i = 0; i < 200; i++) {
+      state.addNotification('u1', makeNotification());
+    }
+    expect(state.getAll('u1', 1, 300).total).toBe(200);
+
+    // Adding one more should still leave exactly 200
+    state.addNotification('u1', makeNotification());
+    expect(state.getAll('u1', 1, 300).total).toBe(200);
+  });
+
+  it('does not affect other users', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification());
+    state.addNotification('u2', makeNotification());
+    state.addNotification('u2', makeNotification());
+    expect(state.getAll('u1').total).toBe(1);
+    expect(state.getAll('u2').total).toBe(2);
+  });
+});
+
+// ── getUnread ──────────────────────────────────────────────────────────────────
+
+describe('NotificationBellState — getUnread', () => {
+  it('returns only unread notifications', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'a', read: false }));
+    state.addNotification('u1', makeNotification({ id: 'b', read: true }));
+    const unread = state.getUnread('u1');
+    expect(unread).toHaveLength(1);
+    expect(unread[0].id).toBe('a');
+  });
+
+  it('returns empty array for unknown user', () => {
+    const state = new NotificationBellState();
+    expect(state.getUnread('nobody')).toEqual([]);
+  });
+
+  it('returns empty array when all notifications are read', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ read: true }));
+    expect(state.getUnread('u1')).toHaveLength(0);
+  });
+});
+
+// ── getAll ─────────────────────────────────────────────────────────────────────
+
+describe('NotificationBellState — getAll', () => {
+  it('returns paginated results with correct metadata', () => {
+    const state = new NotificationBellState();
+    for (let i = 0; i < 5; i++) state.addNotification('u1', makeNotification());
+
+    const result = state.getAll('u1', 1, 3);
+    expect(result.total).toBe(5);
+    expect(result.items).toHaveLength(3);
+    expect(result.page).toBe(1);
+    expect(result.limit).toBe(3);
+    expect(result.totalPages).toBe(2);
+  });
+
+  it('returns the second page correctly', () => {
+    const state = new NotificationBellState();
+    for (let i = 0; i < 5; i++) state.addNotification('u1', makeNotification());
+
+    const result = state.getAll('u1', 2, 3);
+    expect(result.items).toHaveLength(2);
+    expect(result.page).toBe(2);
+  });
+
+  it('defaults to page=1 and limit=20', () => {
+    const state = new NotificationBellState();
+    for (let i = 0; i < 25; i++) state.addNotification('u1', makeNotification());
+
+    const result = state.getAll('u1');
+    expect(result.items).toHaveLength(20);
+    expect(result.page).toBe(1);
+    expect(result.limit).toBe(20);
+  });
+
+  it('returns totalPages=1 when store is empty', () => {
+    const state = new NotificationBellState();
+    const result = state.getAll('nobody');
+    expect(result.total).toBe(0);
+    expect(result.totalPages).toBe(1);
+    expect(result.items).toHaveLength(0);
+  });
+
+  it('includes unreadCount in result', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ read: false }));
+    state.addNotification('u1', makeNotification({ read: false }));
+    state.addNotification('u1', makeNotification({ read: true }));
+
+    const result = state.getAll('u1');
+    expect(result.unreadCount).toBe(2);
+  });
+});
+
+// ── markRead ───────────────────────────────────────────────────────────────────
+
+describe('NotificationBellState — markRead', () => {
+  it('marks the target notification as read and returns true', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'target', read: false }));
+
+    const result = state.markRead('u1', 'target');
+
+    expect(result).toBe(true);
+    expect(state.getUnread('u1')).toHaveLength(0);
+  });
+
+  it('returns false when user not found', () => {
+    const state = new NotificationBellState();
+    expect(state.markRead('ghost', 'any-id')).toBe(false);
+  });
+
+  it('returns false when notification id not found', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'real' }));
+    expect(state.markRead('u1', 'fake')).toBe(false);
+  });
+
+  it('only marks the specified notification, not others', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ id: 'a', read: false }));
+    state.addNotification('u1', makeNotification({ id: 'b', read: false }));
+
+    state.markRead('u1', 'a');
+
+    expect(state.getUnread('u1').map((n) => n.id)).toEqual(['b']);
+  });
+});
+
+// ── markAllRead ────────────────────────────────────────────────────────────────
+
+describe('NotificationBellState — markAllRead', () => {
+  it('marks all unread notifications and returns the count', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ read: false }));
+    state.addNotification('u1', makeNotification({ read: false }));
+    state.addNotification('u1', makeNotification({ read: true }));
+
+    const count = state.markAllRead('u1');
+
+    expect(count).toBe(2);
+    expect(state.getUnread('u1')).toHaveLength(0);
+  });
+
+  it('returns 0 when user not found', () => {
+    const state = new NotificationBellState();
+    expect(state.markAllRead('nobody')).toBe(0);
+  });
+
+  it('returns 0 when all already read', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ read: true }));
+    expect(state.markAllRead('u1')).toBe(0);
+  });
+});
+
+// ── getUnreadCount ─────────────────────────────────────────────────────────────
+
+describe('NotificationBellState — getUnreadCount', () => {
+  it('returns the number of unread notifications', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ read: false }));
+    state.addNotification('u1', makeNotification({ read: false }));
+    state.addNotification('u1', makeNotification({ read: true }));
+    expect(state.getUnreadCount('u1')).toBe(2);
+  });
+
+  it('returns 0 for unknown user', () => {
+    const state = new NotificationBellState();
+    expect(state.getUnreadCount('nobody')).toBe(0);
+  });
+
+  it('decreases after markAllRead', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification({ read: false }));
+    state.addNotification('u1', makeNotification({ read: false }));
+    state.markAllRead('u1');
+    expect(state.getUnreadCount('u1')).toBe(0);
+  });
+});
+
+// ── clear ──────────────────────────────────────────────────────────────────────
+
+describe('NotificationBellState — clear', () => {
+  it('removes all notifications for the given user', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification());
+    state.addNotification('u1', makeNotification());
+    state.clear('u1');
+    expect(state.getAll('u1').total).toBe(0);
+  });
+
+  it('does not affect other users', () => {
+    const state = new NotificationBellState();
+    state.addNotification('u1', makeNotification());
+    state.addNotification('u2', makeNotification());
+    state.clear('u1');
+    expect(state.getAll('u2').total).toBe(1);
+  });
+
+  it('is safe to call for an unknown user', () => {
+    const state = new NotificationBellState();
+    expect(() => state.clear('nobody')).not.toThrow();
+  });
+});
+
+// ── getTrackedUsers ────────────────────────────────────────────────────────────
+
+describe('NotificationBellState — getTrackedUsers', () => {
+  it('returns all user IDs that have notifications', () => {
+    const state = new NotificationBellState();
+    state.addNotification('alice', makeNotification());
+    state.addNotification('bob', makeNotification());
+    const users = state.getTrackedUsers();
+    expect(users).toContain('alice');
+    expect(users).toContain('bob');
+    expect(users).toHaveLength(2);
+  });
+
+  it('returns empty array when no users tracked', () => {
+    const state = new NotificationBellState();
+    expect(state.getTrackedUsers()).toEqual([]);
+  });
+
+  it('removes a user from tracked list after clear', () => {
+    const state = new NotificationBellState();
+    state.addNotification('alice', makeNotification());
+    state.clear('alice');
+    expect(state.getTrackedUsers()).not.toContain('alice');
+  });
+});
