@@ -5,12 +5,38 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() }),
 }));
 
-function makeReqRes() {
-  const req = {} as Request;
+function makeReqRes(method = 'GET', path = '/api/risks') {
+  const req = { method, path } as Request;
+  const chunks: Buffer[] = [];
+  let writeFn = (chunk: unknown): boolean => {
+    if (chunk && typeof chunk !== 'function') {
+      chunks.push(Buffer.isBuffer(chunk) ? (chunk as Buffer) : Buffer.from(chunk as string));
+    }
+    return true;
+  };
+  let endFn = (chunk?: unknown): Response => {
+    if (chunk && typeof chunk !== 'function') {
+      chunks.push(Buffer.isBuffer(chunk) ? (chunk as Buffer) : Buffer.from(chunk as string));
+    }
+    return res;
+  };
   const res = {
-    status: jest.fn().mockReturnThis(),
+    statusCode: 200,
+    status: jest.fn().mockImplementation(function (this: Response, code: number) {
+      (this as { statusCode: number }).statusCode = code;
+      return this;
+    }),
     json: jest.fn().mockReturnThis(),
+    send: jest.fn().mockReturnThis(),
     set: jest.fn().mockReturnThis(),
+    getHeader: jest.fn().mockReturnValue('application/json'),
+    get capturedBody() {
+      return Buffer.concat(chunks);
+    },
+    get write() { return writeFn; },
+    set write(fn) { writeFn = fn as unknown as typeof writeFn; },
+    get end() { return endFn; },
+    set end(fn) { endFn = fn as unknown as typeof endFn; },
   } as unknown as Response;
   const next = jest.fn();
   return { req, res, next };
@@ -30,7 +56,7 @@ describe('createProxyCircuitBreaker', () => {
 
   it('opens circuit after reaching failure threshold', () => {
     const cb = createProxyCircuitBreaker({ name: 'TestService', failureThreshold: 3 });
-    const { req, res, next } = makeReqRes();
+    const { req, res, next } = makeReqRes('POST', '/api/risks');
 
     // 3 failures should open the circuit
     cb.onFailure();
@@ -51,7 +77,7 @@ describe('createProxyCircuitBreaker', () => {
     const cb = createProxyCircuitBreaker({ name: 'TestService', failureThreshold: 1 });
     cb.onFailure();
 
-    const { req, res, next } = makeReqRes();
+    const { req, res, next } = makeReqRes('POST', '/api/risks');
     cb.middleware(req, res, next);
 
     expect(res.set).toHaveBeenCalledWith('Retry-After', expect.any(String));
@@ -141,5 +167,155 @@ describe('createProxyCircuitBreaker', () => {
     expect(cb.getState()).toBe('CLOSED'); // only 4 failures since last reset
     cb.onFailure();
     expect(cb.getState()).toBe('OPEN');
+  });
+
+  // ============================================================
+  // Stale response cache
+  // ============================================================
+
+  describe('captureMiddleware + stale cache', () => {
+    it('exposes captureMiddleware on the returned object', () => {
+      const cb = createProxyCircuitBreaker({ name: 'TestService' });
+      expect(typeof cb.captureMiddleware).toBe('function');
+    });
+
+    it('captureMiddleware calls next for GET requests', () => {
+      const cb = createProxyCircuitBreaker({ name: 'TestService' });
+      const { req, res, next } = makeReqRes('GET', '/api/risks');
+      cb.captureMiddleware(req, res, next);
+      expect(next).toHaveBeenCalled();
+    });
+
+    it('captureMiddleware calls next for non-GET without patching', () => {
+      const cb = createProxyCircuitBreaker({ name: 'TestService' });
+      const { req, res, next } = makeReqRes('POST', '/api/risks');
+      const origWrite = res.write;
+      cb.captureMiddleware(req, res, next);
+      expect(next).toHaveBeenCalled();
+      // write should NOT be patched for POST
+      expect(res.write).toBe(origWrite);
+    });
+
+    it('serves stale cached response when circuit is OPEN and cache is warm', () => {
+      const cb = createProxyCircuitBreaker({ name: 'TestService', failureThreshold: 1 });
+
+      // Step 1: warm the cache via captureMiddleware
+      const { req: warmReq, res: warmRes, next: warmNext } = makeReqRes('GET', '/api/risks');
+      cb.captureMiddleware(warmReq, warmRes, warmNext);
+
+      // Simulate proxy writing response body then ending
+      const body = JSON.stringify({ success: true, data: [{ id: 1 }] });
+      warmRes.write(body);
+      warmRes.end();
+
+      // Step 2: open the circuit
+      cb.onFailure();
+      expect(cb.getState()).toBe('OPEN');
+
+      // Step 3: next GET request should receive the stale cached response
+      const { req, res, next } = makeReqRes('GET', '/api/risks');
+      cb.middleware(req, res, next);
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.set).toHaveBeenCalledWith('X-Cache', 'HIT-stale');
+      expect(res.set).toHaveBeenCalledWith(expect.stringContaining('X-Cache-Age'), expect.any(String));
+      expect(res.send).toHaveBeenCalledWith(expect.any(Buffer));
+    });
+
+    it('returns 503 for GET when circuit is OPEN but no cached response exists', () => {
+      const cb = createProxyCircuitBreaker({ name: 'TestService', failureThreshold: 1 });
+      cb.onFailure();
+      expect(cb.getState()).toBe('OPEN');
+
+      const { req, res, next } = makeReqRes('GET', '/api/unknown-path');
+      cb.middleware(req, res, next);
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(503);
+      expect(res.set).not.toHaveBeenCalledWith('X-Cache', 'HIT-stale');
+    });
+
+    it('does not cache non-2xx responses', () => {
+      const cb = createProxyCircuitBreaker({ name: 'TestService', failureThreshold: 1 });
+
+      // Simulate a 404 response through captureMiddleware
+      const { req: warmReq, res: warmRes, next: warmNext } = makeReqRes('GET', '/api/missing');
+      cb.captureMiddleware(warmReq, warmRes, warmNext);
+      (warmRes as unknown as { statusCode: number }).statusCode = 404;
+      warmRes.end(JSON.stringify({ success: false }));
+
+      // Open the circuit
+      cb.onFailure();
+      expect(cb.getState()).toBe('OPEN');
+
+      // The 404 response should NOT be served from cache
+      const { req, res, next } = makeReqRes('GET', '/api/missing');
+      cb.middleware(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(503);
+      expect(res.set).not.toHaveBeenCalledWith('X-Cache', 'HIT-stale');
+    });
+
+    it('does not serve stale cache for POST when circuit is OPEN', () => {
+      const cb = createProxyCircuitBreaker({ name: 'TestService', failureThreshold: 1 });
+
+      // Warm GET cache
+      const { req: warmReq, res: warmRes, next: warmNext } = makeReqRes('GET', '/api/risks');
+      cb.captureMiddleware(warmReq, warmRes, warmNext);
+      warmRes.end(JSON.stringify({ success: true, data: [] }));
+
+      cb.onFailure();
+      expect(cb.getState()).toBe('OPEN');
+
+      // POST should still get 503, not a stale GET response
+      const { req, res, next } = makeReqRes('POST', '/api/risks');
+      cb.middleware(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(503);
+      expect(res.set).not.toHaveBeenCalledWith('X-Cache', 'HIT-stale');
+    });
+
+    it('disabling staleCache skips capture and returns 503 for GET when OPEN', () => {
+      const cb = createProxyCircuitBreaker({ name: 'TestService', failureThreshold: 1, staleCache: false });
+
+      const { req: warmReq, res: warmRes, next: warmNext } = makeReqRes('GET', '/api/risks');
+      const origWrite = warmRes.write;
+      cb.captureMiddleware(warmReq, warmRes, warmNext);
+      // write should NOT be patched when staleCache is disabled
+      expect(warmRes.write).toBe(origWrite);
+
+      cb.onFailure();
+      const { req, res, next } = makeReqRes('GET', '/api/risks');
+      cb.middleware(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(503);
+    });
+
+    it('respects staleTtlMs — expired entries are not served', () => {
+      jest.useFakeTimers();
+      const cb = createProxyCircuitBreaker({
+        name: 'TestService',
+        failureThreshold: 1,
+        staleTtlMs: 5000,
+      });
+
+      // Warm cache
+      const { req: warmReq, res: warmRes, next: warmNext } = makeReqRes('GET', '/api/risks');
+      cb.captureMiddleware(warmReq, warmRes, warmNext);
+      warmRes.end(JSON.stringify({ success: true }));
+
+      // Advance past TTL
+      jest.advanceTimersByTime(6000);
+
+      cb.onFailure();
+      const { req, res, next } = makeReqRes('GET', '/api/risks');
+      cb.middleware(req, res, next);
+
+      // TTL expired — should get 503, not stale
+      expect(res.status).toHaveBeenCalledWith(503);
+      expect(res.set).not.toHaveBeenCalledWith('X-Cache', 'HIT-stale');
+
+      jest.useRealTimers();
+    });
   });
 });

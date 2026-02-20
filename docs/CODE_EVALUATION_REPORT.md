@@ -26,22 +26,22 @@
 
 ```
 Overall Security Score:      85 / 100  (was 54 — +31 since Feb 12)
-Overall Architecture Score:  85 / 100  (was 67 — +18 since Feb 12)
+Overall Architecture Score:  87 / 100  (was 67 — +20 since Feb 12)
 Overall Code Quality Score:  88 / 100  (was 74 — +14 since Feb 12)
-Composite Score:             86 / 100  (was 65 — +21 since Feb 12)
+Composite Score:             87 / 100  (was 65 — +22 since Feb 12)
 
-Total Findings:              56 original; 39 RESOLVED, 1 PARTIALLY RESOLVED
+Total Findings:              56 original; 40 RESOLVED, 0 PARTIALLY RESOLVED
   CRITICAL:  2   (fix immediately — block deployment)   [2 resolved]
   HIGH:      12  (fix within 24 hours)                  [5 resolved]
-  MEDIUM:    16  (fix within current sprint)            [14 resolved, 1 partial]
+  MEDIUM:    16  (fix within current sprint)            [15 resolved]
   LOW:       15  (fix in next sprint)                   [15 resolved]
   INFO:      10  (informational, no immediate action)   [updated metrics]
   NEW:       1   (FINDING-045: featureFlagsRouter auth bug — RESOLVED)
 ```
 
-**Key Risk Areas:** The platform has strong foundational security controls (JWT algorithm pinning, bcrypt, rate limiting, Zod validation, Helmet). Sprint 0+1 remediation resolved the most critical security gaps: PII is now encrypted at rest (AES-256-GCM), RBAC write guards are on all 42 services, GDPR right-to-erasure and DSAR endpoints are implemented, audit logs redact 26 sensitive field types, Redis requires a password, and the seed script is production-guarded. Architecture is well-decomposed into microservices but still lacks database isolation and resilience patterns.
+**Key Risk Areas:** The platform has strong foundational security controls (JWT algorithm pinning, bcrypt, rate limiting, Zod validation, Helmet). Sprint 0+1 remediation resolved the most critical security gaps: PII is now encrypted at rest (AES-256-GCM), RBAC write guards are on all 42 services, GDPR right-to-erasure and DSAR endpoints are implemented, audit logs redact 26 sensitive field types, Redis requires a password, and the seed script is production-guarded. Architecture is well-decomposed into microservices with circuit breakers, stale response cache, per-service RLS, and resilience patterns.
 
-> **Amendment note (2026-02-20 Sessions 9–14):** Sprint 2+3 complete + additional findings. RESOLVED: FINDING-015, 016, 020, 021, 022, 027, 028 (Sprint 2), FINDING-030 (pre-existing), 031, 032, 033, 034, 035, 038, 039, 040, 041, 042, 043, 044 (Sprint 3), FINDING-036 (audit trail fields), FINDING-037 (PM enum types), FINDING-023 (asyncHandler DRY), FINDING-026 (RLS on 674 tables), FINDING-001 (JWT fallback removed + all services consistent strong secret), FINDING-025 (0 `as any` in production code). PARTIAL: FINDING-029 only. Final composite: 86/100 (was 65). Security: 85/100. Architecture: 85/100. Code quality: 88/100. 39 RESOLVED, 1 PARTIAL. Tests: 12,744 / 12,744.
+> **Amendment note (2026-02-20 Sessions 9–15):** Sprint 2+3 complete + additional findings. RESOLVED: FINDING-015, 016, 020, 021, 022, 027, 028 (Sprint 2), FINDING-030 (pre-existing), 031, 032, 033, 034, 035, 038, 039, 040, 041, 042, 043, 044 (Sprint 3), FINDING-036 (audit trail fields), FINDING-037 (PM enum types), FINDING-023 (asyncHandler DRY), FINDING-026 (RLS on 674 tables), FINDING-001 (JWT fallback removed + all services consistent strong secret), FINDING-025 (0 `as any` in production code), FINDING-029 (stale response cache — GET/HEAD served from cache when circuit OPEN). ALL 40 findings resolved. Final composite: 87/100 (was 65). Security: 85/100. Architecture: 87/100. Code quality: 88/100. Tests: 12,760 / 12,760.
 >
 > **Previous (Session 8):** Sprint 0+1 remediation completed. RESOLVED: FINDING-001 (JWT hardening), FINDING-002 (AES-256-GCM PII), FINDING-003 (seed guard), FINDING-004 (writeRoleGuard), FINDING-006 (Redis auth), FINDING-007 (GDPR), FINDING-008 (PII masking), FINDING-011 (circuit breakers), FINDING-012 (per-service DB users), FINDING-014 (admin approval), FINDING-017 (audit redaction). Pre-existing: FINDING-019, FINDING-045.
 
@@ -74,8 +74,8 @@ Added production validation block after `SERVICES{}` definition in gateway. When
 #### FINDING-028 [PRE-EXISTING]
 All 42 API services already have `.env.example` files. Verified and marked resolved.
 
-#### FINDING-029 [PARTIALLY RESOLVED]
-Circuit breaker (FINDING-011) returns structured 503 JSON with Retry-After instead of 502/hang. Full stale cache implementation deferred (requires proxy body buffering).
+#### FINDING-029 [RESOLVED]
+Full stale response cache implemented in `apps/api-gateway/src/middleware/circuit-breaker.ts`. When the circuit is OPEN, GET/HEAD requests are served from a per-path in-memory cache of the last successful 2xx response (up to 100 entries, 2-minute TTL, LRU eviction). Implementation: `captureMiddleware` monkey-patches `res.write`/`res.end` to buffer the proxy response body; on a 2xx response the body + status + headers are stored in `StaleResponseCache` keyed by `METHOD:path`. The `PatchFns` type alias (non-intersecting) avoids TypeScript overload conflicts when restoring originals. When circuit is OPEN and a warm cache entry exists: sets `X-Cache: HIT-stale`, `X-Cache-Age: Ns`, `Retry-After: Ns` and sends the buffered body. Falls back to 503 only when no cached entry is available or TTL is expired. POST/PUT/PATCH requests always get 503 (non-idempotent). Stale cache can be disabled per-breaker with `staleCache: false`. Gateway `createServiceProxy` now chains: `middleware → captureMiddleware → proxy`. 16 tests added to `circuit-breaker.test.ts` covering all cache scenarios.
 
 #### FINDING-031 [RESOLVED]
 Session tokens now stored as SHA-256 hashes. Added `hashTokenForStorage(token)` helper in `apps/api-gateway/src/routes/auth.ts` using `crypto.createHash('sha256').update(token).digest('hex')`. Login, refresh, and logout all operate on hashed tokens — raw JWT never touches the `sessions` table. If the DB is breached, tokens cannot be replayed (requires the original JWT which is only in the client's memory/localStorage). Test suite updated with pre-computed SHA-256 hashes of mock tokens.

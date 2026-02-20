@@ -505,9 +505,14 @@ const createServiceProxy = (
     },
   });
 
-  // Return a combined middleware: circuit breaker gate → proxy
+  // Return a combined middleware chain:
+  //   1. circuit breaker gate (OPEN → serve stale cache or 503)
+  //   2. capture middleware (buffer response body for future stale cache)
+  //   3. proxy (forward to downstream service)
   return (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    cb.middleware(req, res, () => proxy(req, res, next));
+    cb.middleware(req, res, () => {
+      cb.captureMiddleware(req, res, () => proxy(req, res, next));
+    });
   };
 };
 
