@@ -1,0 +1,282 @@
+import { generateOpenApiSpec } from '../src/index';
+
+// The spec is built once and cached at module level — deterministic and pure.
+const spec = generateOpenApiSpec();
+
+describe('generateOpenApiSpec', () => {
+  // ── Top-level structure ──────────────────────────────────────
+
+  describe('top-level structure', () => {
+    it('returns OpenAPI version 3.0.3', () => {
+      expect(spec.openapi).toBe('3.0.3');
+    });
+
+    it('has info block with title and version', () => {
+      expect(spec.info).toMatchObject({
+        title: expect.stringContaining('IMS'),
+        version: expect.any(String),
+      });
+    });
+
+    it('has contact and license in info', () => {
+      const info = spec.info as Record<string, unknown>;
+      expect(info.contact).toMatchObject({ name: expect.any(String), email: expect.any(String) });
+      expect(info.license).toMatchObject({ name: expect.any(String) });
+    });
+
+    it('has exactly one server pointing to localhost:4000', () => {
+      expect(spec.servers).toHaveLength(1);
+      expect(spec.servers[0]).toMatchObject({ url: 'http://localhost:4000' });
+    });
+
+    it('has many paths (100+)', () => {
+      expect(Object.keys(spec.paths).length).toBeGreaterThanOrEqual(100);
+    });
+
+    it('has tags array covering all services (≥20 tags)', () => {
+      expect(spec.tags.length).toBeGreaterThanOrEqual(20);
+    });
+  });
+
+  // ── Components ───────────────────────────────────────────────
+
+  describe('components', () => {
+    const components = () => spec.components as Record<string, Record<string, unknown>>;
+
+    it('includes BearerAuth security scheme', () => {
+      expect(components().securitySchemes?.BearerAuth).toMatchObject({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      });
+    });
+
+    it('includes SuccessResponse and ErrorResponse schemas', () => {
+      expect(components().schemas?.SuccessResponse).toBeDefined();
+      expect(components().schemas?.ErrorResponse).toBeDefined();
+    });
+
+    it('includes PaginatedResponse schema', () => {
+      expect(components().schemas?.PaginatedResponse).toBeDefined();
+    });
+
+    it('includes PageParam, LimitParam, and IdParam parameters', () => {
+      expect(components().parameters?.PageParam).toBeDefined();
+      expect(components().parameters?.LimitParam).toBeDefined();
+      expect(components().parameters?.IdParam).toBeDefined();
+    });
+  });
+
+  // ── Caching ──────────────────────────────────────────────────
+
+  describe('caching', () => {
+    it('returns the same object reference on repeated calls (module cache)', () => {
+      const spec2 = generateOpenApiSpec();
+      expect(spec2).toBe(spec);
+    });
+  });
+
+  // ── CRUD paths ───────────────────────────────────────────────
+
+  describe('CRUD path generation', () => {
+    it('generates collection and individual paths for health-safety risks', () => {
+      expect(spec.paths['/api/health-safety/risks']).toBeDefined();
+      expect(spec.paths['/api/health-safety/risks/{id}']).toBeDefined();
+    });
+
+    it('collection path has GET and POST methods', () => {
+      const path = spec.paths['/api/health-safety/risks'] as Record<string, unknown>;
+      expect(path.get).toBeDefined();
+      expect(path.post).toBeDefined();
+    });
+
+    it('individual resource path has GET, PUT, and DELETE methods', () => {
+      const path = spec.paths['/api/health-safety/risks/{id}'] as Record<string, unknown>;
+      expect(path.get).toBeDefined();
+      expect(path.put).toBeDefined();
+      expect(path.delete).toBeDefined();
+    });
+
+    it('includes incidents CRUD paths', () => {
+      expect(spec.paths['/api/health-safety/incidents']).toBeDefined();
+      expect(spec.paths['/api/health-safety/incidents/{id}']).toBeDefined();
+    });
+  });
+
+  // ── Auth paths ───────────────────────────────────────────────
+
+  describe('auth endpoints', () => {
+    it('includes login, register, and refresh paths', () => {
+      expect(spec.paths['/api/auth/login']).toBeDefined();
+      expect(spec.paths['/api/auth/register']).toBeDefined();
+      expect(spec.paths['/api/auth/refresh']).toBeDefined();
+    });
+
+    it('includes users and dashboard paths', () => {
+      expect(spec.paths['/api/users']).toBeDefined();
+      expect(spec.paths['/api/dashboard/stats']).toBeDefined();
+    });
+  });
+
+  // ── Security rules ───────────────────────────────────────────
+
+  describe('security', () => {
+    it('login and register have NO security requirement (public endpoints)', () => {
+      const login = (spec.paths['/api/auth/login'] as Record<string, unknown>).post as Record<string, unknown>;
+      const register = (spec.paths['/api/auth/register'] as Record<string, unknown>).post as Record<string, unknown>;
+      expect(login.security).toBeUndefined();
+      expect(register.security).toBeUndefined();
+    });
+
+    it('protected endpoints require BearerAuth', () => {
+      const getRisks = (spec.paths['/api/health-safety/risks'] as Record<string, unknown>).get as Record<string, unknown>;
+      expect(getRisks.security).toEqual([{ BearerAuth: [] }]);
+    });
+
+    it('refresh token endpoint retains authentication (not in public exclusion list)', () => {
+      const refresh = (spec.paths['/api/auth/refresh'] as Record<string, unknown>).post as Record<string, unknown>;
+      expect(refresh.security).toEqual([{ BearerAuth: [] }]);
+    });
+  });
+
+  // ── Parameters ───────────────────────────────────────────────
+
+  describe('parameters', () => {
+    it('paginated collection endpoints reference PageParam and LimitParam', () => {
+      const getRisks = (spec.paths['/api/health-safety/risks'] as Record<string, unknown>).get as Record<string, unknown[]>;
+      const params = getRisks.parameters as Array<Record<string, string>>;
+      const refs = params.map((p) => p.$ref);
+      expect(refs).toContain('#/components/parameters/PageParam');
+      expect(refs).toContain('#/components/parameters/LimitParam');
+    });
+
+    it('individual resource endpoints reference IdParam', () => {
+      const getRisk = (spec.paths['/api/health-safety/risks/{id}'] as Record<string, unknown>).get as Record<string, unknown[]>;
+      const params = getRisk.parameters as Array<Record<string, string>>;
+      expect(params.some((p) => p.$ref === '#/components/parameters/IdParam')).toBe(true);
+    });
+
+    it('non-paginated endpoints without ID have no parameters', () => {
+      const getDashboard = (spec.paths['/api/dashboard/stats'] as Record<string, unknown>).get as Record<string, unknown>;
+      // Should have no parameters (not paginated, no {id})
+      expect(getDashboard.parameters).toBeUndefined();
+    });
+  });
+
+  // ── Request bodies ───────────────────────────────────────────
+
+  describe('request bodies', () => {
+    it('POST endpoints have a required requestBody', () => {
+      const createRisk = (spec.paths['/api/health-safety/risks'] as Record<string, unknown>).post as Record<string, unknown>;
+      expect(createRisk.requestBody).toMatchObject({ required: true });
+    });
+
+    it('PUT endpoints have a required requestBody', () => {
+      const updateRisk = (spec.paths['/api/health-safety/risks/{id}'] as Record<string, unknown>).put as Record<string, unknown>;
+      expect(updateRisk.requestBody).toMatchObject({ required: true });
+    });
+
+    it('GET endpoints do NOT have requestBody', () => {
+      const getRisks = (spec.paths['/api/health-safety/risks'] as Record<string, unknown>).get as Record<string, unknown>;
+      expect(getRisks.requestBody).toBeUndefined();
+    });
+
+    it('DELETE endpoints do NOT have requestBody', () => {
+      const deleteRisk = (spec.paths['/api/health-safety/risks/{id}'] as Record<string, unknown>).delete as Record<string, unknown>;
+      expect(deleteRisk.requestBody).toBeUndefined();
+    });
+  });
+
+  // ── Responses ────────────────────────────────────────────────
+
+  describe('responses', () => {
+    it('every operation includes 200, 400, 401, 404, 500 responses', () => {
+      const getRisks = (spec.paths['/api/health-safety/risks'] as Record<string, unknown>).get as Record<string, unknown>;
+      const responses = getRisks.responses as Record<string, unknown>;
+      expect(responses['200']).toBeDefined();
+      expect(responses['400']).toBeDefined();
+      expect(responses['401']).toBeDefined();
+      expect(responses['404']).toBeDefined();
+      expect(responses['500']).toBeDefined();
+    });
+  });
+
+  // ── Tags ─────────────────────────────────────────────────────
+
+  describe('tags', () => {
+    it('includes Health & Safety tag with description', () => {
+      const hsTag = spec.tags.find((t) => (t as Record<string, string>).name === 'Health & Safety');
+      expect(hsTag).toBeDefined();
+      expect((hsTag as Record<string, string>).description).toBeTruthy();
+    });
+
+    it('includes Gateway tag', () => {
+      expect(spec.tags.some((t) => (t as Record<string, string>).name === 'Gateway')).toBe(true);
+    });
+
+    it('includes newer service tags (Chemicals, Emergency, Risk)', () => {
+      const names = spec.tags.map((t) => (t as Record<string, string>).name);
+      expect(names).toContain('Chemicals');
+      expect(names).toContain('Emergency');
+      expect(names).toContain('Risk');
+    });
+  });
+
+  // ── Specific services ────────────────────────────────────────
+
+  describe('specific service coverage', () => {
+    it('includes chemicals service paths', () => {
+      expect(spec.paths['/api/chemicals/chemicals']).toBeDefined();
+      expect(spec.paths['/api/chemicals/sds']).toBeDefined();
+      expect(spec.paths['/api/chemicals/coshh']).toBeDefined();
+    });
+
+    it('includes emergency service paths', () => {
+      expect(spec.paths['/api/emergency/premises']).toBeDefined();
+      expect(spec.paths['/api/emergency/fra']).toBeDefined();
+      expect(spec.paths['/api/emergency/drills']).toBeDefined();
+    });
+
+    it('includes setup wizard paths', () => {
+      expect(spec.paths['/api/setup-wizard/status']).toBeDefined();
+      expect(spec.paths['/api/setup-wizard/init']).toBeDefined();
+      expect(spec.paths['/api/setup-wizard/complete']).toBeDefined();
+    });
+
+    it('includes marketing paths', () => {
+      expect(spec.paths['/api/marketing/leads']).toBeDefined();
+      expect(spec.paths['/api/marketing/roi-calculator']).toBeDefined();
+    });
+
+    it('includes risk enterprise paths', () => {
+      expect(spec.paths['/api/risk/risks']).toBeDefined();
+      expect(spec.paths['/api/risk/controls']).toBeDefined();
+      expect(spec.paths['/api/risk/kri']).toBeDefined();
+    });
+  });
+
+  // ── operationIds ─────────────────────────────────────────────
+
+  describe('operationIds', () => {
+    it('every operation has an operationId string', () => {
+      for (const pathObj of Object.values(spec.paths)) {
+        for (const operation of Object.values(pathObj as Record<string, unknown>)) {
+          const op = operation as Record<string, string>;
+          expect(typeof op.operationId).toBe('string');
+          expect(op.operationId.length).toBeGreaterThan(0);
+        }
+      }
+    });
+
+    it('generates 600+ operationIds across all services', () => {
+      const ids: string[] = [];
+      for (const pathObj of Object.values(spec.paths)) {
+        for (const operation of Object.values(pathObj as Record<string, unknown>)) {
+          const op = operation as Record<string, string>;
+          if (op.operationId) ids.push(op.operationId);
+        }
+      }
+      expect(ids.length).toBeGreaterThanOrEqual(600);
+    });
+  });
+});

@@ -106,6 +106,10 @@ module.exports = {
     '<rootDir>/packages/dpa',
     '<rootDir>/packages/dsar',
     '<rootDir>/packages/scheduled-reports',
+    // SDK package
+    '<rootDir>/packages/sdk',
+    // OpenAPI spec generator
+    '<rootDir>/packages/openapi',
   ],
 
   // Global settings
