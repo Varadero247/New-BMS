@@ -95,6 +95,11 @@ module.exports = {
     '<rootDir>/packages/security',
     // Templates package (added Feb 20, 2026)
     '<rootDir>/packages/templates',
+    // Packages with existing tests discovered Feb 20 (were missing from projects list)
+    '<rootDir>/packages/a11y',
+    '<rootDir>/packages/csv-import',
+    '<rootDir>/packages/encryption',
+    '<rootDir>/packages/performance',
   ],
 
   // Global settings
