@@ -444,6 +444,9 @@ export function createServiceClient(options: ServiceClientOptions) {
 // Export the CircuitBreaker type for use in other modules
 export { CircuitBreaker };
 
+// Adaptive timeout
+export { AdaptiveTimeout, withAdaptiveTimeout, type AdaptiveTimeoutOptions } from './adaptive-timeout';
+
 export default {
   createCircuitBreaker,
   getCircuitBreaker,

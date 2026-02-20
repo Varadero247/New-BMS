@@ -1,0 +1,217 @@
+import {
+  generateMagicLink,
+  verifyMagicLinkToken,
+  hashMagicLinkToken,
+  InMemoryMagicLinkStore,
+  type MagicLinkRecord,
+} from '../src/magic-link';
+
+describe('hashMagicLinkToken()', () => {
+  it('returns a 64-char hex string', () => {
+    const h = hashMagicLinkToken('my-raw-token');
+    expect(h).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('is deterministic', () => {
+    expect(hashMagicLinkToken('abc')).toBe(hashMagicLinkToken('abc'));
+  });
+
+  it('different inputs → different hashes', () => {
+    expect(hashMagicLinkToken('a')).not.toBe(hashMagicLinkToken('b'));
+  });
+});
+
+describe('generateMagicLink()', () => {
+  it('returns rawToken, hashedToken, magicLink, expiresAt', () => {
+    const result = generateMagicLink('user@example.com');
+    expect(result.rawToken).toBeTruthy();
+    expect(result.hashedToken).toBeTruthy();
+    // URLSearchParams encodes @ as %40
+    expect(result.magicLink).toContain('user%40example.com');
+    expect(result.expiresAt).toBeInstanceOf(Date);
+  });
+
+  it('rawToken and hashedToken differ', () => {
+    const { rawToken, hashedToken } = generateMagicLink('u@a.com');
+    expect(rawToken).not.toBe(hashedToken);
+  });
+
+  it('hashedToken matches manual hash of rawToken', () => {
+    const { rawToken, hashedToken } = generateMagicLink('u@a.com');
+    expect(hashedToken).toBe(hashMagicLinkToken(rawToken));
+  });
+
+  it('magicLink contains encoded redirect path', () => {
+    const { magicLink } = generateMagicLink('u@a.com', '/dashboard');
+    // URLSearchParams encodes / as %2F
+    expect(decodeURIComponent(magicLink)).toContain('/dashboard');
+  });
+
+  it('expiry defaults to ~15 minutes from now', () => {
+    const before = Date.now();
+    const { expiresAt } = generateMagicLink('u@a.com');
+    const after = Date.now();
+    const ttl = expiresAt.getTime() - before;
+    expect(ttl).toBeGreaterThan(14 * 60 * 1000);
+    expect(ttl).toBeLessThanOrEqual(15 * 60 * 1000 + (after - before) + 50);
+  });
+
+  it('respects custom ttlMs', () => {
+    const before = Date.now();
+    const { expiresAt } = generateMagicLink('u@a.com', '/', { ttlMs: 5 * 60 * 1000 });
+    const ttl = expiresAt.getTime() - before;
+    expect(ttl).toBeGreaterThan(4 * 60 * 1000);
+    expect(ttl).toBeLessThanOrEqual(5 * 60 * 1000 + 100);
+  });
+
+  it('uses custom appUrl', () => {
+    const { magicLink } = generateMagicLink('u@a.com', '/', {
+      appUrl: 'https://app.example.com',
+    });
+    expect(magicLink).toContain('https://app.example.com');
+  });
+
+  it('uses process.env.APP_URL when no appUrl option', () => {
+    process.env.APP_URL = 'https://env-app.example.com';
+    const { magicLink } = generateMagicLink('u@a.com');
+    expect(magicLink).toContain('https://env-app.example.com');
+    delete process.env.APP_URL;
+  });
+});
+
+describe('verifyMagicLinkToken()', () => {
+  function makeRecord(overrides: Partial<MagicLinkRecord> = {}): MagicLinkRecord {
+    const raw = 'raw-token-123';
+    return {
+      hashedToken: hashMagicLinkToken(raw),
+      email: 'user@example.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+      ...overrides,
+    };
+  }
+
+  it('returns "ok" for valid token', () => {
+    const rec = makeRecord();
+    expect(verifyMagicLinkToken('raw-token-123', rec)).toBe('ok');
+  });
+
+  it('returns "already_used" when usedAt is set', () => {
+    const rec = makeRecord({ usedAt: new Date() });
+    expect(verifyMagicLinkToken('raw-token-123', rec)).toBe('already_used');
+  });
+
+  it('returns "expired" when expiresAt is in the past', () => {
+    const rec = makeRecord({ expiresAt: new Date(Date.now() - 1000) });
+    expect(verifyMagicLinkToken('raw-token-123', rec)).toBe('expired');
+  });
+
+  it('returns "invalid" for wrong token', () => {
+    const rec = makeRecord();
+    expect(verifyMagicLinkToken('wrong-token', rec)).toBe('invalid');
+  });
+
+  it('returns "already_used" before checking expiry', () => {
+    const rec = makeRecord({
+      usedAt: new Date(),
+      expiresAt: new Date(Date.now() - 1000),
+    });
+    expect(verifyMagicLinkToken('raw-token-123', rec)).toBe('already_used');
+  });
+});
+
+describe('InMemoryMagicLinkStore', () => {
+  let store: InMemoryMagicLinkStore;
+
+  beforeEach(() => {
+    store = new InMemoryMagicLinkStore();
+  });
+
+  it('starts empty', () => {
+    expect(store.size).toBe(0);
+  });
+
+  it('save() and find() round-trip', () => {
+    const rec: MagicLinkRecord = {
+      hashedToken: 'hashed',
+      email: 'u@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    };
+    store.save('hashed', rec);
+    expect(store.find('hashed')).toStrictEqual(rec);
+  });
+
+  it('find() returns null for unknown key', () => {
+    expect(store.find('missing')).toBeNull();
+  });
+
+  it('markUsed() sets usedAt', () => {
+    const rec: MagicLinkRecord = {
+      hashedToken: 'h',
+      email: 'u@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    };
+    store.save('h', rec);
+    const result = store.markUsed('h');
+    expect(result).toBe(true);
+    expect(store.find('h')?.usedAt).toBeInstanceOf(Date);
+  });
+
+  it('markUsed() returns false for missing key', () => {
+    expect(store.markUsed('nope')).toBe(false);
+  });
+
+  it('delete() removes the record', () => {
+    const rec: MagicLinkRecord = {
+      hashedToken: 'hh',
+      email: 'u@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    };
+    store.save('hh', rec);
+    store.delete('hh');
+    expect(store.find('hh')).toBeNull();
+  });
+
+  it('purgeExpired() removes expired records', () => {
+    const expired: MagicLinkRecord = {
+      hashedToken: 'exp',
+      email: 'e@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() - 1000),
+      usedAt: null,
+    };
+    const valid: MagicLinkRecord = {
+      hashedToken: 'val',
+      email: 'v@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    };
+    store.save('exp', expired);
+    store.save('val', valid);
+    const purged = store.purgeExpired();
+    expect(purged).toBe(1);
+    expect(store.size).toBe(1);
+    expect(store.find('exp')).toBeNull();
+    expect(store.find('val')).not.toBeNull();
+  });
+
+  it('purgeExpired() returns 0 when nothing is expired', () => {
+    const valid: MagicLinkRecord = {
+      hashedToken: 'v',
+      email: 'v@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    };
+    store.save('v', valid);
+    expect(store.purgeExpired()).toBe(0);
+  });
+});
