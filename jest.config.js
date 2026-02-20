@@ -93,6 +93,8 @@ module.exports = {
     '<rootDir>/packages/feature-flags',
     // New packages (added Feb 20, 2026 — 100% score sprint)
     '<rootDir>/packages/security',
+    // Templates package (added Feb 20, 2026)
+    '<rootDir>/packages/templates',
   ],
 
   // Global settings
