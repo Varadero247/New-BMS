@@ -59,7 +59,9 @@
   },
   "pnpm": {
     "overrides": {
-      "fast-xml-parser": ">=5.3.5"
+      "fast-xml-parser": ">=5.3.5",
+      "axios": ">=1.13.5",
+      "jspdf": ">=4.2.0"
     }
   },
   "dependencies": {
