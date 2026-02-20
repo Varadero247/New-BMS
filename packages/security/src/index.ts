@@ -40,3 +40,14 @@ export {
   type EnvelopeOptions,
   type KeyRotationResult,
 } from './envelope-encryption';
+
+export {
+  createCredentialScanner,
+  scan,
+  scanString,
+  deepScanValue,
+  type CredentialType,
+  type CredentialMatch,
+  type ScanResult,
+  type CredentialScannerOptions,
+} from './credential-scanner';
