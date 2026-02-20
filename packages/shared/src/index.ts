@@ -3,6 +3,13 @@ import type { Request, Response, NextFunction, RequestHandler } from 'express';
 // ID format validation
 export { isValidId, validateIdParam } from './validation';
 
+// Graceful shutdown utility
+export {
+  createGracefulShutdown,
+  type GracefulShutdownOptions,
+  type GracefulShutdownHandle,
+} from './graceful-shutdown';
+
 // Shared type utilities (PaginatedResponse, AuthUser, parsePaginationWithTake)
 export * from './types';
 

@@ -444,6 +444,19 @@ export function createServiceClient(options: ServiceClientOptions) {
 // Export the CircuitBreaker type for use in other modules
 export { CircuitBreaker };
 
+// Adaptive timeout
+export { AdaptiveTimeout, withAdaptiveTimeout, type AdaptiveTimeoutOptions } from './adaptive-timeout';
+
+// Request hedging
+export {
+  withHedging,
+  withHedgingDetailed,
+  RequestHedger,
+  createHedger,
+  type HedgingOptions,
+  type HedgingResult,
+} from './request-hedging';
+
 export default {
   createCircuitBreaker,
   getCircuitBreaker,

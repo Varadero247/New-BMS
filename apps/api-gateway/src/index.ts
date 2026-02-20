@@ -52,6 +52,7 @@ import marketplaceRouter from './routes/marketplace';
 import esignatureRouter from './routes/esignature';
 import { sanitizeMiddleware, sanitizeQueryMiddleware } from '@ims/validation';
 import { errorHandler } from './middleware/error-handler';
+import { compressionMiddleware } from './middleware/compression';
 import { apiKeyAuth } from './middleware/apiKeyAuth';
 import { notFoundHandler } from './middleware/not-found';
 import { apiLimiter, strictApiLimiter } from './middleware/rate-limiter';
@@ -278,6 +279,8 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(sanitizeMiddleware());
 app.use(sanitizeQueryMiddleware());
+// Response compression (gzip/deflate for responses > 1KB)
+app.use(compressionMiddleware({ threshold: 1024, level: 6 }));
 
 // Set Sentry user scope from JWT if already decoded upstream (e.g. optional auth paths)
 app.use((req, _res, next) => {

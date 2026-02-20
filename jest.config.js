@@ -91,6 +91,8 @@ module.exports = {
     '<rootDir>/packages/readiness',
     '<rootDir>/packages/plan-guard',
     '<rootDir>/packages/feature-flags',
+    // New packages (added Feb 20, 2026 — 100% score sprint)
+    '<rootDir>/packages/security',
   ],
 
   // Global settings
