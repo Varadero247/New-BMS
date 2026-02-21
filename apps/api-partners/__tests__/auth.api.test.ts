@@ -187,3 +187,30 @@ describe('POST /api/auth/login', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST /register returns 500 when create fails', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'securepass123',
+      name: 'New Partner',
+      company: 'NewCo',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /login returns 500 when findUnique fails', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

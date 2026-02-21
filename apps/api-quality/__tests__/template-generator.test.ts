@@ -374,3 +374,20 @@ describe('GET /api/template-generator/categories', () => {
     expect(res.body.data.map((c: any) => c.category)).toContain('AUDIT');
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockFindMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/template-generator');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockCreate.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/template-generator').send({ prompt: 'Create a quality inspection procedure' });
+    expect(res.status).toBe(500);
+  });
+});

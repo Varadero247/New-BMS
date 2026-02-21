@@ -494,3 +494,22 @@ describe('Users API Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  let app500: express.Express;
+
+  beforeAll(() => {
+    app500 = express();
+    app500.use(express.json());
+    app500.use('/api/users', usersRoutes);
+  });
+
+  it('GET / returns 500 on DB error', async () => {
+    (mockPrisma.user.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const response = await request(app500).get('/api/users').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
