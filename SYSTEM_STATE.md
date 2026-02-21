@@ -12,7 +12,7 @@
 | Prisma Schemas           | 44                                     |
 | Database Tables (models) | ~590                                   |
 | Scripts                  | 28                                     |
-| Unit Tests               | 17,361 across 652 suites (all passing) |
+| Unit Tests               | 17,410 across 654 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance)                        |
 
 ---
@@ -359,7 +359,7 @@ All 652 Jest test suites pass with 0 failures as of 2026-02-21. Every `.test.ts`
 | API services (42)      | ~420            | ~10,500        |
 | Web apps (44)          | ~70             | ~2,000         |
 | Shared packages (61)   | ~162            | ~4,861         |
-| **Total**              | **652**         | **17,361**     |
+| **Total**              | **654**         | **17,410**     |
 
 Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api-finance (~456), api-environment (~442), api-aerospace (~553), api-automotive (~502), api-hr (~355), api-payroll (~303).
 
