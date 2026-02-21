@@ -107,3 +107,69 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('GET /api/dashboard/stats — extended', () => {
+  it('suppScorecard error causes 500', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
+    mockPrisma.suppScorecard.count.mockRejectedValue(new Error('scorecard fail'));
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('suppDocument error causes 500', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1);
+    mockPrisma.suppDocument.count.mockRejectedValue(new Error('doc fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('totalSuppliers is a number', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(6);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalSuppliers).toBe('number');
+  });
+
+  it('large count values returned correctly', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(500);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1200);
+    mockPrisma.suppDocument.count.mockResolvedValue(3000);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalSuppliers).toBe(500);
+    expect(res.body.data.totalScorecards).toBe(1200);
+    expect(res.body.data.totalDocuments).toBe(3000);
+  });
+
+  it('response body has success property', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('error response does not include data field', async () => {
+    mockPrisma.suppSupplier.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.data).toBeUndefined();
+  });
+
+  it('totalScorecards is a number', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(11);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalScorecards).toBe('number');
+  });
+});

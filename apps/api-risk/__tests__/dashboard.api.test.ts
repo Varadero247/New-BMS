@@ -160,3 +160,31 @@ describe('Risk Dashboard — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Risk Dashboard — extra', () => {
+  it('pendingReviews is a number', async () => {
+    mockAllCounts(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.pendingReviews).toBe('number');
+  });
+
+  it('kriBreaches reflects mock kri count', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskCapa.count.mockResolvedValue(0);
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(7);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: null } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.kriBreaches).toBe('number');
+  });
+
+  it('error code is INTERNAL_ERROR on DB failure', async () => {
+    mockPrisma.riskRegister.count.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

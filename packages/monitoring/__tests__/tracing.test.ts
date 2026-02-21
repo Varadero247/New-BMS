@@ -85,3 +85,39 @@ describe('Tracing Fix Verification (F-039)', () => {
     });
   });
 });
+
+describe('Tracing — extended', () => {
+  beforeEach(() => {
+    delete process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+    delete process.env.OTEL_TRACING_ENABLED;
+  });
+
+  it('initTracing with enabled: false returns null', () => {
+    const result = initTracing({ serviceName: 'extended-service', enabled: false });
+    expect(result).toBeNull();
+  });
+
+  it('getTracer returns an object with startSpan method', () => {
+    const tracer = getTracer('extended-tracer');
+    expect(typeof tracer.startSpan).toBe('function');
+  });
+
+  it('addSpanAttributes accepts an empty object without throwing', () => {
+    expect(() => addSpanAttributes({})).not.toThrow();
+  });
+
+  it('recordException accepts non-Error values without throwing', () => {
+    expect(() => recordException(new TypeError('type mismatch'))).not.toThrow();
+  });
+
+  it('traceMiddleware returns a function with 3 parameters', () => {
+    const middleware = traceMiddleware();
+    expect(typeof middleware).toBe('function');
+    expect(middleware.length).toBe(3);
+  });
+
+  it('shutdownTracing resolves (is a Promise) when called repeatedly', async () => {
+    await shutdownTracing();
+    await expect(shutdownTracing()).resolves.not.toThrow();
+  });
+});

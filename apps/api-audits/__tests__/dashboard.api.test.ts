@@ -151,3 +151,33 @@ describe('Audits Dashboard — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Audits Dashboard — extra', () => {
+  it('totalChecklists reflects the mock count', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(21);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalChecklists).toBe(21);
+  });
+
+  it('all three stats are numbers in successful response', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(4);
+    mockPrisma.audFinding.count.mockResolvedValue(8);
+    mockPrisma.audChecklist.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalAudits).toBe('number');
+    expect(typeof res.body.data.totalFindings).toBe('number');
+    expect(typeof res.body.data.totalChecklists).toBe('number');
+  });
+
+  it('error code is INTERNAL_ERROR when audChecklist.count rejects', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockRejectedValue(new Error('checklist failure'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

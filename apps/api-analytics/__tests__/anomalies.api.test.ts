@@ -119,3 +119,22 @@ describe('Anomalies — extended', () => {
     expect(typeof res.body.data.summary.total).toBe('number');
   });
 });
+
+describe('Anomalies — extra', () => {
+  it('GET /api/anomalies returns success true', async () => {
+    const res = await request(app).get('/api/anomalies');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/anomalies/kpis summary has anomaly count', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toHaveProperty('anomaly');
+  });
+
+  it('GET /api/anomalies?severity=warning returns 200', async () => {
+    const res = await request(app).get('/api/anomalies?severity=warning');
+    expect(res.status).toBe(200);
+  });
+});

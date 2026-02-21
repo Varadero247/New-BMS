@@ -81,3 +81,57 @@ describe('GET /api/portal/profile', () => {
     expect(res.body.data.id).toBe('42');
   });
 });
+
+describe('GET /api/portal/profile — extended', () => {
+  it('success is false on 404', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.suppSupplier.findFirst.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('response body has success property', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '1', name: 'X', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('404 error code is NOT_FOUND', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('500 error code is INTERNAL_ERROR', async () => {
+    mockPrisma.suppSupplier.findFirst.mockRejectedValue(new Error('db'));
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('data property is defined on 200', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '5', name: 'Corp', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('data is an object on 200', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '5', name: 'Corp', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+  });
+
+  it('findFirst called once even on null result', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue(null);
+    await request(app).get('/api/portal/profile');
+    expect(mockPrisma.suppSupplier.findFirst).toHaveBeenCalledTimes(1);
+  });
+});

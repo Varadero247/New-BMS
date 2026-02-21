@@ -139,3 +139,34 @@ describe('Contract Renewals — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Contract Renewals — extra', () => {
+  it('error code is INTERNAL_ERROR on DB failure', async () => {
+    mockPrisma.contContract.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('each contract has a status property', async () => {
+    const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '1', title: 'Maintenance Contract', renewalDate: futureDate, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('status');
+  });
+
+  it('returns 200 with three upcoming contracts', async () => {
+    const futureDate = new Date(Date.now() + 20 * 24 * 60 * 60 * 1000);
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '1', title: 'Contract One', renewalDate: futureDate, status: 'ACTIVE' },
+      { id: '2', title: 'Contract Two', renewalDate: futureDate, status: 'ACTIVE' },
+      { id: '3', title: 'Contract Three', renewalDate: futureDate, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+});

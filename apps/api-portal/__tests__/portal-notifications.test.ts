@@ -173,3 +173,33 @@ describe('Portal Notifications — extended', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Portal Notifications — extra', () => {
+  it('PUT /:id/read returns success true on success', async () => {
+    const notification = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      isRead: false,
+    };
+    mockPrisma.portalNotification.findFirst.mockResolvedValue(notification);
+    mockPrisma.portalNotification.update.mockResolvedValue({ ...notification, isRead: true });
+    const res = await request(app).put(
+      '/api/portal/notifications/00000000-0000-0000-0000-000000000001/read'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/notifications');
+    expect(mockPrisma.portalNotification.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT read-all: updateMany called once per request', async () => {
+    mockPrisma.portalNotification.updateMany.mockResolvedValue({ count: 0 });
+    await request(app).put('/api/portal/notifications/read-all');
+    expect(mockPrisma.portalNotification.updateMany).toHaveBeenCalledTimes(1);
+  });
+});

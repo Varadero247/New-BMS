@@ -136,3 +136,27 @@ describe('Training Inductions — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Training Inductions — extra', () => {
+  it('course code is a string', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: 'r-2', employeeName: 'Dave', course: { title: 'PPE Training', code: 'PPE-001' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].course.code).toBe('string');
+  });
+
+  it('findMany called once per GET request', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    await request(app).get('/api/inductions');
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('error message code is INTERNAL_ERROR on DB error', async () => {
+    mockPrisma.trainRecord.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

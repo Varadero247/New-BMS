@@ -158,3 +158,34 @@ describe('Automation Rules — extended', () => {
     expect(mockDisableRule).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Automation Rules — extra', () => {
+  let extApp: express.Express;
+  beforeEach(() => {
+    extApp = express();
+    extApp.use(express.json());
+    extApp.use('/api/automation-rules', automationRulesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns at least one rule in data', async () => {
+    const res = await request(extApp).get('/api/automation-rules');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+  });
+
+  it('GET /:id/log returns success true when rule exists', async () => {
+    mockGetExecutionLog.mockReturnValue([]);
+    const res = await request(extApp).get(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000001/log'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('first rule in list has an id property', async () => {
+    const res = await request(extApp).get('/api/automation-rules');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+});

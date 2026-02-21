@@ -104,3 +104,43 @@ describe('calculateRoi', () => {
     expect(withOverride.adminValueSaved).not.toBe(without.adminValueSaved);
   });
 });
+
+describe('calculateRoi — extended', () => {
+  it('assigns Enterprise plan for 1001 employees', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, employees: 1001 });
+    expect(results.recommendedPlan).toBe('Enterprise');
+  });
+
+  it('assigns Scale plan for exactly 1000 employees', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, employees: 1000 });
+    expect(results.recommendedPlan).toBe('Scale');
+  });
+
+  it('netBenefit equals totalValue minus nexaraCost', () => {
+    const results = calculateRoi(DEFAULT_INPUTS);
+    expect(results.netBenefit).toBeCloseTo(results.totalValue - results.nexaraCost, 5);
+  });
+
+  it('adminHoursSaved equals adminHoursPerWeek * 0.5 * 52', () => {
+    const inputs = { ...DEFAULT_INPUTS, adminHoursPerWeek: 10 };
+    const results = calculateRoi(inputs);
+    expect(results.adminHoursSaved).toBeCloseTo(10 * 0.5 * 52, 5);
+  });
+
+  it('auditRiskValue scales with numberOfAudits', () => {
+    const result2 = calculateRoi({ ...DEFAULT_INPUTS, numberOfAudits: 2 });
+    const result4 = calculateRoi({ ...DEFAULT_INPUTS, numberOfAudits: 4 });
+    expect(result4.auditRiskValue).toBeCloseTo(result2.auditRiskValue * 2, 5);
+  });
+
+  it('supplierValue equals activeSuppliers * 480', () => {
+    const inputs = { ...DEFAULT_INPUTS, activeSuppliers: 10 };
+    const results = calculateRoi(inputs);
+    expect(results.supplierValue).toBeCloseTo(10 * 480, 5);
+  });
+
+  it('contractValue equals 12000 when enterpriseContractPursuit is true', () => {
+    const results = calculateRoi({ ...DEFAULT_INPUTS, enterpriseContractPursuit: true });
+    expect(results.contractValue).toBe(12000);
+  });
+});

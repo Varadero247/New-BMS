@@ -158,3 +158,83 @@ describe('GET /api/growth/snapshot/:date', () => {
     expect(res.body.data).toHaveProperty('emailsSent');
   });
 });
+
+describe('Growth routes — extended', () => {
+  it('metrics: leads.total is zero when no leads', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/metrics');
+    expect(res.status).toBe(200);
+    expect(res.body.data.leads.total).toBe(0);
+  });
+
+  it('metrics: data.health.healthy is zero with no healthy scores', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([
+      { userId: 'u1', score: 20 },
+    ]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/metrics');
+    expect(res.status).toBe(200);
+    expect(res.body.data.health.healthy).toBe(0);
+    expect(res.body.data.health.critical).toBe(1);
+  });
+
+  it('metrics: response is 200 and success is true', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(1);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/metrics');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('snapshot: emailsSent reflects mock emailLog count', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(55);
+    const res = await request(app).get('/api/growth/snapshot/2026-02-01');
+    expect(res.status).toBe(200);
+    expect(res.body.data.emailsSent).toBe(55);
+  });
+
+  it('snapshot: leads reflects mock lead count', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(20);
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/snapshot/2026-02-01');
+    expect(res.status).toBe(200);
+    expect(res.body.data.leads).toBe(20);
+  });
+
+  it('snapshot: date in response matches requested date', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/snapshot/2026-03-15');
+    expect(res.status).toBe(200);
+    expect(res.body.data.date).toBe('2026-03-15');
+  });
+
+  it('metrics returns 500 on mktPartner.count failure', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockRejectedValue(new Error('partner err'));
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/metrics');
+    expect(res.status).toBe(500);
+  });
+});

@@ -129,3 +129,28 @@ describe('Contracts Dashboard — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Contracts Dashboard — extra', () => {
+  it('upcomingNotices is a number', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.upcomingNotices).toBe('number');
+  });
+
+  it('error code is INTERNAL_ERROR on failure', async () => {
+    mockPrisma.contContract.count.mockRejectedValue(new Error('db error'));
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('contNotice.count is called once per request', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.contNotice.count).toHaveBeenCalledTimes(1);
+  });
+});

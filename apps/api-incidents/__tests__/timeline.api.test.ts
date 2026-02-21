@@ -135,3 +135,77 @@ describe('GET /api/timeline/:id', () => {
     expect(event).toHaveProperty('date');
   });
 });
+
+describe('GET /api/timeline/:id — extended', () => {
+  it('all four events present when all dates set', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-01-10T08:00:00Z'),
+      reportedDate: new Date('2026-01-10T09:00:00Z'),
+      investigationDate: new Date('2026-01-15T12:00:00Z'),
+      closedDate: new Date('2026-01-20T16:00:00Z'),
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(4);
+  });
+
+  it('findFirst receives orgId from auth user', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date(),
+      reportedDate: new Date(),
+      investigationDate: null,
+      closedDate: null,
+    });
+    await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.incIncident.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('success is false on 404', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000099');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.incIncident.findFirst.mockRejectedValue(new Error('err'));
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('first event is always Incident occurred', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-02-01T10:00:00Z'),
+      reportedDate: new Date('2026-02-01T11:00:00Z'),
+      investigationDate: new Date('2026-02-05T09:00:00Z'),
+      closedDate: new Date('2026-02-10T15:00:00Z'),
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].event).toBe('Incident occurred');
+  });
+
+  it('second event is always Reported', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-02-01T10:00:00Z'),
+      reportedDate: new Date('2026-02-02T08:00:00Z'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data[1].event).toBe('Reported');
+  });
+
+  it('404 response has NOT_FOUND error code', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

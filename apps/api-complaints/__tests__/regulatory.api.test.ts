@@ -131,3 +131,29 @@ describe('Regulatory — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Regulatory — extra', () => {
+  it('error code is INTERNAL_ERROR on DB failure', async () => {
+    mockPrisma.compComplaint.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('first complaint has an id property', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: 'reg-001', title: 'HSE Report', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+    expect(res.body.data[0].id).toBe('reg-001');
+  });
+
+  it('findMany is not called when request returns 500', async () => {
+    mockPrisma.compComplaint.findMany.mockRejectedValue(new Error('db down'));
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(500);
+    expect(mockPrisma.compComplaint.findMany).toHaveBeenCalledTimes(1);
+  });
+});

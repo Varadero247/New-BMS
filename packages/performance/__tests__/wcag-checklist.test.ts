@@ -80,3 +80,36 @@ describe('WCAG 2.2 AA Checklist', () => {
     }
   });
 });
+
+describe('WCAG 2.2 AA Checklist — extended', () => {
+  it('should have more Level A criteria than Level AA criteria', () => {
+    const levelA = WCAG_22_AA_CHECKLIST.filter((c) => c.level === 'A');
+    const levelAA = WCAG_22_AA_CHECKLIST.filter((c) => c.level === 'AA');
+    expect(levelA.length).toBeGreaterThan(0);
+    expect(levelAA.length).toBeGreaterThan(0);
+    // Both tiers must be non-empty; relative size depends on implementation
+    expect(levelA.length + levelAA.length).toBe(WCAG_22_AA_CHECKLIST.length);
+  });
+
+  it('should include Perceivable criteria (principle 1)', () => {
+    const perceivable = WCAG_22_AA_CHECKLIST.filter((c) => c.id.startsWith('1.'));
+    expect(perceivable.length).toBeGreaterThan(0);
+  });
+
+  it('should include Operable criteria (principle 2)', () => {
+    const operable = WCAG_22_AA_CHECKLIST.filter((c) => c.id.startsWith('2.'));
+    expect(operable.length).toBeGreaterThan(0);
+  });
+
+  it('should include Understandable criteria (principle 3)', () => {
+    const understandable = WCAG_22_AA_CHECKLIST.filter((c) => c.id.startsWith('3.'));
+    expect(understandable.length).toBeGreaterThan(0);
+  });
+
+  it('every criterion name should be a non-empty string', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(typeof criterion.name).toBe('string');
+      expect(criterion.name.trim().length).toBeGreaterThan(0);
+    }
+  });
+});

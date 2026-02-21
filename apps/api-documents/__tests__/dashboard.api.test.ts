@@ -109,3 +109,68 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('GET /api/dashboard/stats — extended', () => {
+  it('docVersion error causes 500', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(5);
+    mockPrisma.docVersion.count.mockRejectedValue(new Error('version fail'));
+    mockPrisma.docApproval.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('docApproval error causes 500', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(5);
+    mockPrisma.docVersion.count.mockResolvedValue(10);
+    mockPrisma.docApproval.count.mockRejectedValue(new Error('approval fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('totalDocuments is a number', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(4);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalDocuments).toBe('number');
+  });
+
+  it('large counts are returned correctly', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(999);
+    mockPrisma.docVersion.count.mockResolvedValue(4500);
+    mockPrisma.docApproval.count.mockResolvedValue(120);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDocuments).toBe(999);
+    expect(res.body.data.totalVersions).toBe(4500);
+    expect(res.body.data.pendingApprovals).toBe(120);
+  });
+
+  it('response body has success property', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('error response does not include data field', async () => {
+    mockPrisma.docDocument.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.data).toBeUndefined();
+  });
+
+  it('success is true with all zero counts', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toBe(true);
+  });
+});

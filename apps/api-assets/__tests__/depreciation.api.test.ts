@@ -153,3 +153,32 @@ describe('Depreciation — extended', () => {
     expect(res.body.data[0].currentValue).toBe(0);
   });
 });
+
+describe('Depreciation — extra', () => {
+  it('purchaseCost is a number for each asset', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Lathe', purchaseCost: 12000, currentValue: 9000, purchaseDate: '2023-05-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].purchaseCost).toBe('number');
+  });
+
+  it('returns 200 with multiple assets having different costs', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Asset One', purchaseCost: 100, currentValue: 80, purchaseDate: '2024-01-01' },
+      { id: 'a-2', name: 'Asset Two', purchaseCost: 200, currentValue: 150, purchaseDate: '2024-06-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].purchaseCost).toBe(100);
+    expect(res.body.data[1].purchaseCost).toBe(200);
+  });
+
+  it('error code is INTERNAL_ERROR on DB failure', async () => {
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

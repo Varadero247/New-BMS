@@ -111,3 +111,69 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.data.totalObligations).toBe(22);
   });
 });
+
+describe('GET /api/dashboard/stats — extended', () => {
+  it('regLegalRegister error causes 500', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockRejectedValue(new Error('legal fail'));
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('regObligation error causes 500', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(1);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(1);
+    mockPrisma.regObligation.count.mockRejectedValue(new Error('obligation fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('success is true with all non-zero counts', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(4);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(9);
+    mockPrisma.regObligation.count.mockResolvedValue(13);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('response body has success property', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('error response does not include data field', async () => {
+    mockPrisma.regChange.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.data).toBeUndefined();
+  });
+
+  it('totalChanges is a number on success', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(6);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(2);
+    mockPrisma.regObligation.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalChanges).toBe('number');
+  });
+
+  it('all three values correct simultaneously', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(7);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(14);
+    mockPrisma.regObligation.count.mockResolvedValue(21);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalChanges).toBe(7);
+    expect(res.body.data.totalLegalItems).toBe(14);
+    expect(res.body.data.totalObligations).toBe(21);
+  });
+});

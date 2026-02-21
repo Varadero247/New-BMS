@@ -181,3 +181,31 @@ describe('Agenda — extended', () => {
     expect(res.body.data.items.length).toBeGreaterThanOrEqual(14);
   });
 });
+
+describe('Agenda — extra', () => {
+  const reviewId = '00000000-0000-0000-0000-000000000001';
+  const mockReview = { id: reviewId, title: 'Q3 Management Review', deletedAt: null };
+
+  it('success is true on 200 response', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('error code is NOT_FOUND when review does not exist', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('update where clause contains correct reviewId', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    await request(app).post(`/api/agenda/${reviewId}/generate`);
+    const updateCall = (prisma.mgmtReview.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.where.id).toBe(reviewId);
+  });
+});

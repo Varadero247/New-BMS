@@ -143,3 +143,39 @@ describe('Presence — extended', () => {
     expect(mockRefreshLock).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Presence — extra', () => {
+  let app: express.Express;
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/presence', presenceRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET presence success is true when viewers exist', async () => {
+    mockGetPresence.mockReturnValue([
+      { userId: 'u3', userName: 'Bob', lockedAt: new Date().toISOString() },
+    ]);
+    const res = await request(app).get('/api/presence?recordType=ncr&recordId=r2');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.viewers).toHaveLength(1);
+  });
+
+  it('DELETE lock response success is true', async () => {
+    const res = await request(app)
+      .delete('/api/presence/lock')
+      .send({ recordType: 'ncr', recordId: 'r3' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT refresh response success is true', async () => {
+    const res = await request(app)
+      .put('/api/presence/refresh')
+      .send({ recordType: 'ncr', recordId: 'r4' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

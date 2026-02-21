@@ -127,3 +127,28 @@ describe('Complaints Dashboard — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Complaints Dashboard — extra', () => {
+  it('error code is INTERNAL_ERROR when compAction.count rejects', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockRejectedValue(new Error('action count fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('totalActions reflects large count', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(8888);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalActions).toBe(8888);
+  });
+
+  it('compAction.count is called once per request', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.compAction.count).toHaveBeenCalledTimes(1);
+  });
+});

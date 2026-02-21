@@ -234,3 +234,35 @@ describe('Architecture Fix — extended', () => {
     expect(response.body.meta.limit).toBe(100);
   });
 });
+
+describe('Architecture Fix — extra', () => {
+  let extApp: express.Express;
+  beforeAll(() => {
+    extApp = express();
+    extApp.use(express.json());
+    extApp.use('/api/risks', risksRoutes);
+  });
+
+  it('response meta has total field', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(5);
+    const response = await request(extApp).get('/api/risks');
+    expect(response.status).toBe(200);
+    expect(response.body.meta).toHaveProperty('total');
+  });
+
+  it('success is false when findMany rejects', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockRejectedValueOnce(new Error('fail'));
+    const response = await request(extApp).get('/api/risks');
+    expect(response.status).toBe(500);
+    expect(response.body.success).toBe(false);
+  });
+
+  it('data is an array on 200 response', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    const response = await request(extApp).get('/api/risks');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+});

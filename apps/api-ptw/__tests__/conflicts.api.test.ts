@@ -227,3 +227,37 @@ describe('PTW Conflicts — extended', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('PTW Conflicts — extra', () => {
+  it('two permits with matching location and null area produce a conflict (null === null)', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'p1', title: 'A', location: 'Site Z', area: null, startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'p2', title: 'B', location: 'Site Z', area: null, startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    // null === null is true in JS, so they match as same location+area
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('error code is INTERNAL_ERROR on DB failure', async () => {
+    mockPrisma.ptwPermit.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('four permits all in same location and area produce 6 conflicts', async () => {
+    const permits = [
+      { id: '1', title: 'P1', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: '2', title: 'P2', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'CONFINED_SPACE' },
+      { id: '3', title: 'P3', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+      { id: '4', title: 'P4', location: 'L', area: 'A', startDate: new Date(), endDate: new Date(), type: 'WORKING_AT_HEIGHT' },
+    ];
+    mockPrisma.ptwPermit.findMany.mockResolvedValue(permits);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    // C(4,2) = 6 pairs
+    expect(res.body.data).toHaveLength(6);
+  });
+});

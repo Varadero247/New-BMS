@@ -147,3 +147,37 @@ describe('OpenAPI — extended', () => {
     expect(typeof res.body.openapi).toBe('string');
   });
 });
+
+describe('OpenAPI — extra', () => {
+  let extApp: express.Express;
+  beforeEach(() => {
+    extApp = express();
+    extApp.use(express.json());
+    extApp.use('/api/docs', openapiRouter);
+    jest.clearAllMocks();
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: { title: 'Nexara IMS API', version: '1.0.0', description: 'Integrated Management System API' },
+      paths: { '/api/auth/login': { post: { summary: 'Login' } } },
+      components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } },
+    });
+  });
+
+  it('generateOpenApiSpec is called once per request', async () => {
+    await request(extApp).get('/api/docs/openapi.json');
+    expect(mockGenerateOpenApiSpec).toHaveBeenCalledTimes(1);
+  });
+
+  it('spec has a description field in info', async () => {
+    const res = await request(extApp).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.info).toHaveProperty('description');
+  });
+
+  it('paths is an object not null', async () => {
+    const res = await request(extApp).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.paths).not.toBeNull();
+    expect(typeof res.body.paths).toBe('object');
+  });
+});

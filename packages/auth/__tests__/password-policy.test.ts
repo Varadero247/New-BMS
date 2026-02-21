@@ -85,3 +85,44 @@ describe('Password policy — NIST SP 800-63B', () => {
     expect(result.errors.length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('Password policy — extended', () => {
+  it('accepts password with boundary length of 11 chars as invalid', () => {
+    const result = validatePasswordStrength('Aa1!Aa1!Aa1');
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Password must be at least 12 characters long');
+  });
+
+  it('accepts password with common special characters', () => {
+    const result = validatePasswordStrength('Valid1!Pass@#');
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('rejects empty string with multiple errors', () => {
+    const result = validatePasswordStrength('');
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('rejects password with only digits and special chars (no letters)', () => {
+    const result = validatePasswordStrength('1234567890!@#$');
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Password must contain at least one uppercase letter');
+    expect(result.errors).toContain('Password must contain at least one lowercase letter');
+  });
+
+  it('accepts password exactly 72 chars that has all required character types', () => {
+    const pwd = 'Ab1!' + 'abcdefgh'.repeat(8) + 'xxxx';
+    expect(pwd.length).toBe(72);
+    const result = validatePasswordStrength(pwd);
+    expect(result.valid).toBe(true);
+  });
+
+  it('result object always has both valid and errors properties', () => {
+    const result = validatePasswordStrength('SomePass1!');
+    expect(Object.keys(result)).toContain('valid');
+    expect(Object.keys(result)).toContain('errors');
+    expect(Array.isArray(result.errors)).toBe(true);
+  });
+});

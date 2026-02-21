@@ -143,3 +143,37 @@ describe('Status — extended', () => {
     expect(res.body.data.uptime).toHaveProperty('7d');
   });
 });
+
+describe('Status + OpenAPI — extra', () => {
+  let statusApp: express.Express;
+  let openapiApp: express.Express;
+  beforeEach(() => {
+    statusApp = express();
+    statusApp.use(express.json());
+    statusApp.use('/api/health/status', statusRouter);
+
+    openapiApp = express();
+    openapiApp.use(express.json());
+    openapiApp.use('/api/docs', openapiRouter);
+
+    jest.clearAllMocks();
+  });
+
+  it('uptime has 30d key', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.uptime).toHaveProperty('30d');
+  });
+
+  it('openapi spec info has a version field', async () => {
+    const res = await request(openapiApp).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.info).toHaveProperty('version');
+  });
+
+  it('success is true in status response body', async () => {
+    const res = await request(statusApp).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

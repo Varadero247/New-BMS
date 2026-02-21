@@ -87,3 +87,53 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('GET /api/dashboard/stats — extended', () => {
+  it('error response does not include data field', async () => {
+    mockPrisma.incIncident.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.data).toBeUndefined();
+  });
+
+  it('response body has success property on success', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('count query includes deletedAt: null in where clause', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.incIncident.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ deletedAt: null }) })
+    );
+  });
+
+  it('returns 200 with large count values', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(5000);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalIncidents).toBe(5000);
+  });
+
+  it('totalIncidents is not null on success', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalIncidents).not.toBeNull();
+  });
+
+  it('error code present on 500', async () => {
+    mockPrisma.incIncident.count.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+  });
+
+  it('success false when error is thrown', async () => {
+    mockPrisma.incIncident.count.mockRejectedValue(new Error('err'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.success).toBe(false);
+  });
+});

@@ -84,3 +84,45 @@ describe('createLogger', () => {
     }
   });
 });
+
+describe('createLogger — extended', () => {
+  it('can log warn level messages without throwing', () => {
+    const logger = createLogger('warn-test-service');
+    expect(() => {
+      logger.warn('Test warning message');
+    }).not.toThrow();
+  });
+
+  it('can log debug level messages without throwing', () => {
+    const logger = createLogger('debug-test-service');
+    expect(() => {
+      logger.debug('Test debug message');
+    }).not.toThrow();
+  });
+
+  it('logger instance is an object with defaultMeta property', () => {
+    const logger = createLogger('meta-service');
+    expect(typeof logger).toBe('object');
+    expect(logger).toHaveProperty('defaultMeta');
+  });
+
+  it('defaultMeta service name matches the argument passed', () => {
+    const logger = createLogger('my-unique-service-xyz');
+    expect(logger.defaultMeta).toEqual(
+      expect.objectContaining({ service: 'my-unique-service-xyz' })
+    );
+  });
+
+  it('logger level is a string value', () => {
+    const logger = createLogger('level-check-service');
+    expect(typeof logger.level).toBe('string');
+    expect(logger.level.length).toBeGreaterThan(0);
+  });
+
+  it('can log error with an Error object as metadata without throwing', () => {
+    const logger = createLogger('error-meta-service');
+    expect(() => {
+      logger.error('Something went wrong', { error: new Error('inner error') });
+    }).not.toThrow();
+  });
+});
