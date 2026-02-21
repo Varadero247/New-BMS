@@ -166,3 +166,32 @@ describe('Response shape', () => {
     expect(Array.isArray(res.body.data.deals)).toBe(true);
   });
 });
+
+describe('Commission — extended', () => {
+  it('summary success is true on 200', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('summary totalEarned is a number', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(mockDeals);
+    const res = await request(app).get('/api/commission/summary');
+    expect(typeof res.body.data.totalEarned).toBe('number');
+  });
+
+  it('history success is true on 200', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/history');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('pending totalPending is a number', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/pending');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalPending).toBe('number');
+  });
+});

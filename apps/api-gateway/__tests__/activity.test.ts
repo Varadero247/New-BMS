@@ -117,4 +117,42 @@ describe('Activity Routes', () => {
       expect(res.body.success).toBe(true);
     });
   });
+
+  describe('Activity — further extended', () => {
+    it('POST returns 201 with success true', async () => {
+      const res = await request(app).post('/api/activity').send({
+        recordType: 'ncr',
+        recordId: 'r2',
+        action: 'updated',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('getActivity is called once per GET request', async () => {
+      mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+      await request(app).get('/api/activity?recordType=ncr&recordId=r1');
+      expect(mockGetActivity).toHaveBeenCalledTimes(1);
+    });
+
+    it('getRecentActivity is called once per recent GET', async () => {
+      mockGetRecentActivity.mockResolvedValue([]);
+      await request(app).get('/api/activity/recent');
+      expect(mockGetRecentActivity).toHaveBeenCalledTimes(1);
+    });
+
+    it('total is a number in activity response', async () => {
+      mockGetActivity.mockResolvedValue({ entries: [], total: 7 });
+      const res = await request(app).get('/api/activity?recordType=ncr&recordId=r3');
+      expect(res.status).toBe(200);
+      expect(typeof res.body.data.total).toBe('number');
+    });
+
+    it('recent data.entries is an array', async () => {
+      mockGetRecentActivity.mockResolvedValue([{ id: 'a1', action: 'created' }]);
+      const res = await request(app).get('/api/activity/recent');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data.entries)).toBe(true);
+    });
+  });
 });

@@ -147,3 +147,41 @@ describe('GET /api/cashflow/position', () => {
     expect(mockPrisma.companyCashPosition.findFirst).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Cashflow — extended', () => {
+  it('GET /api/cashflow success is false on 500', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/cashflow');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/cashflow total is a number', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/cashflow');
+    expect(typeof res.body.data.total).toBe('number');
+  });
+
+  it('GET /api/cashflow forecasts is an array', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/cashflow');
+    expect(Array.isArray(res.body.data.forecasts)).toBe(true);
+  });
+
+  it('GET /api/cashflow/position success is false on 500', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/cashflow/position returns data.position object', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue({
+      id: 'pos-4',
+      date: new Date(),
+      balance: 100,
+      currency: 'USD',
+    });
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.body.data.position).toBeDefined();
+    expect(typeof res.body.data.position).toBe('object');
+  });
+});

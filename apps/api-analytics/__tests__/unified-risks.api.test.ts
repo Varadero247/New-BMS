@@ -103,3 +103,25 @@ describe('Unified Risks Routes', () => {
     });
   });
 });
+
+describe('Unified Risks — further extended', () => {
+  it('GET /api/unified-risks success is true', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/unified-risks summary.redZonePercent is a number', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(typeof res.body.data.summary.redZonePercent).toBe('number');
+  });
+
+  it('GET /api/unified-risks heatmap is an array', async () => {
+    const res = await request(app).get('/api/unified-risks');
+    expect(Array.isArray(res.body.data.heatmap)).toBe(true);
+  });
+
+  it('GET /api/unified-risks/:id success is true for found risk', async () => {
+    const res = await request(app).get('/api/unified-risks/ur-001');
+    expect(res.body.success).toBe(true);
+  });
+});

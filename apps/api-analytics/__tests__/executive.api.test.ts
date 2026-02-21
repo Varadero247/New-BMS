@@ -98,3 +98,25 @@ describe('Executive Summary Routes', () => {
     });
   });
 });
+
+describe('Executive Summary — extended', () => {
+  it('myActions.overdue is a number', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(typeof res.body.data.myActions.overdue).toBe('number');
+  });
+
+  it('health.isoReadiness is a number', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(typeof res.body.data.health.isoReadiness).toBe('number');
+  });
+
+  it('certifications array length is at least 0', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.body.data.certifications.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('recentActivity array length is at least 0', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.body.data.recentActivity.length).toBeGreaterThanOrEqual(0);
+  });
+});

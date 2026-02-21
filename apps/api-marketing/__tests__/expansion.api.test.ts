@@ -132,3 +132,31 @@ describe('GET /api/expansion/triggers — additional', () => {
     expect(typeof res.body.data.results).toBe('object');
   });
 });
+
+describe('Expansion — extra', () => {
+  it('GET triggers success is true', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/expansion/triggers');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET triggers error code is INTERNAL_ERROR on 500', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/expansion/triggers');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST check message field is a string', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.message).toBe('string');
+  });
+
+  it('POST check userLimitApproaching is an array', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.results.userLimitApproaching)).toBe(true);
+  });
+});

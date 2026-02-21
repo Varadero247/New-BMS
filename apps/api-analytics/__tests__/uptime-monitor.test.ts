@@ -174,3 +174,38 @@ describe('runUptimeMonitorJob', () => {
     expect(prisma.uptimeCheck.findMany).toHaveBeenCalledWith({ where: { isActive: true } });
   });
 });
+
+describe('Uptime Monitor — extended', () => {
+  it('uptimeCheck.findMany is called exactly once', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([]);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeCheck.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('uptimeCheck.update data includes lastStatus field', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'ext-1', url: 'https://ext.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    const updateCall = (prisma.uptimeCheck.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data).toHaveProperty('lastStatus');
+  });
+
+  it('uptimeCheck.update data lastStatus is a string', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'ext-2', url: 'https://ext2.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    const updateCall = (prisma.uptimeCheck.update as jest.Mock).mock.calls[0][0];
+    expect(typeof updateCall.data.lastStatus).toBe('string');
+  });
+
+  it('resolves without error when check list is empty', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([]);
+    await expect(runUptimeMonitorJob()).resolves.toBeUndefined();
+  });
+});

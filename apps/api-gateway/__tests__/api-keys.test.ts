@@ -130,4 +130,40 @@ describe('API Keys Routes', () => {
       expect(res.body.data.scopes).toEqual(['read:quality', 'read:hr']);
     });
   });
+
+  describe('API Keys — further extended', () => {
+    it('GET returns data as an array', async () => {
+      const res = await request(app).get('/api/admin/api-keys');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('created key key field starts with rxk_', async () => {
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'Prefix Check', scopes: ['read:inventory'] });
+      expect(res.status).toBe(201);
+      expect(res.body.data.key).toMatch(/^rxk_/);
+    });
+
+    it('created key name matches submitted name', async () => {
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'My Integration', scopes: ['read:hr'] });
+      expect(res.status).toBe(201);
+      expect(res.body.data.name).toBe('My Integration');
+    });
+
+    it('POST with missing scopes returns 400', async () => {
+      const res = await request(app).post('/api/admin/api-keys').send({ name: 'No Scopes' });
+      expect(res.status).toBe(400);
+    });
+
+    it('DELETE non-existent key returns 404', async () => {
+      const res = await request(app).delete(
+        '/api/admin/api-keys/00000000-0000-0000-0000-000000000099'
+      );
+      expect(res.status).toBe(404);
+    });
+  });
 });

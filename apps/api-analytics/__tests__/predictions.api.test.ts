@@ -111,3 +111,33 @@ describe('Predictions Routes', () => {
     });
   });
 });
+
+describe('Predictions — extended', () => {
+  it('GET /api/predictions/capa-overrun predictions is an array', async () => {
+    const res = await request(app).get('/api/predictions/capa-overrun');
+    expect(Array.isArray(res.body.data.predictions)).toBe(true);
+  });
+
+  it('GET /api/predictions/audit-forecast clauses is an array', async () => {
+    const res = await request(app).get('/api/predictions/audit-forecast');
+    expect(Array.isArray(res.body.data.clauses)).toBe(true);
+  });
+
+  it('GET /api/predictions/ncr-forecast topRiskCategories is an array', async () => {
+    const res = await request(app).get('/api/predictions/ncr-forecast');
+    expect(Array.isArray(res.body.data.topRiskCategories)).toBe(true);
+  });
+
+  it('GET /api/predictions returns an array', async () => {
+    const res = await request(app).get('/api/predictions');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/predictions/generate with audit_forecast returns 202', async () => {
+    const res = await request(app)
+      .post('/api/predictions/generate')
+      .send({ type: 'audit_forecast' });
+    expect(res.status).toBe(202);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -141,3 +141,37 @@ describe('POST /api/public/submit', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Public Complaints — extended', () => {
+  it('count is called once per submission', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: '6', referenceNumber: 'CMP-2026-0001' });
+    await request(app).post('/api/public/submit').send({ title: 'Count Check' });
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('referenceNumber is a string', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(2);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: '7', referenceNumber: 'CMP-2026-0003' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Type Check' });
+    expect(res.status).toBe(201);
+    expect(typeof res.body.data.referenceNumber).toBe('string');
+  });
+
+  it('success is false when create rejects', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockRejectedValue(new Error('DB constraint'));
+    const res = await request(app).post('/api/public/submit').send({ title: 'Rejection Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('validation error code returned for invalid email', async () => {
+    const res = await request(app).post('/api/public/submit').send({
+      title: 'Email Validation',
+      complainantEmail: 'bad-email',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

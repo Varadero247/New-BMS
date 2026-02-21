@@ -273,3 +273,39 @@ describe('GET /api/reports/consumption', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Energy Reports — extended', () => {
+  it('GET /api/reports/dashboard success is true', async () => {
+    (prisma.energyReading.aggregate as jest.Mock)
+      .mockResolvedValueOnce({ _sum: { value: 0, cost: 0 } })
+      .mockResolvedValueOnce({ _sum: { value: 0, cost: 0 } });
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/reports/dashboard');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/reports/esos success is true', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/esos');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/reports/consumption breakdown is an array', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/consumption');
+    expect(Array.isArray(res.body.data.breakdown)).toBe(true);
+  });
+
+  it('GET /api/reports/secr success is false on 500', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/reports/secr');
+    expect(res.status).toBe(500);
+  });
+});

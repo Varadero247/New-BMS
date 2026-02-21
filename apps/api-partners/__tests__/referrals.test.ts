@@ -149,3 +149,39 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Referrals — extended', () => {
+  it('GET / data is an array', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/referrals');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /stats returns success true', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /stats returns conversionRate as a number', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.conversionRate).toBe('number');
+  });
+
+  it('GET / findMany called once per request', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([mockReferral]);
+    await request(app).get('/api/referrals');
+    expect(portalPrisma.mktPartnerReferral.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /stats total field is a number', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([mockReferral]);
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.total).toBe('number');
+  });
+});

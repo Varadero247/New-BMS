@@ -143,3 +143,33 @@ describe('Customer NPS — extended', () => {
     expect(mockPrisma.portalQualityReport.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Customer NPS — extra', () => {
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/customer/nps');
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: pagination total matches count mock value', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.body.pagination.total).toBe(7);
+  });
+
+  it('POST submit: success is true for score 10', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({ id: 'nps-10', reportType: 'INSPECTION', description: 'NPS Score: 10' });
+    const res = await request(app).post('/api/customer/nps').send({ score: 10 });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST submit: returns 500 with error code on DB error', async () => {
+    mockPrisma.portalQualityReport.create.mockRejectedValue(new Error('DB fail'));
+    const res = await request(app).post('/api/customer/nps').send({ score: 5 });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

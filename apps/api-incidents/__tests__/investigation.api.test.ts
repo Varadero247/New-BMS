@@ -157,3 +157,50 @@ describe('Investigation — extended', () => {
     expect(res.body.data).toHaveProperty('investigator');
   });
 });
+
+describe('Investigation — further extended', () => {
+  it('assign sets status to INVESTIGATING', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', investigator: 'u3', status: 'INVESTIGATING' });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'u3' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('INVESTIGATING');
+  });
+
+  it('report update sets status to ROOT_CAUSE_ANALYSIS', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ROOT_CAUSE_ANALYSIS' });
+    const res = await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Process gap' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('ROOT_CAUSE_ANALYSIS');
+  });
+
+  it('assign success is false when DB rejects', async () => {
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('DB timeout'));
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'u4' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('report update error code is INTERNAL_ERROR on 500', async () => {
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Failure' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('assign data has id field', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', investigator: 'u5', status: 'INVESTIGATING' });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'u5' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

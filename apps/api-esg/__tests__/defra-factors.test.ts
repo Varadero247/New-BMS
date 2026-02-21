@@ -176,3 +176,53 @@ describe('GET /api/defra-factors — extended', () => {
     expect(res.body.data[0]).toHaveProperty('factor');
   });
 });
+
+describe('DEFRA Factors — further extended', () => {
+  it('factor field is a number', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].factor).toBe('number');
+  });
+
+  it('POST returns 201 status on success', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue(mockDefraFactor);
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Fuel',
+      activity: 'Diesel',
+      factor: 2.5,
+      unit: 'kgCO2e/litre',
+      year: 2026,
+      source: 'DEFRA 2026',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('create called once per POST request', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue(mockDefraFactor);
+    await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      activity: 'Grid',
+      factor: 0.233,
+      unit: 'kgCO2e/kWh',
+      year: 2026,
+      source: 'DEFRA 2026',
+    });
+    expect(prisma.esgDefraFactor.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('data length matches number of mock results', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor, mockDefraFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET success is false on DB rejection', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

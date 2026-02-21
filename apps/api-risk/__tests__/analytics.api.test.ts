@@ -155,3 +155,52 @@ describe('GET /api/risks/analytics/dashboard — extended', () => {
     expect(res.body.data[0]).toHaveProperty('count');
   });
 });
+
+describe('Risk Analytics — extra', () => {
+  it('dashboard success is true on 200', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('dashboard totalRisks is a number', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(7);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalRisks).toBe('number');
+  });
+
+  it('by-module success is true', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('by-module count field is a number when entry exists', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([{ sourceModule: 'MANUAL', _count: 4 }]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].count).toBe('number');
+  });
+
+  it('dashboard kriBreaches is a number', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.kriBreaches).toBe('number');
+  });
+});

@@ -113,3 +113,43 @@ describe('GET /api/categories', () => {
     expect(typeof res.body.data[0].count).toBe('number');
   });
 });
+
+describe('Risk Categories — extended', () => {
+  it('single category with count 1', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ category: 'COMPLIANCE' }]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    const compliance = res.body.data.find((d: any) => d.category === 'COMPLIANCE');
+    expect(compliance.count).toBe(1);
+  });
+
+  it('error message is returned on 500', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('data length matches number of distinct categories', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { category: 'OPERATIONAL' },
+      { category: 'OPERATIONAL' },
+      { category: 'STRATEGIC' },
+      { category: 'REPUTATIONAL' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('category field is a string', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ category: 'FINANCIAL' }]);
+    const res = await request(app).get('/api/categories');
+    expect(typeof res.body.data[0].category).toBe('string');
+  });
+
+  it('response has success field', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body).toHaveProperty('success');
+  });
+});

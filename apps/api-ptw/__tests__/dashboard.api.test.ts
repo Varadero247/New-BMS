@@ -125,3 +125,50 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('PTW Dashboard — extended', () => {
+  it('error code is INTERNAL_ERROR on 500', async () => {
+    mockPrisma.ptwPermit.count.mockRejectedValue(new Error('crash'));
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('totalMethodStatements is a number', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(7);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalMethodStatements).toBe('number');
+  });
+
+  it('totalToolboxTalks is a number', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalToolboxTalks).toBe('number');
+  });
+
+  it('data object is defined on success', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(2);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(1);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('large counts are returned correctly', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(500);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(250);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(125);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPermits).toBe(500);
+    expect(res.body.data.totalMethodStatements).toBe(250);
+    expect(res.body.data.totalToolboxTalks).toBe(125);
+  });
+});

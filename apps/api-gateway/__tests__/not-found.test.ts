@@ -186,3 +186,37 @@ describe('Not Found Handler Middleware', () => {
     });
   });
 });
+
+describe('Not Found Handler — extended', () => {
+  it('should call res.status before res.json', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/test' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    expect(res.status).toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalled();
+  });
+
+  it('error message contains the path', () => {
+    const req = mockRequest({ method: 'GET', path: '/api/my-special-path' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toContain('/api/my-special-path');
+  });
+
+  it('error message contains the HTTP method', () => {
+    const req = mockRequest({ method: 'OPTIONS', path: '/api/check' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toContain('OPTIONS');
+  });
+
+  it('error object has exactly code and message keys', () => {
+    const req = mockRequest({ method: 'GET', path: '/any' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(Object.keys(jsonArg.error)).toEqual(expect.arrayContaining(['code', 'message']));
+  });
+});

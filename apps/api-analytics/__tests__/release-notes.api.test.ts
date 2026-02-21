@@ -172,3 +172,37 @@ describe('GET /api/release-notes/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Release Notes — extended', () => {
+  it('GET list pagination.total is a number', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/release-notes');
+    expect(typeof res.body.data.pagination.total).toBe('number');
+    expect(res.body.data.pagination.total).toBe(42);
+  });
+
+  it('GET list changelogs is an array', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/release-notes');
+    expect(Array.isArray(res.body.data.changelogs)).toBe(true);
+  });
+
+  it('GET /:id success is true', async () => {
+    mockPrisma.changelog.findUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      version: '1.0.0',
+      title: 'Initial',
+      publishedAt: new Date(),
+    });
+    const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id 404 error code is NOT_FOUND', async () => {
+    mockPrisma.changelog.findUnique.mockResolvedValue(null);
+    const res = await request(app).get('/api/release-notes/00000000-0000-0000-0000-000000000099');
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

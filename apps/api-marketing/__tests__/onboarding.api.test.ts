@@ -171,3 +171,33 @@ describe('POST /api/onboarding/cancel/:userId', () => {
     expect(prisma.mktEmailJob.updateMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Onboarding — extended', () => {
+  it('POST /enqueue success is true', async () => {
+    (prisma.$transaction as jest.Mock).mockResolvedValue([]);
+    const res = await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'ext@test.com', firstName: 'Ext' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /status summary.total is a number', async () => {
+    (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    expect(typeof res.body.data.summary.total).toBe('number');
+  });
+
+  it('POST /cancel success is true when count is 0', async () => {
+    (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 0 });
+    const res = await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /enqueue jobsScheduled is a number', async () => {
+    (prisma.$transaction as jest.Mock).mockResolvedValue([]);
+    const res = await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'num@test.com' });
+    expect(typeof res.body.data.jobsScheduled).toBe('number');
+  });
+});

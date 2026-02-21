@@ -180,3 +180,43 @@ describe('Customer Invoices — extended', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Customer Invoices — extra', () => {
+  it('GET list: count called once per request', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    await request(app).get('/api/customer/invoices');
+    expect(mockPrisma.portalOrder.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: data length matches mock array length', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([
+      { id: 'o1', orderNumber: 'ORD-001', type: 'SALES', totalAmount: 200 },
+      { id: 'o2', orderNumber: 'ORD-002', type: 'SALES', totalAmount: 150 },
+    ]);
+    mockPrisma.portalOrder.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/customer/invoices');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST pay: update called once on success', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      orderNumber: 'ORD-001',
+      portalUserId: 'user-123',
+      notes: null,
+    });
+    mockPrisma.portalOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', notes: 'Payment intent: CARD' });
+    await request(app)
+      .post('/api/customer/invoices/00000000-0000-0000-0000-000000000001/pay')
+      .send({ paymentMethod: 'CREDIT_CARD' });
+    expect(mockPrisma.portalOrder.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: pagination has total field', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(10);
+    const res = await request(app).get('/api/customer/invoices');
+    expect(res.body.pagination).toHaveProperty('total', 10);
+  });
+});

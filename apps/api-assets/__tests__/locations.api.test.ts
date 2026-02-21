@@ -129,3 +129,47 @@ describe('GET /api/locations', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Locations — extended', () => {
+  it('count field is a number', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([{ location: 'Zone X' }]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].count).toBe('number');
+  });
+
+  it('location field is a string', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([{ location: 'Zone Y' }]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].location).toBe('string');
+  });
+
+  it('findMany called once on each new request', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/locations');
+    await request(app).get('/api/locations');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledTimes(2);
+  });
+
+  it('success is false and code is INTERNAL_ERROR on rejection', async () => {
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('two locations with same name are collapsed into one entry', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Lab 1' },
+      { location: 'Lab 1' },
+      { location: 'Lab 2' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    const names = res.body.data.map((d: any) => d.location);
+    const uniqueNames = [...new Set(names)];
+    expect(names.length).toBe(uniqueNames.length);
+  });
+});

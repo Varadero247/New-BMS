@@ -247,3 +247,48 @@ describe('GET /api/dashboard', () => {
     expect(res.body.error).toHaveProperty('message');
   });
 });
+
+describe('Food Safety Dashboard — extended', () => {
+  const setupDefaultMocks = () => {
+    (prisma.fsHazard.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsNcr.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsRecall.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsProduct.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.fsNcr.findMany as jest.Mock).mockResolvedValue([]);
+  };
+
+  it('success is true in response', async () => {
+    setupDefaultMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('recentAudits is an array', async () => {
+    setupDefaultMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(Array.isArray(res.body.data.recentAudits)).toBe(true);
+  });
+
+  it('recentNcrs is an array', async () => {
+    setupDefaultMocks();
+    const res = await request(app).get('/api/dashboard');
+    expect(Array.isArray(res.body.data.recentNcrs)).toBe(true);
+  });
+
+  it('summary.products is a number', async () => {
+    setupDefaultMocks();
+    (prisma.fsProduct.count as jest.Mock).mockResolvedValue(25);
+    const res = await request(app).get('/api/dashboard');
+    expect(typeof res.body.data.summary.products).toBe('number');
+    expect(res.body.data.summary.products).toBe(25);
+  });
+
+  it('fsNcr.count is called at least once', async () => {
+    setupDefaultMocks();
+    await request(app).get('/api/dashboard');
+    expect(prisma.fsNcr.count).toHaveBeenCalled();
+  });
+});

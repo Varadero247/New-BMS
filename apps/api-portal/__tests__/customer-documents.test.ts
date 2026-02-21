@@ -168,3 +168,37 @@ describe('Customer Documents — extended', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Customer Documents — extra', () => {
+  it('GET list: count called once per request', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    await request(app).get('/api/customer/documents');
+    expect(mockPrisma.portalDocument.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: pagination has totalPages field', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(20);
+    const res = await request(app).get('/api/customer/documents?limit=10');
+    expect(res.body.pagination).toHaveProperty('totalPages', 2);
+  });
+
+  it('GET /:id returns 500 with error code on DB error', async () => {
+    mockPrisma.portalDocument.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/customer/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET list: data length matches mock array length', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([
+      { id: 'd1', title: 'Doc A', category: 'SPECIFICATION', visibility: 'PUBLIC' },
+      { id: 'd2', title: 'Doc B', category: 'CONTRACT', visibility: 'SHARED' },
+      { id: 'd3', title: 'Doc C', category: 'CERTIFICATE', visibility: 'PUBLIC' },
+    ]);
+    mockPrisma.portalDocument.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/customer/documents');
+    expect(res.body.data).toHaveLength(3);
+  });
+});

@@ -129,3 +129,43 @@ describe('runVatSummaryJob', () => {
     expect(Number(upsertCall.update.totalRevenue)).toBe(12000);
   });
 });
+
+describe('VAT Summary — extended', () => {
+  it('upsert is called exactly once per job run', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'vat-ext-1' });
+    await runVatSummaryJob();
+    expect(prisma.vatSummary.upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it('create block has a period field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'vat-ext-2' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.create).toHaveProperty('period');
+  });
+
+  it('create block has a ukVat field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'vat-ext-3' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.create).toHaveProperty('ukVat');
+  });
+
+  it('breakdown array has length 4', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'vat-ext-4' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.create.breakdown).toHaveLength(4);
+  });
+
+  it('returns the id returned by upsert', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'vat-ext-5' });
+    const result = await runVatSummaryJob();
+    expect(result).toBe('vat-ext-5');
+  });
+});

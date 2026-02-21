@@ -206,3 +206,45 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Metrics — extended', () => {
+  it('GET /:id/data-points pagination has totalPages field', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([mockDataPoint]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET /:id/data-points count is called once', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(prisma.esgDataPoint.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /:id/data-points success is true on create', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue(mockDataPoint);
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({ periodStart: '2026-01-01', periodEnd: '2026-03-31', value: 100, unit: 'tCO2e' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id/data-points data is an array', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([mockDataPoint, mockDataPoint]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(2);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /:id/data-points 404 error code is NOT_FOUND', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000099/data-points');
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

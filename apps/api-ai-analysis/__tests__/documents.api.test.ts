@@ -240,4 +240,38 @@ describe('Document Analysis — extended', () => {
     expect(res.body.data).toHaveProperty('analysisType');
     expect(res.body.data).toHaveProperty('result');
   });
+
+  it('aISettings.update is called once per successful request', async () => {
+    mockOpenAIResponse(JSON.stringify({ summary: 'Token update check' }));
+    await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Content', analysisType: 'SUMMARIZE' });
+    expect(prisma.aISettings.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('success is true on 200 response', async () => {
+    mockOpenAIResponse(JSON.stringify({ summary: 'OK' }));
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Document text here', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('analysisType in response matches the request analysisType', async () => {
+    mockOpenAIResponse(JSON.stringify({ documentType: 'Procedure', department: 'Ops' }));
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Procedure text', analysisType: 'CLASSIFY' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.analysisType).toBe('CLASSIFY');
+  });
+
+  it('missing content returns VALIDATION_ERROR', async () => {
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ analysisType: 'CLASSIFY' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
 });

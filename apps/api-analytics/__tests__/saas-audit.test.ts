@@ -242,3 +242,37 @@ describe('runSaaSAuditJob', () => {
     expect(prisma.approvedVendor.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('SaaS Audit — extended', () => {
+  it('activeCount is a number', async () => {
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue([]);
+    const result = await runSaaSAuditJob();
+    expect(typeof result.activeCount).toBe('number');
+  });
+
+  it('vendorCount equals vendors array length', async () => {
+    const vendors = [
+      { name: 'A', category: 'x', monthlyCost: 10, annualCost: 120, isActive: true, contractEnd: null },
+      { name: 'B', category: 'x', monthlyCost: 20, annualCost: 240, isActive: false, contractEnd: null },
+    ];
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
+    const result = await runSaaSAuditJob();
+    expect(result.vendorCount).toBe(result.vendors.length);
+  });
+
+  it('totalAnnualCost is a number', async () => {
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue([]);
+    const result = await runSaaSAuditJob();
+    expect(typeof result.totalAnnualCost).toBe('number');
+  });
+
+  it('byCategory entries each have count and monthlyCost', async () => {
+    const vendors = [
+      { name: 'X', category: 'tools', monthlyCost: 100, annualCost: 1200, isActive: true, contractEnd: null },
+    ];
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue(vendors);
+    const result = await runSaaSAuditJob();
+    expect(result.byCategory['tools']).toHaveProperty('count');
+    expect(result.byCategory['tools']).toHaveProperty('monthlyCost');
+  });
+});

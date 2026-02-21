@@ -164,4 +164,38 @@ describe('Tasks Routes', () => {
       expect(res.body.success).toBe(true);
     });
   });
+
+  describe('Tasks — further extended', () => {
+    it('POST created task has an id field', async () => {
+      const res = await request(app).post('/api/tasks').send({
+        title: 'Audit follow-up',
+        assigneeId: 'user-3',
+        assigneeName: 'Carol',
+        priority: 'MEDIUM',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.data).toHaveProperty('id');
+    });
+
+    it('GET /my-tasks data has overdue field', async () => {
+      mockGetMyTasks.mockResolvedValue({ overdue: [], today: [], thisWeek: [], later: [] });
+      const res = await request(app).get('/api/tasks/my-tasks');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('overdue');
+    });
+
+    it('DELETE returns success true', async () => {
+      const res = await request(app).delete('/api/tasks/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('PUT returns updated task with success true', async () => {
+      const res = await request(app)
+        .put('/api/tasks/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'Revised title', status: 'IN_PROGRESS' });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
 });

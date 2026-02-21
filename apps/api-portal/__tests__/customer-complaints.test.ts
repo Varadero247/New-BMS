@@ -171,3 +171,47 @@ describe('GET /api/customer/complaints/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Customer Complaints — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/complaints');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/complaints');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/customer/complaints');
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: pagination object has total field', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(5);
+    const res = await request(app).get('/api/customer/complaints');
+    expect(res.body.pagination).toHaveProperty('total', 5);
+  });
+
+  it('GET /:id: success is true when found', async () => {
+    mockPrisma.portalQualityReport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      description: 'Issue',
+      status: 'OPEN',
+      portalUserId: 'user-123',
+    });
+    const res = await request(app).get('/api/customer/complaints/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -170,4 +170,49 @@ describe('Scheduled Reports Routes', () => {
       expect(res.status).toBe(403);
     });
   });
+
+  describe('Scheduled Reports — extended', () => {
+    it('GET /types returns data as array', async () => {
+      const res = await request(app).get('/api/admin/reports/types');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('GET /schedules returns data as array', async () => {
+      mockListSchedules.mockReturnValue([]);
+      const res = await request(app).get('/api/admin/reports/schedules');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('POST schedule returns id in response', async () => {
+      const res = await request(app)
+        .post('/api/admin/reports/schedules')
+        .send({
+          name: 'Monthly ESG Summary',
+          reportType: 'open_actions',
+          schedule: '0 9 1 * *',
+          recipients: ['esg@ims.local'],
+          format: 'pdf',
+        });
+      expect(res.status).toBe(201);
+      expect(res.body.data).toHaveProperty('id');
+    });
+
+    it('DELETE schedule returns success true', async () => {
+      const res = await request(app).delete(
+        '/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001'
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('run now returns lastRunAt field', async () => {
+      const res = await request(app).post(
+        '/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001/run'
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('lastRunAt');
+    });
+  });
 });

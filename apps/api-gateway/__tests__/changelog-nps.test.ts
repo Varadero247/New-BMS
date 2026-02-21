@@ -177,3 +177,41 @@ describe('NPS Routes', () => {
     });
   });
 });
+
+describe('Changelog and NPS — extended', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    const changelogRoutes = require('../src/routes/changelog').default;
+    const npsRoutes = require('../src/routes/nps').default;
+    app.use('/api/changelog', changelogRoutes);
+    app.use('/api/nps', npsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/changelog success is true', async () => {
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/changelog');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/changelog/unread-count returns a number', async () => {
+    mockGetUnreadCount.mockReturnValue(5);
+    const res = await request(app).get('/api/changelog/unread-count');
+    expect(typeof res.body.data.unreadCount).toBe('number');
+  });
+
+  it('POST /api/nps returns 201 with score 0', async () => {
+    mockSubmitResponse.mockReturnValue({ id: 'nps-ext', score: 0, category: 'detractor' });
+    const res = await request(app).post('/api/nps').send({ score: 0 });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/nps/analytics npsScore is a number', async () => {
+    mockGetAnalytics.mockReturnValue({ npsScore: 55, total: 20, promoters: 15, passives: 3, detractors: 2 });
+    const res = await request(app).get('/api/nps/analytics');
+    expect(typeof res.body.data.npsScore).toBe('number');
+  });
+});

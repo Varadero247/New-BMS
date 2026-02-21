@@ -181,3 +181,39 @@ describe('DELETE /api/portal/announcements/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Portal Announcements — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/announcements');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/announcements');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST create: create called once on success', async () => {
+    mockPrisma.portalAnnouncement.create.mockResolvedValue({ id: 'ann-1', title: 'Test' });
+    await request(app).post('/api/portal/announcements').send({
+      title: 'Test',
+      content: 'Test content',
+      portalType: 'CUSTOMER',
+      priority: 'HIGH',
+    });
+    expect(mockPrisma.portalAnnouncement.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/announcements');
+    expect(mockPrisma.portalAnnouncement.findMany).toHaveBeenCalledTimes(1);
+  });
+});

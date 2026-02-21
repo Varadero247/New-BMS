@@ -111,3 +111,49 @@ describe('GET /api/categories', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+describe('Supplier Categories — extended', () => {
+  it('aggregates counts correctly for repeated categories', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { category: 'IT' },
+      { category: 'IT' },
+      { category: 'IT' },
+      { category: 'Logistics' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    const it = res.body.data.find((c: any) => c.category === 'IT');
+    const logistics = res.body.data.find((c: any) => c.category === 'Logistics');
+    expect(it.count).toBe(3);
+    expect(logistics.count).toBe(1);
+  });
+
+  it('error body has error property on 500', async () => {
+    mockPrisma.suppSupplier.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('category field is a string', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([{ category: 'Services' }]);
+    const res = await request(app).get('/api/categories');
+    expect(typeof res.body.data[0].category).toBe('string');
+  });
+
+  it('response has success field', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('only non-null categories appear in result', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { category: null },
+      { category: null },
+      { category: 'IT' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].category).toBe('IT');
+  });
+});

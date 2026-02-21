@@ -204,3 +204,37 @@ describe('SoD Matrix — extended', () => {
     expect(mockPrisma.finSodRule.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('SoD Matrix — further extended', () => {
+  it('GET success is true on 200', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/sod-matrix');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST success is true on 201', async () => {
+    const rule = { role1: 'Cashier', role2: 'Controller', conflictType: 'MEDIUM', description: 'Cash control', mitigatingControl: 'Review' };
+    mockPrisma.finSodRule.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000002', ...rule });
+    const res = await request(app).post('/api/sod-matrix').send(rule);
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('data length matches the number of mock rules returned', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', roleA: 'R1', roleB: 'R2', conflictLevel: 'HIGH' },
+      { id: '00000000-0000-0000-0000-000000000002', roleA: 'R3', roleB: 'R4', conflictLevel: 'LOW' },
+    ]);
+    const res = await request(app).get('/api/sod-matrix');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET returns 500 and INTERNAL_ERROR on DB failure', async () => {
+    mockPrisma.finSodRule.findMany.mockRejectedValue(new Error('DB unreachable'));
+    const res = await request(app).get('/api/sod-matrix');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

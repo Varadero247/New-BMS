@@ -169,3 +169,45 @@ describe('Supplier Orders — extended', () => {
     expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Supplier Orders — extra', () => {
+  it('GET list: count called once per request', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/purchase-orders');
+    expect(mockPrisma.portalOrder.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: data length matches mock array length', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([
+      { id: 'o1', orderNumber: 'PO-001', type: 'PURCHASE', status: 'SUBMITTED' },
+      { id: 'o2', orderNumber: 'PO-002', type: 'PURCHASE', status: 'CONFIRMED' },
+    ]);
+    mockPrisma.portalOrder.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST confirm: update called once on success', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      type: 'PURCHASE',
+      status: 'SUBMITTED',
+      notes: null,
+      expectedDelivery: null,
+    });
+    mockPrisma.portalOrder.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'CONFIRMED' });
+    await request(app)
+      .post('/api/supplier/purchase-orders/00000000-0000-0000-0000-000000000001/confirm')
+      .send({});
+    expect(mockPrisma.portalOrder.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: returns 500 on DB error with success false', async () => {
+    mockPrisma.portalOrder.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

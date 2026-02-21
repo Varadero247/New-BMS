@@ -105,3 +105,39 @@ describe('GET /api/sla', () => {
     expect(typeof res.body.data.onTrack).toBe('number');
   });
 });
+
+describe('SLA — extended', () => {
+  it('count called twice on each request', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(1).mockResolvedValueOnce(2);
+    await request(app).get('/api/sla');
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(2);
+  });
+
+  it('success is false when DB rejects', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).get('/api/sla');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('error code is INTERNAL_ERROR on 500', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('overdue and onTrack sum to total complaints', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(4).mockResolvedValueOnce(6);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdue + res.body.data.onTrack).toBe(10);
+  });
+
+  it('response body has a data object', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(2).mockResolvedValueOnce(3);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data).toBe('object');
+    expect(res.body.data).not.toBeNull();
+  });
+});

@@ -115,3 +115,42 @@ describe('GET /api/treatments', () => {
     expect(typeof res.body.data[0].count).toBe('number');
   });
 });
+
+describe('Risk Treatments — extended', () => {
+  it('treatment field is a string', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ treatment: 'ACCEPT' }]);
+    const res = await request(app).get('/api/treatments');
+    expect(typeof res.body.data[0].treatment).toBe('string');
+  });
+
+  it('error body has error property on 500', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('data length equals number of distinct treatment types', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { treatment: 'MITIGATE' },
+      { treatment: 'ACCEPT' },
+      { treatment: 'MITIGATE' },
+      { treatment: 'TRANSFER' },
+      { treatment: 'TRANSFER' },
+    ]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('response has success field', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('findMany called once per request on success', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ treatment: 'AVOID' }]);
+    await request(app).get('/api/treatments');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledTimes(1);
+  });
+});

@@ -142,4 +142,37 @@ describe('IP Allowlist Routes', () => {
       expect(res.body.data).toHaveProperty('ip');
     });
   });
+
+  describe('IP Allowlist — further extended', () => {
+    it('POST returns 201 on valid CIDR entry', async () => {
+      const res = await request(app)
+        .post('/api/admin/ip-allowlist')
+        .send({ cidr: '10.10.0.0/16', label: 'Internal' });
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('DELETE success is true', async () => {
+      const res = await request(app).delete(
+        '/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000001'
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('addOrgAllowlistEntry is called once per POST', async () => {
+      await request(app)
+        .post('/api/admin/ip-allowlist')
+        .send({ cidr: '172.16.0.0/12', label: 'Private Range' });
+      expect(mockAddOrgAllowlistEntry).toHaveBeenCalledTimes(1);
+    });
+
+    it('bare IP normalises to /32 CIDR', async () => {
+      const res = await request(app)
+        .post('/api/admin/ip-allowlist')
+        .send({ cidr: '8.8.8.8', label: 'Google DNS' });
+      expect(res.status).toBe(201);
+      expect(res.body.data.cidr).toBe('8.8.8.8/32');
+    });
+  });
 });

@@ -141,3 +141,35 @@ describe('runCohortAnalysis', () => {
     expect(call.where).toHaveProperty('cohortMonth_measureMonth');
   });
 });
+
+describe('Cohort Analysis — extended', () => {
+  it('retentionPct is a number for all calls', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(3, '2026-05');
+    for (const call of (prisma.cohortData.upsert as jest.Mock).mock.calls) {
+      expect(typeof call[0].create.retentionPct).toBe('number');
+    }
+  });
+
+  it('ndrPct is a number for all calls', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(3, '2026-05');
+    for (const call of (prisma.cohortData.upsert as jest.Mock).mock.calls) {
+      expect(typeof call[0].create.ndrPct).toBe('number');
+    }
+  });
+
+  it('update block is defined in each upsert call', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(2, '2026-04');
+    for (const call of (prisma.cohortData.upsert as jest.Mock).mock.calls) {
+      expect(call[0].update).toBeDefined();
+    }
+  });
+
+  it('number of upsert calls equals monthNumber', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(6, '2026-08');
+    expect((prisma.cohortData.upsert as jest.Mock).mock.calls.length).toBe(6);
+  });
+});

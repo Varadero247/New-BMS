@@ -151,4 +151,42 @@ describe('Import Routes', () => {
       expect(res.body.success).toBe(true);
     });
   });
+
+  describe('Import Routes — further extended', () => {
+    it('execute import returns skipped field', async () => {
+      const res = await request(app)
+        .post('/api/admin/import/execute')
+        .send({ recordType: 'employees', rows: [{ firstName: 'Alice' }] });
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('skipped');
+    });
+
+    it('schemas endpoint returns array of supported types', async () => {
+      const res = await request(app).get('/api/admin/import/schemas');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('template for known type returns success true', async () => {
+      const res = await request(app).get('/api/admin/import/templates/employees');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('validate success is true', async () => {
+      const res = await request(app)
+        .post('/api/admin/import/validate')
+        .send({ recordType: 'suppliers', csvData: 'name,code\nTest,TST' });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('execute import errors field is an array', async () => {
+      const res = await request(app)
+        .post('/api/admin/import/execute')
+        .send({ recordType: 'suppliers', rows: [{ name: 'Gamma', code: 'GAM-001' }] });
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data.errors)).toBe(true);
+    });
+  });
 });

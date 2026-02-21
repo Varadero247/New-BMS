@@ -120,3 +120,39 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Mgmt Review Dashboard — extended', () => {
+  it('error code is INTERNAL_ERROR on 500', async () => {
+    mockPrisma.mgmtReview.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('count called once per request', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(6);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.mgmtReview.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('data object is defined on success', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toBeDefined();
+  });
+
+  it('where clause includes deletedAt null', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    const callArg = mockPrisma.mgmtReview.count.mock.calls[0][0];
+    expect(callArg.where.deletedAt).toBeNull();
+  });
+
+  it('totalReviews is 0 when count returns 0', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalReviews).toBe(0);
+  });
+});

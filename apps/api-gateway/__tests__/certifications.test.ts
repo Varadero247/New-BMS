@@ -186,4 +186,53 @@ describe('Certifications Routes', () => {
       expect(res.body.success).toBe(true);
     });
   });
+
+  describe('Certifications — further extended', () => {
+    it('POST returns 201 on success', async () => {
+      const res = await request(app).post('/api/admin/certifications').send({
+        standard: 'ISO 14001:2015',
+        scope: 'Environmental management',
+        certificationBody: 'BSI',
+        certificateNumber: 'EMS-654321',
+        issueDate: '2024-03-01',
+        expiryDate: '2027-02-28',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('readiness score field is a number', async () => {
+      const res = await request(app).get(
+        '/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness'
+      );
+      expect(res.status).toBe(200);
+      expect(typeof res.body.data.readiness.score).toBe('number');
+    });
+
+    it('PUT updates returns success true', async () => {
+      const res = await request(app)
+        .put('/api/admin/certifications/00000000-0000-0000-0000-000000000001')
+        .send({ status: 'IN_RENEWAL' });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('listCertificates is called once per GET list request', async () => {
+      mockListCertificates.mockReturnValue([]);
+      await request(app).get('/api/admin/certifications');
+      expect(mockListCertificates).toHaveBeenCalledTimes(1);
+    });
+
+    it('createCertificate is called once per POST request', async () => {
+      await request(app).post('/api/admin/certifications').send({
+        standard: 'ISO 9001:2015',
+        scope: 'Test',
+        certificationBody: 'BSI',
+        certificateNumber: 'FS-000001',
+        issueDate: '2024-01-01',
+        expiryDate: '2027-01-01',
+      });
+      expect(mockCreateCertificate).toHaveBeenCalledTimes(1);
+    });
+  });
 });

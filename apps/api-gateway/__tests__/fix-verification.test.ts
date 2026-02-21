@@ -168,4 +168,41 @@ describe('Gateway Fix Verification', () => {
       expect(jsonCall.success).toBe(false);
     });
   });
+
+  describe('Fix Verification — further extended', () => {
+    it('error response has error.code field', () => {
+      const err: AppError = new Error('Conflict');
+      err.statusCode = 409;
+      err.code = 'CONFLICT';
+      const res = mockResponse();
+      errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+      const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+      expect(jsonCall.error).toHaveProperty('code');
+    });
+
+    it('error response has error.message field', () => {
+      const err: AppError = new Error('Not Found');
+      err.statusCode = 404;
+      err.code = 'NOT_FOUND';
+      const res = mockResponse();
+      errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+      const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+      expect(jsonCall.error).toHaveProperty('message');
+    });
+
+    it('error handler does not throw', () => {
+      const err: AppError = new Error('Silent fail');
+      expect(() => {
+        errorHandler(err, mockRequest() as Request, mockResponse() as Response, mockNext);
+      }).not.toThrow();
+    });
+
+    it('status code 404 is used when provided', () => {
+      const err: AppError = new Error('Resource not found');
+      err.statusCode = 404;
+      const res = mockResponse();
+      errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+  });
 });

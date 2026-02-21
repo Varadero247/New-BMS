@@ -210,3 +210,36 @@ describe('POST /api/benchmarks', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Benchmarks — extended', () => {
+  it('GET /api/benchmarks returns success true', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/benchmarks data.organization is defined', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.body.data.organization).toBeDefined();
+  });
+
+  it('GET /api/benchmarks findMany called once', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    await request(app).get('/api/benchmarks');
+    expect(mockPrisma.analyticsKpi.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/benchmarks returns 500 on DB error with success false', async () => {
+    mockPrisma.analyticsKpi.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/benchmarks/:module data.module is uppercase', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/finance');
+    expect(res.body.data.module).toBe('FINANCE');
+  });
+});

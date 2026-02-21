@@ -129,4 +129,36 @@ describe('Status Routes', () => {
       expect(res.status).toBe(200);
     });
   });
+
+  describe('Status — extended', () => {
+    it('services array entries have name and status fields', async () => {
+      const res = await request(app).get('/api/health/status');
+      expect(res.status).toBe(200);
+      expect(res.body.data.services[0]).toHaveProperty('name');
+      expect(res.body.data.services[0]).toHaveProperty('status');
+    });
+
+    it('uptime 24h value is a number', async () => {
+      const res = await request(app).get('/api/health/status');
+      expect(res.status).toBe(200);
+      expect(typeof res.body.data.uptime['24h']).toBe('number');
+    });
+
+    it('getPlatformStatus is called once per request', async () => {
+      await request(app).get('/api/health/status');
+      expect(mockGetPlatformStatus).toHaveBeenCalledTimes(1);
+    });
+
+    it('success is true on 200 response', async () => {
+      const res = await request(app).get('/api/health/status');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('incidents field is present in data', async () => {
+      const res = await request(app).get('/api/health/status');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('incidents');
+    });
+  });
 });

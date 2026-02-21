@@ -112,3 +112,44 @@ describe('GET /api/heat-map', () => {
     expect(typeof res.body.data.total).toBe('number');
   });
 });
+
+describe('Risk Heat Map — extended', () => {
+  it('error body has error property on 500', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('crash'));
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBeDefined();
+  });
+
+  it('risk likelihood field is a number when present', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'r1', title: 'Risk X', likelihood: 3, consequence: 4, inherentScore: 12 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(typeof res.body.data.risks[0].likelihood).toBe('number');
+  });
+
+  it('risk consequence field is a number when present', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'r1', title: 'Risk X', likelihood: 3, consequence: 4, inherentScore: 12 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(typeof res.body.data.risks[0].consequence).toBe('number');
+  });
+
+  it('findMany is called exactly once per request', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/heat-map');
+    await request(app).get('/api/heat-map');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledTimes(2);
+  });
+
+  it('data.risks length equals data.total', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: '1', title: 'A', likelihood: 2, consequence: 3, inherentScore: 6 },
+      { id: '2', title: 'B', likelihood: 4, consequence: 5, inherentScore: 20 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.body.data.risks.length).toBe(res.body.data.total);
+  });
+});

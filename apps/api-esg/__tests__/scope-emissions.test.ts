@@ -212,3 +212,43 @@ describe('POST /api/scope-emissions', () => {
     expect(res.body.error.message).toBe('Failed to create resource');
   });
 });
+
+describe('Scope Emissions — extended', () => {
+  it('GET /api/scope-emissions data length matches mock count', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission, mockScopeEmission]);
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('GET /api/scope-emissions findMany called once per request', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/scope-emissions');
+    expect(prisma.esgScopeEmission.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /api/scope-emissions create is called once', async () => {
+    (prisma.esgScopeEmission.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgScopeEmission.create as jest.Mock).mockResolvedValue(mockScopeEmission);
+    await request(app).post('/api/scope-emissions').send({
+      scope: 1,
+      category: 'Test',
+      quantity: 100,
+      unit: 'kWh',
+      period: '2026-01',
+    });
+    expect(prisma.esgScopeEmission.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /api/scope-emissions referenceNumber is a string', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockResolvedValue([mockScopeEmission]);
+    const res = await request(app).get('/api/scope-emissions');
+    expect(typeof res.body.data[0].referenceNumber).toBe('string');
+  });
+
+  it('GET /api/scope-emissions success is false on 500', async () => {
+    (prisma.esgScopeEmission.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/scope-emissions');
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

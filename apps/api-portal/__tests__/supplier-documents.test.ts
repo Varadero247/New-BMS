@@ -168,3 +168,42 @@ describe('Supplier Documents — extended', () => {
     expect(mockPrisma.portalDocument.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Supplier Documents — extra', () => {
+  it('GET list: count called once per request', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/documents');
+    expect(mockPrisma.portalDocument.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET list: data length matches mock array length', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([
+      { id: 'd1', title: 'ISO Cert', category: 'CERTIFICATE' },
+      { id: 'd2', title: 'Quality Plan', category: 'QUALITY_PLAN' },
+    ]);
+    mockPrisma.portalDocument.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST upload: returns success false on 500', async () => {
+    mockPrisma.portalDocument.create.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'Test',
+      fileName: 'test.pdf',
+      fileSize: 1024,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET list: pagination has totalPages field', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(30);
+    const res = await request(app).get('/api/supplier/documents?page=1&limit=10');
+    expect(res.body.pagination).toHaveProperty('totalPages', 3);
+  });
+});

@@ -178,4 +178,44 @@ describe('Webhooks Routes', () => {
       expect(res.body.success).toBe(true);
     });
   });
+
+  describe('Webhooks — extended', () => {
+    it('GET /events returns data as array', async () => {
+      const res = await request(app).get('/api/admin/webhooks/events');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('GET list returns data as array', async () => {
+      mockListEndpoints.mockReturnValue([]);
+      const res = await request(app).get('/api/admin/webhooks');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('created endpoint has an id field', async () => {
+      const res = await request(app)
+        .post('/api/admin/webhooks')
+        .send({ name: 'New Hook', url: 'https://test.example.com/hook', events: ['capa.created'] });
+      expect(res.status).toBe(201);
+      expect(res.body.data).toHaveProperty('id');
+    });
+
+    it('test ping returns success true', async () => {
+      const res = await request(app).post(
+        '/api/admin/webhooks/00000000-0000-0000-0000-000000000001/test'
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('deliveries endpoint returns data as array', async () => {
+      mockListDeliveries.mockReturnValue([]);
+      const res = await request(app).get(
+        '/api/admin/webhooks/00000000-0000-0000-0000-000000000001/deliveries'
+      );
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+  });
 });

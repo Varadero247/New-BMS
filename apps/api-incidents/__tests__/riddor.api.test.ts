@@ -149,4 +149,36 @@ describe('RIDDOR — extended', () => {
       .send({ reportable: true });
     expect(mockPrisma.incIncident.update).toHaveBeenCalledTimes(1);
   });
+
+  it('GET data is an array', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET findMany called once per request', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    await request(app).get('/api/riddor');
+    expect(mockPrisma.incIncident.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('assess returns success false on 500', async () => {
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: false });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET returns list with correct length', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([
+      { id: 'i1', title: 'Injury A', riddorReportable: 'YES' },
+      { id: 'i2', title: 'Injury B', riddorReportable: 'YES' },
+      { id: 'i3', title: 'Occurrence', riddorReportable: 'YES' },
+    ]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
 });

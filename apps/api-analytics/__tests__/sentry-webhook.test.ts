@@ -171,3 +171,52 @@ describe('POST /webhooks/sentry', () => {
     expect(prisma.bugReport.create).toHaveBeenCalled();
   });
 });
+
+describe('Sentry Webhook — extended', () => {
+  it('success is true on successful create', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'bug-ext-1' });
+    const res = await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'evt-ext-1', message: 'ok' } } });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('findUnique is called once per request', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'bug-ext-2' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'evt-ext-2', message: 'ok' } } });
+    expect(prisma.bugReport.findUnique).toHaveBeenCalledTimes(1);
+  });
+
+  it('bugReport.create receives sentryEventId field', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'bug-ext-3' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'evt-ext-3', message: 'data' } } });
+    const createCall = (prisma.bugReport.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sentryEventId).toBe('evt-ext-3');
+  });
+
+  it('duplicate response has duplicate: true and success: true', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue({ id: 'existing' });
+    const res = await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'dup-ext', message: 'dup' } } });
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.duplicate).toBe(true);
+  });
+
+  it('success is false on 500 DB error', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'err-ext', message: 'err' } } });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

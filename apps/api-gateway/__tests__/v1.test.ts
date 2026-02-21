@@ -217,4 +217,41 @@ describe('V1 Router', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  describe('V1 Router — extended', () => {
+    it('GET /api/v1/audit/trail returns success true', async () => {
+      const res = await request(app)
+        .get('/api/v1/audit/trail')
+        .set('Authorization', 'Bearer mock-token');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('POST /api/v1/auth/login does not return 404', async () => {
+      const res = await request(app)
+        .post('/api/v1/auth/login')
+        .send({ email: 'admin@ims.local', password: 'admin123' });
+      expect(res.status).not.toBe(404);
+    });
+
+    it('GET /api/v1/users does not return 404', async () => {
+      const res = await request(app).get('/api/v1/users').set('Authorization', 'Bearer mock-token');
+      expect(res.status).not.toBe(404);
+    });
+
+    it('GET /api/v1/unified-audit/standards returns success true', async () => {
+      const res = await request(app)
+        .get('/api/v1/unified-audit/standards')
+        .set('Authorization', 'Bearer mock-token');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('GET /api/v1/templates does not return 404', async () => {
+      const res = await request(app)
+        .get('/api/v1/templates')
+        .set('Authorization', 'Bearer mock-token');
+      expect(res.status).not.toBe(404);
+    });
+  });
 });

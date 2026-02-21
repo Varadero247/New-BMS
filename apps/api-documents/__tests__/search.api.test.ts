@@ -107,3 +107,49 @@ describe('GET /api/search', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Search — extended', () => {
+  it('returns multiple results matching the query', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: 'd-1', title: 'Doc A', description: 'desc a' },
+      { id: 'd-2', title: 'Doc B', description: 'desc b' },
+      { id: 'd-3', title: 'Doc C', description: 'desc c' },
+    ]);
+    const res = await request(app).get('/api/search?q=doc');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('data length matches mock count', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: 'd-1', title: 'Alpha', description: 'alpha desc' },
+      { id: 'd-2', title: 'Beta', description: 'beta desc' },
+    ]);
+    const res = await request(app).get('/api/search?q=alpha');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.docDocument.findMany.mockRejectedValue(new Error('unexpected error'));
+    const res = await request(app).get('/api/search?q=error');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('returned documents have id and title fields', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: 'abc-123', title: 'Quality Manual', description: 'manual' },
+    ]);
+    const res = await request(app).get('/api/search?q=quality');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+    expect(res.body.data[0]).toHaveProperty('title');
+  });
+
+  it('findMany not called when q param is empty string', async () => {
+    const res = await request(app).get('/api/search?q=');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.docDocument.findMany).not.toHaveBeenCalled();
+  });
+});

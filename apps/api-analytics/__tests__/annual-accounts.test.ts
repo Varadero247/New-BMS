@@ -200,3 +200,37 @@ describe('runAnnualAccountsJob', () => {
     expect(prisma.annualAccountsPack.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Annual Accounts — extended', () => {
+  it('create data contains totalExpenses field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ext-1' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data).toHaveProperty('totalExpenses');
+  });
+
+  it('totalRevenue is a number', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 5000, arr: 60000, founderSalary: 2000, founderLoanPayment: 500, arpu: 500, customers: 10 }]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ext-2' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(typeof Number(createCall.data.totalRevenue)).toBe('number');
+  });
+
+  it('sections.revenueBreakdown is defined when snapshots exist', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 5000, arr: 60000, founderSalary: 2000, founderLoanPayment: 500, arpu: 500, customers: 10 }]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ext-3' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.revenueBreakdown).toBeDefined();
+  });
+
+  it('fiscal year string is stored as passed', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'ext-4' });
+    await runAnnualAccountsJob('2023-2024');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.fiscalYear).toBe('2023-2024');
+  });
+});

@@ -151,3 +151,34 @@ describe('Supplier Register — extended', () => {
     expect(mockPrisma.portalUser.findFirst).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Supplier Register — extra', () => {
+  it('POST register: success data has status PENDING', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-2', email: 'new@co.com', name: 'New', company: 'NewCo', status: 'PENDING', role: 'SUPPLIER_USER' });
+    const res = await request(app).post('/api/supplier/register').send({ email: 'new@co.com', name: 'New', company: 'NewCo' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('PENDING');
+  });
+
+  it('GET status: data has status field', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: 'u-1', email: 'test@test.com', name: 'John', company: 'Co', status: 'APPROVED', role: 'SUPPLIER_USER', createdAt: new Date() });
+    const res = await request(app).get('/api/supplier/register/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('status');
+  });
+
+  it('POST register: returns 500 with success false on DB error', async () => {
+    mockPrisma.portalUser.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).post('/api/supplier/register').send({ email: 'crash@co.com', name: 'Crash', company: 'CrashCo' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET status: returns 500 with success false on DB error', async () => {
+    mockPrisma.portalUser.findFirst.mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/supplier/register/status');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
