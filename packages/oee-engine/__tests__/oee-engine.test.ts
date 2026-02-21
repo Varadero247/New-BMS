@@ -126,6 +126,61 @@ describe('oee-engine', () => {
         })
       ).toThrow('Good pieces cannot exceed total pieces');
     });
+
+    it('should throw when plannedProductionTime is zero', () => {
+      expect(() =>
+        calculateOEE({ plannedProductionTime: 0, downtime: 0, idealCycleTime: 1, totalPieces: 0, goodPieces: 0 })
+      ).toThrow('Planned production time must be positive');
+    });
+
+    it('should throw when plannedProductionTime is negative', () => {
+      expect(() =>
+        calculateOEE({ plannedProductionTime: -60, downtime: 0, idealCycleTime: 1, totalPieces: 0, goodPieces: 0 })
+      ).toThrow('Planned production time must be positive');
+    });
+
+    it('should throw when idealCycleTime is zero', () => {
+      expect(() =>
+        calculateOEE({ plannedProductionTime: 480, downtime: 0, idealCycleTime: 0, totalPieces: 400, goodPieces: 400 })
+      ).toThrow('Ideal cycle time must be positive');
+    });
+
+    it('should throw when totalPieces is negative', () => {
+      expect(() =>
+        calculateOEE({ plannedProductionTime: 480, downtime: 0, idealCycleTime: 1, totalPieces: -1, goodPieces: 0 })
+      ).toThrow('Total pieces must be non-negative');
+    });
+
+    it('should throw when goodPieces is negative', () => {
+      expect(() =>
+        calculateOEE({ plannedProductionTime: 480, downtime: 0, idealCycleTime: 1, totalPieces: 400, goodPieces: -1 })
+      ).toThrow('Good pieces must be non-negative');
+    });
+
+    it('should return OEE of 0 when all time is downtime', () => {
+      const result = calculateOEE({
+        plannedProductionTime: 480,
+        downtime: 480,
+        idealCycleTime: 1,
+        totalPieces: 0,
+        goodPieces: 0,
+      });
+      expect(result.availability).toBe(0);
+      expect(result.performance).toBe(0);
+      expect(result.oee).toBe(0);
+    });
+
+    it('result includes category and isWorldClass fields', () => {
+      const result = calculateOEE({
+        plannedProductionTime: 480,
+        downtime: 0,
+        idealCycleTime: 1,
+        totalPieces: 480,
+        goodPieces: 480,
+      });
+      expect(result.category).toBe('world-class');
+      expect(result.isWorldClass).toBe(true);
+    });
   });
 
   describe('calculateMTBF', () => {
@@ -144,6 +199,15 @@ describe('oee-engine', () => {
     it('should throw for negative failures', () => {
       expect(() => calculateMTBF(-1, 100)).toThrow('Failures must be non-negative');
     });
+
+    it('should throw for negative operatingHours', () => {
+      expect(() => calculateMTBF(5, -100)).toThrow('Operating hours must be non-negative');
+    });
+
+    it('should return 0 for zero operatingHours with failures', () => {
+      // 0 hours / 5 failures = 0 MTBF
+      expect(calculateMTBF(5, 0)).toBe(0);
+    });
   });
 
   describe('calculateMTTR', () => {
@@ -157,6 +221,10 @@ describe('oee-engine', () => {
 
     it('should handle single repair', () => {
       expect(calculateMTTR([5])).toBe(5);
+    });
+
+    it('should throw for negative repair times', () => {
+      expect(() => calculateMTTR([2, -1, 3])).toThrow('Repair times must be non-negative');
     });
   });
 
@@ -191,6 +259,22 @@ describe('oee-engine', () => {
 
     it('should return poor for < 50%', () => {
       expect(getOEECategory(0.4)).toBe('poor');
+    });
+
+    it('exact boundary: 0.75 is good not average', () => {
+      expect(getOEECategory(0.75)).toBe('good');
+    });
+
+    it('exact boundary: 0.65 is average not below-average', () => {
+      expect(getOEECategory(0.65)).toBe('average');
+    });
+
+    it('exact boundary: 0.5 is below-average not poor', () => {
+      expect(getOEECategory(0.5)).toBe('below-average');
+    });
+
+    it('0.0 is poor', () => {
+      expect(getOEECategory(0)).toBe('poor');
     });
   });
 });
