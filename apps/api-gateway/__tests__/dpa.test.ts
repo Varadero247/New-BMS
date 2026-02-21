@@ -188,3 +188,58 @@ describe('DPA Routes', () => {
     });
   });
 });
+
+describe('DPA Routes — extended', () => {
+  let extApp: express.Express;
+
+  beforeEach(() => {
+    extApp = express();
+    extApp.use(express.json());
+    extApp.use('/api/admin/dpa', dpaRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetActiveDpa.mockReturnValue({
+      id: 'dpa-1',
+      version: '1.0',
+      title: 'Data Processing Agreement v1.0',
+      content: '<p>DPA Terms</p>',
+      isActive: true,
+    });
+    mockAcceptDpa.mockReturnValue({
+      id: 'acc-1',
+      orgId: 'org-1',
+      dpaId: 'dpa-1',
+      dpaVersion: '1.0',
+      signerName: 'John Smith',
+      signerTitle: 'DPO',
+      signedAt: new Date().toISOString(),
+    });
+    mockHasAcceptedDpa.mockReturnValue(false);
+    mockGetDpaAcceptance.mockReturnValue(null);
+  });
+
+  it('GET /api/admin/dpa returns isActive flag in DPA data', async () => {
+    const res = await request(extApp).get('/api/admin/dpa');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id', 'dpa-1');
+    expect(res.body.data).toHaveProperty('version', '1.0');
+  });
+
+  it('POST /api/admin/dpa/accept calls acceptDpa with org-1 and dpa-1', async () => {
+    const res = await request(extApp)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'Alice Jones', signerTitle: 'CEO' });
+    expect(res.status).toBe(201);
+    expect(mockAcceptDpa).toHaveBeenCalled();
+  });
+
+  it('GET /api/admin/dpa/acceptance returns accepted=false when acceptance is null', async () => {
+    mockGetDpaAcceptance.mockReturnValueOnce(null);
+    const res = await request(extApp).get('/api/admin/dpa/acceptance');
+    expect(res.status).toBe(200);
+    expect(res.body.data.accepted).toBe(false);
+  });
+});

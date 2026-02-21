@@ -283,3 +283,43 @@ describe('runVarianceAnalysis', () => {
     delete process.env.ANTHROPIC_API_KEY;
   });
 });
+
+describe('AI Variance — extended', () => {
+  const baseSnapshot = {
+    id: 'snap-ext',
+    month: '2026-06',
+    monthNumber: 4,
+    mrr: 2000,
+    arr: 24000,
+    customers: 8,
+    newCustomers: 2,
+    churnedCustomers: 0,
+    mrrGrowthPct: 33.3,
+    revenueChurnPct: 0,
+    pipelineValue: 30000,
+    wonDeals: 3,
+    winRate: 50,
+    newLeads: 20,
+    activeTrials: 4,
+    trialConversionPct: 75,
+    avgHealthScore: 90,
+  };
+  const basePlan = {
+    plannedMrr: 2000,
+    plannedCustomers: 8,
+    plannedNewCustomers: 2,
+    plannedChurnPct: 0,
+    plannedArpu: 250,
+  };
+
+  it('buildVariancePrompt includes winRate in prompt text', () => {
+    const prompt = buildVariancePrompt(baseSnapshot, basePlan);
+    expect(prompt.toLowerCase()).toContain('win rate');
+  });
+
+  it('parseAIResponse handles JSON with no alerts array gracefully via fallback', () => {
+    const result = parseAIResponse('{"summary":"ok","trajectory":"ON_TRACK"}');
+    expect(result.trajectory).toBe('ON_TRACK');
+    expect(result.alerts).toBeDefined();
+  });
+});

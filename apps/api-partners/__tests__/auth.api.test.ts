@@ -214,3 +214,35 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Partners Auth — extended', () => {
+  it('POST /register returns partner data in response body', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'new@partner.com',
+      password: 'securepass123',
+      name: 'New Partner',
+      company: 'NewCo',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.partner).toBeDefined();
+    expect(res.body.data.partner.company).toBe('PartnerCo');
+  });
+
+  it('POST /login returns success:true and tier in response for active partner', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'partner@test.com', password: 'securepass123' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.partner.tier).toBe('REFERRAL');
+  });
+});

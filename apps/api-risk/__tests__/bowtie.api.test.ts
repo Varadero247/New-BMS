@@ -181,3 +181,35 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Risk Bowtie — extended', () => {
+  it('POST /:id/bowtie with CRITICAL risk creates new bowtie successfully', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'CRITICAL',
+      inherentRiskLevel: 'CRITICAL',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    mockPrisma.riskBowtie.create.mockResolvedValue({ id: 'new-bowtie', ...validBowtie });
+
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.topEvent).toBe('Chemical spill');
+  });
+
+  it('GET /bowtie/all returns success:true with populated list', async () => {
+    mockPrisma.riskBowtie.findMany.mockResolvedValue([
+      { id: 'b1', topEvent: 'Fire' },
+      { id: 'b2', topEvent: 'Flood' },
+    ]);
+
+    const res = await request(app).get('/api/risks/bowtie/all');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

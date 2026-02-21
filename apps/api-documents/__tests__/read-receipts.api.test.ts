@@ -180,3 +180,26 @@ describe('DELETE /api/read-receipts/:id', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Read Receipts — extended', () => {
+  it('GET / data is an array', async () => {
+    mockPrisma.docReadReceipt.findMany.mockResolvedValue([]);
+    mockPrisma.docReadReceipt.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/read-receipts');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST / create is called exactly once per create request', async () => {
+    mockPrisma.docReadReceipt.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      documentId: 'doc-2',
+      userId: 'user-1',
+      status: 'READ',
+    });
+    await request(app)
+      .post('/api/read-receipts')
+      .send({ documentId: 'doc-2', userId: 'user-1', status: 'READ' });
+    expect(mockPrisma.docReadReceipt.create).toHaveBeenCalledTimes(1);
+  });
+});

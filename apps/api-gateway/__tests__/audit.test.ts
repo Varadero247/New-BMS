@@ -308,4 +308,24 @@ describe('Audit Routes', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  describe('Audit Routes — extended', () => {
+    it('GET /api/audit/trail returns entries and total in response body', async () => {
+      mockQuery.mockResolvedValueOnce({
+        entries: [
+          { id: 'e-10', action: 'DELETE', resourceType: 'Risk' },
+          { id: 'e-11', action: 'UPDATE', resourceType: 'Risk' },
+        ],
+        total: 2,
+        page: 1,
+        limit: 50,
+      });
+
+      const res = await request(app).get('/api/audit/trail');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.entries).toHaveLength(2);
+      expect(res.body.data.total).toBe(2);
+    });
+  });
 });

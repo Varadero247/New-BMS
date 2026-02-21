@@ -208,3 +208,36 @@ describe('PUT /api/portal/orders/:id/status', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Portal Orders — extended', () => {
+  it('GET /orders returns pagination info in response', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(25);
+
+    const res = await request(app).get('/api/portal/orders?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(25);
+  });
+
+  it('POST /orders returns DRAFT status by default', async () => {
+    const order = {
+      id: '00000000-0000-0000-0000-000000000002',
+      orderNumber: 'PTL-ORD-2602-5678',
+      type: 'SALES',
+      status: 'DRAFT',
+    };
+    mockPrisma.portalOrder.create.mockResolvedValue(order);
+
+    const res = await request(app).post('/api/portal/orders').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      type: 'SALES',
+      totalAmount: 1200,
+      items: [{ name: 'Service', qty: 1, price: 1200 }],
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('DRAFT');
+  });
+});

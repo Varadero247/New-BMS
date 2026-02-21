@@ -193,3 +193,27 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Market Monitor — extended', () => {
+  it('GET /competitors: competitors field is an array', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.competitors)).toBe(true);
+  });
+
+  it('GET /competitors/:id: 404 returns NOT_FOUND error code', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get('/api/competitors/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST /competitors: create called once on success', async () => {
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+    (prisma.competitorMonitor.create as jest.Mock).mockResolvedValue({ id: 'c1', name: 'BetaCo' });
+    await request(app).post('/api/competitors').send({ name: 'BetaCo', website: 'https://beta.com', category: 'INDIRECT' });
+    expect(prisma.competitorMonitor.create).toHaveBeenCalledTimes(1);
+  });
+});

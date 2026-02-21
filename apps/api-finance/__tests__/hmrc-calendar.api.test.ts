@@ -217,3 +217,42 @@ describe('POST /api/hmrc-calendar', () => {
     expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('HMRC Calendar — extended', () => {
+  it('GET / data length matches number returned by findMany', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([
+      { id: '1', title: 'VAT Q1', dueDate: '2026-04-07' },
+      { id: '2', title: 'PAYE', dueDate: '2026-04-19' },
+    ]);
+    const res = await request(app).get('/api/hmrc-calendar');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST / response data has id field', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'VAT Return Q1 2026',
+      dueDate: '2026-04-07',
+      type: 'VAT',
+      status: 'PENDING',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    const res = await request(app).post('/api/hmrc-calendar').send({
+      title: 'VAT Return Q1 2026',
+      dueDate: '2026-04-07',
+      type: 'VAT',
+      description: 'Submit VAT',
+      status: 'PENDING',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET / success is true on empty result set', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/hmrc-calendar');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

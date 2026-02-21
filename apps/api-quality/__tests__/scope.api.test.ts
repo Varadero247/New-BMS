@@ -206,3 +206,73 @@ describe('Quality Scope API Routes', () => {
     });
   });
 });
+
+describe('Quality Scope — extended', () => {
+  const validBody = {
+    scope: 'Our QMS covers all manufacturing and delivery processes.',
+    purpose: 'Define the organizational scope.',
+    exclusions: 'Design activities at partner sites',
+    boundaries: 'ISO 9001:2015 clause 4.3',
+    applicableStandards: 'ISO 9001:2015',
+    version: '1.1',
+    status: 'APPROVED',
+  };
+
+  it('GET / data has version property', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('version');
+  });
+
+  it('GET / returns success true when scope doc exists', async () => {
+    const mockScopeDoc = {
+      id: 'doc-uuid-2',
+      referenceNumber: 'QMS-SCP-2601-001',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: 'Our QMS covers all manufacturing and delivery processes.',
+      purpose: 'Define the organizational scope.',
+      keyChanges: JSON.stringify({ exclusions: 'None', boundaries: 'All', applicableStandards: 'ISO 9001' }),
+      version: '1.0',
+      status: 'APPROVED',
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(mockScopeDoc);
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT / update is called when scope document exists', async () => {
+    const existingDoc = {
+      id: 'doc-uuid-2',
+      referenceNumber: 'QMS-SCP-2601-001',
+      title: 'QMS Scope',
+      documentType: 'POLICY',
+      scope: 'Old scope',
+      purpose: 'Old purpose',
+      keyChanges: null,
+      version: '1.0',
+      status: 'DRAFT',
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(existingDoc);
+    mockPrisma.qualDocument.update.mockResolvedValue({ ...existingDoc, scope: validBody.scope });
+    await request(app).put('/api/scope').send(validBody);
+    expect(mockPrisma.qualDocument.update).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.qualDocument.create).not.toHaveBeenCalled();
+  });
+});

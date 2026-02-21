@@ -371,3 +371,28 @@ describe('GET /api/dashboard', () => {
     );
   });
 });
+
+describe('Energy Dashboard — extended', () => {
+  it('returns multiple SEUs correctly ordered by consumptionPercentage', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(3);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(2);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(2);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(3);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(1);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(1);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([
+      { id: 's1', name: 'Boiler', unit: 'kWh', consumptionPercentage: 40, annualConsumption: 2000, priority: 'HIGH' },
+      { id: 's2', name: 'HVAC', unit: 'kWh', consumptionPercentage: 30, annualConsumption: 1500, priority: 'MEDIUM' },
+    ]);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.topSeus).toHaveLength(2);
+    expect(res.body.data.summary.seus).toBe(3);
+  });
+});

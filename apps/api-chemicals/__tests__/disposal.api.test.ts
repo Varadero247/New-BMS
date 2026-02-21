@@ -261,3 +261,20 @@ describe('PUT /api/disposal/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Chemicals Disposal — extended', () => {
+  it('GET /disposal filters records via nested chemical.orgId', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+
+    await request(app).get('/api/disposal');
+
+    expect(mockPrisma.chemDisposal.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          chemical: expect.objectContaining({ orgId: 'org-1' }),
+        }),
+      })
+    );
+  });
+});

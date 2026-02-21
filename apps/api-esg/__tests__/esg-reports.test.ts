@@ -236,3 +236,26 @@ describe('POST /api/esg-reports/generate', () => {
     expect(res.body.error.message).toBe('Failed to create resource');
   });
 });
+
+describe('ESG Reports — extended', () => {
+  it('GET / findMany called once per request', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/esg-reports');
+    expect(prisma.esgReport.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /generate: response data has referenceNumber field', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue(mockEsgReport);
+    const res = await request(app).post('/api/esg-reports/generate').send({ framework: 'GRI', period: '2026' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('GET / data[0] has framework field when results exist', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([mockEsgReport]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('framework');
+  });
+});

@@ -362,3 +362,31 @@ describe('AI Settings API Routes', () => {
     expect(mockPrisma.aISettings.deleteMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('AI Settings — extended', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/settings', settingsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/settings returns 500 when create throws', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    mockPrisma.aISettings.create.mockRejectedValueOnce(new Error('DB connection error'));
+
+    const response = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer test-token')
+      .send({ provider: 'OPENAI', apiKey: 'sk-test-key' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.success).toBe(false);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

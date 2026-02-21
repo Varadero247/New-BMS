@@ -309,3 +309,48 @@ describe('Reports API Routes', () => {
     });
   });
 });
+
+describe('Project Management Reports — extended', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/reports', reportsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /reports returns meta.total matching count', async () => {
+    (mockPrisma.projectStatusReport.findMany as jest.Mock).mockResolvedValue([mockReport, mockReport]);
+    (mockPrisma.projectStatusReport.count as jest.Mock).mockResolvedValue(2);
+
+    const res = await request(app)
+      .get('/api/reports')
+      .query({ projectId: '44000000-0000-4000-a000-000000000001' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.meta.total).toBe(2);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('POST /reports returns 400 when progressPercentage exceeds 100', async () => {
+    const res = await request(app).post('/api/reports').send({
+      projectId: '44000000-0000-4000-a000-000000000001',
+      reportPeriod: 'Week 12',
+      executiveSummary: 'Over 100%',
+      overallStatus: 'GREEN',
+      scheduleStatus: 'GREEN',
+      budgetStatus: 'GREEN',
+      scopeStatus: 'GREEN',
+      qualityStatus: 'GREEN',
+      riskStatus: 'GREEN',
+      progressPercentage: 110,
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

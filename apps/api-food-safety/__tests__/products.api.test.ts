@@ -194,3 +194,19 @@ describe('DELETE /api/products/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Food Safety Products — extended', () => {
+  it('GET /products returns success:true with correct data length', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Cheese' },
+      { id: '00000000-0000-0000-0000-000000000002', name: 'Milk' },
+    ]);
+    mockPrisma.fsProduct.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/products');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(2);
+  });
+});

@@ -215,3 +215,24 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Field Service Parts Used — extended', () => {
+  it('PUT /:id returns success:true with updated quantity', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSvcPartUsed.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      quantity: 5,
+      totalCost: 750,
+    });
+
+    const res = await request(app)
+      .put('/api/parts-used/00000000-0000-0000-0000-000000000001')
+      .send({ quantity: 5, totalCost: 750 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.quantity).toBe(5);
+  });
+});

@@ -199,3 +199,40 @@ describe('GET /api/portal/scorecards/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Portal Scorecards — extended', () => {
+  it('POST /scorecards stores qualityScore and deliveryScore', async () => {
+    const scorecard = {
+      id: '00000000-0000-0000-0000-000000000002',
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q2',
+      overallScore: 78,
+      qualityScore: 80,
+      deliveryScore: 75,
+    };
+    mockPrisma.portalScorecard.create.mockResolvedValue(scorecard);
+
+    const res = await request(app).post('/api/portal/scorecards').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      period: '2026-Q2',
+      overallScore: 78,
+      qualityScore: 80,
+      deliveryScore: 75,
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.qualityScore).toBe(80);
+    expect(res.body.data.deliveryScore).toBe(75);
+  });
+
+  it('GET /scorecards returns success:true and correct total', async () => {
+    mockPrisma.portalScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.portalScorecard.count.mockResolvedValue(3);
+
+    const res = await request(app).get('/api/portal/scorecards');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.pagination.total).toBe(3);
+  });
+});

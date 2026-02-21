@@ -219,3 +219,23 @@ describe('InfoSec Scope API', () => {
     });
   });
 });
+
+describe('InfoSec Scope — extended', () => {
+  it('PUT /scope with interfaces array succeeds and returns success:true', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.isScope.create as jest.Mock).mockResolvedValueOnce({
+      id: 'scope-2',
+      title: 'With Interfaces',
+      status: 'DRAFT',
+      createdBy: '00000000-0000-4000-a000-000000000123',
+    });
+
+    const res = await request(app)
+      .put('/api/scope')
+      .send({ name: 'With Interfaces', interfaces: ['API Gateway', 'LDAP'] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(mockPrisma.isScope.create).toHaveBeenCalledTimes(1);
+  });
+});

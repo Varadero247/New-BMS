@@ -187,3 +187,24 @@ describe('GET /api/leads/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Marketing Leads — extended', () => {
+  it('GET /leads responds with success:true when results are empty', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/leads');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.leads).toHaveLength(0);
+  });
+
+  it('POST /leads/capture returns 400 when email is malformed', async () => {
+    const res = await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'not-an-email', name: 'Test', source: 'DIRECT' });
+
+    expect(res.status).toBe(400);
+  });
+});

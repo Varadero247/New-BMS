@@ -224,3 +224,35 @@ describe('Sessions API Routes', () => {
     });
   });
 });
+
+describe('Sessions API — extended', () => {
+  let extApp: import('express').Express;
+
+  beforeAll(() => {
+    extApp = require('express')();
+    extApp.use(require('express').json());
+    extApp.use('/api/sessions', sessionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/sessions returns success true on 200', async () => {
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(extApp)
+      .get('/api/sessions')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/sessions data is an array', async () => {
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(extApp)
+      .get('/api/sessions')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data)).toBe(true);
+  });
+});

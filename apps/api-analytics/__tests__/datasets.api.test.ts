@@ -243,3 +243,20 @@ describe('POST /api/datasets/:id/refresh', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Analytics Datasets — extended', () => {
+  it('POST /datasets sets isActive to true by default on create', async () => {
+    const created = { id: 'ds-ext', name: 'Extended Dataset', source: 'ENVIRONMENT', isActive: true };
+    mockPrisma.analyticsDataset.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/datasets').send({
+      name: 'Extended Dataset',
+      source: 'ENVIRONMENT',
+      query: 'SELECT * FROM env_aspects',
+      schema: { columns: ['id', 'name'] },
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.isActive).toBe(true);
+  });
+});

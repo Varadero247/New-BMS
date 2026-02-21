@@ -197,3 +197,20 @@ describe('GET /api/reports/turnover', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Inventory Reports — extended', () => {
+  it('GET /valuation summary contains totalItems count', async () => {
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { quantityOnHand: 500, inventoryValue: 25000 },
+      _count: { id: 42 },
+    });
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/reports/valuation');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.totalItems).toBe(42);
+    expect(res.body.data.summary.totalValue).toBe(25000);
+  });
+});

@@ -308,3 +308,29 @@ describe('Documents API Routes', () => {
     });
   });
 });
+
+describe('Project Management Documents — extended', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/documents', documentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /documents returns meta.totalPages based on count and limit', async () => {
+    (mockPrisma.projectDocument.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectDocument.count as jest.Mock).mockResolvedValueOnce(100);
+
+    const response = await request(app)
+      .get('/api/documents?projectId=project-1&limit=50')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.totalPages).toBe(2);
+  });
+});

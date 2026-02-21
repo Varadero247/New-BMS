@@ -244,3 +244,19 @@ describe('GET /api/org-chart/reporting-chain/:employeeId', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('HR Org Chart — extended', () => {
+  it('GET / success is true on 200', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /flat returns empty array when no employees exist', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/org-chart/flat');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

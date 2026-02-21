@@ -170,3 +170,31 @@ describe('RBAC Middleware', () => {
     });
   });
 });
+
+describe('RBAC Middleware — extended', () => {
+  it('requirePermission allows ADMIN role for health-safety module', async () => {
+    const app = createTestApp([requirePermission('health-safety', PermissionLevel.VIEW)]);
+    const res = await request(app).get('/test').set('X-Test-Role', 'ADMIN');
+    expect(res.status).toBe(200);
+  });
+
+  it('attachPermissions does not throw when roles header is empty string', async () => {
+    const app = createTestApp([attachPermissions()], (req: any, res: any) => {
+      res.json({ success: true, hasPerms: !!req.permissions });
+    });
+    const res = await request(app).get('/test').set('X-Test-Role', 'USER').set('X-Test-Roles', '');
+    expect(res.status).toBe(200);
+  });
+
+  it('requireOwnership attaches ownershipCheck.field from argument', async () => {
+    const app = createTestApp(
+      [attachPermissions(), requireOwnership('assignedTo')],
+      (req: any, res: any) => {
+        res.json({ success: true, ownershipCheck: req.ownershipCheck });
+      }
+    );
+    const res = await request(app).get('/test').set('X-Test-Role', 'VIEWER');
+    expect(res.status).toBe(200);
+    expect(res.body.ownershipCheck.field).toBe('assignedTo');
+  });
+});

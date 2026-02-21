@@ -205,3 +205,38 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('LinkedIn Tracker — extended', () => {
+  it('GET /outreach returns success:true and dailyLimit even when list is empty', async () => {
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/linkedin/outreach');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.stats.dailyLimit).toBe(20);
+    expect(res.body.data.stats.todayCount).toBe(0);
+  });
+
+  it('POST /outreach stores createdBy from authenticated user id', async () => {
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLinkedInOutreach.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      prospectName: 'Jane Doe',
+      company: 'AcmeCo',
+      linkedinUrl: 'https://linkedin.com/in/janedoe',
+      template: 'ISO_CONSULTANT',
+    });
+
+    expect(res.status).toBe(201);
+    expect(prisma.mktLinkedInOutreach.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ createdBy: 'user-123' }),
+      })
+    );
+  });
+});

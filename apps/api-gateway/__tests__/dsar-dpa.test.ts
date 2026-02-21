@@ -213,3 +213,76 @@ describe('DPA Routes', () => {
     });
   });
 });
+
+describe('DSAR + DPA — extended', () => {
+  let dsarApp: express.Express;
+  let dpaApp: express.Express;
+
+  beforeEach(() => {
+    dsarApp = express();
+    dsarApp.use(express.json());
+    dsarApp.use('/api/admin/privacy/dsar', dsarRouter);
+
+    dpaApp = express();
+    dpaApp.use(express.json());
+    dpaApp.use('/api/admin/dpa', dpaRouter);
+
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetActiveDpa.mockReturnValue({
+      id: 'dpa-1',
+      version: '1.0',
+      title: 'DPA v1',
+      content: '<p>Terms</p>',
+      isActive: true,
+    });
+    mockAcceptDpa.mockReturnValue({
+      id: 'acc-1',
+      orgId: 'org-1',
+      dpaId: 'dpa-1',
+      signedAt: new Date().toISOString(),
+    });
+    mockGetDpaAcceptance.mockReturnValue(null);
+    mockHasAcceptedDpa.mockReturnValue(false);
+  });
+
+  it('POST /dsar with ERASURE type creates a request', async () => {
+    mockCreateRequest.mockReturnValueOnce({
+      id: '00000000-0000-0000-0000-000000000002',
+      type: 'ERASURE',
+      status: 'PENDING',
+      subjectEmail: 'erase@example.com',
+    });
+    const res = await request(dsarApp).post('/api/admin/privacy/dsar').send({
+      type: 'ERASURE',
+      subjectEmail: 'erase@example.com',
+      reason: 'User requested deletion',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /dpa/acceptance returns accepted=true when acceptance record exists', async () => {
+    mockGetDpaAcceptance.mockReturnValueOnce({
+      id: 'acc-1',
+      signedAt: new Date().toISOString(),
+      signerName: 'Bob',
+    });
+    const res = await request(dpaApp).get('/api/admin/dpa/acceptance');
+    expect(res.status).toBe(200);
+    expect(res.body.data.accepted).toBe(true);
+    expect(res.body.data.acceptance).toHaveProperty('id', 'acc-1');
+  });
+
+  it('POST /dpa/accept returns 409 when DPA already accepted', async () => {
+    mockHasAcceptedDpa.mockReturnValueOnce(true);
+    const res = await request(dpaApp)
+      .post('/api/admin/dpa/accept')
+      .send({ signerName: 'Jane Doe', signerTitle: 'CTO' });
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe('ALREADY_ACCEPTED');
+  });
+});

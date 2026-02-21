@@ -191,3 +191,32 @@ describe('POST /api/risks/appetite — invalid enum', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Risk Appetite — extended', () => {
+  it('GET /appetite returns data array with correct length', async () => {
+    mockPrisma.riskAppetiteStatement.findMany.mockResolvedValue([
+      { id: '1', category: 'OPERATIONAL', appetiteLevel: 'LOW_APPETITE' },
+      { id: '2', category: 'STRATEGIC', appetiteLevel: 'MODERATE_APPETITE' },
+    ]);
+
+    const res = await request(app).get('/api/risks/appetite');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('PUT /framework responds with success:true when framework already exists', async () => {
+    mockPrisma.riskFramework.findUnique.mockResolvedValue({ id: 'f1', organisationId: 'org-1' });
+    mockPrisma.riskFramework.update.mockResolvedValue({
+      id: 'f1',
+      frameworkVersion: 'ISO 31000:2018',
+    });
+
+    const res = await request(app).put('/api/risks/framework').send({
+      frameworkVersion: 'ISO 31000:2018',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

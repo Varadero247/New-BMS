@@ -263,3 +263,37 @@ describe('POST /api/ir35', () => {
     expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('IR35 — extended', () => {
+  const validAssessment = {
+    contractorName: 'Sarah Connor',
+    contractorCompany: 'SC Ltd',
+    engagementStartDate: '2026-03-01',
+    engagementEndDate: '2026-09-30',
+    role: 'QA Engineer',
+    determination: 'OUTSIDE',
+    status: 'DRAFT',
+  };
+
+  it('GET / findMany called once per list request', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
+    await request(app).get('/api/ir35');
+    expect(mockPrisma.finIr35Assessment.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / created assessment has contractorName in create call', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      ...validAssessment,
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/ir35').send(validAssessment);
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ contractorName: 'Sarah Connor' }),
+      })
+    );
+  });
+});

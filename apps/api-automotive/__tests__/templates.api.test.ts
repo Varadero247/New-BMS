@@ -151,3 +151,18 @@ describe('GET /api/templates/:id', () => {
     expect(res.body.error.code).toBe('INVALID_ID');
   });
 });
+
+describe('Automotive Templates — extended', () => {
+  it('GET / success is true on 200', async () => {
+    const res = await request(app).get('/api/templates');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns 200 with success true for known FMEA template', async () => {
+    const res = await request(app).get('/api/templates/tpl-fmea-01');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.category).toBe('FMEA');
+  });
+});

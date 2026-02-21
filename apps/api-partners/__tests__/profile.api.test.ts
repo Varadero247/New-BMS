@@ -192,3 +192,24 @@ describe('PUT /api/profile', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('Partner Profile — extended', () => {
+  it('GET /profile response includes referralCode field', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+
+    const res = await request(app).get('/api/profile');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.referralCode).toBe('REF-ABC123');
+  });
+
+  it('PUT /profile responds with updated isoSpecialisms when replaced', async () => {
+    const updated = { ...mockPartner, isoSpecialisms: ['27001'] };
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(updated);
+
+    const res = await request(app).put('/api/profile').send({ isoSpecialisms: ['27001'] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.isoSpecialisms).toEqual(['27001']);
+  });
+});

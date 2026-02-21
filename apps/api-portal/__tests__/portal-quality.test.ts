@@ -198,3 +198,36 @@ describe('PUT /api/portal/quality-reports/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Portal Quality — extended', () => {
+  it('POST /quality-reports returns referenceNumber in response', async () => {
+    const report = {
+      id: '00000000-0000-0000-0000-000000000002',
+      reportType: 'COMPLAINT',
+      referenceNumber: 'PTL-QR-2602-9999',
+      status: 'OPEN',
+    };
+    mockPrisma.portalQualityReport.create.mockResolvedValue(report);
+
+    const res = await request(app).post('/api/portal/quality-reports').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      reportType: 'COMPLAINT',
+      description: 'Wrong delivery',
+      severity: 'MINOR',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toBeDefined();
+  });
+
+  it('GET /quality-reports returns pagination metadata', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(15);
+
+    const res = await request(app).get('/api/portal/quality-reports?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(15);
+  });
+});

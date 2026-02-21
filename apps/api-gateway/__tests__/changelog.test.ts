@@ -189,3 +189,55 @@ describe('Changelog Routes', () => {
     });
   });
 });
+
+describe('Changelog Routes — extended', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changelog', changelogRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    mockGetUnreadCount.mockReturnValue(0);
+    mockCreateEntry.mockReturnValue({
+      id: 'cl-1',
+      title: 'New Feature',
+      description: 'Details here',
+      category: 'new_feature',
+      modules: ['quality'],
+      isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+  });
+
+  it('GET /api/changelog returns total count in response', async () => {
+    mockListEntries.mockReturnValueOnce({ entries: [{ id: 'cl-2', title: 'Bug fix' }], total: 1 });
+    const res = await request(app).get('/api/changelog');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('total', 1);
+  });
+
+  it('POST /api/changelog with bug_fix category succeeds', async () => {
+    const res = await request(app)
+      .post('/api/changelog')
+      .send({
+        title: 'Fixed a bug',
+        description: 'Resolved the issue',
+        category: 'bug_fix',
+        modules: ['inventory'],
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/changelog/mark-read calls markAsRead with current user id', async () => {
+    await request(app).post('/api/changelog/mark-read');
+    expect(mockMarkAsRead).toHaveBeenCalledWith('user-1');
+  });
+});

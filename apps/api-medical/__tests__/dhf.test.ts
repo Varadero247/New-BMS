@@ -302,3 +302,35 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Medical DHF — extended', () => {
+  let extApp: express.Express;
+
+  beforeAll(() => {
+    extApp = express();
+    extApp.use(express.json());
+    extApp.use('/api/dhf', dhfRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /dhf sets uploadedBy from authenticated user email', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce(mockHistoryFile);
+
+    await request(extApp).post('/api/dhf').send({
+      projectId: PROJECT_ID,
+      title: 'Risk Analysis',
+      category: 'RISK_ANALYSIS',
+      documentRef: 'DHF-002',
+      version: '1.0',
+    });
+
+    expect(mockPrisma.designHistoryFile.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ uploadedBy: 'test@test.com' }),
+      })
+    );
+  });
+});

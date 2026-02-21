@@ -185,3 +185,33 @@ describe('PUT /api/portal/approvals/:id/reject', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Portal Approvals — extended', () => {
+  it('GET /approvals returns success:true with empty list', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/portal/approvals');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /approvals returns PENDING status on new approval request', async () => {
+    const approval = {
+      id: '00000000-0000-0000-0000-000000000002',
+      type: 'DOCUMENT',
+      referenceId: 'doc-99',
+      status: 'PENDING',
+    };
+    mockPrisma.portalApproval.create.mockResolvedValue(approval);
+
+    const res = await request(app)
+      .post('/api/portal/approvals')
+      .send({ type: 'DOCUMENT', referenceId: 'doc-99' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('PENDING');
+  });
+});

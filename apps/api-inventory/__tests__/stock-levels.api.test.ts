@@ -192,3 +192,31 @@ describe('GET /api/stock-levels/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Stock Levels — extended', () => {
+  it('GET /api/stock-levels meta contains page field', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/stock-levels');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('total');
+  });
+
+  it('GET /api/stock-levels/summary totalInventoryValue is a number', async () => {
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(10);
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { inventoryValue: 12500 },
+    });
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/stock-levels/summary');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalInventoryValue).toBe('number');
+  });
+
+  it('GET /api/stock-levels/:id returns 404 with NOT_FOUND code when product missing', async () => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).get(`/api/stock-levels/${INV_ID}`);
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

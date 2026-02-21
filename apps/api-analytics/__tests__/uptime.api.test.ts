@@ -221,3 +221,20 @@ describe('GET /api/uptime/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Uptime API — extended', () => {
+  it('GET / returns success true on 200', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id/history incidents is an array', async () => {
+    mockPrisma.uptimeIncident.findMany.mockResolvedValue([]);
+    mockPrisma.uptimeIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/uptime/00000000-0000-0000-0000-000000000001/history');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.incidents)).toBe(true);
+  });
+});

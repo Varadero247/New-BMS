@@ -191,3 +191,16 @@ describe('DELETE /api/allergens/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Food Safety Allergens — extended', () => {
+  it('GET /allergens returns pagination metadata', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(8);
+
+    const res = await request(app).get('/api/allergens?page=1&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+    expect(res.body.pagination.total).toBe(8);
+  });
+});

@@ -247,3 +247,22 @@ describe('DELETE /api/portal/users/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Portal Users — extended', () => {
+  it('POST /invite returns token in response for SUPPLIER portal type', async () => {
+    const invitation = { id: 'inv-2', email: 'supplier2@test.com', token: 'mock-uuid-token' };
+    mockPrisma.portalInvitation.create.mockResolvedValue(invitation);
+
+    const res = await request(app).post('/api/portal/users/invite').send({
+      email: 'supplier2@test.com',
+      name: 'Supplier Two',
+      company: 'Suppliers Ltd',
+      role: 'SUPPLIER_ADMIN',
+      portalType: 'SUPPLIER',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.token).toBe('mock-uuid-token');
+  });
+});

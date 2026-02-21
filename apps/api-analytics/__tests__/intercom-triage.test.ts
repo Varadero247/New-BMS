@@ -273,3 +273,22 @@ describe('POST /webhooks/intercom', () => {
     );
   });
 });
+
+describe('Intercom Triage — extended', () => {
+  it('stores externalId from conversation item id', async () => {
+    (prisma.supportTicketLog.create as jest.Mock).mockResolvedValue({ id: 'ticket-13' });
+
+    await request(app)
+      .post('/webhooks/intercom')
+      .send({
+        topic: 'conversation.created',
+        data: { item: { id: 'conv-ext-99', subject: 'External ref test' } },
+      });
+
+    expect(prisma.supportTicketLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ externalId: 'conv-ext-99' }),
+      })
+    );
+  });
+});

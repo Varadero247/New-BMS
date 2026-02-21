@@ -186,3 +186,12 @@ describe('HubSpotClient', () => {
     });
   });
 });
+
+describe('HubSpotClient — extended', () => {
+  it('createTask returns null on non-ok response', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce(err(422));
+    const result = await client.createTask({ hs_task_subject: 'Demo', hs_task_status: 'NOT_STARTED' });
+    expect(result).toBeNull();
+  });
+});

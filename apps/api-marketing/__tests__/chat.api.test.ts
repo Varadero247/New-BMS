@@ -236,3 +236,23 @@ describe('GET /api/chat/session/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Marketing Chat — extended', () => {
+  it('POST /start returns success:true in response body', async () => {
+    (prisma.mktChatSession.create as jest.Mock).mockResolvedValue(mockSession);
+    (prisma.mktChatSession.update as jest.Mock).mockResolvedValue(mockSession);
+
+    const res = await request(app).post('/api/chat/start').send({});
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /session/:id returns 500 when findUnique throws', async () => {
+    (prisma.mktChatSession.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/chat/session/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+  });
+});

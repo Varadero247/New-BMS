@@ -170,3 +170,34 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Prospect Research — extended', () => {
+  it('POST /research response data has an id field', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      companyName: 'WidgetCorp',
+    });
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'WidgetCorp', industry: 'Manufacturing' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('GET /api/prospects returns success true', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/prospects');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /research with industry field included calls create once', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'Acme Ltd', industry: 'Technology' });
+    expect(prisma.mktProspectResearch.create).toHaveBeenCalledTimes(1);
+  });
+});

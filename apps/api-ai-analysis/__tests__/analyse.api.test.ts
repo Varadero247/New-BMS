@@ -487,3 +487,89 @@ describe('POST /api/analyse', () => {
     });
   });
 });
+
+describe('AI Analysis — extended', () => {
+  let extApp: import('express').Express;
+
+  beforeAll(() => {
+    extApp = require('express')();
+    extApp.use(require('express').json());
+    extApp.use('/api/analyse', analyseRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFetch.mockReset();
+  });
+
+  it('returns 400 validation error for missing sourceId', async () => {
+    const response = await request(extApp)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 201 with success true on valid risk analysis', async () => {
+    const extSettings = {
+      id: 'settings-ext',
+      provider: 'OPENAI',
+      apiKey: 'sk-ext-key',
+      model: 'gpt-4',
+      defaultPrompt: null,
+      totalTokensUsed: 0,
+      lastUsedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const extRiskSource = {
+      id: 'source-1',
+      title: 'Slip hazard',
+      description: 'Wet floor risk',
+      likelihood: 3,
+      severity: 3,
+      riskScore: 9,
+      riskLevel: 'MEDIUM',
+      status: 'ACTIVE',
+    };
+    const extAnalysis = {
+      id: '52000000-0000-4000-a000-000000000002',
+      userId: '20000000-0000-4000-a000-000000000001',
+      sourceType: 'risk',
+      sourceId: 'source-1',
+      sourceData: extRiskSource,
+      prompt: 'ext prompt',
+      provider: 'OPENAI',
+      model: 'gpt-4',
+      response: { content: 'Extended AI response' },
+      suggestedRootCause: 'Wet floor.',
+      suggestedActions: [],
+      complianceGaps: [],
+      highlights: [],
+      status: 'COMPLETED',
+      createdAt: new Date(),
+    };
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(extSettings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(extRiskSource);
+    mockPrisma.aIAnalysis.create.mockResolvedValueOnce(extAnalysis);
+    mockPrisma.aISettings.update.mockResolvedValueOnce(extSettings);
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: jest.fn().mockResolvedValue({
+        choices: [{ message: { content: 'Root cause: Wet floor.' } }],
+        usage: { total_tokens: 75 },
+        model: 'gpt-4',
+      }),
+    });
+
+    const response = await request(extApp)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk', sourceId: 'source-1' });
+
+    expect(response.status).toBe(201);
+    expect(response.body.success).toBe(true);
+  });
+});

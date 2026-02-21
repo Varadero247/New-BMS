@@ -138,3 +138,29 @@ describe('IntercomClient', () => {
     });
   });
 });
+
+describe('IntercomClient — extended', () => {
+  it('sendInAppMessage returns the parsed response data on success', async () => {
+    const client = new IntercomClient('test-token');
+    const responseData = { id: 'msg-extended-1', message_type: 'inapp' };
+    mockFetch.mockReturnValueOnce(ok(responseData));
+    const result = await client.sendInAppMessage('user-ext', 'Extended test');
+    expect(result).toEqual(responseData);
+  });
+
+  it('createContact returns parsed response data on success', async () => {
+    const client = new IntercomClient('test-token');
+    const contactData = { id: 'contact-ext-1', email: 'ext@ims.local', role: 'user' };
+    mockFetch.mockReturnValueOnce(ok(contactData));
+    const result = await client.createContact('ext@ims.local', 'Extended User');
+    expect(result).toEqual(contactData);
+  });
+
+  it('sendInAppMessage uses the correct Intercom API URL', async () => {
+    const client = new IntercomClient('my-secret-token');
+    mockFetch.mockReturnValueOnce(ok({ id: 'msg-url-check' }));
+    await client.sendInAppMessage('u-url', 'URL check');
+    const [url] = mockFetch.mock.calls[0];
+    expect(url).toContain('intercom.io');
+  });
+});

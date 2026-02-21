@@ -305,3 +305,29 @@ describe('GET /api/analytics/dashboard', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Emergency Analytics — extended', () => {
+  it('dashboard returns success:true when all metrics are healthy', async () => {
+    setupAnalyticsMocks({
+      activePremises: 10,
+      fraOverdue: 0,
+      activeIncidents: 0,
+      incidentsLast30: 0,
+      wardenExpiring: 0,
+      peepDue: 0,
+      equipmentDue: 0,
+      bcpCount: 4,
+      bcpNotTested: 0,
+      premisesNoDrill: 0,
+      recentIncidents: [],
+      riskBreakdown: [],
+      incidentBreakdown: [],
+    });
+
+    const res = await request(app).get('/api/analytics/dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.criticalAlerts).toHaveLength(0);
+  });
+});

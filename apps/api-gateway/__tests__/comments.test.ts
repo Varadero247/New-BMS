@@ -167,3 +167,35 @@ describe('Comments Routes', () => {
     });
   });
 });
+
+describe('Comments Routes — extended', () => {
+  let extApp: import('express').Express;
+
+  beforeAll(() => {
+    extApp = require('express')();
+    extApp.use(require('express').json());
+    extApp.use('/api/comments', commentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/comments returns comments array in data', async () => {
+    mockGetComments.mockResolvedValue({
+      comments: [{ id: '00000000-0000-0000-0000-000000000001', body: 'Hello' }],
+      total: 1,
+    });
+    const res = await request(extApp).get('/api/comments?recordType=ncr&recordId=r1');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.comments)).toBe(true);
+  });
+
+  it('POST /api/comments returns data with id', async () => {
+    const res = await request(extApp)
+      .post('/api/comments')
+      .send({ recordType: 'risk', recordId: 'r2', body: 'New comment' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

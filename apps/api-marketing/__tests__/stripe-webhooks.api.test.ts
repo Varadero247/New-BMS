@@ -253,3 +253,17 @@ describe('Stripe signature verification', () => {
     expect(res.body.error.code).toBe('INVALID_SIGNATURE');
   });
 });
+
+describe('Stripe Webhooks — extended', () => {
+  it('handles invoice.payment_succeeded event gracefully', async () => {
+    const res = await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'invoice.payment_succeeded',
+        data: { object: { id: 'inv-succ-1', customer: 'cus_123' } },
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body.received).toBe(true);
+  });
+});

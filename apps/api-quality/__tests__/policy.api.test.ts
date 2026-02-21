@@ -203,3 +203,55 @@ describe('Quality Policy API Routes', () => {
     });
   });
 });
+
+describe('Quality Policy — extended', () => {
+  const validBody = {
+    policyStatement: 'We commit to continuous improvement.',
+    purpose: 'Define quality direction.',
+    commitments: 'Customer focus',
+    objectives: 'Achieve 99% satisfaction',
+    applicability: 'All departments',
+    version: '3.0',
+    status: 'APPROVED',
+  };
+
+  it('GET / returns success true on 200', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT / with valid body returns success true', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    mockPrisma.qualDocument.count.mockResolvedValue(0);
+    mockPrisma.qualDocument.create.mockResolvedValue({
+      id: 'doc-new',
+      referenceNumber: 'QMS-POL-2601-002',
+      title: 'Quality Policy',
+      documentType: 'POLICY',
+      scope: validBody.policyStatement,
+      purpose: validBody.purpose,
+      keyChanges: JSON.stringify({ commitments: validBody.commitments, objectives: validBody.objectives, applicability: validBody.applicability }),
+      version: validBody.version,
+      status: validBody.status,
+      author: 'user-1',
+      approvedBy: null,
+      effectiveDate: null,
+      nextReviewDate: null,
+      deletedAt: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+    const res = await request(app).put('/api/policy').send(validBody);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / data has id property', async () => {
+    mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/policy');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

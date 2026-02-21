@@ -211,3 +211,21 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('GDPR Monitor — extended', () => {
+  it('GET /report returns success true on 200', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataProcessingAgreement.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.dataRequest.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/gdpr/report');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /categories returns empty categories array when none exist', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/gdpr/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.data.categories).toHaveLength(0);
+  });
+});

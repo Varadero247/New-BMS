@@ -249,3 +249,19 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Monthly Review — extended', () => {
+  it('GET /:snapshotId returns planTarget as null when no plan target found', async () => {
+    (prisma.monthlySnapshot.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      month: '2026-04',
+      monthNumber: 2,
+      mrr: 0,
+    });
+    (prisma.planTarget.findUnique as jest.Mock).mockResolvedValue(null);
+
+    const res = await request(app).get('/api/monthly-review/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.planTarget).toBeNull();
+  });
+});

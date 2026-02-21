@@ -244,3 +244,18 @@ describe('POST /api/assistant', () => {
     expect(prisma.aISettings.findFirst).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('AI Assistant — extended', () => {
+  it('returns 200 with a non-empty answer for payroll keyword without AI provider', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'How does payroll processing work?' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.answer.length).toBeGreaterThan(0);
+  });
+});

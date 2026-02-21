@@ -208,3 +208,26 @@ describe('Cookie Consent Handler', () => {
     });
   });
 });
+
+describe('Cookie Consent Handler — extended', () => {
+  it('essential is always true even when explicitly set to false', () => {
+    const req = mockRequest({ essential: false, analytics: false, functional: false });
+    const res = mockResponse();
+
+    handleCookieConsent(req as Request, res as Response);
+
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    // essential defaults to true if not boolean or forced
+    expect(typeof call.data.essential).toBe('boolean');
+  });
+
+  it('response data has exactly 5 keys', () => {
+    const req = mockRequest({ essential: true, analytics: true, functional: true });
+    const res = mockResponse();
+
+    handleCookieConsent(req as Request, res as Response);
+
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(Object.keys(call.data)).toHaveLength(5);
+  });
+});

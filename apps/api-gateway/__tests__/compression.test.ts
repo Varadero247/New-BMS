@@ -179,3 +179,31 @@ describe('compressionMiddleware — deflate support', () => {
 // Provide a fallback for unused variable
 const res = makeRes();
 void res;
+
+describe('compressionMiddleware — extended', () => {
+  it('calls next() for a DELETE request with gzip support', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes();
+    mw(makeReq('gzip', 'DELETE'), response, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('does not set Content-Encoding for audio/* content', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('audio/mpeg');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBeUndefined();
+  });
+
+  it('sets Content-Encoding to deflate when only deflate is advertised', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('text/plain');
+    mw(makeReq('deflate'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBe('deflate');
+  });
+});

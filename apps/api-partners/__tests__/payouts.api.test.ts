@@ -194,3 +194,26 @@ describe('POST /api/payouts/request', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Payouts — extended', () => {
+  it('GET / returns success true on 200', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/payouts');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / payouts is an array', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/payouts');
+    expect(Array.isArray(res.body.data.payouts)).toBe(true);
+  });
+
+  it('POST /request payout create not called when balance is zero', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).post('/api/payouts/request');
+    expect(prisma.mktPartnerPayout.create).not.toHaveBeenCalled();
+  });
+});

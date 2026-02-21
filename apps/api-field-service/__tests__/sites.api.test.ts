@@ -211,3 +211,20 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Field Service Sites — extended', () => {
+  it('DELETE /:id returns message "Site deleted" on success', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsSvcSite.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app).delete('/api/sites/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toBe('Site deleted');
+  });
+});

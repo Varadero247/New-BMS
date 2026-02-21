@@ -246,3 +246,20 @@ describe('GET /api/exports/:id/download', () => {
     expect(res.body.error.code).toBe('NO_FILE');
   });
 });
+
+describe('Analytics Exports — extended', () => {
+  it('POST /exports returns QUEUED status for EXCEL format', async () => {
+    const created = { id: 'exp-excel', name: 'Excel Export', type: 'FULL', format: 'EXCEL', status: 'QUEUED' };
+    mockPrisma.analyticsExport.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/exports').send({
+      name: 'Excel Export',
+      type: 'FULL',
+      format: 'EXCEL',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('QUEUED');
+    expect(res.body.data.format).toBe('EXCEL');
+  });
+});
