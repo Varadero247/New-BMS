@@ -270,3 +270,26 @@ describe('GET /api/compliance/dashboard', () => {
     expect(res.body.data.complianceRate).toBe(0);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.energyComplianceObligation.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/compliance');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.energyComplianceObligation.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/compliance').send({
+      title: 'ESOS Phase 3',
+      regulation: 'ESOS',
+      requirement: 'Complete energy audit by Dec 2024',
+      jurisdiction: 'UK',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -291,3 +291,27 @@ describe('GET /api/projects/roi-summary', () => {
     expect(res.body.data.overallROI).toBe(0);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.energyProject.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/projects');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.energyProject.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/projects').send({
+      title: 'LED Lighting Upgrade',
+      type: 'EFFICIENCY',
+      estimatedSavings: 12000,
+      investmentCost: 25000,
+      paybackMonths: 24,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

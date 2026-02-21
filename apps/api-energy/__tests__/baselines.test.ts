@@ -273,3 +273,27 @@ describe('PUT /api/baselines/:id/approve', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.energyBaseline.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/baselines');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.energyBaseline.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/baselines').send({
+      name: 'Baseline 2025',
+      year: 2025,
+      totalConsumption: 50000,
+      unit: 'kWh',
+      methodology: 'Regression analysis',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

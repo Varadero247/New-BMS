@@ -244,3 +244,27 @@ describe('GET /api/readings/summary', () => {
     expect(res.body.data.totalCost).toBe(0);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/readings');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energyReading.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/readings').send({
+      meterId: '00000000-0000-0000-0000-000000000001',
+      value: 1500.5,
+      readingDate: '2025-01-15',
+      source: 'MANUAL',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

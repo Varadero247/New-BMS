@@ -256,3 +256,27 @@ describe('GET /api/targets/:id/progress', () => {
     expect(res.body.data.progress).toBe(0);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.energyTarget.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/targets');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.energyTarget.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/targets').send({
+      name: '10% Reduction',
+      metricType: 'CONSUMPTION',
+      year: 2025,
+      targetValue: 45000,
+      unit: 'kWh',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

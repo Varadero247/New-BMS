@@ -279,3 +279,28 @@ describe('GET /api/bills/summary', () => {
     expect(res.body.data.totalCost).toBe(0);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.energyBill.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/bills');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.energyBill.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/bills').send({
+      provider: 'EDF Energy',
+      periodStart: '2025-01-01',
+      periodEnd: '2025-01-31',
+      consumption: 15000,
+      unit: 'kWh',
+      cost: 2500,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
