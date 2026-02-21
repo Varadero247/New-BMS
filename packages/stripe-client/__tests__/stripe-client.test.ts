@@ -188,3 +188,37 @@ describe('StripeClient', () => {
     });
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('StripeClient — additional coverage', () => {
+  it('getSubscriptions calls fetch exactly once per invocation', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockReturnValueOnce(ok({ data: [] }));
+    await client.getSubscriptions();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    // Confirm it hits the subscriptions endpoint
+    expect(mockFetch.mock.calls[0][0]).toContain('/v1/subscriptions');
+  });
+
+  it('createTransfer returns null when fetch throws', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockRejectedValueOnce(new Error('network error'));
+    const result = await client.createTransfer({ amount: 100, currency: 'usd', destination: 'acct_1' });
+    expect(result).toBeNull();
+  });
+
+  it('getBillingPortalUrl returns null when fetch throws', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockRejectedValueOnce(new Error('network failure'));
+    const result = await client.getBillingPortalUrl('cus_1', 'https://app.com');
+    expect(result).toBeNull();
+  });
+
+  it('createCoupon returns null when fetch throws', async () => {
+    const client = new StripeClient('sk_test');
+    mockFetch.mockRejectedValueOnce(new Error('network'));
+    const result = await client.createCoupon({ percent_off: 10, duration: 'once' });
+    expect(result).toBeNull();
+  });
+});

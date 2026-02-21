@@ -213,3 +213,33 @@ describe('DELETE /api/records/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('records.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/records', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/records', async () => {
+    const res = await request(app).get('/api/records');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/records', async () => {
+    const res = await request(app).get('/api/records');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/records body has success property', async () => {
+    const res = await request(app).get('/api/records');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

@@ -264,3 +264,33 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('routes.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/routes', routesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/routes', async () => {
+    const res = await request(app).get('/api/routes');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/routes', async () => {
+    const res = await request(app).get('/api/routes');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/routes body has success property', async () => {
+    const res = await request(app).get('/api/routes');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

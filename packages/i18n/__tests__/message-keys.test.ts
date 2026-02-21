@@ -173,3 +173,34 @@ describe('common translation keys exist in all locales', () => {
     });
   }
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('i18n — additional coverage', () => {
+  it('flattenKeys produces only leaf-level keys (no intermediate objects)', () => {
+    // All keys should refer to string values, not nested objects
+    for (const key of en) {
+      // A key like "common" alone would only appear if common were a string,
+      // but since it is an object, flattenKeys should never emit it bare.
+      expect(key.split('.').length).toBeGreaterThanOrEqual(1);
+    }
+    // Verify none of the top-level-only object keys appear without a suffix
+    const objectKeys = ['common', 'nav', 'auth', 'dashboard', 'forms', 'validation', 'errors', 'table', 'notifications'];
+    for (const objectKey of objectKeys) {
+      expect(enSet.has(objectKey)).toBe(false);
+    }
+  });
+
+  it('all locales have at least 100 keys', () => {
+    expect(de.length).toBeGreaterThanOrEqual(100);
+    expect(fr.length).toBeGreaterThanOrEqual(100);
+    expect(es.length).toBeGreaterThanOrEqual(100);
+  });
+
+  it('auth.signIn key exists in all locales', () => {
+    expect(enSet.has('auth.signIn')).toBe(true);
+    expect(deSet.has('auth.signIn')).toBe(true);
+    expect(frSet.has('auth.signIn')).toBe(true);
+    expect(esSet.has('auth.signIn')).toBe(true);
+  });
+});

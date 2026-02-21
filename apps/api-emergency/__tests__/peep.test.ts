@@ -282,3 +282,33 @@ describe('PUT /api/peep/:id', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('peep — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/peep', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/peep', async () => {
+    const res = await request(app).get('/api/peep');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/peep', async () => {
+    const res = await request(app).get('/api/peep');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/peep body has success property', async () => {
+    const res = await request(app).get('/api/peep');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

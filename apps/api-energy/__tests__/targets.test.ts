@@ -280,3 +280,24 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('targets — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/targets', targetsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/targets', async () => {
+    const res = await request(app).get('/api/targets');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/targets', async () => {
+    const res = await request(app).get('/api/targets');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

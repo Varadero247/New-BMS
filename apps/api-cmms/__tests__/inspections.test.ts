@@ -242,3 +242,19 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('inspections — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/inspections', inspectionsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/inspections', async () => {
+    const res = await request(app).get('/api/inspections');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+});

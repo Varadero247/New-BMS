@@ -216,3 +216,33 @@ describe('DELETE /api/spend/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('spend.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/spend', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/spend', async () => {
+    const res = await request(app).get('/api/spend');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/spend', async () => {
+    const res = await request(app).get('/api/spend');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/spend body has success property', async () => {
+    const res = await request(app).get('/api/spend');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

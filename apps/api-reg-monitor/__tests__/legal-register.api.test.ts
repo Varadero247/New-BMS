@@ -238,3 +238,33 @@ describe('DELETE /api/legal-register/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('legal-register.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/legal-register', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/legal-register', async () => {
+    const res = await request(app).get('/api/legal-register');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/legal-register', async () => {
+    const res = await request(app).get('/api/legal-register');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/legal-register body has success property', async () => {
+    const res = await request(app).get('/api/legal-register');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

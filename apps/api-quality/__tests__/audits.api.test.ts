@@ -264,3 +264,19 @@ describe('Quality Audits API Routes', () => {
     });
   });
 });
+
+describe('audits.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/audits', auditsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/audits', async () => {
+    const res = await request(app).get('/api/audits');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+});

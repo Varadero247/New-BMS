@@ -198,3 +198,42 @@ describe('asyncHandler — extended', () => {
     expect(capturedRes).toBe(mockRes);
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('errorHandler — additional coverage', () => {
+  it('uses statusCode 422 when explicitly set on the error', () => {
+    const err = Object.assign(new Error('Unprocessable'), { statusCode: 422, code: 'UNPROCESSABLE' });
+    const { res, status } = makeRes();
+    errorHandler(err as any, req, res, next);
+    expect(status).toHaveBeenCalledWith(422);
+  });
+
+  it('ZodError details array is passed through as-is', () => {
+    const issues = [{ message: 'Min length 3', path: ['username'] }, { message: 'Required', path: ['email'] }];
+    const zodErr = Object.assign(new Error('Zod'), { issues });
+    const { res, json } = makeRes();
+    errorHandler(zodErr as any, req, res, next);
+    expect(json.mock.calls[0][0].error.details).toHaveLength(2);
+    expect(json.mock.calls[0][0].error.details[1].message).toBe('Required');
+  });
+
+  it('asyncHandler next is called with the exact thrown error object', async () => {
+    const nextFn = jest.fn();
+    const specificErr = new TypeError('expected string');
+    const handler = asyncHandler(async () => { throw specificErr; });
+    await handler(req, {} as any, nextFn);
+    expect(nextFn).toHaveBeenCalledWith(specificErr);
+    expect(nextFn.mock.calls[0][0]).toBe(specificErr);
+  });
+
+  it('asyncHandler passes next function through to wrapped handler signature', async () => {
+    const nextFn = jest.fn();
+    let capturedNext: any;
+    const handler = asyncHandler(async (_req, _res, nxt) => {
+      capturedNext = nxt;
+    });
+    await handler(req, {} as any, nextFn);
+    expect(capturedNext).toBe(nextFn);
+  });
+});

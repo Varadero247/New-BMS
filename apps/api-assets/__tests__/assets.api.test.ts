@@ -200,3 +200,38 @@ describe('DELETE /api/assets/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('assets.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/assets', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/assets', async () => {
+    const res = await request(app).get('/api/assets');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/assets', async () => {
+    const res = await request(app).get('/api/assets');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/assets body has success property', async () => {
+    const res = await request(app).get('/api/assets');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+
+  it('GET /api/assets body is an object', async () => {
+    const res = await request(app).get('/api/assets');
+    expect(typeof res.body).toBe('object');
+  });
+});

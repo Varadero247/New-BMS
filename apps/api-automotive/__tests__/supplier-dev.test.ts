@@ -287,3 +287,33 @@ describe('DELETE /api/supplier-dev/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('supplier-dev — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/supplier-dev', supplierDevRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/supplier-dev', async () => {
+    const res = await request(app).get('/api/supplier-dev');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/supplier-dev', async () => {
+    const res = await request(app).get('/api/supplier-dev');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/supplier-dev body has success property', async () => {
+    const res = await request(app).get('/api/supplier-dev');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

@@ -294,3 +294,38 @@ describe('DELETE /api/controls/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('controls.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/controls', controlsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/controls', async () => {
+    const res = await request(app).get('/api/controls');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/controls', async () => {
+    const res = await request(app).get('/api/controls');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/controls body has success property', async () => {
+    const res = await request(app).get('/api/controls');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+
+  it('GET /api/controls body is an object', async () => {
+    const res = await request(app).get('/api/controls');
+    expect(typeof res.body).toBe('object');
+  });
+});

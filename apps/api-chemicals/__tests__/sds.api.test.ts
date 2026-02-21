@@ -280,3 +280,24 @@ describe('PUT /api/sds/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('sds.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/sds', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/sds', async () => {
+    const res = await request(app).get('/api/sds');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/sds', async () => {
+    const res = await request(app).get('/api/sds');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

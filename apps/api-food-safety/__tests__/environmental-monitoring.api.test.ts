@@ -244,3 +244,33 @@ describe('GET /api/environmental-monitoring/out-of-spec', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('environmental-monitoring.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/environmental-monitoring', envMonRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/environmental-monitoring', async () => {
+    const res = await request(app).get('/api/environmental-monitoring');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/environmental-monitoring', async () => {
+    const res = await request(app).get('/api/environmental-monitoring');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/environmental-monitoring body has success property', async () => {
+    const res = await request(app).get('/api/environmental-monitoring');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

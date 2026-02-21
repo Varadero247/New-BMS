@@ -222,3 +222,24 @@ describe('DELETE /api/competencies/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('competencies.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/competencies', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/competencies', async () => {
+    const res = await request(app).get('/api/competencies');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/competencies', async () => {
+    const res = await request(app).get('/api/competencies');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

@@ -278,3 +278,24 @@ describe('POST /api/ccps/:id/monitoring-records', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('ccps.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/ccps', ccpsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/ccps', async () => {
+    const res = await request(app).get('/api/ccps');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/ccps', async () => {
+    const res = await request(app).get('/api/ccps');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

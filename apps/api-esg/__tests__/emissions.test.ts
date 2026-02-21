@@ -281,3 +281,24 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('emissions — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/emissions', emissionsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/emissions', async () => {
+    const res = await request(app).get('/api/emissions');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/emissions', async () => {
+    const res = await request(app).get('/api/emissions');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

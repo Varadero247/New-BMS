@@ -109,3 +109,23 @@ describe('error conditions', () => {
     expect(() => encrypt('anything')).toThrow('64 hex characters');
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('encryption — additional coverage', () => {
+  it('encrypt produces a string with ivHex:authTagHex:encryptedHex format', () => {
+    const ct = encrypt('test value');
+    const parts = ct.split(':');
+    expect(parts).toHaveLength(3);
+    // IV is 16 bytes = 32 hex chars
+    expect(parts[0]).toHaveLength(32);
+    // Auth tag is 16 bytes = 32 hex chars
+    expect(parts[1]).toHaveLength(32);
+    // Encrypted payload exists
+    expect(parts[2].length).toBeGreaterThan(0);
+  });
+
+  it('decryptIfEncrypted returns empty string unchanged', () => {
+    expect(decryptIfEncrypted('')).toBe('');
+  });
+});

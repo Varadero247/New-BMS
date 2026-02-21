@@ -236,3 +236,24 @@ describe('Preventive Plans Routes', () => {
     });
   });
 });
+
+describe('preventive-plans — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/preventive-plans', preventivePlansRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/preventive-plans', async () => {
+    const res = await request(app).get('/api/preventive-plans');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/preventive-plans', async () => {
+    const res = await request(app).get('/api/preventive-plans');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

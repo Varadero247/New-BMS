@@ -160,3 +160,34 @@ describe('getDpaAcceptance', () => {
     expect(acc!.orgId).toBe(org);
   });
 });
+
+// ─── Additional coverage ──────────────────────────────────────────────────────────────────────────
+
+describe('dpa — additional coverage', () => {
+  it('getActiveDpa effectiveDate is a valid date string', () => {
+    const doc = getActiveDpa()!;
+    expect(new Date(doc.effectiveDate).toString()).not.toBe('Invalid Date');
+  });
+
+  it('acceptDpa with empty signerTitle still records the acceptance', () => {
+    const org = uniqueOrg();
+    const acc = acceptDpa({ orgId: org, userId: 'u', signerName: 'Test', signerTitle: '' });
+    expect(acc).not.toBeNull();
+    expect(acc!.signerTitle).toBe('');
+    expect(getDpaAcceptance(org)).not.toBeNull();
+  });
+
+  it('getDpaAcceptance returns the same record returned by acceptDpa', () => {
+    const org = uniqueOrg();
+    const acc = acceptDpa({ orgId: org, userId: 'u', signerName: 'N', signerTitle: 'T' });
+    const stored = getDpaAcceptance(org);
+    expect(stored!.id).toBe(acc!.id);
+  });
+
+  it('hasAcceptedDpa returns true immediately after acceptDpa completes', () => {
+    const org = uniqueOrg();
+    expect(hasAcceptedDpa(org)).toBe(false);
+    acceptDpa({ orgId: org, userId: 'u', signerName: 'N', signerTitle: 'T' });
+    expect(hasAcceptedDpa(org)).toBe(true);
+  });
+});

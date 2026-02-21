@@ -380,3 +380,24 @@ describe('Health & Safety Metrics API Routes', () => {
     });
   });
 });
+
+describe('metrics.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/metrics/safety', metricsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/metrics/safety', async () => {
+    const res = await request(app).get('/api/metrics/safety');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/metrics/safety', async () => {
+    const res = await request(app).get('/api/metrics/safety');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

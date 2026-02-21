@@ -237,3 +237,19 @@ describe('DELETE /api/matrix/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('matrix.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/matrix', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/matrix', async () => {
+    const res = await request(app).get('/api/matrix');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+});

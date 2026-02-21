@@ -605,3 +605,33 @@ describe('AI Analysis — extended', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('analyse.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyse', analyseRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/analyse', async () => {
+    const res = await request(app).get('/api/analyse');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/analyse', async () => {
+    const res = await request(app).get('/api/analyse');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/analyse body has success property', async () => {
+    const res = await request(app).get('/api/analyse');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

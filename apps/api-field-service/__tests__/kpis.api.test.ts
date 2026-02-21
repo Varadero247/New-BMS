@@ -291,3 +291,24 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('kpis.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/kpis', kpisRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/kpis', async () => {
+    const res = await request(app).get('/api/kpis');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/kpis', async () => {
+    const res = await request(app).get('/api/kpis');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

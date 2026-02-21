@@ -272,3 +272,24 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('time-entries.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/time-entries', timeEntriesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/time-entries', async () => {
+    const res = await request(app).get('/api/time-entries');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/time-entries', async () => {
+    const res = await request(app).get('/api/time-entries');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

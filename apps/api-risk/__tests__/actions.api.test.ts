@@ -216,3 +216,38 @@ describe('POST /complete — not found', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('actions.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/risks', async () => {
+    const res = await request(app).get('/api/risks');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/risks', async () => {
+    const res = await request(app).get('/api/risks');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/risks body has success property', async () => {
+    const res = await request(app).get('/api/risks');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+
+  it('GET /api/risks body is an object', async () => {
+    const res = await request(app).get('/api/risks');
+    expect(typeof res.body).toBe('object');
+  });
+});

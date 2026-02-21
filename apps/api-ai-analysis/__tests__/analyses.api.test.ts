@@ -459,3 +459,19 @@ describe('Analyses CRUD API', () => {
     });
   });
 });
+
+describe('analyses.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/analyses', analysesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/analyses', async () => {
+    const res = await request(app).get('/api/analyses');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+});

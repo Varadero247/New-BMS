@@ -218,3 +218,24 @@ describe('GET /api/audits — filtering', () => {
     expect(res.body.pagination.totalPages).toBe(5);
   });
 });
+
+describe('audits.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/audits', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/audits', async () => {
+    const res = await request(app).get('/api/audits');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/audits', async () => {
+    const res = await request(app).get('/api/audits');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

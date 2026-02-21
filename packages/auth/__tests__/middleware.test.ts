@@ -293,3 +293,42 @@ describe('Auth Middleware', () => {
     });
   });
 });
+
+// ─── Additional coverage ──────────────────────────────────────────────────────────────────────────
+
+describe('Auth Middleware — additional coverage', () => {
+  let localReq: Partial<AuthRequest>;
+  let localRes: any;
+  let localNext: jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    localReq = { headers: {} };
+    localRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn().mockReturnThis(),
+    };
+    localNext = jest.fn();
+  });
+
+  it('authenticate rejects empty Bearer token string', async () => {
+    localReq.headers = { authorization: 'Bearer ' };
+    await authenticate(localReq as AuthRequest, localRes, localNext);
+    expect(localRes.status).toHaveBeenCalledWith(401);
+    expect(localNext).not.toHaveBeenCalled();
+  });
+
+  it('requireRole returns a function (middleware factory)', () => {
+    const middleware = requireRole('ADMIN');
+    expect(typeof middleware).toBe('function');
+  });
+
+  it('requireRole with a single role allows exact match', () => {
+    localReq.user = { id: 'u', role: 'VIEWER' } as unknown;
+    const middleware = requireRole('VIEWER');
+    middleware(localReq as AuthRequest, localRes, localNext);
+    expect(localNext).toHaveBeenCalled();
+    expect(localRes.status).not.toHaveBeenCalled();
+  });
+});

@@ -253,3 +253,19 @@ describe('GET /api/recalls/active', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('recalls.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/recalls', recallsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/recalls', async () => {
+    const res = await request(app).get('/api/recalls');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+});

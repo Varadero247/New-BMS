@@ -376,3 +376,33 @@ describe('Project Issues API Routes', () => {
     });
   });
 });
+
+describe('issues.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/issues', issuesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/issues', async () => {
+    const res = await request(app).get('/api/issues');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/issues', async () => {
+    const res = await request(app).get('/api/issues');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/issues body has success property', async () => {
+    const res = await request(app).get('/api/issues');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

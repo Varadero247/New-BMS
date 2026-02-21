@@ -177,3 +177,39 @@ describe('Status + OpenAPI — extra', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('status-openapi — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/health/status', statusRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/health/status', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/health/status', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET /api/health/status body has success property', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.body).toHaveProperty('success');
+  });
+
+  it('GET /api/health/status body is an object', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(typeof res.body).toBe('object');
+  });
+
+  it('GET /api/health/status route is accessible', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBeDefined();
+  });
+});

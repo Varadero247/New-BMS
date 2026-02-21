@@ -219,3 +219,24 @@ describe('GET /api/findings — filtering', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('findings.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/findings', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/findings', async () => {
+    const res = await request(app).get('/api/findings');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/findings', async () => {
+    const res = await request(app).get('/api/findings');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

@@ -227,3 +227,22 @@ describe('@ims/sentry', () => {
     });
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('sentry — additional coverage', () => {
+  it('initSentry can be called multiple times safely', () => {
+    process.env.SENTRY_DSN = 'https://abc@sentry.io/1';
+    initSentry('svc-a');
+    initSentry('svc-b');
+    // Both calls should have invoked Sentry.init
+    expect(mockInit).toHaveBeenCalledTimes(2);
+  });
+
+  it('sentryErrorHandler calls expressErrorHandler exactly once per call', () => {
+    sentryErrorHandler();
+    expect(mockExpressErrorHandler).toHaveBeenCalledTimes(1);
+    sentryErrorHandler();
+    expect(mockExpressErrorHandler).toHaveBeenCalledTimes(2);
+  });
+});

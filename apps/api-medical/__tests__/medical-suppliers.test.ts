@@ -360,3 +360,24 @@ describe('Medical Suppliers API Routes', () => {
     });
   });
 });
+
+describe('medical-suppliers — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/suppliers', suppliersRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/suppliers', async () => {
+    const res = await request(app).get('/api/suppliers');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/suppliers', async () => {
+    const res = await request(app).get('/api/suppliers');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

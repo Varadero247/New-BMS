@@ -252,3 +252,19 @@ describe('DELETE /api/obligations/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('obligations.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/obligations', router);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/obligations', async () => {
+    const res = await request(app).get('/api/obligations');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+});

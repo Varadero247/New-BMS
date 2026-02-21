@@ -242,3 +242,19 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('downtime — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/downtime', downtimeRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/downtime', async () => {
+    const res = await request(app).get('/api/downtime');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+});

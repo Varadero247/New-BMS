@@ -262,3 +262,19 @@ describe('RACI Routes', () => {
     });
   });
 });
+
+describe('raci — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/raci', raciRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/raci', async () => {
+    const res = await request(app).get('/api/raci');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+});

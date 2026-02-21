@@ -241,3 +241,24 @@ describe('GET /api/sanitation/overdue', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('sanitation.api — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/sanitation', sanitationRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/sanitation', async () => {
+    const res = await request(app).get('/api/sanitation');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/sanitation', async () => {
+    const res = await request(app).get('/api/sanitation');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});

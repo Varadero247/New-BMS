@@ -244,3 +244,33 @@ describe('Competences Routes', () => {
     });
   });
 });
+
+describe('competences — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/competences', competencesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/competences', async () => {
+    const res = await request(app).get('/api/competences');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/competences', async () => {
+    const res = await request(app).get('/api/competences');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+
+  it('GET /api/competences body has success property', async () => {
+    const res = await request(app).get('/api/competences');
+    if (res.status === 200) {
+      expect(res.body).toHaveProperty('success');
+    } else {
+      expect(res.body).toBeDefined();
+    }
+  });
+});

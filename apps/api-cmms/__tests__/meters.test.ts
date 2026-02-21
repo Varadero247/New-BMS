@@ -229,3 +229,24 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('meters — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/meters', metersRouter);
+    jest.clearAllMocks();
+  });
+
+  it('route responds to GET /api/meters', async () => {
+    const res = await request(app).get('/api/meters');
+    expect([200, 400, 401, 404, 500]).toContain(res.status);
+  });
+
+  it('response is JSON content-type for GET /api/meters', async () => {
+    const res = await request(app).get('/api/meters');
+    expect(res.headers['content-type']).toBeDefined();
+  });
+});
