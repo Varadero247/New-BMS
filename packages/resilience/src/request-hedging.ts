@@ -90,6 +90,7 @@ export async function withHedgingDetailed<T>(
 
   const clampedMax = Math.min(Math.max(maxAttempts, 1), 4);
   const abortControllers: AbortController[] = [];
+  const hedgeTimers: ReturnType<typeof setTimeout>[] = [];
 
   let attemptsIssued = 0;
 
@@ -108,12 +109,15 @@ export async function withHedgingDetailed<T>(
         if (pendingAttempts === 0) {
           // All attempts failed — reject with the first error
           settled = true;
+          for (const t of hedgeTimers) clearTimeout(t);
           reject(errors[0]);
         }
         return;
       }
 
       settled = true;
+      // Clear any pending hedge timers so they don't keep the event loop alive
+      for (const t of hedgeTimers) clearTimeout(t);
       // Cancel all other in-flight attempts (best effort)
       for (const ac of abortControllers) {
         try { ac.abort(); } catch { /* ignore */ }
@@ -158,6 +162,7 @@ export async function withHedgingDetailed<T>(
         if (!settled) launchAttempt(idx);
       }, delayMs * idx);
 
+      hedgeTimers.push(timer);
       // If parent signal aborts, clear timers
       signal?.addEventListener('abort', () => clearTimeout(timer), { once: true });
     }
