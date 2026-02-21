@@ -43,6 +43,22 @@ describe('GET /api/approvals', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('returns empty list when no approvals exist', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('findMany and count are each called once', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    await request(app).get('/api/approvals');
+    expect(mockPrisma.contApproval.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.contApproval.count).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('GET /api/approvals/:id', () => {
@@ -90,6 +106,14 @@ describe('PUT /api/approvals/:id', () => {
       .send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
+
+  it('returns 404 if approval not found on update', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/approvals/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+  });
 });
 
 describe('DELETE /api/approvals/:id', () => {
@@ -103,6 +127,12 @@ describe('DELETE /api/approvals/:id', () => {
     const res = await request(app).delete('/api/approvals/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
+  });
+
+  it('returns 404 if approval not found on delete', async () => {
+    mockPrisma.contApproval.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/approvals/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
   });
 });
 

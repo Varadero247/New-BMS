@@ -116,6 +116,12 @@ describe('Quality Policy API Routes', () => {
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
+
+    it('findFirst is called exactly once per GET request', async () => {
+      mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+      await request(app).get('/api/policy');
+      expect(mockPrisma.qualDocument.findFirst).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('PUT /api/policy', () => {
@@ -184,6 +190,16 @@ describe('Quality Policy API Routes', () => {
       const res = await request(app).put('/api/policy').send(validBody);
 
       expect(res.status).toBe(500);
+    });
+
+    it('update is called when policy already exists', async () => {
+      mockPrisma.qualDocument.findFirst.mockResolvedValue(mockPolicyDoc);
+      mockPrisma.qualDocument.update.mockResolvedValue({ ...mockPolicyDoc, scope: validBody.policyStatement });
+
+      await request(app).put('/api/policy').send(validBody);
+
+      expect(mockPrisma.qualDocument.update).toHaveBeenCalledTimes(1);
+      expect(mockPrisma.qualDocument.create).not.toHaveBeenCalled();
     });
   });
 });

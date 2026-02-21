@@ -43,6 +43,22 @@ describe('GET /api/actions', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('returns empty list when no actions exist', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('findMany and count are each called once', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    await request(app).get('/api/actions');
+    expect(mockPrisma.compAction.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.compAction.count).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('GET /api/actions/:id', () => {
@@ -90,6 +106,14 @@ describe('PUT /api/actions/:id', () => {
       .send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
+
+  it('returns 404 if action not found on update', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/actions/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+  });
 });
 
 describe('DELETE /api/actions/:id', () => {
@@ -103,6 +127,12 @@ describe('DELETE /api/actions/:id', () => {
     const res = await request(app).delete('/api/actions/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
+  });
+
+  it('returns 404 if action not found on delete', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/actions/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
   });
 });
 

@@ -54,6 +54,14 @@ describe('GET /api/spend', () => {
     expect(res.body.success).toBe(true);
   });
 
+  it('findMany and count are each called once per request', async () => {
+    mockPrisma.suppSpend.findMany.mockResolvedValue([]);
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    await request(app).get('/api/spend');
+    expect(mockPrisma.suppSpend.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.suppSpend.count).toHaveBeenCalledTimes(1);
+  });
+
   it('should return 500 on DB error', async () => {
     mockPrisma.suppSpend.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/spend');
@@ -81,6 +89,13 @@ describe('GET /api/spend/:id', () => {
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('should return 500 on DB error', async () => {
+    mockPrisma.suppSpend.findFirst.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/spend/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
 
@@ -119,6 +134,18 @@ describe('POST /api/spend', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
+
+  it('should return 500 on DB error', async () => {
+    mockPrisma.suppSpend.count.mockResolvedValue(0);
+    mockPrisma.suppSpend.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/spend').send({
+      supplierId: 'sup-1',
+      period: '2026-Q1',
+      amount: 5000,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
 });
 
 describe('PUT /api/spend/:id', () => {
@@ -147,6 +174,16 @@ describe('PUT /api/spend/:id', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
+
+  it('should return 500 on DB error', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppSpend.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/spend/00000000-0000-0000-0000-000000000001')
+      .send({ amount: 8000 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
 });
 
 describe('DELETE /api/spend/:id', () => {
@@ -169,5 +206,13 @@ describe('DELETE /api/spend/:id', () => {
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('should return 500 on DB error', async () => {
+    mockPrisma.suppSpend.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppSpend.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/spend/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

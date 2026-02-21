@@ -118,6 +118,12 @@ describe('Quality Scope API Routes', () => {
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
+
+    it('findFirst is called exactly once per GET request', async () => {
+      mockPrisma.qualDocument.findFirst.mockResolvedValue(mockScopeDoc);
+      await request(app).get('/api/scope');
+      expect(mockPrisma.qualDocument.findFirst).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('PUT /api/scope', () => {
@@ -186,6 +192,17 @@ describe('Quality Scope API Routes', () => {
       const res = await request(app).put('/api/scope').send(validBody);
 
       expect(res.status).toBe(500);
+    });
+
+    it('create is called when no scope document exists', async () => {
+      mockPrisma.qualDocument.findFirst.mockResolvedValue(null);
+      mockPrisma.qualDocument.count.mockResolvedValue(0);
+      mockPrisma.qualDocument.create.mockResolvedValue(mockScopeDoc);
+
+      await request(app).put('/api/scope').send(validBody);
+
+      expect(mockPrisma.qualDocument.create).toHaveBeenCalledTimes(1);
+      expect(mockPrisma.qualDocument.update).not.toHaveBeenCalled();
     });
   });
 });

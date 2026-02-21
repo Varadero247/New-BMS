@@ -102,6 +102,19 @@ describe('GET /api/prospects', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
   });
+
+  it('returns an array', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/prospects');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('findMany is called once per request', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/prospects');
+    expect(prisma.mktProspectResearch.findMany).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('POST /api/prospects/:id/save-to-hubspot', () => {

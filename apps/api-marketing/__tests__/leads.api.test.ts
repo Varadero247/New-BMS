@@ -140,6 +140,20 @@ describe('GET /api/leads', () => {
       expect.objectContaining({ skip: 10, take: 10 })
     );
   });
+
+  it('findMany and count are each called once per request', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/leads');
+    expect(prisma.mktLead.findMany).toHaveBeenCalledTimes(1);
+    expect(prisma.mktLead.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/leads');
+    expect(res.status).toBe(500);
+  });
 });
 
 // ===================================================================
@@ -165,5 +179,11 @@ describe('GET /api/leads/:id', () => {
     const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000099');
 
     expect(res.status).toBe(404);
+  });
+
+  it('returns 500 on DB error', async () => {
+    (prisma.mktLead.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
   });
 });

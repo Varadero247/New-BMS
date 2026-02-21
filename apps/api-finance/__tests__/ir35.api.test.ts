@@ -109,6 +109,12 @@ describe('GET /api/ir35', () => {
     expect(res.body.data).toHaveLength(0);
   });
 
+  it('response data is an array', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/ir35');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
   it('should return 500 on database error', async () => {
     mockPrisma.finIr35Assessment.findMany.mockRejectedValue(new Error('DB error'));
 
@@ -243,5 +249,17 @@ describe('POST /api/ir35', () => {
         }),
       })
     );
+  });
+
+  it('create is called exactly once per POST request', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      ...validAssessment,
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/ir35').send(validAssessment);
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledTimes(1);
   });
 });

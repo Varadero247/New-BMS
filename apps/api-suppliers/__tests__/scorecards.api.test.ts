@@ -43,6 +43,22 @@ describe('GET /api/scorecards', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('should return empty list when no scorecards exist', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/scorecards');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('findMany and count are each called once per request', async () => {
+    mockPrisma.suppScorecard.findMany.mockResolvedValue([]);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    await request(app).get('/api/scorecards');
+    expect(mockPrisma.suppScorecard.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.suppScorecard.count).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('GET /api/scorecards/:id', () => {
@@ -88,6 +104,15 @@ describe('PUT /api/scorecards/:id', () => {
       .send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
+
+  it('should return 404 if scorecard not found on update', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/scorecards/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+  });
 });
 
 describe('DELETE /api/scorecards/:id', () => {
@@ -101,6 +126,13 @@ describe('DELETE /api/scorecards/:id', () => {
     const res = await request(app).delete('/api/scorecards/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
+  });
+
+  it('should return 404 if scorecard not found on delete', async () => {
+    mockPrisma.suppScorecard.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/scorecards/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
   });
 });
 
