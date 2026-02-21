@@ -117,4 +117,27 @@ describe('POST /api/public/submit', () => {
     expect(res.status).toBe(201);
     expect(res.body.data.referenceNumber).toMatch(/^CMP-\d{4}-\d{4}$/);
   });
+
+  it('create is called once per submission', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: '4', referenceNumber: 'CMP-2026-0001' });
+    await request(app).post('/api/public/submit').send({ title: 'Once Test' });
+    expect(mockPrisma.compComplaint.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('response data includes a referenceNumber field', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: 'complaint-id-1', referenceNumber: 'CMP-2026-0001' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'ID Test' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('referenceNumber');
+  });
+
+  it('success is true on 201', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(1);
+    mockPrisma.compComplaint.create.mockResolvedValue({ id: '5', referenceNumber: 'CMP-2026-0002' });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Success Flag Test' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
 });

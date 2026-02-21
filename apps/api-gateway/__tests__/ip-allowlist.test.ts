@@ -122,4 +122,24 @@ describe('IP Allowlist Routes', () => {
       expect(res.status).toBe(403);
     });
   });
+
+  describe('IP Allowlist — extended', () => {
+    it('GET list returns success true', async () => {
+      const res = await request(app).get('/api/admin/ip-allowlist');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('GET list returns data as array', async () => {
+      const res = await request(app).get('/api/admin/ip-allowlist');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('my-ip returns an ip field', async () => {
+      const res = await request(app).get('/api/admin/ip-allowlist/my-ip');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('ip');
+    });
+  });
 });

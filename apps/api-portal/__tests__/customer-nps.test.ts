@@ -119,3 +119,27 @@ describe('GET /api/customer/nps', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Customer NPS — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/nps');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST submit: create called once per submission', async () => {
+    mockPrisma.portalQualityReport.create.mockResolvedValue({ id: 'nps-1', reportType: 'INSPECTION', description: 'NPS Score: 8' });
+    await request(app).post('/api/customer/nps').send({ score: 8, comment: 'Great service' });
+    expect(mockPrisma.portalQualityReport.create).toHaveBeenCalledTimes(1);
+  });
+});

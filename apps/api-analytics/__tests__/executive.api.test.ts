@@ -81,5 +81,20 @@ describe('Executive Summary Routes', () => {
       expect(res.body.data.health).toHaveProperty('isoReadiness');
       expect(res.body.data.health).toHaveProperty('openCapas');
     });
+
+    it('generatedAt is a string in response', async () => {
+      const res = await request(app).get('/api/executive-summary');
+      expect(typeof res.body.data.generatedAt).toBe('string');
+    });
+
+    it('moduleCounts is an object', async () => {
+      const res = await request(app).get('/api/executive-summary');
+      expect(typeof res.body.data.moduleCounts).toBe('object');
+    });
+
+    it('myActions has dueThisWeek field', async () => {
+      const res = await request(app).get('/api/executive-summary');
+      expect(res.body.data.myActions).toHaveProperty('dueThisWeek');
+    });
   });
 });

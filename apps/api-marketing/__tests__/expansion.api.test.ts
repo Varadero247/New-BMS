@@ -112,4 +112,23 @@ describe('GET /api/expansion/triggers — additional', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(2);
   });
+
+  it('triggers data is an array', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/expansion/triggers');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('expansion check success is true', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('expansion check results is an object', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.results).toBe('object');
+  });
 });

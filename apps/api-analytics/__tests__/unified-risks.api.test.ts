@@ -85,4 +85,21 @@ describe('Unified Risks Routes', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  describe('Unified Risks — extended', () => {
+    it('risks is an array', async () => {
+      const res = await request(app).get('/api/unified-risks');
+      expect(Array.isArray(res.body.data.risks)).toBe(true);
+    });
+
+    it('summary.bySource is an object', async () => {
+      const res = await request(app).get('/api/unified-risks');
+      expect(typeof res.body.data.summary.bySource).toBe('object');
+    });
+
+    it('pagination has totalPages field', async () => {
+      const res = await request(app).get('/api/unified-risks?page=1&limit=10');
+      expect(res.body.pagination).toHaveProperty('totalPages');
+    });
+  });
 });

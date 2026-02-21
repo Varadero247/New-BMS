@@ -113,4 +113,31 @@ describe('runCohortAnalysis', () => {
     (prisma.cohortData.upsert as jest.Mock).mockRejectedValue(new Error('DB error'));
     await expect(runCohortAnalysis(2, '2026-04')).rejects.toThrow('DB error');
   });
+
+  it('cohort age 0 always has 100% retention', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(3, '2026-05');
+    const calls = (prisma.cohortData.upsert as jest.Mock).mock.calls;
+    const currentMonthCall = calls[calls.length - 1][0];
+    expect(currentMonthCall.create.cohortAge).toBe(0);
+    expect(currentMonthCall.create.retentionPct).toBe(100);
+  });
+
+  it('retention decreases monotonically with age', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(4, '2026-06');
+    const calls = (prisma.cohortData.upsert as jest.Mock).mock.calls;
+    const retentions = calls.map((c: any) => c[0].create.retentionPct);
+    // Retentions should be descending (older cohorts have lower retention)
+    for (let i = 0; i < retentions.length - 1; i++) {
+      expect(retentions[i]).toBeLessThanOrEqual(retentions[i + 1]);
+    }
+  });
+
+  it('upsert where clause includes cohortMonth and measureMonth', async () => {
+    (prisma.cohortData.upsert as jest.Mock).mockResolvedValue({});
+    await runCohortAnalysis(1, '2026-03');
+    const call = (prisma.cohortData.upsert as jest.Mock).mock.calls[0][0];
+    expect(call.where).toHaveProperty('cohortMonth_measureMonth');
+  });
 });

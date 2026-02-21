@@ -126,3 +126,25 @@ describe('POST /api/renewal/:orgId/send-reminder', () => {
     }
   });
 });
+
+describe('Renewal — extended', () => {
+  it('GET upcoming returns success true', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/renewal/upcoming');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET upcoming data is an array', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/renewal/upcoming');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('findMany called once per GET request', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/renewal/upcoming');
+    expect(prisma.mktRenewalSequence.findMany).toHaveBeenCalledTimes(1);
+  });
+});

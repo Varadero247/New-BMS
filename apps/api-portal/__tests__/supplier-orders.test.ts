@@ -144,3 +144,28 @@ describe('POST /api/supplier/purchase-orders/:id/confirm', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Supplier Orders — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/purchase-orders');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/purchase-orders');
+    expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledTimes(1);
+  });
+});

@@ -138,3 +138,33 @@ describe('GET /api/customer/documents/:id', () => {
     expect(res.body.pagination).toHaveProperty('limit');
   });
 });
+
+describe('Customer Documents — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/documents');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id: success is true when found', async () => {
+    mockPrisma.portalDocument.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Test Doc',
+      visibility: 'PUBLIC',
+      portalType: 'CUSTOMER',
+    });
+    const res = await request(app).get('/api/customer/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

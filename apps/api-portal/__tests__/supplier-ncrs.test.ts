@@ -144,3 +144,28 @@ describe('POST /api/supplier/ncrs/:id/response', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Supplier NCRs — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/ncrs');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/ncrs');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET list: findMany called once per request', async () => {
+    mockPrisma.portalQualityReport.findMany.mockResolvedValue([]);
+    mockPrisma.portalQualityReport.count.mockResolvedValue(0);
+    await request(app).get('/api/supplier/ncrs');
+    expect(mockPrisma.portalQualityReport.findMany).toHaveBeenCalledTimes(1);
+  });
+});

@@ -126,3 +126,27 @@ describe('POST /api/riddor/:id/assess', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('RIDDOR — extended', () => {
+  it('GET returns data as array', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET success is true on 200', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/riddor');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('assess update called once on success', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', riddorReportable: 'YES' });
+    await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: true });
+    expect(mockPrisma.incIncident.update).toHaveBeenCalledTimes(1);
+  });
+});

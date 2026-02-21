@@ -148,3 +148,28 @@ describe('PUT /api/portal/notifications/:id/read', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Portal Notifications — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT read-all returns success true', async () => {
+    mockPrisma.portalNotification.updateMany.mockResolvedValue({ count: 5 });
+    const res = await request(app).put('/api/portal/notifications/read-all');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -144,4 +144,28 @@ describe('Gateway Fix Verification', () => {
       });
     });
   });
+
+  describe('Fix Verification — extended', () => {
+    it('error handler sets status code from error', () => {
+      const err: AppError = new Error('Forbidden');
+      err.statusCode = 403;
+      const res = mockResponse();
+      errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+      expect(res.status).toHaveBeenCalledWith(403);
+    });
+
+    it('error handler calls logger.error once per error', () => {
+      const err: AppError = new Error('Test');
+      errorHandler(err, mockRequest() as Request, mockResponse() as Response, mockNext);
+      expect(mockLogger.error).toHaveBeenCalledTimes(1);
+    });
+
+    it('success is false in all error responses', () => {
+      const err: AppError = new Error('Any error');
+      const res = mockResponse();
+      errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+      const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+      expect(jsonCall.success).toBe(false);
+    });
+  });
 });

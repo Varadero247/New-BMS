@@ -182,3 +182,25 @@ describe('POST /api/sod-matrix', () => {
     );
   });
 });
+
+describe('SoD Matrix — extended', () => {
+  it('GET data is an array', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/sod-matrix');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('findMany called once per GET request', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+    await request(app).get('/api/sod-matrix');
+    expect(mockPrisma.finSodRule.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('create called once per POST request', async () => {
+    const validRule = { role1: 'AP', role2: 'Approval', conflictType: 'HIGH', description: 'desc', mitigatingControl: 'dual' };
+    mockPrisma.finSodRule.create.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', ...validRule });
+    await request(app).post('/api/sod-matrix').send(validRule);
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledTimes(1);
+  });
+});

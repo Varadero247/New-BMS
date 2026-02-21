@@ -129,3 +129,25 @@ describe('GET /api/supplier/register/status', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Supplier Register — extended', () => {
+  it('POST register: create called once on success', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-1', email: 'new@co.com', name: 'New', company: 'NewCo', status: 'PENDING', role: 'SUPPLIER_USER' });
+    await request(app).post('/api/supplier/register').send({ email: 'new@co.com', name: 'New', company: 'NewCo' });
+    expect(mockPrisma.portalUser.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET status: success is true when user found', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({ id: 'u-1', email: 'test@test.com', name: 'John', company: 'Co', status: 'PENDING', role: 'SUPPLIER_USER', createdAt: new Date() });
+    const res = await request(app).get('/api/supplier/register/status');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET status: findFirst called once per request', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    await request(app).get('/api/supplier/register/status');
+    expect(mockPrisma.portalUser.findFirst).toHaveBeenCalledTimes(1);
+  });
+});

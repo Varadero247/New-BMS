@@ -144,4 +144,24 @@ describe('Tasks Routes', () => {
       expect(res.body.success).toBe(true);
     });
   });
+
+  describe('Tasks — extended', () => {
+    it('GET /my-tasks returns success true', async () => {
+      const res = await request(app).get('/api/tasks/my-tasks');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('GET /api/tasks returns success true', async () => {
+      const res = await request(app).get('/api/tasks');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('PATCH complete returns success true', async () => {
+      const res = await request(app).patch('/api/tasks/00000000-0000-0000-0000-000000000001/complete');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
 });

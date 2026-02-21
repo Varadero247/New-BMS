@@ -137,3 +137,34 @@ describe('GET /api/supplier/documents', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Supplier Documents — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalDocument.findMany.mockResolvedValue([]);
+    mockPrisma.portalDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/supplier/documents');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST upload: create called once on success', async () => {
+    mockPrisma.portalDocument.create.mockResolvedValue({ id: 'doc-1', title: 'Certificate', portalType: 'SUPPLIER', portalUserId: 'user-123' });
+    const res = await request(app).post('/api/supplier/documents').send({
+      title: 'ISO Certificate',
+      fileName: 'cert.pdf',
+      fileSize: 12345,
+      mimeType: 'application/pdf',
+      category: 'CERTIFICATE',
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.portalDocument.create).toHaveBeenCalledTimes(1);
+  });
+});

@@ -223,4 +223,22 @@ describe('runSaaSAuditJob', () => {
     expect(result.totalMonthlyCost).toBe(0);
     expect(result.totalAnnualCost).toBe(0);
   });
+
+  it('vendors array is an array', async () => {
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue([]);
+    const result = await runSaaSAuditJob();
+    expect(Array.isArray(result.vendors)).toBe(true);
+  });
+
+  it('byCategory is an object', async () => {
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue([]);
+    const result = await runSaaSAuditJob();
+    expect(typeof result.byCategory).toBe('object');
+  });
+
+  it('findMany called exactly once per job run', async () => {
+    (prisma.approvedVendor.findMany as jest.Mock).mockResolvedValue([]);
+    await runSaaSAuditJob();
+    expect(prisma.approvedVendor.findMany).toHaveBeenCalledTimes(1);
+  });
 });

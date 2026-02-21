@@ -150,3 +150,33 @@ describe('POST /api/customer/invoices/:id/pay', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('Customer Invoices — extended', () => {
+  it('GET list: data is an array', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/invoices');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET list: success is true', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/customer/invoices');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id success is true when found', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      type: 'INVOICE',
+      status: 'PENDING',
+      portalUserId: 'user-123',
+    });
+    const res = await request(app).get('/api/customer/invoices/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

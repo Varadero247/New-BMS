@@ -178,4 +178,25 @@ describe('runAnnualAccountsJob', () => {
     // Average MRR: (4000 + 6000) / 2 = 5000
     expect(createCall.data.sections.keyMetrics.avgMrr).toBe(5000);
   });
+
+  it('returns the created pack id', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'pack-id-123' });
+    const result = await runAnnualAccountsJob('2025-2026');
+    expect(result).toBe('pack-id-123');
+  });
+
+  it('calls findMany exactly once per job run', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'x' });
+    await runAnnualAccountsJob('2025-2026');
+    expect(prisma.monthlySnapshot.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls create exactly once per job run', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'x' });
+    await runAnnualAccountsJob('2025-2026');
+    expect(prisma.annualAccountsPack.create).toHaveBeenCalledTimes(1);
+  });
 });

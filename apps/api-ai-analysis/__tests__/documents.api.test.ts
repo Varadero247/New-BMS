@@ -207,3 +207,37 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('AI_ERROR');
   });
 });
+
+describe('Document Analysis — extended', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(mockSettings);
+    (prisma.aISettings.update as jest.Mock).mockResolvedValue(mockSettings);
+  });
+
+  it('should reject invalid analysisType value', async () => {
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Some document text', analysisType: 'INVALID_TYPE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('findFirst is called once per request', async () => {
+    mockOpenAIResponse(JSON.stringify({ summary: 'Test' }));
+    await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Text', analysisType: 'SUMMARIZE' });
+    expect(prisma.aISettings.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('response data has analysisType and result fields', async () => {
+    mockOpenAIResponse(JSON.stringify({ summary: 'Test result' }));
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Text', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('analysisType');
+    expect(res.body.data).toHaveProperty('result');
+  });
+});
