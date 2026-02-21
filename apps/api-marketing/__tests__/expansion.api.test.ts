@@ -87,4 +87,29 @@ describe('POST /api/expansion/check', () => {
     expect(res.body.data.results.unusedModuleNudge).toEqual([]);
     expect(res.body.data.results.growthFlag).toEqual([]);
   });
+
+  it('results object has all three expected keys', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.body.data.results).toHaveProperty('userLimitApproaching');
+    expect(res.body.data.results).toHaveProperty('unusedModuleNudge');
+    expect(res.body.data.results).toHaveProperty('growthFlag');
+  });
+});
+
+describe('GET /api/expansion/triggers — additional', () => {
+  it('findMany is called once per request', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/expansion/triggers');
+    expect(prisma.mktEmailLog.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns multiple triggers when DB has multiple matching logs', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([
+      { id: 'log-1', template: 'expansion_user_limit', email: 'a@co.com' },
+      { id: 'log-2', template: 'expansion_module_nudge', email: 'b@co.com' },
+    ]);
+    const res = await request(app).get('/api/expansion/triggers');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
 });

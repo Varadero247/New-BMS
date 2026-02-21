@@ -118,4 +118,17 @@ describe('GET /api/digest/history', () => {
       expect.objectContaining({ where: { template: 'daily_digest' } })
     );
   });
+
+  it('returns 500 on DB error for history', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/digest/history');
+    expect(res.status).toBe(500);
+  });
+
+  it('returns empty list when no digest history exists', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/digest/history');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
 });
