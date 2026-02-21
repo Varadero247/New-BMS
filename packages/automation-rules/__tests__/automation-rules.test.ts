@@ -149,6 +149,21 @@ describe('@ims/automation-rules', () => {
       expect(entry.details).toBe('CAPA created successfully');
       expect(entry.timestamp).toBeDefined();
     });
+
+    it('should log "skipped" status', () => {
+      const entry = logExecution('org-1', 'rule-002', 'skipped', 'Condition not met');
+      expect(entry.status).toBe('skipped');
+    });
+
+    it('entry id is a UUID', () => {
+      const entry = logExecution('org-1', 'rule-001', 'success', 'OK');
+      expect(entry.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+    });
+
+    it('timestamp is a valid ISO string', () => {
+      const entry = logExecution('org-1', 'rule-001', 'success', 'OK');
+      expect(new Date(entry.timestamp).toISOString()).toBe(entry.timestamp);
+    });
   });
 
   describe('getExecutionLog', () => {
@@ -187,6 +202,11 @@ describe('@ims/automation-rules', () => {
       // Most recent should be last inserted
       expect(logs[0].details).toBe('Entry C');
       expect(logs[2].details).toBe('Entry A');
+    });
+
+    it('should return empty array for org with no logs', () => {
+      const logs = getExecutionLog('org-no-logs');
+      expect(logs).toEqual([]);
     });
   });
 });

@@ -51,6 +51,16 @@ describe('emission-factors', () => {
       expect(factor).toBeDefined();
       expect(factor!.source).toBe('EPA');
     });
+
+    it('should return undefined for unknown fuel type', () => {
+      const factor = getEmissionFactor('nonexistent_fuel' as string, 'DEFRA');
+      expect(factor).toBeUndefined();
+    });
+
+    it('should return undefined for IEA factorSet (grid-specific, empty in FACTOR_SETS)', () => {
+      const factor = getEmissionFactor('natural_gas', 'IEA');
+      expect(factor).toBeUndefined();
+    });
   });
 
   describe('IEA grid factors', () => {
@@ -105,6 +115,19 @@ describe('emission-factors', () => {
     it('should throw for unknown fuel type', () => {
       expect(() => calculateEmission('unknown' as string, 100, 'litre', 'DEFRA')).toThrow();
     });
+
+    it('should use EPA factor set and return source=EPA', () => {
+      const result = calculateEmission('diesel', 100, 'litre', 'EPA');
+      expect(result.source).toBe('EPA');
+      expect(result.co2e).toBeGreaterThan(0);
+    });
+
+    it('result includes fuelType, quantity, unit metadata', () => {
+      const result = calculateEmission('natural_gas', 50, 'm3', 'DEFRA');
+      expect(result.fuelType).toBe('natural_gas');
+      expect(result.quantity).toBe(50);
+      expect(result.unit).toBe('m3');
+    });
   });
 
   describe('convertUnits', () => {
@@ -130,6 +153,21 @@ describe('emission-factors', () => {
 
     it('should throw for incompatible units', () => {
       expect(() => convertUnits(100, 'litre', 'kWh')).toThrow('incompatible units');
+    });
+
+    it('should convert m3 to litre', () => {
+      // 1 m3 = 1000 litres
+      expect(convertUnits(1, 'm3', 'litre')).toBe(1000);
+    });
+
+    it('should convert lb to kg', () => {
+      // 1 lb ≈ 0.4536 kg
+      expect(convertUnits(1, 'lb', 'kg')).toBeCloseTo(0.4536, 3);
+    });
+
+    it('should convert m to km', () => {
+      // 1000 m = 1 km
+      expect(convertUnits(1000, 'm', 'km')).toBe(1);
     });
   });
 });
