@@ -60,6 +60,55 @@ describe('nlq', () => {
       const result = sanitizeQuery('show me all overdue capas');
       expect(result).toBe('show me all overdue capas');
     });
+
+    it('should remove ;DELETE injection', () => {
+      const result = sanitizeQuery('list capas; DELETE FROM hs_capas;');
+      expect(result).not.toContain('DELETE');
+      expect(result).not.toContain(';');
+    });
+
+    it('should remove ;UPDATE injection', () => {
+      const result = sanitizeQuery('list items; UPDATE inv_items SET qty=0;');
+      expect(result).not.toContain('UPDATE');
+    });
+
+    it('should remove ;INSERT injection', () => {
+      const result = sanitizeQuery("capas; INSERT INTO users VALUES ('hack','hack');");
+      expect(result).not.toContain('INSERT');
+    });
+
+    it('should remove xp_ stored procedure calls', () => {
+      const result = sanitizeQuery('show capas xp_cmdshell');
+      expect(result).not.toContain('xp_');
+    });
+
+    it('should remove exec() calls', () => {
+      const result = sanitizeQuery("show capas exec('rm -rf')");
+      expect(result).not.toContain('exec(');
+    });
+
+    it('should remove INTO OUTFILE injection', () => {
+      const result = sanitizeQuery("show capas INTO OUTFILE '/tmp/out.txt'");
+      expect(result).not.toContain('INTO OUTFILE');
+    });
+
+    it('should remove LOAD_FILE injection', () => {
+      const result = sanitizeQuery('show capas LOAD_FILE(/etc/passwd)');
+      expect(result).not.toContain('LOAD_FILE');
+    });
+
+    it('should strip the DROP keyword from a pure-injection input', () => {
+      // '; DROP TABLE users;' → ';DROP ' pattern removed → 'TABLE users' remaining
+      // (TABLE is not itself a SQL command — this is correct behaviour)
+      const result = sanitizeQuery('; DROP TABLE users;');
+      expect(result).not.toContain('DROP');
+      expect(result).not.toContain(';');
+    });
+
+    it('should handle case-insensitive injection removal', () => {
+      expect(sanitizeQuery('capas; drop TABLE users')).not.toContain('drop');
+      expect(sanitizeQuery('capas UNION select * from users')).not.toContain('union select');
+    });
   });
 
   describe('parseNaturalLanguage', () => {
@@ -118,6 +167,44 @@ describe('nlq', () => {
       const result = parseNaturalLanguage('show me all overdue CAPAs', limitedContext);
       expect(result.sql).not.toBe('');
       expect(result.confidence).toBeGreaterThan(0);
+    });
+
+    it('result always has original field equal to the raw input', () => {
+      const raw = 'show me all overdue CAPAs';
+      const result = parseNaturalLanguage(raw, fullAccessContext);
+      expect(result.original).toBe(raw);
+    });
+
+    it('result sanitized field differs from original when injection is stripped', () => {
+      const raw = 'show capas; DROP TABLE users';
+      const result = parseNaturalLanguage(raw, fullAccessContext);
+      expect(result.original).toBe(raw);
+      expect(result.sanitized).not.toContain('DROP');
+    });
+
+    it('result params is an empty array when no extractParams defined', () => {
+      const result = parseNaturalLanguage('show me all overdue CAPAs', fullAccessContext);
+      expect(result.params).toEqual([]);
+    });
+
+    it('unrecognised query still sets original and sanitized', () => {
+      const raw = 'tell me a joke';
+      const result = parseNaturalLanguage(raw, fullAccessContext);
+      expect(result.original).toBe(raw);
+      expect(result.sanitized).toBe(raw);
+      expect(result.modules).toEqual([]);
+    });
+
+    it('denied query still sets modules from the matched pattern', () => {
+      // limitedContext only has health-safety, so quality query is denied
+      const result = parseNaturalLanguage('which suppliers have open NCRs', limitedContext);
+      expect(result.modules).toContain('quality');
+      expect(result.sql).toBe('');
+    });
+
+    it('confidence is 0.9 on successful match', () => {
+      const result = parseNaturalLanguage('show me all overdue CAPAs', fullAccessContext);
+      expect(result.confidence).toBe(0.9);
     });
   });
 
