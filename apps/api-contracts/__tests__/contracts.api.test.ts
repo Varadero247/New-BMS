@@ -102,4 +102,119 @@ describe('DELETE /api/contracts/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('returns 404 when record not found', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+// ─── Validation errors ─────────────────────────────────────────────────────
+
+describe('POST /api/contracts — validation', () => {
+  it('returns 400 when title is missing', async () => {
+    const res = await request(app).post('/api/contracts').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 400 when fileUrl is not a valid URL', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app)
+      .post('/api/contracts')
+      .send({ title: 'Contract', fileUrl: 'not-a-url' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+describe('PUT /api/contracts/:id — not-found', () => {
+  it('returns 404 when record not found', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/contracts/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.contContract.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.contContract.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contContract.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/contracts').send({ title: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contContract.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/contracts/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.contContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.contContract.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── Query filtering ────────────────────────────────────────────────────────
+
+describe('GET /api/contracts — filtering', () => {
+  it('filters by status query param', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts?status=ACTIVE');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('searches by title keyword', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts?search=supplier');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ title: expect.objectContaining({ contains: 'supplier' }) }) })
+    );
+  });
+
+  it('returns pagination metadata', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    mockPrisma.contContract.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/contracts?page=3&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(3);
+    expect(res.body.pagination.total).toBe(50);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
 });
