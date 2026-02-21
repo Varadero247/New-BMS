@@ -102,4 +102,100 @@ describe('DELETE /api/permits/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('returns 404 when record not found', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/permits/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+// ─── Validation errors ─────────────────────────────────────────────────────
+
+describe('POST /api/permits — validation', () => {
+  it('returns 400 when title is missing', async () => {
+    const res = await request(app).post('/api/permits').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+describe('PUT /api/permits/:id — not-found', () => {
+  it('returns 404 when record not found', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/permits/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.ptwPermit.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/permits');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.ptwPermit.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/permits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwPermit.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/permits').send({ title: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwPermit.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/permits/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.ptwPermit.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.ptwPermit.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/permits/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── Query filtering ────────────────────────────────────────────────────────
+
+describe('GET /api/permits — filtering', () => {
+  it('filters by status query param', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/permits?status=ACTIVE');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('searches by title keyword', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/permits?search=hot-work');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.ptwPermit.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ title: expect.objectContaining({ contains: 'hot-work' }) }) })
+    );
+  });
 });

@@ -131,3 +131,63 @@ describe('PUT /api/risks/framework', () => {
     expect(res.status).toBe(200);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /appetite returns 500 on DB error', async () => {
+    mockPrisma.riskAppetiteStatement.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/appetite');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /appetite returns 500 when create fails', async () => {
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    mockPrisma.riskAppetiteStatement.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/risks/appetite').send({
+      category: 'FINANCIAL',
+      appetiteLevel: 'MODERATE_APPETITE',
+      statement: 'Balanced',
+      maximumTolerableScore: 12,
+      acceptableResidualScore: 8,
+      escalationThreshold: 15,
+      reviewDate: '2026-12-01T00:00:00Z',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /framework returns 500 on DB error', async () => {
+    mockPrisma.riskFramework.findUnique.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/framework');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /framework returns 500 when create fails', async () => {
+    mockPrisma.riskFramework.findUnique.mockResolvedValue(null);
+    mockPrisma.riskFramework.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/risks/framework').send({ maturityLevel: 'Initial' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── Validation: invalid enum value ─────────────────────────────────────────
+
+describe('POST /api/risks/appetite — invalid enum', () => {
+  it('returns 400 when appetiteLevel enum is invalid', async () => {
+    const res = await request(app).post('/api/risks/appetite').send({
+      category: 'FINANCIAL',
+      appetiteLevel: 'INVALID_LEVEL',
+      statement: 'Test',
+      maximumTolerableScore: 12,
+      acceptableResidualScore: 8,
+      escalationThreshold: 15,
+      reviewDate: '2026-12-01T00:00:00Z',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
