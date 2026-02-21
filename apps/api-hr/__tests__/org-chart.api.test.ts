@@ -94,6 +94,19 @@ describe('GET /api/org-chart', () => {
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
   });
+
+  it('chart is an array (root nodes)', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue(mockEmployees);
+    const res = await request(app).get('/api/org-chart');
+    expect(Array.isArray(res.body.data.chart)).toBe(true);
+  });
+
+  it('returns totalEmployees of 0 when no employees exist', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/org-chart');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalEmployees).toBe(0);
+  });
 });
 
 describe('GET /api/org-chart/flat', () => {
@@ -117,6 +130,15 @@ describe('GET /api/org-chart/flat', () => {
     (mockPrisma.employee.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
     const res = await request(app).get('/api/org-chart/flat');
     expect(res.status).toBe(500);
+  });
+
+  it('returns correct number of employees in flat list', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValue(
+      mockEmployees.map((e) => ({ ...e, manager: null, _count: { subordinates: 0 } }))
+    );
+    const res = await request(app).get('/api/org-chart/flat');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
   });
 });
 
@@ -182,6 +204,30 @@ describe('GET /api/org-chart/reporting-chain/:employeeId', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('returns chain with 2 entries for a 2-level hierarchy', async () => {
+    (mockPrisma.employee.findUnique as jest.Mock)
+      .mockResolvedValueOnce({
+        id: EMP_ID_2,
+        firstName: 'Bob',
+        lastName: 'Jones',
+        jobTitle: 'Engineer',
+        managerId: EMP_ID_1,
+        department: { id: DEPT_ID, name: 'Executive' },
+      })
+      .mockResolvedValueOnce({
+        id: EMP_ID_1,
+        firstName: 'Alice',
+        lastName: 'Smith',
+        jobTitle: 'CEO',
+        managerId: null,
+        department: { id: DEPT_ID, name: 'Executive' },
+      });
+
+    const res = await request(app).get(`/api/org-chart/reporting-chain/${EMP_ID_2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
   });
 
   it('returns empty chain when employee not found', async () => {

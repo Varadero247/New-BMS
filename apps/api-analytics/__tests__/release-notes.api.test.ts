@@ -101,6 +101,36 @@ describe('GET /api/release-notes', () => {
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('findMany and count are both called once per list request', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+
+    await request(app).get('/api/release-notes');
+
+    expect(mockPrisma.changelog.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.changelog.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('pagination totalPages is calculated from count and limit', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(25);
+
+    const res = await request(app).get('/api/release-notes?limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.totalPages).toBe(5);
+  });
+
+  it('response data has changelogs and pagination keys', async () => {
+    mockPrisma.changelog.findMany.mockResolvedValue([]);
+    mockPrisma.changelog.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/release-notes');
+
+    expect(res.body.data).toHaveProperty('changelogs');
+    expect(res.body.data).toHaveProperty('pagination');
+  });
 });
 
 // ===================================================================
