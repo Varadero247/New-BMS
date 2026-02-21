@@ -47,6 +47,7 @@ module.exports = {
     '<rootDir>/apps/api-emergency',
     // Web apps
     '<rootDir>/apps/web-dashboard',
+    '<rootDir>/apps/web-marketing',
     // Shared packages
     '<rootDir>/packages/shared',
     '<rootDir>/packages/audit',
