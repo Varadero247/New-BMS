@@ -83,4 +83,31 @@ describe('GET /api/dashboard/stats', () => {
     expect(mockPrisma.regLegalRegister.count).toHaveBeenCalledTimes(1);
     expect(mockPrisma.regObligation.count).toHaveBeenCalledTimes(1);
   });
+
+  it('totalChanges is a number', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(3);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalChanges).toBe('number');
+  });
+
+  it('totalLegalItems reflects the mock count', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(15);
+    mockPrisma.regObligation.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalLegalItems).toBe(15);
+  });
+
+  it('totalObligations reflects the mock count', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(0);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(0);
+    mockPrisma.regObligation.count.mockResolvedValue(22);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalObligations).toBe(22);
+  });
 });

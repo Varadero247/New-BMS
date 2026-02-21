@@ -94,4 +94,44 @@ describe('GET /api/timeline/:id', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('findFirst called once per request', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date(),
+      reportedDate: new Date(),
+      investigationDate: null,
+      closedDate: null,
+    });
+    await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(mockPrisma.incIncident.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('response data is an array', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date(),
+      reportedDate: new Date(),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('each timeline event has event and date fields', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      dateOccurred: new Date('2026-01-15'),
+      reportedDate: new Date('2026-01-15'),
+      investigationDate: null,
+      closedDate: null,
+    });
+    const res = await request(app).get('/api/timeline/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    const event = res.body.data[0];
+    expect(event).toHaveProperty('event');
+    expect(event).toHaveProperty('date');
+  });
 });

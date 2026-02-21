@@ -81,4 +81,31 @@ describe('GET /api/dashboard/stats', () => {
     expect(mockPrisma.docVersion.count).toHaveBeenCalledTimes(1);
     expect(mockPrisma.docApproval.count).toHaveBeenCalledTimes(1);
   });
+
+  it('totalVersions reflects the mock count', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(88);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalVersions).toBe(88);
+  });
+
+  it('pendingApprovals reflects the mock count', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pendingApprovals).toBe(7);
+  });
+
+  it('success flag is false on 500', async () => {
+    mockPrisma.docDocument.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
 });

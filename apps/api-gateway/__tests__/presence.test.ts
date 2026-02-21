@@ -48,6 +48,19 @@ describe('Presence Routes', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
+
+    it('viewers data is defined in response', async () => {
+      mockGetPresence.mockReturnValue([]);
+      const res = await request(app).get('/api/presence?recordType=ncr&recordId=r1');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toBeDefined();
+    });
+
+    it('getPresence called once per request', async () => {
+      mockGetPresence.mockReturnValue([]);
+      await request(app).get('/api/presence?recordType=ncr&recordId=r1');
+      expect(mockGetPresence).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('POST /api/presence/lock', () => {
@@ -82,6 +95,11 @@ describe('Presence Routes', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
+
+    it('releaseLock called once per DELETE request', async () => {
+      await request(app).delete('/api/presence/lock').send({ recordType: 'ncr', recordId: 'r1' });
+      expect(mockReleaseLock).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('PUT /api/presence/refresh', () => {
@@ -91,6 +109,11 @@ describe('Presence Routes', () => {
         .send({ recordType: 'ncr', recordId: 'r1' });
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
+    });
+
+    it('refreshLock called once per PUT request', async () => {
+      await request(app).put('/api/presence/refresh').send({ recordType: 'ncr', recordId: 'r1' });
+      expect(mockRefreshLock).toHaveBeenCalledTimes(1);
     });
   });
 });

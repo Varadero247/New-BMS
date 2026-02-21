@@ -79,4 +79,31 @@ describe('GET /api/dashboard/stats', () => {
     expect(mockPrisma.suppScorecard.count).toHaveBeenCalledTimes(1);
     expect(mockPrisma.suppDocument.count).toHaveBeenCalledTimes(1);
   });
+
+  it('totalScorecards reflects the mock count', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(42);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalScorecards).toBe(42);
+  });
+
+  it('totalDocuments reflects the mock count', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(100);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDocuments).toBe(100);
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(0);
+    mockPrisma.suppScorecard.count.mockResolvedValue(0);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

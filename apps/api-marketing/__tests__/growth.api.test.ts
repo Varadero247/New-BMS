@@ -101,6 +101,32 @@ describe('GET /api/growth/metrics', () => {
 
     expect(res.status).toBe(500);
   });
+
+  it('data.health has total property', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/metrics');
+    expect(res.status).toBe(200);
+    expect(res.body.data.health).toHaveProperty('total');
+  });
+
+  it('partners.total reflects mock partner count', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktLead.groupBy as jest.Mock).mockResolvedValue([]);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartner.count as jest.Mock).mockResolvedValue(12);
+    (prisma.mktPartnerDeal.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/metrics');
+    expect(res.status).toBe(200);
+    expect(res.body.data.partners.total).toBe(12);
+  });
 });
 
 describe('GET /api/growth/snapshot/:date', () => {
@@ -120,5 +146,15 @@ describe('GET /api/growth/snapshot/:date', () => {
     const res = await request(app).get('/api/growth/snapshot/not-a-date');
 
     expect(res.status).toBe(400);
+  });
+
+  it('snapshot data has date, leads, and emailsSent properties', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/growth/snapshot/2026-01-01');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('date');
+    expect(res.body.data).toHaveProperty('leads');
+    expect(res.body.data).toHaveProperty('emailsSent');
   });
 });

@@ -64,4 +64,26 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.data).toHaveProperty('totalIncidents');
     expect(typeof res.body.data.totalIncidents).toBe('number');
   });
+
+  it('count query includes orgId in where clause', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.incIncident.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+    );
+  });
+
+  it('totalIncidents reflects various mock values', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(99);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalIncidents).toBe(99);
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

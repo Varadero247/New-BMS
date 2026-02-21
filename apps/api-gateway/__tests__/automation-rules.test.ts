@@ -59,6 +59,17 @@ describe('Automation Rules Routes', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data).toBeInstanceOf(Array);
     });
+
+    it('data is an array', async () => {
+      const res = await request(app).get('/api/automation-rules');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('listRules called once per GET request', async () => {
+      await request(app).get('/api/automation-rules');
+      expect(mockListRules).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('POST /api/automation-rules/:id/enable', () => {
@@ -88,6 +99,15 @@ describe('Automation Rules Routes', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
+
+    it('returns 404 for non-existent rule on disable', async () => {
+      mockDisableRule.mockReturnValueOnce(false);
+      mockGetRuleById.mockReturnValueOnce(undefined);
+      const res = await request(app).post(
+        '/api/automation-rules/00000000-0000-0000-0000-000000000099/disable'
+      );
+      expect(res.status).toBe(404);
+    });
   });
 
   describe('GET /api/automation-rules/:id/log', () => {
@@ -100,6 +120,15 @@ describe('Automation Rules Routes', () => {
       );
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
+    });
+
+    it('execution log data is an array', async () => {
+      mockGetExecutionLog.mockReturnValue([]);
+      const res = await request(app).get(
+        '/api/automation-rules/00000000-0000-0000-0000-000000000001/log'
+      );
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
     });
   });
 });

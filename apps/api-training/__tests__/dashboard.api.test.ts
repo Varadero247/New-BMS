@@ -93,4 +93,34 @@ describe('GET /api/dashboard/stats', () => {
     expect(mockPrisma.trainCompetency.count).toHaveBeenCalledTimes(1);
     expect(mockPrisma.trainMatrix.count).toHaveBeenCalledTimes(1);
   });
+
+  it('totalRecords reflects the mock count', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainRecord.count.mockResolvedValue(77);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalRecords).toBe(77);
+  });
+
+  it('totalCompetencies reflects the mock count', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.count.mockResolvedValue(14);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalCompetencies).toBe(14);
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    mockPrisma.trainRecord.count.mockResolvedValue(0);
+    mockPrisma.trainCompetency.count.mockResolvedValue(0);
+    mockPrisma.trainMatrix.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

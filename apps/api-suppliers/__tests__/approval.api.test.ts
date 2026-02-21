@@ -48,6 +48,19 @@ describe('POST /api/approval/:id/approve', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('update called once per approve request', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
+    await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(mockPrisma.suppSupplier.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('approve response data includes supplier id', async () => {
+    mockPrisma.suppSupplier.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'APPROVED' });
+    const res = await request(app).post('/api/approval/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
 });
 
 describe('POST /api/approval/:id/suspend', () => {
