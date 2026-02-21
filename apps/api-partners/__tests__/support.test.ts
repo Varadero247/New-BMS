@@ -228,3 +228,29 @@ describe('Auth guard', () => {
     expect(res.status).toBe(401);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/support');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (portalPrisma.mktPartnerSupportTicket.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/support').send({ subject: 'Need help', description: 'Details here', priority: 'HIGH' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id/close returns 500 when update fails', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', partnerId: 'partner-1' });
+    (portalPrisma.mktPartnerSupportTicket.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).patch('/api/support/00000000-0000-0000-0000-000000000001/close');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

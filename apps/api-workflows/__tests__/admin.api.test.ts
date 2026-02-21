@@ -343,3 +343,38 @@ describe('Admin Automation Rules API Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  let app500: express.Express;
+
+  beforeAll(() => {
+    app500 = express();
+    app500.use(express.json());
+    app500.use('/api/admin/automation-rules', adminRouter);
+  });
+
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.automationRule.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app500).get('/api/admin/automation-rules');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/log returns 500 on DB error', async () => {
+    mockPrisma.automationRule.findUnique.mockResolvedValue({ id: 'rule-1', isActive: true });
+    mockPrisma.automationExecution.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app500).get('/api/admin/automation-rules/rule-1/log');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/enable returns 500 when update fails', async () => {
+    mockPrisma.automationRule.findUnique.mockResolvedValue({ id: 'rule-1', isActive: false });
+    mockPrisma.automationRule.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app500).post('/api/admin/automation-rules/rule-1/enable');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

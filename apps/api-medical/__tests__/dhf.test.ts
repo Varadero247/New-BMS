@@ -276,3 +276,29 @@ describe('DHF (Design History File) API Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  let app500: express.Express;
+
+  beforeAll(() => {
+    app500 = express();
+    app500.use(express.json());
+    app500.use('/api/dhf', dhfRouter);
+  });
+
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.designProject.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app500).get('/api/dhf');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.designHistoryFile.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app500).post('/api/dhf').send({ projectId: PROJECT_ID, title: 'Design Input Specification', category: 'DESIGN_INPUT', documentRef: 'DHF-001', version: '1.0' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

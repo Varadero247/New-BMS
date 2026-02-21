@@ -130,3 +130,22 @@ describe('Auth guard', () => {
     expect(res.status).toBe(401);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/referrals');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /track returns 500 when create fails', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ id: 'partner-1', tier: 'GCC_SPECIALIST' });
+    (portalPrisma.mktPartnerReferral.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/referrals/track').send({ prospectEmail: 'prospect@test.com', prospectName: 'Jane Doe' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

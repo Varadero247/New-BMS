@@ -149,3 +149,23 @@ describe('Auth guard', () => {
     expect(res.status).toBe(401);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'GCC_SPECIALIST' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/collateral');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/download returns 500 on DB error', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'GCC_SPECIALIST' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000001/download');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
