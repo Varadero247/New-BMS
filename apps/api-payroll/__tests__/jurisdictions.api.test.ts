@@ -1,9 +1,21 @@
 import express from 'express';
 import request from 'supertest';
 
+// In-memory store for test isolation — declared here so beforeEach can reassign
+let jurisdictionStore: Map<string, any> = new Map();
+
 // Mock dependencies
 jest.mock('../src/prisma', () => ({
-  prisma: {},
+  prisma: {
+    payrollJurisdiction: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      upsert: jest.fn(),
+      delete: jest.fn(),
+    },
+  },
+  Prisma: {},
 }));
 
 jest.mock('@ims/auth', () => ({
@@ -30,7 +42,11 @@ jest.mock('@ims/monitoring', () => ({
   }),
 }));
 
-import jurisdictionsRoutes, { activeJurisdictions } from '../src/routes/jurisdictions';
+import jurisdictionsRoutes from '../src/routes/jurisdictions';
+import { prisma } from '../src/prisma';
+
+// Typed reference to the mock for easy access
+const mockJurisdiction = (prisma as any).payrollJurisdiction;
 
 describe('Payroll Jurisdictions API Routes', () => {
   let app: express.Express;
@@ -42,7 +58,51 @@ describe('Payroll Jurisdictions API Routes', () => {
   });
 
   beforeEach(() => {
-    activeJurisdictions.clear();
+    jurisdictionStore = new Map();
+
+    mockJurisdiction.findUnique.mockImplementation(({ where }: any) =>
+      Promise.resolve(jurisdictionStore.get(where.code) ?? null)
+    );
+
+    mockJurisdiction.findMany.mockImplementation(() =>
+      Promise.resolve(Array.from(jurisdictionStore.values()))
+    );
+
+    mockJurisdiction.create.mockImplementation(({ data }: any) => {
+      const record = {
+        ...data,
+        customRules: data.customRules ?? null,
+        activatedAt: data.activatedAt instanceof Date ? data.activatedAt : new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      jurisdictionStore.set(data.code, record);
+      return Promise.resolve(record);
+    });
+
+    mockJurisdiction.upsert.mockImplementation(({ where, create: createData, update }: any) => {
+      const existing = jurisdictionStore.get(where.code);
+      if (existing) {
+        const updated = { ...existing, ...update, updatedAt: new Date() };
+        jurisdictionStore.set(where.code, updated);
+        return Promise.resolve(updated);
+      } else {
+        const record = {
+          ...createData,
+          activatedAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        jurisdictionStore.set(createData.code, record);
+        return Promise.resolve(record);
+      }
+    });
+
+    mockJurisdiction.delete.mockImplementation(({ where }: any) => {
+      const existing = jurisdictionStore.get(where.code);
+      jurisdictionStore.delete(where.code);
+      return Promise.resolve(existing);
+    });
   });
 
   // ---------------------------------------------------------------------------
@@ -388,7 +448,7 @@ describe('Payroll Jurisdictions API Routes', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.data.customOverrides).toEqual({ stateTax: { CA: 0.133 } });
-      expect(activeJurisdictions.has('US')).toBe(true);
+      expect(jurisdictionStore.has('US')).toBe(true);
     });
 
     it('should merge custom rules on subsequent updates', async () => {
@@ -470,7 +530,7 @@ describe('Payroll Jurisdictions API Routes', () => {
 
       await request(app).delete('/api/jurisdictions/US').set('Authorization', 'Bearer token');
 
-      expect(activeJurisdictions.has('US')).toBe(false);
+      expect(jurisdictionStore.has('US')).toBe(false);
     });
 
     it('should accept lowercase code', async () => {

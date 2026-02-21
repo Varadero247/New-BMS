@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { prisma as _prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { z } from 'zod';
 import { authenticate } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
@@ -156,12 +156,6 @@ const JURISDICTION_RULES: Record<string, object> = {
   },
 };
 
-// In-memory store for active jurisdictions (in production, would use DB)
-const activeJurisdictions: Map<
-  string,
-  { code: string; name: string; activatedAt: string; status: string; customRules?: object }
-> = new Map();
-
 const SUPPORTED_CODES = Object.keys(JURISDICTION_RULES);
 
 // ---------------------------------------------------------------------------
@@ -187,7 +181,8 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    if (activeJurisdictions.has(code)) {
+    const existing = await prisma.payrollJurisdiction.findUnique({ where: { code } });
+    if (existing) {
       return res.status(409).json({
         success: false,
         error: { code: 'ALREADY_ACTIVE', message: `Jurisdiction ${code} is already active` },
@@ -195,15 +190,23 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     const rules = JURISDICTION_RULES[code] as Record<string, unknown>;
-    const jurisdiction = {
-      code,
-      name: rules.name as string,
-      activatedAt: new Date().toISOString(),
-      status: 'ACTIVE',
-      customRules: data.customRules,
-    };
+    const record = await prisma.payrollJurisdiction.create({
+      data: {
+        code,
+        name: rules.name as string,
+        status: 'ACTIVE',
+        customRules: data.customRules ? (data.customRules as Prisma.InputJsonValue) : undefined,
+        activatedAt: new Date(),
+      },
+    });
 
-    activeJurisdictions.set(code, jurisdiction);
+    const jurisdiction = {
+      code: record.code,
+      name: record.name,
+      activatedAt: record.activatedAt.toISOString(),
+      status: record.status,
+      customRules: record.customRules,
+    };
 
     logger.info('Jurisdiction registered', { code });
     res.status(201).json({ success: true, data: jurisdiction });
@@ -226,7 +229,14 @@ router.post('/', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 router.get('/', async (_req: Request, res: Response) => {
   try {
-    const jurisdictions = Array.from(activeJurisdictions.values());
+    const records = await prisma.payrollJurisdiction.findMany();
+    const jurisdictions = records.map((record) => ({
+      code: record.code,
+      name: record.name,
+      activatedAt: record.activatedAt.toISOString(),
+      status: record.status,
+      customRules: record.customRules,
+    }));
     res.json({ success: true, data: jurisdictions });
   } catch (error) {
     logger.error('Error listing jurisdictions', { error: (error as Error).message });
@@ -252,12 +262,13 @@ router.get('/:code/rules', async (req: Request, res: Response) => {
     }
 
     const rules = JURISDICTION_RULES[code];
-    const active = activeJurisdictions.get(code);
+    const active = await prisma.payrollJurisdiction.findUnique({ where: { code } });
 
     // Merge custom rules if jurisdiction is active and has overrides
-    const mergedRules = active?.customRules
-      ? { ...rules, customOverrides: active.customRules }
-      : rules;
+    const mergedRules =
+      active?.customRules != null
+        ? { ...rules, customOverrides: active.customRules }
+        : rules;
 
     res.json({ success: true, data: mergedRules });
   } catch (error) {
@@ -289,25 +300,29 @@ router.put('/:code/rules', async (req: Request, res: Response) => {
 
     const data = schema.parse(req.body);
 
-    const existing = activeJurisdictions.get(code);
-    if (!existing) {
-      // Auto-activate if not active
-      const rules = JURISDICTION_RULES[code] as Record<string, unknown>;
-      activeJurisdictions.set(code, {
+    const existing = await prisma.payrollJurisdiction.findUnique({ where: { code } });
+    const mergedCustomRules = existing?.customRules != null
+      ? { ...(existing.customRules as Record<string, unknown>), ...data.customRules }
+      : data.customRules;
+
+    await prisma.payrollJurisdiction.upsert({
+      where: { code },
+      create: {
         code,
-        name: rules.name as string,
-        activatedAt: new Date().toISOString(),
+        name: (JURISDICTION_RULES[code] as Record<string, unknown>).name as string,
         status: 'ACTIVE',
-        customRules: data.customRules,
-      });
-    } else {
-      existing.customRules = { ...(existing.customRules || {}), ...data.customRules };
-      activeJurisdictions.set(code, existing);
-    }
+        customRules: mergedCustomRules as Prisma.InputJsonValue,
+      },
+      update: {
+        customRules: mergedCustomRules as Prisma.InputJsonValue,
+      },
+    });
+
+    const updated = await prisma.payrollJurisdiction.findUnique({ where: { code } });
 
     const updatedRules = {
       ...JURISDICTION_RULES[code],
-      customOverrides: activeJurisdictions.get(code)!.customRules,
+      customOverrides: updated!.customRules,
     };
 
     logger.info('Jurisdiction rules updated', { code });
@@ -333,19 +348,28 @@ router.delete('/:code', async (req: Request, res: Response) => {
   try {
     const code = req.params.code.toUpperCase();
 
-    if (!activeJurisdictions.has(code)) {
+    const existing = await prisma.payrollJurisdiction.findUnique({ where: { code } });
+    if (!existing) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: `Active jurisdiction ${code} not found` },
       });
     }
 
-    const jurisdiction = activeJurisdictions.get(code)!;
-    jurisdiction.status = 'INACTIVE';
-    activeJurisdictions.delete(code);
+    await prisma.payrollJurisdiction.delete({ where: { code } });
 
     logger.info('Jurisdiction deactivated', { code });
-    res.json({ success: true, data: { ...jurisdiction, deactivatedAt: new Date().toISOString() } });
+    res.json({
+      success: true,
+      data: {
+        code: existing.code,
+        name: existing.name,
+        activatedAt: existing.activatedAt.toISOString(),
+        status: 'INACTIVE',
+        customRules: existing.customRules,
+        deactivatedAt: new Date().toISOString(),
+      },
+    });
   } catch (error) {
     logger.error('Error deactivating jurisdiction', { error: (error as Error).message });
     res.status(500).json({
@@ -480,4 +504,4 @@ router.post('/:code/calculate', async (req: Request, res: Response) => {
 export default router;
 
 // Export for testing
-export { activeJurisdictions, JURISDICTION_RULES, SUPPORTED_CODES };
+export { JURISDICTION_RULES, SUPPORTED_CODES };
