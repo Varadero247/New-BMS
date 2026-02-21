@@ -177,6 +177,21 @@ describe('formatCursorResult', () => {
     expect(result.meta.hasMore).toBe(false);
     expect(result.meta.nextCursor).toBeNull();
     expect(result.meta.count).toBe(0);
+    expect(result.meta.prevCursor).toBeNull();
+  });
+
+  it('preserves prevCursor from incoming cursor even when data is empty', () => {
+    const paramsWithCursor = { ...params, cursor: 'last-page-cursor' };
+    const result = formatCursorResult([], paramsWithCursor);
+    expect(result.data).toEqual([]);
+    expect(result.meta.hasMore).toBe(false);
+    expect(result.meta.nextCursor).toBeNull();
+    expect(result.meta.prevCursor).toBe('last-page-cursor');
+  });
+
+  it('parseCursorParams handles numeric limit value (not string)', () => {
+    // parseInt(50, 10) = 50 — numbers coerce correctly
+    expect(parseCursorParams({ limit: 50 as unknown as string }).limit).toBe(50);
   });
 
   it('works with typed items beyond id field', () => {
