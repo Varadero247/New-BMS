@@ -1,4 +1,4 @@
-import { createLogger } from '../src/logger';
+import { createLogger, createRequestLogger } from '../src/logger';
 import type { Logger } from '../src/logger';
 
 describe('createLogger', () => {
@@ -63,7 +63,6 @@ describe('createLogger', () => {
     const warnLogger = createLogger('warn-service');
     expect(warnLogger.level).toBe('warn');
 
-    // Restore
     if (originalLevel !== undefined) {
       process.env.LOG_LEVEL = originalLevel;
     } else {
@@ -78,7 +77,6 @@ describe('createLogger', () => {
     const infoLogger = createLogger('info-service');
     expect(infoLogger.level).toBe('info');
 
-    // Restore
     if (originalLevel !== undefined) {
       process.env.LOG_LEVEL = originalLevel;
     }
@@ -124,5 +122,75 @@ describe('createLogger — extended', () => {
     expect(() => {
       logger.error('Something went wrong', { error: new Error('inner error') });
     }).not.toThrow();
+  });
+
+  it('accepts error level LOG_LEVEL', () => {
+    const orig = process.env.LOG_LEVEL;
+    process.env.LOG_LEVEL = 'error';
+    const logger = createLogger('error-level-svc');
+    expect(logger.level).toBe('error');
+    if (orig !== undefined) process.env.LOG_LEVEL = orig;
+    else delete process.env.LOG_LEVEL;
+  });
+
+  it('accepts verbose LOG_LEVEL', () => {
+    const orig = process.env.LOG_LEVEL;
+    process.env.LOG_LEVEL = 'verbose';
+    const logger = createLogger('verbose-svc');
+    expect(logger.level).toBe('verbose');
+    if (orig !== undefined) process.env.LOG_LEVEL = orig;
+    else delete process.env.LOG_LEVEL;
+  });
+
+  it('logger has add and remove transport methods', () => {
+    const logger = createLogger('transport-test');
+    expect(typeof logger.add).toBe('function');
+    expect(typeof logger.remove).toBe('function');
+  });
+
+  it('can log verbose level messages without throwing', () => {
+    const orig = process.env.LOG_LEVEL;
+    process.env.LOG_LEVEL = 'verbose';
+    const logger = createLogger('verbose-log-svc');
+    expect(() => logger.verbose('verbose msg')).not.toThrow();
+    if (orig !== undefined) process.env.LOG_LEVEL = orig;
+    else delete process.env.LOG_LEVEL;
+  });
+
+  it('can log with numeric metadata without throwing', () => {
+    const logger = createLogger('numeric-meta-svc');
+    expect(() => {
+      logger.info('Numeric metadata', { count: 42, duration: 1.5 });
+    }).not.toThrow();
+  });
+});
+
+describe('createRequestLogger', () => {
+  it('returns a child logger when correlationId is on the request', () => {
+    const parent = createLogger('req-logger-svc');
+    const req = { correlationId: 'abc-123' };
+    const child = createRequestLogger(parent, req);
+    expect(child).toBeDefined();
+    expect(typeof child.info).toBe('function');
+  });
+
+  it('returns a child logger when correlation ID is in headers', () => {
+    const parent = createLogger('req-logger-header-svc');
+    const req = { headers: { 'x-correlation-id': 'header-id-456' } };
+    const child = createRequestLogger(parent, req);
+    expect(child).toBeDefined();
+  });
+
+  it('returns a child logger with unknown correlation ID when none is set', () => {
+    const parent = createLogger('req-logger-unknown-svc');
+    const child = createRequestLogger(parent, {});
+    expect(child).toBeDefined();
+    expect(typeof child.info).toBe('function');
+  });
+
+  it('child logger can log without throwing', () => {
+    const parent = createLogger('req-child-log-svc');
+    const child = createRequestLogger(parent, { correlationId: 'test-id' });
+    expect(() => child.info('Request processed')).not.toThrow();
   });
 });

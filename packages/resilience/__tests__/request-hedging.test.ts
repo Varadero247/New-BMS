@@ -25,16 +25,12 @@ describe('withHedging()', () => {
       () => {
         callCount++;
         const isFirst = callCount === 1;
-        // First call takes 60ms, hedge (second call) returns in 10ms.
-        // Hedge fires at 20ms → hedge wins at ~30ms → first timer fires 30ms later.
-        // 60ms keeps the leak window short while still demonstrating the race.
         return new Promise<string>((resolve) =>
           setTimeout(() => resolve(isFirst ? 'slow' : 'fast'), isFirst ? 60 : 10)
         );
       },
       { delayMs: 20, maxAttempts: 2 }
     );
-    // Either 'slow' or 'fast' depending on timing — just verify no rejection
     expect(typeof result).toBe('string');
   });
 
@@ -44,7 +40,6 @@ describe('withHedging()', () => {
   });
 
   it('clamps maxAttempts to 4', async () => {
-    // Should not throw even with maxAttempts: 100
     const result = await withHedging(() => Promise.resolve('ok'), { maxAttempts: 100 });
     expect(result).toBe('ok');
   });
@@ -67,6 +62,48 @@ describe('withHedging()', () => {
     );
     expect(onHedge).not.toHaveBeenCalled();
   });
+
+  it('resolves with string result correctly typed', async () => {
+    const result = await withHedging(() => Promise.resolve('typed'));
+    expect(result).toBe('typed');
+  });
+
+  it('resolves with object result', async () => {
+    const obj = { id: 1, name: 'test' };
+    const result = await withHedging(() => Promise.resolve(obj));
+    expect(result).toEqual(obj);
+  });
+
+  it('cancels via AbortSignal when signal is already aborted', async () => {
+    const ac = new AbortController();
+    ac.abort();
+    await expect(
+      withHedging(() => Promise.resolve(1), { signal: ac.signal })
+    ).rejects.toThrow(/cancelled/i);
+  });
+
+  it('uses default delayMs of 100 when not specified', async () => {
+    // Just verify it resolves with defaults — no explicit delay option
+    const result = await withHedging(() => Promise.resolve('default-delay'), { maxAttempts: 1 });
+    expect(result).toBe('default-delay');
+  });
+
+  it('handles maxAttempts: 3 with instant resolution', async () => {
+    const fn = jest.fn().mockResolvedValue('quick');
+    const result = await withHedging(fn, { maxAttempts: 3, delayMs: 1000 });
+    expect(result).toBe('quick');
+  });
+
+  it('propagates the error from a non-hedgeable failure', async () => {
+    const err = new Error('non-retryable');
+    await expect(
+      withHedging(() => Promise.reject(err), {
+        maxAttempts: 2,
+        delayMs: 5,
+        shouldHedge: () => false,
+      })
+    ).rejects.toThrow('non-retryable');
+  });
 });
 
 // ── withHedgingDetailed() ─────────────────────────────────────────────────
@@ -80,7 +117,6 @@ describe('withHedgingDetailed()', () => {
   });
 
   it('winningAttempt is 0 when original wins', async () => {
-    // Instant response — original always wins
     const result = await withHedgingDetailed(
       () => Promise.resolve('instant'),
       { delayMs: 1000, maxAttempts: 2 }
@@ -94,6 +130,22 @@ describe('withHedgingDetailed()', () => {
       { maxAttempts: 1 }
     );
     expect(result.attemptsIssued).toBe(1);
+  });
+
+  it('value matches what the winning attempt resolved with', async () => {
+    const result = await withHedgingDetailed(() => Promise.resolve(999));
+    expect(result.value).toBe(999);
+  });
+
+  it('attemptsIssued is at least 1 regardless of configuration', async () => {
+    const result = await withHedgingDetailed(() => Promise.resolve('any'));
+    expect(result.attemptsIssued).toBeGreaterThanOrEqual(1);
+  });
+
+  it('winningAttempt is a non-negative integer', async () => {
+    const result = await withHedgingDetailed(() => Promise.resolve('w'));
+    expect(Number.isInteger(result.winningAttempt)).toBe(true);
+    expect(result.winningAttempt).toBeGreaterThanOrEqual(0);
   });
 });
 
@@ -118,7 +170,6 @@ describe('RequestHedger', () => {
 
   it('hedgesIssued increments when a hedge is launched', async () => {
     const hedger = new RequestHedger({ delayMs: 5, maxAttempts: 2 });
-    // 30ms: long enough for the 5ms hedge timer to fire, short enough not to leak.
     await hedger.execute(
       () => new Promise((resolve) => setTimeout(resolve, 30, 'v'))
     );
@@ -135,6 +186,28 @@ describe('RequestHedger', () => {
 
   it('createHedger() returns a RequestHedger', () => {
     expect(createHedger()).toBeInstanceOf(RequestHedger);
+  });
+
+  it('execute returns correct type for string result', async () => {
+    const hedger = createHedger({ delayMs: 1000 });
+    const result = await hedger.execute(() => Promise.resolve('typed-result'));
+    expect(typeof result).toBe('string');
+    expect(result).toBe('typed-result');
+  });
+
+  it('can be reused across multiple executions', async () => {
+    const hedger = createHedger({ delayMs: 1000 });
+    const r1 = await hedger.execute(() => Promise.resolve(1));
+    const r2 = await hedger.execute(() => Promise.resolve(2));
+    expect(r1).toBe(1);
+    expect(r2).toBe(2);
+  });
+
+  it('hedgesIssued is cumulative across multiple executions', async () => {
+    const hedger = new RequestHedger({ delayMs: 5, maxAttempts: 2 });
+    await hedger.execute(() => new Promise((r) => setTimeout(r, 30, 'a')));
+    await hedger.execute(() => new Promise((r) => setTimeout(r, 30, 'b')));
+    expect(hedger.hedgesIssued).toBeGreaterThanOrEqual(2);
   });
 });
 

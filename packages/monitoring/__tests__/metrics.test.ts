@@ -8,13 +8,14 @@ import {
   rateLimitExceededTotal,
   metricsMiddleware,
   metricsHandler,
+  dbQueryHistogram,
+  prismaMetricsMiddleware,
 } from '../src/metrics';
 import client from 'prom-client';
 import type { Request, Response, NextFunction } from 'express';
 
 describe('Prometheus metrics', () => {
   beforeEach(async () => {
-    // Reset metric values between tests to avoid cross-test pollution
     register.resetMetrics();
   });
 
@@ -45,13 +46,34 @@ describe('Prometheus metrics', () => {
 
     it('register contains default metrics', async () => {
       const metrics = await register.getMetricsAsJSON();
-      // Default metrics include things like process_cpu_seconds_total
       const metricNames = metrics.map((m) => m.name);
       expect(metricNames.length).toBeGreaterThan(0);
-      // At least one default metric should be present
       expect(
         metricNames.some((name) => name.startsWith('process_') || name.startsWith('nodejs_'))
       ).toBe(true);
+    });
+
+    it('dbQueryHistogram is an alias for databaseQueryDuration', () => {
+      expect(dbQueryHistogram).toBe(databaseQueryDuration);
+    });
+
+    it('httpRequestDuration metric name is http_request_duration_seconds', async () => {
+      const metrics = await register.getMetricsAsJSON();
+      const names = metrics.map((m) => m.name);
+      expect(names).toContain('http_request_duration_seconds');
+    });
+
+    it('httpRequestTotal metric name is http_requests_total', async () => {
+      const metrics = await register.getMetricsAsJSON();
+      const names = metrics.map((m) => m.name);
+      expect(names).toContain('http_requests_total');
+    });
+
+    it('metrics output is valid Prometheus text format', async () => {
+      const output = await register.metrics();
+      // Prometheus format lines start with # HELP or # TYPE or metric entries
+      expect(output).toMatch(/# HELP/);
+      expect(output).toMatch(/# TYPE/);
     });
   });
 
@@ -67,7 +89,7 @@ describe('Prometheus metrics', () => {
     it('can be incremented multiple times', async () => {
       const before = await register.getMetricsAsJSON();
       const beforeEntry = before.find((m) => m.name === 'auth_failures_total');
-      const beforeValue = beforeEntry?.values?.[0]?.value ?? 0;
+      const beforeValue = (beforeEntry?.values ?? []).reduce((s, v) => s + v.value, 0);
 
       authFailuresTotal.inc({ reason: 'wrong_password', service: 'test-svc' });
 
@@ -75,6 +97,23 @@ describe('Prometheus metrics', () => {
       const afterEntry = after.find((m) => m.name === 'auth_failures_total');
       const afterTotal = (afterEntry?.values ?? []).reduce((s, v) => s + v.value, 0);
       expect(afterTotal).toBeGreaterThan(beforeValue);
+    });
+
+    it('supports TOKEN_INVALID reason label', async () => {
+      authFailuresTotal.inc({ reason: 'TOKEN_INVALID', service: 'api-health-safety' });
+      const metrics = await register.getMetricsAsJSON();
+      const entry = metrics.find((m) => m.name === 'auth_failures_total');
+      const labels = (entry?.values ?? []).map((v) => v.labels?.reason);
+      expect(labels).toContain('TOKEN_INVALID');
+    });
+
+    it('supports different service label values', async () => {
+      authFailuresTotal.inc({ reason: 'expired', service: 'api-inventory' });
+      authFailuresTotal.inc({ reason: 'expired', service: 'api-crm' });
+      const metrics = await register.getMetricsAsJSON();
+      const entry = metrics.find((m) => m.name === 'auth_failures_total');
+      const serviceLabels = (entry?.values ?? []).map((v) => v.labels?.service);
+      expect(serviceLabels).toEqual(expect.arrayContaining(['api-inventory', 'api-crm']));
     });
   });
 
@@ -95,6 +134,65 @@ describe('Prometheus metrics', () => {
       const entry = metrics.find((m) => m.name === 'rate_limit_exceeded_total');
       const limiterLabels = (entry?.values ?? []).map((v) => v.labels?.limiter);
       expect(limiterLabels).toEqual(expect.arrayContaining(['api', 'strict_api', 'register']));
+    });
+
+    it('rate_limit_exceeded_total appears in Prometheus text output', async () => {
+      rateLimitExceededTotal.inc({ limiter: 'test', service: 'svc' });
+      const output = await register.metrics();
+      expect(output).toContain('rate_limit_exceeded_total');
+    });
+  });
+
+  describe('databaseQueryDuration histogram', () => {
+    it('can observe a query duration without throwing', () => {
+      expect(() => {
+        databaseQueryDuration.observe({ operation: 'findMany', model: 'User' }, 0.05);
+      }).not.toThrow();
+    });
+
+    it('appears in metrics output after observation', async () => {
+      databaseQueryDuration.observe({ operation: 'create', model: 'Incident' }, 0.01);
+      const output = await register.metrics();
+      expect(output).toContain('database_query_duration_seconds');
+    });
+  });
+
+  describe('prismaMetricsMiddleware', () => {
+    it('calls next with the original params', async () => {
+      const params = {
+        model: 'User',
+        action: 'findMany',
+        args: {},
+        dataPath: [],
+        runInTransaction: false,
+      };
+      const next = jest.fn().mockResolvedValue([]);
+      await prismaMetricsMiddleware(params, next);
+      expect(next).toHaveBeenCalledWith(params);
+    });
+
+    it('returns the result from next', async () => {
+      const params = {
+        model: 'Risk',
+        action: 'create',
+        args: {},
+        dataPath: [],
+        runInTransaction: false,
+      };
+      const next = jest.fn().mockResolvedValue({ id: '1' });
+      const result = await prismaMetricsMiddleware(params, next);
+      expect(result).toEqual({ id: '1' });
+    });
+
+    it('records duration even when model is undefined', async () => {
+      const params = {
+        action: 'executeRaw',
+        args: {},
+        dataPath: [],
+        runInTransaction: false,
+      };
+      const next = jest.fn().mockResolvedValue(1);
+      await expect(prismaMetricsMiddleware(params, next)).resolves.toBe(1);
     });
   });
 
@@ -172,11 +270,9 @@ describe('Prometheus metrics', () => {
         mockNext
       );
 
-      // Simulate the finish event
       expect(finishCallback).not.toBeNull();
       finishCallback!();
 
-      // After finish, httpRequestTotal should have been incremented
       const metricsOutput = await register.metrics();
       expect(metricsOutput).toContain('http_requests_total');
     });
@@ -191,8 +287,6 @@ describe('Prometheus metrics', () => {
         mockNext
       );
 
-      // Before finish, active requests should have been incremented
-      // After finish, it should be decremented
       finishCallback!();
 
       const metricsOutput = await register.metrics();

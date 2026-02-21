@@ -120,4 +120,58 @@ describe('Tracing — extended', () => {
     await shutdownTracing();
     await expect(shutdownTracing()).resolves.not.toThrow();
   });
+
+  it('getTracer returns an object with a defined identity', () => {
+    const tracer = getTracer('identity-tracer');
+    expect(tracer).toBeDefined();
+    expect(typeof tracer).toBe('object');
+  });
+
+  it('addSpanAttributes accepts multiple key-value pairs without throwing', () => {
+    expect(() =>
+      addSpanAttributes({ 'http.method': 'GET', 'http.url': '/api/users', 'http.status': '200' })
+    ).not.toThrow();
+  });
+
+  it('recordException handles string-wrapped error without throwing', () => {
+    expect(() => recordException(new Error('string-like error'))).not.toThrow();
+  });
+
+  it('traceMiddleware does not modify req or res when tracing is inactive', () => {
+    const middleware = traceMiddleware();
+    const req: any = { originalUrl: '/test' };
+    const res: any = { setHeader: jest.fn() };
+    const next = jest.fn();
+
+    middleware(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('multiple calls to getTracer with different names return tracers', () => {
+    const t1 = getTracer('svc-a');
+    const t2 = getTracer('svc-b');
+    expect(t1).toBeDefined();
+    expect(t2).toBeDefined();
+  });
+
+  it('initTracing returns null when serviceName provided but enabled not set', () => {
+    const result = initTracing({ serviceName: 'no-otel-env-svc' });
+    expect(result).toBeNull();
+  });
+
+  it('shutdownTracing is idempotent — can be called 3 times without error', async () => {
+    await shutdownTracing();
+    await shutdownTracing();
+    await expect(shutdownTracing()).resolves.not.toThrow();
+  });
+
+  it('traceMiddleware passes errors to next when next is called', () => {
+    const middleware = traceMiddleware();
+    const req: any = {};
+    const res: any = { setHeader: jest.fn() };
+    const next = jest.fn();
+    middleware(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
 });

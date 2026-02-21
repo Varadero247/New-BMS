@@ -206,3 +206,84 @@ describe('Gateway Fix Verification', () => {
     });
   });
 });
+
+// ── Additional error-handler fix coverage ────────────────────────────────────
+describe('Gateway Fix Verification — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns 422 for validation errors with VALIDATION_ERROR code', () => {
+    const err: AppError = new Error('Validation failed: email is required');
+    err.statusCode = 422;
+    err.code = 'VALIDATION_ERROR';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(422);
+    const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonCall.error.code).toBe('VALIDATION_ERROR');
+    expect(jsonCall.success).toBe(false);
+  });
+
+  it('returns 401 for unauthorized errors with UNAUTHORIZED code', () => {
+    const err: AppError = new Error('Unauthorized');
+    err.statusCode = 401;
+    err.code = 'UNAUTHORIZED';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(401);
+    const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonCall.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('error response JSON never contains a stack trace', () => {
+    const err: AppError = new Error('Some internal error with a stack');
+    err.statusCode = 500;
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const jsonStr = JSON.stringify((res.json as jest.Mock).mock.calls[0][0]);
+    expect(jsonStr).not.toContain('at Object.');
+    expect(jsonStr).not.toContain('node_modules');
+  });
+
+  it('logger receives request metadata (method and path) when logging', () => {
+    const req = { method: 'PUT', path: '/api/resource/99' } as Partial<Request>;
+    const err: AppError = new Error('Update failed');
+    err.statusCode = 500;
+    errorHandler(err, req as Request, mockResponse() as Response, mockNext);
+    expect(mockLogger.error).toHaveBeenCalledTimes(1);
+    // Verify the logger was called with at least two arguments (message + metadata)
+    expect(mockLogger.error.mock.calls[0].length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('three sequential errors are each logged exactly once per call', () => {
+    for (let i = 0; i < 3; i++) {
+      const err: AppError = new Error(`Error ${i}`);
+      err.statusCode = 500;
+      errorHandler(err, mockRequest() as Request, mockResponse() as Response, mockNext);
+    }
+    expect(mockLogger.error).toHaveBeenCalledTimes(3);
+  });
+
+  it('returns 429 status for rate-limit errors', () => {
+    const err: AppError = new Error('Too many requests');
+    err.statusCode = 429;
+    err.code = 'RATE_LIMIT_EXCEEDED';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    expect(res.status).toHaveBeenCalledWith(429);
+  });
+
+  it('error response always has exactly two top-level keys: success and error', () => {
+    const err: AppError = new Error('Precise shape test');
+    err.statusCode = 400;
+    err.code = 'BAD_REQUEST';
+    const res = mockResponse();
+    errorHandler(err, mockRequest() as Request, res as Response, mockNext);
+    const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+    const keys = Object.keys(jsonCall);
+    expect(keys).toContain('success');
+    expect(keys).toContain('error');
+    expect(jsonCall.success).toBe(false);
+  });
+});

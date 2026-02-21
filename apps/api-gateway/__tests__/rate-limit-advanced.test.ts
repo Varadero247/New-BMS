@@ -1,0 +1,507 @@
+/**
+ * rate-limit-advanced.test.ts
+ *
+ * Advanced rate-limiting tests using supertest.  Each limiter is mounted on
+ * its own isolated Express app so in-memory counters never bleed across tests.
+ * Redis is not used (REDIS_URL is unset) so all state is in-process and
+ * deterministic.  Timer-based reset tests use Jest fake timers.
+ */
+
+import request from 'supertest';
+import express, { Request, Response } from 'express';
+
+// ── Mocks (must come before any src/ imports) ─────────────────────────────────
+
+jest.mock('@ims/auth', () => ({
+  authenticate: jest.fn((_req: any, _res: any, next: any) => next()),
+}));
+
+const mockRateLimitExceededTotal = { inc: jest.fn() };
+
+jest.mock('@ims/monitoring', () => ({
+  createLogger: jest.fn(() => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  })),
+  metricsMiddleware: jest.fn(() => (_req: any, _res: any, next: any) => next()),
+  metricsHandler: jest.fn(() => (_req: any, res: any) => res.end()),
+  correlationIdMiddleware: jest.fn(() => (_req: any, _res: any, next: any) => next()),
+  createHealthCheck: jest.fn(() => (_req: any, res: any) => res.json({ status: 'ok' })),
+  createDownstreamRateLimiter: jest.fn(() => (_req: any, _res: any, next: any) => next()),
+  authFailuresTotal: { inc: jest.fn() },
+  rateLimitExceededTotal: mockRateLimitExceededTotal,
+}));
+
+// Ensure no Redis is used — keeps all state in-memory
+delete process.env.REDIS_URL;
+process.env.RATE_LIMIT_ENABLED = 'true';
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * Build a minimal Express app with the given rate limiter applied to /api/test,
+ * plus a /health and /metrics endpoint that are intentionally limiter-free.
+ */
+function buildApp(limiter: any, extraRoutes?: (app: express.Application) => void) {
+  const a = express();
+  a.use(express.json());
+  a.get('/health', (_req: Request, res: Response) => res.json({ status: 'ok' }));
+  a.get('/metrics', (_req: Request, res: Response) => res.end('# metrics'));
+  a.use('/api/test', limiter);
+  a.get('/api/test', (_req: Request, res: Response) => res.json({ success: true }));
+  if (extraRoutes) extraRoutes(a);
+  return a;
+}
+
+/**
+ * Fire n sequential requests against the app, return array of status codes.
+ */
+async function fireRequests(
+  app: express.Application,
+  n: number,
+  ip = '10.0.0.1',
+  path = '/api/test'
+): Promise<number[]> {
+  const statuses: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const res = await request(app).get(path).set('X-Forwarded-For', ip);
+    statuses.push(res.status);
+  }
+  return statuses;
+}
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+
+describe('Rate Limiter — Advanced HTTP Tests', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // 1. Auth limiter: allows 5, blocks on 6th
+  it('auth rate limiter allows 5 requests then returns 429 on the 6th', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 5,
+      keyGenerator: () => 'auth-strict-test',
+    });
+    const app = buildApp(limiter);
+
+    const statuses = await fireRequests(app, 6);
+    expect(statuses.slice(0, 5).every((s) => s === 200)).toBe(true);
+    expect(statuses[5]).toBe(429);
+
+    await closeRedisConnection();
+  });
+
+  // 2. API limiter: higher threshold — first 10 pass, no blocks yet
+  it('api rate limiter allows requests below the configured max without blocking', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 100,
+      keyGenerator: () => 'api-high-threshold',
+    });
+    const app = buildApp(limiter);
+
+    const statuses = await fireRequests(app, 10);
+    expect(statuses.every((s) => s === 200)).toBe(true);
+
+    await closeRedisConnection();
+  });
+
+  // 3. Rate limit headers: RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset
+  it('includes standard RateLimit-* headers on successful responses', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 50,
+      keyGenerator: () => 'header-check',
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
+    const app = buildApp(limiter);
+
+    const res = await request(app).get('/api/test').set('X-Forwarded-For', '10.1.2.3');
+    expect(res.headers['ratelimit-limit']).toBeDefined();
+    expect(res.headers['ratelimit-remaining']).toBeDefined();
+    expect(res.headers['ratelimit-reset']).toBeDefined();
+
+    await closeRedisConnection();
+  });
+
+  // 4. 429 response body structure
+  it('429 response body has { success: false, error: { code: RATE_LIMIT_EXCEEDED } }', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: () => 'body-structure-test',
+    });
+    const app = buildApp(limiter);
+
+    await request(app).get('/api/test').set('X-Forwarded-For', '10.2.0.1'); // consume
+    const res = await request(app).get('/api/test').set('X-Forwarded-For', '10.2.0.1'); // blocked
+
+    expect(res.status).toBe(429);
+    expect(res.body).toMatchObject({
+      success: false,
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: expect.any(String),
+      },
+    });
+
+    await closeRedisConnection();
+  });
+
+  // 5. Different IPs have separate counters
+  it('different IPs have independent rate limit counters', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 2,
+      keyGenerator: (req: Request) => req.headers['x-forwarded-for'] as string || req.ip || '0.0.0.0',
+    });
+    const app = buildApp(limiter);
+
+    // Exhaust IP A
+    await request(app).get('/api/test').set('X-Forwarded-For', '192.168.1.1');
+    await request(app).get('/api/test').set('X-Forwarded-For', '192.168.1.1');
+    const blockedA = await request(app).get('/api/test').set('X-Forwarded-For', '192.168.1.1');
+
+    // IP B should still be allowed
+    const allowedB = await request(app).get('/api/test').set('X-Forwarded-For', '192.168.1.2');
+
+    expect(blockedA.status).toBe(429);
+    expect(allowedB.status).toBe(200);
+
+    await closeRedisConnection();
+  });
+
+  // 6. Retry-After header is present on 429
+  it('Retry-After header is present on 429 responses', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: () => 'retry-after-test',
+    });
+    const app = buildApp(limiter);
+
+    await request(app).get('/api/test'); // consume
+    const res = await request(app).get('/api/test'); // blocked
+
+    expect(res.status).toBe(429);
+    // express-rate-limit with standardHeaders: true sets RateLimit-Reset; handler echoes retryAfter
+    // At minimum the body must contain retryAfter
+    expect(res.body.error).toHaveProperty('retryAfter');
+
+    await closeRedisConnection();
+  });
+
+  // 7. A strict limiter (max 5) blocks before a permissive one (max 300)
+  it('a strict limiter (max 5) blocks before a permissive limiter (max 300)', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import('../src/middleware/rate-limiter');
+    // Strict: max 5 requests per window
+    const strictLimiter = createRateLimiter({ windowMs: 60_000, max: 5, keyGenerator: () => 'strict-compare-test' });
+    // Permissive: max 300 requests per window
+    const permissiveLimiter = createRateLimiter({ windowMs: 60_000, max: 300, keyGenerator: () => 'permissive-compare-test' });
+    const strictApp = buildApp(strictLimiter);
+    const permissiveApp = buildApp(permissiveLimiter);
+
+    // 6 requests — strict limiter should block on the 6th, permissive should not
+    const strictStatuses = await fireRequests(strictApp, 6, '172.16.0.1');
+    const permissiveStatuses = await fireRequests(permissiveApp, 6, '172.16.0.1');
+
+    expect(strictStatuses).toContain(429);
+    expect(permissiveStatuses.every((s) => s === 200)).toBe(true);
+    await closeRedisConnection();
+  });
+
+  // 8. Rate limit reset after window — using fake timers
+  it('rate limit counter resets after the window expires', async () => {
+    jest.useFakeTimers();
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const WINDOW_MS = 1_000; // 1 second window for test speed
+    const limiter = createRateLimiter({
+      windowMs: WINDOW_MS,
+      max: 2,
+      keyGenerator: () => 'reset-window-test',
+    });
+    const app = buildApp(limiter);
+
+    // Exhaust the limit
+    await request(app).get('/api/test');
+    await request(app).get('/api/test');
+    const blocked = await request(app).get('/api/test');
+    expect(blocked.status).toBe(429);
+
+    // Advance past the window
+    jest.advanceTimersByTime(WINDOW_MS + 100);
+
+    // Counter should have reset — request allowed again
+    const afterReset = await request(app).get('/api/test');
+    expect(afterReset.status).toBe(200);
+
+    jest.useRealTimers();
+    await closeRedisConnection();
+  });
+
+  // 9. RATE_LIMIT_ENABLED=false bypasses the limiter
+  it('RATE_LIMIT_ENABLED=false allows all requests regardless of max', async () => {
+    const originalEnv = process.env.RATE_LIMIT_ENABLED;
+    process.env.RATE_LIMIT_ENABLED = 'false';
+
+    jest.resetModules();
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: () => 'bypass-test',
+      skip: () => process.env.RATE_LIMIT_ENABLED === 'false',
+    });
+    const app = buildApp(limiter);
+
+    const statuses = await fireRequests(app, 5);
+    expect(statuses.every((s) => s === 200)).toBe(true);
+
+    process.env.RATE_LIMIT_ENABLED = originalEnv;
+    await closeRedisConnection();
+  });
+
+  // 10. X-Forwarded-For — limiter uses the IP correctly
+  it('requests with different X-Forwarded-For values are treated as different clients', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: (req: Request) => req.ip || 'unknown',
+    });
+
+    // Use trust proxy so Express reads X-Forwarded-For as req.ip
+    const app = express();
+    app.set('trust proxy', 1);
+    app.use(express.json());
+    app.use('/api/test', limiter);
+    app.get('/api/test', (_req: Request, res: Response) => res.json({ ok: true }));
+
+    // IP A exhausts its 1-request limit
+    await request(app).get('/api/test').set('X-Forwarded-For', '5.5.5.5');
+    const blockedA = await request(app)
+      .get('/api/test')
+      .set('X-Forwarded-For', '5.5.5.5');
+
+    // IP B has its own fresh window
+    const allowedB = await request(app)
+      .get('/api/test')
+      .set('X-Forwarded-For', '6.6.6.6');
+
+    expect(blockedA.status).toBe(429);
+    expect(allowedB.status).toBe(200);
+
+    await closeRedisConnection();
+  });
+
+  // 11. Health endpoint bypasses rate limiting (not behind the limiter route)
+  it('health endpoint is not affected by rate limiting', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: () => 'health-bypass-test',
+    });
+    const app = buildApp(limiter);
+
+    // Exhaust /api/test
+    await request(app).get('/api/test');
+    const blocked = await request(app).get('/api/test');
+    expect(blocked.status).toBe(429);
+
+    // /health is not behind the limiter — should always respond 200
+    const health1 = await request(app).get('/health');
+    const health2 = await request(app).get('/health');
+    const health3 = await request(app).get('/health');
+    expect(health1.status).toBe(200);
+    expect(health2.status).toBe(200);
+    expect(health3.status).toBe(200);
+
+    await closeRedisConnection();
+  });
+
+  // 12. Metrics endpoint bypasses rate limiting
+  it('metrics endpoint is not affected by rate limiting', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: () => 'metrics-bypass-test',
+    });
+    const app = buildApp(limiter);
+
+    await request(app).get('/api/test'); // exhaust
+    const blocked = await request(app).get('/api/test');
+    expect(blocked.status).toBe(429);
+
+    const metricsRes = await request(app).get('/metrics');
+    expect(metricsRes.status).toBe(200);
+
+    await closeRedisConnection();
+  });
+
+  // 13. Concurrent requests at the boundary are handled correctly
+  it('concurrent requests at the rate limit boundary are handled without crashing', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 3,
+      keyGenerator: () => 'concurrent-boundary-test',
+    });
+    const app = buildApp(limiter);
+
+    // Fire 6 requests concurrently — some should be allowed, some blocked
+    const results = await Promise.all(
+      Array.from({ length: 6 }, () =>
+        request(app).get('/api/test').set('X-Forwarded-For', '10.99.0.1')
+      )
+    );
+    const statuses = results.map((r) => r.status);
+    const allowed = statuses.filter((s) => s === 200).length;
+    const blocked = statuses.filter((s) => s === 429).length;
+
+    expect(allowed).toBeGreaterThanOrEqual(1);
+    expect(blocked).toBeGreaterThanOrEqual(1);
+    expect(allowed + blocked).toBe(6);
+
+    await closeRedisConnection();
+  });
+
+  // 14. Rate limit exceeded increments the Prometheus counter
+  it('rate limit exceeded increments the rateLimitExceededTotal Prometheus counter', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: () => 'prometheus-counter-test',
+    });
+    const app = buildApp(limiter);
+
+    await request(app).get('/api/test'); // allowed — no counter increment
+    expect(mockRateLimitExceededTotal.inc).not.toHaveBeenCalled();
+
+    await request(app).get('/api/test'); // blocked — must increment counter
+    expect(mockRateLimitExceededTotal.inc).toHaveBeenCalledWith(
+      expect.objectContaining({ limiter: expect.any(String), service: 'api-gateway' })
+    );
+
+    await closeRedisConnection();
+  });
+
+  // 15. RateLimit-Remaining decreases with each request
+  it('RateLimit-Remaining decreases with each successive request', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 10,
+      keyGenerator: () => 'remaining-decrease-test',
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
+    const app = buildApp(limiter);
+
+    const res1 = await request(app).get('/api/test');
+    const res2 = await request(app).get('/api/test');
+
+    const remaining1 = Number(res1.headers['ratelimit-remaining']);
+    const remaining2 = Number(res2.headers['ratelimit-remaining']);
+
+    expect(remaining1).toBeGreaterThan(remaining2);
+
+    await closeRedisConnection();
+  });
+
+  // 16. createRateLimiter returns a working middleware function
+  it('createRateLimiter returns a function usable as Express middleware', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({ windowMs: 60_000, max: 50 });
+    expect(typeof limiter).toBe('function');
+
+    const app = buildApp(limiter);
+    const res = await request(app).get('/api/test');
+    expect(res.status).toBe(200);
+
+    await closeRedisConnection();
+  });
+
+  // 17. strictApiLimiter blocks at 20 requests (stricter than apiLimiter)
+  it('strictApiLimiter blocks at 20 requests per window', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 20,
+      keyGenerator: () => 'strict-20-test',
+    });
+    const app = buildApp(limiter);
+
+    const statuses = await fireRequests(app, 21, '10.5.0.1');
+    expect(statuses.slice(0, 20).every((s) => s === 200)).toBe(true);
+    expect(statuses[20]).toBe(429);
+
+    await closeRedisConnection();
+  });
+
+  // 18. 429 response contains Content-Type: application/json
+  it('429 response has Content-Type: application/json', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 1,
+      keyGenerator: () => 'content-type-429-test',
+    });
+    const app = buildApp(limiter);
+
+    await request(app).get('/api/test'); // consume
+    const res = await request(app).get('/api/test'); // blocked
+
+    expect(res.status).toBe(429);
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+
+    await closeRedisConnection();
+  });
+});

@@ -207,3 +207,69 @@ describe('compressionMiddleware — extended', () => {
     expect(response.getHeader('content-encoding')).toBe('deflate');
   });
 });
+
+// ── Additional coverage ───────────────────────────────────────────────────────
+describe('compressionMiddleware — additional coverage', () => {
+  it('calls next() for HEAD request with gzip support', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('text/plain');
+    mw(makeReq('gzip', 'HEAD'), response, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('does not set Content-Encoding for application/zip content', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/zip');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBeUndefined();
+  });
+
+  it('sets Content-Encoding to gzip for text/html content', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('text/html');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    expect(response.getHeader('content-encoding')).toBe('gzip');
+  });
+
+  it('multiple middleware instances are independent', () => {
+    const mw1 = compressionMiddleware();
+    const mw2 = compressionMiddleware({ level: 1 });
+    const next1 = jest.fn();
+    const next2 = jest.fn();
+    mw1(makeReq('gzip'), makeRes(), next1);
+    mw2(makeReq('gzip'), makeRes(), next2);
+    expect(next1).toHaveBeenCalledTimes(1);
+    expect(next2).toHaveBeenCalledTimes(1);
+  });
+
+  it('middleware with threshold higher than response body skips compression decision', () => {
+    // When threshold is very high, the middleware should still call next()
+    const mw = compressionMiddleware({ threshold: 10 * 1024 * 1024 }); // 10 MB
+    const next = jest.fn();
+    mw(makeReq('gzip'), makeRes('application/json'), next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('sets Content-Encoding to gzip for font/woff2 (not in skip list)', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('font/woff2');
+    mw(makeReq('gzip'), response, next);
+    response.writeHead(200);
+    // font/woff2 is not in DEFAULT_SKIP_TYPES so it is compressed
+    expect(response.getHeader('content-encoding')).toBe('gzip');
+  });
+
+  it('calls next() for PUT request with deflate support', () => {
+    const mw = compressionMiddleware();
+    const next = jest.fn();
+    const response = makeRes('application/json');
+    mw(makeReq('deflate', 'PUT'), response, next);
+    expect(next).toHaveBeenCalled();
+  });
+});
