@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import {
   checklists,
   getAvailableStandards,
@@ -14,14 +16,33 @@ import {
 } from '@ims/iso-checklists';
 import { z } from 'zod';
 
+const prisma = prismaBase as unknown as PrismaClient;
 const logger = createLogger('unified-audit');
 const router = Router();
 
-// In-memory store for audit plans
-const auditPlans = new Map<string, AuditPlan>();
-
 // All routes require authentication
 router.use(authenticate);
+
+// Helper: reconstruct AuditPlan from DB record
+function toAuditPlan(record: {
+  id: string;
+  standard: string;
+  title: string;
+  scope: string;
+  auditType: string;
+  clauses: unknown;
+  createdAt: Date;
+}): AuditPlan {
+  return {
+    id: record.id,
+    standard: record.standard,
+    title: record.title,
+    scope: record.scope,
+    auditType: record.auditType as AuditPlan['auditType'],
+    clauses: record.clauses as AuditClauseStatus[],
+    createdAt: record.createdAt,
+  };
+}
 
 // ---------------------------------------------------------------------------
 // GET /standards - List available standards with clause counts
@@ -98,9 +119,10 @@ router.post('/plans', async (req: Request, res: Response) => {
   try {
     const data = createPlanSchema.parse(req.body);
 
-    const plan = createAuditPlan(data.standard, data.auditType, data.title, data.scope);
+    // Use createAuditPlan only to get the initial clauses
+    const template = createAuditPlan(data.standard, data.auditType, data.title, data.scope);
 
-    if (!plan) {
+    if (!template) {
       return res.status(400).json({
         success: false,
         error: {
@@ -110,12 +132,25 @@ router.post('/plans', async (req: Request, res: Response) => {
       });
     }
 
-    auditPlans.set(plan.id, plan);
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
+
+    const record = await prisma.unifiedAuditPlan.create({
+      data: {
+        standard: data.standard,
+        title: data.title,
+        scope: data.scope,
+        auditType: data.auditType as 'INTERNAL' | 'EXTERNAL' | 'SURVEILLANCE' | 'CERTIFICATION',
+        clauses: template.clauses as unknown as never,
+        orgId,
+      },
+    });
+
+    const plan = toAuditPlan(record);
 
     logger.info('Audit plan created', {
-      planId: plan.id,
-      standard: plan.standard,
-      auditType: plan.auditType,
+      planId: record.id,
+      standard: record.standard,
+      auditType: record.auditType,
       userId: (req as AuthRequest).user?.id,
     });
 
@@ -151,25 +186,24 @@ router.get('/plans', async (req: Request, res: Response) => {
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
 
-    let plans = Array.from(auditPlans.values());
+    const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
 
-    // Apply filters
-    if (standard) {
-      plans = plans.filter((p) => p.standard === standard);
-    }
-    if (auditType) {
-      plans = plans.filter((p) => p.auditType === auditType);
-    }
+    const where: Record<string, unknown> = { orgId };
+    if (standard) where.standard = standard;
+    if (auditType) where.auditType = auditType;
 
-    // Sort by creation date descending
-    plans.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const [records, total] = await Promise.all([
+      prisma.unifiedAuditPlan.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: (pageNum - 1) * limitNum,
+        take: limitNum,
+      }),
+      prisma.unifiedAuditPlan.count({ where }),
+    ]);
 
-    const total = plans.length;
-    const start = (pageNum - 1) * limitNum;
-    const paginated = plans.slice(start, start + limitNum);
-
-    // Return summary view (without full clause details for list)
-    const summaryData = paginated.map((plan) => {
+    const summaryData = records.map((record) => {
+      const plan = toAuditPlan(record);
       const score = calculateAuditScore(plan);
       return {
         id: plan.id,
@@ -213,16 +247,16 @@ router.get('/plans', async (req: Request, res: Response) => {
 router.get('/plans/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const plan = auditPlans.get(id);
+    const record = await prisma.unifiedAuditPlan.findUnique({ where: { id } });
 
-    if (!plan) {
+    if (!record) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: `Audit plan '${id}' not found` },
       });
     }
 
-    res.json({ success: true, data: plan });
+    res.json({ success: true, data: toAuditPlan(record) });
   } catch (error) {
     logger.error('Failed to get audit plan', {
       error: error instanceof Error ? error.message : String(error),
@@ -237,16 +271,6 @@ router.get('/plans/:id', async (req: Request, res: Response) => {
 // ---------------------------------------------------------------------------
 // PATCH /plans/:id/clauses/:clause - Update clause status
 // ---------------------------------------------------------------------------
-const _VALID_STATUSES: AuditClauseStatus['status'][] = [
-  'NOT_STARTED',
-  'IN_PROGRESS',
-  'CONFORMING',
-  'MINOR_NC',
-  'MAJOR_NC',
-  'OBSERVATION',
-  'NOT_APPLICABLE',
-];
-
 const updateClauseSchema = z.object({
   status: z
     .enum([
@@ -267,18 +291,18 @@ const updateClauseSchema = z.object({
 router.patch('/plans/:id/clauses/:clause', async (req: Request, res: Response) => {
   try {
     const { id, clause } = req.params;
-    const plan = auditPlans.get(id);
+    const record = await prisma.unifiedAuditPlan.findUnique({ where: { id } });
 
-    if (!plan) {
+    if (!record) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: `Audit plan '${id}' not found` },
       });
     }
 
-    // Decode the clause parameter (e.g., "4.1" may be URL-encoded)
+    const clauses = record.clauses as unknown as AuditClauseStatus[];
     const decodedClause = decodeURIComponent(clause);
-    const clauseEntry = plan.clauses.find((c) => c.clause === decodedClause);
+    const clauseEntry = clauses.find((c) => c.clause === decodedClause);
 
     if (!clauseEntry) {
       return res.status(404).json({
@@ -292,19 +316,15 @@ router.patch('/plans/:id/clauses/:clause', async (req: Request, res: Response) =
 
     const data = updateClauseSchema.parse(req.body);
 
-    // Apply updates
-    if (data.status !== undefined) {
-      clauseEntry.status = data.status;
-    }
-    if (data.findings !== undefined) {
-      clauseEntry.findings = data.findings;
-    }
-    if (data.objectiveEvidence !== undefined) {
-      clauseEntry.objectiveEvidence = data.objectiveEvidence;
-    }
-    if (data.auditorNotes !== undefined) {
-      clauseEntry.auditorNotes = data.auditorNotes;
-    }
+    if (data.status !== undefined) clauseEntry.status = data.status;
+    if (data.findings !== undefined) clauseEntry.findings = data.findings;
+    if (data.objectiveEvidence !== undefined) clauseEntry.objectiveEvidence = data.objectiveEvidence;
+    if (data.auditorNotes !== undefined) clauseEntry.auditorNotes = data.auditorNotes;
+
+    await prisma.unifiedAuditPlan.update({
+      where: { id },
+      data: { clauses: clauses as unknown as never },
+    });
 
     logger.info('Audit clause updated', {
       planId: id,
@@ -341,15 +361,16 @@ router.patch('/plans/:id/clauses/:clause', async (req: Request, res: Response) =
 router.get('/plans/:id/score', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const plan = auditPlans.get(id);
+    const record = await prisma.unifiedAuditPlan.findUnique({ where: { id } });
 
-    if (!plan) {
+    if (!record) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: `Audit plan '${id}' not found` },
       });
     }
 
+    const plan = toAuditPlan(record);
     const score = calculateAuditScore(plan);
 
     res.json({
@@ -380,15 +401,16 @@ router.get('/plans/:id/score', async (req: Request, res: Response) => {
 router.get('/plans/:id/gaps', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const plan = auditPlans.get(id);
+    const record = await prisma.unifiedAuditPlan.findUnique({ where: { id } });
 
-    if (!plan) {
+    if (!record) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: `Audit plan '${id}' not found` },
       });
     }
 
+    const plan = toAuditPlan(record);
     const gaps = getMandatoryGaps(plan);
 
     res.json({
@@ -426,22 +448,22 @@ router.get('/plans/:id/gaps', async (req: Request, res: Response) => {
 router.get('/plans/:id/report', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const plan = auditPlans.get(id);
+    const record = await prisma.unifiedAuditPlan.findUnique({ where: { id } });
 
-    if (!plan) {
+    if (!record) {
       return res.status(404).json({
         success: false,
         error: { code: 'NOT_FOUND', message: `Audit plan '${id}' not found` },
       });
     }
 
+    const plan = toAuditPlan(record);
     const score = calculateAuditScore(plan);
     const gaps = getMandatoryGaps(plan);
     const majorNCs = getClausesByStatus(plan, 'MAJOR_NC');
     const minorNCs = getClausesByStatus(plan, 'MINOR_NC');
     const observations = getClausesByStatus(plan, 'OBSERVATION');
 
-    // Determine overall recommendation
     let recommendation: string;
     if (score.majorNCs > 0) {
       recommendation =
@@ -470,17 +492,11 @@ router.get('/plans/:id/report', async (req: Request, res: Response) => {
       auditType: plan.auditType,
       createdAt: plan.createdAt,
       generatedAt: new Date(),
-
-      // Score summary
       score: {
         ...score,
         conformanceRate: Math.round(score.conformanceRate * 100) / 100,
       },
-
-      // Recommendation
       recommendation,
-
-      // Major Non-Conformities
       majorNonConformities: majorNCs.map((nc) => ({
         clause: nc.clause,
         title: nc.title,
@@ -488,8 +504,6 @@ router.get('/plans/:id/report', async (req: Request, res: Response) => {
         objectiveEvidence: nc.objectiveEvidence,
         auditorNotes: nc.auditorNotes,
       })),
-
-      // Minor Non-Conformities
       minorNonConformities: minorNCs.map((nc) => ({
         clause: nc.clause,
         title: nc.title,
@@ -497,23 +511,17 @@ router.get('/plans/:id/report', async (req: Request, res: Response) => {
         objectiveEvidence: nc.objectiveEvidence,
         auditorNotes: nc.auditorNotes,
       })),
-
-      // Observations
       observations: observations.map((obs) => ({
         clause: obs.clause,
         title: obs.title,
         findings: obs.findings,
         auditorNotes: obs.auditorNotes,
       })),
-
-      // Mandatory Gaps
       mandatoryGaps: gaps.map((g) => ({
         clause: g.clause,
         title: g.title,
         status: g.status,
       })),
-
-      // Clause-by-clause summary
       clauseSummary: plan.clauses.map((c) => ({
         clause: c.clause,
         title: c.title,

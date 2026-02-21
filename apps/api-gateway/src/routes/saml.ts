@@ -2,8 +2,11 @@ import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
 import { createVerify } from 'crypto';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
+
+const prisma = prismaBase as unknown as PrismaClient;
 
 // ─── XML Escaping ────────────────────────────────────────────────────────────
 
@@ -42,12 +45,6 @@ interface SamlConfig {
   nameIdFormat?: string;
   allowUnencryptedAssertions?: boolean;
 }
-
-// ─── In-Memory Store ────────────────────────────────────────────────────────
-
-const samlConfigStore = new Map<string, SamlConfig>();
-// Reverse index: orgId -> config ID for O(1) lookups (replaces linear scan)
-const samlConfigByOrgId = new Map<string, string>();
 
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
@@ -115,9 +112,25 @@ function generateSpMetadata(): string {
   return SP_METADATA_CACHED;
 }
 
-function getConfigByOrgId(orgId: string): SamlConfig | undefined {
-  const configId = samlConfigByOrgId.get(orgId);
-  return configId ? samlConfigStore.get(configId) : undefined;
+async function getConfigByOrgId(orgId: string): Promise<SamlConfig | null> {
+  const record = await prisma.samlConfig.findUnique({ where: { orgId } });
+  if (!record) return null;
+  return {
+    id: record.id,
+    orgId: record.orgId,
+    entryPoint: record.entryPoint,
+    issuer: record.issuer,
+    cert: record.cert,
+    signatureAlgorithm: record.signatureAlgorithm as SamlConfig['signatureAlgorithm'],
+    enabled: record.enabled,
+    entityId: record.entityId ?? undefined,
+    assertionConsumerUrl: record.assertionConsumerUrl ?? undefined,
+    idpMetadataUrl: record.idpMetadataUrl ?? undefined,
+    nameIdFormat: record.nameIdFormat ?? undefined,
+    allowUnencryptedAssertions: record.allowUnencryptedAssertions,
+    createdAt: record.createdAt.toISOString(),
+    updatedAt: record.updatedAt.toISOString(),
+  };
 }
 
 /**
@@ -283,7 +296,7 @@ router.get('/auth/saml/metadata', (_req: Request, res: Response) => {
 });
 
 // GET /api/auth/saml/login?orgId=xxx — redirect to IdP
-router.get('/auth/saml/login', (req: Request, res: Response) => {
+router.get('/auth/saml/login', async (req: Request, res: Response) => {
   try {
     const orgId = req.query.orgId as string;
     if (!orgId || typeof orgId !== 'string') {
@@ -312,7 +325,7 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
       });
     }
 
-    const config = getConfigByOrgId(orgId);
+    const config = await getConfigByOrgId(orgId);
     if (!config || !config.enabled) {
       return res.status(400).json({
         success: false,
@@ -324,7 +337,7 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
     }
 
     // Build SAML AuthnRequest XML and encode for HTTP-Redirect binding
-    const requestId = uuidv4().replace(/-/g, '');
+    const requestId = crypto.randomUUID().replace(/-/g, '');
     const authnRequestXml = buildAuthnRequest(config, requestId);
     const encodedRequest = encodeAuthnRequest(authnRequestXml);
 
@@ -354,7 +367,7 @@ router.get('/auth/saml/login', (req: Request, res: Response) => {
 });
 
 // POST /api/auth/saml/callback — mock SAML assertion handler
-router.post('/auth/saml/callback', (req: Request, res: Response) => {
+router.post('/auth/saml/callback', async (req: Request, res: Response) => {
   try {
     const { SAMLResponse, RelayState } = req.body;
 
@@ -367,7 +380,7 @@ router.post('/auth/saml/callback', (req: Request, res: Response) => {
 
     // Look up the SAML config for the org
     const orgId = RelayState as string;
-    const config = orgId ? getConfigByOrgId(orgId) : undefined;
+    const config = orgId ? await getConfigByOrgId(orgId) : null;
 
     if (!config) {
       return res.status(400).json({
@@ -424,7 +437,7 @@ router.post('/auth/saml/callback', (req: Request, res: Response) => {
 });
 
 // GET /api/auth/saml/idp-metadata?orgId=xxx — fetch and cache IdP metadata
-router.get('/auth/saml/idp-metadata', (req: Request, res: Response) => {
+router.get('/auth/saml/idp-metadata', async (req: Request, res: Response) => {
   try {
     const orgId = req.query.orgId as string;
     if (!orgId) {
@@ -434,7 +447,7 @@ router.get('/auth/saml/idp-metadata', (req: Request, res: Response) => {
       });
     }
 
-    const config = getConfigByOrgId(orgId);
+    const config = await getConfigByOrgId(orgId);
     if (!config) {
       return res.status(404).json({
         success: false,
@@ -475,10 +488,10 @@ router.get(
   '/admin/security/sso',
   authenticate,
   requireRole('ADMIN'),
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
-      const config = getConfigByOrgId(orgId);
+      const config = await getConfigByOrgId(orgId);
 
       if (!config) {
         return res.json({
@@ -527,7 +540,7 @@ router.post(
   '/admin/security/sso',
   authenticate,
   requireRole('ADMIN'),
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const parsed = samlConfigSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -542,69 +555,70 @@ router.post(
       }
 
       const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
-      const existing = getConfigByOrgId(orgId);
-      const now = new Date().toISOString();
+      const existing = await getConfigByOrgId(orgId);
 
       if (existing) {
-        // Update
-        existing.entryPoint = parsed.data.entryPoint;
-        existing.issuer = parsed.data.issuer;
-        existing.cert = parsed.data.cert;
-        existing.signatureAlgorithm = parsed.data.signatureAlgorithm;
-        existing.enabled = parsed.data.enabled;
-        existing.entityId = parsed.data.entityId;
-        existing.assertionConsumerUrl = parsed.data.assertionConsumerUrl;
-        existing.idpMetadataUrl = parsed.data.idpMetadataUrl;
-        existing.nameIdFormat = parsed.data.nameIdFormat;
-        existing.allowUnencryptedAssertions = parsed.data.allowUnencryptedAssertions;
-        existing.updatedAt = now;
+        // Update existing config in DB
+        await prisma.samlConfig.update({
+          where: { orgId },
+          data: {
+            entryPoint: parsed.data.entryPoint,
+            issuer: parsed.data.issuer,
+            cert: parsed.data.cert,
+            signatureAlgorithm: parsed.data.signatureAlgorithm,
+            enabled: parsed.data.enabled,
+            entityId: parsed.data.entityId,
+            assertionConsumerUrl: parsed.data.assertionConsumerUrl,
+            idpMetadataUrl: parsed.data.idpMetadataUrl,
+            nameIdFormat: parsed.data.nameIdFormat,
+            allowUnencryptedAssertions: parsed.data.allowUnencryptedAssertions,
+          },
+        });
+        const updated = await getConfigByOrgId(orgId);
 
         logger.info('SAML config updated', { orgId, id: existing.id, updatedBy: (req as AuthRequest).user!.id });
 
         res.json({
           success: true,
           data: {
-            id: existing.id,
-            enabled: existing.enabled,
-            entryPoint: existing.entryPoint,
-            issuer: existing.issuer,
-            signatureAlgorithm: existing.signatureAlgorithm,
-            updatedAt: existing.updatedAt,
+            id: updated!.id,
+            enabled: updated!.enabled,
+            entryPoint: updated!.entryPoint,
+            issuer: updated!.issuer,
+            signatureAlgorithm: updated!.signatureAlgorithm,
+            updatedAt: updated!.updatedAt,
           },
         });
       } else {
-        // Create
-        const config: SamlConfig = {
-          id: uuidv4(),
-          orgId,
-          entryPoint: parsed.data.entryPoint,
-          issuer: parsed.data.issuer,
-          cert: parsed.data.cert,
-          signatureAlgorithm: parsed.data.signatureAlgorithm,
-          enabled: parsed.data.enabled,
-          entityId: parsed.data.entityId,
-          assertionConsumerUrl: parsed.data.assertionConsumerUrl,
-          idpMetadataUrl: parsed.data.idpMetadataUrl,
-          nameIdFormat: parsed.data.nameIdFormat,
-          allowUnencryptedAssertions: parsed.data.allowUnencryptedAssertions,
-          createdAt: now,
-          updatedAt: now,
-        };
+        // Create new config in DB
+        const created = await prisma.samlConfig.create({
+          data: {
+            orgId,
+            entryPoint: parsed.data.entryPoint,
+            issuer: parsed.data.issuer,
+            cert: parsed.data.cert,
+            signatureAlgorithm: parsed.data.signatureAlgorithm,
+            enabled: parsed.data.enabled,
+            entityId: parsed.data.entityId,
+            assertionConsumerUrl: parsed.data.assertionConsumerUrl,
+            idpMetadataUrl: parsed.data.idpMetadataUrl,
+            nameIdFormat: parsed.data.nameIdFormat,
+            allowUnencryptedAssertions: parsed.data.allowUnencryptedAssertions,
+            createdBy: (req as AuthRequest).user!.id,
+          },
+        });
 
-        samlConfigStore.set(config.id, config);
-        samlConfigByOrgId.set(orgId, config.id);
-
-        logger.info('SAML config created', { orgId, id: config.id, createdBy: (req as AuthRequest).user!.id });
+        logger.info('SAML config created', { orgId, id: created.id, createdBy: (req as AuthRequest).user!.id });
 
         res.status(201).json({
           success: true,
           data: {
-            id: config.id,
-            enabled: config.enabled,
-            entryPoint: config.entryPoint,
-            issuer: config.issuer,
-            signatureAlgorithm: config.signatureAlgorithm,
-            createdAt: config.createdAt,
+            id: created.id,
+            enabled: created.enabled,
+            entryPoint: created.entryPoint,
+            issuer: created.issuer,
+            signatureAlgorithm: created.signatureAlgorithm,
+            createdAt: created.createdAt.toISOString(),
           },
         });
       }
@@ -625,10 +639,10 @@ router.delete(
   '/admin/security/sso',
   authenticate,
   requireRole('ADMIN'),
-  (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     try {
       const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
-      const config = getConfigByOrgId(orgId);
+      const config = await getConfigByOrgId(orgId);
 
       if (!config) {
         return res.status(404).json({
@@ -637,8 +651,7 @@ router.delete(
         });
       }
 
-      samlConfigStore.delete(config.id);
-      samlConfigByOrgId.delete(orgId);
+      await prisma.samlConfig.delete({ where: { orgId } });
       logger.info('SAML config deleted', { orgId, id: config.id, deletedBy: (req as AuthRequest).user!.id });
 
       res.json({

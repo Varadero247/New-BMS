@@ -24,17 +24,109 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
+// ─── In-memory SAML config store for tests ──────────────────────────────────
+let samlConfigStore: Map<string, any> = new Map();
+
+const mockSamlConfig = {
+  findUnique: jest.fn(({ where }: { where: { orgId: string } }) => {
+    return Promise.resolve(samlConfigStore.get(where.orgId) ?? null);
+  }),
+  create: jest.fn(({ data }: { data: any }) => {
+    const record = {
+      id: `saml-${data.orgId}-${Date.now()}`,
+      orgId: data.orgId,
+      entryPoint: data.entryPoint,
+      issuer: data.issuer,
+      cert: data.cert,
+      signatureAlgorithm: data.signatureAlgorithm ?? 'sha256',
+      enabled: data.enabled ?? true,
+      entityId: data.entityId ?? null,
+      assertionConsumerUrl: data.assertionConsumerUrl ?? null,
+      idpMetadataUrl: data.idpMetadataUrl ?? null,
+      nameIdFormat: data.nameIdFormat ?? null,
+      allowUnencryptedAssertions: data.allowUnencryptedAssertions ?? false,
+      createdBy: data.createdBy ?? '',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    samlConfigStore.set(data.orgId, record);
+    return Promise.resolve(record);
+  }),
+  update: jest.fn(({ where, data }: { where: { orgId: string }; data: any }) => {
+    const existing = samlConfigStore.get(where.orgId);
+    if (!existing) return Promise.reject(new Error('Record not found'));
+    const updated = { ...existing, ...data, updatedAt: new Date() };
+    samlConfigStore.set(where.orgId, updated);
+    return Promise.resolve(updated);
+  }),
+  delete: jest.fn(({ where }: { where: { orgId: string } }) => {
+    const existing = samlConfigStore.get(where.orgId);
+    if (!existing) return Promise.reject(new Error('Record not found'));
+    samlConfigStore.delete(where.orgId);
+    return Promise.resolve(existing);
+  }),
+};
+
+jest.mock('@ims/database', () => ({
+  prisma: {
+    samlConfig: mockSamlConfig,
+    $use: jest.fn(),
+  },
+}));
+
 import samlRouter from '../src/routes/saml';
 
 describe('SAML Routes', () => {
   let app: express.Express;
 
   beforeEach(() => {
+    samlConfigStore = new Map();
     app = express();
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use('/', samlRouter);
     jest.clearAllMocks();
+    // Re-wire mock implementations after clearAllMocks (clearAllMocks resets call counts only,
+    // but mock.fn(impl) implementations survive — re-assign store access for safety)
+    mockSamlConfig.findUnique.mockImplementation(({ where }: { where: { orgId: string } }) =>
+      Promise.resolve(samlConfigStore.get(where.orgId) ?? null)
+    );
+    mockSamlConfig.create.mockImplementation(({ data }: { data: any }) => {
+      const record = {
+        id: `saml-${data.orgId}-${Date.now()}`,
+        orgId: data.orgId,
+        entryPoint: data.entryPoint,
+        issuer: data.issuer,
+        cert: data.cert,
+        signatureAlgorithm: data.signatureAlgorithm ?? 'sha256',
+        enabled: data.enabled ?? true,
+        entityId: data.entityId ?? null,
+        assertionConsumerUrl: data.assertionConsumerUrl ?? null,
+        idpMetadataUrl: data.idpMetadataUrl ?? null,
+        nameIdFormat: data.nameIdFormat ?? null,
+        allowUnencryptedAssertions: data.allowUnencryptedAssertions ?? false,
+        createdBy: data.createdBy ?? '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      samlConfigStore.set(data.orgId, record);
+      return Promise.resolve(record);
+    });
+    mockSamlConfig.update.mockImplementation(
+      ({ where, data }: { where: { orgId: string }; data: any }) => {
+        const existing = samlConfigStore.get(where.orgId);
+        if (!existing) return Promise.reject(new Error('Record not found'));
+        const updated = { ...existing, ...data, updatedAt: new Date() };
+        samlConfigStore.set(where.orgId, updated);
+        return Promise.resolve(updated);
+      }
+    );
+    mockSamlConfig.delete.mockImplementation(({ where }: { where: { orgId: string } }) => {
+      const existing = samlConfigStore.get(where.orgId);
+      if (!existing) return Promise.reject(new Error('Record not found'));
+      samlConfigStore.delete(where.orgId);
+      return Promise.resolve(existing);
+    });
     mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
       req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
       next();
@@ -131,6 +223,31 @@ describe('SAML Routes', () => {
       expect(res.body.data.configured).toBe(false);
       expect(res.body.data).toHaveProperty('spMetadataUrl');
       expect(res.body.data).toHaveProperty('spEntityId');
+    });
+
+    it('returns configured SSO state when config exists', async () => {
+      // Pre-populate the store
+      samlConfigStore.set('org-1', {
+        id: 'saml-org-1',
+        orgId: 'org-1',
+        entryPoint: 'https://idp.example.com/sso',
+        issuer: 'https://idp.example.com',
+        cert: 'MIIC...',
+        signatureAlgorithm: 'sha256',
+        enabled: true,
+        entityId: null,
+        assertionConsumerUrl: null,
+        idpMetadataUrl: null,
+        nameIdFormat: null,
+        allowUnencryptedAssertions: false,
+        createdBy: 'user-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const res = await request(app).get('/admin/security/sso');
+      expect(res.status).toBe(200);
+      expect(res.body.data.configured).toBe(true);
+      expect(res.body.data).toHaveProperty('entryPoint');
     });
 
     it('returns 403 for non-ADMIN user', async () => {
