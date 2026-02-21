@@ -59,6 +59,13 @@ describe('calculateReadinessScore', () => {
     expect(result.grade).toBe('A');
   });
 
+  it('ISO 14001:2015 produces grade C (score 78)', () => {
+    const result = calculateReadinessScore('org-1', 'ISO 14001:2015');
+    // 100 - (10+12) = 78 → C (70 ≤ 78 < 80)
+    expect(result.score).toBe(78);
+    expect(result.grade).toBe('C');
+  });
+
   it('each blocker has required fields', () => {
     const result = calculateReadinessScore('org-1', 'ISO 45001:2018');
     for (const blocker of result.blockers) {
@@ -195,6 +202,25 @@ describe('updateCertificate', () => {
   it('returns null for unknown ID', () => {
     const result = updateCertificate('00000000-dead-beef-0000-000000000000', { status: 'EXPIRED' });
     expect(result).toBeNull();
+  });
+
+  it('preserves original id even when data includes a different id', () => {
+    const cert = createCertificate({
+      orgId: 'org-id-test',
+      standard: 'ISO 27001:2022',
+      scope: 'ID test',
+      certificationBody: 'BSI',
+      certificateNumber: 'ID-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+
+    const updated = updateCertificate(cert.id, {
+      id: '00000000-ffff-ffff-ffff-ffffffffffff',
+      status: 'EXPIRED',
+    });
+    expect(updated?.id).toBe(cert.id); // id must not change
   });
 });
 
