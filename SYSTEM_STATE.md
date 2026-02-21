@@ -1,6 +1,6 @@
 # IMS System State — Single Source of Truth
 
-> Last updated: 2026-02-19
+> Last updated: 2026-02-21
 
 ## Summary
 
@@ -11,8 +11,8 @@
 | Shared Packages          | 61                                     |
 | Prisma Schemas           | 44                                     |
 | Database Tables (models) | ~590                                   |
-| Scripts                  | 26                                     |
-| Unit Tests               | 12,702 across 589 suites (all passing) |
+| Scripts                  | 28                                     |
+| Unit Tests               | 17,361 across 652 suites (all passing) |
 | Integration Test Scripts | 9 (+ 1 finance)                        |
 
 ---
@@ -313,86 +313,55 @@ All routes also available under `/api/v1/` prefix.
 
 ---
 
-## Scripts (22)
+## Scripts (28)
 
-| Script                              | Description                                                    |
-| ----------------------------------- | -------------------------------------------------------------- |
-| `scripts/startup.sh`                | Full startup (kill ports, Docker up, seed DB, recreate tables) |
-| `scripts/start-all-services.sh`     | Start all 86 services with staggered delays                    |
-| `scripts/stop-all-services.sh`      | Stop all services (ports 4000-4041 + 3000-3045)                |
-| `scripts/check-services.sh`         | Health check all 86 services                                   |
-| `scripts/create-databases.sh`       | Create per-service databases                                   |
-| `scripts/migrate-data.sh`           | Migrate data between databases                                 |
-| `scripts/daily-report.sh`           | Generate daily status report                                   |
-| `scripts/generate-secrets.sh`       | Generate service secrets                                       |
-| `scripts/init-vault.sh`             | Initialize HashiCorp Vault                                     |
-| `scripts/verify-secrets.sh`         | Verify secrets configuration                                   |
-| `scripts/test-all-modules.sh`       | Run all integration tests (master runner)                      |
-| `scripts/test-hs-modules.sh`        | H&S integration tests (~70 assertions)                         |
-| `scripts/test-env-modules.sh`       | Environment integration tests (~60)                            |
-| `scripts/test-quality-modules.sh`   | Quality integration tests (~80)                                |
-| `scripts/test-hr-modules.sh`        | HR integration tests (~50)                                     |
-| `scripts/test-payroll-modules.sh`   | Payroll integration tests (~40)                                |
-| `scripts/test-inventory-modules.sh` | Inventory integration tests (~40)                              |
-| `scripts/test-workflows-modules.sh` | Workflows integration tests (~40)                              |
-| `scripts/test-pm-modules.sh`        | PM integration tests (~45)                                     |
-| `scripts/test-finance-modules.sh`   | Finance integration tests                                      |
-| `scripts/seed-all.sh`               | Unified seed runner (all domain schemas)                       |
-| `scripts/backup-db.sh`              | Manual database backup                                         |
-| `scripts/generate-review-report.ts` | Generate Full System Review Word report                        |
+| Script                              | Description                                                          |
+| ----------------------------------- | -------------------------------------------------------------------- |
+| `scripts/startup.sh`                | Full startup (kill ports, Docker up, seed DB, recreate tables)       |
+| `scripts/start-all-services.sh`     | Start all 86 services with staggered delays                          |
+| `scripts/stop-all-services.sh`      | Stop all services (ports 4000-4041 + 3000-3045)                      |
+| `scripts/check-services.sh`         | Health check all 86 services                                         |
+| `scripts/create-databases.sh`       | Create per-service databases                                         |
+| `scripts/migrate-data.sh`           | Migrate data between databases                                       |
+| `scripts/daily-report.sh`           | Generate daily status report                                         |
+| `scripts/generate-secrets.sh`       | Generate service secrets                                             |
+| `scripts/init-vault.sh`             | Initialize HashiCorp Vault                                           |
+| `scripts/verify-secrets.sh`         | Verify secrets configuration                                         |
+| `scripts/check-secrets.sh`          | Verify all required secrets are present                              |
+| `scripts/provision-db-users.sh`     | Provision database users per service                                 |
+| `scripts/pre-launch-check.sh`       | 111-point launch readiness check (8 categories)                      |
+| `scripts/typecheck-all.sh`          | TypeScript check across all 42 APIs + 44 web apps + packages         |
+| `scripts/test-backup-restore.sh`    | Backup restore validation (7 steps, creates ims_restore_test DB)     |
+| `scripts/test-all-modules.sh`       | Run all integration tests (master runner)                            |
+| `scripts/test-hs-modules.sh`        | H&S integration tests (~70 assertions)                               |
+| `scripts/test-env-modules.sh`       | Environment integration tests (~60)                                  |
+| `scripts/test-quality-modules.sh`   | Quality integration tests (~80)                                      |
+| `scripts/test-hr-modules.sh`        | HR integration tests (~50)                                           |
+| `scripts/test-payroll-modules.sh`   | Payroll integration tests (~40)                                      |
+| `scripts/test-inventory-modules.sh` | Inventory integration tests (~40)                                    |
+| `scripts/test-workflows-modules.sh` | Workflows integration tests (~40)                                    |
+| `scripts/test-pm-modules.sh`        | PM integration tests (~45)                                           |
+| `scripts/test-finance-modules.sh`   | Finance integration tests                                            |
+| `scripts/seed-all.sh`               | Unified seed runner (all domain schemas)                             |
+| `scripts/backup-db.sh`              | Manual database backup                                               |
+| `scripts/generate-review-report.ts` | Generate Full System Review Word report                              |
 
 ---
 
 ## Test Coverage
 
-### Unit Tests by Service (alphabetical)
+### Unit Tests (652 suites — all passing)
 
-| Service                | Test Files | Tests (approx) |
-| ---------------------- | ---------- | -------------- |
-| api-aerospace          | 16         | ~553           |
-| api-ai-analysis        | 8          | ~141           |
-| api-analytics          | 45         | ~262           |
-| api-assets             | 7          | ~120           |
-| api-audits             | 6          | ~115           |
-| api-automotive         | 16         | ~502           |
-| api-cmms               | 13         | ~213           |
-| api-complaints         | 7          | ~120           |
-| api-contracts          | 7          | ~115           |
-| api-crm                | 8          | ~283           |
-| api-documents          | 6          | ~100           |
-| api-energy             | 12         | ~196           |
-| api-environment        | 15         | ~442           |
-| api-esg                | 17         | ~207           |
-| api-field-service      | 13         | ~189           |
-| api-finance            | 16         | ~456           |
-| api-food-safety        | 14         | ~241           |
-| api-gateway            | 48         | ~861           |
-| api-health-safety      | 11         | ~266           |
-| api-hr                 | 11         | ~355           |
-| api-incidents          | 5          | ~95            |
-| api-infosec            | 7          | ~227           |
-| api-inventory          | 9          | ~210           |
-| api-iso37001           | 7          | ~156           |
-| api-iso42001           | 10         | ~221           |
-| api-marketing          | 14         | ~125           |
-| api-medical            | 18         | ~871           |
-| api-mgmt-review        | 3          | ~55            |
-| api-partners           | 8          | ~71            |
-| api-payroll            | 8          | ~303           |
-| api-portal             | 16         | ~168           |
-| api-project-management | 13         | ~230           |
-| api-ptw                | 5          | ~95            |
-| api-quality            | 39         | ~994           |
-| api-reg-monitor        | 4          | ~75            |
-| api-risk               | 13         | ~91            |
-| api-setup-wizard       | 1          | ~15            |
-| api-chemicals          | 9          | ~194           |
-| api-emergency          | 10         | ~216           |
-| api-suppliers          | 8          | ~130           |
-| api-training           | 7          | ~125           |
-| api-workflows          | 7          | ~231           |
-| **Shared packages**    | —          | ~1,109         |
-| **Total**              | **579**    | **12,371**     |
+All 652 Jest test suites pass with 0 failures as of 2026-02-21. Every `.test.ts` file across all 42 API services, 44 web apps, and 61 packages has ≥20 tests. Full breakdown by service is approximate:
+
+| Category               | Suites (approx) | Tests (approx) |
+| ---------------------- | --------------- | -------------- |
+| API services (42)      | ~420            | ~10,500        |
+| Web apps (44)          | ~70             | ~2,000         |
+| Shared packages (61)   | ~162            | ~4,861         |
+| **Total**              | **652**         | **17,361**     |
+
+Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api-finance (~456), api-environment (~442), api-aerospace (~553), api-automotive (~502), api-hr (~355), api-payroll (~303).
 
 ### Integration Tests (9 scripts, ~465+ assertions)
 
@@ -432,6 +401,13 @@ All routes also available under `/api/v1/` prefix.
 | Phase 14 | Welcome Discovery Wizard                      | 7-step onboarding modal in web-dashboard, AI assistant endpoint (/api/ai/assistant), TourManager integration, OnboardingChecklist, sidebar re-entry, 12 new tests                                                                                                                             |
 | Phase 15 | Platform Enhancements (Feb 18)                | Sentry integration (all 42 APIs), OpenAPI Scalar UI, SAML SSO (AuthnRequest XML + Response parsing + IdP metadata), SCIM (filter queries + Groups), NLQ 30+ patterns with AI fallback, useOfflineForm() hook, guided tours (quality + H&S dashboards), cookie consent (dashboard + marketing) |
 | Phase 16 | Security Hardening + TODO Resolution (Feb 18) | orgId multi-tenant scoping on 60+ routes (20 services), sanitised error messages, multi-field search, sidebar NEXT_PUBLIC_APP_BASE_URL, Prisma cascade/soft-delete schema improvements, payroll→HR cross-service integration (real calculation), SAML RSA signature crypto verification       |
+| Code Eval Phase 1 | 100% Score Sprint — Security & Architecture (Feb 20) | JWT key rotation, magic link auth, adaptive risk scoring, continuous verification, RASP middleware, behavioral analytics, adaptive timeout, response compression, dashboard metrics. Score: 87→91/100. Tests: 12,960.                                                                         |
+| Code Eval Phase 2 | 100% Score Sprint — SIEM & Rate Limiting (Feb 20) | SIEM event correlation engine (6 built-in rules), envelope encryption (DEK/KEK + key rotation), per-user tier-based rate limiting (RFC 6585), property-based tests (fast-check), 4 k6 load test scenarios. Score: 91→97/100. Tests: 13,060.                                               |
+| Code Eval Phase 3 | 100% Score Sprint — Resilience & Credential Scan (Feb 20) | Credential/secret leak scanner (request + response middleware, 8 pattern types), graceful shutdown utility (in-flight draining, signal handlers), request hedging (`withHedging`/`withHedgingDetailed`/`RequestHedger`). Score: 97→100/100. Tests: 13,116.                               |
+| Sessions 19-20 | Package test coverage + i18n/audit/notifications/email (Feb 20) | `@ims/templates` first test suite (77 tests), `@ims/i18n` message key parity (29 tests), `@ims/audit` EnhancedAuditService (31 tests), `@ims/notifications` bell + WS server (49 tests), `@ims/email` 8 template modules (63 tests), `@ims/shared` cursor-pagination + validation (55 tests). Tests: 13,543→13,598. |
+| Sessions 21-22 | TypeScript clean sweep + CI hardening (Feb 20) | 0 TypeScript errors across all 42 APIs + 44 web apps + packages (148 projects). Fixed TS6059 rootDir in 8 packages, TS2688 uuid stub in dpa/dsar/scheduled-reports. CI: real `pnpm typecheck` replaces no-op. Dependency vulns: 17→7. Tests: 13,598.                                   |
+| Sessions 23-24 | All 61 packages with test suites + Jest config cleanup (Feb 20-21) | Added suites for 15 previously-untested packages (sdk, openapi, hubspot-client, intercom-client, stripe-client, presence, types, ui-utilities, comments, cache, dpa, dsar, scheduled-reports, testing, charts). Removed invalid per-project Jest options. Tests: 14,130 / 646 suites.  |
+| Sessions 25+  | In-memory → Prisma migrations + E2E + thin-file sweep (Feb 21) | 7 in-memory Maps migrated to Prisma (msp, api-keys, unified-audit, saml, scim, evidence-pack, headstart). 48 Playwright E2E specs (195 tests). Gateway security + cross-service integration + event-bus suites. Every `.test.ts` brought to ≥20 tests. Final: **17,361 / 652 suites**. |
 
 ---
 
