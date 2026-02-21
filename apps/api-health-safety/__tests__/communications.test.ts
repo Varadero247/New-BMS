@@ -371,6 +371,85 @@ describe('Health & Safety Communications API Routes', () => {
       expect(response.status).toBe(500);
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
+
+    it('should filter by dateFrom setting createdAt.gte', async () => {
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/communications?dateFrom=2026-01-01')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hSCommunication.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            createdAt: expect.objectContaining({
+              gte: expect.any(Date),
+            }),
+          }),
+        })
+      );
+    });
+
+    it('should filter by dateTo setting createdAt.lte', async () => {
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/communications?dateTo=2026-12-31')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hSCommunication.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            createdAt: expect.objectContaining({
+              lte: expect.any(Date),
+            }),
+          }),
+        })
+      );
+    });
+
+    it('should apply both dateFrom and dateTo together as createdAt range', async () => {
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/communications?dateFrom=2026-01-01&dateTo=2026-06-30')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hSCommunication.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            createdAt: expect.objectContaining({
+              gte: expect.any(Date),
+              lte: expect.any(Date),
+            }),
+          }),
+        })
+      );
+    });
+
+    it('should search across refNumber, subject, and content with OR logic', async () => {
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app)
+        .get('/api/communications?search=safety')
+        .set('Authorization', 'Bearer token');
+
+      expect(mockPrisma.hSCommunication.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            OR: expect.arrayContaining([
+              expect.objectContaining({ refNumber: expect.any(Object) }),
+              expect.objectContaining({ subject: expect.any(Object) }),
+              expect.objectContaining({ content: expect.any(Object) }),
+            ]),
+          }),
+        })
+      );
+    });
   });
 
   // ==========================================
