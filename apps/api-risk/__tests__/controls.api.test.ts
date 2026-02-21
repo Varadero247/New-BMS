@@ -119,4 +119,81 @@ describe('POST /api/risks/:riskId/controls/:id/test', () => {
       .send({ testingNotes: 'Passed', effectiveness: 'STRONG' });
     expect(res.status).toBe(200);
   });
+
+  it('returns 404 when control not found', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post(
+        '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002/test'
+      )
+      .send({ testingNotes: 'Passed' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+describe('DELETE /api/risks/:riskId/controls/:id — not-found', () => {
+  it('returns 404 when control not found', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete(
+      '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
+    );
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST /:id/controls returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: 'r1' });
+    mockPrisma.riskControl.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/controls')
+      .send({ controlType: 'PREVENTIVE', description: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/controls returns 500 on DB error', async () => {
+    mockPrisma.riskControl.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/controls');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:riskId/controls/:id returns 500 when update fails', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put(
+        '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
+      )
+      .send({ effectiveness: 'STRONG' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:riskId/controls/:id returns 500 when update fails', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete(
+      '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:riskId/controls/:id/test returns 500 when update fails', async () => {
+    mockPrisma.riskControl.findFirst.mockResolvedValue({ id: 'c1' });
+    mockPrisma.riskControl.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post(
+        '/api/risks/00000000-0000-0000-0000-000000000001/controls/00000000-0000-0000-0000-000000000002/test'
+      )
+      .send({ testingNotes: 'Passed' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
 });
