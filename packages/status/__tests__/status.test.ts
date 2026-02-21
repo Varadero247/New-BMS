@@ -15,8 +15,8 @@ describe('@ims/status', () => {
   });
 
   describe('SERVICE_REGISTRY', () => {
-    it('should have exactly 25 services', () => {
-      expect(SERVICE_REGISTRY).toHaveLength(25);
+    it('should have exactly 42 services', () => {
+      expect(SERVICE_REGISTRY).toHaveLength(42);
     });
 
     it('should have unique names', () => {
@@ -29,10 +29,10 @@ describe('@ims/status', () => {
       expect(new Set(ports).size).toBe(ports.length);
     });
 
-    it('should have ports in range 4000-4024', () => {
+    it('should have ports in range 4000-4041', () => {
       for (const service of SERVICE_REGISTRY) {
         expect(service.port).toBeGreaterThanOrEqual(4000);
-        expect(service.port).toBeLessThanOrEqual(4024);
+        expect(service.port).toBeLessThanOrEqual(4041);
       }
     });
 
@@ -40,6 +40,18 @@ describe('@ims/status', () => {
       const gateway = SERVICE_REGISTRY.find((s) => s.port === 4000);
       expect(gateway).toBeDefined();
       expect(gateway!.name).toBe('API Gateway');
+    });
+
+    it('should include all late-phase services', () => {
+      const ports = SERVICE_REGISTRY.map((s) => s.port);
+      // Ports added in later phases
+      expect(ports).toContain(4025); // Marketing
+      expect(ports).toContain(4027); // Risk
+      expect(ports).toContain(4032); // Complaints
+      expect(ports).toContain(4036); // Incidents
+      expect(ports).toContain(4037); // Audits
+      expect(ports).toContain(4040); // Chemicals
+      expect(ports).toContain(4041); // Emergency
     });
   });
 
@@ -71,9 +83,9 @@ describe('@ims/status', () => {
   });
 
   describe('getAllServiceStatus', () => {
-    it('should return status for all 25 services', () => {
+    it('should return status for all 42 services', () => {
       const statuses = getAllServiceStatus();
-      expect(statuses).toHaveLength(25);
+      expect(statuses).toHaveLength(42);
     });
 
     it('each service should have all required fields', () => {
@@ -141,7 +153,7 @@ describe('@ims/status', () => {
       const status = getPlatformStatus();
       expect(status.status).toBeDefined();
       expect(status.timestamp).toBeDefined();
-      expect(status.services).toHaveLength(25);
+      expect(status.services).toHaveLength(42);
       expect(status.uptime).toBeDefined();
       expect(status.uptime['24h']).toBe(99.98);
     });

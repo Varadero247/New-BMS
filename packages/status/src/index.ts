@@ -51,6 +51,23 @@ export const SERVICE_REGISTRY: Array<{ name: string; port: number }> = [
   { name: 'Field Service', port: 4022 },
   { name: 'ISO 42001', port: 4023 },
   { name: 'ISO 37001', port: 4024 },
+  { name: 'Marketing', port: 4025 },
+  { name: 'Partners', port: 4026 },
+  { name: 'Risk', port: 4027 },
+  { name: 'Training', port: 4028 },
+  { name: 'Suppliers', port: 4029 },
+  { name: 'Assets', port: 4030 },
+  { name: 'Documents', port: 4031 },
+  { name: 'Complaints', port: 4032 },
+  { name: 'Contracts', port: 4033 },
+  { name: 'Permit to Work', port: 4034 },
+  { name: 'Reg Monitor', port: 4035 },
+  { name: 'Incidents', port: 4036 },
+  { name: 'Audits', port: 4037 },
+  { name: 'Mgmt Review', port: 4038 },
+  { name: 'Setup Wizard', port: 4039 },
+  { name: 'Chemicals', port: 4040 },
+  { name: 'Emergency', port: 4041 },
 ];
 
 // ─── In-Memory Health Store ─────────────────────────────────────────────────
