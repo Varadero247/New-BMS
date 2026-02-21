@@ -126,4 +126,43 @@ describe('500 error handling', () => {
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('GET /api/commission/history returns 500 on DB error', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/commission/history');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/commission/pending returns 500 on DB error', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/commission/pending');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+describe('Response shape', () => {
+  it('summary has totalEarned, totalPaid, pendingPayout properties', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('totalEarned');
+    expect(res.body.data).toHaveProperty('totalPaid');
+    expect(res.body.data).toHaveProperty('pendingPayout');
+  });
+
+  it('commission history data is an array', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/history');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('pending.deals is an array', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/commission/pending');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.deals)).toBe(true);
+  });
 });

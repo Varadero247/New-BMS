@@ -126,4 +126,30 @@ describe('POST /api/agenda/:id/generate', () => {
     const parsed = JSON.parse(updateCall.data.aiGeneratedAgenda);
     expect(parsed).toHaveProperty('items');
   });
+
+  it('findFirst called once per generate request', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(prisma.mgmtReview.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('generated agenda items are defined and non-empty', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.items.length).toBeGreaterThan(0);
+    for (const item of res.body.data.items) {
+      expect(item).toBeDefined();
+    }
+  });
+
+  it('generatedAt is a string in the response', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.generatedAt).toBe('string');
+  });
 });

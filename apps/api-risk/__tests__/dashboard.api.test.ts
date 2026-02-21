@@ -110,4 +110,30 @@ describe('GET /api/dashboard/stats', () => {
     const res = await request(app).get('/api/dashboard/stats');
     expect(res.body.data.avgRiskScore).toBe(0);
   });
+
+  it('totalRisks is a number', async () => {
+    mockAllCounts(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalRisks).toBe('number');
+  });
+
+  it('totalCapas reflects mock count', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskCapa.count.mockResolvedValue(17);
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: null } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalCapas).toBe(17);
+  });
+
+  it('success is true on 200 response', async () => {
+    mockAllCounts(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

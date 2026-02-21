@@ -86,4 +86,27 @@ describe('GET /api/inductions', () => {
     await request(app).get('/api/inductions');
     expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledTimes(1);
   });
+
+  it('data is an array', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('each record has employeeName property', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: 'r-1', employeeName: 'Charlie', course: { title: 'Manual Handling', code: 'IND-005' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('employeeName');
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

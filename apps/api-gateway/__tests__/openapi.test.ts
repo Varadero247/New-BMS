@@ -93,5 +93,23 @@ describe('OpenAPI Routes', () => {
       // No Authorization header — should still succeed
       expect(res.status).toBe(200);
     });
+
+    it('paths is an object', async () => {
+      const res = await request(app).get('/api/docs/openapi.json');
+      expect(res.status).toBe(200);
+      expect(typeof res.body.paths).toBe('object');
+    });
+
+    it('components contains securitySchemes', async () => {
+      const res = await request(app).get('/api/docs/openapi.json');
+      expect(res.status).toBe(200);
+      expect(res.body.components).toHaveProperty('securitySchemes');
+    });
+
+    it('info contains a version field', async () => {
+      const res = await request(app).get('/api/docs/openapi.json');
+      expect(res.status).toBe(200);
+      expect(res.body.info).toHaveProperty('version');
+    });
   });
 });
