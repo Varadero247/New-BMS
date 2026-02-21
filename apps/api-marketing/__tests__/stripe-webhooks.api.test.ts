@@ -117,6 +117,32 @@ describe('POST /api/webhooks/stripe', () => {
 
     expect(res.status).toBe(200);
   });
+
+  it('winback create called once for subscription.deleted', async () => {
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({ id: 'wb-1' });
+
+    await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.deleted',
+        data: { object: { metadata: { orgId: 'org-2' } } },
+      });
+
+    expect(prisma.mktWinBackSequence.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('renewal update called once for subscription.updated', async () => {
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+
+    await request(app)
+      .post('/api/webhooks/stripe')
+      .send({
+        type: 'customer.subscription.updated',
+        data: { object: { metadata: { orgId: 'org-1' }, status: 'active' } },
+      });
+
+    expect(prisma.mktRenewalSequence.update).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('Stripe signature verification', () => {

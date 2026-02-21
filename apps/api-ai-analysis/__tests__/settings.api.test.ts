@@ -343,4 +343,22 @@ describe('AI Settings API Routes', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
     expect(response.body.error.message).toBe('Failed to get AI settings');
   });
+
+  // -------------------------------------------------------
+  // 13. findFirst is called once per GET
+  // -------------------------------------------------------
+  it('findFirst is called once per GET request', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    await request(app).get('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(mockPrisma.aISettings.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  // -------------------------------------------------------
+  // 14. deleteMany is called once per DELETE
+  // -------------------------------------------------------
+  it('deleteMany is called once per DELETE request', async () => {
+    mockPrisma.aISettings.deleteMany.mockResolvedValueOnce({ count: 0 });
+    await request(app).delete('/api/settings').set('Authorization', 'Bearer test-token');
+    expect(mockPrisma.aISettings.deleteMany).toHaveBeenCalledTimes(1);
+  });
 });

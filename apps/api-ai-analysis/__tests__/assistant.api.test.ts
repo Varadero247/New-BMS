@@ -226,4 +226,21 @@ describe('POST /api/assistant', () => {
     expect(res.body.data.suggestedModules).toBeDefined();
     expect(Array.isArray(res.body.data.suggestedModules)).toBe(true);
   });
+
+  it('answer is always a string', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'What is ISO 9001?' });
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.answer).toBe('string');
+  });
+
+  it('findFirst is called once per request for non-FAQ questions', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    await request(app).post('/api/assistant').send({ question: 'Tell me about inventory management features' });
+    expect(prisma.aISettings.findFirst).toHaveBeenCalledTimes(1);
+  });
 });

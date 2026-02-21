@@ -62,6 +62,15 @@ describe('GET /api/reports/valuation', () => {
     expect(res.body.data).toHaveProperty('topValueItems');
   });
 
+  it('byWarehouse is an array', async () => {
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({ _sum: {}, _count: { id: 0 } });
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/valuation');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.byWarehouse)).toBe(true);
+  });
+
   it('filters by warehouseId', async () => {
     (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
       _sum: { quantityOnHand: 100, inventoryValue: 1000 },
@@ -91,6 +100,14 @@ describe('GET /api/reports/movement', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty('period');
     expect(res.body.data).toHaveProperty('byType');
+  });
+
+  it('byType is an array', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.$queryRaw as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/movement');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.byType)).toBe(true);
   });
 
   it('accepts date range parameters', async () => {
