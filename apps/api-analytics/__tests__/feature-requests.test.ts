@@ -196,3 +196,30 @@ describe('POST /api/feature-requests/:id/vote', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/feature-requests');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.featureRequest.count as jest.Mock).mockResolvedValue(0);
+    (prisma.featureRequest.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/feature-requests').send({ title: 'API Webhooks', description: 'Need webhook support', requestedBy: 'customer@test.com' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id returns 500 when update fails', async () => {
+    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.featureRequest.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).patch('/api/feature-requests/00000000-0000-0000-0000-000000000001').send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

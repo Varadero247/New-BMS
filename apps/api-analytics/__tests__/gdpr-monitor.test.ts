@@ -179,3 +179,35 @@ describe('GDPR monitor job', () => {
     expect(prisma.gdprDataCategory.update).not.toHaveBeenCalled();
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /categories returns 500 on DB error', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/gdpr/categories');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /dpas returns 500 on DB error', async () => {
+    (prisma.dataProcessingAgreement.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/gdpr/dpas');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /categories returns 500 when create fails', async () => {
+    (prisma.gdprDataCategory.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/gdpr/categories').send({ category: 'Marketing Data', legalBasis: 'CONSENT' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /dpas returns 500 when create fails', async () => {
+    (prisma.dataProcessingAgreement.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/gdpr/dpas').send({ processorName: 'Vendor Corp', purpose: 'Analytics' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

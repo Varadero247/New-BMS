@@ -256,3 +256,30 @@ describe('PATCH /api/dsars/:id/status', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.dataRequest.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/dsars');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.dataRequest.count as jest.Mock).mockResolvedValue(0);
+    (prisma.dataRequest.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/dsars').send({ type: 'ERASURE', requesterEmail: 'jane@test.com', requesterName: 'Jane Doe', description: 'Delete my data' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id/status returns 500 when update fails', async () => {
+    (prisma.dataRequest.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'PROCESSING' });
+    (prisma.dataRequest.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).patch('/api/dsars/00000000-0000-0000-0000-000000000001/status').send({ status: 'COMPLETED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

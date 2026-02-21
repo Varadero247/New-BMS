@@ -206,3 +206,38 @@ describe('PATCH /api/meetings/:id/actions/:actionIndex', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.meetingNote.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/meetings');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.meetingNote.count as jest.Mock).mockResolvedValue(0);
+    (prisma.meetingNote.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/meetings').send({ title: 'Weekly Standup', type: 'TEAM', date: '2026-02-15', attendees: ['Alice'], summary: 'Sprint progress' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id returns 500 when update fails', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.meetingNote.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).patch('/api/meetings/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 on DB error', async () => {
+    (prisma.meetingNote.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.meetingNote.delete as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/meetings/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

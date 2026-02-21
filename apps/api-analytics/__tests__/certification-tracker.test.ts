@@ -223,3 +223,30 @@ describe('Certification tracker job', () => {
     );
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    (prisma.complianceDeadline.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/certifications').send({ name: 'GDPR Audit', category: 'COMPLIANCE', dueDate: '2026-12-01' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id returns 500 when update fails', async () => {
+    (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.complianceDeadline.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).patch('/api/certifications/00000000-0000-0000-0000-000000000001').send({ status: 'COMPLETED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -166,3 +166,30 @@ describe('POST /api/competitors/:id/intel', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.competitorMonitor.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/competitors');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.competitorMonitor.count as jest.Mock).mockResolvedValue(0);
+    (prisma.competitorMonitor.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/competitors').send({ name: 'NewCo', website: 'https://newco.com', category: 'DIRECT' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /:id returns 500 when update fails', async () => {
+    (prisma.competitorMonitor.findUnique as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.competitorMonitor.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).patch('/api/competitors/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
