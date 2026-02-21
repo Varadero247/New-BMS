@@ -253,7 +253,7 @@ type MockReq = {
   params: Record<string, string>;
   path: string;
   originalUrl?: string;
-  user?: { id: string; name?: string; organisationId?: string };
+  user?: { id: string; name?: string; email?: string; organisationId?: string; orgId?: string };
 };
 
 type MockRes = {
@@ -396,5 +396,115 @@ describe('activityLogger middleware', () => {
 
     const { entries } = await getActivity('risk', 'risk-get');
     expect(entries).toHaveLength(0);
+  });
+
+  it('logs "updated" action for PATCH 200', async () => {
+    const middleware = activityLogger('risk');
+    const mockReq = makeReq({ method: 'PATCH', params: { id: 'risk-patch' } });
+    const mockRes = makeRes(200);
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json({ success: true, data: { id: 'risk-patch' } });
+    await new Promise((r) => setImmediate(r));
+
+    const { entries } = await getActivity('risk', 'risk-patch');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries[0].action).toBe('updated');
+  });
+
+  it('logs "deleted" action for DELETE 200', async () => {
+    const middleware = activityLogger('risk');
+    const mockReq = makeReq({ method: 'DELETE', params: { id: 'risk-del' } });
+    const mockRes = makeRes(200);
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json({ success: true });
+    await new Promise((r) => setImmediate(r));
+
+    const { entries } = await getActivity('risk', 'risk-del');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries[0].action).toBe('deleted');
+  });
+
+  it('logs "deleted" action for DELETE 204', async () => {
+    const middleware = activityLogger('risk');
+    const mockReq = makeReq({ method: 'DELETE', params: { id: 'risk-del204' } });
+    const mockRes = makeRes(204);
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json(null);
+    await new Promise((r) => setImmediate(r));
+
+    const { entries } = await getActivity('risk', 'risk-del204');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries[0].action).toBe('deleted');
+  });
+
+  it('extracts recordId from top-level body.id when params.id is absent', async () => {
+    const middleware = activityLogger('risk');
+    const mockReq = makeReq({ method: 'POST', params: {} }); // no params.id
+    const mockRes = makeRes(201);
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json({ id: 'risk-body-id' }); // top-level id, not body.data.id
+    await new Promise((r) => setImmediate(r));
+
+    const { entries } = await getActivity('risk', 'risk-body-id');
+    expect(entries.length).toBeGreaterThan(0);
+  });
+
+  it('does not log when no recordId is available', async () => {
+    const middleware = activityLogger('risk');
+    const mockReq = makeReq({ method: 'POST', params: {} }); // no params.id
+    const mockRes = makeRes(201);
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json({ success: true }); // no id anywhere
+    await new Promise((r) => setImmediate(r));
+
+    // Nothing should be logged since we can't determine the recordId
+    const { total } = await getActivity('risk', 'unknown');
+    expect(total).toBe(0);
+  });
+
+  it('uses user.email as userName when name is absent', async () => {
+    const middleware = activityLogger('risk');
+    const mockReq = makeReq({
+      user: { id: 'user-email', email: 'alice@test.com', organisationId: 'org-1' },
+      params: { id: 'risk-email' },
+    });
+    const mockRes = makeRes(201);
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json({ success: true });
+    await new Promise((r) => setImmediate(r));
+
+    const { entries } = await getActivity('risk', 'risk-email');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries[0].userName).toBe('alice@test.com');
+  });
+
+  it('uses orgId when organisationId is absent', async () => {
+    const middleware = activityLogger('risk');
+    const mockReq = makeReq({
+      user: { id: 'user-org', name: 'Bob', orgId: 'org-via-orgId' },
+      params: { id: 'risk-orgid' },
+    });
+    const mockRes = makeRes(201);
+    const mockNext: NextFunction = jest.fn();
+
+    middleware(mockReq as unknown as Request, mockRes as unknown as Response, mockNext);
+    mockRes.json({ success: true });
+    await new Promise((r) => setImmediate(r));
+
+    const { entries } = await getActivity('risk', 'risk-orgid');
+    expect(entries.length).toBeGreaterThan(0);
+    expect(entries[0].orgId).toBe('org-via-orgId');
   });
 });
