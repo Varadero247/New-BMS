@@ -105,6 +105,22 @@ describe('@ims/webhooks', () => {
       });
       expect(ep.headers['X-Custom']).toBe('value');
     });
+
+    it('should default headers to empty object when not provided', () => {
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'No-Headers',
+        url: 'https://example.com/webhook',
+        events: ['ncr.created'],
+      });
+      expect(ep.headers).toEqual({});
+    });
+
+    it('should assign a unique ID to each endpoint', () => {
+      const ep1 = createEndpoint({ orgId: 'org-1', name: 'A', url: 'https://a.com', events: ['ncr.created'] });
+      const ep2 = createEndpoint({ orgId: 'org-1', name: 'B', url: 'https://b.com', events: ['ncr.created'] });
+      expect(ep1.id).not.toBe(ep2.id);
+    });
   });
 
   describe('listEndpoints', () => {
@@ -119,6 +135,20 @@ describe('@ims/webhooks', () => {
 
     it('should return empty array for org with no endpoints', () => {
       expect(listEndpoints('org-none')).toHaveLength(0);
+    });
+
+    it('should not return endpoints from other orgs', () => {
+      createEndpoint({ orgId: 'org-X', name: 'X', url: 'https://x.com', events: ['ncr.created'] });
+      expect(listEndpoints('org-Y')).toHaveLength(0);
+    });
+
+    it('should return endpoints sorted newest-first (descending createdAt)', () => {
+      createEndpoint({ orgId: 'org-1', name: 'First', url: 'https://first.com', events: ['ncr.created'] });
+      createEndpoint({ orgId: 'org-1', name: 'Second', url: 'https://second.com', events: ['ncr.created'] });
+      const eps = listEndpoints('org-1');
+      expect(new Date(eps[0].createdAt).getTime()).toBeGreaterThanOrEqual(
+        new Date(eps[1].createdAt).getTime()
+      );
     });
   });
 
@@ -193,6 +223,30 @@ describe('@ims/webhooks', () => {
       expect(updated!.events).toHaveLength(3);
     });
 
+    it('should update url', () => {
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://old.com',
+        events: ['ncr.created'],
+      });
+      const updated = updateEndpoint(ep.id, { url: 'https://new.com' });
+      expect(updated!.url).toBe('https://new.com');
+    });
+
+    it('should update headers', () => {
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+        headers: { 'X-Old': 'old' },
+      });
+      const updated = updateEndpoint(ep.id, { headers: { 'X-New': 'new' } });
+      expect(updated!.headers['X-New']).toBe('new');
+      expect(updated!.headers['X-Old']).toBeUndefined();
+    });
+
     it('should return null for non-existent', () => {
       expect(updateEndpoint('non-existent', { name: 'Test' })).toBeNull();
     });
@@ -248,6 +302,39 @@ describe('@ims/webhooks', () => {
       const updated = getEndpoint(ep.id);
       expect(updated!.lastTriggeredAt).not.toBeNull();
     });
+
+    it('should dispatch to multiple matching endpoints for the same org', () => {
+      createEndpoint({ orgId: 'org-1', name: 'A', url: 'https://a.com', events: ['ncr.created'] });
+      createEndpoint({ orgId: 'org-1', name: 'B', url: 'https://b.com', events: ['ncr.created'] });
+      const deliveries = dispatch('ncr.created', 'org-1', { ncrId: '999' });
+      expect(deliveries).toHaveLength(2);
+      expect(deliveries.every((d) => d.status === 'SUCCESS')).toBe(true);
+    });
+
+    it('should not dispatch to endpoints belonging to a different org', () => {
+      createEndpoint({ orgId: 'org-A', name: 'Other', url: 'https://other.com', events: ['ncr.created'] });
+      const deliveries = dispatch('ncr.created', 'org-B', { ncrId: '1' });
+      expect(deliveries).toHaveLength(0);
+    });
+
+    it('delivery record preserves the payload', () => {
+      createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['audit.complete'] });
+      const payload = { auditId: 'a-42', score: 98 };
+      const deliveries = dispatch('audit.complete', 'org-1', payload);
+      expect(deliveries[0].payload).toEqual(payload);
+    });
+
+    it('delivery record has responseCode 200 on success', () => {
+      createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['user.created'] });
+      const [delivery] = dispatch('user.created', 'org-1', { userId: 'u-1' });
+      expect(delivery.responseCode).toBe(200);
+    });
+
+    it('delivery record has attempts = 1 on first dispatch', () => {
+      createEndpoint({ orgId: 'org-1', name: 'Test', url: 'https://x.com', events: ['capa.overdue'] });
+      const [delivery] = dispatch('capa.overdue', 'org-1', { capaId: 'c-1' });
+      expect(delivery.attempts).toBe(1);
+    });
   });
 
   describe('listDeliveries', () => {
@@ -276,6 +363,26 @@ describe('@ims/webhooks', () => {
       }
       const dels = listDeliveries(ep.id, 3);
       expect(dels).toHaveLength(3);
+    });
+
+    it('should return empty array for unknown endpoint', () => {
+      expect(listDeliveries('unknown-endpoint-id')).toHaveLength(0);
+    });
+
+    it('should return deliveries in newest-first order', () => {
+      const ep = createEndpoint({
+        orgId: 'org-1',
+        name: 'Test',
+        url: 'https://x.com',
+        events: ['ncr.created'],
+      });
+      dispatch('ncr.created', 'org-1', { ncrId: 'first' });
+      dispatch('ncr.created', 'org-1', { ncrId: 'second' });
+      const dels = listDeliveries(ep.id);
+      // Sorted newest-first: createdAt of second >= createdAt of first
+      expect(new Date(dels[0].createdAt).getTime()).toBeGreaterThanOrEqual(
+        new Date(dels[1].createdAt).getTime()
+      );
     });
   });
 

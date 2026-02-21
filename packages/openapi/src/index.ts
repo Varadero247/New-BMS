@@ -96,7 +96,7 @@ const SERVICES: ServiceDef[] = [
       ...crudEndpoints('/api/environment', 'legal', 'LegalRequirement'),
       ...crudEndpoints('/api/environment', 'objectives', 'Objective'),
       ...crudEndpoints('/api/environment', 'actions', 'Action'),
-      ...crudEndpoints('/api/environment', 'capa', 'Capa'),
+      ...crudEndpoints('/api/environment', 'capa', 'EnvCapa'),
     ],
   },
   {
@@ -106,7 +106,7 @@ const SERVICES: ServiceDef[] = [
     port: 4003,
     endpoints: [
       ...crudEndpoints('/api/quality', 'ncrs', 'Ncr'),
-      ...crudEndpoints('/api/quality', 'capas', 'Capa'),
+      ...crudEndpoints('/api/quality', 'capas', 'QualityCapa'),
       ...crudEndpoints('/api/quality', 'audits', 'Audit'),
       ...crudEndpoints('/api/quality', 'documents', 'Document'),
     ],
@@ -217,7 +217,7 @@ const SERVICES: ServiceDef[] = [
     port: 4011,
     endpoints: [
       ...crudEndpoints('/api/medical', 'devices', 'Device'),
-      ...crudEndpoints('/api/medical', 'complaints', 'Complaint'),
+      ...crudEndpoints('/api/medical', 'complaints', 'MedicalComplaint'),
       ...crudEndpoints('/api/medical', 'design-controls', 'DesignControl'),
     ],
   },
@@ -261,8 +261,8 @@ const SERVICES: ServiceDef[] = [
     description: 'ISO 27001 Information Security',
     port: 4015,
     endpoints: [
-      ...crudEndpoints('/api/infosec', 'assets', 'Asset'),
-      ...crudEndpoints('/api/infosec', 'risks', 'Risk'),
+      ...crudEndpoints('/api/infosec', 'assets', 'InfoSecAsset'),
+      ...crudEndpoints('/api/infosec', 'risks', 'InfoSecRisk'),
       ...crudEndpoints('/api/infosec', 'controls', 'Control'),
       ...crudEndpoints('/api/infosec', 'incidents', 'SecurityIncident'),
     ],
@@ -432,7 +432,7 @@ const SERVICES: ServiceDef[] = [
     description: 'Customer complaints handling',
     port: 4032,
     endpoints: [
-      ...crudEndpoints('/api/complaints', 'complaints', 'Complaint'),
+      ...crudEndpoints('/api/complaints', 'complaints', 'CustomerComplaint'),
       ...crudEndpoints('/api/complaints', 'investigations', 'Investigation'),
     ],
   },

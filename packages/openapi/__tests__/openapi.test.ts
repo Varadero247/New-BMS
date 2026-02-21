@@ -278,5 +278,98 @@ describe('generateOpenApiSpec', () => {
       }
       expect(ids.length).toBeGreaterThanOrEqual(600);
     });
+
+    it('all operationIds are unique (no duplicates)', () => {
+      const ids: string[] = [];
+      for (const pathObj of Object.values(spec.paths)) {
+        for (const operation of Object.values(pathObj as Record<string, unknown>)) {
+          const op = operation as Record<string, string>;
+          if (op.operationId) ids.push(op.operationId);
+        }
+      }
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+  });
+
+  // ── Additional service coverage ───────────────────────────────
+
+  describe('additional service coverage', () => {
+    it('includes ISO 42001 paths', () => {
+      expect(spec.paths['/api/iso42001/systems']).toBeDefined();
+      expect(spec.paths['/api/iso42001/controls']).toBeDefined();
+      expect(spec.paths['/api/iso42001/impact-assessments']).toBeDefined();
+    });
+
+    it('includes ISO 37001 paths', () => {
+      expect(spec.paths['/api/iso37001/risks']).toBeDefined();
+      expect(spec.paths['/api/iso37001/due-diligence']).toBeDefined();
+      expect(spec.paths['/api/iso37001/controls']).toBeDefined();
+    });
+
+    it('includes partners paths', () => {
+      expect(spec.paths['/api/partners/deals']).toBeDefined();
+      expect(spec.paths['/api/partners/payouts']).toBeDefined();
+      expect(spec.paths['/api/partners/referrals']).toBeDefined();
+    });
+
+    it('includes training paths', () => {
+      expect(spec.paths['/api/training/courses']).toBeDefined();
+      expect(spec.paths['/api/training/records']).toBeDefined();
+      expect(spec.paths['/api/training/tna']).toBeDefined();
+    });
+
+    it('includes documents paths', () => {
+      expect(spec.paths['/api/documents/documents']).toBeDefined();
+      expect(spec.paths['/api/documents/reviews']).toBeDefined();
+    });
+
+    it('includes contracts paths', () => {
+      expect(spec.paths['/api/contracts/contracts']).toBeDefined();
+      expect(spec.paths['/api/contracts/obligations']).toBeDefined();
+      expect(spec.paths['/api/contracts/renewals']).toBeDefined();
+    });
+
+    it('includes audits and incidents management paths', () => {
+      expect(spec.paths['/api/audits/audits']).toBeDefined();
+      expect(spec.paths['/api/audits/findings']).toBeDefined();
+      expect(spec.paths['/api/incidents/incidents']).toBeDefined();
+      expect(spec.paths['/api/incidents/investigations']).toBeDefined();
+    });
+
+    it('includes PTW permit paths', () => {
+      expect(spec.paths['/api/ptw/permits']).toBeDefined();
+      expect(spec.paths['/api/ptw/templates']).toBeDefined();
+      expect(spec.paths['/api/ptw/isolations']).toBeDefined();
+    });
+
+    it('includes management review paths', () => {
+      expect(spec.paths['/api/mgmt-review/reviews']).toBeDefined();
+      expect(spec.paths['/api/mgmt-review/actions']).toBeDefined();
+    });
+
+    it('includes chemicals inventory path', () => {
+      expect(spec.paths['/api/chemicals/inventory']).toBeDefined();
+    });
+
+    it('includes emergency BCP path', () => {
+      expect(spec.paths['/api/emergency/bcp']).toBeDefined();
+    });
+  });
+
+  // ── Tag count ─────────────────────────────────────────────────
+
+  describe('tag count', () => {
+    it('has exactly 42 tags matching the 42 API services', () => {
+      // 41 domain services + 1 Gateway = 42
+      expect(spec.tags).toHaveLength(42);
+    });
+
+    it('every tag has a non-empty name and description', () => {
+      for (const tag of spec.tags) {
+        const t = tag as Record<string, string>;
+        expect(t.name.length).toBeGreaterThan(0);
+        expect(t.description.length).toBeGreaterThan(0);
+      }
+    });
   });
 });
