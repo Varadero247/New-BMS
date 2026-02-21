@@ -300,4 +300,74 @@ describe('GET /api/dashboard', () => {
     expect(res.body.error).toBeDefined();
     expect(res.body.error.message).toBe('Failed to fetch dashboard data');
   });
+
+  it('queries recentReadings with orderBy readingDate desc and take 10', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/dashboard');
+
+    expect(prisma.energyReading.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: { readingDate: 'desc' },
+        take: 10,
+      })
+    );
+  });
+
+  it('queries activeAlerts with take 5 and acknowledged: false', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/dashboard');
+
+    expect(prisma.energyAlert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ acknowledged: false }),
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      })
+    );
+  });
+
+  it('queries topSeus ordered by consumptionPercentage desc and take 5', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/dashboard');
+
+    expect(prisma.energySeu.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: { consumptionPercentage: 'desc' },
+        take: 5,
+      })
+    );
+  });
 });
