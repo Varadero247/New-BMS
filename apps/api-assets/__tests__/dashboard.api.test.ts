@@ -61,4 +61,43 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('response data has all required keys', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(1);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(1);
+    mockPrisma.assetCalibration.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('totalAssets');
+    expect(res.body.data).toHaveProperty('totalWorkOrders');
+    expect(res.body.data).toHaveProperty('totalCalibrations');
+  });
+
+  it('count is called once per model per request', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.assetRegister.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.assetWorkOrder.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.assetCalibration.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('totalAssets reflects the mock count', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(99);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAssets).toBe(99);
+  });
+
+  it('totalWorkOrders reflects the mock count', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(15);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalWorkOrders).toBe(15);
+  });
 });

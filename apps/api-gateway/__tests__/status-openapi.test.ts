@@ -56,6 +56,23 @@ describe('Status Routes', () => {
       const res = await request(app).get('/api/health/status');
       expect(['operational', 'degraded', 'outage']).toContain(res.body.data.status);
     });
+
+    it('services is an array', async () => {
+      const res = await request(app).get('/api/health/status');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data.services)).toBe(true);
+    });
+
+    it('uptime object has 24h key', async () => {
+      const res = await request(app).get('/api/health/status');
+      expect(res.status).toBe(200);
+      expect(res.body.data.uptime).toHaveProperty('24h');
+    });
+
+    it('getPlatformStatus is called once per request', async () => {
+      await request(app).get('/api/health/status');
+      expect(mockGetPlatformStatus).toHaveBeenCalledTimes(1);
+    });
   });
 });
 
@@ -75,6 +92,23 @@ describe('OpenAPI Routes', () => {
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty('openapi');
       expect(res.body.openapi).toBe('3.0.3');
+    });
+
+    it('info object contains title', async () => {
+      const res = await request(app).get('/api/docs/openapi.json');
+      expect(res.status).toBe(200);
+      expect(res.body.info).toHaveProperty('title');
+    });
+
+    it('paths is an object', async () => {
+      const res = await request(app).get('/api/docs/openapi.json');
+      expect(res.status).toBe(200);
+      expect(typeof res.body.paths).toBe('object');
+    });
+
+    it('generateOpenApiSpec is called once per request', async () => {
+      await request(app).get('/api/docs/openapi.json');
+      expect(mockGenerateOpenApiSpec).toHaveBeenCalledTimes(1);
     });
   });
 });

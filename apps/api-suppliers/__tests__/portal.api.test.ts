@@ -53,4 +53,31 @@ describe('GET /api/portal/profile', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('findFirst called once per request', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '1', name: 'Acme', email: 'supplier@example.com' });
+    await request(app).get('/api/portal/profile');
+    expect(mockPrisma.suppSupplier.findFirst).toHaveBeenCalledTimes(1);
+  });
+
+  it('profile response contains name field', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '1', name: 'Acme Corp', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data.name).toBe('Acme Corp');
+  });
+
+  it('profile response contains email field', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '2', name: 'BetaCo', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data.email).toBe('supplier@example.com');
+  });
+
+  it('data id matches the mock supplier id', async () => {
+    mockPrisma.suppSupplier.findFirst.mockResolvedValue({ id: '42', name: 'Test', email: 'supplier@example.com' });
+    const res = await request(app).get('/api/portal/profile');
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('42');
+  });
 });
