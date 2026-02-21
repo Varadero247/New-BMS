@@ -182,5 +182,46 @@ describe('portal-auth', () => {
       middleware(req, res, next);
       expect(res.status).toHaveBeenCalledWith(403);
     });
+
+    it('should reject unauthenticated request with 401', () => {
+      const middleware = requirePortalType('supplier');
+      const req: any = {};
+      const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
+
+      middleware(req, res, next);
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it('should allow customer matching customer type', () => {
+      const middleware = requirePortalType('customer');
+      const req: any = { portalUser: mockCustomer };
+      const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const next = jest.fn();
+
+      middleware(req, res, next);
+      expect(next).toHaveBeenCalled();
+    });
+  });
+
+  describe('verifyPortalToken — additional fields', () => {
+    it('name is not stored in the JWT payload (returns empty string)', () => {
+      // The JWT payload omits name/organisationName for compactness.
+      // Callers that need these must fetch them from the database.
+      const token = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+      const decoded = verifyPortalToken(token, { secret: TEST_SECRET });
+      expect(decoded!.name).toBe('');
+    });
+
+    it('organisationName is not stored in the JWT payload (returns empty string)', () => {
+      const token = signPortalToken(mockUser, 'supplier', { secret: TEST_SECRET });
+      const decoded = verifyPortalToken(token, { secret: TEST_SECRET });
+      expect(decoded!.organisationName).toBe('');
+    });
+
+    it('should return null for completely empty token', () => {
+      expect(verifyPortalToken('', { secret: TEST_SECRET })).toBeNull();
+    });
   });
 });
