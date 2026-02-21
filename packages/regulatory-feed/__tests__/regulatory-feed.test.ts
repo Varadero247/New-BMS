@@ -133,6 +133,33 @@ describe('regulatory-feed', () => {
       const result = calculateRelevance(reg, orgProfile);
       expect(result.industryMatch).toBe(true);
     });
+
+    it('GLOBAL jurisdiction matches any org jurisdiction', () => {
+      const reg = createTestRegulation({ jurisdiction: 'GLOBAL' });
+      const result = calculateRelevance(reg, orgProfile);
+      expect(result.jurisdictionMatch).toBe(true);
+    });
+
+    it('EU jurisdiction matches UK org (special case)', () => {
+      const reg = createTestRegulation({ jurisdiction: 'EU' });
+      const result = calculateRelevance(reg, orgProfile); // orgProfile.jurisdiction = 'UK'
+      expect(result.jurisdictionMatch).toBe(true);
+    });
+
+    it('should score category overlap', () => {
+      const reg = createTestRegulation({ categories: ['health-safety', 'environment'] });
+      const result = calculateRelevance(reg, orgProfile); // orgProfile.categories includes both
+      expect(result.matchedCategories.length).toBeGreaterThan(0);
+    });
+
+    it('recency bonus: 31-90 days gives partial bonus', () => {
+      const reg60 = createTestRegulation({ publishedDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) });
+      const reg7 = createTestRegulation({ publishedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) });
+      // 60-day-old regulation gets less than 7-day-old
+      expect(calculateRelevance(reg7, orgProfile).score).toBeGreaterThan(
+        calculateRelevance(reg60, orgProfile).score
+      );
+    });
   });
 
   describe('filterRelevant', () => {
