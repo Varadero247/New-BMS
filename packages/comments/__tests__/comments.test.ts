@@ -184,6 +184,21 @@ describe('updateComment', () => {
     await deleteComment(c.id, 'u1', false);
     await expect(updateComment(c.id, 'u1', 'New body')).rejects.toThrow('Cannot edit a deleted');
   });
+
+  it('throws when edit window has expired (> 15 minutes)', async () => {
+    const c = await createComment({ orgId: 'o', recordType: 'r', recordId: 'x', authorId: 'u1', authorName: 'U', body: 'Original' });
+    // Manipulate createdAt to be 16 minutes ago
+    const fetched = await getCommentById(c.id);
+    fetched!.createdAt = new Date(Date.now() - 16 * 60 * 1000);
+
+    await expect(updateComment(c.id, 'u1', 'Late edit')).rejects.toThrow('Edit window has expired');
+  });
+
+  it('clears mentions from body when updated to plain text', async () => {
+    const c = await createComment({ orgId: 'o', recordType: 'r', recordId: 'x', authorId: 'u1', authorName: 'U', body: 'Hi @[alice]' });
+    const updated = await updateComment(c.id, 'u1', 'No mentions now');
+    expect(updated.mentions).toEqual([]);
+  });
 });
 
 // ─── deleteComment ────────────────────────────────────────────────────────────
