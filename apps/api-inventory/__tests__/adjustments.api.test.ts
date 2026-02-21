@@ -180,3 +180,92 @@ describe('GET /api/adjustments/:id', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ── Adjustment type mapping ────────────────────────────────────────────────
+// Verifies the UI→DB type mapping and positive/negative quantityChange logic
+// for every adjustment type the schema accepts.
+
+describe('POST /api/adjustments — all adjustment types', () => {
+  const baseBody = {
+    productId: PRODUCT_ID,
+    warehouseId: WAREHOUSE_ID,
+    quantity: 3,
+    reason: 'Stock correction',
+  };
+
+  const mockInventory = { id: 'inv-1', quantityOnHand: 20 };
+
+  beforeEach(() => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue(mockInventory);
+    (mockPrisma.$transaction as jest.Mock).mockResolvedValue([mockTransaction]);
+  });
+
+  it.each([
+    'ADJUSTMENT_IN',
+    'ADJUSTMENT_OUT',
+    'DAMAGE',
+    'EXPIRED',
+    'WRITE_OFF',
+    'FOUND',
+    'RECOUNT',
+  ] as const)('accepts adjustmentType %s and returns 201', async (adjustmentType) => {
+    const res = await request(app)
+      .post('/api/adjustments')
+      .send({ ...baseBody, adjustmentType });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('prevents DAMAGE from creating negative stock', async () => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({
+      id: 'inv-1',
+      quantityOnHand: 2,
+    });
+    const res = await request(app)
+      .post('/api/adjustments')
+      .send({ ...baseBody, adjustmentType: 'DAMAGE', quantity: 5 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INSUFFICIENT_STOCK');
+  });
+
+  it('prevents EXPIRED from creating negative stock', async () => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({
+      id: 'inv-1',
+      quantityOnHand: 1,
+    });
+    const res = await request(app)
+      .post('/api/adjustments')
+      .send({ ...baseBody, adjustmentType: 'EXPIRED', quantity: 5 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INSUFFICIENT_STOCK');
+  });
+
+  it('prevents WRITE_OFF from creating negative stock', async () => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({
+      id: 'inv-1',
+      quantityOnHand: 1,
+    });
+    const res = await request(app)
+      .post('/api/adjustments')
+      .send({ ...baseBody, adjustmentType: 'WRITE_OFF', quantity: 5 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INSUFFICIENT_STOCK');
+  });
+
+  it('FOUND does not require existing inventory (treats as positive adjustment)', async () => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/adjustments')
+      .send({ ...baseBody, adjustmentType: 'FOUND' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('rejects an invalid adjustmentType', async () => {
+    const res = await request(app)
+      .post('/api/adjustments')
+      .send({ ...baseBody, adjustmentType: 'TELEPORT' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
