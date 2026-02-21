@@ -5,17 +5,121 @@ jest.mock('@ims/monitoring', () => ({
   createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
-import scimRouter, { registerScimToken } from '../src/routes/scim';
+// ─── In-memory Prisma mock stores ───────────────────────────────────────────
+// Module-level stores (persist across tests — no beforeEach reset, mirrors old Map behavior)
+let scimTokenMap: Map<string, any> = new Map();
+let scimUserMap: Map<string, any> = new Map();
+const scimUserByUserNameMap: Map<string, string> = new Map(); // userName -> id
+let scimGroupMap: Map<string, any> = new Map();
 
-// Helper to register a SCIM bearer token using the proper API (incl. reverse index)
+jest.mock('@ims/database', () => ({
+  prisma: {
+    scimToken: {
+      findUnique: jest.fn(({ where }: any) => {
+        // `token` field lookup (unique)
+        if (where.token !== undefined) {
+          const record = Array.from(scimTokenMap.values()).find((t) => t.token === where.token);
+          return Promise.resolve(record ?? null);
+        }
+        // `id` field lookup
+        return Promise.resolve(scimTokenMap.get(where.id) ?? null);
+      }),
+      upsert: jest.fn(({ where, create: createData, update }: any) => {
+        const existing = scimTokenMap.get(where.id);
+        if (existing) {
+          Object.assign(existing, update, { updatedAt: new Date() });
+          return Promise.resolve(existing);
+        }
+        const record = { ...createData, createdAt: new Date(), updatedAt: new Date() };
+        scimTokenMap.set(createData.id, record);
+        return Promise.resolve(record);
+      }),
+      delete: jest.fn(({ where }: any) => {
+        const record = scimTokenMap.get(where.id);
+        scimTokenMap.delete(where.id);
+        return Promise.resolve(record);
+      }),
+    },
+    scimUser: {
+      findUnique: jest.fn(({ where }: any) => {
+        if (where.userName !== undefined) {
+          return Promise.resolve(
+            Array.from(scimUserMap.values()).find((u) => u.userName === where.userName) ?? null
+          );
+        }
+        return Promise.resolve(scimUserMap.get(where.id) ?? null);
+      }),
+      findMany: jest.fn(({ where = {} }: any) => {
+        let items = Array.from(scimUserMap.values());
+        if (where.orgId) items = items.filter((u) => u.orgId === where.orgId);
+        return Promise.resolve(items);
+      }),
+      create: jest.fn(({ data }: any) => {
+        const record = {
+          ...data,
+          emails: data.emails ?? [],
+          groups: data.groups ?? [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        scimUserMap.set(data.id, record);
+        scimUserByUserNameMap.set(data.userName, data.id);
+        return Promise.resolve(record);
+      }),
+      update: jest.fn(({ where, data }: any) => {
+        const existing = scimUserMap.get(where.id);
+        if (!existing) return Promise.reject(new Error('Not found'));
+        Object.assign(existing, data, { updatedAt: new Date() });
+        return Promise.resolve(existing);
+      }),
+      delete: jest.fn(({ where }: any) => {
+        const existing = scimUserMap.get(where.id);
+        scimUserMap.delete(where.id);
+        if (existing) scimUserByUserNameMap.delete(existing.userName);
+        return Promise.resolve(existing);
+      }),
+    },
+    scimGroup: {
+      upsert: jest.fn(({ where, create: createData, update }: any) => {
+        const existing = scimGroupMap.get(where.id);
+        if (existing) {
+          Object.assign(existing, update, { updatedAt: new Date() });
+          return Promise.resolve(existing);
+        }
+        const record = { ...createData, createdAt: new Date(), updatedAt: new Date() };
+        scimGroupMap.set(createData.id, record);
+        return Promise.resolve(record);
+      }),
+      findMany: jest.fn((args?: any) => {
+        const items = Array.from(scimGroupMap.values());
+        return Promise.resolve(items);
+      }),
+      findUnique: jest.fn(({ where }: any) =>
+        Promise.resolve(scimGroupMap.get(where.id) ?? null)
+      ),
+      update: jest.fn(({ where, data }: any) => {
+        const existing = scimGroupMap.get(where.id);
+        if (!existing) return Promise.reject(new Error('Not found'));
+        Object.assign(existing, data, { updatedAt: new Date() });
+        return Promise.resolve(existing);
+      }),
+    },
+    $use: jest.fn(),
+  },
+}));
+
+import scimRouter from '../src/routes/scim';
+
+// Helper to seed a SCIM bearer token directly into the mock store
 function seedToken(orgId: string): string {
   const token = `scim-test-token-${orgId}-${Date.now()}`;
-  registerScimToken({
+  scimTokenMap.set(`tok-${orgId}`, {
     id: `tok-${orgId}`,
     token,
     orgId,
-    createdAt: new Date().toISOString(),
     active: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
   return token;
 }

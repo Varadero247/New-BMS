@@ -783,6 +783,61 @@ model MspLink {
 }
 
 // ============================================
+// SAML SSO CONFIGURATION
+// ============================================
+
+model SamlConfig {
+  id                         String   @id @default(cuid())
+  orgId                      String   @unique
+  entryPoint                 String
+  issuer                     String
+  cert                       String   @db.Text
+  signatureAlgorithm         String   @default("sha256") // sha1 | sha256 | sha512
+  enabled                    Boolean  @default(true)
+  entityId                   String?
+  assertionConsumerUrl       String?
+  idpMetadataUrl             String?
+  nameIdFormat               String?
+  allowUnencryptedAssertions Boolean  @default(false)
+  createdBy                  String   @default("")
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([enabled])
+  @@map("saml_configs")
+}
+
+// ============================================
+// UNIFIED AUDIT PLANS
+// ============================================
+
+enum AuditPlanType {
+  INTERNAL
+  EXTERNAL
+  SURVEILLANCE
+  CERTIFICATION
+}
+
+model UnifiedAuditPlan {
+  id        String        @id @default(cuid())
+  standard  String
+  title     String
+  scope     String
+  auditType AuditPlanType
+  clauses   Json          // AuditClauseStatus[]
+  orgId     String        @default("default")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([orgId])
+  @@index([standard])
+  @@index([auditType])
+  @@index([createdAt])
+  @@map("unified_audit_plans")
+}
+
+// ============================================
 // CUSTOM ROLES (user-defined RBAC roles)
 // ============================================
 
@@ -797,4 +852,54 @@ model CustomRole {
 
   @@unique([name])
   @@map("custom_roles")
+}
+
+// ============================================
+// SCIM — Cross-domain Identity Management
+// ============================================
+
+model ScimToken {
+  id        String   @id @default(cuid())
+  token     String   @unique  // bearer token value
+  orgId     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([active])
+  @@map("scim_tokens")
+}
+
+model ScimUser {
+  id          String   @id  // SCIM-assigned ID (arbitrary string, may come from IdP)
+  externalId  String?
+  userName    String   @unique
+  displayName String   @default("")
+  givenName   String   @default("")
+  familyName  String   @default("")
+  title       String?
+  active      Boolean  @default(true)
+  emails      Json     @default("[]")  // Array<{value, type, primary}>
+  groups      Json     @default("[]")  // Array<{value, display}>
+  orgId       String   @default("default")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([orgId])
+  @@index([userName])
+  @@map("scim_users")
+}
+
+model ScimGroup {
+  id          String   @id  // SCIM-assigned ID (e.g., "role-admin")
+  displayName String
+  members     Json     @default("[]")  // Array<{value, display}>
+  orgId       String   @default("default")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([orgId])
+  @@map("scim_groups")
 }

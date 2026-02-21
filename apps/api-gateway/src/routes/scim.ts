@@ -2,6 +2,10 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
 import { v4 as uuidv4 } from 'uuid';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient, Prisma } from '@ims/database/core';
+
+const prisma = prismaBase as unknown as PrismaClient;
 
 const logger = createLogger('api-gateway:scim');
 const router = Router();
@@ -51,20 +55,68 @@ interface ScimBearerToken {
   active: boolean;
 }
 
-// ─── In-Memory Stores ───────────────────────────────────────────────────────
+// ─── DB -> SCIM Mappers ─────────────────────────────────────────────────────
 
-const MAX_SCIM_USERS = 10000;
-const _MAX_SCIM_GROUPS = 1000;
+function dbUserToScimUser(record: {
+  id: string;
+  externalId: string | null;
+  userName: string;
+  displayName: string;
+  givenName: string;
+  familyName: string;
+  title: string | null;
+  active: boolean;
+  emails: unknown;
+  groups: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+}): ScimUser {
+  return {
+    id: record.id,
+    externalId: record.externalId ?? undefined,
+    userName: record.userName,
+    name: {
+      formatted: `${record.givenName} ${record.familyName}`.trim(),
+      givenName: record.givenName,
+      familyName: record.familyName,
+    },
+    emails: record.emails as ScimUser['emails'],
+    active: record.active,
+    displayName: record.displayName,
+    title: record.title ?? undefined,
+    groups: record.groups as ScimUser['groups'],
+    meta: {
+      resourceType: 'User',
+      created: record.createdAt.toISOString(),
+      lastModified: record.updatedAt.toISOString(),
+      location: `/scim/v2/Users/${record.id}`,
+    },
+  };
+}
 
-const scimUserStore = new Map<string, ScimUser>();
-const scimGroupStore = new Map<string, ScimGroup>();
-const scimTokenStore = new Map<string, ScimBearerToken>();
-// Reverse index: token string -> token ID for O(1) auth lookups
-const scimTokenByValue = new Map<string, string>();
-// Reverse index: userName -> user ID for O(1) duplicate checks
-const scimUserByUserName = new Map<string, string>();
+function dbGroupToScimGroup(record: {
+  id: string;
+  displayName: string;
+  members: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+}): ScimGroup {
+  return {
+    id: record.id,
+    displayName: record.displayName,
+    members: record.members as ScimGroup['members'],
+    meta: {
+      resourceType: 'Group',
+      created: record.createdAt.toISOString(),
+      lastModified: record.updatedAt.toISOString(),
+      location: `/scim/v2/Groups/${record.id}`,
+    },
+  };
+}
 
-// Seed default groups from Nexara roles
+// ─── Default Groups Seeding ─────────────────────────────────────────────────
+
+// Seed default groups (upsert so restarts are idempotent)
 const defaultGroups: Array<{ id: string; name: string }> = [
   { id: 'role-admin', name: 'Admin' },
   { id: 'role-manager', name: 'Manager' },
@@ -73,43 +125,33 @@ const defaultGroups: Array<{ id: string; name: string }> = [
   { id: 'role-operator', name: 'Operator' },
 ];
 
-defaultGroups.forEach((g) => {
-  scimGroupStore.set(g.id, {
-    id: g.id,
-    displayName: g.name,
-    members: [],
-    meta: {
-      resourceType: 'Group',
-      created: new Date().toISOString(),
-      lastModified: new Date().toISOString(),
-      location: `/scim/v2/Groups/${g.id}`,
-    },
-  });
-});
-
-// Export for token management from admin routes
-export function getScimTokenStore(): Map<string, ScimBearerToken> {
-  return scimTokenStore;
-}
+void Promise.all(
+  defaultGroups.map((g) =>
+    prisma.scimGroup.upsert({
+      where: { id: g.id },
+      create: { id: g.id, displayName: g.name, isDefault: true, members: [] },
+      update: { displayName: g.name },
+    })
+  )
+).catch((err: Error) => logger.warn('Failed to seed default SCIM groups', { error: err.message }));
 
 /**
- * Register a SCIM token in both the main store and the reverse index.
+ * Register a SCIM token in the database.
  * Call this instead of directly setting on scimTokenStore when adding tokens externally.
  */
-export function registerScimToken(token: ScimBearerToken): void {
-  scimTokenStore.set(token.id, token);
-  scimTokenByValue.set(token.token, token.id);
+export async function registerScimToken(token: Omit<ScimBearerToken, never>): Promise<void> {
+  await prisma.scimToken.upsert({
+    where: { id: token.id },
+    create: { id: token.id, token: token.token, orgId: token.orgId, active: token.active },
+    update: { active: token.active },
+  });
 }
 
 /**
- * Remove a SCIM token from both stores.
+ * Remove a SCIM token from the database.
  */
-export function removeScimToken(tokenId: string): void {
-  const existing = scimTokenStore.get(tokenId);
-  if (existing) {
-    scimTokenByValue.delete(existing.token);
-    scimTokenStore.delete(tokenId);
-  }
+export async function removeScimToken(tokenId: string): Promise<void> {
+  await prisma.scimToken.delete({ where: { id: tokenId } }).catch(() => {});
 }
 
 // ─── Validation ─────────────────────────────────────────────────────────────
@@ -167,7 +209,7 @@ const patchGroupSchema = z.object({
 
 // ─── SCIM Bearer Token Auth Middleware ───────────────────────────────────────
 
-function scimAuth(req: Request, res: Response, next: NextFunction): void {
+async function scimAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -180,22 +222,28 @@ function scimAuth(req: Request, res: Response, next: NextFunction): void {
   }
 
   const token = authHeader.substring(7);
-  // O(1) lookup via reverse index instead of O(n) linear scan
-  const tokenId = scimTokenByValue.get(token);
-  const validToken = tokenId ? scimTokenStore.get(tokenId) : undefined;
+  try {
+    const validToken = await prisma.scimToken.findUnique({ where: { token } });
+    if (!validToken || !validToken.active) {
+      res.status(401).json({
+        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
+        detail: 'Invalid or expired SCIM bearer token',
+        status: '401',
+      });
+      return;
+    }
 
-  if (!validToken || !validToken.active) {
-    res.status(401).json({
+    // Attach orgId to request for downstream use
+    (req as Request & { scimOrgId?: string }).scimOrgId = validToken.orgId;
+    next();
+  } catch (err: unknown) {
+    logger.error('SCIM auth error', { error: err instanceof Error ? err.message : 'Unknown error' });
+    res.status(500).json({
       schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-      detail: 'Invalid or expired SCIM bearer token',
-      status: '401',
+      detail: 'Internal server error',
+      status: '500',
     });
-    return;
   }
-
-  // Attach orgId to request for downstream use
-  (req as Request & { scimOrgId?: string }).scimOrgId = validToken.orgId;
-  next();
 }
 
 // ─── SCIM Filter Parser ────────────────────────────────────────────────
@@ -315,13 +363,15 @@ router.get('/ServiceProviderConfig', (_req: Request, res: Response) => {
 router.use(scimAuth);
 
 // GET /scim/v2/Users — list users (supports filter query parameter)
-router.get('/Users', (req: Request, res: Response) => {
+router.get('/Users', async (req: Request, res: Response) => {
   try {
     const startIndex = Math.max(1, parseInt(req.query.startIndex as string, 10) || 1);
     const count = Math.min(200, Math.max(1, parseInt(req.query.count as string, 10) || 100));
     const filterParam = req.query.filter as string | undefined;
+    const orgId = (req as Request & { scimOrgId?: string }).scimOrgId || 'default';
 
-    let allUsers = Array.from(scimUserStore.values());
+    const allDbUsers = await prisma.scimUser.findMany({ where: { orgId } });
+    let allUsers: ScimUser[] = allDbUsers.map(dbUserToScimUser);
 
     // Apply SCIM filter if provided
     if (filterParam) {
@@ -365,16 +415,17 @@ router.get('/Users', (req: Request, res: Response) => {
 });
 
 // GET /scim/v2/Users/:id — get single user
-router.get('/Users/:id', (req: Request, res: Response) => {
+router.get('/Users/:id', async (req: Request, res: Response) => {
   try {
-    const user = scimUserStore.get(req.params.id);
-    if (!user) {
+    const record = await prisma.scimUser.findUnique({ where: { id: req.params.id } });
+    if (!record) {
       return res.status(404).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
         detail: 'User not found',
         status: '404',
       });
     }
+    const user = dbUserToScimUser(record);
     res.json({
       schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
       ...user,
@@ -392,7 +443,7 @@ router.get('/Users/:id', (req: Request, res: Response) => {
 });
 
 // POST /scim/v2/Users — create user
-router.post('/Users', (req: Request, res: Response) => {
+router.post('/Users', async (req: Request, res: Response) => {
   try {
     const parsed = createUserSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -406,8 +457,9 @@ router.post('/Users', (req: Request, res: Response) => {
     const data = parsed.data;
     const baseUrl = getBaseUrl(req);
 
-    // Check for duplicate userName via O(1) reverse index
-    if (scimUserByUserName.has(data.userName)) {
+    // Check for duplicate userName
+    const duplicate = await prisma.scimUser.findUnique({ where: { userName: data.userName } });
+    if (duplicate) {
       return res.status(409).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
         detail: `User with userName "${data.userName}" already exists`,
@@ -416,49 +468,35 @@ router.post('/Users', (req: Request, res: Response) => {
       });
     }
 
-    // Enforce size cap to prevent unbounded memory growth
-    if (scimUserStore.size >= MAX_SCIM_USERS) {
-      return res.status(507).json({
-        schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
-        detail: `Maximum user limit (${MAX_SCIM_USERS}) reached`,
-        status: '507',
-      });
-    }
-
-    const now = new Date().toISOString();
+    const orgId = (req as Request & { scimOrgId?: string }).scimOrgId || 'default';
     const id = uuidv4();
 
-    const user: ScimUser = {
-      id,
-      externalId: data.externalId,
-      userName: data.userName,
-      name: {
-        formatted:
-          data.name?.formatted ||
-          `${data.name?.givenName || ''} ${data.name?.familyName || ''}`.trim(),
+    const created = await prisma.scimUser.create({
+      data: {
+        id,
+        externalId: data.externalId,
+        userName: data.userName,
+        displayName: data.displayName || data.name?.formatted || data.userName,
         givenName: data.name?.givenName || '',
         familyName: data.name?.familyName || '',
+        title: data.title,
+        active: data.active,
+        emails: (data.emails || [{ value: data.userName, type: 'work', primary: true }]) as Prisma.InputJsonValue,
+        groups: [] as Prisma.InputJsonValue,
+        orgId,
       },
-      emails: data.emails || [{ value: data.userName, type: 'work', primary: true }],
-      active: data.active,
-      displayName: data.displayName || data.name?.formatted || data.userName,
-      title: data.title,
-      groups: [],
-      meta: {
-        resourceType: 'User',
-        created: now,
-        lastModified: now,
-        location: `${baseUrl}/scim/v2/Users/${id}`,
-      },
-    };
+    });
 
-    scimUserStore.set(id, user);
-    scimUserByUserName.set(user.userName, id);
+    const user = dbUserToScimUser(created);
     logger.info('SCIM user created', { id, userName: user.userName });
 
     res.status(201).json({
       schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
       ...user,
+      meta: {
+        ...user.meta,
+        location: `${baseUrl}/scim/v2/Users/${id}`,
+      },
     });
   } catch (error: unknown) {
     logger.error('SCIM create user failed', {
@@ -473,9 +511,9 @@ router.post('/Users', (req: Request, res: Response) => {
 });
 
 // PUT /scim/v2/Users/:id — replace user
-router.put('/Users/:id', (req: Request, res: Response) => {
+router.put('/Users/:id', async (req: Request, res: Response) => {
   try {
-    const existing = scimUserStore.get(req.params.id);
+    const existing = await prisma.scimUser.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
@@ -494,33 +532,27 @@ router.put('/Users/:id', (req: Request, res: Response) => {
     }
 
     const data = parsed.data;
-    const now = new Date().toISOString();
 
-    // Update reverse index if userName changed
-    if (existing.userName !== data.userName) {
-      scimUserByUserName.delete(existing.userName);
-      scimUserByUserName.set(data.userName, req.params.id);
-    }
-    existing.userName = data.userName;
-    existing.externalId = data.externalId;
-    existing.name = {
-      formatted:
-        data.name?.formatted ||
-        `${data.name?.givenName || ''} ${data.name?.familyName || ''}`.trim(),
-      givenName: data.name?.givenName || '',
-      familyName: data.name?.familyName || '',
-    };
-    existing.emails = data.emails || existing.emails;
-    existing.active = data.active;
-    existing.displayName = data.displayName || existing.displayName;
-    existing.title = data.title;
-    existing.meta.lastModified = now;
+    const updated = await prisma.scimUser.update({
+      where: { id: req.params.id },
+      data: {
+        userName: data.userName,
+        externalId: data.externalId,
+        displayName: data.displayName || existing.displayName,
+        givenName: data.name?.givenName || '',
+        familyName: data.name?.familyName || '',
+        title: data.title,
+        active: data.active,
+        emails: (data.emails || (existing.emails as ScimUser['emails'])) as Prisma.InputJsonValue,
+      },
+    });
 
-    logger.info('SCIM user replaced', { id: req.params.id, userName: existing.userName });
+    const user = dbUserToScimUser(updated);
+    logger.info('SCIM user replaced', { id: req.params.id, userName: user.userName });
 
     res.json({
       schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
-      ...existing,
+      ...user,
     });
   } catch (error: unknown) {
     logger.error('SCIM replace user failed', {
@@ -535,9 +567,9 @@ router.put('/Users/:id', (req: Request, res: Response) => {
 });
 
 // PATCH /scim/v2/Users/:id — update user (activate/deactivate)
-router.patch('/Users/:id', (req: Request, res: Response) => {
+router.patch('/Users/:id', async (req: Request, res: Response) => {
   try {
-    const existing = scimUserStore.get(req.params.id);
+    const existing = await prisma.scimUser.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
@@ -555,38 +587,47 @@ router.patch('/Users/:id', (req: Request, res: Response) => {
       });
     }
 
+    // Apply patch operations in-memory then save
+    let active = existing.active;
+    let displayName = existing.displayName;
+    let givenName = existing.givenName;
+    let familyName = existing.familyName;
+
     for (const op of parsed.data.Operations) {
       if (op.op === 'replace') {
         if (
           op.path === 'active' ||
           (!op.path && typeof op.value === 'object' && 'active' in op.value)
         ) {
-          existing.active = op.path === 'active' ? !!op.value : !!op.value.active;
+          active = op.path === 'active' ? !!op.value : !!op.value.active;
         }
         if (
           op.path === 'displayName' ||
           (!op.path && typeof op.value === 'object' && 'displayName' in op.value)
         ) {
-          existing.displayName =
+          displayName =
             op.path === 'displayName' ? String(op.value) : String(op.value.displayName);
         }
         if (op.path === 'name.givenName' && op.value) {
-          existing.name.givenName = String(op.value);
-          existing.name.formatted = `${existing.name.givenName} ${existing.name.familyName}`.trim();
+          givenName = String(op.value);
         }
         if (op.path === 'name.familyName' && op.value) {
-          existing.name.familyName = String(op.value);
-          existing.name.formatted = `${existing.name.givenName} ${existing.name.familyName}`.trim();
+          familyName = String(op.value);
         }
       }
     }
 
-    existing.meta.lastModified = new Date().toISOString();
-    logger.info('SCIM user patched', { id: req.params.id, active: existing.active });
+    const updated = await prisma.scimUser.update({
+      where: { id: req.params.id },
+      data: { active, displayName, givenName, familyName },
+    });
+
+    const user = dbUserToScimUser(updated);
+    logger.info('SCIM user patched', { id: req.params.id, active: user.active });
 
     res.json({
       schemas: ['urn:ietf:params:scim:schemas:core:2.0:User'],
-      ...existing,
+      ...user,
     });
   } catch (error: unknown) {
     logger.error('SCIM patch user failed', {
@@ -601,9 +642,9 @@ router.patch('/Users/:id', (req: Request, res: Response) => {
 });
 
 // DELETE /scim/v2/Users/:id — deprovision user
-router.delete('/Users/:id', (req: Request, res: Response) => {
+router.delete('/Users/:id', async (req: Request, res: Response) => {
   try {
-    const existing = scimUserStore.get(req.params.id);
+    const existing = await prisma.scimUser.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
@@ -612,8 +653,7 @@ router.delete('/Users/:id', (req: Request, res: Response) => {
       });
     }
 
-    scimUserStore.delete(req.params.id);
-    scimUserByUserName.delete(existing.userName);
+    await prisma.scimUser.delete({ where: { id: req.params.id } });
     logger.info('SCIM user deprovisioned', { id: req.params.id, userName: existing.userName });
 
     res.status(204).send();
@@ -630,13 +670,13 @@ router.delete('/Users/:id', (req: Request, res: Response) => {
 });
 
 // GET /scim/v2/Groups — list groups (maps to Nexara roles, supports filter)
-router.get('/Groups', (req: Request, res: Response) => {
+router.get('/Groups', async (req: Request, res: Response) => {
   try {
     const startIndex = Math.max(1, parseInt(req.query.startIndex as string, 10) || 1);
     const count = Math.min(200, Math.max(1, parseInt(req.query.count as string, 10) || 100));
     const filterParam = req.query.filter as string | undefined;
-
-    let allGroups = Array.from(scimGroupStore.values());
+    const allDbGroups = await prisma.scimGroup.findMany();
+    let allGroups: ScimGroup[] = allDbGroups.map(dbGroupToScimGroup);
 
     // Apply filter (supports displayName eq "...")
     if (filterParam) {
@@ -670,16 +710,17 @@ router.get('/Groups', (req: Request, res: Response) => {
 });
 
 // GET /scim/v2/Groups/:id — get single group
-router.get('/Groups/:id', (req: Request, res: Response) => {
+router.get('/Groups/:id', async (req: Request, res: Response) => {
   try {
-    const group = scimGroupStore.get(req.params.id);
-    if (!group) {
+    const record = await prisma.scimGroup.findUnique({ where: { id: req.params.id } });
+    if (!record) {
       return res.status(404).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
         detail: 'Group not found',
         status: '404',
       });
     }
+    const group = dbGroupToScimGroup(record);
     res.json({
       schemas: ['urn:ietf:params:scim:schemas:core:2.0:Group'],
       ...group,
@@ -697,10 +738,10 @@ router.get('/Groups/:id', (req: Request, res: Response) => {
 });
 
 // PATCH /scim/v2/Groups/:id — update group members
-router.patch('/Groups/:id', (req: Request, res: Response) => {
+router.patch('/Groups/:id', async (req: Request, res: Response) => {
   try {
-    const group = scimGroupStore.get(req.params.id);
-    if (!group) {
+    const record = await prisma.scimGroup.findUnique({ where: { id: req.params.id } });
+    if (!record) {
       return res.status(404).json({
         schemas: ['urn:ietf:params:scim:api:messages:2.0:Error'],
         detail: 'Group not found',
@@ -719,6 +760,8 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
     }
 
     const { Operations } = parsed.data;
+    let members = (record.members as ScimGroup['members']) || [];
+    let displayName = record.displayName;
 
     for (const op of Operations) {
       if (op.op === 'add' && op.path === 'members') {
@@ -734,16 +777,13 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
           ) {
             continue;
           }
-          if (!group.members.find((m) => m.value === member.value)) {
-            const user = scimUserStore.get(member.value);
-            group.members.push({
+          if (!members.find((m) => m.value === member.value)) {
+            // Look up user display name if available
+            const user = await prisma.scimUser.findUnique({ where: { id: member.value } }).catch(() => null);
+            members.push({
               value: String(member.value),
               display: String(member.display || user?.displayName || member.value).slice(0, 200),
             });
-            // Also add group reference to user
-            if (user && !user.groups.find((g) => g.value === group.id)) {
-              user.groups.push({ value: group.id, display: group.displayName });
-            }
           }
         }
       } else if (op.op === 'remove' && op.path?.startsWith('members')) {
@@ -752,18 +792,22 @@ router.patch('/Groups/:id', (req: Request, res: Response) => {
         if (memberMatch) {
           const memberId = memberMatch[1];
           if (memberId.length > 200) continue;
-          group.members = group.members.filter((m) => m.value !== memberId);
-          const user = scimUserStore.get(memberId);
-          if (user) {
-            user.groups = user.groups.filter((g) => g.value !== group.id);
-          }
+          members = members.filter((m) => m.value !== memberId);
         }
       } else if (op.op === 'replace' && op.path === 'displayName') {
-        group.displayName = String(op.value).slice(0, 200);
+        displayName = String(op.value).slice(0, 200);
       }
     }
 
-    group.meta.lastModified = new Date().toISOString();
+    const updated = await prisma.scimGroup.update({
+      where: { id: req.params.id },
+      data: {
+        members: members as Prisma.InputJsonValue,
+        displayName,
+      },
+    });
+
+    const group = dbGroupToScimGroup(updated);
     logger.info('SCIM group patched', {
       id: req.params.id,
       displayName: group.displayName,
