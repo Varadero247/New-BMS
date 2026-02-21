@@ -68,6 +68,22 @@ describe('GET /api/board-packs', () => {
     expect(res.body.data.pagination.limit).toBe(5);
   });
 
+  it('boardPacks is an array', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.boardPacks)).toBe(true);
+  });
+
+  it('findMany and count are each called once per request', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    await request(app).get('/api/board-packs');
+    expect(mockPrisma.boardPack.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.boardPack.count).toHaveBeenCalledTimes(1);
+  });
+
   it('should handle server errors', async () => {
     mockPrisma.boardPack.findMany.mockRejectedValue(new Error('DB error'));
 

@@ -158,6 +158,19 @@ describe('GET /api/winback/active', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
   });
+
+  it('active data is an array', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/winback/active');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('findMany called once for GET /active', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/winback/active');
+    expect(prisma.mktWinBackSequence.findMany).toHaveBeenCalledTimes(1);
+  });
 });
 
 // ─── 500 error paths ────────────────────────────────────────────────────────

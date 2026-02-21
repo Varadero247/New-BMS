@@ -70,6 +70,19 @@ describe('GET /api/uptime', () => {
     expect(res.body.data.checks).toHaveLength(0);
   });
 
+  it('checks is an array', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/uptime');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.checks)).toBe(true);
+  });
+
+  it('findMany called once per GET request', async () => {
+    mockPrisma.uptimeCheck.findMany.mockResolvedValue([]);
+    await request(app).get('/api/uptime');
+    expect(mockPrisma.uptimeCheck.findMany).toHaveBeenCalledTimes(1);
+  });
+
   it('should handle server errors', async () => {
     mockPrisma.uptimeCheck.findMany.mockRejectedValue(new Error('DB error'));
 

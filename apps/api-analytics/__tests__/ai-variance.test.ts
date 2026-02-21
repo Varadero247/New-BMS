@@ -70,6 +70,13 @@ describe('buildVariancePrompt', () => {
     expect(prompt).toContain('ON_TRACK');
     expect(prompt).toContain('AHEAD');
   });
+
+  it('includes negative variance when MRR is below plan', () => {
+    const lowSnapshot = { ...snapshot, mrr: 750 };
+    const prompt = buildVariancePrompt(lowSnapshot, planTarget);
+    expect(prompt).toContain('MRR variance:');
+    expect(prompt).toContain('-50.0%');
+  });
 });
 
 describe('parseAIResponse', () => {
@@ -120,6 +127,17 @@ describe('parseAIResponse', () => {
     });
     const result = parseAIResponse(json);
     expect(result.trajectory).toBe('ON_TRACK');
+  });
+
+  it('preserves BEHIND trajectory', () => {
+    const json = JSON.stringify({
+      summary: 'Behind plan',
+      alerts: ['Missed targets'],
+      recommendations: [],
+      trajectory: 'BEHIND',
+    });
+    const result = parseAIResponse(json);
+    expect(result.trajectory).toBe('BEHIND');
   });
 });
 
