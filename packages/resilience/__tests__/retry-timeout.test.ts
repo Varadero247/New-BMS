@@ -129,12 +129,13 @@ describe('withTimeout — comprehensive', () => {
   });
 
   it('should reject when function exceeds timeout', async () => {
-    const fn = () => new Promise<string>((resolve) => setTimeout(() => resolve('done'), 500));
+    // 50ms > 10ms outer timeout — still demonstrates the timeout; short enough not to leak.
+    const fn = () => new Promise<string>((resolve) => setTimeout(() => resolve('done'), 50));
     await expect(withTimeout(fn, 10)).rejects.toThrow('Operation timed out');
   });
 
   it('should use custom error message', async () => {
-    const fn = () => new Promise<string>((resolve) => setTimeout(() => resolve('done'), 500));
+    const fn = () => new Promise<string>((resolve) => setTimeout(() => resolve('done'), 50));
     await expect(withTimeout(fn, 10, 'Custom timeout message')).rejects.toThrow(
       'Custom timeout message'
     );

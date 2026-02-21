@@ -25,9 +25,11 @@ describe('withHedging()', () => {
       () => {
         callCount++;
         const isFirst = callCount === 1;
-        // First call takes 200ms, hedge (second call) returns in 10ms
+        // First call takes 60ms, hedge (second call) returns in 10ms.
+        // Hedge fires at 20ms → hedge wins at ~30ms → first timer fires 30ms later.
+        // 60ms keeps the leak window short while still demonstrating the race.
         return new Promise<string>((resolve) =>
-          setTimeout(() => resolve(isFirst ? 'slow' : 'fast'), isFirst ? 200 : 10)
+          setTimeout(() => resolve(isFirst ? 'slow' : 'fast'), isFirst ? 60 : 10)
         );
       },
       { delayMs: 20, maxAttempts: 2 }
@@ -50,7 +52,7 @@ describe('withHedging()', () => {
   it('calls onHedge for each hedged attempt', async () => {
     const onHedge = jest.fn();
     await withHedging(
-      () => new Promise((resolve) => setTimeout(resolve, 100, 'v')),
+      () => new Promise((resolve) => setTimeout(resolve, 30, 'v')),
       { delayMs: 5, maxAttempts: 2, onHedge }
     );
     expect(onHedge).toHaveBeenCalledTimes(1);
@@ -116,8 +118,9 @@ describe('RequestHedger', () => {
 
   it('hedgesIssued increments when a hedge is launched', async () => {
     const hedger = new RequestHedger({ delayMs: 5, maxAttempts: 2 });
+    // 30ms: long enough for the 5ms hedge timer to fire, short enough not to leak.
     await hedger.execute(
-      () => new Promise((resolve) => setTimeout(resolve, 100, 'v'))
+      () => new Promise((resolve) => setTimeout(resolve, 30, 'v'))
     );
     expect(hedger.hedgesIssued).toBeGreaterThanOrEqual(1);
   });

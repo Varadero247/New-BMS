@@ -1,4 +1,9 @@
-import { createCircuitBreaker, createServiceClient } from '../src/index';
+import { createCircuitBreaker, createServiceClient, clearCircuitBreakers } from '../src/index';
+
+afterAll(() => {
+  // Shut down opossum rolling-window timers to prevent open-handle leaks.
+  clearCircuitBreakers();
+});
 
 describe('createCircuitBreaker', () => {
   it('should create a circuit breaker with default options', () => {

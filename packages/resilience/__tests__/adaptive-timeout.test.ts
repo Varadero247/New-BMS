@@ -158,15 +158,16 @@ describe('withAdaptiveTimeout()', () => {
 
   it('rejects with timeout error when operation is too slow', async () => {
     const t = new AdaptiveTimeout({ baseTimeoutMs: 10 }); // 10ms timeout
+    // 50ms > 10ms outer timeout — still demonstrates the timeout; short enough not to leak.
     await expect(
-      withAdaptiveTimeout(t, () => new Promise((r) => setTimeout(r, 100)))
+      withAdaptiveTimeout(t, () => new Promise((r) => setTimeout(r, 50)))
     ).rejects.toThrow(/timed out/i);
   });
 
   it('uses custom error message on timeout', async () => {
     const t = new AdaptiveTimeout({ baseTimeoutMs: 10 });
     await expect(
-      withAdaptiveTimeout(t, () => new Promise((r) => setTimeout(r, 100)), 'Database call timed out')
+      withAdaptiveTimeout(t, () => new Promise((r) => setTimeout(r, 50)), 'Database call timed out')
     ).rejects.toThrow('Database call timed out');
   });
 });
