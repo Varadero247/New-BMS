@@ -266,3 +266,73 @@ describe('GET /api/checklists/:id/results', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcChecklist.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/checklists');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcChecklist.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/checklists').send({
+      name: 'Test Checklist',
+      category: 'Safety',
+      items: [{ label: 'Check fire extinguisher' }],
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcChecklist.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/checklists/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcChecklist.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/checklists/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/results returns 500 when create fails', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcChecklistResult.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/checklists/00000000-0000-0000-0000-000000000001/results')
+      .send({
+        jobId: '00000000-0000-0000-0000-000000000001',
+        completedAt: '2026-02-21T10:00:00Z',
+        results: [],
+        overallResult: 'PASS',
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/results returns 500 on DB error', async () => {
+    mockPrisma.fsSvcChecklist.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcChecklistResult.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/checklists/00000000-0000-0000-0000-000000000001/results');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

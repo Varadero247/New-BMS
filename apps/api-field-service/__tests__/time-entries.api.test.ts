@@ -217,3 +217,58 @@ describe('DELETE /api/time-entries/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/time-entries');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /summary returns 500 on DB error', async () => {
+    mockPrisma.fsSvcTimeEntry.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/time-entries/summary');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcTimeEntry.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/time-entries').send({
+      jobId: '00000000-0000-0000-0000-000000000001',
+      technicianId: '00000000-0000-0000-0000-000000000002',
+      type: 'WORK',
+      startTime: '2026-02-21T08:00:00Z',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcTimeEntry.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/time-entries/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcTimeEntry.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/time-entries/00000000-0000-0000-0000-000000000001')
+      .send({ type: 'TRAVEL' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.fsSvcTimeEntry.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcTimeEntry.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/time-entries/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

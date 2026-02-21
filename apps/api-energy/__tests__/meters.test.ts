@@ -276,3 +276,59 @@ describe('GET /api/meters/hierarchy', () => {
     expect(res.body.data[0].children).toHaveLength(1);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.energyMeter.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/meters').send({
+      name: 'Test Meter',
+      code: 'MTR-999',
+      type: 'ELECTRICITY',
+      unit: 'kWh',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/meters/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energyMeter.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/meters/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energyMeter.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/meters/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id/readings returns 500 on DB error', async () => {
+    (prisma.energyMeter.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energyReading.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/meters/00000000-0000-0000-0000-000000000001/readings');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /hierarchy returns 500 on DB error', async () => {
+    (prisma.energyMeter.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/meters/hierarchy');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -213,3 +213,59 @@ describe('DELETE /api/contracts/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcContract.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /expiring returns 500 on DB error', async () => {
+    mockPrisma.fsSvcContract.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/contracts/expiring');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcContract.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/contracts').send({
+      customerId: '00000000-0000-0000-0000-000000000001',
+      title: 'Test Contract',
+      type: 'SLA',
+      startDate: '2026-01-01',
+      endDate: '2026-12-31',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcContract.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcContract.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/contracts/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.fsSvcContract.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcContract.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

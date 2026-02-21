@@ -210,3 +210,44 @@ describe('DELETE /api/seus/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.energySeu.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/seus').send({
+      name: 'HVAC System',
+      consumptionPercentage: 35,
+      annualConsumption: 50000,
+      unit: 'kWh',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/seus/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energySeu.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/seus/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    (prisma.energySeu.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.energySeu.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/seus/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
