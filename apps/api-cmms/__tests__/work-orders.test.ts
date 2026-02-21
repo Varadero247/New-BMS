@@ -339,4 +339,95 @@ describe('Work Orders Routes', () => {
       expect(res.status).toBe(200);
     });
   });
+
+  // ─── 500 error paths ────────────────────────────────────────────────────────
+
+  describe('500 error handling', () => {
+    it('POST / returns 500 when create fails', async () => {
+      prisma.cmmsWorkOrder.create.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).post('/api/work-orders').send({
+        title: 'Test WO',
+        assetId: '00000000-0000-0000-0000-000000000001',
+        type: 'CORRECTIVE',
+        priority: 'HIGH',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /:id returns 500 on DB error', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/work-orders/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id returns 500 when update fails', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'Updated' });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('DELETE /:id returns 500 when update fails', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).delete('/api/work-orders/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id/assign returns 500 when update fails', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000001/assign')
+        .send({ assignedTo: 'tech-2' });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id/start returns 500 when update fails', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/start');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id/complete returns 500 when update fails', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue(mockWorkOrder);
+      prisma.cmmsWorkOrder.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .put('/api/work-orders/00000000-0000-0000-0000-000000000001/complete')
+        .send({ completionNotes: 'Done' });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id/close returns 500 when update fails', async () => {
+      prisma.cmmsWorkOrder.findFirst.mockResolvedValue({ ...mockWorkOrder, status: 'COMPLETED' });
+      prisma.cmmsWorkOrder.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).put('/api/work-orders/00000000-0000-0000-0000-000000000001/close');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /overdue returns 500 on DB error', async () => {
+      prisma.cmmsWorkOrder.findMany.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/work-orders/overdue');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /upcoming returns 500 on DB error', async () => {
+      prisma.cmmsWorkOrder.findMany.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/work-orders/upcoming');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
 });

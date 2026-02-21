@@ -148,3 +148,71 @@ describe('GET /api/risks/actions/due-soon', () => {
     expect(res.status).toBe(200);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /:id/actions returns 500 on DB error', async () => {
+    mockPrisma.riskAction.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/actions');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/actions returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions')
+      .send({ actionTitle: 'Fix', description: 'Desc', actionType: 'PREVENTIVE', targetDate: '2026-06-01T00:00:00Z' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:riskId/actions/:id returns 500 when update fails', async () => {
+    mockPrisma.riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001')
+      .send({ priority: 'HIGH' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /complete returns 500 when update fails', async () => {
+    mockPrisma.riskAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskAction.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000001/complete')
+      .send({ evidenceOfCompletion: 'Photo' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /actions/overdue returns 500 on DB error', async () => {
+    mockPrisma.riskAction.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/actions/overdue');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /actions/due-soon returns 500 on DB error', async () => {
+    mockPrisma.riskAction.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/actions/due-soon');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── POST complete — 404 when action not found ───────────────────────────────
+
+describe('POST /complete — not found', () => {
+  it('returns 404 when action not found', async () => {
+    mockPrisma.riskAction.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/actions/00000000-0000-0000-0000-000000000099/complete')
+      .send({ evidenceOfCompletion: 'Photo' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

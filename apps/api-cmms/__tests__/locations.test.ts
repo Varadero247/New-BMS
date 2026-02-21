@@ -181,4 +181,44 @@ describe('Locations Routes', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  // ─── 500 error paths ────────────────────────────────────────────────────────
+
+  describe('500 error handling', () => {
+    it('POST / returns 500 when create fails', async () => {
+      prisma.cmmsLocation.create.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).post('/api/locations').send({
+        name: 'Test Location',
+        code: 'LOC-999',
+        type: 'BUILDING',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /:id returns 500 on DB error', async () => {
+      prisma.cmmsLocation.findFirst.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/locations/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id returns 500 when update fails', async () => {
+      prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
+      prisma.cmmsLocation.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .put('/api/locations/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated' });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('DELETE /:id returns 500 when update fails', async () => {
+      prisma.cmmsLocation.findFirst.mockResolvedValue(mockLocation);
+      prisma.cmmsLocation.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).delete('/api/locations/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
 });

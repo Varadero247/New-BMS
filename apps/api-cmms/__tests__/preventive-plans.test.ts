@@ -194,4 +194,45 @@ describe('Preventive Plans Routes', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  // ─── 500 error paths ────────────────────────────────────────────────────────
+
+  describe('500 error handling', () => {
+    it('POST / returns 500 when create fails', async () => {
+      prisma.cmmsPreventivePlan.create.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).post('/api/preventive-plans').send({
+        name: 'Test Plan',
+        assetId: '00000000-0000-0000-0000-000000000001',
+        frequency: 'MONTHLY',
+        nextDue: '2026-03-01',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /:id returns 500 on DB error', async () => {
+      prisma.cmmsPreventivePlan.findFirst.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/preventive-plans/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id returns 500 when update fails', async () => {
+      prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
+      prisma.cmmsPreventivePlan.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .put('/api/preventive-plans/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated' });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('DELETE /:id returns 500 when update fails', async () => {
+      prisma.cmmsPreventivePlan.findFirst.mockResolvedValue(mockPlan);
+      prisma.cmmsPreventivePlan.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).delete('/api/preventive-plans/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
 });

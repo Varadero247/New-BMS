@@ -295,4 +295,48 @@ describe('Assets Routes', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  // ─── 500 error paths ────────────────────────────────────────────────────────
+
+  describe('500 error handling', () => {
+    it('GET /:id returns 500 on DB error', async () => {
+      prisma.cmmsAsset.findFirst.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id returns 500 when update fails', async () => {
+      prisma.cmmsAsset.findFirst.mockResolvedValue(mockAsset);
+      prisma.cmmsAsset.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .put('/api/assets/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated' });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('DELETE /:id returns 500 when update fails', async () => {
+      prisma.cmmsAsset.findFirst.mockResolvedValue(mockAsset);
+      prisma.cmmsAsset.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).delete('/api/assets/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /:id/history returns 500 on DB error', async () => {
+      prisma.cmmsAsset.findFirst.mockResolvedValue(mockAsset);
+      prisma.cmmsWorkOrder.findMany.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001/history');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /:id/qr-code returns 500 on DB error', async () => {
+      prisma.cmmsAsset.findFirst.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/assets/00000000-0000-0000-0000-000000000001/qr-code');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
 });

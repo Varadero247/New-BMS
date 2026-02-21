@@ -367,3 +367,132 @@ describe('POST /api/risks/from-audit/:id', () => {
     expect(res.status).toBe(201);
   });
 });
+
+// ─── POST /api/risks validation ─────────────────────────────────────────────
+
+describe('POST /api/risks — validation', () => {
+  it('returns 400 when title is missing', async () => {
+    const res = await request(app).post('/api/risks').send({ category: 'OPERATIONAL' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 400 when category is invalid', async () => {
+    const res = await request(app).post('/api/risks').send({ title: 'New', category: 'BOGUS' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+// ─── 500 error paths for named routes ───────────────────────────────────────
+
+describe('500 error handling — named routes', () => {
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockRejectedValue(new Error('DB down'));
+    mockPrisma.riskAppetiteStatement.findFirst.mockResolvedValue(null);
+    const res = await request(app).post('/api/risks').send({ title: 'T', category: 'OPERATIONAL' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /register returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/register');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /heatmap returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/heatmap');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /overdue-review returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/overdue-review');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /exceeds-appetite returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/exceeds-appetite');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /by-category returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.groupBy.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/by-category');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /aggregate returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.groupBy.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/aggregate');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /from-coshh returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/from-coshh/00000000-0000-0000-0000-000000000001')
+      .send({ id: '00000000-0000-0000-0000-000000000001', chemicalName: 'Acid' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /from-fra returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/from-fra/00000000-0000-0000-0000-000000000001')
+      .send({ id: '00000000-0000-0000-0000-000000000001', premisesName: 'HQ' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /from-incident returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/from-incident/00000000-0000-0000-0000-000000000001')
+      .send({ id: '00000000-0000-0000-0000-000000000001', title: 'Slip' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /from-audit returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/from-audit/00000000-0000-0000-0000-000000000001')
+      .send({ id: '00000000-0000-0000-0000-000000000001', title: 'Missing doc' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── GET /aggregate — invalid groupBy falls back to category ────────────────
+
+describe('GET /api/risks/aggregate — groupBy fallback', () => {
+  it('falls back to category when groupBy field is invalid', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([{ category: 'FINANCIAL', _count: 5 }]);
+    const res = await request(app).get('/api/risks/aggregate?groupBy=INVALID_FIELD');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].group).toBe('FINANCIAL');
+  });
+});

@@ -283,4 +283,80 @@ describe('Vendors Routes', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  // ─── 500 error paths ────────────────────────────────────────────────────────
+
+  describe('500 error handling', () => {
+    it('POST / returns 500 when create fails', async () => {
+      prisma.cmmsVendor.create.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).post('/api/vendors').send({
+        name: 'Test Vendor',
+        code: 'TEST-001',
+        email: 'test@vendor.com',
+        specialization: 'HVAC',
+      });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /:id returns 500 on DB error', async () => {
+      prisma.cmmsVendor.findFirst.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /:id returns 500 when update fails', async () => {
+      prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
+      prisma.cmmsVendor.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .put('/api/vendors/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated' });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('DELETE /:id returns 500 when update fails', async () => {
+      prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
+      prisma.cmmsVendor.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).delete('/api/vendors/00000000-0000-0000-0000-000000000001');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('GET /:id/contracts returns 500 on DB error', async () => {
+      prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
+      prisma.cmmsServiceContract.findMany.mockRejectedValue(new Error('DB down'));
+      const res = await request(app).get('/api/vendors/00000000-0000-0000-0000-000000000001/contracts');
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('POST /:id/contracts returns 500 when create fails', async () => {
+      prisma.cmmsVendor.findFirst.mockResolvedValue(mockVendor);
+      prisma.cmmsServiceContract.create.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .post('/api/vendors/00000000-0000-0000-0000-000000000001/contracts')
+        .send({
+          contractNumber: 'SC-001',
+          title: 'Annual Contract',
+          startDate: '2026-01-01',
+          endDate: '2026-12-31',
+          value: 50000,
+          type: 'FULL_SERVICE',
+        });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+
+    it('PUT /contracts/:id returns 500 when update fails', async () => {
+      prisma.cmmsServiceContract.findFirst.mockResolvedValue(mockContract);
+      prisma.cmmsServiceContract.update.mockRejectedValue(new Error('DB down'));
+      const res = await request(app)
+        .put('/api/contracts/contracts/00000000-0000-0000-0000-000000000001')
+        .send({ title: 'Updated' });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
 });
