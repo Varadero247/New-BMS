@@ -235,3 +235,25 @@ describe('GET /cashflow/position', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  const app500 = express();
+  app500.use(express.json());
+  app500.use('/', cashflowRouter);
+
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.cashFlowForecast.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app500).get('/');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /position returns 500 on DB error', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app500).get('/position');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

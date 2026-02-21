@@ -194,3 +194,16 @@ describe('Document Analysis Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST /api/documents/analyze returns 500 when DB lookup fails', async () => {
+    (prisma.aISettings.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Some document text', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('AI_ERROR');
+  });
+});

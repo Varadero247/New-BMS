@@ -280,3 +280,29 @@ describe('PATCH /api/deals/:id/status', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST /api/deals returns 500 when create fails', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ id: 'partner-1', tier: 'REFERRAL' });
+    (prisma.mktPartnerDeal.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/deals').send({
+      companyName: 'ClientCo',
+      contactName: 'Jane Client',
+      contactEmail: 'jane@client.com',
+      estimatedUsers: 20,
+      isoStandards: ['9001'],
+      estimatedACV: 12000,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/deals returns 500 on DB error', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/deals');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

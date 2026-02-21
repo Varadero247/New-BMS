@@ -976,3 +976,40 @@ describe('POST /api/payables/payment-run', () => {
     expect(res.body.data.billCount).toBe(0);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /api/payables/suppliers returns 500 on DB error', async () => {
+    mockPrisma.finSupplier.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/payables/suppliers');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/payables/suppliers returns 500 when create fails', async () => {
+    mockPrisma.finSupplier.findUnique.mockResolvedValue(null);
+    mockPrisma.finSupplier.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/payables/suppliers').send({
+      code: 'ACME01',
+      name: 'Acme Corp',
+      currency: 'GBP',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/payables (bills list) returns 500 on DB error', async () => {
+    mockPrisma.finBill.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/payables');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/payables/payment-run returns 500 on DB error', async () => {
+    mockPrisma.finBill.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/payables/payment-run').send({});
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

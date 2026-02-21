@@ -563,4 +563,23 @@ describe('AI Analyze - Automotive APQP/PPAP Types', () => {
       expect(response.body.data.result.recommendedStep2.step).toBe(2);
     });
   });
+
+  // ─── 500 error paths ──────────────────────────────────────────────────────
+
+  describe('500 error handling', () => {
+    it('returns 500 when aISettings DB lookup fails', async () => {
+      mockPrisma.aISettings.findFirst.mockRejectedValueOnce(new Error('DB down'));
+
+      const response = await request(app)
+        .post('/api/analyze')
+        .set('Authorization', 'Bearer test-token')
+        .send({
+          type: 'AUTOMOTIVE_APQP_RISK_ASSESSMENT',
+          context: { partName: 'Test Part' },
+        });
+
+      expect(response.status).toBe(500);
+      expect(response.body.error.code).toBe('INTERNAL_ERROR');
+    });
+  });
 });

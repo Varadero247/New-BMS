@@ -254,3 +254,30 @@ describe('GET /api/emissions/trend', () => {
     expect(res.body.data[0].month).toBe('2026-01');
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /api/emissions returns 500 on DB error', async () => {
+    (prisma.esgEmission.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/emissions');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/emissions returns 500 when create fails', async () => {
+    (prisma.esgEmission.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/emissions').send({
+      scope: 'SCOPE_1',
+      category: 'Stationary Combustion',
+      source: 'Boiler',
+      quantity: 1000,
+      unit: 'kg',
+      co2Equivalent: 2500,
+      periodStart: '2026-01-01',
+      periodEnd: '2026-01-31',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
