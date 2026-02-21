@@ -213,14 +213,14 @@ describe('HubSpotClient — additional coverage', () => {
   it('createContact calls fetch once', async () => {
     const client = new HubSpotClient('test-key');
     mockFetch.mockReturnValueOnce({ ok: true, json: async () => ({ id: 'c-1' }) });
-    await client.createContact({ properties: { email: 'test@ims.local' } });
+    await client.createContact({ email: 'test@ims.local' });
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
 
   it('updateContact returns null on error', async () => {
     const client = new HubSpotClient('test-key');
     mockFetch.mockReturnValueOnce({ ok: false, status: 500, json: async () => ({}) });
-    const result = await client.updateContact('c-1', { properties: { firstname: 'X' } });
+    const result = await client.updateContact('c-1', { firstname: 'X' });
     expect(result).toBeNull();
   });
 
