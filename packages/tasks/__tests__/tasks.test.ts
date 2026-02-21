@@ -196,6 +196,36 @@ describe('getMyTasks', () => {
     const all = [...grouped.overdue, ...grouped.today, ...grouped.thisWeek, ...grouped.later];
     expect(all.every((t) => t.assigneeId === 'alice')).toBe(true);
   });
+
+  it('places task due today in the "today" bucket', async () => {
+    // Due in 2 hours = same calendar day = "today" bucket
+    const inTwoHours = new Date(Date.now() + 2 * 60 * 60 * 1000);
+    // Ensure it's still today (guard against midnight boundary)
+    const today = new Date();
+    if (inTwoHours.getDate() === today.getDate()) {
+      await createTask({ orgId: 'org-1', title: 'Today task', assigneeId: 'carol', assigneeName: 'Carol', createdById: 'u2', dueDate: inTwoHours });
+      const grouped = await getMyTasks('org-1', 'carol');
+      expect(grouped.today).toHaveLength(1);
+      expect(grouped.today[0].title).toBe('Today task');
+    }
+  });
+
+  it('places task due in 3 days in "thisWeek" bucket', async () => {
+    const threeDays = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+    await createTask({ orgId: 'org-1', title: 'This week', assigneeId: 'dave', assigneeName: 'Dave', createdById: 'u2', dueDate: threeDays });
+    const grouped = await getMyTasks('org-1', 'dave');
+    expect(grouped.thisWeek).toHaveLength(1);
+    expect(grouped.thisWeek[0].title).toBe('This week');
+  });
+
+  it('sorts within a group by priority (HIGH before MEDIUM)', async () => {
+    const past = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+    await createTask({ orgId: 'org-1', title: 'Med overdue', assigneeId: 'eve', assigneeName: 'Eve', createdById: 'u2', priority: 'MEDIUM', dueDate: past });
+    await createTask({ orgId: 'org-1', title: 'High overdue', assigneeId: 'eve', assigneeName: 'Eve', createdById: 'u2', priority: 'HIGH', dueDate: past });
+    const grouped = await getMyTasks('org-1', 'eve');
+    expect(grouped.overdue[0].priority).toBe('HIGH');
+    expect(grouped.overdue[1].priority).toBe('MEDIUM');
+  });
 });
 
 describe('updateTask', () => {
@@ -216,6 +246,20 @@ describe('updateTask', () => {
 
   it('throws when task not found', async () => {
     await expect(updateTask('non-existent-id', { title: 'X' })).rejects.toThrow('Task not found');
+  });
+
+  it('updates description field', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'Alice', createdById: 'u2' });
+    const updated = await updateTask(task.id, { description: 'New desc' });
+    expect(updated.description).toBe('New desc');
+  });
+
+  it('updates dueDate field', async () => {
+    const task = await createTask({ orgId: 'org-1', title: 'T', assigneeId: 'u1', assigneeName: 'Alice', createdById: 'u2' });
+    const newDue = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    const updated = await updateTask(task.id, { dueDate: newDue });
+    expect(updated.dueDate).toBeInstanceOf(Date);
+    expect(updated.dueDate!.getTime()).toBeCloseTo(newDue.getTime(), -2);
   });
 });
 
