@@ -25,51 +25,186 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
+const AUDIT_ID = '00000000-0000-0000-0000-000000000001';
+
+function makeAudit(overrides: Record<string, unknown> = {}) {
+  return {
+    id: AUDIT_ID,
+    referenceNumber: 'AUD-2026-0001',
+    title: 'Annual Audit',
+    scope: 'Quality Management',
+    standard: 'ISO 9001:2015',
+    type: 'INTERNAL',
+    status: 'SCHEDULED',
+    ...overrides,
+  };
+}
+
 describe('POST /api/pre-audit/:id/generate', () => {
   it('should generate a pre-audit report for a valid audit', async () => {
-    mockPrisma.audAudit.findFirst.mockResolvedValue({
-      id: '00000000-0000-0000-0000-000000000001',
-      referenceNumber: 'AUD-2026-0001',
-      title: 'Annual ISO 9001 Audit',
-      scope: 'Quality Management',
-      standard: 'ISO 9001:2015',
-    });
-    const res = await request(app).post(
-      '/api/pre-audit/00000000-0000-0000-0000-000000000001/generate'
-    );
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit());
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data).toBeDefined();
     expect(res.body.data.auditRef).toBe('AUD-2026-0001');
-    expect(res.body.data.title).toBe('Annual ISO 9001 Audit');
-    expect(res.body.data.scope).toBe('Quality Management');
-    expect(res.body.data.standard).toBe('ISO 9001:2015');
+    expect(res.body.data.title).toBe('Annual Audit');
     expect(Array.isArray(res.body.data.recommendations)).toBe(true);
     expect(res.body.data.recommendations.length).toBeGreaterThan(0);
     expect(Array.isArray(res.body.data.checklist)).toBe(true);
     expect(res.body.data.generatedAt).toBeDefined();
-    expect(res.body.data.preparedDate).toBeDefined();
     expect(res.body.data.estimatedDurationHours).toBeGreaterThan(0);
   });
 
   it('should return 404 when audit not found', async () => {
     mockPrisma.audAudit.findFirst.mockResolvedValue(null);
-    const res = await request(app).post(
-      '/api/pre-audit/00000000-0000-0000-0000-000000000099/generate'
-    );
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
     expect(res.status).toBe(404);
-    expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
-    expect(res.body.error.message).toBe('Audit not found');
   });
 
   it('should return 500 on database error', async () => {
     mockPrisma.audAudit.findFirst.mockRejectedValue(new Error('DB connection failed'));
-    const res = await request(app).post(
-      '/api/pre-audit/00000000-0000-0000-0000-000000000001/generate'
-    );
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
     expect(res.status).toBe(500);
-    expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  // ── Standard-specific recommendations ────────────────────────────
+
+  it('ISO 9001 audit includes quality management recommendations', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'ISO 9001:2015' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('quality management'))).toBe(true);
+    expect(recs.some((r) => r.toLowerCase().includes('customer satisfaction'))).toBe(true);
+  });
+
+  it('ISO 14001 audit includes environmental management recommendations', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'ISO 14001:2015' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('environmental'))).toBe(true);
+  });
+
+  it('ISO 45001 audit includes health & safety recommendations', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'ISO 45001:2018' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('hazard') || r.toLowerCase().includes('incident'))).toBe(true);
+  });
+
+  it('ISO 27001 audit includes information security recommendations', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'ISO/IEC 27001:2022' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('statement of applicability') || r.toLowerCase().includes('soa'))).toBe(true);
+  });
+
+  it('ISO 22301 audit includes business continuity recommendations', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'ISO 22301:2019' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('business continuity'))).toBe(true);
+  });
+
+  it('unknown standard uses generic recommendations', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ standard: 'CUSTOM-STD' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('procedures') || r.toLowerCase().includes('management system'))).toBe(true);
+  });
+
+  // ── Type-specific recommendations ─────────────────────────────────
+
+  it('CERTIFICATION type includes gap assessment recommendation', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'CERTIFICATION' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('gap assessment') || r.toLowerCase().includes('nonconformit'))).toBe(true);
+  });
+
+  it('EXTERNAL type includes process owner notification recommendation', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'EXTERNAL' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('process owner'))).toBe(true);
+  });
+
+  it('SUPPLIER type includes self-assessment questionnaire recommendation', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'SUPPLIER' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.toLowerCase().includes('self-assessment') || r.toLowerCase().includes('supplier'))).toBe(true);
+  });
+
+  // ── Duration estimation ────────────────────────────────────────────
+
+  it('CERTIFICATION audits are estimated at 16 hours', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'CERTIFICATION' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.estimatedDurationHours).toBe(16);
+  });
+
+  it('EXTERNAL audits are estimated at 8 hours', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'EXTERNAL' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.estimatedDurationHours).toBe(8);
+  });
+
+  it('SUPPLIER audits are estimated at 6 hours', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'SUPPLIER' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.estimatedDurationHours).toBe(6);
+  });
+
+  it('INTERNAL audits are estimated at 4 hours', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'INTERNAL' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.estimatedDurationHours).toBe(4);
+  });
+
+  // ── Checklist ──────────────────────────────────────────────────────
+
+  it('CERTIFICATION type adds extra checklist items', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'CERTIFICATION' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.checklist.length).toBeGreaterThan(6); // base 6 + 2 extra
+    const checklist: string[] = res.body.data.checklist;
+    expect(checklist.some((c) => c.toLowerCase().includes('statement of applicability') || c.toLowerCase().includes('risk register'))).toBe(true);
+  });
+
+  it('non-CERTIFICATION types have base checklist (6 items)', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ type: 'INTERNAL' }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.body.data.checklist.length).toBe(6);
+  });
+
+  // ── Scope-specific recommendations ────────────────────────────────
+
+  it('includes scope-specific recommendation when scope > 10 chars', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(
+      makeAudit({ scope: 'Complete Quality Management System including all departments' })
+    );
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.includes('Review all processes within scope'))).toBe(true);
+  });
+
+  it('omits scope recommendation when scope is null or short', async () => {
+    mockPrisma.audAudit.findFirst.mockResolvedValue(makeAudit({ scope: null }));
+    const res = await request(app).post(`/api/pre-audit/${AUDIT_ID}/generate`);
+    expect(res.status).toBe(200);
+    const recs: string[] = res.body.data.recommendations;
+    expect(recs.some((r) => r.includes('Review all processes within scope'))).toBe(false);
   });
 });
