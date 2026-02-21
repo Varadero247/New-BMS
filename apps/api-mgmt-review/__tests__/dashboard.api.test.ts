@@ -80,4 +80,23 @@ describe('GET /api/dashboard/stats', () => {
     expect(countCall.where.orgId).toBe('org-1');
     expect(countCall.where.deletedAt).toBeNull();
   });
+
+  it('count is called exactly once per request', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(3);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.mgmtReview.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('data object has the totalReviews property', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalReviews');
+  });
+
+  it('returns large review count correctly', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(1000);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalReviews).toBe(1000);
+  });
 });

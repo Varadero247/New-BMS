@@ -74,4 +74,32 @@ describe('GET /api/locations', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([{ location: 'Zone A' }]);
+    await request(app).get('/api/locations');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('each entry in data has location and count fields', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Store Room' },
+      { location: 'Store Room' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('location');
+    expect(res.body.data[0]).toHaveProperty('count');
+  });
+
+  it('three distinct locations produce three separate entries', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Alpha' },
+      { location: 'Beta' },
+      { location: 'Gamma' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
 });

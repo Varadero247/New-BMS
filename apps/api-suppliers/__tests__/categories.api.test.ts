@@ -66,4 +66,29 @@ describe('GET /api/categories', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('multiple distinct categories are all represented in result', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([
+      { category: 'Logistics' },
+      { category: 'Software' },
+      { category: 'Hardware' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('each entry in data has category and count fields', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([{ category: 'Services' }]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('category');
+    expect(res.body.data[0]).toHaveProperty('count');
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    await request(app).get('/api/categories');
+    expect(mockPrisma.suppSupplier.findMany).toHaveBeenCalledTimes(1);
+  });
 });

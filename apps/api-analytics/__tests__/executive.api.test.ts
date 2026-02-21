@@ -65,5 +65,21 @@ describe('Executive Summary Routes', () => {
       expect(myActions).toHaveProperty('dueToday');
       expect(typeof myActions.overdue).toBe('number');
     });
+
+    it('certifications is an array', async () => {
+      const res = await request(app).get('/api/executive-summary');
+      expect(Array.isArray(res.body.data.certifications)).toBe(true);
+    });
+
+    it('recentActivity is an array', async () => {
+      const res = await request(app).get('/api/executive-summary');
+      expect(Array.isArray(res.body.data.recentActivity)).toBe(true);
+    });
+
+    it('health has isoReadiness and openCapas fields', async () => {
+      const res = await request(app).get('/api/executive-summary');
+      expect(res.body.data.health).toHaveProperty('isoReadiness');
+      expect(res.body.data.health).toHaveProperty('openCapas');
+    });
   });
 });

@@ -68,4 +68,34 @@ describe('GET /api/dashboard/stats', () => {
     const res = await request(app).get('/api/dashboard/00000000-0000-0000-0000-000000000099');
     expect(res.status).toBe(404);
   });
+
+  it('all three expected data keys are present', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(1);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(1);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalPermits');
+    expect(res.body.data).toHaveProperty('totalMethodStatements');
+    expect(res.body.data).toHaveProperty('totalToolboxTalks');
+  });
+
+  it('all three count queries run once per request', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(4);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(2);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(6);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.ptwPermit.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.ptwMethodStatement.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.ptwToolboxTalk.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns independent values for each entity type', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(8);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(3);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalPermits).toBe(8);
+    expect(res.body.data.totalMethodStatements).toBe(3);
+    expect(res.body.data.totalToolboxTalks).toBe(15);
+  });
 });

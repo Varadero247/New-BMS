@@ -73,6 +73,21 @@ describe('GET /api/cashflow', () => {
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('response data has forecasts and total keys', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([
+      { id: 'cf-3', weekStart: new Date(), inflow: 10000, outflow: 5000 },
+    ]);
+    const res = await request(app).get('/api/cashflow');
+    expect(res.body.data).toHaveProperty('forecasts');
+    expect(res.body.data).toHaveProperty('total');
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    await request(app).get('/api/cashflow');
+    expect(mockPrisma.cashFlowForecast.findMany).toHaveBeenCalledTimes(1);
+  });
 });
 
 // ===================================================================
@@ -106,5 +121,29 @@ describe('GET /api/cashflow/position', () => {
 
     expect(res.status).toBe(500);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('position response includes balance and currency fields', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue({
+      id: 'pos-2',
+      date: new Date(),
+      balance: 500000,
+      currency: 'GBP',
+    });
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.status).toBe(200);
+    expect(res.body.data.position.balance).toBe(500000);
+    expect(res.body.data.position.currency).toBe('GBP');
+  });
+
+  it('findFirst is called once per position request', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue({
+      id: 'pos-3',
+      date: new Date(),
+      balance: 0,
+      currency: 'EUR',
+    });
+    await request(app).get('/api/cashflow/position');
+    expect(mockPrisma.companyCashPosition.findFirst).toHaveBeenCalledTimes(1);
   });
 });
