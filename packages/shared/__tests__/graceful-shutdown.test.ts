@@ -191,3 +191,53 @@ describe('createGracefulShutdown()', () => {
     });
   });
 });
+
+describe('Graceful Shutdown — additional coverage', () => {
+  let server: import('http').Server;
+
+  beforeEach(async () => {
+    server = await (async () => {
+      const { createServer } = await import('http');
+      return new Promise<import('http').Server>((resolve) => {
+        const s = createServer((_req, res) => res.end('ok'));
+        s.listen(0, () => resolve(s));
+      });
+    })();
+  });
+
+  afterEach((done) => {
+    if (server.listening) server.close(done); else done();
+  });
+
+  it('createGracefulShutdown returns an object with middleware and trigger', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    expect(typeof gs.middleware).toBe('function');
+    expect(typeof gs.trigger).toBe('function');
+    gs.destroy();
+  });
+
+  it('inFlightRequests starts at 0', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    expect(gs.inFlightRequests).toBe(0);
+    gs.destroy();
+  });
+
+  it('trigger resolves without throwing', async () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false, drainTimeoutMs: 50 });
+    await expect(gs.trigger('SIGTERM')).resolves.toBeUndefined();
+    gs.destroy();
+  });
+
+  it('destroy can be called multiple times without error', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    expect(() => { gs.destroy(); gs.destroy(); }).not.toThrow();
+  });
+
+  it('middleware calls next when server is not shutting down', () => {
+    const gs = createGracefulShutdown(server, { exitAfterShutdown: false });
+    const nextFn = jest.fn();
+    gs.middleware({} as any, { on: jest.fn() } as any, nextFn);
+    expect(nextFn).toHaveBeenCalled();
+    gs.destroy();
+  });
+});

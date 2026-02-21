@@ -219,3 +219,10 @@ describe('seeded entries', () => {
     }
   });
 });
+
+describe('Changelog — additional coverage', () => {
+  it('listEntries returns an object with an entries array', () => {
+    const result = listEntries();
+    expect(Array.isArray(result.entries)).toBe(true);
+  });
+});

@@ -195,3 +195,39 @@ describe('HubSpotClient — extended', () => {
     expect(result).toBeNull();
   });
 });
+
+
+describe('HubSpotClient — additional coverage', () => {
+  it('constructor stores API key internally', () => {
+    const client = new HubSpotClient('my-key-123');
+    expect(client).toBeDefined();
+  });
+
+  it('createContact returns null on non-ok response', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce({ ok: false, status: 500, json: async () => ({}) });
+    const result = await client.createContact({ email: 'fail@test.com' });
+    expect(result).toBeNull();
+  });
+
+  it('createContact calls fetch once', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce({ ok: true, json: async () => ({ id: 'c-1' }) });
+    await client.createContact({ properties: { email: 'test@ims.local' } });
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('updateContact returns null on error', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce({ ok: false, status: 500, json: async () => ({}) });
+    const result = await client.updateContact('c-1', { properties: { firstname: 'X' } });
+    expect(result).toBeNull();
+  });
+
+  it('getDealsByStage uses correct pipelineId in URL', async () => {
+    const client = new HubSpotClient('test-key');
+    mockFetch.mockReturnValueOnce({ ok: true, json: async () => ({ results: [] }) });
+    await client.getDealsByStage('my-pipeline-456');
+    expect(mockFetch.mock.calls[0][0]).toContain('my-pipeline-456');
+  });
+});

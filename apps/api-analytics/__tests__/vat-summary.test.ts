@@ -169,3 +169,50 @@ describe('VAT Summary — extended', () => {
     expect(result).toBe('vat-ext-5');
   });
 });
+
+
+describe('VAT Summary — additional coverage', () => {
+  it('update block also has gccVat field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 5000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'add-vat-1' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.update).toHaveProperty('gccVat');
+  });
+
+  it('update block has totalRevenue field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 5000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'add-vat-2' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(upsertCall.update).toHaveProperty('totalRevenue');
+  });
+
+  it('breakdown items each have vatDue field', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 10000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'add-vat-3' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    upsertCall.create.breakdown.forEach((item: any) => {
+      expect(item).toHaveProperty('vatDue');
+    });
+  });
+
+  it('totalRevenue in create block equals mrr from snapshot', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([{ mrr: 25000 }]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'add-vat-4' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    expect(Number(upsertCall.create.totalRevenue)).toBe(25000);
+  });
+
+  it('breakdown item regions are strings', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.vatSummary.upsert as jest.Mock).mockResolvedValue({ id: 'add-vat-5' });
+    await runVatSummaryJob();
+    const upsertCall = (prisma.vatSummary.upsert as jest.Mock).mock.calls[0][0];
+    upsertCall.create.breakdown.forEach((item: any) => {
+      expect(typeof item.region).toBe('string');
+    });
+  });
+});

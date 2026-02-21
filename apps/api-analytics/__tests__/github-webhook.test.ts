@@ -242,3 +242,60 @@ describe('GitHub Webhook — extended', () => {
     expect(typeof createCall.data.version).toBe('string');
   });
 });
+
+
+describe("GitHub Webhook — additional coverage", () => {
+  it("returns 200 status code on successful create", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "ac-1" });
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "ac1", message: "fix: additional" }],
+        head_commit: { message: "fix: additional" },
+      });
+    expect(res.status).toBe(200);
+  });
+
+  it("handles single-commit push correctly", async () => {
+    (prisma.changelog.create as jest.Mock).mockResolvedValue({ id: "ac-2" });
+    await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "only-one", message: "chore: single commit" }],
+        head_commit: { message: "chore: single commit" },
+      });
+    const createCall = (prisma.changelog.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.details.commitCount).toBe(1);
+    expect(createCall.data.details.shas).toEqual(["only-one"]);
+  });
+
+  it("skipped payload sets success to true", async () => {
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({ ref: "refs/heads/staging", commits: [{ id: "x" }] });
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.skipped).toBe(true);
+  });
+
+  it("does not call changelog.create when commits is empty", async () => {
+    await request(app)
+      .post("/webhooks/github")
+      .send({ ref: "refs/heads/main", commits: [] });
+    expect(prisma.changelog.create).not.toHaveBeenCalled();
+  });
+
+  it("error response has success: false on 500", async () => {
+    (prisma.changelog.create as jest.Mock).mockRejectedValue(new Error("fail"));
+    const res = await request(app)
+      .post("/webhooks/github")
+      .send({
+        ref: "refs/heads/main",
+        commits: [{ id: "y", message: "err test" }],
+        head_commit: { message: "err test" },
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

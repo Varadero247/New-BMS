@@ -220,3 +220,52 @@ describe('Sentry Webhook — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+
+describe('Sentry Webhook — additional coverage', () => {
+  it('level field is stored in bug report', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'add-1' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'add-evt-1', level: 'warning', message: 'warn msg' } } });
+    expect(prisma.bugReport.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ level: 'warning' }) })
+    );
+  });
+
+  it('title is stored from event title field', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'add-2' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'add-evt-2', title: 'My Error Title', message: 'err' } } });
+    const createCall = (prisma.bugReport.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.title).toBe('My Error Title');
+  });
+
+  it('bugReport.create is not called for duplicate events', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue({ id: 'exists', sentryEventId: 'dup-add' });
+    await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'dup-add', message: 'dup' } } });
+    expect(prisma.bugReport.create).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when entire data object is missing', async () => {
+    const res = await request(app)
+      .post('/webhooks/sentry')
+      .send({ something: 'else' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('200 status on successful bug report creation', async () => {
+    (prisma.bugReport.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.bugReport.create as jest.Mock).mockResolvedValue({ id: 'add-3' });
+    const res = await request(app)
+      .post('/webhooks/sentry')
+      .send({ data: { event: { event_id: 'add-evt-3', message: 'ok' } } });
+    expect(res.status).toBe(200);
+  });
+});

@@ -198,3 +198,30 @@ describe('RBAC Middleware — extended', () => {
     expect(res.body.ownershipCheck.field).toBe('assignedTo');
   });
 });
+
+describe('RBAC Middleware — additional coverage', () => {
+  it('requirePermission returns a middleware function', () => {
+    const mw = requirePermission('quality', PermissionLevel.VIEW);
+    expect(typeof mw).toBe('function');
+  });
+
+  it('attachPermissions returns a middleware function', () => {
+    const mw = attachPermissions();
+    expect(typeof mw).toBe('function');
+  });
+
+  it('requireOwnership returns a middleware function', () => {
+    const mw = requireOwnership('userId');
+    expect(typeof mw).toBe('function');
+  });
+
+  it('ownershipFilter returns a middleware function', () => {
+    const filter = ownershipFilter();
+    expect(typeof filter).toBe('function');
+  });
+
+  it('requirePermission with FULL level returns a function', () => {
+    const mw = requirePermission('environment', PermissionLevel.FULL);
+    expect(typeof mw).toBe('function');
+  });
+});

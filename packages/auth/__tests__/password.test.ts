@@ -155,3 +155,11 @@ describe('Password utilities', () => {
     });
   });
 });
+
+describe('Password utilities — additional coverage', () => {
+  it('validatePasswordStrength returns valid: false for short password', () => {
+    const result = validatePasswordStrength('Ab1!');
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+});

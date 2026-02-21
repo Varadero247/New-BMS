@@ -179,3 +179,31 @@ describe('planGuard middleware', () => {
     expect(mockNext).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Plan Guard — additional coverage', () => {
+  it('PLAN_LIMITS has FREE tier', () => {
+    expect(PLAN_LIMITS).toHaveProperty('FREE');
+  });
+
+  it('setOrgPlan and getOrgPlan round-trip', () => {
+    setOrgPlan('test-org-999', 'PROFESSIONAL');
+    const plan = getOrgPlan('test-org-999');
+    expect(plan).toBe('PROFESSIONAL');
+  });
+
+  it('getOrgPlan returns a default plan for unknown org', () => {
+    const plan = getOrgPlan('unknown-org-never-set-xyz');
+    expect(['FREE', 'PROFESSIONAL', 'ENTERPRISE']).toContain(plan);
+  });
+
+  it('checkLimit returns allowed:true for a valid org', () => {
+    setOrgPlan('test-limit-org', 'PROFESSIONAL');
+    const result = checkLimit('test-limit-org', 'users');
+    expect(result).toHaveProperty('allowed', true);
+  });
+
+  it('planGuard returns a middleware function', () => {
+    const mw = planGuard('users');
+    expect(typeof mw).toBe('function');
+  });
+});

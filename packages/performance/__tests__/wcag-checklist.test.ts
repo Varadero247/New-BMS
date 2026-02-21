@@ -113,3 +113,38 @@ describe('WCAG 2.2 AA Checklist — extended', () => {
     }
   });
 });
+
+describe('WCAG 2.2 AA Checklist — additional coverage', () => {
+  it('every criterion has a non-empty id', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(typeof criterion.id).toBe('string');
+      expect(criterion.id.trim().length).toBeGreaterThan(0);
+    }
+  });
+
+  it('level values are only A or AA', () => {
+    const validLevels = new Set(['A', 'AA']);
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(validLevels.has(criterion.level)).toBe(true);
+    }
+  });
+
+  it('includes Robust criteria (principle 4)', () => {
+    const robust = WCAG_22_AA_CHECKLIST.filter((c) => c.id.startsWith('4.'));
+    expect(robust.length).toBeGreaterThan(0);
+  });
+
+  it('every criterion matches WcagCriterion interface shape', () => {
+    for (const criterion of WCAG_22_AA_CHECKLIST) {
+      expect(criterion).toHaveProperty('id');
+      expect(criterion).toHaveProperty('name');
+      expect(criterion).toHaveProperty('level');
+    }
+  });
+
+  it('total count is consistent across multiple calls', () => {
+    const count1 = WCAG_22_AA_CHECKLIST.length;
+    const count2 = WCAG_22_AA_CHECKLIST.length;
+    expect(count1).toBe(count2);
+  });
+});

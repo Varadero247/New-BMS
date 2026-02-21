@@ -164,3 +164,43 @@ describe('IntercomClient — extended', () => {
     expect(url).toContain('intercom.io');
   });
 });
+
+describe('IntercomClient — additional coverage', () => {
+  it('constructor returns a client object', () => {
+    const { IntercomClient } = require('../src/index');
+    const client = new IntercomClient('some-token');
+    expect(client).toBeDefined();
+  });
+
+  it('sendInAppMessage calls fetch exactly once', async () => {
+    const { IntercomClient } = require('../src/index');
+    const client = new IntercomClient('test-token');
+    mockFetch.mockReturnValueOnce(ok({ id: 'call-count-1' }));
+    await client.sendInAppMessage('user-1', 'hello');
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('sendInAppMessage returns null on non-ok response', async () => {
+    const { IntercomClient } = require('../src/index');
+    const client = new IntercomClient('test-token');
+    mockFetch.mockReturnValueOnce(err(400));
+    const result = await client.sendInAppMessage('user-1', 'fail-test');
+    expect(result).toBeNull();
+  });
+
+  it('createContact URL contains api.intercom.io', async () => {
+    const { IntercomClient } = require('../src/index');
+    const client = new IntercomClient('test-token');
+    mockFetch.mockReturnValueOnce(ok({ id: 'url-check' }));
+    await client.createContact('url@ims.local', 'URL User');
+    expect(mockFetch.mock.calls[0][0]).toContain('intercom.io');
+  });
+
+  it('createContact returns null on 500 error', async () => {
+    const { IntercomClient } = require('../src/index');
+    const client = new IntercomClient('test-token');
+    mockFetch.mockReturnValueOnce(err(500));
+    const result = await client.createContact('fail@ims.local', 'Fail User');
+    expect(result).toBeNull();
+  });
+});

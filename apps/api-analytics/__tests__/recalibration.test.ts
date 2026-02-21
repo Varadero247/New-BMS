@@ -183,3 +183,20 @@ describe('runRecalibration', () => {
     );
   });
 });
+
+
+describe('Recalibration — additional coverage', () => {
+  it('blendTargets result is between the two inputs', () => {
+    const actual = 10000;
+    const plan = 8000;
+    const result = blendTargets(actual, plan);
+    expect(result).toBeGreaterThanOrEqual(Math.min(actual, plan));
+    expect(result).toBeLessThanOrEqual(Math.max(actual, plan));
+  });
+
+  it('projectForward with 1 month produces array of length 1', () => {
+    const result = projectForward(5000, 10, 1);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toBeCloseTo(5500, 0);
+  });
+});

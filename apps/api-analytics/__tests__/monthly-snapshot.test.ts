@@ -201,3 +201,22 @@ describe('runMonthlySnapshot', () => {
     expect(prisma.monthlySnapshot.upsert).toHaveBeenCalled();
   });
 });
+
+
+describe('Monthly Snapshot — additional coverage', () => {
+  it('calculateFounderIncome total is a finite number', () => {
+    const result = calculateFounderIncome(6, 100000);
+    expect(typeof result.total).toBe('number');
+    expect(isFinite(result.total)).toBe(true);
+  });
+
+  it('collectDatabaseMetrics returns object with activeTrials key', async () => {
+    const metrics = await collectDatabaseMetrics();
+    expect(metrics).toHaveProperty('activeTrials');
+  });
+
+  it('collectStripeMetrics returns customers as number', async () => {
+    const metrics = await collectStripeMetrics();
+    expect(typeof metrics.customers).toBe('number');
+  });
+});

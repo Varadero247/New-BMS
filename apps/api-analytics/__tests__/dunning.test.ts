@@ -389,3 +389,38 @@ describe('GET /active', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+
+describe('Dunning — additional coverage', () => {
+  it('findMany is called with cancelledAt: null filter', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await runDunningJob();
+    expect(prisma.dunningSequence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ cancelledAt: null }) })
+    );
+  });
+
+  it('processed count is 0 when queue is empty', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const result = await runDunningJob();
+    expect(result.processed).toBe(0);
+  });
+
+  it('cancelled count defaults to 0 when no sequences hit DAY_14', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([
+      { id: 'nc-1', currentStep: 'DAY_0', customerEmail: 'a@b.com', customerName: 'A', amountDue: 50 },
+    ]);
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
+    const result = await runDunningJob();
+    expect(result.cancelled).toBe(0);
+  });
+
+  it('update is called once for a single sequence', async () => {
+    (prisma.dunningSequence.findMany as jest.Mock).mockResolvedValue([
+      { id: 'once-1', currentStep: 'DAY_3', customerEmail: 'a@b.com', customerName: 'A', amountDue: 100 },
+    ]);
+    (prisma.dunningSequence.update as jest.Mock).mockResolvedValue({});
+    await runDunningJob();
+    expect(prisma.dunningSequence.update).toHaveBeenCalledTimes(1);
+  });
+});

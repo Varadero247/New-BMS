@@ -209,3 +209,59 @@ describe('Uptime Monitor — extended', () => {
     await expect(runUptimeMonitorJob()).resolves.toBeUndefined();
   });
 });
+
+
+describe('Uptime Monitor — additional coverage', () => {
+  it('incident create receives correct uptimeCheckId', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'add-chk-1', url: 'https://mismatch-add.com', active: true, expectedStatus: 404 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.create as jest.Mock).mockResolvedValue({ id: 'add-inc-1' });
+    await runUptimeMonitorJob();
+    const createCall = (prisma.uptimeIncident.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.uptimeCheckId).toBe('add-chk-1');
+  });
+
+  it('update is called for each check when list has two checks', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'add-chk-2a', url: 'https://a.com', active: true, expectedStatus: 200 },
+      { id: 'add-chk-2b', url: 'https://b.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    expect(prisma.uptimeCheck.update).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not throw on update failure for one check', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'add-chk-3', url: 'https://fail-upd.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockRejectedValue(new Error('update error'));
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await expect(runUptimeMonitorJob()).resolves.toBeUndefined();
+  });
+
+  it('uptimeCheck.update is called with where.id matching check id', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'specific-id-99', url: 'https://specific.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    const updateCall = (prisma.uptimeCheck.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.where.id).toBe('specific-id-99');
+  });
+
+  it('avgResponseMs in update data is a non-negative number', async () => {
+    (prisma.uptimeCheck.findMany as jest.Mock).mockResolvedValue([
+      { id: 'resp-chk', url: 'https://resp.com', active: true, expectedStatus: 200 },
+    ]);
+    (prisma.uptimeCheck.update as jest.Mock).mockResolvedValue({});
+    (prisma.uptimeIncident.findFirst as jest.Mock).mockResolvedValue(null);
+    await runUptimeMonitorJob();
+    const updateCall = (prisma.uptimeCheck.update as jest.Mock).mock.calls[0][0];
+    expect(updateCall.data.avgResponseMs).toBeGreaterThanOrEqual(0);
+  });
+});

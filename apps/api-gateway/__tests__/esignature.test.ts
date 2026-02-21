@@ -357,3 +357,53 @@ describe('DELETE /esignatures/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+
+describe('E-Signature — additional coverage', () => {
+  it('GET / returns empty items array when no signatures exist', async () => {
+    mockESignature.findMany.mockResolvedValue([]);
+    mockESignature.count.mockResolvedValue(0);
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.data.items).toHaveLength(0);
+    expect(res.body.data.total).toBe(0);
+  });
+
+  it('POST / returns 400 when meaning is missing', async () => {
+    const res = await request(app).post('/').send({
+      reason: 'No meaning provided',
+      password: 'pass',
+      resourceType: 'document',
+      resourceId: '00000000-0000-0000-0000-000000000099',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id returns 200 and integrity object with checksumMatch on valid signature', async () => {
+    mockESignature.findUnique.mockResolvedValue(mockSigRecord);
+    mockVerifySignature.mockReturnValue({
+      signatureId: SIG_ID,
+      valid: true,
+      checksumMatch: true,
+      userId: USER_ID,
+      userEmail: 'admin@ims.local',
+      meaning: 'APPROVED',
+      timestamp: new Date(),
+      resourceType: 'document',
+      resourceId: '00000000-0000-0000-0000-000000000099',
+    });
+    const res = await request(app).get(`/${SIG_ID}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.integrity).toHaveProperty('checksumMatch', true);
+  });
+
+  it('DELETE /:id calls update with valid: false', async () => {
+    mockESignature.findUnique.mockResolvedValue(mockSigRecord);
+    mockESignature.update.mockResolvedValue({ ...mockSigRecord, valid: false });
+    await request(app).delete(`/${SIG_ID}`);
+    expect(mockESignature.update).toHaveBeenCalledWith({
+      where: { id: SIG_ID },
+      data: { valid: false },
+    });
+  });
+});

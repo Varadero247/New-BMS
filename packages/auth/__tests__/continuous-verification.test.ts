@@ -220,3 +220,10 @@ describe('InMemoryRevocationList', () => {
     expect(list.size).toBe(1);
   });
 });
+
+describe('Continuous Verification — additional coverage', () => {
+  it('InMemoryRevocationList has initial size 0 when empty', () => {
+    const list = new InMemoryRevocationList();
+    expect(list.size).toBe(0);
+  });
+});

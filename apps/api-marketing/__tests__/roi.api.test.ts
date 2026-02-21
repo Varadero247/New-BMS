@@ -198,3 +198,35 @@ describe('GET /api/roi/history', () => {
     expect(res.status).toBe(500);
   });
 });
+
+
+describe('ROI — additional coverage', () => {
+  it('calculateROI returns monthlyCost as a positive number', () => {
+    const result = calculateROI({ isoCount: 2 });
+    expect(result.monthlyCost).toBeGreaterThan(0);
+  });
+
+  it('calculateROI for 0 ISO standards defaults to Professional tier', () => {
+    const result = calculateROI({ isoCount: 0 });
+    expect(result.recommendedTier).toBe('Professional');
+  });
+
+  it('POST /api/roi/calculate response data contains annualCost field', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({ id: 'lead-add-1' });
+    const res = await request(app).post('/api/roi/calculate').send({
+      companyName: 'AddCorp',
+      name: 'Add User',
+      email: 'add@addcorp.com',
+      isoCount: 1,
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('annualCost');
+  });
+
+  it('GET /api/roi/history returns success: true', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/roi/history');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

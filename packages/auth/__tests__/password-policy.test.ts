@@ -126,3 +126,35 @@ describe('Password policy — extended', () => {
     expect(Array.isArray(result.errors)).toBe(true);
   });
 });
+
+describe('Password policy — additional coverage', () => {
+  it('rejects password shorter than 12 characters', () => {
+    const result = validatePasswordStrength('Ab1!xyz');
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('12'))).toBe(true);
+  });
+
+  it('rejects password without special character', () => {
+    const result = validatePasswordStrength('ValidPass123');
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.toLowerCase().includes('special'))).toBe(true);
+  });
+
+  it('rejects password longer than 72 characters', () => {
+    const result = validatePasswordStrength('Ab1!' + 'x'.repeat(69));
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.includes('72'))).toBe(true);
+  });
+
+  it('returns errors as an array', () => {
+    const result = validatePasswordStrength('weak');
+    expect(Array.isArray(result.errors)).toBe(true);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  it('accepts password with special chars at start', () => {
+    const result = validatePasswordStrength('!Abcdefg1234');
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+});

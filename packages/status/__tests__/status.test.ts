@@ -167,3 +167,10 @@ describe('@ims/status', () => {
     });
   });
 });
+
+describe('Status Package — additional coverage', () => {
+  it('SERVICE_REGISTRY is an array with entries', () => {
+    expect(Array.isArray(SERVICE_REGISTRY)).toBe(true);
+    expect(SERVICE_REGISTRY.length).toBeGreaterThan(0);
+  });
+});

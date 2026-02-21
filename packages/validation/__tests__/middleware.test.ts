@@ -325,3 +325,16 @@ describe('formatZodErrors', () => {
     }
   });
 });
+
+describe('Validation Middleware — additional coverage', () => {
+  it('sanitizeMiddleware returns a middleware function', () => {
+    const mw = sanitizeMiddleware();
+    expect(typeof mw).toBe('function');
+  });
+
+  it('validateMiddleware returns a middleware function', () => {
+    const schema = z.object({ email: z.string().email() });
+    const mw = validateMiddleware(schema);
+    expect(typeof mw).toBe('function');
+  });
+});

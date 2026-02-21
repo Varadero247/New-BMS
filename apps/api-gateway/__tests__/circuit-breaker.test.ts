@@ -319,3 +319,38 @@ describe('createProxyCircuitBreaker', () => {
     });
   });
 });
+
+
+describe('Circuit Breaker — additional coverage', () => {
+  it('getState returns CLOSED by default', () => {
+    const cb = createProxyCircuitBreaker({ name: 'AdditionalTest' });
+    expect(cb.getState()).toBe('CLOSED');
+  });
+
+  it('onSuccess in CLOSED state does not open circuit', () => {
+    const cb = createProxyCircuitBreaker({ name: 'AdditionalTest2', failureThreshold: 3 });
+    cb.onSuccess();
+    cb.onSuccess();
+    expect(cb.getState()).toBe('CLOSED');
+  });
+
+  it('failure count below threshold does not open circuit', () => {
+    const cb = createProxyCircuitBreaker({ name: 'AdditionalTest3', failureThreshold: 5 });
+    cb.onFailure();
+    cb.onFailure();
+    cb.onFailure();
+    cb.onFailure();
+    // Only 4 failures — threshold is 5, should still be CLOSED
+    expect(cb.getState()).toBe('CLOSED');
+  });
+
+  it('json response body contains error.code field when circuit is OPEN', () => {
+    const cb = createProxyCircuitBreaker({ name: 'AdditionalTest4', failureThreshold: 1 });
+    cb.onFailure();
+    const { req, res, next } = makeReqRes('GET', '/api/test');
+    cb.middleware(req, res, next);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ success: false, error: expect.objectContaining({ code: expect.any(String) }) })
+    );
+  });
+});

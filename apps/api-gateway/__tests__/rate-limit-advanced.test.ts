@@ -505,3 +505,44 @@ describe('Rate Limiter — Advanced HTTP Tests', () => {
     await closeRedisConnection();
   });
 });
+
+
+describe('Rate Limiter — additional coverage', () => {
+  it('createRateLimiter with max 3 blocks on the 4th request', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 3,
+      keyGenerator: () => 'add-coverage-1',
+    });
+    const app = buildApp(limiter);
+
+    const statuses = await fireRequests(app, 4, '10.10.0.1');
+    expect(statuses[0]).toBe(200);
+    expect(statuses[1]).toBe(200);
+    expect(statuses[2]).toBe(200);
+    expect(statuses[3]).toBe(429);
+
+    await closeRedisConnection();
+  });
+
+  it('200 response body is { success: true } from the test endpoint', async () => {
+    const { createRateLimiter, closeRedisConnection } = await import(
+      '../src/middleware/rate-limiter'
+    );
+    const limiter = createRateLimiter({
+      windowMs: 60_000,
+      max: 100,
+      keyGenerator: () => 'add-coverage-2',
+    });
+    const app = buildApp(limiter);
+
+    const res = await request(app).get('/api/test').set('X-Forwarded-For', '10.10.0.2');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ success: true });
+
+    await closeRedisConnection();
+  });
+});
