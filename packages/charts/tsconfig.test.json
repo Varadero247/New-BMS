@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "isolatedModules": true,
+    "types": ["jest", "node"]
+  },
+  "include": ["__tests__/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

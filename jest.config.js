@@ -120,6 +120,10 @@ module.exports = {
     '<rootDir>/packages/types',
     // UI package utility functions
     '<rootDir>/packages/ui',
+    // Testing utilities package
+    '<rootDir>/packages/testing',
+    // Charts package (logic tests)
+    '<rootDir>/packages/charts',
   ],
 
   // Global settings
