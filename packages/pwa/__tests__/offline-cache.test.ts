@@ -266,3 +266,46 @@ describe('OfflineCache', () => {
     expect(urls).toContain('https://app.example.com/api/svc99/tasks');
   });
 });
+
+describe('OfflineCache — additional coverage', () => {
+  let cache: OfflineCache;
+
+  beforeEach(() => {
+    cacheInstances.clear();
+    cache = new OfflineCache();
+  });
+
+  test('OfflineCache can be instantiated', () => {
+    expect(cache).toBeDefined();
+    expect(typeof cache.cacheResponse).toBe('function');
+    expect(typeof cache.getCachedResponse).toBe('function');
+    expect(typeof cache.getTrackedUrls).toBe('function');
+  });
+
+  test('isPriorityUrl is a static method', () => {
+    expect(typeof OfflineCache.isPriorityUrl).toBe('function');
+  });
+
+  test('isPriorityUrl returns false for analytics URL', () => {
+    expect(OfflineCache.isPriorityUrl('https://app.example.com/api/analytics/dashboard')).toBe(false);
+  });
+
+  test('cacheResponse for two distinct URLs stores both', async () => {
+    await cache.cacheResponse('https://app.example.com/api/x', makeResponse({ x: 1 }));
+    await cache.cacheResponse('https://app.example.com/api/y', makeResponse({ y: 2 }));
+    const urls = await cache.getTrackedUrls();
+    expect(urls).toHaveLength(2);
+  });
+
+  test('getCachedResponse returns null after clear', async () => {
+    await cache.cacheResponse('https://app.example.com/api/z', makeResponse({ z: 3 }));
+    await cache.clear();
+    const result = await cache.getCachedResponse('https://app.example.com/api/z');
+    expect(result).toBeNull();
+  });
+
+  test('getTrackedUrls returns an array type', async () => {
+    const urls = await cache.getTrackedUrls();
+    expect(Array.isArray(urls)).toBe(true);
+  });
+});

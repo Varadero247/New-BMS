@@ -143,4 +143,18 @@ describe('calculateRoi — extended', () => {
     const results = calculateRoi({ ...DEFAULT_INPUTS, enterpriseContractPursuit: true });
     expect(results.contractValue).toBe(12000);
   });
+
+  it('totalValue equals sum of all value components', () => {
+    const r = calculateRoi(DEFAULT_INPUTS);
+    const expected = r.adminValueSaved + r.auditPrepValueSaved + r.supplierValue + r.auditRiskValue + r.contractValue;
+    expect(r.totalValue).toBeCloseTo(expected, 5);
+  });
+
+  it('roiPercent is close to netBenefit / nexaraCost * 100', () => {
+    const r = calculateRoi(DEFAULT_INPUTS);
+    if (r.nexaraCost > 0) {
+      const raw = (r.netBenefit / r.nexaraCost) * 100;
+      expect(Math.abs(r.roiPercent - raw)).toBeLessThan(1);
+    }
+  });
 });

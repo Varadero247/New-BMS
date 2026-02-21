@@ -342,3 +342,13 @@ describe('SyncQueue', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 });
+
+describe('SyncQueue — additional coverage', () => {
+  test('SyncQueue can be instantiated', () => {
+    const q = new SyncQueue();
+    expect(q).toBeDefined();
+    expect(typeof q.enqueue).toBe('function');
+    expect(typeof q.dequeue).toBe('function');
+    expect(typeof q.flush).toBe('function');
+  });
+});
