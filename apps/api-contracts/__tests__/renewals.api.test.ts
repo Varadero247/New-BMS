@@ -85,4 +85,27 @@ describe('GET /api/renewals', () => {
     await request(app).get('/api/renewals');
     expect(mockPrisma.contContract.findMany).toHaveBeenCalledTimes(1);
   });
+
+  it('data is an array', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('each contract has a title property', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '1', title: 'Lease Agreement', renewalDate: futureDate15, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('title');
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

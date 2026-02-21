@@ -79,4 +79,27 @@ describe('GET /api/regulatory', () => {
       expect(complaint.isRegulatory).toBe(true);
     }
   });
+
+  it('data is an array', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('each complaint has an id property', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: 'c-1', title: 'GDPR Issue', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

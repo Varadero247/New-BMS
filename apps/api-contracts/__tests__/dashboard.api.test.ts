@@ -79,4 +79,28 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.data.upcomingNotices).toBe(3);
     expect(res.body.data.totalContracts).not.toBe(res.body.data.upcomingNotices);
   });
+
+  it('totalContracts is a number', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(7);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalContracts).toBe('number');
+  });
+
+  it('upcomingNotices reflects the mock count', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(11);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.upcomingNotices).toBe(11);
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

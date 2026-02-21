@@ -98,4 +98,29 @@ describe('GET /api/depreciation', () => {
     await request(app).get('/api/depreciation');
     expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledTimes(1);
   });
+
+  it('data is an array', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('all returned assets have a name property', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Drill', purchaseCost: 1000, currentValue: 800, purchaseDate: '2025-01-01' },
+      { id: 'a-2', name: 'Lathe', purchaseCost: 2000, currentValue: 1500, purchaseDate: '2025-02-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    for (const asset of res.body.data) {
+      expect(asset).toHaveProperty('name');
+    }
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

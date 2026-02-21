@@ -93,4 +93,31 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.data.totalFindings).toBe(42);
     expect(res.body.data.totalChecklists).toBe(15);
   });
+
+  it('totalAudits is a number', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(3);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalAudits).toBe('number');
+  });
+
+  it('totalFindings reflects mock count', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(99);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalFindings).toBe(99);
+  });
+
+  it('success flag is false on 500', async () => {
+    mockPrisma.audAudit.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
 });
