@@ -119,6 +119,80 @@ describe('API_ENDPOINTS', () => {
       expect(API_ENDPOINTS.LEGAL.GET('lr-1')).toBe('/legal-requirements/lr-1');
     });
   });
+
+  describe('OBJECTIVES', () => {
+    it('has list and CRUD paths', () => {
+      expect(API_ENDPOINTS.OBJECTIVES.LIST).toBe('/objectives');
+      expect(API_ENDPOINTS.OBJECTIVES.GET('obj-1')).toBe('/objectives/obj-1');
+      expect(API_ENDPOINTS.OBJECTIVES.UPDATE('obj-2')).toBe('/objectives/obj-2');
+      expect(API_ENDPOINTS.OBJECTIVES.DELETE('obj-3')).toBe('/objectives/obj-3');
+    });
+
+    it('PROGRESS generates /objectives/:id/progress', () => {
+      expect(API_ENDPOINTS.OBJECTIVES.PROGRESS('obj-99')).toBe('/objectives/obj-99/progress');
+    });
+  });
+
+  describe('ACTIONS', () => {
+    it('COMPLETE generates /actions/:id/complete', () => {
+      expect(API_ENDPOINTS.ACTIONS.COMPLETE('act-1')).toBe('/actions/act-1/complete');
+    });
+
+    it('VERIFY generates /actions/:id/verify', () => {
+      expect(API_ENDPOINTS.ACTIONS.VERIFY('act-2')).toBe('/actions/act-2/verify');
+    });
+  });
+
+  describe('HS_OBJECTIVES', () => {
+    it('MILESTONES generates /objectives/:id/milestones', () => {
+      expect(API_ENDPOINTS.HS_OBJECTIVES.MILESTONES('o1')).toBe('/objectives/o1/milestones');
+    });
+
+    it('MILESTONE (two params) generates /objectives/:id/milestones/:mid', () => {
+      expect(API_ENDPOINTS.HS_OBJECTIVES.MILESTONE('o1', 'm2')).toBe('/objectives/o1/milestones/m2');
+    });
+  });
+
+  describe('HS_CAPA', () => {
+    it('ACTIONS generates /capa/:id/actions', () => {
+      expect(API_ENDPOINTS.HS_CAPA.ACTIONS('c1')).toBe('/capa/c1/actions');
+    });
+
+    it('ACTION (two params) generates /capa/:id/actions/:aid', () => {
+      expect(API_ENDPOINTS.HS_CAPA.ACTION('c1', 'a2')).toBe('/capa/c1/actions/a2');
+    });
+  });
+
+  describe('AI', () => {
+    it('ACCEPT generates /ai/analyses/:id/accept', () => {
+      expect(API_ENDPOINTS.AI.ACCEPT('ai-1')).toBe('/ai/analyses/ai-1/accept');
+    });
+
+    it('REJECT generates /ai/analyses/:id/reject', () => {
+      expect(API_ENDPOINTS.AI.REJECT('ai-2')).toBe('/ai/analyses/ai-2/reject');
+    });
+
+    it('has static paths', () => {
+      expect(API_ENDPOINTS.AI.SETTINGS).toBe('/ai/settings');
+      expect(API_ENDPOINTS.AI.ANALYSE).toBe('/ai/analyse');
+    });
+  });
+
+  describe('DASHBOARD', () => {
+    it('has STATS and COMPLIANCE paths', () => {
+      expect(API_ENDPOINTS.DASHBOARD.STATS).toBe('/dashboard/stats');
+      expect(API_ENDPOINTS.DASHBOARD.COMPLIANCE).toBe('/dashboard/compliance');
+    });
+  });
+
+  describe('ANALYTICS', () => {
+    it('has all static analytics paths', () => {
+      expect(API_ENDPOINTS.ANALYTICS.FIVE_WHY).toBe('/analytics/five-why');
+      expect(API_ENDPOINTS.ANALYTICS.FISHBONE).toBe('/analytics/fishbone');
+      expect(API_ENDPOINTS.ANALYTICS.PARETO).toBe('/analytics/pareto');
+      expect(API_ENDPOINTS.ANALYTICS.TRENDS).toBe('/analytics/trends');
+    });
+  });
 });
 
 // ── ISO_STANDARD_LABELS & ISO_STANDARD_COLORS ───────────────────

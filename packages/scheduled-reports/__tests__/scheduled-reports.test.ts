@@ -79,6 +79,15 @@ describe('createSchedule', () => {
     const s2 = createSchedule({ orgId: org, ...BASE_PARAMS });
     expect(s1.id).not.toBe(s2.id);
   });
+
+  it('invalid cron expression falls back to tomorrow at 8am', () => {
+    const sched = createSchedule({ orgId: uniqueOrg(), ...BASE_PARAMS, schedule: 'not-a-cron' });
+    const nextRun = new Date(sched.nextRun);
+    // Should be a future date
+    expect(nextRun.getTime()).toBeGreaterThan(Date.now());
+    // Hour should be 8 (fallback)
+    expect(nextRun.getHours()).toBe(8);
+  });
 });
 
 // ─── listSchedules ────────────────────────────────────────────────────────────
@@ -165,6 +174,12 @@ describe('updateSchedule', () => {
     const sched = createSchedule({ orgId: uniqueOrg(), ...BASE_PARAMS });
     const updated = updateSchedule(sched.id, { format: 'csv' });
     expect(updated!.format).toBe('csv');
+  });
+
+  it('updates reportType', () => {
+    const sched = createSchedule({ orgId: uniqueOrg(), ...BASE_PARAMS, reportType: 'quality_kpi' });
+    const updated = updateSchedule(sched.id, { reportType: 'safety_kpi' });
+    expect(updated!.reportType).toBe('safety_kpi');
   });
 });
 
