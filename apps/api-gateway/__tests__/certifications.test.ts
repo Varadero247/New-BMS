@@ -161,4 +161,29 @@ describe('Certifications Routes', () => {
       expect(res.status).toBe(403);
     });
   });
+
+  describe('Certifications — extended', () => {
+    it('GET list returns data as array', async () => {
+      mockListCertificates.mockReturnValue([]);
+      const res = await request(app).get('/api/admin/certifications');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('readiness score has score field', async () => {
+      const res = await request(app).get(
+        '/api/admin/certifications/00000000-0000-0000-0000-000000000001/readiness'
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.data.readiness).toHaveProperty('score');
+    });
+
+    it('DELETE returns success true', async () => {
+      const res = await request(app).delete(
+        '/api/admin/certifications/00000000-0000-0000-0000-000000000001'
+      );
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
 });

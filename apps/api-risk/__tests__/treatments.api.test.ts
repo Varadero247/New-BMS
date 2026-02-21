@@ -95,4 +95,23 @@ describe('GET /api/treatments', () => {
     await request(app).get('/api/treatments');
     expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledTimes(1);
   });
+
+  it('success is true on 200', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('data is an array', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/treatments');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('count field is a number', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ treatment: 'MITIGATE' }]);
+    const res = await request(app).get('/api/treatments');
+    expect(typeof res.body.data[0].count).toBe('number');
+  });
 });

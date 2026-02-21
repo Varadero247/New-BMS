@@ -92,4 +92,23 @@ describe('GET /api/heat-map', () => {
     expect(res.body.data).toHaveProperty('risks');
     expect(res.body.data).toHaveProperty('total');
   });
+
+  it('success is true on 200', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('risks is an array', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(Array.isArray(res.body.data.risks)).toBe(true);
+  });
+
+  it('total is a number', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(typeof res.body.data.total).toBe('number');
+  });
 });

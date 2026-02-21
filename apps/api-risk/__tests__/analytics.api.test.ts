@@ -128,4 +128,30 @@ describe('GET /api/risks/analytics/dashboard — extended', () => {
     expect(res.body.data.byStatus.OPEN).toBe(2);
     expect(res.body.data.byStatus.CLOSED).toBe(1);
   });
+
+  it('by-module response data is an array', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('dashboard heatmapData always has 25 cells', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.heatmapData).toHaveLength(25);
+  });
+
+  it('by-module entry has module and count fields', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([{ sourceModule: 'MANUAL', _count: 3 }]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('module');
+    expect(res.body.data[0]).toHaveProperty('count');
+  });
 });

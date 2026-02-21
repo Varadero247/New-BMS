@@ -99,4 +99,24 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.status).toBe(200);
     expect(res.body.data.totalReviews).toBe(1000);
   });
+
+  it('totalReviews is a number', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(4);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalReviews).toBe('number');
+  });
+
+  it('success is true on 200', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.mgmtReview.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
 });

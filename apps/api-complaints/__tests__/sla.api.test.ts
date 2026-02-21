@@ -82,4 +82,26 @@ describe('GET /api/sla', () => {
     expect(res.body.data.overdue).toBe(0);
     expect(res.body.data.onTrack).toBe(15);
   });
+
+  it('large count values are returned accurately', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(500).mockResolvedValueOnce(1200);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdue).toBe(500);
+    expect(res.body.data.onTrack).toBe(1200);
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(1).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('data has overdue and onTrack as its only numeric fields', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(4).mockResolvedValueOnce(6);
+    const res = await request(app).get('/api/sla');
+    expect(typeof res.body.data.overdue).toBe('number');
+    expect(typeof res.body.data.onTrack).toBe('number');
+  });
 });

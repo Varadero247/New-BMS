@@ -106,4 +106,28 @@ describe('API Keys Routes', () => {
       expect(res.status).toBe(403);
     });
   });
+
+  describe('API Keys — extended', () => {
+    it('GET /api/admin/api-keys returns success true', async () => {
+      const res = await request(app).get('/api/admin/api-keys');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('created key has an id field', async () => {
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'Analytics Key', scopes: ['read:analytics'] });
+      expect(res.status).toBe(201);
+      expect(res.body.data).toHaveProperty('id');
+    });
+
+    it('created key stores the given scopes', async () => {
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'Multi-scope Key', scopes: ['read:quality', 'read:hr'] });
+      expect(res.status).toBe(201);
+      expect(res.body.data.scopes).toEqual(['read:quality', 'read:hr']);
+    });
+  });
 });

@@ -86,4 +86,24 @@ describe('GET /api/search', () => {
     expect(res.body.data).toHaveLength(1);
     expect(res.body.data[0].title).toBe('ISO 9001 Manual');
   });
+
+  it('findMany is called once when query is present', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    await request(app).get('/api/search?q=policy');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('response data is an array', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=anything');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/search?q=test');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

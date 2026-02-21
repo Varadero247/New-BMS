@@ -129,3 +129,31 @@ describe('PUT /api/investigation/:id/report', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Investigation — extended', () => {
+  it('update called once on successful assign', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', investigator: 'u2', status: 'INVESTIGATING' });
+    await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'u2', investigatorName: 'Bob' });
+    expect(mockPrisma.incIncident.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('update called once on successful report update', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', status: 'ROOT_CAUSE_ANALYSIS' });
+    await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ rootCause: 'Human error' });
+    expect(mockPrisma.incIncident.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('successful assign returns investigator in data', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', investigator: 'jane@ims.local', status: 'INVESTIGATING' });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'jane@ims.local' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('investigator');
+  });
+});

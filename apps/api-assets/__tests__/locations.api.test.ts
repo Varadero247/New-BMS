@@ -102,4 +102,30 @@ describe('GET /api/locations', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(3);
   });
+
+  it('success is true on 200 response', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('location appearing three times has count of 3', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Hub' },
+      { location: 'Hub' },
+      { location: 'Hub' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    const hub = res.body.data.find((d: any) => d.location === 'Hub');
+    expect(hub.count).toBe(3);
+  });
+
+  it('data is an array', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
 });

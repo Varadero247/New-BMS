@@ -153,3 +153,26 @@ describe('POST /api/defra-factors', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('GET /api/defra-factors — extended', () => {
+  it('data is an array', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('findMany is called once per request', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/defra-factors');
+    expect(prisma.esgDefraFactor.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('returned factors have category and factor fields', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([mockDefraFactor]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('category');
+    expect(res.body.data[0]).toHaveProperty('factor');
+  });
+});

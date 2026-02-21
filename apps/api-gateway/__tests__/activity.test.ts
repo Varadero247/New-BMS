@@ -94,4 +94,27 @@ describe('Activity Routes', () => {
       expect(res.status).toBe(400);
     });
   });
+
+  describe('GET /api/activity — extended', () => {
+    it('returns entries as an array', async () => {
+      mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+      const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data.entries)).toBe(true);
+    });
+
+    it('returns total count in response', async () => {
+      mockGetActivity.mockResolvedValue({ entries: [], total: 42 });
+      const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1');
+      expect(res.status).toBe(200);
+      expect(res.body.data.total).toBe(42);
+    });
+
+    it('recent activity returns success true', async () => {
+      mockGetRecentActivity.mockResolvedValue([]);
+      const res = await request(app).get('/api/activity/recent');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
 });

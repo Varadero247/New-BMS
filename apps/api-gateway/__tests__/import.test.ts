@@ -129,4 +129,26 @@ describe('Import Routes', () => {
       expect(res.status).toBe(403);
     });
   });
+
+  describe('Import Routes — extended', () => {
+    it('schemas list is an array', async () => {
+      const res = await request(app).get('/api/admin/import/schemas');
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.data)).toBe(true);
+    });
+
+    it('execute import returns imported count', async () => {
+      const res = await request(app)
+        .post('/api/admin/import/execute')
+        .send({ recordType: 'suppliers', rows: [{ name: 'Alpha Ltd', code: 'ALP-001' }] });
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('imported');
+    });
+
+    it('schemas endpoint returns success true', async () => {
+      const res = await request(app).get('/api/admin/import/schemas');
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+  });
 });

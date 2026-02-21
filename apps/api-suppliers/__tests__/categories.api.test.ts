@@ -91,4 +91,23 @@ describe('GET /api/categories', () => {
     await request(app).get('/api/categories');
     expect(mockPrisma.suppSupplier.findMany).toHaveBeenCalledTimes(1);
   });
+
+  it('success is true on 200', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('count field is a number', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([{ category: 'IT' }]);
+    const res = await request(app).get('/api/categories');
+    expect(typeof res.body.data[0].count).toBe('number');
+  });
+
+  it('data is an array', async () => {
+    mockPrisma.suppSupplier.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/categories');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
 });

@@ -132,3 +132,37 @@ describe('GET /api/digest/history', () => {
     expect(res.body.data).toHaveLength(0);
   });
 });
+
+describe('Digest — extended', () => {
+  it('trigger response has yesterday and today keys', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktEmailLog.create as jest.Mock).mockResolvedValue({ id: 'log-1' });
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(0);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).post('/api/digest/trigger');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('yesterday');
+    expect(res.body.data).toHaveProperty('today');
+  });
+
+  it('history data is an array', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/digest/history');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('trigger success is true on 200', async () => {
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(2);
+    (prisma.mktEmailLog.count as jest.Mock).mockResolvedValue(10);
+    (prisma.mktEmailLog.create as jest.Mock).mockResolvedValue({ id: 'log-2' });
+    (prisma.mktWinBackSequence.count as jest.Mock).mockResolvedValue(1);
+    (prisma.mktRenewalSequence.count as jest.Mock).mockResolvedValue(1);
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).post('/api/digest/trigger');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -98,4 +98,30 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.data.totalMethodStatements).toBe(3);
     expect(res.body.data.totalToolboxTalks).toBe(15);
   });
+
+  it('totalPermits is a number', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(5);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalPermits).toBe('number');
+  });
+
+  it('success is true on 200', async () => {
+    mockPrisma.ptwPermit.count.mockResolvedValue(0);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.ptwPermit.count.mockRejectedValue(new Error('DB crash'));
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    mockPrisma.ptwToolboxTalk.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
 });
