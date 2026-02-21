@@ -42,7 +42,7 @@ describe('createGracefulShutdown()', () => {
   let server: Server;
 
   beforeEach(async () => { server = await makeServer(); });
-  afterEach(() => { server.close(); });
+  afterEach((done) => { if (server.listening) server.close(done); else done(); });
 
   describe('initial state', () => {
     it('starts with 0 in-flight requests', () => {
