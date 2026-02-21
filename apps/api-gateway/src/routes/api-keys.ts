@@ -2,38 +2,15 @@ import { Router, Request, Response } from 'express';
 import { authenticate, requireRole, type AuthRequest } from '@ims/auth';
 import { createLogger } from '@ims/monitoring';
 import { z } from 'zod';
-import { v4 as uuidv4 } from 'uuid';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 
+const prisma = prismaBase as unknown as PrismaClient;
+
 const logger = createLogger('api-gateway:api-keys');
 const router = Router();
-
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-interface ApiKeyRecord {
-  id: string;
-  name: string;
-  keyPrefix: string; // first 12 chars of the full key
-  keyHash: string; // bcrypt hash of the full key
-  scopes: string[];
-  orgId: string;
-  createdById: string;
-  createdAt: string;
-  lastUsedAt: string | null;
-  usageCount: number;
-  status: 'active' | 'revoked';
-  revokedAt: string | null;
-}
-
-// ─── In-Memory Store ────────────────────────────────────────────────────────
-
-const apiKeyStore = new Map<string, ApiKeyRecord>();
-
-// Export for use by apiKeyAuth middleware
-export function getApiKeyStore(): Map<string, ApiKeyRecord> {
-  return apiKeyStore;
-}
 
 // ─── Validation Schemas ─────────────────────────────────────────────────────
 
@@ -78,29 +55,26 @@ router.post('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
     const keyHash = await bcrypt.hash(fullKey, 10);
 
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
+    const createdById = (req as AuthRequest).user!.id;
 
-    const record: ApiKeyRecord = {
-      id: uuidv4(),
-      name,
-      keyPrefix,
-      keyHash,
-      scopes,
-      orgId,
-      createdById: (req as AuthRequest).user!.id,
-      createdAt: new Date().toISOString(),
-      lastUsedAt: null,
-      usageCount: 0,
-      status: 'active',
-      revokedAt: null,
-    };
-
-    apiKeyStore.set(record.id, record);
+    const record = await prisma.apiKey.create({
+      data: {
+        name,
+        keyHash,
+        prefix: keyPrefix,
+        permissions: scopes,
+        orgId,
+        createdById,
+        isActive: true,
+        usageCount: 0,
+      },
+    });
 
     logger.info('API key created', {
       id: record.id,
       name,
       prefix: keyPrefix,
-      createdBy: (req as AuthRequest).user!.id,
+      createdBy: createdById,
     });
 
     // Return the full key ONCE — it cannot be retrieved again
@@ -110,10 +84,10 @@ router.post('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
         id: record.id,
         name: record.name,
         key: fullKey, // only returned on creation
-        keyPrefix: record.keyPrefix,
-        scopes: record.scopes,
+        keyPrefix: record.prefix,
+        scopes: record.permissions,
         createdAt: record.createdAt,
-        status: record.status,
+        status: record.isActive ? 'active' : 'revoked',
       },
     });
   } catch (error: unknown) {
@@ -128,27 +102,31 @@ router.post('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
 });
 
 // GET /api/admin/api-keys — List all API keys (never returns the full key)
-router.get('/', requireRole('ADMIN'), (req: Request, res: Response) => {
+router.get('/', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const orgId = (req as AuthRequest & { user?: { orgId?: string } }).user?.orgId || 'default';
-    const keys = Array.from(apiKeyStore.values())
-      .filter((k) => k.orgId === orgId)
-      .map((k) => ({
-        id: k.id,
-        name: k.name,
-        keyPrefix: k.keyPrefix,
-        scopes: k.scopes,
-        createdAt: k.createdAt,
-        lastUsedAt: k.lastUsedAt,
-        usageCount: k.usageCount,
-        status: k.status,
-        revokedAt: k.revokedAt,
-      }));
+
+    const keys = await prisma.apiKey.findMany({
+      where: { orgId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const data = keys.map((k) => ({
+      id: k.id,
+      name: k.name,
+      keyPrefix: k.prefix,
+      scopes: k.permissions,
+      createdAt: k.createdAt,
+      lastUsedAt: k.lastUsedAt,
+      usageCount: k.usageCount,
+      status: k.isActive ? 'active' : 'revoked',
+      revokedAt: k.revokedAt,
+    }));
 
     res.json({
       success: true,
-      data: keys,
-      meta: { total: keys.length },
+      data,
+      meta: { total: data.length },
     });
   } catch (error: unknown) {
     logger.error('Failed to list API keys', {
@@ -162,10 +140,11 @@ router.get('/', requireRole('ADMIN'), (req: Request, res: Response) => {
 });
 
 // DELETE /api/admin/api-keys/:id — Revoke an API key
-router.delete('/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
+router.delete('/:id', requireRole('ADMIN'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const record = apiKeyStore.get(id);
+
+    const record = await prisma.apiKey.findUnique({ where: { id } });
 
     if (!record) {
       return res.status(404).json({
@@ -174,25 +153,27 @@ router.delete('/:id', requireRole('ADMIN'), (req: Request, res: Response) => {
       });
     }
 
-    if (record.status === 'revoked') {
+    if (!record.isActive) {
       return res.status(409).json({
         success: false,
         error: { code: 'ALREADY_REVOKED', message: 'API key is already revoked' },
       });
     }
 
-    record.status = 'revoked';
-    record.revokedAt = new Date().toISOString();
+    const updated = await prisma.apiKey.update({
+      where: { id },
+      data: { isActive: false, revokedAt: new Date() },
+    });
 
     logger.info('API key revoked', { id, name: record.name, revokedBy: (req as AuthRequest).user!.id });
 
     res.json({
       success: true,
       data: {
-        id: record.id,
-        name: record.name,
-        status: record.status,
-        revokedAt: record.revokedAt,
+        id: updated.id,
+        name: updated.name,
+        status: 'revoked',
+        revokedAt: updated.revokedAt,
       },
     });
   } catch (error: unknown) {

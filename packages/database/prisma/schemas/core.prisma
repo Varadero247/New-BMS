@@ -157,17 +157,23 @@ model ESignature {
 model ApiKey {
   id          String    @id @default(cuid())
   name        String
-  keyHash     String    @unique // Hashed API key
-  prefix      String // First 8 chars for identification
-  permissions String[] // List of allowed operations
+  keyHash     String    @unique // Hashed API key (bcrypt)
+  prefix      String    // First 12 chars for identification
+  permissions String[]  // List of scopes/operations
+  orgId       String    @default("default")
+  createdById String    @default("")
+  usageCount  Int       @default(0)
   expiresAt   DateTime?
   lastUsedAt  DateTime?
+  revokedAt   DateTime?
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@index([keyHash])
   @@index([prefix])
+  @@index([orgId])
+  @@index([isActive])
   @@map("api_keys")
 }
 

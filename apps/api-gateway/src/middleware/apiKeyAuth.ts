@@ -1,15 +1,17 @@
 import type { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import { createLogger } from '@ims/monitoring';
-import { getApiKeyStore } from '../routes/api-keys';
+import { prisma as prismaBase } from '@ims/database';
+import type { PrismaClient } from '@ims/database/core';
 
+const prisma = prismaBase as unknown as PrismaClient;
 const logger = createLogger('api-gateway:api-key-auth');
 
 /**
  * API Key Authentication Middleware
  *
  * Checks the Authorization header for "Bearer rxk_..." pattern.
- * If found: looks up by prefix, verifies bcrypt hash, checks not revoked.
+ * If found: looks up by prefix in DB, verifies bcrypt hash, checks not revoked.
  * If NOT rxk_ pattern: skips silently (lets normal JWT auth handle it).
  *
  * On success, injects orgId and scopes into req context and increments usage stats.
@@ -32,55 +34,51 @@ export function apiKeyAuth(req: Request, _res: Response, next: NextFunction): vo
   }
 
   const prefix = token.substring(0, 12);
-  const store = getApiKeyStore();
 
-  // Find key record by prefix
-  let matchedRecord: ReturnType<typeof store.get> | undefined;
-  let matchedId: string | undefined;
-
-  for (const [id, record] of store.entries()) {
-    if (record.keyPrefix === prefix && record.status === 'active') {
-      matchedRecord = record;
-      matchedId = id;
-      break;
-    }
-  }
-
-  if (!matchedRecord || !matchedId) {
-    // Invalid or revoked key — let it fall through to JWT auth which will also reject
-    next();
-    return;
-  }
-
-  // Verify bcrypt hash (async but we handle it in a promise)
-  bcrypt
-    .compare(token, matchedRecord.keyHash)
-    .then((isValid) => {
-      if (!isValid) {
-        logger.warn('API key hash mismatch', { prefix });
+  // Look up by prefix in database
+  prisma.apiKey
+    .findFirst({ where: { prefix, isActive: true } })
+    .then((record) => {
+      if (!record) {
+        // Invalid or revoked key — let JWT auth reject
         next();
         return;
       }
 
-      // Inject context into request
-      (req as Request & { user?: Record<string, unknown> }).user = {
-        id: matchedRecord!.createdById,
-        orgId: matchedRecord!.orgId,
-        role: 'ADMIN', // API keys get admin-level access within their scopes
-        email: `apikey:${matchedRecord!.name}`,
-        apiKey: true,
-        apiKeyId: matchedId,
-        scopes: matchedRecord!.scopes,
-      };
+      // Verify bcrypt hash
+      return bcrypt.compare(token, record.keyHash).then((isValid) => {
+        if (!isValid) {
+          logger.warn('API key hash mismatch', { prefix });
+          next();
+          return;
+        }
 
-      // Increment usage stats (async, non-blocking)
-      matchedRecord!.usageCount += 1;
-      matchedRecord!.lastUsedAt = new Date().toISOString();
+        // Inject context into request
+        (req as Request & { user?: Record<string, unknown> }).user = {
+          id: record.createdById,
+          orgId: record.orgId,
+          role: 'ADMIN', // API keys get admin-level access within their scopes
+          email: `apikey:${record.name}`,
+          apiKey: true,
+          apiKeyId: record.id,
+          scopes: record.permissions,
+        };
 
-      logger.info('API key authenticated', { prefix, name: matchedRecord!.name });
-      next();
+        // Update usage stats (non-blocking fire-and-forget)
+        void prisma.apiKey
+          .update({
+            where: { id: record.id },
+            data: { usageCount: { increment: 1 }, lastUsedAt: new Date() },
+          })
+          .catch((err: Error) =>
+            logger.warn('Failed to update API key usage stats', { error: err.message })
+          );
+
+        logger.info('API key authenticated', { prefix, name: record.name });
+        next();
+      });
     })
-    .catch((err) => {
+    .catch((err: Error) => {
       logger.error('API key verification error', { error: err.message });
       next();
     });

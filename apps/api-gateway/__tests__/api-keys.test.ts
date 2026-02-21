@@ -29,7 +29,38 @@ jest.mock('bcryptjs', () => ({
   compare: jest.fn().mockResolvedValue(true),
 }));
 
+const mockApiKey = {
+  create: jest.fn(),
+  findMany: jest.fn(),
+  findUnique: jest.fn(),
+  update: jest.fn(),
+};
+
+jest.mock('@ims/database', () => ({
+  prisma: {
+    apiKey: mockApiKey,
+    $use: jest.fn(),
+  },
+}));
+
 import apiKeysRouter from '../src/routes/api-keys';
+
+const mockRecord = {
+  id: 'key-1',
+  name: 'Power BI Connector',
+  keyHash: '$2b$10$hashedvalue',
+  prefix: 'rxk_abcdef12',
+  permissions: ['read:quality', 'read:analytics'],
+  orgId: 'org-1',
+  createdById: 'user-1',
+  usageCount: 0,
+  isActive: true,
+  revokedAt: null,
+  lastUsedAt: null,
+  createdAt: new Date('2026-01-01T00:00:00Z'),
+  updatedAt: new Date('2026-01-01T00:00:00Z'),
+  expiresAt: null,
+};
 
 describe('API Keys Routes', () => {
   let app: express.Express;
@@ -43,6 +74,8 @@ describe('API Keys Routes', () => {
 
   describe('POST /api/admin/api-keys', () => {
     it('creates a new API key and returns plaintext once', async () => {
+      mockApiKey.create.mockResolvedValue(mockRecord);
+
       const res = await request(app)
         .post('/api/admin/api-keys')
         .send({ name: 'Power BI Connector', scopes: ['read:quality', 'read:analytics'] });
@@ -64,35 +97,108 @@ describe('API Keys Routes', () => {
       const res = await request(app).post('/api/admin/api-keys').send({ name: 'Test', scopes: [] });
       expect(res.status).toBe(400);
     });
+
+    it('calls prisma.apiKey.create once on success', async () => {
+      mockApiKey.create.mockResolvedValue(mockRecord);
+      await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'Test Key', scopes: ['read:hr'] });
+      expect(mockApiKey.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('stores permissions from scopes input', async () => {
+      mockApiKey.create.mockResolvedValue(mockRecord);
+      await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'Test', scopes: ['read:quality', 'read:hr'] });
+      expect(mockApiKey.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ permissions: ['read:quality', 'read:hr'] }),
+        })
+      );
+    });
+
+    it('returns 500 when create throws', async () => {
+      mockApiKey.create.mockRejectedValue(new Error('DB error'));
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'Test', scopes: ['read:hr'] });
+      expect(res.status).toBe(500);
+      expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    });
   });
 
   describe('GET /api/admin/api-keys', () => {
     it('lists API keys', async () => {
+      mockApiKey.findMany.mockResolvedValue([mockRecord]);
+
       const res = await request(app).get('/api/admin/api-keys');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data).toBeInstanceOf(Array);
+      expect(res.body.data).toHaveLength(1);
+    });
+
+    it('returns empty array when no keys', async () => {
+      mockApiKey.findMany.mockResolvedValue([]);
+      const res = await request(app).get('/api/admin/api-keys');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(0);
+    });
+
+    it('filters by orgId', async () => {
+      mockApiKey.findMany.mockResolvedValue([]);
+      await request(app).get('/api/admin/api-keys');
+      expect(mockApiKey.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: expect.objectContaining({ orgId: 'org-1' }) })
+      );
+    });
+
+    it('returns 500 when findMany throws', async () => {
+      mockApiKey.findMany.mockRejectedValue(new Error('DB error'));
+      const res = await request(app).get('/api/admin/api-keys');
+      expect(res.status).toBe(500);
     });
   });
 
   describe('DELETE /api/admin/api-keys/:id', () => {
     it('revokes an API key', async () => {
-      // Create first
-      const createRes = await request(app)
-        .post('/api/admin/api-keys')
-        .send({ name: 'To Revoke', scopes: ['read:quality'] });
-      const keyId = createRes.body.data.id;
+      mockApiKey.findUnique.mockResolvedValue(mockRecord);
+      mockApiKey.update.mockResolvedValue({ ...mockRecord, isActive: false, revokedAt: new Date() });
 
-      const res = await request(app).delete(`/api/admin/api-keys/${keyId}`);
+      const res = await request(app).delete('/api/admin/api-keys/key-1');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
+      expect(res.body.data.status).toBe('revoked');
     });
 
     it('returns 404 for non-existent key', async () => {
-      const res = await request(app).delete(
-        '/api/admin/api-keys/00000000-0000-0000-0000-000000000099'
-      );
+      mockApiKey.findUnique.mockResolvedValue(null);
+      const res = await request(app).delete('/api/admin/api-keys/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
+    });
+
+    it('returns 409 when key already revoked', async () => {
+      mockApiKey.findUnique.mockResolvedValue({ ...mockRecord, isActive: false });
+      const res = await request(app).delete('/api/admin/api-keys/key-1');
+      expect(res.status).toBe(409);
+      expect(res.body.error.code).toBe('ALREADY_REVOKED');
+    });
+
+    it('sets isActive to false in DB', async () => {
+      mockApiKey.findUnique.mockResolvedValue(mockRecord);
+      mockApiKey.update.mockResolvedValue({ ...mockRecord, isActive: false });
+      await request(app).delete('/api/admin/api-keys/key-1');
+      expect(mockApiKey.update).toHaveBeenCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ isActive: false }) })
+      );
+    });
+
+    it('returns 500 when update throws', async () => {
+      mockApiKey.findUnique.mockResolvedValue(mockRecord);
+      mockApiKey.update.mockRejectedValue(new Error('DB error'));
+      const res = await request(app).delete('/api/admin/api-keys/key-1');
+      expect(res.status).toBe(500);
     });
   });
 
@@ -109,12 +215,14 @@ describe('API Keys Routes', () => {
 
   describe('API Keys — extended', () => {
     it('GET /api/admin/api-keys returns success true', async () => {
+      mockApiKey.findMany.mockResolvedValue([]);
       const res = await request(app).get('/api/admin/api-keys');
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     });
 
     it('created key has an id field', async () => {
+      mockApiKey.create.mockResolvedValue(mockRecord);
       const res = await request(app)
         .post('/api/admin/api-keys')
         .send({ name: 'Analytics Key', scopes: ['read:analytics'] });
@@ -123,6 +231,7 @@ describe('API Keys Routes', () => {
     });
 
     it('created key stores the given scopes', async () => {
+      mockApiKey.create.mockResolvedValue({ ...mockRecord, permissions: ['read:quality', 'read:hr'] });
       const res = await request(app)
         .post('/api/admin/api-keys')
         .send({ name: 'Multi-scope Key', scopes: ['read:quality', 'read:hr'] });
@@ -133,12 +242,14 @@ describe('API Keys Routes', () => {
 
   describe('API Keys — further extended', () => {
     it('GET returns data as an array', async () => {
+      mockApiKey.findMany.mockResolvedValue([]);
       const res = await request(app).get('/api/admin/api-keys');
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body.data)).toBe(true);
     });
 
-    it('created key key field starts with rxk_', async () => {
+    it('created key field starts with rxk_', async () => {
+      mockApiKey.create.mockResolvedValue(mockRecord);
       const res = await request(app)
         .post('/api/admin/api-keys')
         .send({ name: 'Prefix Check', scopes: ['read:inventory'] });
@@ -147,6 +258,7 @@ describe('API Keys Routes', () => {
     });
 
     it('created key name matches submitted name', async () => {
+      mockApiKey.create.mockResolvedValue({ ...mockRecord, name: 'My Integration' });
       const res = await request(app)
         .post('/api/admin/api-keys')
         .send({ name: 'My Integration', scopes: ['read:hr'] });
@@ -160,9 +272,8 @@ describe('API Keys Routes', () => {
     });
 
     it('DELETE non-existent key returns 404', async () => {
-      const res = await request(app).delete(
-        '/api/admin/api-keys/00000000-0000-0000-0000-000000000099'
-      );
+      mockApiKey.findUnique.mockResolvedValue(null);
+      const res = await request(app).delete('/api/admin/api-keys/00000000-0000-0000-0000-000000000099');
       expect(res.status).toBe(404);
     });
   });
