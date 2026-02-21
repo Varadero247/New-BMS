@@ -136,3 +136,35 @@ describe('GET /api/risks/bowtie/all', () => {
     expect(res.body.data).toHaveLength(1);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /:id/bowtie returns 500 on DB error', async () => {
+    mockPrisma.riskBowtie.findUnique.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/bowtie');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/bowtie returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      residualRiskLevel: 'HIGH',
+    });
+    mockPrisma.riskBowtie.findUnique.mockResolvedValue(null);
+    mockPrisma.riskBowtie.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/bowtie')
+      .send(validBowtie);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /bowtie/all returns 500 on DB error', async () => {
+    mockPrisma.riskBowtie.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/bowtie/all');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

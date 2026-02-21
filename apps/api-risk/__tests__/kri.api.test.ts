@@ -197,3 +197,65 @@ describe('GET /api/risks/kri/due', () => {
     expect(res.status).toBe(200);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /:id/kri returns 500 on DB error', async () => {
+    mockPrisma.riskKri.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/00000000-0000-0000-0000-000000000001/kri');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/kri returns 500 when create fails', async () => {
+    mockPrisma.riskRegister.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskKri.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri')
+      .send({
+        name: 'Incident Rate',
+        unit: '%',
+        frequency: 'MONTHLY',
+        yellowThreshold: 5,
+        redThreshold: 10,
+        operator: 'GREATER_THAN',
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:riskId/kri/:id returns 500 when update fails', async () => {
+    mockPrisma.riskKri.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.riskKri.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:riskId/kri/:id/reading returns 500 when create fails', async () => {
+    mockPrisma.riskKri.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001', yellowThreshold: 5, redThreshold: 10, operator: 'GREATER_THAN' });
+    mockPrisma.riskKriReading.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/risks/00000000-0000-0000-0000-000000000001/kri/00000000-0000-0000-0000-000000000001/reading')
+      .send({ value: 7.5, notes: 'Monthly reading' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /kri/breaches returns 500 on DB error', async () => {
+    mockPrisma.riskKri.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/kri/breaches');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /kri/due returns 500 on DB error', async () => {
+    mockPrisma.riskKri.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/kri/due');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
