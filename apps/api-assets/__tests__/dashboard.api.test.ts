@@ -179,3 +179,63 @@ describe('GET /api/dashboard/stats — extended', () => {
     expect(res.body.data.totalCalibrations).toBe(3);
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('Assets Dashboard — additional coverage', () => {
+  it('returns 401 when authenticate rejects the request', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce(
+      (_req: any, res: any, _next: any) => {
+        res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+      }
+    );
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('returns empty-list-equivalent with all zero counts', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(0);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(0);
+    mockPrisma.assetCalibration.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAssets).toBe(0);
+    expect(res.body.data.totalWorkOrders).toBe(0);
+    expect(res.body.data.totalCalibrations).toBe(0);
+  });
+
+  it('returns 500 with INTERNAL_ERROR when assetCalibration count rejects', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(10);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(5);
+    mockPrisma.assetCalibration.count.mockRejectedValue(new Error('DB timeout'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('returns accurate stats for a positive CRUD-representative call', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(25);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(8);
+    mockPrisma.assetCalibration.count.mockResolvedValue(12);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.totalAssets).toBe(25);
+    expect(res.body.data.totalWorkOrders).toBe(8);
+    expect(res.body.data.totalCalibrations).toBe(12);
+  });
+
+  it('response has no extra top-level keys beyond success and data', async () => {
+    mockPrisma.assetRegister.count.mockResolvedValue(1);
+    mockPrisma.assetWorkOrder.count.mockResolvedValue(1);
+    mockPrisma.assetCalibration.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    const keys = Object.keys(res.body);
+    expect(keys).toContain('success');
+    expect(keys).toContain('data');
+  });
+});

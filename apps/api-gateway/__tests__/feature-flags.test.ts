@@ -213,3 +213,55 @@ describe('Feature Flags Routes', () => {
     });
   });
 });
+
+
+describe('Feature Flags — additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    app = require('express')();
+    app.use(require('express').json());
+    app.use('/api', require('../src/routes/feature-flags').default);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/admin/feature-flags returns empty array when no flags exist', async () => {
+    mockGetAllFlags.mockReturnValue([]);
+    mockGetAllOrgOverrides.mockReturnValue([]);
+    const res = await require('supertest')(app).get('/api/admin/feature-flags');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('POST /api/admin/feature-flags sets enabled to false by default', async () => {
+    const res = await require('supertest')(app)
+      .post('/api/admin/feature-flags')
+      .send({ name: 'new_feature', description: 'A brand new flag' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.enabled).toBe(false);
+  });
+
+  it('DELETE /api/admin/feature-flags/:name/orgs/:orgId returns 404 when override not found', async () => {
+    mockRemoveOrgOverride.mockReturnValueOnce(false);
+    const res = await require('supertest')(app).delete(
+      '/api/admin/feature-flags/nonexistent/orgs/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/feature-flags/check returns enabled: false when flag is disabled', async () => {
+    mockIsEnabled.mockResolvedValueOnce(false);
+    const res = await require('supertest')(app).get('/api/feature-flags/check?name=disabled_flag');
+    expect(res.status).toBe(200);
+    expect(res.body.data.enabled).toBe(false);
+  });
+
+  it('PUT /api/admin/feature-flags/:name/orgs/:orgId can set enabled to false', async () => {
+    mockSetOrgOverride.mockReturnValueOnce({ id: 'ov-2', orgId: 'org-2', flagName: 'test_flag', enabled: false });
+    const res = await require('supertest')(app)
+      .put('/api/admin/feature-flags/test_flag/orgs/00000000-0000-0000-0000-000000000002')
+      .send({ enabled: false });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

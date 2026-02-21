@@ -185,3 +185,57 @@ describe('Cashflow — extended', () => {
     expect(typeof res.body.data.position).toBe('object');
   });
 });
+
+// ===================================================================
+// Additional edge cases: empty lists, pagination, auth, enums, missing fields
+// ===================================================================
+describe('Cashflow — additional edge cases', () => {
+  it('GET /api/cashflow returns success:true with empty forecasts array', async () => {
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/cashflow');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.forecasts).toEqual([]);
+    expect(res.body.data.total).toBe(0);
+  });
+
+  it('GET /api/cashflow returns correct total for 13 weekly forecasts', async () => {
+    const forecasts = Array.from({ length: 13 }, (_, i) => ({
+      id: 'cf-wk-' + (i + 1),
+      weekNumber: i + 1,
+      weekStart: new Date(2026, 0, 5 + i * 7),
+      inflow: 50000,
+      outflow: 30000,
+      openingBalance: 10000 + i * 1000,
+      closingBalance: 30000 + i * 1000,
+    }));
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue(forecasts);
+    const res = await request(app).get('/api/cashflow');
+    expect(res.status).toBe(200);
+    expect(res.body.data.total).toBe(13);
+    expect(res.body.data.forecasts).toHaveLength(13);
+  });
+
+  it('GET /api/cashflow/position returns INTERNAL_ERROR code on DB failure', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('authenticate middleware is invoked on every cashflow request', async () => {
+    const authMod = require('@ims/auth');
+    mockPrisma.cashFlowForecast.findMany.mockResolvedValue([]);
+    await request(app).get('/api/cashflow');
+    expect(authMod.authenticate).toHaveBeenCalled();
+  });
+
+  it('GET /api/cashflow/position NOT_FOUND includes success:false and error.code', async () => {
+    mockPrisma.companyCashPosition.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/cashflow/position');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

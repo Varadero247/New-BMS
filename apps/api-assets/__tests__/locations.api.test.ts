@@ -173,3 +173,56 @@ describe('Locations — extended', () => {
     expect(names.length).toBe(uniqueNames.length);
   });
 });
+describe('GET /api/locations — additional coverage', () => {
+  it('enforces authentication — authenticate middleware is called', async () => {
+    const { authenticate } = require('@ims/auth');
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/locations');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('returns empty array when all assets have null locations', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: null },
+      { location: null },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /locations with unknown query params still returns 200', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([{ location: 'Depot' }]);
+    const res = await request(app).get('/api/locations?foo=bar');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 500 with INTERNAL_ERROR code when findMany throws a timeout error', async () => {
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('Query timeout'));
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('mixed null and valid locations — only valid locations appear in output', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { location: 'Plant A' },
+      { location: null },
+      { location: 'Plant A' },
+      { location: '' },
+      { location: 'Warehouse B' },
+    ]);
+    const res = await request(app).get('/api/locations');
+    expect(res.status).toBe(200);
+    const names = res.body.data.map((d: any) => d.location);
+    expect(names).toContain('Plant A');
+    expect(names).toContain('Warehouse B');
+    expect(names).not.toContain(null);
+    expect(names).not.toContain('');
+    const plantA = res.body.data.find((d: any) => d.location === 'Plant A');
+    expect(plantA.count).toBe(2);
+  });
+});

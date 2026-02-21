@@ -275,3 +275,85 @@ describe('Document Analysis — extended', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+// ─── POST /api/documents/analyze — additional coverage ──────────────────────
+describe('POST /api/documents/analyze — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (prisma.aISettings.findFirst as jest.Mock).mockResolvedValue(mockSettings);
+    (prisma.aISettings.update as jest.Mock).mockResolvedValue(mockSettings);
+  });
+
+  // 1. Auth enforcement: isolated app whose authenticate always rejects
+  it('returns 401 when authenticate rejects the request', async () => {
+    const express = require('express');
+    const isolatedApp = express();
+    isolatedApp.use(express.json());
+    isolatedApp.use('/api/documents', (_req: any, res: any, _next: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+    });
+    const res = await request(isolatedApp)
+      .post('/api/documents/analyze')
+      .send({ content: 'Some text', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  // 2. Missing/invalid field: empty content string is rejected
+  it('returns 400 VALIDATION_ERROR when content is an empty string', async () => {
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: '', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  // 3. Empty results: EXTRACT_KEY_TERMS with AI returning empty terms object
+  it('returns 200 with an empty terms object when AI returns no key terms', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ terms: {}, totalTermsFound: 0 }) } }],
+        usage: { total_tokens: 10 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'A document with no extractable jargon.', analysisType: 'EXTRACT_KEY_TERMS' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.result.terms).toBeDefined();
+  });
+
+  // 4. DB error handling: prisma.aISettings.findFirst rejects → 500
+  it('returns 500 AI_ERROR when DB lookup throws', async () => {
+    (prisma.aISettings.findFirst as jest.Mock).mockRejectedValue(new Error('DB timeout'));
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Text to analyse', analysisType: 'SUMMARIZE' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('AI_ERROR');
+  });
+
+  // 5. Positive case: CLASSIFY returns 200 with documentType in result
+  it('returns 200 with documentType in result for CLASSIFY analysisType', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({
+          documentType: 'Procedure',
+          department: 'Operations',
+          confidenceScore: 88,
+        }) } }],
+        usage: { total_tokens: 200 },
+      }),
+    });
+    const res = await request(app)
+      .post('/api/documents/analyze')
+      .send({ content: 'Standard operating procedure for chemical handling.', analysisType: 'CLASSIFY' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.analysisType).toBe('CLASSIFY');
+    expect(res.body.data.result.documentType).toBe('Procedure');
+  });
+});

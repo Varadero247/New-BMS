@@ -226,3 +226,65 @@ describe('DEFRA Factors — further extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+
+describe('DEFRA Factors — additional coverage', () => {
+  it('auth enforcement: authenticate middleware is called on GET', async () => {
+    const { authenticate } = require('@ims/auth');
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/defra-factors');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('empty list response: GET returns [] and success true when no records exist', async () => {
+    (prisma.esgDefraFactor.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/defra-factors');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('invalid params (400): POST without required activity field returns VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Electricity',
+      factor: 0.233,
+      unit: 'kgCO2e/kWh',
+      year: 2026,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DB error handling (500): POST create failure returns INTERNAL_ERROR', async () => {
+    (prisma.esgDefraFactor.create as jest.Mock).mockRejectedValue(new Error('Connection refused'));
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Fuel',
+      activity: 'Diesel combustion',
+      factor: 2.68,
+      unit: 'kgCO2e/litre',
+      year: 2026,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('additional positive case: POST creates factor and response data contains id', async () => {
+    const factorWithExtras = { ...mockDefraFactor, subcategory: 'Diesel', notes: 'Scope 1' };
+    (prisma.esgDefraFactor.create as jest.Mock).mockResolvedValue(factorWithExtras);
+    const res = await request(app).post('/api/defra-factors').send({
+      category: 'Fuel',
+      subcategory: 'Diesel',
+      activity: 'Diesel combustion',
+      factor: 2.68,
+      unit: 'kgCO2e/litre',
+      year: 2026,
+      source: 'DEFRA 2026',
+      notes: 'Scope 1',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
+  });
+});

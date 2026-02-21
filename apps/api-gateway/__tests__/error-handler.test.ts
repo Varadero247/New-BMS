@@ -309,3 +309,88 @@ describe('Error Handler Middleware', () => {
     });
   });
 });
+
+
+describe('Error Handler — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should handle 422 Unprocessable Entity and expose the message', () => {
+    const err: AppError = new Error('Unprocessable data');
+    err.statusCode = 422;
+    err.code = 'UNPROCESSABLE_ENTITY';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      error: { code: 'UNPROCESSABLE_ENTITY', message: 'Unprocessable data' },
+    });
+  });
+
+  it('should mask the message for 503 Service Unavailable', () => {
+    const err: AppError = new Error('Redis connection timed out');
+    err.statusCode = 503;
+    err.code = 'SERVICE_UNAVAILABLE';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(res.status).toHaveBeenCalledWith(503);
+    const payload = (res.json as jest.Mock).mock.calls[0][0];
+    expect(payload.error.message).toBe('Internal server error');
+    expect(payload.success).toBe(false);
+  });
+
+  it('should log all three fields: error message, code, and statusCode', () => {
+    const err: AppError = new Error('Payment required');
+    err.statusCode = 402;
+    err.code = 'PAYMENT_REQUIRED';
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(mockLogger.error).toHaveBeenCalledWith('Unhandled error', {
+      error: 'Payment required',
+      code: 'PAYMENT_REQUIRED',
+      statusCode: 402,
+    });
+  });
+
+  it('should never call next() after handling the error', () => {
+    const err: AppError = new Error('Not implemented');
+    err.statusCode = 501;
+
+    const req = mockRequest();
+    const res = mockResponse();
+
+    errorHandler(err, req as Request, res as Response, mockNext);
+
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+  it('should always return success: false regardless of status code', () => {
+    for (const statusCode of [400, 401, 403, 404, 500, 502, 503]) {
+      const err: AppError = new Error('Some error');
+      err.statusCode = statusCode;
+
+      const req = mockRequest();
+      const res = mockResponse();
+
+      errorHandler(err, req as Request, res as Response, mockNext);
+
+      const payload = (res.json as jest.Mock).mock.calls[0][0];
+      expect(payload.success).toBe(false);
+      jest.clearAllMocks();
+    }
+  });
+});

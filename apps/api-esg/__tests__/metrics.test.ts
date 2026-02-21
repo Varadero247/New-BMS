@@ -248,3 +248,60 @@ describe('Metrics — extended', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+
+describe('Metrics — additional coverage', () => {
+  it('auth enforcement: authenticate middleware is called on GET data-points', async () => {
+    const { authenticate } = require('@ims/auth');
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('empty list response: GET data-points returns empty array with pagination when none exist', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+    expect(res.body.pagination.totalPages).toBe(0);
+  });
+
+  it('invalid params (400): non-UUID metric id returns INVALID_ID error', async () => {
+    const res = await request(app).get('/api/metrics/not-a-uuid/data-points');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INVALID_ID');
+  });
+
+  it('DB error handling (500): GET data-points count failure returns INTERNAL_ERROR', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.esgDataPoint.count as jest.Mock).mockRejectedValue(new Error('DB count failed'));
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('additional positive case: POST data-point stores VERIFIED status when provided', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue(mockMetric);
+    (prisma.esgDataPoint.create as jest.Mock).mockResolvedValue({ ...mockDataPoint, status: 'VERIFIED' });
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({
+        periodStart: '2026-01-01',
+        periodEnd: '2026-03-31',
+        value: 2000,
+        unit: 'tCO2e',
+        status: 'VERIFIED',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('VERIFIED');
+  });
+});

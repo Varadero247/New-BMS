@@ -263,3 +263,60 @@ describe('Analytics Exports — extended', () => {
     expect(res.body.data.format).toBe('EXCEL');
   });
 });
+
+// ===================================================================
+// Analytics Exports — additional coverage (5 tests)
+// ===================================================================
+describe('Analytics Exports — additional coverage', () => {
+  it('GET /exports returns 401 when authenticate rejects', async () => {
+    const { authenticate } = await import('@ims/auth');
+    (authenticate as jest.Mock).mockImplementationOnce((_req: any, res: any, _next: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+    });
+
+    const res = await request(app).get('/api/exports');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /exports returns empty array and total 0 when no exports exist', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/exports');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('GET /exports honours limit and page query params', async () => {
+    mockPrisma.analyticsExport.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsExport.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/exports?page=3&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsExport.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('POST /exports returns 400 when type field is missing', async () => {
+    const res = await request(app).post('/api/exports').send({ name: 'Incomplete', format: 'CSV' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /exports/:id returns 500 on DB error', async () => {
+    mockPrisma.analyticsExport.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsExport.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).delete('/api/exports/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

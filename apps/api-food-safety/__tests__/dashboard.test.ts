@@ -292,3 +292,53 @@ describe('Food Safety Dashboard — extended', () => {
     expect(prisma.fsNcr.count).toHaveBeenCalled();
   });
 });
+
+
+describe('Food Safety Dashboard — final coverage', () => {
+  const setupDefaultMocks = () => {
+    (prisma.fsHazard.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsNcr.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsRecall.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsProduct.count as jest.Mock).mockResolvedValue(0);
+    (prisma.fsAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.fsNcr.findMany as jest.Mock).mockResolvedValue([]);
+  };
+
+  it('summary.hazards reflects the mock count', async () => {
+    setupDefaultMocks();
+    (prisma.fsHazard.count as jest.Mock).mockResolvedValue(12);
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.hazards).toBe(12);
+  });
+
+  it('summary.ccps reflects the mock count', async () => {
+    setupDefaultMocks();
+    (prisma.fsCcp.count as jest.Mock).mockResolvedValue(6);
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.ccps).toBe(6);
+  });
+
+  it('fsRecall.count is called at least once', async () => {
+    setupDefaultMocks();
+    await request(app).get('/api/dashboard');
+    expect(prisma.fsRecall.count).toHaveBeenCalled();
+  });
+
+  it('fsAudit.findMany is called once per request', async () => {
+    setupDefaultMocks();
+    await request(app).get('/api/dashboard');
+    expect(prisma.fsAudit.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('error body has both code and message keys on DB failure', async () => {
+    (prisma.fsHazard.count as jest.Mock).mockRejectedValue(new Error('connection lost'));
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+    expect(res.body.error).toHaveProperty('message');
+  });
+});

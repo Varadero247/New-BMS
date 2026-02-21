@@ -238,3 +238,86 @@ describe('Collateral — extra', () => {
     );
   });
 });
+
+describe('Collateral — additional coverage', () => {
+  it('GET / calls mktPartner.findUnique to resolve tier', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/collateral');
+
+    expect(prisma.mktPartner.findUnique).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / uses REFERRAL tier fallback when partner record is null', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/collateral');
+
+    // Route falls back to REFERRAL tier when partner record not found
+    expect(res.status).toBe(200);
+    expect(portalPrisma.mktPartnerCollateral.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ accessTier: { in: ['ALL'] } }),
+      })
+    );
+  });
+
+  it('GET /:id/download returns 200 with fileUrl in data', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      accessTier: 'ALL',
+    });
+    (portalPrisma.mktPartnerCollateral.update as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      downloadCount: 43,
+    });
+
+    const res = await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    // Route returns only { fileUrl } to avoid exposing full record
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('fileUrl');
+  });
+
+  it('GET / GCC_SPECIALIST tier allows ALL, CO_SELL, RESELLER, and GCC_SPECIALIST tiers', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'GCC_SPECIALIST' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([]);
+
+    await request(app).get('/api/collateral');
+
+    expect(portalPrisma.mktPartnerCollateral.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          accessTier: { in: expect.arrayContaining(['ALL', 'GCC_SPECIALIST']) },
+        }),
+      })
+    );
+  });
+
+  it('GET /:id/download increments downloadCount by 1', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'RESELLER' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      accessTier: 'ALL',
+    });
+    (portalPrisma.mktPartnerCollateral.update as jest.Mock).mockResolvedValue({
+      ...mockCollateral,
+      downloadCount: 43,
+    });
+
+    await request(app).get(
+      '/api/collateral/00000000-0000-0000-0000-000000000001/download'
+    );
+
+    expect(portalPrisma.mktPartnerCollateral.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: { downloadCount: { increment: 1 } },
+      })
+    );
+  });
+});

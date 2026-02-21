@@ -214,3 +214,54 @@ describe('Inventory Reports — extended', () => {
     expect(res.body.data.summary.totalValue).toBe(25000);
   });
 });
+
+describe('Inventory Reports — additional coverage', () => {
+  it('GET /valuation topValueItems is an array', async () => {
+    (mockPrisma.inventory.aggregate as jest.Mock).mockResolvedValue({
+      _sum: { quantityOnHand: 200, inventoryValue: 10000 },
+      _count: { id: 20 },
+    });
+    (mockPrisma.inventory.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/valuation');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.topValueItems)).toBe(true);
+  });
+
+  it('GET /movement returns dailyMovement in data', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.$queryRaw as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/movement');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('dailyMovement');
+  });
+
+  it('GET /ageing items have ageBucket field', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([
+      {
+        id: 'inv-2',
+        inventoryValue: 800,
+        lastReceivedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+        product: { sku: 'SKU-003', name: 'Widget C' },
+        warehouse: { code: 'WH-02', name: 'Secondary' },
+      },
+    ]);
+    const res = await request(app).get('/api/reports/ageing');
+    expect(res.status).toBe(200);
+    expect(res.body.data.items[0]).toHaveProperty('ageBucket', '0-30 days');
+  });
+
+  it('GET /turnover products is an array', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/turnover');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.products)).toBe(true);
+  });
+
+  it('GET /movement error returns INTERNAL_ERROR code', async () => {
+    (mockPrisma.inventoryTransaction.groupBy as jest.Mock).mockRejectedValue(new Error('conn lost'));
+    const res = await request(app).get('/api/reports/movement');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

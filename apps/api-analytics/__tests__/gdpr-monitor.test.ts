@@ -229,3 +229,52 @@ describe('GDPR Monitor — extended', () => {
     expect(res.body.data.categories).toHaveLength(0);
   });
 });
+
+// ===================================================================
+// GDPR Monitor — additional coverage (5 tests)
+// ===================================================================
+describe('GDPR Monitor — additional coverage', () => {
+  it('GET /gdpr/categories returns success:true and a categories array', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockResolvedValue([
+      { id: 'cat-1', category: 'Employee PII', legalBasis: 'CONTRACT', complianceStatus: 'COMPLIANT' },
+      { id: 'cat-2', category: 'Customer PII', legalBasis: 'CONSENT', complianceStatus: 'AT_RISK' },
+    ]);
+
+    const res = await request(app).get('/api/gdpr/categories');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data.categories)).toBe(true);
+    expect(res.body.data.categories).toHaveLength(2);
+  });
+
+  it('GET /gdpr/dpas returns empty dpas array when none exist', async () => {
+    (prisma.dataProcessingAgreement.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/gdpr/dpas');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.dpas).toHaveLength(0);
+  });
+
+  it('GET /gdpr/report returns 500 on DB error', async () => {
+    (prisma.gdprDataCategory.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get('/api/gdpr/report');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /gdpr/categories returns 400 when both fields are missing', async () => {
+    const res = await request(app).post('/api/gdpr/categories').send({});
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /gdpr/dpas returns 400 when purpose is missing', async () => {
+    const res = await request(app)
+      .post('/api/gdpr/dpas')
+      .send({ processorName: 'Incomplete Vendor' });
+    expect(res.status).toBe(400);
+  });
+});

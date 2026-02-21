@@ -309,3 +309,65 @@ describe('Energy Reports — extended', () => {
     expect(res.status).toBe(500);
   });
 });
+
+
+describe('Energy Reports — additional coverage', () => {
+  it('auth enforcement: authenticate middleware is called on GET /reports/dashboard', async () => {
+    const { authenticate } = require('@ims/auth');
+    (prisma.energyReading.aggregate as jest.Mock)
+      .mockResolvedValueOnce({ _sum: { value: 0, cost: 0 } })
+      .mockResolvedValueOnce({ _sum: { value: 0, cost: 0 } });
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBill.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/reports/dashboard');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('empty list response: GET /reports/esos returns empty arrays when no data', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyProject.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/esos');
+    expect(res.status).toBe(200);
+    expect(res.body.data.significantEnergyUses).toEqual([]);
+    expect(res.body.data.savingsOpportunities).toEqual([]);
+    expect(res.body.data.qualifyingAudits).toBe(0);
+    expect(res.body.data.totalConsumption).toBe(0);
+  });
+
+  it('invalid params (400): GET /reports/secr with non-numeric year still returns 200 (NaN defaults to current year)', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.aggregate as jest.Mock).mockResolvedValue({ _sum: { cost: null, consumption: null } });
+    (prisma.energyEnpi.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/reports/secr?year=notanumber');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DB error handling (500): GET /reports/esos energyAudit failure returns INTERNAL_ERROR', async () => {
+    (prisma.energyAudit.findMany as jest.Mock).mockRejectedValue(new Error('Audit DB failure'));
+    const res = await request(app).get('/api/reports/esos');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('additional positive case: GET /reports/consumption with dateFrom filter is included in where clause', async () => {
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([
+      { value: 1000, cost: 200, meter: { type: 'ELECTRICITY', facility: 'HQ', unit: 'kWh', name: 'M1' } },
+    ]);
+    const res = await request(app).get('/api/reports/consumption?dateFrom=2026-01-01&dateTo=2026-12-31');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalConsumption).toBe(1000);
+    expect(res.body.data.totalCost).toBe(200);
+    expect(prisma.energyReading.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ readingDate: expect.any(Object) }),
+      })
+    );
+  });
+});

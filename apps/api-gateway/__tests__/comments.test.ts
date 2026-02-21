@@ -199,3 +199,61 @@ describe('Comments Routes — extended', () => {
     expect(res.body.data).toHaveProperty('id');
   });
 });
+
+describe('Comments Routes — additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/comments', commentsRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('PUT /api/comments/:id rejects missing body field', async () => {
+    const res = await request(app)
+      .put('/api/comments/00000000-0000-0000-0000-000000000001')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/comments/:id returns deleted flag in data', async () => {
+    mockDeleteComment.mockResolvedValueOnce(undefined);
+    const res = await request(app).delete('/api/comments/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('deleted', true);
+  });
+
+  it('POST /api/comments/:id/reactions returns emoji in response', async () => {
+    mockAddReaction.mockResolvedValueOnce({
+      id: 'r2',
+      commentId: '00000000-0000-0000-0000-000000000001',
+      userId: 'user-1',
+      emoji: '❤️',
+    });
+    const res = await request(app)
+      .post('/api/comments/00000000-0000-0000-0000-000000000001/reactions')
+      .send({ emoji: '❤️' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('emoji', '❤️');
+  });
+
+  it('POST /api/comments rejects body exceeding max length', async () => {
+    const longBody = 'x'.repeat(5001);
+    const res = await request(app)
+      .post('/api/comments')
+      .send({ recordType: 'ncr', recordId: 'r1', body: longBody });
+    expect(res.status).toBe(400);
+  });
+
+  it('DELETE /api/comments/:id/reactions/:emoji returns removed flag', async () => {
+    mockRemoveReaction.mockResolvedValueOnce(undefined);
+    const res = await request(app).delete(
+      '/api/comments/00000000-0000-0000-0000-000000000001/reactions/%F0%9F%91%8D'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('removed', true);
+  });
+});

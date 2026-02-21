@@ -174,3 +174,62 @@ describe('GET /api/dashboard/stats — extended', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('Documents Dashboard — additional coverage', () => {
+  it('returns 401 when authenticate rejects the request', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce(
+      (_req: any, res: any, _next: any) => {
+        res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+      }
+    );
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('returns an empty-list-equivalent when all counts are zero', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(0);
+    mockPrisma.docVersion.count.mockResolvedValue(0);
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalDocuments).toBe(0);
+    expect(res.body.data.totalVersions).toBe(0);
+    expect(res.body.data.pendingApprovals).toBe(0);
+  });
+
+  it('returns 500 with INTERNAL_ERROR code when docVersion count rejects', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(3);
+    mockPrisma.docVersion.count.mockRejectedValue(new Error('DB timeout'));
+    mockPrisma.docApproval.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('all three data values are numbers on a successful response', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(7);
+    mockPrisma.docVersion.count.mockResolvedValue(14);
+    mockPrisma.docApproval.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalDocuments).toBe('number');
+    expect(typeof res.body.data.totalVersions).toBe('number');
+    expect(typeof res.body.data.pendingApprovals).toBe('number');
+  });
+
+  it('reflects accurate pendingApprovals from a high mock count', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(50);
+    mockPrisma.docVersion.count.mockResolvedValue(200);
+    mockPrisma.docApproval.count.mockResolvedValue(99);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pendingApprovals).toBe(99);
+    expect(res.body.data.totalDocuments).toBe(50);
+    expect(res.body.data.totalVersions).toBe(200);
+  });
+});

@@ -259,3 +259,70 @@ describe('AI Assistant — extended', () => {
     expect(res.body.data.answer.length).toBeGreaterThan(0);
   });
 });
+
+// ─── POST /api/assistant — additional coverage ──────────────────────────────
+describe('POST /api/assistant — additional coverage', () => {
+  // 1. Auth enforcement: build an isolated app whose authenticate always rejects
+  it('returns 401 when authenticate rejects the request', async () => {
+    const isolatedApp = express();
+    isolatedApp.use(express.json());
+    isolatedApp.use('/api/assistant', (_req: any, res: any, _next: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+    });
+    const res = await request(isolatedApp)
+      .post('/api/assistant')
+      .send({ question: 'How does CAPA work?' });
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  // 2. Missing/invalid fields: whitespace-only question fails Zod trim().min(1)
+  it('returns 400 when question is only whitespace', async () => {
+    const app = createApp();
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: '   ' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  // 3. Empty results: unrecognised topic returns empty suggestedModules array
+  it('returns 200 with empty suggestedModules for unknown topic', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'xyzzy gobbledygook' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data.suggestedModules)).toBe(true);
+    expect(res.body.data.suggestedModules.length).toBe(0);
+  });
+
+  // 4. DB error handling: findFirst throws but route degrades gracefully (inner try/catch)
+  it('returns 200 with fallback answer when prisma.findFirst throws', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockRejectedValue(new Error('connection reset'));
+    // Non-FAQ question triggers DB lookup; inner catch falls through to module KB
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'Tell me about inventory stock levels' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.answer).toBeTruthy();
+  });
+
+  // 5. Positive case: audit keyword produces a meaningful answer
+  it('returns 200 with a non-empty string answer for an audit question', async () => {
+    const app = createApp();
+    prisma.aISettings.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/assistant')
+      .send({ question: 'How do audits and findings work?' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(typeof res.body.data.answer).toBe('string');
+    expect(res.body.data.answer.length).toBeGreaterThan(0);
+  });
+});

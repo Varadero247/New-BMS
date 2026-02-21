@@ -188,3 +188,51 @@ describe('Renewal — extra', () => {
     expect(prisma.mktRenewalSequence.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Renewal — additional coverage', () => {
+  it('GET /upcoming uses default 90 days when no days param supplied', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/renewal/upcoming');
+    // findMany should have been called with a where clause containing renewedAt: null
+    expect(prisma.mktRenewalSequence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ renewedAt: null }) })
+    );
+  });
+
+  it('GET /upcoming returns 500 error code INTERNAL_ERROR on failure', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockRejectedValue(new Error('DB crash'));
+    const res = await request(app).get('/api/renewal/upcoming');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /send-reminder creates an email job for the correct template', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day30' });
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ template: 'renewal_day30' }) })
+    );
+  });
+
+  it('POST /send-reminder returns 400 with VALIDATION_ERROR code for invalid type', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    const res = await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day45' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /send-reminder returns 404 with NOT_FOUND code for missing sequence', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000099/send-reminder')
+      .send({ type: 'day90' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});

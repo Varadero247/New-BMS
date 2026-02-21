@@ -209,3 +209,80 @@ describe('Agenda — extra', () => {
     expect(updateCall.where.id).toBe(reviewId);
   });
 });
+
+describe('Agenda — additional coverage', () => {
+  const reviewId = '00000000-0000-0000-0000-000000000001';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('customItems are appended after base agenda items', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue({
+      id: reviewId,
+      title: 'Q4 Review',
+      deletedAt: null,
+    });
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app)
+      .post(`/api/agenda/${reviewId}/generate`)
+      .send({ customItems: ['Sustainability review'] });
+
+    expect(res.status).toBe(200);
+    const items: string[] = res.body.data.items;
+    const customFound = items.some((item) => item.includes('Sustainability review'));
+    expect(customFound).toBe(true);
+  });
+
+  it('returns 400 when customItems contains a non-string element', async () => {
+    const res = await request(app)
+      .post(`/api/agenda/${reviewId}/generate`)
+      .send({ customItems: [123] });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 400 when includeAiNote is not a boolean', async () => {
+    const res = await request(app)
+      .post(`/api/agenda/${reviewId}/generate`)
+      .send({ includeAiNote: 'yes' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('saved JSON agenda has a title property', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue({
+      id: reviewId,
+      title: 'Bi-Annual Review',
+      deletedAt: null,
+    });
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    await request(app).post(`/api/agenda/${reviewId}/generate`);
+
+    const updateCall = (prisma.mgmtReview.update as jest.Mock).mock.calls[0][0];
+    const parsed = JSON.parse(updateCall.data.aiGeneratedAgenda);
+    expect(parsed).toHaveProperty('title');
+  });
+
+  it('last agenda item mentions next review date', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue({
+      id: reviewId,
+      title: 'Year-End Review',
+      deletedAt: null,
+    });
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+
+    expect(res.status).toBe(200);
+    const items: string[] = res.body.data.items;
+    const lastItem = items[items.length - 1];
+    expect(lastItem).toMatch(/next review/i);
+  });
+});

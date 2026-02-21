@@ -181,3 +181,63 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── additional coverage ─────────────────────────────────────────────────────
+
+describe('approvals route — additional coverage', () => {
+  it('auth enforcement: unauthenticated request receives 401', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+    });
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / returns empty data array when no approvals exist', async () => {
+    mockPrisma.contApproval.findMany.mockResolvedValue([]);
+    mockPrisma.contApproval.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST / returns 400 when both required fields are missing', async () => {
+    const res = await request(app).post('/api/approvals').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when approver field is missing but contractId is present', async () => {
+    const res = await request(app).post('/api/approvals').send({ contractId: 'contract-1' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / succeeds with all optional fields populated', async () => {
+    mockPrisma.contApproval.count.mockResolvedValue(5);
+    mockPrisma.contApproval.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      contractId: 'contract-1',
+      approver: 'approver@example.com',
+      status: 'APPROVED',
+    });
+    const res = await request(app)
+      .post('/api/approvals')
+      .send({
+        contractId: 'contract-1',
+        approver: 'approver@example.com',
+        approverName: 'Jane Approver',
+        status: 'APPROVED',
+        comments: 'Looks good',
+        decidedAt: '2026-02-20',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000005');
+  });
+});

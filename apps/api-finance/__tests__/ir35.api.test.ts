@@ -297,3 +297,78 @@ describe('IR35 — extended', () => {
     );
   });
 });
+
+
+// ===================================================================
+// IR35 — additional coverage (5 new tests)
+// ===================================================================
+describe('IR35 — additional coverage', () => {
+  const validAssessment = {
+    contractorName: 'Alice Brown',
+    contractorCompany: 'AB Consulting Ltd',
+    engagementStartDate: '2026-06-01',
+    engagementEndDate: '2026-12-31',
+    role: 'Business Analyst',
+    determination: 'INSIDE',
+    status: 'DRAFT',
+  };
+
+  it('GET / response body has a success property set to true', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/ir35');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('GET / data array length matches the number of records returned by findMany', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000010', referenceNumber: 'IR35-2026-0010', contractorName: 'A' },
+      { id: '00000000-0000-0000-0000-000000000011', referenceNumber: 'IR35-2026-0011', contractorName: 'B' },
+      { id: '00000000-0000-0000-0000-000000000012', referenceNumber: 'IR35-2026-0012', contractorName: 'C' },
+    ]);
+    const res = await request(app).get('/api/ir35');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('POST / returns status 201 on successful assessment creation', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000013',
+      ...validAssessment,
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    const res = await request(app).post('/api/ir35').send(validAssessment);
+    expect(res.status).toBe(201);
+  });
+
+  it('POST / count is called before create to generate the reference number', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(5);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000014',
+      ...validAssessment,
+      referenceNumber: 'IR35-2026-0006',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/ir35').send(validAssessment);
+    expect(mockPrisma.finIr35Assessment.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST / passes determination field to create data', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000015',
+      ...validAssessment,
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/ir35').send(validAssessment);
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ determination: 'INSIDE' }),
+      })
+    );
+  });
+});

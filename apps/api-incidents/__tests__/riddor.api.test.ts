@@ -182,3 +182,63 @@ describe('RIDDOR — extended', () => {
     expect(res.body.data).toHaveLength(3);
   });
 });
+
+describe('RIDDOR — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET uses orgId from authenticated user in query', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/riddor');
+
+    const callArg = mockPrisma.incIncident.findMany.mock.calls[0][0];
+    expect(callArg.where.orgId).toBe('org-1');
+  });
+
+  it('GET filters by riddorReportable YES', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/riddor');
+
+    const callArg = mockPrisma.incIncident.findMany.mock.calls[0][0];
+    expect(callArg.where.riddorReportable).toBe('YES');
+  });
+
+  it('assess sets updatedBy to authenticated user id', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      riddorReportable: 'YES',
+    });
+
+    await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: true });
+
+    const callArg = mockPrisma.incIncident.update.mock.calls[0][0];
+    expect(callArg.data.updatedBy).toBe('user-1');
+  });
+
+  it('assess responds with JSON content-type', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      riddorReportable: 'NO',
+    });
+
+    const res = await request(app)
+      .post('/api/riddor/00000000-0000-0000-0000-000000000001/assess')
+      .send({ reportable: false });
+
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('GET orders results by dateOccurred descending', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/riddor');
+
+    const callArg = mockPrisma.incIncident.findMany.mock.calls[0][0];
+    expect(callArg.orderBy).toEqual({ dateOccurred: 'desc' });
+  });
+});

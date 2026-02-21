@@ -239,3 +239,75 @@ describe('InfoSec Scope — extended', () => {
     expect(mockPrisma.isScope.create).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('InfoSec Scope — additional coverage', () => {
+  const extendedScope = {
+    id: 'b8000000-0000-4000-a000-000000000002',
+    name: 'Extended ISMS Scope',
+    description: 'Full scope covering all offices',
+    boundaries: 'All EU offices',
+    inclusions: 'All systems',
+    exclusions: 'None',
+    justification: 'Compliance',
+    interestedParties: ['Regulators'],
+    applicableRequirements: ['ISO 27001'],
+    interfaces: ['VPN'],
+    status: 'ACTIVE',
+    createdBy: '00000000-0000-4000-a000-000000000123',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  it('GET /api/scope response body has success property', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(extendedScope);
+
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('GET /api/scope data.status is returned from DB unchanged', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(extendedScope);
+
+    const res = await request(app).get('/api/scope');
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('ACTIVE');
+  });
+
+  it('PUT /api/scope with UNDER_REVIEW status is accepted', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(extendedScope);
+    (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce({
+      ...extendedScope,
+      status: 'UNDER_REVIEW',
+    });
+
+    const res = await request(app).put('/api/scope').send({ status: 'UNDER_REVIEW' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/scope with ARCHIVED status is accepted', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(extendedScope);
+    (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce({
+      ...extendedScope,
+      status: 'ARCHIVED',
+    });
+
+    const res = await request(app).put('/api/scope').send({ status: 'ARCHIVED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/scope update calls isScope.update with correct where clause', async () => {
+    (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(extendedScope);
+    (mockPrisma.isScope.update as jest.Mock).mockResolvedValueOnce(extendedScope);
+
+    await request(app).put('/api/scope').send({ name: 'Revised Scope' });
+
+    expect(mockPrisma.isScope.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: extendedScope.id },
+      })
+    );
+  });
+});

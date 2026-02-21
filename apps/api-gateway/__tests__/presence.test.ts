@@ -179,3 +179,51 @@ describe('Presence — extra', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Presence — additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/presence', presenceRouter);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/presence returns 400 when recordType is missing', async () => {
+    const res = await request(app).get('/api/presence?recordId=r1');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/presence returns 400 when recordId is missing', async () => {
+    const res = await request(app).get('/api/presence?recordType=ncr');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/presence/lock returns 400 when recordType is missing', async () => {
+    const res = await request(app)
+      .post('/api/presence/lock')
+      .send({ recordId: 'r1' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /api/presence/lock response data has released field', async () => {
+    const res = await request(app)
+      .delete('/api/presence/lock')
+      .send({ recordType: 'ncr', recordId: 'r5' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('released', true);
+  });
+
+  it('PUT /api/presence/refresh response data has refreshed field', async () => {
+    const res = await request(app)
+      .put('/api/presence/refresh')
+      .send({ recordType: 'ncr', recordId: 'r6' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('refreshed', true);
+  });
+});

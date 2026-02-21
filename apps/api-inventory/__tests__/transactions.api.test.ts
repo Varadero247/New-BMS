@@ -362,3 +362,85 @@ describe('Inventory Transactions API Routes', () => {
     });
   });
 });
+
+describe('Inventory Transactions — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/inventory/transactions', transactionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/inventory/transactions returns success:true on empty list', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/inventory/transactions');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('GET /api/inventory/transactions meta.totalPages is calculated from total and limit', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(100);
+
+    const res = await request(app).get('/api/inventory/transactions?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(5);
+  });
+
+  it('GET /api/inventory/transactions/:id data contains transactionType field', async () => {
+    (mockPrisma.inventoryTransaction.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '29000000-0000-4000-a000-000000000001',
+      transactionType: 'ISSUE',
+      quantityChange: -20,
+      product: { id: '27000000-0000-4000-a000-000000000001', sku: 'SKU001', name: 'Widget A', barcode: null },
+      warehouse: { id: '28000000-0000-4000-a000-000000000001', code: 'WH1', name: 'Main Warehouse' },
+      fromWarehouse: null,
+    });
+
+    const res = await request(app).get('/api/inventory/transactions/29000000-0000-4000-a000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('transactionType', 'ISSUE');
+  });
+
+  it('GET /api/inventory/transactions/product/:productId returns data.transactions as array', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(0);
+    (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '27000000-0000-4000-a000-000000000001',
+      sku: 'SKU001',
+      name: 'Widget A',
+    });
+
+    const res = await request(app).get(
+      '/api/inventory/transactions/product/27000000-0000-4000-a000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.transactions)).toBe(true);
+  });
+
+  it('GET /api/inventory/transactions/product/:productId meta has page and limit', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValueOnce(10);
+    (mockPrisma.product.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '27000000-0000-4000-a000-000000000001',
+      sku: 'SKU001',
+      name: 'Widget A',
+    });
+
+    const res = await request(app).get(
+      '/api/inventory/transactions/product/27000000-0000-4000-a000-000000000001?page=1&limit=50'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('page', 1);
+    expect(res.body.meta).toHaveProperty('limit', 50);
+    expect(res.body.meta).toHaveProperty('total', 10);
+  });
+});

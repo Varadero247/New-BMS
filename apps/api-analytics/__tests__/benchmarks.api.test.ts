@@ -243,3 +243,56 @@ describe('Benchmarks — extended', () => {
     expect(res.body.data.module).toBe('FINANCE');
   });
 });
+
+describe('benchmarks.api.test.ts — additional coverage', () => {
+  it('GET /api/benchmarks returns empty organization array when no KPIs in DB', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks');
+    expect(res.status).toBe(200);
+    // All organization arrays should be empty or undefined when no KPIs
+    const org = res.body.data.organization;
+    const allEmpty = Object.values(org as Record<string, unknown[]>).every((arr) => arr.length === 0);
+    expect(allEmpty).toBe(true);
+  });
+
+  it('GET /api/benchmarks/:module returns 200 with empty arrays for completely unknown module', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/UNKNOWN_MODULE_XYZ');
+    expect(res.status).toBe(200);
+    expect(res.body.data.industry).toHaveLength(0);
+    expect(res.body.data.organization).toHaveLength(0);
+  });
+
+  it('POST /api/benchmarks rejects missing module field with 400', async () => {
+    const res = await request(app).post('/api/benchmarks').send({
+      name: 'Missing Module',
+      metric: 'something',
+      industryAverage: 50,
+      topPerformer: 90,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /api/benchmarks sets trend UP when currentValue exceeds industryAverage', async () => {
+    mockPrisma.analyticsKpi.create.mockResolvedValue({ id: 'kpi-up', name: 'High Metric', trend: 'UP' });
+    const res = await request(app).post('/api/benchmarks').send({
+      name: 'High Metric',
+      module: 'QUALITY',
+      metric: 'High Metric',
+      industryAverage: 60,
+      topPerformer: 99,
+      currentValue: 85,
+    });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.analyticsKpi.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ trend: 'UP' }) })
+    );
+  });
+
+  it('GET /api/benchmarks/:module handles page=0 query param without crashing', async () => {
+    mockPrisma.analyticsKpi.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/benchmarks/QUALITY?page=0');
+    expect(res.status).toBe(200);
+  });
+});

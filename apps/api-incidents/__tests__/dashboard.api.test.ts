@@ -137,3 +137,41 @@ describe('GET /api/dashboard/stats — extended', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('GET /api/dashboard/stats — additional coverage', () => {
+  it('returns 200 with JSON content-type header', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(10);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('makes exactly two count calls across two requests', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(4);
+    await request(app).get('/api/dashboard/stats');
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.incIncident.count).toHaveBeenCalledTimes(2);
+  });
+
+  it('where clause uses deletedAt: null to exclude soft-deleted records', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(3);
+    await request(app).get('/api/dashboard/stats');
+    const callArg = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0];
+    expect(callArg.where.deletedAt).toBeNull();
+  });
+
+  it('totalIncidents is a number type not a string', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(8);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalIncidents).toBe('number');
+  });
+
+  it('error body contains both code and message fields', async () => {
+    mockPrisma.incIncident.count.mockRejectedValue(new Error('timeout'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+    expect(res.body.error).toHaveProperty('message');
+  });
+});

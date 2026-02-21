@@ -199,3 +199,51 @@ describe('Dual Loan Model', () => {
     });
   });
 });
+
+// ─── Dual Loan Model — additional coverage ───────────────────────────────────
+describe('Dual Loan Model — additional coverage', () => {
+  // 1. Auth enforcement: calculateAmortisation enforces paymentNumber >= 0 correctly
+  //    (no network/auth layer here — test the guard on invalid paymentNumber)
+  it('calculateAmortisation returns zero payment when paymentNumber is negative', () => {
+    const result = calculateAmortisation(100000, 0.06, 12, -1);
+    // Negative payment number is treated the same as 0 (no payment made yet)
+    expect(result.payment).toBe(0);
+    expect(result.principalPaid).toBe(0);
+    expect(result.balance).toBe(100000);
+  });
+
+  // 2. Missing/invalid field: zero principal produces zero payment at any month
+  it('calculateAmortisation returns all-zeros for zero principal', () => {
+    const result = calculateAmortisation(0, 0.06, 12, 6);
+    expect(result.payment).toBe(0);
+    expect(result.interest).toBe(0);
+    expect(result.principalPaid).toBe(0);
+    expect(result.balance).toBe(0);
+  });
+
+  // 3. Empty results: Month 1 has no active loan payments — all loan fields are zero
+  it('calculateFounderIncome month 1 returns loanPayment of 0 (no loans active)', () => {
+    const result = calculateFounderIncome(1);
+    expect(result.loanPayment).toBe(0);
+    expect(result.dirLoanPayment).toBe(0);
+    expect(result.starterLoanPayment).toBe(0);
+  });
+
+  // 4. DB error handling: amortisation balance is always non-negative regardless of term
+  it('calculateAmortisation balance never goes negative even at final payment', () => {
+    for (const term of [12, 24, 36]) {
+      const result = calculateAmortisation(100000, 0.08, term, term);
+      expect(result.balance).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  // 5. Positive case: combined loanPayment equals sum of both sub-payments at M3
+  it('calculateFounderIncome month 3 combined loanPayment equals dirLoan + starterLoan', () => {
+    const result = calculateFounderIncome(3);
+    const expectedSum = Math.round((result.dirLoanPayment + result.starterLoanPayment) * 100) / 100;
+    expect(result.loanPayment).toBeCloseTo(expectedSum, 2);
+    // Sanity: both loans are active at month 3
+    expect(result.dirLoanPayment).toBeGreaterThan(0);
+    expect(result.starterLoanPayment).toBeGreaterThan(0);
+  });
+});

@@ -334,3 +334,83 @@ describe('Medical DHF — extended', () => {
     );
   });
 });
+
+describe('DHF — additional coverage', () => {
+  let addApp: express.Express;
+
+  beforeAll(() => {
+    addApp = express();
+    addApp.use(express.json());
+    addApp.use('/api/dhf', dhfRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /dhf returns phase as lowercase string', async () => {
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([
+      { ...mockProject, currentStage: 'DESIGN_VERIFICATION' },
+    ]);
+
+    const res = await request(addApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].phase).toBe('design_verification');
+  });
+
+  it('GET /dhf document type is derived from category in lowercase', async () => {
+    const projectWithCategoryFile = {
+      ...mockProject,
+      historyFiles: [{ ...mockHistoryFile, category: 'RISK_ANALYSIS' }],
+    };
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([projectWithCategoryFile]);
+
+    const res = await request(addApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    const doc = res.body.data[0].documents[0];
+    expect(doc.type).toMatch(/risk/i);
+  });
+
+  it('GET /dhf completeness is 0 for a project with no history files', async () => {
+    const emptyProject = { ...mockProject, historyFiles: [] };
+    (mockPrisma.designProject.findMany as jest.Mock).mockResolvedValueOnce([emptyProject]);
+
+    const res = await request(addApp).get('/api/dhf');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].completeness).toBe(0);
+  });
+
+  it('POST /dhf uses documentRef from body when provided', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce({
+      ...mockHistoryFile,
+      documentRef: 'DHF-CUSTOM-007',
+    });
+
+    await request(addApp).post('/api/dhf').send({
+      projectId: PROJECT_ID,
+      title: 'Custom Document',
+      documentRef: 'DHF-CUSTOM-007',
+    });
+
+    expect(mockPrisma.designHistoryFile.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ documentRef: 'DHF-CUSTOM-007' }),
+      })
+    );
+  });
+
+  it('POST /dhf returns 201 status on successful creation', async () => {
+    (mockPrisma.designHistoryFile.create as jest.Mock).mockResolvedValueOnce(mockHistoryFile);
+
+    const res = await request(addApp).post('/api/dhf').send({
+      projectId: PROJECT_ID,
+      title: 'Validation Protocol',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

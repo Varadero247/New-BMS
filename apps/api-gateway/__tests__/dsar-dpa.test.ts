@@ -286,3 +286,67 @@ describe('DSAR + DPA — extended', () => {
     expect(res.body.error.code).toBe('ALREADY_ACCEPTED');
   });
 });
+
+describe('DSAR + DPA — additional coverage', () => {
+  let dsarApp: import('express').Express;
+  let dpaApp: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    dsarApp = express();
+    dsarApp.use(express.json());
+    dsarApp.use('/api/admin/privacy/dsar', dsarRouter);
+
+    dpaApp = express();
+    dpaApp.use(express.json());
+    dpaApp.use('/api/admin/dpa', dpaRouter);
+
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockGetActiveDpa.mockReturnValue({ id: 'dpa-1', version: '1.0', title: 'DPA v1', content: '<p>Terms</p>', isActive: true });
+    mockGetDpaAcceptance.mockReturnValue(null);
+    mockHasAcceptedDpa.mockReturnValue(false);
+    mockListRequests.mockReturnValue([]);
+    mockCreateRequest.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'PENDING', subjectEmail: 'user@example.com' });
+  });
+
+  it('GET /dsar returns data as array', async () => {
+    const res = await request(dsarApp).get('/api/admin/privacy/dsar');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /dsar EXPORT response contains id and status', async () => {
+    const res = await request(dsarApp).post('/api/admin/privacy/dsar').send({
+      type: 'EXPORT',
+      subjectEmail: 'data@example.com',
+      reason: 'Annual review',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+    expect(res.body.data).toHaveProperty('status', 'PENDING');
+  });
+
+  it('GET /dpa returns active DPA with isActive true', async () => {
+    const res = await request(dpaApp).get('/api/admin/dpa');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('isActive', true);
+  });
+
+  it('GET /dpa/acceptance returns accepted false when no record', async () => {
+    mockGetDpaAcceptance.mockReturnValueOnce(null);
+    const res = await request(dpaApp).get('/api/admin/dpa/acceptance');
+    expect(res.status).toBe(200);
+    expect(res.body.data.accepted).toBe(false);
+  });
+
+  it('POST /dsar/:id/process calls processExportRequest once', async () => {
+    mockGetRequest.mockReturnValueOnce({ id: '00000000-0000-0000-0000-000000000001', type: 'EXPORT', status: 'PENDING' });
+    const res = await request(dsarApp).post('/api/admin/privacy/dsar/00000000-0000-0000-0000-000000000001/process');
+    expect(res.status).toBe(200);
+    expect(mockProcessExportRequest).toHaveBeenCalledTimes(1);
+  });
+});

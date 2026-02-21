@@ -241,3 +241,77 @@ describe('Changelog Routes — extended', () => {
     expect(mockMarkAsRead).toHaveBeenCalledWith('user-1');
   });
 });
+
+describe('Changelog Routes — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/changelog', changelogRouter);
+    jest.clearAllMocks();
+    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-1' };
+      next();
+    });
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    mockGetUnreadCount.mockReturnValue(0);
+    mockCreateEntry.mockReturnValue({
+      id: 'cl-1',
+      title: 'New Feature',
+      description: 'Details here',
+      category: 'new_feature',
+      modules: ['quality'],
+      isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+  });
+
+  it('GET /api/changelog returns data.entries array', async () => {
+    mockListEntries.mockReturnValueOnce({
+      entries: [{ id: 'cl-3', title: 'Security Patch', category: 'security' }],
+      total: 1,
+    });
+    const res = await request(app).get('/api/changelog');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.entries)).toBe(true);
+  });
+
+  it('POST /api/changelog with security category succeeds', async () => {
+    mockCreateEntry.mockReturnValueOnce({
+      id: 'cl-sec',
+      title: 'Security patch',
+      category: 'security',
+      isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+    const res = await request(app)
+      .post('/api/changelog')
+      .send({ title: 'Security patch', description: 'Critical fix', category: 'security', modules: ['infosec'] });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('security');
+  });
+
+  it('GET /api/changelog/all passes limit and offset to listAllEntries', async () => {
+    const res = await request(app).get('/api/changelog/all').query({ limit: '10', offset: '20' });
+    expect(res.status).toBe(200);
+    expect(mockListAllEntries).toHaveBeenCalledWith(10, 20);
+  });
+
+  it('POST /api/changelog missing description returns 400', async () => {
+    const res = await request(app)
+      .post('/api/changelog')
+      .send({ title: 'No desc', category: 'new_feature', modules: ['hr'] });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/changelog/unread-count calls getUnreadCount with user id', async () => {
+    mockGetUnreadCount.mockReturnValueOnce(7);
+    const res = await request(app).get('/api/changelog/unread-count');
+    expect(res.status).toBe(200);
+    expect(mockGetUnreadCount).toHaveBeenCalledWith('user-1');
+    expect(res.body.data.unreadCount).toBe(7);
+  });
+});

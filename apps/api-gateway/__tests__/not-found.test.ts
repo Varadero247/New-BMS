@@ -220,3 +220,45 @@ describe('Not Found Handler — extended', () => {
     expect(Object.keys(jsonArg.error)).toEqual(expect.arrayContaining(['code', 'message']));
   });
 });
+
+
+describe('Not Found Handler — additional coverage', () => {
+  it('responds with success: false for OPTIONS method', () => {
+    const req = mockRequest({ method: 'OPTIONS', path: '/api/check' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.success).toBe(false);
+  });
+
+  it('error.code is exactly NOT_FOUND for HEAD method', () => {
+    const req = mockRequest({ method: 'HEAD', path: '/api/head-path' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.code).toBe('NOT_FOUND');
+  });
+
+  it('does not throw when called with unusual path characters', () => {
+    expect(() => {
+      const req = mockRequest({ method: 'GET', path: '/api/path-with-dashes_and_under' });
+      const res = mockResponse();
+      notFoundHandler(req as Request, res as Response);
+    }).not.toThrow();
+  });
+
+  it('message follows the pattern "Route METHOD PATH not found"', () => {
+    const req = mockRequest({ method: 'PUT', path: '/api/update-me' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    const jsonArg = (res.json as jest.Mock).mock.calls[0][0];
+    expect(jsonArg.error.message).toMatch(/^Route PUT \/api\/update-me not found$/);
+  });
+
+  it('res.json is called exactly once per invocation', () => {
+    const req = mockRequest({ method: 'DELETE', path: '/api/gone' });
+    const res = mockResponse();
+    notFoundHandler(req as Request, res as Response);
+    expect((res.json as jest.Mock).mock.calls).toHaveLength(1);
+  });
+});

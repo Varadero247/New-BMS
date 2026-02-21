@@ -240,3 +240,61 @@ describe('CSRF Protection Middleware', () => {
     });
   });
 });
+
+describe('CSRF Protection Middleware — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    tokenStore.cleanup();
+  });
+
+  it('should skip OPTIONS method (preflight) without requiring token', () => {
+    const middleware = csrfProtection();
+    const req = mockRequest({ method: 'OPTIONS', path: '/api/users' });
+    const res = mockResponse();
+
+    middleware(req as Request, res as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('should skip HEAD method without requiring token', () => {
+    const middleware = csrfProtection();
+    const req = mockRequest({ method: 'HEAD', path: '/api/users' });
+    const res = mockResponse();
+
+    middleware(req as Request, res as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('should skip custom ignorePath supplied in options', () => {
+    const middleware = csrfProtection({ ignorePaths: ['/api/webhook'] });
+    const req = mockRequest({ method: 'POST', path: '/api/webhook/receive' });
+    const res = mockResponse();
+
+    middleware(req as Request, res as Response, mockNext);
+
+    expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('generateCsrfToken stores token in tokenStore', () => {
+    const handler = generateCsrfToken();
+    const req = mockRequest();
+    const res = mockResponse();
+
+    handler(req as Request, res as Response, mockNext);
+
+    const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+    const token: string = jsonCall.data.csrfToken;
+    expect(tokenStore.isValid(token)).toBe(true);
+  });
+
+  it('tokenStore.isValid returns false for expired token', () => {
+    const token = 'expiry-test-token';
+    // Manually insert with old timestamp by accessing private internals via cast
+    (tokenStore as any).tokens.set(token, { createdAt: Date.now() - 2 * 60 * 60 * 1000 });
+    expect(tokenStore.isValid(token)).toBe(false);
+  });
+});

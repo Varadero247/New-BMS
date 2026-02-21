@@ -234,3 +234,45 @@ describe('Annual Accounts — extended', () => {
     expect(createCall.data.fiscalYear).toBe('2023-2024');
   });
 });
+
+describe('annual-accounts.test.ts — additional coverage', () => {
+  it('returns zero netProfit when zero snapshots (empty list)', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'cov-1' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(Number(createCall.data.netProfit)).toBe(0);
+  });
+
+  it('create is called with data.fiscalYear matching the argument exactly', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'cov-2' });
+    await runAnnualAccountsJob('2022-2023');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.fiscalYear).toBe('2022-2023');
+  });
+
+  it('sections.keyMetrics.avgMrr is 0 when no snapshots', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'cov-3' });
+    await runAnnualAccountsJob('2025-2026');
+    const createCall = (prisma.annualAccountsPack.create as jest.Mock).mock.calls[0][0];
+    expect(createCall.data.sections.keyMetrics.avgMrr).toBe(0);
+  });
+
+  it('month range query gte is April of start year', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'cov-4' });
+    await runAnnualAccountsJob('2023-2024');
+    const findCall = (prisma.monthlySnapshot.findMany as jest.Mock).mock.calls[0][0];
+    expect(findCall.where.month.gte).toBe('2023-04');
+  });
+
+  it('month range query lte is March of end year', async () => {
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.annualAccountsPack.create as jest.Mock).mockResolvedValue({ id: 'cov-5' });
+    await runAnnualAccountsJob('2023-2024');
+    const findCall = (prisma.monthlySnapshot.findMany as jest.Mock).mock.calls[0][0];
+    expect(findCall.where.month.lte).toBe('2024-03');
+  });
+});

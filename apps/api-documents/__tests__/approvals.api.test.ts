@@ -177,3 +177,55 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('Approvals — additional coverage', () => {
+  it('returns 401 when authenticate rejects the request', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce(
+      (_req: any, res: any, _next: any) => {
+        res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+      }
+    );
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('returns 400 with INVALID_ID for non-UUID in GET /:id', async () => {
+    const res = await request(app).get('/api/approvals/not-a-valid-uuid');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INVALID_ID');
+  });
+
+  it('returns 400 with INVALID_ID for non-UUID in PUT /:id', async () => {
+    const res = await request(app).put('/api/approvals/bad-id').send({ approver: 'user-x' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_ID');
+  });
+
+  it('returns 400 with INVALID_ID for non-UUID in DELETE /:id', async () => {
+    const res = await request(app).delete('/api/approvals/not-a-uuid');
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_ID');
+  });
+
+  it('POST with APPROVED status returns 201 and correct status in data', async () => {
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    mockPrisma.docApproval.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000005',
+      documentId: 'doc-5',
+      approver: 'manager@example.com',
+      status: 'APPROVED',
+    });
+    const res = await request(app)
+      .post('/api/approvals')
+      .send({ documentId: 'doc-5', approver: 'manager@example.com', status: 'APPROVED' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('APPROVED');
+  });
+});

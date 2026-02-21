@@ -259,3 +259,56 @@ describe('ESG Reports — extended', () => {
     expect(res.body.data[0]).toHaveProperty('framework');
   });
 });
+
+
+describe('ESG Reports — additional coverage', () => {
+  it('auth enforcement: authenticate middleware is called on GET', async () => {
+    const { authenticate } = require('@ims/auth');
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/esg-reports');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('empty list response: GET returns [] with success true when no reports exist', async () => {
+    (prisma.esgReport.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/esg-reports');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('invalid params (400): POST /generate without framework returns VALIDATION_ERROR', async () => {
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      title: 'Missing framework report',
+      period: '2026',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DB error handling (500): POST /generate count failure returns INTERNAL_ERROR', async () => {
+    (prisma.esgReport.count as jest.Mock).mockRejectedValue(new Error('DB unavailable'));
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      framework: 'GRI',
+      period: '2026',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('additional positive case: generated report has aiGenerated true and status DRAFT', async () => {
+    (prisma.esgReport.count as jest.Mock).mockResolvedValue(5);
+    (prisma.esgReport.create as jest.Mock).mockResolvedValue({ ...mockEsgReport, referenceNumber: 'ESGR-2026-0006' });
+    const res = await request(app).post('/api/esg-reports/generate').send({
+      title: 'Annual Sustainability Report',
+      framework: 'SASB',
+      period: '2026',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.aiGenerated).toBe(true);
+    expect(res.body.data.status).toBe('DRAFT');
+  });
+});

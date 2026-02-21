@@ -222,3 +222,50 @@ describe('PATCH /api/board-packs/:id', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('board-packs.api.test.ts — additional coverage', () => {
+  it('GET /api/board-packs returns empty boardPacks array when none exist', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.data.boardPacks).toHaveLength(0);
+    expect(res.body.data.pagination.total).toBe(0);
+  });
+
+  it('PATCH /api/board-packs/:id rejects invalid enum status with VALIDATION_ERROR', async () => {
+    const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' };
+    mockPrisma.boardPack.findUnique.mockResolvedValue(existing);
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'PENDING' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/board-packs with very large page number returns 200 and empty list', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/board-packs?page=9999&limit=20');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.boardPacks)).toBe(true);
+  });
+
+  it('GET /api/board-packs with page=0 defaults to page 1 (no crash)', async () => {
+    mockPrisma.boardPack.findMany.mockResolvedValue([]);
+    mockPrisma.boardPack.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs?page=0');
+    expect(res.status).toBe(200);
+    expect(res.body.data.pagination.page).toBeGreaterThanOrEqual(1);
+  });
+
+  it('PATCH /api/board-packs/:id with missing status field returns 400', async () => {
+    const existing = { id: '00000000-0000-0000-0000-000000000001', status: 'DRAFT' };
+    mockPrisma.boardPack.findUnique.mockResolvedValue(existing);
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000001')
+      .send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

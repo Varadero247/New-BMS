@@ -260,3 +260,65 @@ describe('Analytics Datasets — extended', () => {
     expect(res.body.data.isActive).toBe(true);
   });
 });
+
+// ===================================================================
+// Analytics Datasets — additional coverage (5 tests)
+// ===================================================================
+describe('Analytics Datasets — additional coverage', () => {
+  it('GET /datasets returns 401 when authenticate rejects', async () => {
+    const { authenticate } = await import('@ims/auth');
+    (authenticate as jest.Mock).mockImplementationOnce((_req: any, res: any, _next: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+    });
+
+    const res = await request(app).get('/api/datasets');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /datasets returns empty array and total 0 when no datasets exist', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/datasets');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('GET /datasets honours limit and page query params', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/datasets?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsDataset.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET /datasets?isActive=false filters to inactive datasets', async () => {
+    mockPrisma.analyticsDataset.findMany.mockResolvedValue([]);
+    mockPrisma.analyticsDataset.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/datasets?isActive=false');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.analyticsDataset.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('POST /datasets/:id/refresh returns 500 on DB update error', async () => {
+    mockPrisma.analyticsDataset.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.analyticsDataset.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).post('/api/datasets/00000000-0000-0000-0000-000000000001/refresh');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

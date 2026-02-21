@@ -208,3 +208,66 @@ describe('Marketing Leads — extended', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('Marketing Leads — additional coverage', () => {
+  it('POST /leads/capture sets source in the created lead', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      source: 'LINKEDIN',
+    });
+
+    await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'a@b.com', name: 'Test', source: 'LINKEDIN' });
+
+    expect(prisma.mktLead.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ source: 'LINKEDIN' }) })
+    );
+  });
+
+  it('GET /leads returns success:true when leads exist', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', email: 'a@b.com' },
+    ]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/leads');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.leads).toHaveLength(1);
+  });
+
+  it('GET /leads page=1 uses skip:0', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/leads?page=1&limit=20');
+
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0, take: 20 })
+    );
+  });
+
+  it('GET /leads/:id calls findUnique with correct id', async () => {
+    (prisma.mktLead.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      email: 'x@y.com',
+    });
+
+    await request(app).get('/api/leads/00000000-0000-0000-0000-000000000002');
+
+    expect(prisma.mktLead.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: '00000000-0000-0000-0000-000000000002' } })
+    );
+  });
+
+  it('POST /leads/capture returns 400 for missing name', async () => {
+    const res = await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'valid@email.com', source: 'DIRECT' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

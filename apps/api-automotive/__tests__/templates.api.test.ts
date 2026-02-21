@@ -166,3 +166,43 @@ describe('Automotive Templates — extended', () => {
     expect(res.body.data.category).toBe('FMEA');
   });
 });
+describe('Automotive Templates — additional coverage', () => {
+  it('enforces authentication — authenticate middleware is called on GET /', async () => {
+    const { authenticate } = require('@ims/auth');
+    await request(app).get('/api/templates');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('GET / returns empty array for unknown category', async () => {
+    const res = await request(app).get('/api/templates?category=NONEXISTENT_CATEGORY');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET /:id returns 400 for id with invalid format (not matching slug pattern)', async () => {
+    const res = await request(app).get('/api/templates/not-valid');
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INVALID_ID');
+  });
+
+  it('GET /:id returns 404 for correctly-formatted but non-existent template slug', async () => {
+    const res = await request(app).get('/api/templates/tpl-xyz-99');
+    expect(res.status).toBe(404);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / returns CONTROL_PLAN template with correct fields when filtering by category', async () => {
+    const res = await request(app).get('/api/templates?category=CONTROL_PLAN');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    const tpl = res.body.data[0];
+    expect(tpl.category).toBe('CONTROL_PLAN');
+    expect(tpl).toHaveProperty('id');
+    expect(tpl).toHaveProperty('name');
+    expect(tpl).toHaveProperty('format');
+    expect(tpl).toHaveProperty('version');
+  });
+});

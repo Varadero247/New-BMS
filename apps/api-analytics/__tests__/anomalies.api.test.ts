@@ -138,3 +138,38 @@ describe('Anomalies — extra', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('anomalies.api.test.ts — additional coverage', () => {
+  it('GET /api/anomalies returns empty anomalies array for unseen module filter', async () => {
+    const res = await request(app).get('/api/anomalies?module=nonexistent_module_xyz');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    // Non-matching module filter should still return a valid response structure
+    expect(res.body.data).toHaveProperty('anomalies');
+  });
+
+  it('PUT /api/anomalies/:id/dismiss rejects empty string reason as 400', async () => {
+    const res = await request(app)
+      .put('/api/anomalies/anom-001/dismiss')
+      .send({ reason: '' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/anomalies pagination object contains limit field', async () => {
+    const res = await request(app).get('/api/anomalies?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('GET /api/anomalies with large page number returns 200 with valid structure', async () => {
+    const res = await request(app).get('/api/anomalies?page=9999&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('anomalies');
+  });
+
+  it('GET /api/anomalies?severity=INVALID_ENUM returns 200 (filter is advisory)', async () => {
+    const res = await request(app).get('/api/anomalies?severity=INVALID_ENUM');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

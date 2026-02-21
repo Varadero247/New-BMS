@@ -176,3 +176,67 @@ describe('IP Allowlist Routes', () => {
     });
   });
 });
+
+
+describe('IP Allowlist — additional coverage', () => {
+  let appExtra: any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Reset default return values after clearAllMocks
+    mockGetOrgAllowlist.mockReturnValue([]);
+    mockRemoveOrgAllowlistEntry.mockReturnValue(true);
+
+    const express = require('express');
+    appExtra = express();
+    appExtra.use(express.json());
+    const ipAllowlistRouter = require('../src/routes/ip-allowlist').default;
+    appExtra.use('/api/admin/ip-allowlist', ipAllowlistRouter);
+  });
+
+  it('GET returns an empty list when no entries exist', async () => {
+    const request = require('supertest');
+    mockGetOrgAllowlist.mockReturnValue([]);
+    const res = await request(appExtra).get('/api/admin/ip-allowlist');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET returns multiple entries with cidr and label fields', async () => {
+    const request = require('supertest');
+    mockGetOrgAllowlist.mockReturnValue([
+      { id: '00000000-0000-0000-0000-000000000001', cidr: '10.0.0.0/8', label: 'VPN' },
+      { id: '00000000-0000-0000-0000-000000000002', cidr: '192.168.0.0/16', label: 'Office' },
+    ]);
+    const res = await request(appExtra).get('/api/admin/ip-allowlist');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+    expect(res.body.data[0]).toHaveProperty('cidr');
+    expect(res.body.data[0]).toHaveProperty('label');
+  });
+
+  it('POST rejects a request with missing cidr field', async () => {
+    const request = require('supertest');
+    const res = await request(appExtra)
+      .post('/api/admin/ip-allowlist')
+      .send({ label: 'No CIDR' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST calls addOrgAllowlistEntry exactly once with the entry data', async () => {
+    const request = require('supertest');
+    await request(appExtra)
+      .post('/api/admin/ip-allowlist')
+      .send({ cidr: '172.16.0.0/12', label: 'Private' });
+    expect(mockAddOrgAllowlistEntry).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE returns 404 when removeOrgAllowlistEntry returns false', async () => {
+    const request = require('supertest');
+    mockRemoveOrgAllowlistEntry.mockReturnValueOnce(false);
+    const res = await request(appExtra).delete(
+      '/api/admin/ip-allowlist/00000000-0000-0000-0000-000000000099'
+    );
+    expect(res.status).toBe(404);
+  });
+});

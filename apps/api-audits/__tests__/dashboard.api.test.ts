@@ -181,3 +181,52 @@ describe('Audits Dashboard — extra', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+
+describe('Audits Dashboard — final coverage', () => {
+  it('totalFindings is a number in success response', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(17);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalFindings).toBe('number');
+  });
+
+  it('error response has success: false when audFinding.count rejects', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockRejectedValue(new Error('finding failure'));
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('response body has a data property on success', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(2);
+    mockPrisma.audFinding.count.mockResolvedValue(6);
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('all three count mocks are invoked in a single request', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.audAudit.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.audFinding.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.audChecklist.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('error object contains code key on 500', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockRejectedValue(new Error('disk full'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error).toHaveProperty('code');
+  });
+});

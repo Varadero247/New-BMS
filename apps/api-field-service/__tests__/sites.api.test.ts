@@ -228,3 +228,78 @@ describe('Field Service Sites — extended', () => {
     expect(res.body.data.message).toBe('Site deleted');
   });
 });
+
+
+// ===================================================================
+// Field Service Sites — additional coverage (5 new tests)
+// ===================================================================
+describe('Field Service Sites — additional coverage', () => {
+  it('GET / response contains pagination metadata', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', name: 'Depot A', customer: { name: 'Acme' } },
+    ]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/sites');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET / filters by customerId when the query param is provided', async () => {
+    mockPrisma.fsSvcSite.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcSite.count.mockResolvedValue(0);
+    await request(app).get('/api/sites?customerId=a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+    expect(mockPrisma.fsSvcSite.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' }),
+      })
+    );
+  });
+
+  it('POST / persists the address field in the create call', async () => {
+    mockPrisma.fsSvcSite.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      name: 'North Site',
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      address: { city: 'Leeds' },
+    });
+    await request(app).post('/api/sites').send({
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      name: 'North Site',
+      address: { city: 'Leeds' },
+    });
+    expect(mockPrisma.fsSvcSite.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ address: { city: 'Leeds' } }),
+      })
+    );
+  });
+
+  it('GET /:id returns the correct site name from the database', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000021',
+      name: 'East Depot',
+      customer: {},
+    });
+    const res = await request(app).get('/api/sites/00000000-0000-0000-0000-000000000021');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('name', 'East Depot');
+  });
+
+  it('PUT /:id update call passes the where id clause to Prisma', async () => {
+    mockPrisma.fsSvcSite.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000022',
+    });
+    mockPrisma.fsSvcSite.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000022',
+      name: 'Renamed Site',
+    });
+    await request(app)
+      .put('/api/sites/00000000-0000-0000-0000-000000000022')
+      .send({ name: 'Renamed Site' });
+    expect(mockPrisma.fsSvcSite.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000022' }),
+      })
+    );
+  });
+});

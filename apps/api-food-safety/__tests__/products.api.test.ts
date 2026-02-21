@@ -210,3 +210,78 @@ describe('Food Safety Products — extended', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+
+describe('Food Safety Products — additional coverage', () => {
+  it('GET /products returns correct totalPages in pagination', async () => {
+    mockPrisma.fsProduct.findMany.mockResolvedValue([]);
+    mockPrisma.fsProduct.count.mockResolvedValue(15);
+
+    const res = await request(app).get('/api/products?page=1&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('POST /products with DEVELOPMENT status creates successfully', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000002',
+      name: 'Prototype Bar',
+      code: 'PROTO-001',
+      status: 'DEVELOPMENT',
+    };
+    mockPrisma.fsProduct.create.mockResolvedValue(created);
+
+    const res = await request(app)
+      .post('/api/products')
+      .send({ name: 'Prototype Bar', code: 'PROTO-001', status: 'DEVELOPMENT' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('DEVELOPMENT');
+  });
+
+  it('PUT /products/:id can set status to DISCONTINUED', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsProduct.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'DISCONTINUED',
+    });
+
+    const res = await request(app)
+      .put('/api/products/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'DISCONTINUED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /products/:id returns a confirmation message in data', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsProduct.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).delete('/api/products/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /products/:id returns success: true with the correct product name', async () => {
+    mockPrisma.fsProduct.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000004',
+      name: 'Gouda Cheese',
+      code: 'GOUDA-001',
+    });
+
+    const res = await request(app).get('/api/products/00000000-0000-0000-0000-000000000004');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('name', 'Gouda Cheese');
+  });
+});

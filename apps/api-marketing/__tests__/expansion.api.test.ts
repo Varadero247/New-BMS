@@ -160,3 +160,45 @@ describe('Expansion — extra', () => {
     expect(Array.isArray(res.body.data.results.userLimitApproaching)).toBe(true);
   });
 });
+
+describe('Expansion — additional coverage', () => {
+  it('POST /check with explicit orgId still returns 200', async () => {
+    const res = await request(app)
+      .post('/api/expansion/check')
+      .send({ orgId: 'org-abc' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /check with custom thresholds returns all three result keys', async () => {
+    const res = await request(app)
+      .post('/api/expansion/check')
+      .send({ thresholds: { userLimit: 5, moduleLimit: 3 } });
+    expect(res.status).toBe(200);
+    expect(res.body.data.results).toHaveProperty('userLimitApproaching');
+    expect(res.body.data.results).toHaveProperty('unusedModuleNudge');
+    expect(res.body.data.results).toHaveProperty('growthFlag');
+  });
+
+  it('GET /triggers orderBy is createdAt desc', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/expansion/triggers');
+    expect(prisma.mktEmailLog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } })
+    );
+  });
+
+  it('GET /triggers take is 50', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/expansion/triggers');
+    expect(prisma.mktEmailLog.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 50 })
+    );
+  });
+
+  it('POST /check message contains the word completed', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(res.body.data.message.toLowerCase()).toContain('completed');
+  });
+});

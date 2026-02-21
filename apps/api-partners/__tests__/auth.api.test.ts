@@ -246,3 +246,68 @@ describe('Partners Auth — extended', () => {
     expect(res.body.data.partner.tier).toBe('REFERRAL');
   });
 });
+
+describe('Partners Auth — additional coverage', () => {
+  it('POST /register with optional phone and isoSpecialisms returns 201', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktPartner.create as jest.Mock).mockResolvedValue(mockPartner);
+    (prisma.mktPartner.update as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'specialist@partner.com',
+      password: 'securepass123',
+      name: 'Spec Partner',
+      company: 'SpecCo',
+      phone: '+44 20 1234 5678',
+      isoSpecialisms: ['ISO 9001', 'ISO 14001'],
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /register error code is ALREADY_EXISTS on duplicate email', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    const res = await request(app).post('/api/auth/register').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+      name: 'Dup',
+      company: 'DupCo',
+    });
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe('ALREADY_EXISTS');
+  });
+
+  it('POST /login error code is INVALID_CREDENTIALS for unknown email', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'nobody@test.com',
+      password: 'somepassword',
+    });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('INVALID_CREDENTIALS');
+  });
+
+  it('POST /login error code is ACCOUNT_SUSPENDED for suspended partner', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({
+      ...mockPartner,
+      status: 'SUSPENDED',
+    });
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+    });
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('ACCOUNT_SUSPENDED');
+  });
+
+  it('POST /login returns partner id and referralCode in response', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue(mockPartner);
+    (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'partner@test.com',
+      password: 'securepass123',
+    });
+    expect(res.status).toBe(200);
+    expect(res.body.data.partner.id).toBe('partner-1');
+    expect(res.body.data.partner.referralCode).toBe('ref-123');
+  });
+});

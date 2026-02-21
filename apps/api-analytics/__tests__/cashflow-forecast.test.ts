@@ -257,3 +257,60 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Additional edge cases: empty lists, pagination, auth, enums, missing fields
+// ===================================================================
+describe('Cash Flow Forecast — additional edge cases', () => {
+  const edgeApp = (() => {
+    const app = require('express')();
+    app.use(require('express').json());
+    const cashflowRouterFresh = require('../src/routes/cashflow').default;
+    app.use('/', cashflowRouterFresh);
+    return app;
+  })();
+
+  it('GET / returns empty forecasts array when none exist', async () => {
+    (prisma.cashFlowForecast.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(edgeApp).get('/');
+    expect(res.status).toBe(200);
+    expect(res.body.data.forecasts).toEqual([]);
+    expect(res.body.data.total).toBe(0);
+  });
+
+  it('GET / data.total is always a number', async () => {
+    (prisma.cashFlowForecast.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(edgeApp).get('/');
+    expect(typeof res.body.data.total).toBe('number');
+  });
+
+  it('runCashFlowForecastJob handles zero balance (edge: no position, no snapshots)', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 0 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'cf-edge' });
+    const result = await runCashFlowForecastJob();
+    expect(result.weeksCreated).toBe(13);
+  });
+
+  it('GET /position returns 404 with NOT_FOUND error code when no position', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue(null);
+    const res = await request(edgeApp).get('/position');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('runCashFlowForecastJob always calls deleteMany before create', async () => {
+    (prisma.companyCashPosition.findFirst as jest.Mock).mockResolvedValue({ bankBalance: 5000 });
+    (prisma.monthlySnapshot.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.plannedExpense.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.cashFlowForecast.deleteMany as jest.Mock).mockResolvedValue({ count: 2 });
+    (prisma.cashFlowForecast.create as jest.Mock).mockResolvedValue({ id: 'cf-ord' });
+    await runCashFlowForecastJob();
+    const delOrder = (prisma.cashFlowForecast.deleteMany as jest.Mock).mock.invocationCallOrder[0];
+    const createOrder = (prisma.cashFlowForecast.create as jest.Mock).mock.invocationCallOrder[0];
+    expect(delOrder).toBeLessThan(createOrder);
+  });
+});

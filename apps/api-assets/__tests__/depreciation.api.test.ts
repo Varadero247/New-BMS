@@ -182,3 +182,63 @@ describe('Depreciation — extra', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('Depreciation — additional coverage', () => {
+  it('returns 401 when authenticate rejects the request', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce(
+      (_req: any, res: any, _next: any) => {
+        res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+      }
+    );
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('returns empty array (not null) when no assets match — empty list response', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).not.toBeNull();
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBe(0);
+  });
+
+  it('returns 500 with INTERNAL_ERROR on DB failure', async () => {
+    mockPrisma.assetRegister.findMany.mockRejectedValue(new Error('query timeout'));
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+    expect(res.body.success).toBe(false);
+  });
+
+  it('positive CRUD: returns asset with all five selected fields populated', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-99', name: 'CNC Machine', purchaseCost: 150000, currentValue: 120000, purchaseDate: '2024-03-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    const asset = res.body.data[0];
+    expect(asset.id).toBe('a-99');
+    expect(asset.name).toBe('CNC Machine');
+    expect(asset.purchaseCost).toBe(150000);
+    expect(asset.currentValue).toBe(120000);
+    expect(asset.purchaseDate).toBe('2024-03-01');
+  });
+
+  it('findMany is called with where clause including deletedAt null', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/depreciation');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+});

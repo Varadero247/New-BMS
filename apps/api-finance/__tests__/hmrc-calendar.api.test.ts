@@ -256,3 +256,74 @@ describe('HMRC Calendar — extended', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+
+// ===================================================================
+// HMRC Calendar — additional coverage (5 new tests)
+// ===================================================================
+describe('HMRC Calendar — additional coverage', () => {
+  const validDeadline = {
+    title: 'Corporation Tax Payment',
+    dueDate: '2026-07-01',
+    type: 'CORPORATION_TAX',
+    description: 'Pay corporation tax for prior year',
+    status: 'PENDING',
+  };
+
+  it('GET / response body includes a success property equal to true', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/hmrc-calendar');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('POST / stores dueDate from request body in the create call', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000010',
+      ...validDeadline,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/hmrc-calendar').send(validDeadline);
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ dueDate: '2026-07-01' }),
+      })
+    );
+  });
+
+  it('POST / returns 201 status on successful creation', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000011',
+      ...validDeadline,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    const res = await request(app).post('/api/hmrc-calendar').send(validDeadline);
+    expect(res.status).toBe(201);
+  });
+
+  it('GET / returns each deadline with a title field', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000012',
+        title: 'Self Assessment Deadline',
+        dueDate: '2026-01-31',
+        deadlineType: 'SELF_ASSESSMENT',
+        status: 'PENDING',
+        orgId: '00000000-0000-4000-a000-000000000100',
+      },
+    ]);
+    const res = await request(app).get('/api/hmrc-calendar');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('title', 'Self Assessment Deadline');
+  });
+
+  it('GET / passes deletedAt: null to exclude soft-deleted records', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+    await request(app).get('/api/hmrc-calendar');
+    expect(mockPrisma.finHmrcDeadline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+});

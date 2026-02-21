@@ -215,3 +215,59 @@ describe('Changelog and NPS — extended', () => {
     expect(typeof res.body.data.npsScore).toBe('number');
   });
 });
+
+describe('Changelog and NPS — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    const cl = require('../src/routes/changelog').default;
+    const nps = require('../src/routes/nps').default;
+    app.use('/api/changelog', cl);
+    app.use('/api/nps', nps);
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/changelog passes limit and offset to listEntries', async () => {
+    mockListEntries.mockReturnValue({ entries: [], total: 0 });
+    await request(app).get('/api/changelog').query({ limit: '5', offset: '10' });
+    expect(mockListEntries).toHaveBeenCalledWith(5, 10);
+  });
+
+  it('GET /api/changelog/all passes default limit to listAllEntries', async () => {
+    mockListAllEntries.mockReturnValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/changelog/all');
+    expect(res.status).toBe(200);
+    expect(mockListAllEntries).toHaveBeenCalled();
+  });
+
+  it('POST /api/changelog with improvement category succeeds', async () => {
+    mockCreateEntry.mockReturnValue({
+      id: 'cl-imp',
+      title: 'Perf improvement',
+      category: 'improvement',
+      isPublished: true,
+      publishedAt: new Date().toISOString(),
+    });
+    const res = await request(app)
+      .post('/api/changelog')
+      .send({ title: 'Perf improvement', description: 'Faster queries', category: 'improvement', modules: ['analytics'] });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('improvement');
+  });
+
+  it('POST /api/nps with score 5 returns category passive', async () => {
+    mockSubmitResponse.mockReturnValue({ id: 'nps-5', score: 5, category: 'passive' });
+    const res = await request(app).post('/api/nps').send({ score: 5 });
+    expect(res.status).toBe(201);
+    expect(res.body.data.category).toBe('passive');
+  });
+
+  it('GET /api/nps/responses passes limit and offset to listResponses', async () => {
+    mockListResponses.mockReturnValue({ responses: [], total: 0 });
+    const res = await request(app).get('/api/nps/responses').query({ limit: '25', offset: '50' });
+    expect(res.status).toBe(200);
+    expect(mockListResponses).toHaveBeenCalledWith('default', 25, 50);
+  });
+});

@@ -120,3 +120,54 @@ describe('Executive Summary — extended', () => {
     expect(res.body.data.recentActivity.length).toBeGreaterThanOrEqual(0);
   });
 });
+
+// ===================================================================
+// Executive Summary — additional coverage (5 tests)
+// ===================================================================
+describe('Executive Summary — additional coverage', () => {
+  it('GET /executive-summary returns 401 when authenticate rejects', async () => {
+    const { authenticate } = await import('@ims/auth');
+    (authenticate as jest.Mock).mockImplementationOnce((_req: any, res: any, _next: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+    });
+
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /executive-summary health.openCapas is a non-negative number', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.health.openCapas).toBe('number');
+    expect(res.body.data.health.openCapas).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /executive-summary moduleCounts includes healthSafety section', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    expect(res.body.data.moduleCounts).toHaveProperty('healthSafety');
+    expect(typeof res.body.data.moduleCounts.healthSafety).toBe('object');
+  });
+
+  it('GET /executive-summary certifications each have a standard and status field', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const certs = res.body.data.certifications as Array<Record<string, unknown>>;
+    certs.forEach((cert) => {
+      expect(cert).toHaveProperty('standard');
+      expect(cert).toHaveProperty('status');
+    });
+  });
+
+  it('GET /executive-summary recentActivity each entry has id, type and timestamp', async () => {
+    const res = await request(app).get('/api/executive-summary');
+    expect(res.status).toBe(200);
+    const activity = res.body.data.recentActivity as Array<Record<string, unknown>>;
+    expect(activity.length).toBeGreaterThan(0);
+    activity.forEach((entry) => {
+      expect(entry).toHaveProperty('id');
+      expect(entry).toHaveProperty('type');
+      expect(entry).toHaveProperty('timestamp');
+    });
+  });
+});

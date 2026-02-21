@@ -396,3 +396,79 @@ describe('Energy Dashboard — extended', () => {
     expect(res.body.data.summary.seus).toBe(3);
   });
 });
+
+
+describe('Energy Dashboard — additional coverage', () => {
+  const allZeroCounts = () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([]);
+  };
+
+  it('auth enforcement: authenticate middleware is called on GET', async () => {
+    const { authenticate } = require('@ims/auth');
+    allZeroCounts();
+    await request(app).get('/api/dashboard');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('empty list response: all arrays are empty and all counts are zero', async () => {
+    allZeroCounts();
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.recentReadings).toEqual([]);
+    expect(res.body.data.activeAlerts).toEqual([]);
+    expect(res.body.data.topSeus).toEqual([]);
+  });
+
+  it('invalid params (400): GET with unknown query param still returns 200 (no validation on query)', async () => {
+    allZeroCounts();
+    const res = await request(app).get('/api/dashboard?invalidParam=xyz');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DB error handling (500): energyBaseline.count failure returns INTERNAL_ERROR', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(3);
+    (prisma.energyBaseline.count as jest.Mock).mockRejectedValue(new Error('Baseline DB error'));
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(0);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('additional positive case: summary contains all expected keys including totalConsumption and totalCost', async () => {
+    (prisma.energyMeter.count as jest.Mock).mockResolvedValue(7);
+    (prisma.energyBaseline.count as jest.Mock).mockResolvedValue(3);
+    (prisma.energyTarget.count as jest.Mock).mockResolvedValue(5);
+    (prisma.energySeu.count as jest.Mock).mockResolvedValue(4);
+    (prisma.energyAlert.count as jest.Mock).mockResolvedValue(1);
+    (prisma.energyProject.count as jest.Mock).mockResolvedValue(2);
+    (prisma.energyAudit.count as jest.Mock).mockResolvedValue(3);
+    (prisma.energyReading.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyAlert.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energySeu.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.energyBill.findMany as jest.Mock).mockResolvedValue([{ cost: 100, consumption: 200, unit: 'kWh' }]);
+    const res = await request(app).get('/api/dashboard');
+    expect(res.status).toBe(200);
+    const summary = res.body.data.summary;
+    expect(summary).toHaveProperty('meters', 7);
+    expect(summary).toHaveProperty('totalConsumption', 200);
+    expect(summary).toHaveProperty('totalCost', 100);
+    expect(summary).toHaveProperty('projects', 2);
+    expect(summary).toHaveProperty('audits', 3);
+  });
+});

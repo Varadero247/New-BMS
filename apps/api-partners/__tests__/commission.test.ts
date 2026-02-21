@@ -195,3 +195,61 @@ describe('Commission — extended', () => {
     expect(typeof res.body.data.totalPending).toBe('number');
   });
 });
+
+describe('Commission — additional coverage', () => {
+  it('summary: dealsWon is 0 when all deals are in pipeline', async () => {
+    const pipelineDeals = [
+      { ...mockDeals[2], id: 'p1', status: 'IN_DEMO' },
+      { ...mockDeals[2], id: 'p2', status: 'SUBMITTED' },
+    ];
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(pipelineDeals);
+
+    const res = await request(app).get('/api/commission/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.dealsWon).toBe(0);
+    expect(res.body.data.dealsInPipeline).toBe(2);
+  });
+
+  it('summary: pendingPayout equals totalEarned when nothing is paid', async () => {
+    const unpaidDeal = {
+      ...mockDeals[0],
+      commissionPaid: false,
+      commissionValue: 4000,
+    };
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([unpaidDeal]);
+
+    const res = await request(app).get('/api/commission/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.pendingPayout).toBe(res.body.data.totalEarned);
+  });
+
+  it('summary: pipelineValue is 0 when no pipeline deals', async () => {
+    const wonDeals = [mockDeals[0], mockDeals[1]];
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(wonDeals);
+
+    const res = await request(app).get('/api/commission/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.pipelineValue).toBe(0);
+  });
+
+  it('pending: deals array contains only unpaid entries', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([mockDeals[1]]);
+
+    const res = await request(app).get('/api/commission/pending');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.deals.every((d: { commissionPaid: boolean }) => !d.commissionPaid)).toBe(true);
+  });
+
+  it('history: response data items have commissionValue property', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([mockDeals[0]]);
+
+    const res = await request(app).get('/api/commission/history');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('commissionValue');
+  });
+});

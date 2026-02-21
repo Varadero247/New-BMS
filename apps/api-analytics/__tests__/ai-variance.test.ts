@@ -323,3 +323,72 @@ describe('AI Variance — extended', () => {
     expect(result.alerts).toBeDefined();
   });
 });
+
+describe('ai-variance.test.ts — additional coverage', () => {
+  const baseSnapshot = {
+    id: 'snap-cov',
+    month: '2026-07',
+    monthNumber: 5,
+    mrr: 3000,
+    arr: 36000,
+    customers: 10,
+    newCustomers: 3,
+    churnedCustomers: 1,
+    mrrGrowthPct: 50,
+    revenueChurnPct: 5,
+    pipelineValue: 40000,
+    wonDeals: 4,
+    winRate: 45,
+    newLeads: 25,
+    activeTrials: 5,
+    trialConversionPct: 60,
+    avgHealthScore: 80,
+  };
+  const basePlan = {
+    plannedMrr: 4000,
+    plannedCustomers: 12,
+    plannedNewCustomers: 4,
+    plannedChurnPct: 2,
+    plannedArpu: 300,
+  };
+
+  it('buildVariancePrompt shows positive variance when MRR exceeds plan', () => {
+    const aheadSnapshot = { ...baseSnapshot, mrr: 5000 };
+    const prompt = buildVariancePrompt(aheadSnapshot, { ...basePlan, plannedMrr: 4000 });
+    expect(prompt).toContain('25.0%');
+  });
+
+  it('parseAIResponse defaults missing trajectory to ON_TRACK without fallback path', () => {
+    const json = JSON.stringify({ summary: 'ok', alerts: [], recommendations: [] });
+    const result = parseAIResponse(json);
+    // missing trajectory is not in validTrajectories — defaults to ON_TRACK
+    expect(result.trajectory).toBe('ON_TRACK');
+    // summary is preserved (not the fallback) because the structure is valid
+    expect(result.summary).toBe('ok');
+  });
+
+  it('runVarianceAnalysis returns null immediately when ANTHROPIC_API_KEY is empty string', async () => {
+    process.env.ANTHROPIC_API_KEY = '';
+    const result = await runVarianceAnalysis(baseSnapshot, basePlan);
+    expect(result).toBeNull();
+    expect(prisma.monthlySnapshot.update).not.toHaveBeenCalled();
+    delete process.env.ANTHROPIC_API_KEY;
+  });
+
+  it('buildVariancePrompt includes planned customers count in output', () => {
+    const prompt = buildVariancePrompt(baseSnapshot, basePlan);
+    expect(prompt).toContain('12');
+  });
+
+  it('parseAIResponse handles AHEAD trajectory correctly', () => {
+    const json = JSON.stringify({
+      summary: 'Ahead of plan',
+      alerts: [],
+      recommendations: [{ metric: 'ARR', current: 36000, suggested: 40000, rationale: 'Keep growing' }],
+      trajectory: 'AHEAD',
+    });
+    const result = parseAIResponse(json);
+    expect(result.trajectory).toBe('AHEAD');
+    expect(result.recommendations).toHaveLength(1);
+  });
+});

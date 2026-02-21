@@ -250,3 +250,55 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Additional edge cases: empty list, invalid enum, pagination, missing fields, auth
+// ===================================================================
+describe('Certifications — additional edge cases', () => {
+  it('GET /api/certifications returns empty deadlines list when none exist', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.deadlines).toEqual([]);
+    expect(res.body.data.pagination.total).toBe(0);
+  });
+
+  it('GET /api/certifications pagination.totalPages is 0 when total is 0', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/certifications');
+    expect(res.body.data.pagination.totalPages).toBe(0);
+  });
+
+  it('POST /api/certifications returns 400 when dueDate is invalid format', async () => {
+    const res = await request(app)
+      .post('/api/certifications')
+      .send({ name: 'Bad Date Cert', category: 'COMPLIANCE', dueDate: 'not-a-date' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/certifications filters by category correctly', async () => {
+    (prisma.complianceDeadline.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.complianceDeadline.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/certifications?category=SECURITY');
+    expect(prisma.complianceDeadline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ category: 'SECURITY' }),
+      })
+    );
+  });
+
+  it('PATCH /api/certifications/:id returns 400 when dueDate is invalid', async () => {
+    (prisma.complianceDeadline.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    const res = await request(app)
+      .patch('/api/certifications/00000000-0000-0000-0000-000000000001')
+      .send({ dueDate: 'bad-date' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

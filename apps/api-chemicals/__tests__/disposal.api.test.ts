@@ -278,3 +278,60 @@ describe('Chemicals Disposal — extended', () => {
     );
   });
 });
+describe('Chemicals Disposal — additional coverage', () => {
+  it('enforces authentication — authenticate middleware is called on GET', async () => {
+    const { authenticate } = require('@ims/auth');
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    await request(app).get('/api/disposal');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('GET /disposal returns empty data array when no records exist', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/disposal');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+    expect(res.body.pagination.totalPages).toBe(0);
+  });
+
+  it('POST /disposal returns 400 when chemicalId is missing', async () => {
+    const res = await request(app).post('/api/disposal').send({
+      quantityDisposed: 5,
+      unit: 'kg',
+      disposalDate: '2026-02-15T00:00:00.000Z',
+      disposalMethod: 'Incineration',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /disposal/:id returns 500 when update throws', async () => {
+    mockPrisma.chemDisposal.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000060',
+      chemical: { orgId: 'org-1' },
+    });
+    mockPrisma.chemDisposal.update.mockRejectedValue(new Error('DB write error'));
+    const res = await request(app)
+      .put('/api/disposal/00000000-0000-0000-0000-000000000060')
+      .send({ certificateRef: 'CERT-FAIL' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /disposal pagination reflects page and limit query params', async () => {
+    mockPrisma.chemDisposal.findMany.mockResolvedValue([]);
+    mockPrisma.chemDisposal.count.mockResolvedValue(50);
+    const res = await request(app).get('/api/disposal?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+    expect(res.body.pagination.total).toBe(50);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+});

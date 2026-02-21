@@ -196,3 +196,63 @@ describe('DELETE /api/communications/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ─── additional coverage ─────────────────────────────────────────────────────
+
+describe('communications route — additional coverage', () => {
+  it('auth enforcement: unauthenticated request receives 401', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+    });
+    const res = await request(app).get('/api/communications');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / returns empty data array when no communications exist', async () => {
+    mockPrisma.compCommunication.findMany.mockResolvedValue([]);
+    mockPrisma.compCommunication.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/communications');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST / returns 400 when body is empty', async () => {
+    const res = await request(app).post('/api/communications').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.compCommunication.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/communications/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / succeeds with all optional fields populated', async () => {
+    mockPrisma.compCommunication.count.mockResolvedValue(3);
+    mockPrisma.compCommunication.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      subject: 'Full comms',
+      direction: 'INBOUND',
+      channel: 'PHONE',
+    });
+    const res = await request(app)
+      .post('/api/communications')
+      .send({
+        complaintId: 'comp-2',
+        subject: 'Full comms',
+        direction: 'INBOUND',
+        channel: 'PHONE',
+        content: 'Call content',
+        sentBy: 'agent-1',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000003');
+  });
+});

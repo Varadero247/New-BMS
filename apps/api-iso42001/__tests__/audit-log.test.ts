@@ -233,3 +233,60 @@ describe('Audit Log Routes', () => {
     });
   });
 });
+
+describe('Audit Log — additional coverage', () => {
+  it('GET /api/audit-log response has pagination object with total', async () => {
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/audit-log');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination).toHaveProperty('total', 0);
+  });
+
+  it('GET /api/audit-log data is an array', async () => {
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/audit-log');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/audit-log with REVIEW action returns 201', async () => {
+    (prisma.aiAuditLog.create as jest.Mock).mockResolvedValue({
+      ...mockEntry,
+      action: 'REVIEW',
+    });
+
+    const res = await request(app).post('/api/audit-log').send({
+      action: 'REVIEW',
+      description: 'Model retrained on new dataset',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/audit-log/:id returns success:true when found', async () => {
+    (prisma.aiAuditLog.findUnique as jest.Mock).mockResolvedValue(mockEntry);
+
+    const res = await request(app).get('/api/audit-log/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/audit-log/stats data has byAction property', async () => {
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(5);
+    (prisma.aiAuditLog.groupBy as jest.Mock)
+      .mockResolvedValueOnce([{ action: 'DECISION', _count: { id: 5 } }])
+      .mockResolvedValueOnce([{ userId: 'user-123', userName: 'test@test.com', _count: { id: 5 } }])
+      .mockResolvedValueOnce([{ createdAt: new Date('2026-02-14'), _count: { id: 5 } }]);
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([mockEntry]);
+
+    const res = await request(app).get('/api/audit-log/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('byAction');
+  });
+});

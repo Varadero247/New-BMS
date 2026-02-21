@@ -181,3 +181,63 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── additional coverage ─────────────────────────────────────────────────────
+
+describe('actions route — additional coverage', () => {
+  it('auth enforcement: unauthenticated request receives 401', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+    });
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / returns empty data array when no actions exist', async () => {
+    mockPrisma.compAction.findMany.mockResolvedValue([]);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toEqual([]);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST / returns 400 when both required fields are missing', async () => {
+    const res = await request(app).post('/api/actions').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when action field is missing but complaintId is present', async () => {
+    const res = await request(app).post('/api/actions').send({ complaintId: 'comp-1' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / succeeds with all optional fields populated', async () => {
+    mockPrisma.compAction.count.mockResolvedValue(2);
+    mockPrisma.compAction.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      action: 'Full action',
+      status: 'OPEN',
+      assignee: 'user-2',
+    });
+    const res = await request(app)
+      .post('/api/actions')
+      .send({
+        complaintId: 'comp-1',
+        action: 'Full action',
+        assignee: 'user-2',
+        dueDate: '2026-12-31',
+        status: 'OPEN',
+        notes: 'Some notes',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000002');
+  });
+});

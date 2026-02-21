@@ -177,3 +177,48 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Incidents — additional coverage', () => {
+  it('GET / returns pagination object with page and total', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('total');
+  });
+
+  it('GET / filters by status query param (count is called with where)', async () => {
+    mockPrisma.incIncident.findMany.mockResolvedValue([]);
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    await request(app).get('/api/incidents?status=CLOSED');
+    const countCall = (mockPrisma.incIncident.count as jest.Mock).mock.calls[0][0];
+    expect(countCall.where.status).toBe('CLOSED');
+  });
+
+  it('POST / returns 400 when title is missing', async () => {
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({ dateOccurred: '2026-01-15T10:00:00Z' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 when dateOccurred is missing', async () => {
+    const res = await request(app)
+      .post('/api/incidents')
+      .send({ title: 'Missing date' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE / returns message in data on success', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete('/api/incidents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('message');
+  });
+});

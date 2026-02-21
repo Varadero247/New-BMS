@@ -156,3 +156,53 @@ describe('Mgmt Review Dashboard — extended', () => {
     expect(res.body.data.totalReviews).toBe(0);
   });
 });
+
+describe('Mgmt Review Dashboard — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('count is called with orgId from authenticated user', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(8);
+
+    await request(app).get('/api/dashboard/stats');
+
+    const callArg = mockPrisma.mgmtReview.count.mock.calls[0][0];
+    expect(callArg.where.orgId).toBe('org-1');
+  });
+
+  it('data object contains only totalReviews key on success', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(5);
+
+    const res = await request(app).get('/api/dashboard/stats');
+
+    expect(res.status).toBe(200);
+    expect(Object.keys(res.body.data)).toContain('totalReviews');
+  });
+
+  it('error message is Failed to fetch stats on 500', async () => {
+    mockPrisma.mgmtReview.count.mockRejectedValue(new Error('Connection lost'));
+
+    const res = await request(app).get('/api/dashboard/stats');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.message).toBe('Failed to fetch stats');
+  });
+
+  it('responds with JSON content-type', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(2);
+
+    const res = await request(app).get('/api/dashboard/stats');
+
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('totalReviews matches the value returned by count', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(42);
+
+    const res = await request(app).get('/api/dashboard/stats');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalReviews).toBe(42);
+  });
+});

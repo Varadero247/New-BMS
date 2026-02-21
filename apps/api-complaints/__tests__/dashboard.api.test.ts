@@ -152,3 +152,51 @@ describe('Complaints Dashboard — extra', () => {
     expect(mockPrisma.compAction.count).toHaveBeenCalledTimes(1);
   });
 });
+
+// ─── additional coverage ─────────────────────────────────────────────────────
+
+describe('complaints dashboard route — additional coverage', () => {
+  it('auth enforcement: unauthenticated request receives 401', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+    });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /stats returns 200 with success true when both counts are zero', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.totalComplaints).toBe(0);
+    expect(res.body.data.totalActions).toBe(0);
+  });
+
+  it('GET /stats returns 500 and error code INTERNAL_ERROR when compComplaint.count throws', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('DB unavailable'));
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /stats data contains only the expected shape', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(4);
+    mockPrisma.compAction.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(Object.keys(res.body.data)).toContain('totalComplaints');
+    expect(Object.keys(res.body.data)).toContain('totalActions');
+  });
+
+  it('GET /stats totalComplaints and totalActions can differ', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(100);
+    mockPrisma.compAction.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalComplaints).not.toBe(res.body.data.totalActions);
+  });
+});

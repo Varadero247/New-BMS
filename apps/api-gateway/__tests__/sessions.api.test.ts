@@ -256,3 +256,77 @@ describe('Sessions API — extended', () => {
     expect(Array.isArray(response.body.data)).toBe(true);
   });
 });
+
+describe('Sessions API — additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeAll(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/sessions', sessionsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/sessions maps isCurrent false for sessions other than current', async () => {
+    const otherSession = {
+      id: '00000000-0000-0000-0000-000000000099',
+      userAgent: 'Chrome/120',
+      ipAddress: '10.0.0.1',
+      createdAt: new Date('2024-01-01'),
+      lastActivityAt: new Date('2024-01-01'),
+      expiresAt: new Date('2024-01-08'),
+    };
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([otherSession]);
+    const response = await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data[0].isCurrent).toBe(false);
+  });
+
+  it('DELETE /api/sessions/:id returns 204 on successful revocation', async () => {
+    mockPrisma.session.findFirst.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000002',
+      userId: '20000000-0000-4000-a000-000000000123',
+    });
+    (mockPrisma.session.delete as jest.Mock).mockResolvedValueOnce({});
+    const response = await request(app)
+      .delete('/api/sessions/00000000-0000-0000-0000-000000000002')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(204);
+  });
+
+  it('DELETE /api/sessions returns 204 even when count is zero', async () => {
+    mockPrisma.session.deleteMany.mockResolvedValueOnce({ count: 0 });
+    const response = await request(app)
+      .delete('/api/sessions')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(204);
+  });
+
+  it('GET /api/sessions uses correct userId from auth', async () => {
+    (mockPrisma.session.findMany as jest.Mock).mockResolvedValueOnce([]);
+    await request(app).get('/api/sessions').set('Authorization', 'Bearer token');
+    expect(mockPrisma.session.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ userId: '20000000-0000-4000-a000-000000000123' }),
+      })
+    );
+  });
+
+  it('DELETE /api/sessions/:id calls session.delete with correct id', async () => {
+    mockPrisma.session.findFirst.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000002',
+      userId: '20000000-0000-4000-a000-000000000123',
+    });
+    (mockPrisma.session.delete as jest.Mock).mockResolvedValueOnce({});
+    await request(app)
+      .delete('/api/sessions/00000000-0000-0000-0000-000000000002')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.session.delete).toHaveBeenCalledWith({
+      where: { id: '00000000-0000-0000-0000-000000000002' },
+    });
+  });
+});

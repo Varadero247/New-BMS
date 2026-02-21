@@ -190,3 +190,63 @@ describe('Import Routes', () => {
     });
   });
 });
+
+
+describe('Import Routes — additional coverage', () => {
+  let app: any;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    const importRouter = require('../src/routes/import').default;
+    app.use('/api/admin/import', importRouter);
+    jest.clearAllMocks();
+  });
+
+  it('validate endpoint returns validCount and errorCount in data', async () => {
+    const request = require('supertest');
+    const res = await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'suppliers', csvData: 'name,code\nTest Inc,TST-001' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('validCount');
+    expect(res.body.data).toHaveProperty('errorCount');
+  });
+
+  it('execute import with employees type returns success true', async () => {
+    const request = require('supertest');
+    const res = await request(app)
+      .post('/api/admin/import/execute')
+      .send({ recordType: 'employees', rows: [{ firstName: 'Bob' }] });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('execute import with missing rows rejects with 400', async () => {
+    const request = require('supertest');
+    const res = await request(app)
+      .post('/api/admin/import/execute')
+      .send({ recordType: 'suppliers' });
+    expect(res.status).toBe(400);
+  });
+
+  it('template endpoint returns recordType and headers in data', async () => {
+    const request = require('supertest');
+    const res = await request(app).get('/api/admin/import/templates/suppliers');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('recordType');
+    expect(res.body.data).toHaveProperty('headers');
+  });
+
+  it('validate with unknown recordType returns 400 INVALID_RECORD_TYPE', async () => {
+    mockGetImportSchema.mockReturnValueOnce(undefined);
+
+    const request = require('supertest');
+    const res = await request(app)
+      .post('/api/admin/import/validate')
+      .send({ recordType: 'nonexistent-type', csvData: 'name\nTest' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('INVALID_RECORD_TYPE');
+  });
+});

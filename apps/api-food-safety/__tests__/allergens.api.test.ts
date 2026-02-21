@@ -204,3 +204,76 @@ describe('Food Safety Allergens — extended', () => {
     expect(res.body.pagination.total).toBe(8);
   });
 });
+
+
+describe('Food Safety Allergens — additional coverage', () => {
+  it('GET /allergens returns correct totalPages in pagination', async () => {
+    mockPrisma.fsAllergen.findMany.mockResolvedValue([]);
+    mockPrisma.fsAllergen.count.mockResolvedValue(20);
+
+    const res = await request(app).get('/api/allergens?page=1&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('POST /allergens with MINOR type creates successfully', async () => {
+    const created = {
+      id: '00000000-0000-0000-0000-000000000002',
+      name: 'Celery',
+      code: 'ALG-456',
+      type: 'MINOR',
+    };
+    mockPrisma.fsAllergen.create.mockResolvedValue(created);
+
+    const res = await request(app).post('/api/allergens').send({ name: 'Celery', type: 'MINOR' });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('MINOR');
+  });
+
+  it('PUT /allergens/:id updates labellingRequired field', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsAllergen.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      labellingRequired: false,
+    });
+
+    const res = await request(app)
+      .put('/api/allergens/00000000-0000-0000-0000-000000000001')
+      .send({ labellingRequired: false });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('DELETE /allergens/:id returns confirmation message in data', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.fsAllergen.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app).delete('/api/allergens/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('message');
+  });
+
+  it('GET /allergens/:id returns success: true with data object', async () => {
+    mockPrisma.fsAllergen.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      name: 'Soy',
+      type: 'MAJOR',
+    });
+
+    const res = await request(app).get('/api/allergens/00000000-0000-0000-0000-000000000003');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('name', 'Soy');
+  });
+});

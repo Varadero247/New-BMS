@@ -181,3 +181,52 @@ describe('OpenAPI — extra', () => {
     expect(typeof res.body.paths).toBe('object');
   });
 });
+
+describe('OpenAPI — additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/docs', openapiRouter);
+    jest.clearAllMocks();
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: { title: 'Nexara IMS API', version: '1.0.0', description: 'Integrated Management System API' },
+      paths: { '/api/auth/login': { post: { summary: 'Login', operationId: 'login' } } },
+      components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } },
+    });
+  });
+
+  it('GET /api/docs returns HTML for the interactive docs page', async () => {
+    const res = await request(app).get('/api/docs');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/html/);
+    expect(res.text).toContain('openapi.json');
+  });
+
+  it('GET /api/docs/openapi.json spec has a named path entry', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.paths).toHaveProperty('/api/auth/login');
+  });
+
+  it('GET /api/docs/openapi.json returns JSON content-type', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('generateOpenApiSpec is called once per /openapi.json request', async () => {
+    await request(app).get('/api/docs/openapi.json');
+    await request(app).get('/api/docs/openapi.json');
+    expect(mockGenerateOpenApiSpec).toHaveBeenCalledTimes(2);
+  });
+
+  it('GET /api/docs/openapi.json security scheme type is http', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.components.securitySchemes.bearerAuth.type).toBe('http');
+  });
+});

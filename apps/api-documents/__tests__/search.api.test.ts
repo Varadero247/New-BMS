@@ -153,3 +153,63 @@ describe('Search — extended', () => {
     expect(mockPrisma.docDocument.findMany).not.toHaveBeenCalled();
   });
 });
+
+// ─── Additional coverage ─────────────────────────────────────────────────────
+
+describe('Search — additional coverage', () => {
+  it('returns 401 when authenticate rejects the request', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce(
+      (_req: any, res: any, _next: any) => {
+        res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'No token' } });
+      }
+    );
+    const res = await request(app).get('/api/search?q=anything');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('returns empty array (not null) when q is absent — empty list response', async () => {
+    const res = await request(app).get('/api/search');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).not.toBeNull();
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBe(0);
+  });
+
+  it('returns 500 with INTERNAL_ERROR code on DB failure', async () => {
+    mockPrisma.docDocument.findMany.mockRejectedValue(new Error('connection refused'));
+    const res = await request(app).get('/api/search?q=policy');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('each returned document has a description field', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: 'd-10', title: 'Environmental Policy', description: 'ISO 14001 policy doc' },
+      { id: 'd-11', title: 'Safety Manual', description: 'Comprehensive safety guide' },
+    ]);
+    const res = await request(app).get('/api/search?q=policy');
+    expect(res.status).toBe(200);
+    for (const doc of res.body.data) {
+      expect(doc).toHaveProperty('description');
+    }
+  });
+
+  it('findMany called with OR filter containing both title and description', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([]);
+    await request(app).get('/api/search?q=manual');
+    expect(mockPrisma.docDocument.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: expect.arrayContaining([
+            expect.objectContaining({ title: expect.any(Object) }),
+            expect.objectContaining({ description: expect.any(Object) }),
+          ]),
+        }),
+      })
+    );
+  });
+});

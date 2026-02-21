@@ -223,3 +223,69 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Feature Requests — additional coverage (5 tests)
+// ===================================================================
+describe('Feature Requests — additional coverage', () => {
+  it('GET /feature-requests response has success:true and pagination object', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.featureRequest.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/feature-requests');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('pagination');
+    expect(res.body.data.pagination).toHaveProperty('total');
+    expect(res.body.data.pagination).toHaveProperty('page');
+  });
+
+  it('GET /feature-requests returns empty list when no requests exist', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.featureRequest.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/feature-requests');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.featureRequests).toHaveLength(0);
+    expect(res.body.data.pagination.total).toBe(0);
+  });
+
+  it('GET /feature-requests honours page and limit query params', async () => {
+    (prisma.featureRequest.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.featureRequest.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/feature-requests?page=2&limit=5');
+
+    expect(prisma.featureRequest.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET /feature-requests/:id returns 500 on DB error', async () => {
+    (prisma.featureRequest.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).get(
+      '/api/feature-requests/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /feature-requests/:id/vote returns 500 on DB update error', async () => {
+    (prisma.featureRequest.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      votes: 3,
+    });
+    (prisma.featureRequest.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+
+    const res = await request(app).post(
+      '/api/feature-requests/00000000-0000-0000-0000-000000000001/vote'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

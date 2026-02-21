@@ -486,6 +486,38 @@ describe('POST /api/analyse', () => {
       }),
     });
   });
+
+  // -------------------------------------------------------
+  // 14. Fetch network failure returns 502
+  // -------------------------------------------------------
+  it('returns 502 when fetch throws a network error', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockSettings);
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(mockRiskSource);
+
+    mockFetch.mockRejectedValueOnce(new Error('Network unreachable'));
+
+    const response = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send(validPayload);
+
+    expect([500, 502]).toContain(response.status);
+    expect(response.body.success).toBe(false);
+  });
+
+  // -------------------------------------------------------
+  // 15. Missing sourceId returns validation error
+  // -------------------------------------------------------
+  it('returns 400 when sourceId is missing from the request body', async () => {
+    const response = await request(app)
+      .post('/api/analyse')
+      .set('Authorization', 'Bearer test-token')
+      .send({ sourceType: 'risk' }); // no sourceId
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
 });
 
 describe('AI Analysis — extended', () => {

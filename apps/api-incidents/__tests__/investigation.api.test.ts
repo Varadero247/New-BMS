@@ -204,3 +204,69 @@ describe('Investigation — further extended', () => {
     expect(res.body.data).toHaveProperty('id');
   });
 });
+
+describe('Investigation — additional coverage', () => {
+  it('assign passes investigatorName to update when provided', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'u6',
+      investigatorName: 'Charlie Brown',
+      status: 'INVESTIGATING',
+    });
+    await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'u6', investigatorName: 'Charlie Brown' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData.investigatorName).toBe('Charlie Brown');
+  });
+
+  it('report update with contributingFactors is persisted in update call', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      contributingFactors: 'Poor training',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000001/report')
+      .send({ contributingFactors: 'Poor training' });
+    const callData = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].data;
+    expect(callData.contributingFactors).toBe('Poor training');
+  });
+
+  it('assign response body has success: true', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      investigator: 'u7',
+      status: 'INVESTIGATING',
+    });
+    const res = await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000001/assign')
+      .send({ investigator: 'u7' });
+    expect(res.body.success).toBe(true);
+  });
+
+  it('report update where clause targets correct incident id', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000002',
+      status: 'ROOT_CAUSE_ANALYSIS',
+    });
+    await request(app)
+      .put('/api/investigation/00000000-0000-0000-0000-000000000002/report')
+      .send({ rootCause: 'Fatigue' });
+    const callWhere = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].where;
+    expect(callWhere.id).toBe('00000000-0000-0000-0000-000000000002');
+  });
+
+  it('assign where clause targets the requested incident id', async () => {
+    mockPrisma.incIncident.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000003',
+      investigator: 'u8',
+      status: 'INVESTIGATING',
+    });
+    await request(app)
+      .post('/api/investigation/00000000-0000-0000-0000-000000000003/assign')
+      .send({ investigator: 'u8' });
+    const callWhere = (mockPrisma.incIncident.update as jest.Mock).mock.calls[0][0].where;
+    expect(callWhere.id).toBe('00000000-0000-0000-0000-000000000003');
+  });
+});

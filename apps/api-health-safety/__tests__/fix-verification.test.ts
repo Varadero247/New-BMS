@@ -266,3 +266,62 @@ describe('Architecture Fix — extra', () => {
     expect(Array.isArray(response.body.data)).toBe(true);
   });
 });
+
+describe('Architecture Fix — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/risks', risksRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/risks response body has meta object', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/risks');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('meta');
+    expect(typeof res.body.meta).toBe('object');
+  });
+
+  it('GET /api/risks meta.totalPages is at least 0', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+
+    const res = await request(app).get('/api/risks');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET /api/risks page=2 sets meta.page to 2', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(40);
+
+    const res = await request(app).get('/api/risks?page=2&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+  });
+
+  it('F-026: DELETE non-existent risk returns 404', async () => {
+    mockPrisma.risk.findUnique.mockResolvedValueOnce(null);
+
+    const res = await request(app).delete('/api/risks/10000000-0000-4000-a000-000000000999');
+    expect(res.status).toBe(404);
+  });
+
+  it('F-003: authenticate mock is invoked on each request', async () => {
+    const { authenticate } = require('@ims/auth');
+    (authenticate as jest.Mock).mockClear();
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+
+    await request(app).get('/api/risks');
+    expect(authenticate).toHaveBeenCalledTimes(1);
+  });
+});

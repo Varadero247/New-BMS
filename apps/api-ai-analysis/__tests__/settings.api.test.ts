@@ -390,3 +390,73 @@ describe('AI Settings — extended', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ─── AI Settings — additional coverage ──────────────────────────────────────
+describe('AI Settings — additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeAll(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    const settingsRouter = require('../src/routes/settings').default;
+    app.use('/api/settings', settingsRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  // 1. Auth enforcement: no Authorization header → 401
+  it('GET /api/settings returns 401 without Authorization header', async () => {
+    const res = await request(app).get('/api/settings');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  // 2. Missing/invalid fields: missing apiKey in POST body
+  it('POST /api/settings returns 400 VALIDATION_ERROR when apiKey is missing', async () => {
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer valid-token')
+      .send({ provider: 'OPENAI' }); // no apiKey
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  // 3. Empty results: GET returns hasApiKey:false and totalTokensUsed:0 when no record exists
+  it('GET /api/settings hasApiKey is false and totalTokensUsed is 0 when no settings found', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .get('/api/settings')
+      .set('Authorization', 'Bearer valid-token');
+    expect(res.status).toBe(200);
+    expect(res.body.data.hasApiKey).toBe(false);
+    expect(res.body.data.totalTokensUsed).toBe(0);
+  });
+
+  // 4. DB error handling: update throws → 500
+  it('POST /api/settings returns 500 when update throws', async () => {
+    mockPrisma.aISettings.findFirst.mockResolvedValueOnce(mockExistingSettings);
+    mockPrisma.aISettings.update.mockRejectedValueOnce(new Error('Deadlock detected'));
+    const res = await request(app)
+      .post('/api/settings')
+      .set('Authorization', 'Bearer valid-token')
+      .send({ provider: 'OPENAI', apiKey: 'sk-new-key' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  // 5. Positive case: DELETE returns 204 even when no record exists (deleteMany count 0)
+  it('DELETE /api/settings returns 204 when no settings to delete', async () => {
+    mockPrisma.aISettings.deleteMany.mockResolvedValueOnce({ count: 0 });
+    const res = await request(app)
+      .delete('/api/settings')
+      .set('Authorization', 'Bearer valid-token');
+    expect(res.status).toBe(204);
+    expect(mockPrisma.aISettings.deleteMany).toHaveBeenCalledTimes(1);
+  });
+});

@@ -251,3 +251,61 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+// ===================================================================
+// Additional edge cases: empty list, invalid enum, pagination, missing fields, auth
+// ===================================================================
+describe('Contracts — additional edge cases', () => {
+  it('GET /api/contracts returns empty list when no contracts exist', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.contracts).toEqual([]);
+    expect(res.body.data.pagination.total).toBe(0);
+  });
+
+  it('GET /api/contracts pagination.totalPages is 0 when count is 0', async () => {
+    (prisma.contract.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.contract.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/contracts');
+    expect(res.body.data.pagination.totalPages).toBe(0);
+  });
+
+  it('POST /api/contracts returns 400 when startDate has invalid format', async () => {
+    const res = await request(app).post('/api/contracts').send({
+      name: 'Bad Date',
+      vendor: 'X',
+      category: 'SOFTWARE',
+      startDate: 'not-a-date',
+      endDate: '2027-01-01',
+      annualCost: 1000,
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PATCH /api/contracts/:id returns 500 when update fails', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (prisma.contract.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .patch('/api/contracts/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /api/contracts/:id returns 500 when delete fails', async () => {
+    (prisma.contract.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.contract.delete as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/contracts/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

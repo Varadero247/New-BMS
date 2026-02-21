@@ -154,3 +154,51 @@ describe('Contracts Dashboard — extra', () => {
     expect(mockPrisma.contNotice.count).toHaveBeenCalledTimes(1);
   });
 });
+
+// ─── additional coverage ─────────────────────────────────────────────────────
+
+describe('contracts dashboard route — additional coverage', () => {
+  it('auth enforcement: unauthenticated request receives 401', async () => {
+    const { authenticate: mockAuth } = require('@ims/auth');
+    (mockAuth as jest.Mock).mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Unauthorized' } });
+    });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /stats returns 200 with success true when both counts are zero', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.totalContracts).toBe(0);
+    expect(res.body.data.upcomingNotices).toBe(0);
+  });
+
+  it('GET /stats returns 500 and error code INTERNAL_ERROR when contContract.count throws', async () => {
+    mockPrisma.contContract.count.mockRejectedValue(new Error('DB unavailable'));
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /stats data contains only the expected shape', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(8);
+    mockPrisma.contNotice.count.mockResolvedValue(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(Object.keys(res.body.data)).toContain('totalContracts');
+    expect(Object.keys(res.body.data)).toContain('upcomingNotices');
+  });
+
+  it('GET /stats totalContracts and upcomingNotices can differ', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(200);
+    mockPrisma.contNotice.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalContracts).not.toBe(res.body.data.upcomingNotices);
+  });
+});

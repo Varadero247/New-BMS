@@ -238,3 +238,78 @@ describe('SoD Matrix — further extended', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+
+// ===================================================================
+// SoD Matrix — additional coverage (5 new tests)
+// ===================================================================
+describe('SoD Matrix — additional coverage', () => {
+  const validRule = {
+    role1: 'Treasury Manager',
+    role2: 'Bank Reconciliation',
+    conflictType: 'HIGH',
+    description: 'Prevents treasury manager from self-reconciling',
+    mitigatingControl: 'Independent reconciliation review required',
+  };
+
+  it('GET / response has a success property equal to true', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/sod-matrix');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+  });
+
+  it('GET / data array length matches number returned by findMany', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000010', roleA: 'AP', roleB: 'GL', conflictLevel: 'HIGH' },
+      { id: '00000000-0000-0000-0000-000000000011', roleA: 'Treasury', roleB: 'Payments', conflictLevel: 'MEDIUM' },
+      { id: '00000000-0000-0000-0000-000000000012', roleA: 'PO', roleB: 'GRN', conflictLevel: 'LOW' },
+    ]);
+    const res = await request(app).get('/api/sod-matrix');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('POST / includes mitigatingControl in the create data', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000013',
+      ...validRule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/sod-matrix').send(validRule);
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          mitigatingControl: 'Independent reconciliation review required',
+        }),
+      })
+    );
+  });
+
+  it('POST / response data has id field after successful creation', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000014',
+      ...validRule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    const res = await request(app).post('/api/sod-matrix').send(validRule);
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000014');
+  });
+
+  it('POST / passes description field to create data', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000015',
+      ...validRule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/sod-matrix').send(validRule);
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          description: 'Prevents treasury manager from self-reconciling',
+        }),
+      })
+    );
+  });
+});

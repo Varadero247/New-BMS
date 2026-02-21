@@ -331,3 +331,72 @@ describe('Emergency Analytics — extended', () => {
     expect(res.body.data.criticalAlerts).toHaveLength(0);
   });
 });
+describe('GET /api/analytics/dashboard — additional coverage', () => {
+  it('enforces authentication — authenticate middleware is called', async () => {
+    const { authenticate } = require('@ims/auth');
+    setupAnalyticsMocks();
+    await request(app).get('/api/analytics/dashboard');
+    expect(authenticate).toHaveBeenCalled();
+  });
+
+  it('returns empty recentIncidents and zero metrics when database is empty', async () => {
+    setupAnalyticsMocks({
+      activePremises: 0,
+      fraOverdue: 0,
+      activeIncidents: 0,
+      incidentsLast30: 0,
+      wardenExpiring: 0,
+      peepDue: 0,
+      equipmentDue: 0,
+      bcpCount: 0,
+      bcpNotTested: 0,
+      premisesNoDrill: 0,
+      recentIncidents: [],
+      riskBreakdown: [],
+      incidentBreakdown: [],
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.activePremises).toBe(0);
+    expect(res.body.data.recentIncidents).toHaveLength(0);
+    expect(res.body.data.riskLevelBreakdown).toEqual({});
+    expect(res.body.data.incidentTypeBreakdown).toEqual({});
+  });
+
+  it('unknown query params do not break the dashboard endpoint', async () => {
+    setupAnalyticsMocks();
+    const res = await request(app).get('/api/analytics/dashboard?unknown=abc');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('returns 500 with INTERNAL_ERROR when femFireWarden.count rejects', async () => {
+    mockPremises.count.mockResolvedValueOnce(5).mockResolvedValueOnce(0);
+    mockFra.count.mockResolvedValue(0);
+    mockFra.groupBy.mockResolvedValue([]);
+    mockIncident.count.mockResolvedValueOnce(0).mockResolvedValueOnce(0);
+    mockIncident.findMany.mockResolvedValue([]);
+    mockIncident.groupBy.mockResolvedValue([]);
+    mockWarden.count.mockRejectedValue(new Error('warden DB error'));
+    mockPeep.count.mockResolvedValue(0);
+    mockEquipment.count.mockResolvedValue(0);
+    mockBcp.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('criticalAlerts contains warden expiry alert when wardenExpiring > 0', async () => {
+    setupAnalyticsMocks({
+      activeIncidents: 0,
+      fraOverdue: 0,
+      wardenExpiring: 5,
+      equipmentDue: 0,
+      premisesNoDrill: 0,
+    });
+    const res = await request(app).get('/api/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.criticalAlerts.some((a: string) => a.includes('warden'))).toBe(true);
+  });
+});

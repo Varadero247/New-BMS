@@ -216,3 +216,56 @@ describe('Scheduled Reports Routes', () => {
     });
   });
 });
+
+describe('Scheduled Reports — additional coverage', () => {
+  let app: import('express').Express;
+
+  beforeEach(() => {
+    const express = require('express');
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/reports', scheduledReportsRouter);
+    jest.clearAllMocks();
+    // Reset mocks to defaults
+    mockListSchedules.mockReturnValue([]);
+    mockGetSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Weekly Quality Summary' });
+    mockUpdateSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Updated' });
+    mockDeleteSchedule.mockReturnValue(true);
+    mockRunScheduleNow.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', lastRunAt: new Date().toISOString() });
+    mockCreateSchedule.mockReturnValue({ id: '00000000-0000-0000-0000-000000000001', name: 'Weekly Quality Summary', reportType: 'quality_objectives', schedule: '0 8 * * 1' });
+  });
+
+  it('GET /types returns at least one report type', async () => {
+    const res = await request(app).get('/api/admin/reports/types');
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+  });
+
+  it('PUT /schedules/:id updates name field in response', async () => {
+    const res = await request(app)
+      .put('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated Schedule' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('name', 'Updated');
+  });
+
+  it('POST /schedules rejects missing reportType', async () => {
+    const res = await request(app)
+      .post('/api/admin/reports/schedules')
+      .send({ name: 'My Report', schedule: '0 8 * * 1', recipients: ['a@b.com'], format: 'pdf' });
+    expect(res.status).toBe(400);
+  });
+
+  it('POST /schedules rejects missing recipients', async () => {
+    const res = await request(app)
+      .post('/api/admin/reports/schedules')
+      .send({ name: 'My Report', reportType: 'quality_objectives', schedule: '0 8 * * 1', format: 'pdf' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /schedules/:id returns schedule with id field', async () => {
+    const res = await request(app).get('/api/admin/reports/schedules/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id', '00000000-0000-0000-0000-000000000001');
+  });
+});

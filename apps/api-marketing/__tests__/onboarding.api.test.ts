@@ -201,3 +201,49 @@ describe('Onboarding — extended', () => {
     expect(typeof res.body.data.jobsScheduled).toBe('number');
   });
 });
+
+describe('Onboarding — additional coverage', () => {
+  it('GET /status summary includes a cancelled field', async () => {
+    (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue([
+      { id: '1', template: 'welcome', status: 'CANCELLED' },
+    ]);
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary).toHaveProperty('cancelled');
+    expect(res.body.data.summary.cancelled).toBe(1);
+  });
+
+  it('GET /status returns the jobs array in the response', async () => {
+    const jobs = [
+      { id: '1', template: 'welcome', status: 'SENT' },
+      { id: '2', template: 'feature_highlight', status: 'PENDING' },
+    ];
+    (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue(jobs);
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data.jobs).toHaveLength(2);
+  });
+
+  it('GET /status returns 500 on DB error', async () => {
+    (prisma.mktEmailJob.findMany as jest.Mock).mockRejectedValue(new Error('DB gone'));
+    const res = await request(app).get('/api/onboarding/status/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /cancel returns 500 on DB error', async () => {
+    (prisma.mktEmailJob.updateMany as jest.Mock).mockRejectedValue(new Error('DB gone'));
+    const res = await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /enqueue sequenceId starts with onboarding- prefix', async () => {
+    (prisma.$transaction as jest.Mock).mockResolvedValue([]);
+    const res = await request(app)
+      .post('/api/onboarding/enqueue/00000000-0000-0000-0000-000000000002')
+      .send({ email: 'prefix@test.com', firstName: 'Prefix' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.sequenceId).toMatch(/^onboarding-/);
+  });
+});

@@ -236,3 +236,83 @@ describe('Field Service Parts Used — extended', () => {
     expect(res.body.data.quantity).toBe(5);
   });
 });
+
+
+// ===================================================================
+// Field Service Parts Used — additional coverage (5 new tests)
+// ===================================================================
+describe('Field Service Parts Used — additional coverage', () => {
+  it('GET / response contains pagination metadata', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([
+      { id: '00000000-0000-0000-0000-000000000001', partName: 'O-Ring', quantity: 4, job: {} },
+    ]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/parts-used');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('GET / filters by jobId when jobId query param is provided', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockResolvedValue([]);
+    mockPrisma.fsSvcPartUsed.count.mockResolvedValue(0);
+    await request(app).get('/api/parts-used?jobId=a1b2c3d4-e5f6-7890-abcd-ef1234567890');
+    expect(mockPrisma.fsSvcPartUsed.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' }),
+      })
+    );
+  });
+
+  it('POST / persists the partNumber field in the create call', async () => {
+    mockPrisma.fsSvcPartUsed.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      partName: 'Valve',
+      partNumber: 'VLV-007',
+      quantity: 2,
+      unitCost: 80,
+      totalCost: 160,
+    });
+    await request(app).post('/api/parts-used').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      partName: 'Valve',
+      partNumber: 'VLV-007',
+      quantity: 2,
+      unitCost: 80,
+      totalCost: 160,
+    });
+    expect(mockPrisma.fsSvcPartUsed.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ partNumber: 'VLV-007' }),
+      })
+    );
+  });
+
+  it('GET /:id returns the correct partName from the database', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000021',
+      partName: 'Hydraulic Seal',
+      job: {},
+    });
+    const res = await request(app).get('/api/parts-used/00000000-0000-0000-0000-000000000021');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('partName', 'Hydraulic Seal');
+  });
+
+  it('PUT /:id update call passes the where id clause to Prisma', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000022',
+    });
+    mockPrisma.fsSvcPartUsed.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000022',
+      quantity: 10,
+    });
+    await request(app)
+      .put('/api/parts-used/00000000-0000-0000-0000-000000000022')
+      .send({ quantity: 10 });
+    expect(mockPrisma.fsSvcPartUsed.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ id: '00000000-0000-0000-0000-000000000022' }),
+      })
+    );
+  });
+});

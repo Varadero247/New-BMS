@@ -231,3 +231,46 @@ describe('Cookie Consent Handler — extended', () => {
     expect(Object.keys(call.data)).toHaveLength(5);
   });
 });
+
+
+describe('Cookie Consent Handler — additional coverage', () => {
+  it('returns success: true for a fully valid body', () => {
+    const req = mockRequest({ essential: true, analytics: false, functional: true });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.success).toBe(true);
+  });
+
+  it('res.status is never called on a valid request (200 implied)', () => {
+    const req = mockRequest({ essential: true, analytics: true, functional: false });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    expect(res.status).not.toHaveBeenCalled();
+  });
+
+  it('rejects a number body with 400', () => {
+    const req = mockRequest(42 as unknown);
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('savedAt is a valid ISO 8601 date string', () => {
+    const req = mockRequest({ essential: true, analytics: true, functional: true });
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(typeof call.data.savedAt).toBe('string');
+    expect(() => new Date(call.data.savedAt)).not.toThrow();
+    expect(new Date(call.data.savedAt).toISOString()).toBe(call.data.savedAt);
+  });
+
+  it('error response includes VALIDATION_ERROR code for string body', () => {
+    const req = mockRequest('not-an-object' as unknown);
+    const res = mockResponse();
+    handleCookieConsent(req as Request, res as Response);
+    const call = (res.json as jest.Mock).mock.calls[0][0];
+    expect(call.error.code).toBe('VALIDATION_ERROR');
+  });
+});
