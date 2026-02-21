@@ -93,6 +93,12 @@ describe('InfoSec Scope API', () => {
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
+
+    it('findFirst is called once per GET request', async () => {
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      await request(app).get('/api/scope');
+      expect(mockPrisma.isScope.findFirst).toHaveBeenCalledTimes(1);
+    });
   });
 
   // ---- PUT /api/scope ----
@@ -200,6 +206,16 @@ describe('InfoSec Scope API', () => {
 
       const createCall = (mockPrisma.isScope.create as jest.Mock).mock.calls[0][0];
       expect(createCall.data.createdBy).toBe('00000000-0000-4000-a000-000000000123');
+    });
+
+    it('should return 500 on database error during create', async () => {
+      (mockPrisma.isScope.findFirst as jest.Mock).mockResolvedValueOnce(null);
+      (mockPrisma.isScope.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const res = await request(app).put('/api/scope').send({ name: 'New Scope' });
+
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
     });
   });
 });

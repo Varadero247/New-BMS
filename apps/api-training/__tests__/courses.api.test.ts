@@ -43,6 +43,22 @@ describe('GET /api/courses', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('returns empty list when no courses exist', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/courses');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('findMany and count are each called once', async () => {
+    mockPrisma.trainCourse.findMany.mockResolvedValue([]);
+    mockPrisma.trainCourse.count.mockResolvedValue(0);
+    await request(app).get('/api/courses');
+    expect(mockPrisma.trainCourse.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.trainCourse.count).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('GET /api/courses/:id', () => {
@@ -88,6 +104,14 @@ describe('PUT /api/courses/:id', () => {
       .send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
+
+  it('returns 404 if course not found on update', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/courses/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+  });
 });
 
 describe('DELETE /api/courses/:id', () => {
@@ -101,6 +125,12 @@ describe('DELETE /api/courses/:id', () => {
     const res = await request(app).delete('/api/courses/00000000-0000-0000-0000-000000000001');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
+  });
+
+  it('returns 404 if course not found on delete', async () => {
+    mockPrisma.trainCourse.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/courses/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
   });
 });
 

@@ -54,6 +54,14 @@ describe('GET /api/documents', () => {
     expect(res.body.success).toBe(true);
   });
 
+  it('findMany and count are each called once', async () => {
+    mockPrisma.suppDocument.findMany.mockResolvedValue([]);
+    mockPrisma.suppDocument.count.mockResolvedValue(0);
+    await request(app).get('/api/documents');
+    expect(mockPrisma.suppDocument.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.suppDocument.count).toHaveBeenCalledTimes(1);
+  });
+
   it('should return 500 on DB error', async () => {
     mockPrisma.suppDocument.findMany.mockRejectedValue(new Error('DB error'));
     const res = await request(app).get('/api/documents');
@@ -145,6 +153,16 @@ describe('PUT /api/documents/:id', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
+
+  it('should return 500 on DB error', async () => {
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppDocument.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/documents/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Title' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
 });
 
 describe('DELETE /api/documents/:id', () => {
@@ -167,5 +185,13 @@ describe('DELETE /api/documents/:id', () => {
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('should return 500 on DB error', async () => {
+    mockPrisma.suppDocument.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.suppDocument.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/documents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });

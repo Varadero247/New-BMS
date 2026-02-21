@@ -135,6 +135,19 @@ describe('GET /api/risks/bowtie/all', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toHaveLength(1);
   });
+
+  it('data is an array', async () => {
+    mockPrisma.riskBowtie.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/bowtie/all');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.riskBowtie.findMany.mockResolvedValue([]);
+    await request(app).get('/api/risks/bowtie/all');
+    expect(mockPrisma.riskBowtie.findMany).toHaveBeenCalledTimes(1);
+  });
 });
 
 // ─── 500 error paths ────────────────────────────────────────────────────────
