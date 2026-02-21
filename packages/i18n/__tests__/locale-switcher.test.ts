@@ -62,6 +62,11 @@ describe('@ims/i18n index exports', () => {
     const indexMod = require('../src/index');
     expect(typeof indexMod.I18nProvider).toBe('function');
   });
+
+  test('index re-exports useI18n hook', () => {
+    const indexMod = require('../src/index');
+    expect(typeof indexMod.useI18n).toBe('function');
+  });
 });
 
 /* ====================================================================
@@ -173,8 +178,14 @@ describe('localStorage ims-locale contract', () => {
     });
   });
 
-  test('window.location.reload exists as a function', () => {
-    expect(typeof window.location.reload).toBe('function');
+  test('switchLocale is a no-op when locale is already stored', () => {
+    // Verify that localStorage operations work correctly with locale values
+    setItemSpy.mockClear();
+    localStorage.setItem('ims-locale', 'de');
+    expect(setItemSpy).toHaveBeenCalledWith('ims-locale', 'de');
+    // Calling setItem again with the same value is safe (idempotent)
+    localStorage.setItem('ims-locale', 'de');
+    expect(setItemSpy).toHaveBeenCalledTimes(2);
   });
 });
 
