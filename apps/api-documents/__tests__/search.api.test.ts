@@ -70,4 +70,20 @@ describe('GET /api/search', () => {
       })
     );
   });
+
+  it('findMany is NOT called when query is absent', async () => {
+    const res = await request(app).get('/api/search');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.docDocument.findMany).not.toHaveBeenCalled();
+  });
+
+  it('returns a single document result', async () => {
+    mockPrisma.docDocument.findMany.mockResolvedValue([
+      { id: 'd-1', title: 'ISO 9001 Manual', description: 'Quality management system manual' },
+    ]);
+    const res = await request(app).get('/api/search?q=ISO');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].title).toBe('ISO 9001 Manual');
+  });
 });

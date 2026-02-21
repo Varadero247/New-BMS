@@ -86,4 +86,35 @@ describe('POST /api/public/submit', () => {
     expect(res.status).toBe(201);
     expect(res.body.success).toBe(true);
   });
+
+  it('should return 400 when complainantEmail is invalid format', async () => {
+    const res = await request(app).post('/api/public/submit').send({
+      title: 'Email Test',
+      complainantEmail: 'not-a-valid-email',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('should return 400 when priority is invalid', async () => {
+    const res = await request(app).post('/api/public/submit').send({
+      title: 'Priority Test',
+      priority: 'URGENT',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('response includes referenceNumber with correct format', async () => {
+    const year = new Date().getFullYear();
+    mockPrisma.compComplaint.count.mockResolvedValue(9);
+    mockPrisma.compComplaint.create.mockResolvedValue({
+      id: '3',
+      referenceNumber: `CMP-${year}-0010`,
+    });
+    const res = await request(app).post('/api/public/submit').send({ title: 'Format Test' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.referenceNumber).toMatch(/^CMP-\d{4}-\d{4}$/);
+  });
 });
