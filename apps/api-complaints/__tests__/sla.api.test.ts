@@ -51,4 +51,35 @@ describe('GET /api/sla', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('makes two separate count queries', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(5).mockResolvedValueOnce(10);
+    await request(app).get('/api/sla');
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns correct data structure with both fields', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(2).mockResolvedValueOnce(8);
+    const res = await request(app).get('/api/sla');
+    expect(res.body.data).toHaveProperty('overdue');
+    expect(res.body.data).toHaveProperty('onTrack');
+    expect(typeof res.body.data.overdue).toBe('number');
+    expect(typeof res.body.data.onTrack).toBe('number');
+  });
+
+  it('all overdue, none on-track', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(12).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdue).toBe(12);
+    expect(res.body.data.onTrack).toBe(0);
+  });
+
+  it('none overdue, all on-track', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValueOnce(0).mockResolvedValueOnce(15);
+    const res = await request(app).get('/api/sla');
+    expect(res.status).toBe(200);
+    expect(res.body.data.overdue).toBe(0);
+    expect(res.body.data.onTrack).toBe(15);
+  });
 });

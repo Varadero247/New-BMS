@@ -26,11 +26,12 @@ beforeEach(() => {
 });
 
 describe('GET /api/renewals', () => {
+  const futureDate15 = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
   it('should return contracts with upcoming renewals within 30 days', async () => {
-    const futureDate = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
     mockPrisma.contContract.findMany.mockResolvedValue([
-      { id: '1', title: 'Contract A', renewalDate: futureDate, status: 'ACTIVE' },
-      { id: '2', title: 'Contract B', renewalDate: futureDate, status: 'ACTIVE' },
+      { id: '1', title: 'Contract A', renewalDate: futureDate15, status: 'ACTIVE' },
+      { id: '2', title: 'Contract B', renewalDate: futureDate15, status: 'ACTIVE' },
     ]);
     const res = await request(app).get('/api/renewals');
     expect(res.status).toBe(200);
@@ -52,5 +53,36 @@ describe('GET /api/renewals', () => {
     expect(res.status).toBe(500);
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('returns contracts with all expected fields', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000001',
+        title: 'Software License Agreement',
+        renewalDate: futureDate15,
+        status: 'ACTIVE',
+        contractValue: 50000,
+        counterpartyName: 'Vendor Corp',
+      },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].title).toBe('Software License Agreement');
+  });
+
+  it('returns a single contract when only one matches', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '1', title: 'Solo Contract', renewalDate: futureDate15, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('calls findMany once per request', async () => {
+    mockPrisma.contContract.findMany.mockResolvedValue([]);
+    await request(app).get('/api/renewals');
+    expect(mockPrisma.contContract.findMany).toHaveBeenCalledTimes(1);
   });
 });
