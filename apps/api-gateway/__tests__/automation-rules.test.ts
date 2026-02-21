@@ -189,3 +189,49 @@ describe('Automation Rules — extra', () => {
     expect(res.body.data[0]).toHaveProperty('id');
   });
 });
+
+describe('Automation Rules — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/automation-rules', automationRulesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('returns 401 when auth fails on GET /api/automation-rules', async () => {
+    mockAuthenticate.mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED' } });
+    });
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /:id returns 404 when rule not found', async () => {
+    mockGetRuleById.mockReturnValueOnce(null);
+    const res = await request(app).get(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000099'
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it('GET /api/automation-rules response is JSON', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('first rule isBuiltIn field is boolean', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data[0].isBuiltIn).toBe('boolean');
+  });
+
+  it('POST /enable returns 404 when rule not found', async () => {
+    mockGetRuleById.mockReturnValueOnce(null);
+    const res = await request(app).post(
+      '/api/automation-rules/00000000-0000-0000-0000-000000000099/enable'
+    );
+    expect(res.status).toBe(404);
+  });
+});

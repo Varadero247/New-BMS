@@ -236,3 +236,50 @@ describe('Certifications Routes', () => {
     });
   });
 });
+
+describe('Certifications — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/certifications', certificationsRouter);
+    jest.clearAllMocks();
+  });
+
+  it('returns 401 when auth fails on GET /api/admin/certifications', async () => {
+    mockAuthenticate.mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED' } });
+    });
+    const res = await request(app).get('/api/admin/certifications');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /:id returns 404 when certificate not found', async () => {
+    mockGetCertificate.mockReturnValueOnce(null);
+    const res = await request(app).get(
+      '/api/admin/certifications/00000000-0000-0000-0000-000000000099'
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it('GET list response is JSON content-type', async () => {
+    const res = await request(app).get('/api/admin/certifications');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('DELETE certificate calls mockDeleteCertificate once', async () => {
+    await request(app).delete(
+      '/api/admin/certifications/00000000-0000-0000-0000-000000000001'
+    );
+    expect(mockDeleteCertificate).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST with missing required field returns 400', async () => {
+    const res = await request(app).post('/api/admin/certifications').send({
+      scope: 'Test',
+      certificationBody: 'BSI',
+    });
+    expect(res.status).toBe(400);
+  });
+});

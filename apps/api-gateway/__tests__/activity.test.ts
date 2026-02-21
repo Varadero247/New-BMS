@@ -156,3 +156,54 @@ describe('Activity Routes', () => {
     });
   });
 });
+
+describe('Activity Routes — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/activity', activityRoutes);
+    jest.clearAllMocks();
+  });
+
+  it('returns 401 when auth fails on GET /api/activity', async () => {
+    mockAuthenticate.mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED' } });
+    });
+    const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1');
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 401 when auth fails on GET /api/activity/recent', async () => {
+    mockAuthenticate.mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED' } });
+    });
+    const res = await request(app).get('/api/activity/recent');
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 500 when getActivity throws', async () => {
+    mockGetActivity.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1');
+    expect(res.status).toBe(500);
+  });
+
+  it('logActivity is called on POST /api/activity', async () => {
+    mockLogActivity.mockResolvedValueOnce(undefined);
+    await request(app).post('/api/activity').send({
+      recordType: 'ncr',
+      recordId: 'r1',
+      action: 'created',
+      userId: 'user-1',
+      orgId: 'org-1',
+    });
+    expect(mockLogActivity).toHaveBeenCalled();
+  });
+
+  it('response content-type is json for GET /api/activity', async () => {
+    mockGetActivity.mockResolvedValue({ entries: [], total: 0 });
+    const res = await request(app).get('/api/activity?recordType=ncr&recordId=r1');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+});

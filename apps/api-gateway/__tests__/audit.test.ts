@@ -329,3 +329,52 @@ describe('Audit Routes', () => {
     });
   });
 });
+
+describe('Audit Routes — additional coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/audit', auditRouter);
+    jest.clearAllMocks();
+  });
+
+  it('returns 401 when auth fails on GET /api/audit/trail', async () => {
+    mockAuthenticate.mockImplementationOnce((_req: any, res: any) => {
+      res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED' } });
+    });
+    const res = await request(app).get('/api/audit/trail');
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 500 when query throws on GET /api/audit/trail', async () => {
+    mockQuery.mockRejectedValueOnce(new Error('DB failure'));
+    const res = await request(app).get('/api/audit/trail');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/audit/trail response is JSON', async () => {
+    mockQuery.mockResolvedValueOnce({ entries: [], total: 0, page: 1, limit: 50 });
+    const res = await request(app).get('/api/audit/trail');
+    expect(res.headers['content-type']).toMatch(/json/);
+  });
+
+  it('POST /api/audit/esignature with missing meaning returns 400', async () => {
+    const res = await request(app).post('/api/audit/esignature').send({
+      password: 'pass',
+      reason: 'test',
+      resourceType: 'Doc',
+      resourceId: 'doc-1',
+      resourceRef: 'DOC-001',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/audit/trail with limit param returns 200', async () => {
+    mockQuery.mockResolvedValueOnce({ entries: [], total: 0, page: 1, limit: 10 });
+    const res = await request(app).get('/api/audit/trail?limit=10&page=1');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
