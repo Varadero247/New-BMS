@@ -117,6 +117,18 @@ describe('GET /api/hmrc-calendar', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+    await request(app).get('/api/hmrc-calendar');
+    expect(mockPrisma.finHmrcDeadline.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('response data is an array', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/hmrc-calendar');
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
 });
 
 // ===================================================================
@@ -193,5 +205,15 @@ describe('POST /api/hmrc-calendar', () => {
         }),
       })
     );
+  });
+
+  it('create is called once per POST request', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      ...validDeadline,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+    await request(app).post('/api/hmrc-calendar').send(validDeadline);
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledTimes(1);
   });
 });

@@ -71,6 +71,26 @@ describe('GET /api/payouts', () => {
 
     expect(res.body.data.minPayoutAmount).toBe(100);
   });
+
+  it('response has payouts, availableBalance, canRequestPayout, and minPayoutAmount keys', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/payouts');
+
+    expect(res.body.data).toHaveProperty('payouts');
+    expect(res.body.data).toHaveProperty('availableBalance');
+    expect(res.body.data).toHaveProperty('canRequestPayout');
+    expect(res.body.data).toHaveProperty('minPayoutAmount');
+  });
+
+  it('returns 500 on database error', async () => {
+    (prisma.mktPartnerPayout.findMany as jest.Mock).mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/payouts');
+
+    expect(res.status).toBe(500);
+  });
 });
 
 describe('POST /api/payouts/request', () => {
@@ -91,6 +111,23 @@ describe('POST /api/payouts/request', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.data.amount).toBe(500);
+  });
+
+  it('created payout has PENDING status', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd-1', commissionValue: 150 },
+    ]);
+    (prisma.mktPartnerPayout.create as jest.Mock).mockResolvedValue({
+      id: 'p-2',
+      amount: 150,
+      status: 'PENDING',
+    });
+    (prisma.mktPartnerDeal.updateMany as jest.Mock).mockResolvedValue({ count: 1 });
+
+    const res = await request(app).post('/api/payouts/request');
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('PENDING');
   });
 
   it('returns 400 when below minimum threshold', async () => {

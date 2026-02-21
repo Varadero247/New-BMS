@@ -111,6 +111,18 @@ describe('GET /api/onboarding/status/:userId', () => {
     expect(res.status).toBe(200);
     expect(res.body.data.summary.total).toBe(0);
   });
+
+  it('summary has sent, pending, and total fields', async () => {
+    (prisma.mktEmailJob.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get(
+      '/api/onboarding/status/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.body.data.summary).toHaveProperty('sent');
+    expect(res.body.data.summary).toHaveProperty('pending');
+    expect(res.body.data.summary).toHaveProperty('total');
+  });
 });
 
 // ===================================================================
@@ -149,5 +161,13 @@ describe('POST /api/onboarding/cancel/:userId', () => {
     );
 
     expect(res.body.data.cancelledCount).toBe(0);
+  });
+
+  it('updateMany is called exactly once per cancel request', async () => {
+    (prisma.mktEmailJob.updateMany as jest.Mock).mockResolvedValue({ count: 3 });
+
+    await request(app).post('/api/onboarding/cancel/00000000-0000-0000-0000-000000000001');
+
+    expect(prisma.mktEmailJob.updateMany).toHaveBeenCalledTimes(1);
   });
 });
