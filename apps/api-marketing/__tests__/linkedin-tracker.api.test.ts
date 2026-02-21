@@ -153,3 +153,40 @@ describe('PATCH /api/linkedin/outreach/:id', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST /outreach returns 500 when create fails', async () => {
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(5);
+    (prisma.mktLinkedInOutreach.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/linkedin/outreach').send({
+      prospectName: 'John Doe',
+      company: 'TechCorp',
+      linkedinUrl: 'https://linkedin.com/in/johndoe',
+      template: 'ISO_CONSULTANT',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /outreach returns 500 on DB error', async () => {
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/linkedin/outreach');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /outreach/:id returns 500 when update fails', async () => {
+    (prisma.mktLinkedInOutreach.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'PENDING',
+    });
+    (prisma.mktLinkedInOutreach.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .patch('/api/linkedin/outreach/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'SENT' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

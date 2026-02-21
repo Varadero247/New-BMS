@@ -105,3 +105,45 @@ describe('DELETE /api/approvals/:id', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.docApproval.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/approvals');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.docApproval.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.docApproval.count.mockResolvedValue(0);
+    mockPrisma.docApproval.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/approvals').send({ documentId: '00000000-0000-0000-0000-000000000001', approver: 'user-1' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docApproval.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/approvals/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.docApproval.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.docApproval.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/approvals/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

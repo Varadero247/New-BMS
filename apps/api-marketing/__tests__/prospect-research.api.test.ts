@@ -128,3 +128,32 @@ describe('POST /api/prospects/:id/save-to-hubspot', () => {
     expect(res.status).toBe(200);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST /research returns 500 when create fails', async () => {
+    (prisma.mktProspectResearch.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/prospects/research')
+      .send({ companyName: 'TechCo', industry: 'Manufacturing' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.mktProspectResearch.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/prospects');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/save-to-hubspot returns 500 when DB fails', async () => {
+    (prisma.mktProspectResearch.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post(
+      '/api/prospects/00000000-0000-0000-0000-000000000001/save-to-hubspot'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

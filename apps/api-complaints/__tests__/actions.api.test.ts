@@ -105,3 +105,49 @@ describe('DELETE /api/actions/:id', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.compAction.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/actions');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.compAction.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/actions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    mockPrisma.compAction.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/actions')
+      .send({ complaintId: 'comp-1', action: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compAction.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/actions/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.compAction.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.compAction.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/actions/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

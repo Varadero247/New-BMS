@@ -281,3 +281,25 @@ describe('POST /api/health-score/recalculate', () => {
     expect(res.body.data.message).toContain('recalculation triggered');
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /user/:userId returns 500 on DB error', async () => {
+    (prisma.mktHealthScore.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get(
+      '/api/health-score/user/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /org/:orgId returns 500 on DB error', async () => {
+    (prisma.mktHealthScore.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get(
+      '/api/health-score/org/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

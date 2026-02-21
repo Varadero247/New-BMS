@@ -105,3 +105,45 @@ describe('DELETE /api/incidents/:id', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.incIncident.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/incidents');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.incIncident.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/incidents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    mockPrisma.incIncident.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/incidents').send({ title: 'Test Incident', dateOccurred: '2026-02-21', severity: 'MINOR' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/incidents/00000000-0000-0000-0000-000000000001').send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.incIncident.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.incIncident.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/incidents/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -159,3 +159,31 @@ describe('GET /api/winback/active', () => {
     expect(res.body.data).toHaveLength(1);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('POST /start/:orgId returns 500 when create fails', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktWinBackSequence.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'admin@org.com' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /reason/:reason returns 500 when DB fails', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/winback/reason/price?token=some-token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /active returns 500 when DB fails', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/winback/active');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
