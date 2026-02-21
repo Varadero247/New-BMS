@@ -1,8 +1,9 @@
 /**
  * Shared utility tests
- * Tests: parsePagination, parsePaginationWithTake, paginationMeta
+ * Tests: parsePagination, parsePaginationWithTake, paginationMeta,
+ *        formatRefNumber, getRiskColor, getRiskLevel
  */
-import { parsePagination, paginationMeta, parsePaginationWithTake } from '../src';
+import { parsePagination, paginationMeta, parsePaginationWithTake, formatRefNumber, getRiskColor, getRiskLevel } from '../src';
 import type { PaginatedResponse, AuthUser } from '../src';
 
 describe('parsePagination', () => {
@@ -120,6 +121,95 @@ describe('Type definitions', () => {
     roles.forEach((role) => {
       const user: AuthUser = { id: '1', email: 'test@ims.local', role };
       expect(user.role).toBe(role);
+    });
+  });
+});
+
+describe('formatRefNumber', () => {
+  const year = new Date().getFullYear();
+
+  it('generates correct format PREFIX-YYYY-NNN', () => {
+    const ref = formatRefNumber('HS-RISK', 0);
+    expect(ref).toBe(`HS-RISK-${year}-001`);
+  });
+
+  it('pads sequence to 3 digits', () => {
+    expect(formatRefNumber('ENV-ASP', 4)).toBe(`ENV-ASP-${year}-005`);
+    expect(formatRefNumber('QMS-NC', 9)).toBe(`QMS-NC-${year}-010`);
+    expect(formatRefNumber('QMS-NC', 99)).toBe(`QMS-NC-${year}-100`);
+  });
+
+  it('uses the current calendar year', () => {
+    const ref = formatRefNumber('TEST', 0);
+    expect(ref).toContain(`-${year}-`);
+  });
+
+  it('increments count by 1 (count is zero-based)', () => {
+    const ref = formatRefNumber('PREFIX', 5);
+    expect(ref).toMatch(/-006$/);
+  });
+
+  it('accepts a multi-segment prefix', () => {
+    const ref = formatRefNumber('ENV-EVT', 0);
+    expect(ref).toMatch(/^ENV-EVT-\d{4}-001$/);
+  });
+});
+
+describe('getRiskColor', () => {
+  it('returns green for score <= 8 (low risk)', () => {
+    expect(getRiskColor(0)).toBe('#22c55e');
+    expect(getRiskColor(8)).toBe('#22c55e');
+  });
+
+  it('returns yellow for score 9-27 (medium risk)', () => {
+    expect(getRiskColor(9)).toBe('#eab308');
+    expect(getRiskColor(27)).toBe('#eab308');
+  });
+
+  it('returns orange for score 28-64 (high risk)', () => {
+    expect(getRiskColor(28)).toBe('#f97316');
+    expect(getRiskColor(64)).toBe('#f97316');
+  });
+
+  it('returns red for score > 64 (critical risk)', () => {
+    expect(getRiskColor(65)).toBe('#ef4444');
+    expect(getRiskColor(100)).toBe('#ef4444');
+  });
+});
+
+describe('getRiskLevel', () => {
+  it('returns LOW for score <= 8', () => {
+    expect(getRiskLevel(0)).toBe('LOW');
+    expect(getRiskLevel(8)).toBe('LOW');
+  });
+
+  it('returns MEDIUM for score 9-27', () => {
+    expect(getRiskLevel(9)).toBe('MEDIUM');
+    expect(getRiskLevel(27)).toBe('MEDIUM');
+  });
+
+  it('returns HIGH for score 28-64', () => {
+    expect(getRiskLevel(28)).toBe('HIGH');
+    expect(getRiskLevel(64)).toBe('HIGH');
+  });
+
+  it('returns CRITICAL for score > 64', () => {
+    expect(getRiskLevel(65)).toBe('CRITICAL');
+    expect(getRiskLevel(125)).toBe('CRITICAL');
+  });
+
+  it('getRiskColor and getRiskLevel agree at all boundary scores', () => {
+    const boundaries = [0, 8, 9, 27, 28, 64, 65, 125];
+    const colorToLevel: Record<string, string> = {
+      '#22c55e': 'LOW',
+      '#eab308': 'MEDIUM',
+      '#f97316': 'HIGH',
+      '#ef4444': 'CRITICAL',
+    };
+    boundaries.forEach((score) => {
+      const color = getRiskColor(score);
+      const level = getRiskLevel(score);
+      expect(colorToLevel[color]).toBe(level);
     });
   });
 });
