@@ -59,4 +59,31 @@ describe('GET /api/inductions', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('returns a single induction record', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: '1', employeeName: 'Bob Jones', course: { title: 'Fire Safety', code: 'IND-003' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].employeeName).toBe('Bob Jones');
+    expect(res.body.data[0].course.code).toBe('IND-003');
+  });
+
+  it('each record includes nested course with title and code', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: 'r-1', employeeName: 'Alice', course: { title: 'COSHH Awareness', code: 'IND-010' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    const record = res.body.data[0];
+    expect(record.course).toHaveProperty('title');
+    expect(record.course).toHaveProperty('code');
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([]);
+    await request(app).get('/api/inductions');
+    expect(mockPrisma.trainRecord.findMany).toHaveBeenCalledTimes(1);
+  });
 });

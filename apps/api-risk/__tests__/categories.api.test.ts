@@ -55,4 +55,42 @@ describe('GET /api/categories', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('counts are aggregated correctly across all categories', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { category: 'FINANCIAL' },
+      { category: 'FINANCIAL' },
+      { category: 'FINANCIAL' },
+      { category: 'STRATEGIC' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.status).toBe(200);
+    const financial = res.body.data.find((d: any) => d.category === 'FINANCIAL');
+    const strategic = res.body.data.find((d: any) => d.category === 'STRATEGIC');
+    expect(financial.count).toBe(3);
+    expect(strategic.count).toBe(1);
+  });
+
+  it('returns one entry per distinct category', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { category: 'OPERATIONAL' },
+      { category: 'COMPLIANCE' },
+      { category: 'REPUTATIONAL' },
+    ]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('each entry has category and count fields', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ category: 'OPERATIONAL' }]);
+    const res = await request(app).get('/api/categories');
+    expect(res.body.data[0]).toHaveProperty('category');
+    expect(res.body.data[0]).toHaveProperty('count');
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/categories');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledTimes(1);
+  });
 });

@@ -69,4 +69,28 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('response has all four expected data keys', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(1);
+    mockPrisma.trainRecord.count.mockResolvedValue(1);
+    mockPrisma.trainCompetency.count.mockResolvedValue(1);
+    mockPrisma.trainMatrix.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalCourses');
+    expect(res.body.data).toHaveProperty('totalRecords');
+    expect(res.body.data).toHaveProperty('totalCompetencies');
+    expect(res.body.data).toHaveProperty('totalGaps');
+  });
+
+  it('all four count queries run per request', async () => {
+    mockPrisma.trainCourse.count.mockResolvedValue(5);
+    mockPrisma.trainRecord.count.mockResolvedValue(20);
+    mockPrisma.trainCompetency.count.mockResolvedValue(3);
+    mockPrisma.trainMatrix.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.trainCourse.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.trainRecord.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.trainCompetency.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.trainMatrix.count).toHaveBeenCalledTimes(1);
+  });
 });

@@ -61,4 +61,24 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.totalDocuments).toBe(0);
   });
+
+  it('response has all three expected data keys', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(1);
+    mockPrisma.docVersion.count.mockResolvedValue(1);
+    mockPrisma.docApproval.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalDocuments');
+    expect(res.body.data).toHaveProperty('totalVersions');
+    expect(res.body.data).toHaveProperty('pendingApprovals');
+  });
+
+  it('all three count queries run per request', async () => {
+    mockPrisma.docDocument.count.mockResolvedValue(5);
+    mockPrisma.docVersion.count.mockResolvedValue(12);
+    mockPrisma.docApproval.count.mockResolvedValue(2);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.docDocument.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docVersion.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.docApproval.count).toHaveBeenCalledTimes(1);
+  });
 });

@@ -55,4 +55,41 @@ describe('GET /api/heat-map', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('total matches the number of risks returned', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: '1', title: 'R1', likelihood: 5, consequence: 5, inherentScore: 25 },
+      { id: '2', title: 'R2', likelihood: 1, consequence: 1, inherentScore: 1 },
+      { id: '3', title: 'R3', likelihood: 3, consequence: 3, inherentScore: 9 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.body.data.total).toBe(3);
+    expect(res.body.data.risks).toHaveLength(3);
+  });
+
+  it('each risk entry has id, title, likelihood, consequence, inherentScore', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { id: 'r-1', title: 'Cyber breach', likelihood: 4, consequence: 5, inherentScore: 20 },
+    ]);
+    const res = await request(app).get('/api/heat-map');
+    const risk = res.body.data.risks[0];
+    expect(risk).toHaveProperty('id', 'r-1');
+    expect(risk).toHaveProperty('title', 'Cyber breach');
+    expect(risk).toHaveProperty('likelihood', 4);
+    expect(risk).toHaveProperty('consequence', 5);
+    expect(risk).toHaveProperty('inherentScore', 20);
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/heat-map');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('response has risks and total keys', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/heat-map');
+    expect(res.body.data).toHaveProperty('risks');
+    expect(res.body.data).toHaveProperty('total');
+  });
 });

@@ -67,4 +67,35 @@ describe('GET /api/depreciation', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('returns a single asset correctly', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Compressor', purchaseCost: 25000, currentValue: 18000, purchaseDate: '2024-01-15' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].name).toBe('Compressor');
+    expect(res.body.data[0].purchaseCost).toBe(25000);
+    expect(res.body.data[0].currentValue).toBe(18000);
+  });
+
+  it('each asset entry has the expected fields', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-2', name: 'Generator', purchaseCost: 80000, currentValue: 60000, purchaseDate: '2022-06-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    const asset = res.body.data[0];
+    expect(asset).toHaveProperty('id');
+    expect(asset).toHaveProperty('name');
+    expect(asset).toHaveProperty('purchaseCost');
+    expect(asset).toHaveProperty('currentValue');
+    expect(asset).toHaveProperty('purchaseDate');
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/depreciation');
+    expect(mockPrisma.assetRegister.findMany).toHaveBeenCalledTimes(1);
+  });
 });

@@ -63,4 +63,24 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('response has all three expected data keys', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(1);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(1);
+    mockPrisma.regObligation.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalChanges');
+    expect(res.body.data).toHaveProperty('totalLegalItems');
+    expect(res.body.data).toHaveProperty('totalObligations');
+  });
+
+  it('each count query runs once per request', async () => {
+    mockPrisma.regChange.count.mockResolvedValue(3);
+    mockPrisma.regLegalRegister.count.mockResolvedValue(2);
+    mockPrisma.regObligation.count.mockResolvedValue(7);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.regChange.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.regLegalRegister.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.regObligation.count).toHaveBeenCalledTimes(1);
+  });
 });

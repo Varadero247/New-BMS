@@ -59,4 +59,24 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('response has all three expected data keys', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(1);
+    mockPrisma.suppScorecard.count.mockResolvedValue(1);
+    mockPrisma.suppDocument.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalSuppliers');
+    expect(res.body.data).toHaveProperty('totalScorecards');
+    expect(res.body.data).toHaveProperty('totalDocuments');
+  });
+
+  it('all three count queries run per request', async () => {
+    mockPrisma.suppSupplier.count.mockResolvedValue(15);
+    mockPrisma.suppScorecard.count.mockResolvedValue(8);
+    mockPrisma.suppDocument.count.mockResolvedValue(30);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.suppSupplier.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.suppScorecard.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.suppDocument.count).toHaveBeenCalledTimes(1);
+  });
 });

@@ -52,4 +52,31 @@ describe('GET /api/regulatory', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('returns a single regulatory complaint', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: 'c-1', title: 'GDPR Breach Report', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(1);
+    expect(res.body.data[0].title).toBe('GDPR Breach Report');
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([]);
+    await request(app).get('/api/regulatory');
+    expect(mockPrisma.compComplaint.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('returned complaints all have isRegulatory true', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: '1', title: 'HSE Notification', isRegulatory: true },
+      { id: '2', title: 'ICO Report', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    for (const complaint of res.body.data) {
+      expect(complaint.isRegulatory).toBe(true);
+    }
+  });
 });

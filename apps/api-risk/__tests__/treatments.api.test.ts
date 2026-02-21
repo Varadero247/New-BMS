@@ -56,4 +56,43 @@ describe('GET /api/treatments', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('correctly aggregates all four standard treatment types', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { treatment: 'MITIGATE' },
+      { treatment: 'ACCEPT' },
+      { treatment: 'TRANSFER' },
+      { treatment: 'AVOID' },
+      { treatment: 'ACCEPT' },
+    ]);
+    const res = await request(app).get('/api/treatments');
+    const data: Array<{ treatment: string; count: number }> = res.body.data;
+    expect(data.find((d) => d.treatment === 'MITIGATE')!.count).toBe(1);
+    expect(data.find((d) => d.treatment === 'ACCEPT')!.count).toBe(2);
+    expect(data.find((d) => d.treatment === 'TRANSFER')!.count).toBe(1);
+    expect(data.find((d) => d.treatment === 'AVOID')!.count).toBe(1);
+  });
+
+  it('returns one entry per distinct treatment type', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([
+      { treatment: 'MITIGATE' },
+      { treatment: 'MITIGATE' },
+      { treatment: 'ACCEPT' },
+    ]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('each entry has treatment and count fields', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([{ treatment: 'AVOID' }]);
+    const res = await request(app).get('/api/treatments');
+    expect(res.body.data[0]).toHaveProperty('treatment');
+    expect(res.body.data[0]).toHaveProperty('count');
+  });
+
+  it('findMany is called once per request', async () => {
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    await request(app).get('/api/treatments');
+    expect(mockPrisma.riskRegister.findMany).toHaveBeenCalledTimes(1);
+  });
 });

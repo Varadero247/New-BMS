@@ -73,4 +73,41 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('response contains all expected data keys', async () => {
+    mockAllCounts(5);
+    const res = await request(app).get('/api/dashboard/stats');
+    const data = res.body.data;
+    for (const key of [
+      'totalRisks', 'totalCapas', 'openCapas', 'pendingReviews',
+      'avgRiskScore', 'criticalRisks', 'exceedsAppetite',
+      'overdueReviews', 'overdueActions', 'kriBreaches', 'kriWarnings', 'newThisMonth',
+    ]) {
+      expect(data).toHaveProperty(key);
+    }
+  });
+
+  it('avgRiskScore is rounded to 1 decimal place', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(3);
+    mockPrisma.riskCapa.count.mockResolvedValue(1);
+    mockPrisma.riskReview.count.mockResolvedValue(1);
+    mockPrisma.riskAction.count.mockResolvedValue(1);
+    mockPrisma.riskKri.count.mockResolvedValue(1);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: 7.333 } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    // 7.333 rounds to 7.3
+    expect(res.body.data.avgRiskScore).toBe(7.3);
+  });
+
+  it('avgRiskScore returns 0 when no residualScore data', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(0);
+    mockPrisma.riskCapa.count.mockResolvedValue(0);
+    mockPrisma.riskReview.count.mockResolvedValue(0);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+    mockPrisma.riskRegister.aggregate.mockResolvedValue({ _avg: { residualScore: null } });
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.avgRiskScore).toBe(0);
+  });
 });

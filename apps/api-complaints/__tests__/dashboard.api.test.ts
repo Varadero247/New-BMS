@@ -44,4 +44,37 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('returns zero counts when no complaints or actions exist', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(0);
+    mockPrisma.compAction.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalComplaints).toBe(0);
+    expect(res.body.data.totalActions).toBe(0);
+  });
+
+  it('response data has correct keys', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(1);
+    mockPrisma.compAction.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalComplaints');
+    expect(res.body.data).toHaveProperty('totalActions');
+  });
+
+  it('runs both count queries per request', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(3);
+    mockPrisma.compAction.count.mockResolvedValue(1);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.compComplaint.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.compAction.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('complaints and actions are reported independently', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(50);
+    mockPrisma.compAction.count.mockResolvedValue(7);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalComplaints).toBe(50);
+    expect(res.body.data.totalActions).toBe(7);
+  });
 });

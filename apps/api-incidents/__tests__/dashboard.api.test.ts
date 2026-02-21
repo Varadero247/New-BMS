@@ -44,4 +44,24 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('returns zero when no incidents exist', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalIncidents).toBe(0);
+  });
+
+  it('count is called exactly once per request', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(5);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.incIncident.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('response data contains totalIncidents key', async () => {
+    mockPrisma.incIncident.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalIncidents');
+    expect(typeof res.body.data.totalIncidents).toBe('number');
+  });
 });
