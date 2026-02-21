@@ -63,4 +63,34 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('response has all three expected data keys', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(1);
+    mockPrisma.audFinding.count.mockResolvedValue(1);
+    mockPrisma.audChecklist.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data).toHaveProperty('totalAudits');
+    expect(res.body.data).toHaveProperty('totalFindings');
+    expect(res.body.data).toHaveProperty('totalChecklists');
+  });
+
+  it('all three count queries run once per request', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(5);
+    mockPrisma.audFinding.count.mockResolvedValue(12);
+    mockPrisma.audChecklist.count.mockResolvedValue(3);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.audAudit.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.audFinding.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.audChecklist.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns independent counts for each model', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(7);
+    mockPrisma.audFinding.count.mockResolvedValue(42);
+    mockPrisma.audChecklist.count.mockResolvedValue(15);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.body.data.totalAudits).toBe(7);
+    expect(res.body.data.totalFindings).toBe(42);
+    expect(res.body.data.totalChecklists).toBe(15);
+  });
 });
