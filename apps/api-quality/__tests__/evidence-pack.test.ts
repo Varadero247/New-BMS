@@ -28,23 +28,73 @@ jest.mock('@ims/service-auth', () => ({
   checkOwnership: () => (_req: any, _res: any, next: any) => next(),
 }));
 
-jest.mock('../src/prisma', () => ({
-  prisma: {
-    qualDocument: { count: jest.fn().mockResolvedValue(10) },
-    qualNonConformance: { count: jest.fn().mockResolvedValue(5) },
-    qualCapa: { count: jest.fn().mockResolvedValue(3) },
-    qualRisk: { count: jest.fn().mockResolvedValue(8) },
-    qualObjective: { count: jest.fn().mockResolvedValue(6) },
-    qualInterestedParty: { count: jest.fn().mockResolvedValue(4) },
-    qualLegal: { count: jest.fn().mockResolvedValue(7) },
-    qualSupplier: { count: jest.fn().mockResolvedValue(9) },
-    qualImprovement: { count: jest.fn().mockResolvedValue(2) },
-    qualProcess: { count: jest.fn().mockResolvedValue(5) },
-    qualFmea: { count: jest.fn().mockResolvedValue(3) },
-    qualChange: { count: jest.fn().mockResolvedValue(1) },
-  },
-  Prisma: {},
-}));
+jest.mock('../src/prisma', () => {
+  let packCounter = 0;
+  const packStore = new Map<string, any>();
+
+  const qualEvidencePack = {
+    count: jest.fn().mockImplementation(async () => packCounter),
+    create: jest.fn().mockImplementation(async ({ data }: any) => {
+      packCounter++;
+      const id = `00000000-0000-0000-${String(packCounter).padStart(4, '0')}-${String(packCounter).padStart(12, '0')}`;
+      const year = new Date().getFullYear();
+      const referenceNumber = `EVP-${year}-${String(packCounter).padStart(3, '0')}`;
+      const record = {
+        id,
+        referenceNumber,
+        organisationId: data.organisationId || 'default',
+        standard: data.standard,
+        status: data.status || 'GENERATING',
+        format: data.format || 'PDF',
+        dateFrom: data.dateFrom || null,
+        dateTo: data.dateTo || null,
+        sections: data.sections || [],
+        generatedAt: new Date(),
+        generatedBy: data.generatedBy || 'unknown',
+        totalDocuments: data.totalDocuments || 0,
+        totalRecords: data.totalRecords || 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      packStore.set(id, record);
+      return record;
+    }),
+    update: jest.fn().mockImplementation(async ({ where, data }: any) => {
+      const record = packStore.get(where.id);
+      if (!record) throw new Error('Record not found');
+      Object.assign(record, data);
+      return record;
+    }),
+    findMany: jest.fn().mockImplementation(async ({ where = {}, orderBy: _orderBy, skip = 0, take = 20 }: any) => {
+      let items = Array.from(packStore.values());
+      if (where.standard) items = items.filter((p: any) => p.standard === where.standard);
+      if (where.status) items = items.filter((p: any) => p.status === where.status);
+      return items.slice(skip, skip + take);
+    }),
+    findUnique: jest.fn().mockImplementation(async ({ where }: any) => {
+      return packStore.get(where.id) || null;
+    }),
+  };
+
+  return {
+    prisma: {
+      qualDocument: { count: jest.fn().mockResolvedValue(10) },
+      qualNonConformance: { count: jest.fn().mockResolvedValue(5) },
+      qualCapa: { count: jest.fn().mockResolvedValue(3) },
+      qualRisk: { count: jest.fn().mockResolvedValue(8) },
+      qualObjective: { count: jest.fn().mockResolvedValue(6) },
+      qualInterestedParty: { count: jest.fn().mockResolvedValue(4) },
+      qualLegal: { count: jest.fn().mockResolvedValue(7) },
+      qualSupplier: { count: jest.fn().mockResolvedValue(9) },
+      qualImprovement: { count: jest.fn().mockResolvedValue(2) },
+      qualProcess: { count: jest.fn().mockResolvedValue(5) },
+      qualFmea: { count: jest.fn().mockResolvedValue(3) },
+      qualChange: { count: jest.fn().mockResolvedValue(1) },
+      qualEvidencePack,
+    },
+    Prisma: {},
+  };
+});
 
 import evidencePackRouter from '../src/routes/evidence-pack';
 
@@ -428,4 +478,3 @@ describe('Evidence Pack API', () => {
     });
   });
 });
-

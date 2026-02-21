@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { scopeToUser } from '@ims/service-auth';
 import { validateIdParam } from '@ims/shared';
-import { randomUUID } from 'crypto';
+import { prisma, Prisma } from '../prisma';
 
 const logger = createLogger('api-quality:headstart');
 const router: Router = Router();
@@ -1668,8 +1668,6 @@ const headstartSchema = z.object({
   organisationName: z.string().trim().min(1).max(200).optional(),
 });
 
-// In-memory store for headstart assessments
-const headstartStore = new Map<string, any>();
 
 // POST / — Run headstart assessment
 router.post('/', scopeToUser, async (req: Request, res: Response) => {
@@ -1774,42 +1772,62 @@ router.post('/', scopeToUser, async (req: Request, res: Response) => {
       };
     }
 
-    const id = randomUUID();
-    const referenceNumber = `HS-${new Date().getFullYear()}-${String(headstartStore.size + 1).padStart(3, '0')}`;
+    const count = await prisma.qualHeadstartAssessment.count();
+    const referenceNumber = `HS-${new Date().getFullYear()}-${String(count + 1).padStart(3, '0')}`;
 
-    const assessment = {
-      id,
-      referenceNumber,
-      organisationId: orgId,
-      organisationName: organisationName || null,
-      standards,
-      industry,
-      organisationSize,
-      certificationStatus,
-      standardPacks,
-      convergenceInfo,
-      totalDocuments: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.documents.length, 0),
-      totalRisks: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.risks.length, 0),
-      totalObjectives: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.objectives.length, 0),
-      totalAudits: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.auditSchedule.length, 0),
-      overallCompletenessScore: certificationStatus === 'ALREADY_CERTIFIED' ? 85 : 90,
-      status: 'COMPLETE',
-      generatedAt: new Date().toISOString(),
-      generatedBy: userId,
-    };
-
-    headstartStore.set(id, assessment);
-
-    logger.info('Headstart assessment generated', {
-      id,
-      standards,
-      industry,
-      organisationSize,
-      certificationStatus,
-      totalDocuments: assessment.totalDocuments,
+    const created = await prisma.qualHeadstartAssessment.create({
+      data: {
+        referenceNumber,
+        organisationId: String(orgId),
+        organisationName: organisationName || null,
+        standards: standards as unknown as Prisma.InputJsonValue,
+        industry,
+        organisationSize,
+        certificationStatus,
+        standardPacks: standardPacks as unknown as Prisma.InputJsonValue,
+        convergenceInfo: convergenceInfo ? (convergenceInfo as unknown as Prisma.InputJsonValue) : Prisma.JsonNull,
+        totalDocuments: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.documents.length, 0),
+        totalRisks: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.risks.length, 0),
+        totalObjectives: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.objectives.length, 0),
+        totalAudits: (standardPacks as Array<{ documents: unknown[]; risks: unknown[]; objectives: unknown[]; auditSchedule: unknown[] }>).reduce((sum, p) => sum + p.auditSchedule.length, 0),
+        overallCompletenessScore: certificationStatus === 'ALREADY_CERTIFIED' ? 85 : 90,
+        status: 'COMPLETE',
+        generatedBy: userId,
+      },
     });
 
-    res.status(201).json({ success: true, data: assessment });
+    logger.info('Headstart assessment generated', {
+      id: created.id,
+      standards,
+      industry,
+      organisationSize,
+      certificationStatus,
+      totalDocuments: created.totalDocuments,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: created.id,
+        referenceNumber: created.referenceNumber,
+        organisationId: created.organisationId,
+        organisationName: created.organisationName,
+        standards: created.standards,
+        industry: created.industry,
+        organisationSize: created.organisationSize,
+        certificationStatus: created.certificationStatus,
+        standardPacks: created.standardPacks,
+        convergenceInfo: created.convergenceInfo,
+        totalDocuments: created.totalDocuments,
+        totalRisks: created.totalRisks,
+        totalObjectives: created.totalObjectives,
+        totalAudits: created.totalAudits,
+        overallCompletenessScore: created.overallCompletenessScore,
+        status: created.status,
+        generatedAt: created.generatedAt.toISOString(),
+        generatedBy: created.generatedBy,
+      },
+    });
   } catch (error: unknown) {
     logger.error('Failed to generate headstart assessment', {
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -1824,24 +1842,32 @@ router.post('/', scopeToUser, async (req: Request, res: Response) => {
 // GET / — List headstart assessments
 router.get('/', scopeToUser, async (req: Request, res: Response) => {
   try {
-    const items = Array.from(headstartStore.values())
-      .filter((a) => a.organisationId === ((((req as AuthRequest).user as unknown) as Record<string, unknown> | undefined)?.organisationId || 'default'))
-      .sort((a, b) => new Date(b.generatedAt).getTime() - new Date(a.generatedAt).getTime());
-
+    const orgId = String(((req as AuthRequest).user as unknown as Record<string, unknown> | undefined)?.organisationId || 'default');
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1);
     const limit = Math.min(parseInt(req.query.limit as string, 10) || 20, 100);
-    const start = (page - 1) * limit;
+    const skip = (page - 1) * limit;
+
+    const [rawItems, total] = await Promise.all([
+      prisma.qualHeadstartAssessment.findMany({
+        where: { organisationId: orgId },
+        orderBy: { generatedAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.qualHeadstartAssessment.count({ where: { organisationId: orgId } }),
+    ]);
+
+    // Omit standardPacks from list response
+    const items = rawItems.map(({ standardPacks: _sp, ...rest }) => rest);
 
     res.json({
       success: true,
       data: {
-        items: items
-          .slice(start, start + limit)
-          .map(({ standardPacks: _standardPacks, ...rest }: Record<string, unknown>) => rest),
-        total: items.length,
+        items,
+        total,
         page,
         limit,
-        totalPages: Math.ceil(items.length / limit),
+        totalPages: Math.ceil(total / limit),
       },
     });
   } catch (error: unknown) {
@@ -1882,7 +1908,9 @@ router.get('/standards', async (_req, res: Response) => {
 // GET /:id — Get headstart assessment detail
 router.get('/:id', scopeToUser, async (req: Request, res: Response) => {
   try {
-    const assessment = headstartStore.get(req.params.id);
+    const assessment = await prisma.qualHeadstartAssessment.findUnique({
+      where: { id: req.params.id },
+    });
     if (!assessment) {
       return res.status(404).json({
         success: false,
@@ -1890,7 +1918,8 @@ router.get('/:id', scopeToUser, async (req: Request, res: Response) => {
       });
     }
 
-    if (assessment.organisationId !== ((((req as AuthRequest).user as unknown) as Record<string, unknown> | undefined)?.organisationId || 'default')) {
+    const orgId = String(((req as AuthRequest).user as unknown as Record<string, unknown> | undefined)?.organisationId || 'default');
+    if (assessment.organisationId !== orgId) {
       return res.status(403).json({
         success: false,
         error: { code: 'FORBIDDEN', message: 'Access denied' },

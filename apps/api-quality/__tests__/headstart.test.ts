@@ -38,6 +38,63 @@ jest.mock('@ims/shared', () => ({
   },
 }));
 
+jest.mock('../src/prisma', () => {
+  const assessmentStore = new Map<string, any>();
+
+  const qualHeadstartAssessment = {
+    count: jest.fn().mockImplementation(async ({ where }: any = {}) => {
+      if (!where) return assessmentStore.size;
+      let items = Array.from(assessmentStore.values());
+      if (where.organisationId) items = items.filter((a) => a.organisationId === where.organisationId);
+      if (where.status) items = items.filter((a) => a.status === where.status);
+      return items.length;
+    }),
+    create: jest.fn().mockImplementation(async ({ data }: any) => {
+      const id = `hs-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      const record = {
+        id,
+        referenceNumber: data.referenceNumber,
+        organisationId: data.organisationId,
+        organisationName: data.organisationName ?? null,
+        standards: data.standards,
+        industry: data.industry,
+        organisationSize: data.organisationSize,
+        certificationStatus: data.certificationStatus,
+        standardPacks: data.standardPacks,
+        convergenceInfo: data.convergenceInfo !== undefined ? data.convergenceInfo : null,
+        totalDocuments: data.totalDocuments ?? 0,
+        totalRisks: data.totalRisks ?? 0,
+        totalObjectives: data.totalObjectives ?? 0,
+        totalAudits: data.totalAudits ?? 0,
+        overallCompletenessScore: data.overallCompletenessScore ?? 0,
+        status: data.status ?? 'COMPLETE',
+        generatedAt: new Date(),
+        generatedBy: data.generatedBy,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      assessmentStore.set(id, record);
+      return record;
+    }),
+    findMany: jest.fn().mockImplementation(
+      async ({ where = {}, orderBy: _orderBy, skip = 0, take = 20 }: any) => {
+        let items = Array.from(assessmentStore.values());
+        if (where.organisationId) items = items.filter((a) => a.organisationId === where.organisationId);
+        if (where.status) items = items.filter((a) => a.status === where.status);
+        return items.slice(skip, skip + take);
+      }
+    ),
+    findUnique: jest.fn().mockImplementation(async ({ where }: any) => {
+      return assessmentStore.get(where.id) ?? null;
+    }),
+  };
+
+  return {
+    prisma: { qualHeadstartAssessment },
+    Prisma: { JsonNull: null },
+  };
+});
+
 import headstartRouter from '../src/routes/headstart';
 
 const ALL_STANDARDS = [

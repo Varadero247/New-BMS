@@ -1,11 +1,10 @@
 import { Router, Request, Response } from 'express';
-import { prisma } from '../prisma';
+import { prisma, Prisma } from '../prisma';
 import { authenticate, type AuthRequest } from '@ims/auth';
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { scopeToUser } from '@ims/service-auth';
 import { validateIdParam } from '@ims/shared';
-import { randomUUID } from 'crypto';
 
 const logger = createLogger('api-quality:evidence-pack');
 
@@ -15,7 +14,7 @@ router.use(authenticate);
 router.param('id', validateIdParam());
 
 // ============================================
-// IN-MEMORY EVIDENCE PACK STORE (v1)
+// EVIDENCE PACK TYPE DEFINITIONS
 // ============================================
 
 interface EvidenceSection {
@@ -41,17 +40,6 @@ interface EvidencePack {
   totalDocuments: number;
   totalRecords: number;
   createdAt: string;
-}
-
-const evidencePackStore = new Map<string, EvidencePack>();
-
-// Reference number counter tracker
-let refCounter = 0;
-
-function generateRefNumber(): string {
-  const year = new Date().getFullYear();
-  refCounter++;
-  return `EVP-${year}-${String(refCounter).padStart(3, '0')}`;
 }
 
 // ============================================
@@ -729,33 +717,29 @@ router.post('/', scopeToUser, async (req: Request, res: Response) => {
   try {
     const data = createEvidencePackSchema.parse(req.body);
 
-    const id = randomUUID();
-    const referenceNumber = generateRefNumber();
-    const now = new Date().toISOString();
+    const count = await prisma.qualEvidencePack.count();
+    const referenceNumber = `EVP-${new Date().getFullYear()}-${String(count + 1).padStart(3, '0')}`;
 
     // Create the pack record with GENERATING status
-    const pack: EvidencePack = {
-      id,
-      referenceNumber,
-      organisationId: ((req as unknown as Record<string, unknown>).organisationId as string) || 'default',
-      standard: data.standard,
-      status: 'GENERATING',
-      format: data.format,
-      dateFrom: data.dateFrom || null,
-      dateTo: data.dateTo || null,
-      sections: [],
-      generatedAt: now,
-      generatedBy: (req as AuthRequest).user?.id || 'unknown',
-      totalDocuments: 0,
-      totalRecords: 0,
-      createdAt: now,
-    };
+    const created = await prisma.qualEvidencePack.create({
+      data: {
+        referenceNumber,
+        organisationId: ((req as unknown as Record<string, unknown>).organisationId as string) || 'default',
+        standard: data.standard,
+        status: 'GENERATING',
+        format: data.format,
+        dateFrom: data.dateFrom ? new Date(data.dateFrom) : null,
+        dateTo: data.dateTo ? new Date(data.dateTo) : null,
+        sections: [],
+        generatedBy: (req as AuthRequest).user?.id || 'unknown',
+      },
+    });
 
-    evidencePackStore.set(id, pack);
+    const id = created.id;
 
-    // Build sections asynchronously then update in-memory record
-    buildEvidencePackSections(data.standard, data.dateFrom || null, data.dateTo || null)
-      .then(({ sections, totalDocuments: _totalDocuments, totalRecords: _totalRecords }) => {
+    // Build sections asynchronously then persist to DB
+    void buildEvidencePackSections(data.standard, data.dateFrom || null, data.dateTo || null)
+      .then(async ({ sections }) => {
         // Apply inclusion filters
         const filteredSections = sections.map((section) => {
           const s = { ...section };
@@ -790,21 +774,24 @@ router.post('/', scopeToUser, async (req: Request, res: Response) => {
           return s;
         });
 
-        const stored = evidencePackStore.get(id);
-        if (stored) {
-          stored.sections = filteredSections;
-          stored.totalDocuments = filteredSections.reduce((sum, s) => sum + s.documents, 0);
-          stored.totalRecords = filteredSections.reduce((sum, s) => sum + s.records, 0);
-          stored.status = 'COMPLETE';
-          stored.generatedAt = new Date().toISOString();
-        }
+        await prisma.qualEvidencePack.update({
+          where: { id },
+          data: {
+            sections: filteredSections as unknown as Prisma.InputJsonValue,
+            totalDocuments: filteredSections.reduce((sum: number, s: EvidenceSection) => sum + s.documents, 0),
+            totalRecords: filteredSections.reduce((sum: number, s: EvidenceSection) => sum + s.records, 0),
+            status: 'COMPLETE',
+            generatedAt: new Date(),
+          },
+        });
       })
-      .catch((err) => {
-        logger.error('Evidence pack generation failed', { id, error: (err as Error).message });
-        const stored = evidencePackStore.get(id);
-        if (stored) {
-          stored.status = 'FAILED';
-        }
+      .catch((err: Error) => {
+        logger.error('Evidence pack generation failed', { id, error: err.message });
+        prisma.qualEvidencePack
+          .update({ where: { id }, data: { status: 'FAILED' } })
+          .catch((updateErr: Error) =>
+            logger.error('Failed to mark evidence pack as FAILED', { id, error: updateErr.message })
+          );
       });
 
     // Return immediately with GENERATING status
@@ -813,12 +800,12 @@ router.post('/', scopeToUser, async (req: Request, res: Response) => {
     res.status(201).json({
       success: true,
       data: {
-        id,
-        referenceNumber,
+        id: created.id,
+        referenceNumber: created.referenceNumber,
         standard: data.standard,
         status: 'GENERATING',
         clauses,
-        generatedAt: now,
+        generatedAt: created.generatedAt,
       },
     });
   } catch (error) {
@@ -847,30 +834,43 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
 
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-
-    let items = Array.from(evidencePackStore.values());
-
-    // Filter by standard
-    if (standard && typeof standard === 'string') {
-      items = items.filter((p) => p.standard === standard);
-    }
-
-    // Filter by status
-    if (status && typeof status === 'string') {
-      items = items.filter((p) => p.status === status);
-    }
-
-    // Sort by createdAt descending
-    items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    const total = items.length;
     const skip = (pageNum - 1) * limitNum;
-    const paginatedItems = items.slice(skip, skip + limitNum);
+
+    const where: Record<string, unknown> = {};
+    if (standard && typeof standard === 'string') where.standard = standard;
+    if (status && typeof status === 'string') where.status = status;
+
+    const [items, total] = await Promise.all([
+      prisma.qualEvidencePack.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limitNum,
+      }),
+      prisma.qualEvidencePack.count({ where }),
+    ]);
+
+    const shapedItems: EvidencePack[] = items.map((record) => ({
+      id: record.id,
+      referenceNumber: record.referenceNumber,
+      organisationId: record.organisationId,
+      standard: record.standard,
+      status: record.status as EvidencePack['status'],
+      format: record.format as EvidencePack['format'],
+      dateFrom: record.dateFrom ? record.dateFrom.toISOString() : null,
+      dateTo: record.dateTo ? record.dateTo.toISOString() : null,
+      sections: record.sections as unknown as EvidenceSection[],
+      generatedAt: record.generatedAt.toISOString(),
+      generatedBy: record.generatedBy,
+      totalDocuments: record.totalDocuments,
+      totalRecords: record.totalRecords,
+      createdAt: record.createdAt.toISOString(),
+    }));
 
     res.json({
       success: true,
       data: {
-        items: paginatedItems,
+        items: shapedItems,
         total,
         page: pageNum,
         limit: limitNum,
@@ -889,13 +889,30 @@ router.get('/', scopeToUser, async (req: Request, res: Response) => {
 // GET /:id — Get evidence pack detail
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const pack = evidencePackStore.get(req.params.id);
+    const record = await prisma.qualEvidencePack.findUnique({ where: { id: req.params.id } });
 
-    if (!pack) {
+    if (!record) {
       return res
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Evidence pack not found' } });
     }
+
+    const pack: EvidencePack = {
+      id: record.id,
+      referenceNumber: record.referenceNumber,
+      organisationId: record.organisationId,
+      standard: record.standard,
+      status: record.status as EvidencePack['status'],
+      format: record.format as EvidencePack['format'],
+      dateFrom: record.dateFrom ? record.dateFrom.toISOString() : null,
+      dateTo: record.dateTo ? record.dateTo.toISOString() : null,
+      sections: record.sections as unknown as EvidenceSection[],
+      generatedAt: record.generatedAt.toISOString(),
+      generatedBy: record.generatedBy,
+      totalDocuments: record.totalDocuments,
+      totalRecords: record.totalRecords,
+      createdAt: record.createdAt.toISOString(),
+    };
 
     res.json({ success: true, data: pack });
   } catch (error) {
@@ -910,27 +927,44 @@ router.get('/:id', async (req: Request, res: Response) => {
 // GET /:id/download — Download evidence pack
 router.get('/:id/download', async (req: Request, res: Response) => {
   try {
-    const pack = evidencePackStore.get(req.params.id);
+    const record = await prisma.qualEvidencePack.findUnique({ where: { id: req.params.id } });
 
-    if (!pack) {
+    if (!record) {
       return res
         .status(404)
         .json({ success: false, error: { code: 'NOT_FOUND', message: 'Evidence pack not found' } });
     }
 
-    if (pack.status === 'GENERATING') {
+    if (record.status === 'GENERATING') {
       return res.status(409).json({
         success: false,
         error: { code: 'PACK_NOT_READY', message: 'Evidence pack is still being generated' },
       });
     }
 
-    if (pack.status === 'FAILED') {
+    if (record.status === 'FAILED') {
       return res.status(500).json({
         success: false,
         error: { code: 'GENERATION_FAILED', message: 'Evidence pack generation failed' },
       });
     }
+
+    const pack: EvidencePack = {
+      id: record.id,
+      referenceNumber: record.referenceNumber,
+      organisationId: record.organisationId,
+      standard: record.standard,
+      status: record.status as EvidencePack['status'],
+      format: record.format as EvidencePack['format'],
+      dateFrom: record.dateFrom ? record.dateFrom.toISOString() : null,
+      dateTo: record.dateTo ? record.dateTo.toISOString() : null,
+      sections: record.sections as unknown as EvidenceSection[],
+      generatedAt: record.generatedAt.toISOString(),
+      generatedBy: record.generatedBy,
+      totalDocuments: record.totalDocuments,
+      totalRecords: record.totalRecords,
+      createdAt: record.createdAt.toISOString(),
+    };
 
     const filename = `${pack.referenceNumber}-${pack.standard}.json`;
 

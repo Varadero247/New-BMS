@@ -2613,3 +2613,68 @@ model QualGeneratedTemplate {
   @@index([category])
   @@index([isoStandard])
 }
+
+// Evidence Pack — persisted ISO compliance evidence bundles
+enum EvidencePackStatus {
+  GENERATING
+  COMPLETE
+  FAILED
+}
+
+enum EvidencePackFormat {
+  PDF
+  ZIP
+}
+
+model QualEvidencePack {
+  id              String             @id @default(uuid())
+  referenceNumber String             @unique
+  organisationId  String
+  standard        String
+  status          EvidencePackStatus @default(GENERATING)
+  format          EvidencePackFormat @default(PDF)
+  dateFrom        DateTime?
+  dateTo          DateTime?
+  sections        Json               @default("[]") // EvidenceSection[]
+  generatedAt     DateTime           @default(now())
+  generatedBy     String
+  totalDocuments  Int                @default(0)
+  totalRecords    Int                @default(0)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([organisationId])
+  @@index([standard])
+  @@index([status])
+  @@index([createdAt])
+  @@map("qual_evidence_packs")
+}
+
+// Headstart Assessment — ISO implementation roadmap assessments
+model QualHeadstartAssessment {
+  id                       String   @id @default(uuid())
+  referenceNumber          String   @unique
+  organisationId           String
+  organisationName         String?
+  standards                Json     // string[] of standard codes
+  industry                 String
+  organisationSize         String   // MICRO | SMALL | MEDIUM | LARGE
+  certificationStatus      String   // WORKING_TOWARDS | ALREADY_CERTIFIED | UPGRADING | MULTI_STANDARD
+  standardPacks            Json     // complex nested roadmap data
+  convergenceInfo          Json?    // multi-standard convergence savings
+  totalDocuments           Int      @default(0)
+  totalRisks               Int      @default(0)
+  totalObjectives          Int      @default(0)
+  totalAudits              Int      @default(0)
+  overallCompletenessScore Int      @default(0)
+  status                   String   @default("COMPLETE")
+  generatedAt              DateTime @default(now())
+  generatedBy              String
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([organisationId])
+  @@index([status])
+  @@index([generatedAt])
+  @@map("qual_headstart_assessments")
+}
