@@ -99,6 +99,18 @@ describe('finance-calculations', () => {
     it('should return zero for zero rate', () => {
       expect(simpleInterest(10000, 0, 5)).toBe(0);
     });
+
+    it('should throw for negative principal', () => {
+      expect(() => simpleInterest(-1000, 0.05, 3)).toThrow('Principal must be non-negative');
+    });
+
+    it('should throw for negative rate', () => {
+      expect(() => simpleInterest(1000, -0.05, 3)).toThrow('Rate must be non-negative');
+    });
+
+    it('should throw for negative periods', () => {
+      expect(() => simpleInterest(1000, 0.05, -1)).toThrow('Periods must be non-negative');
+    });
   });
 
   describe('compoundInterest', () => {
@@ -114,6 +126,12 @@ describe('finance-calculations', () => {
 
     it('should return principal when rate is zero', () => {
       expect(compoundInterest(5000, 0, 10, 12)).toBe(5000);
+    });
+
+    it('should throw for zero compoundsPerPeriod', () => {
+      expect(() => compoundInterest(1000, 0.05, 3, 0)).toThrow(
+        'Compounds per period must be greater than 0'
+      );
     });
   });
 
@@ -152,6 +170,17 @@ describe('finance-calculations', () => {
     });
   });
 
+  describe('npv — additional error paths', () => {
+    it('should throw for empty cashflows array', () => {
+      expect(() => npv(0.1, [])).toThrow('Cash flows array must not be empty');
+    });
+
+    it('should throw for rate <= -1', () => {
+      expect(() => npv(-1, [-1000, 500])).toThrow('Rate must be greater than -1');
+      expect(() => npv(-2, [-1000, 500])).toThrow('Rate must be greater than -1');
+    });
+  });
+
   describe('convertCurrency', () => {
     it('should convert USD to GBP', () => {
       // 100 USD at rate 1.0 to GBP at rate 0.79
@@ -165,6 +194,10 @@ describe('finance-calculations', () => {
 
     it('should throw for zero rate', () => {
       expect(() => convertCurrency(100, 0, 1)).toThrow('fromRate must be positive');
+    });
+
+    it('should throw for zero toRate', () => {
+      expect(() => convertCurrency(100, 1, 0)).toThrow('toRate must be positive');
     });
   });
 
@@ -182,6 +215,14 @@ describe('finance-calculations', () => {
 
     it('should return zero when rates are equal', () => {
       expect(calculateFxGainLoss(1000, 0.8, 0.8)).toBe(0);
+    });
+
+    it('should throw for non-positive originalRate', () => {
+      expect(() => calculateFxGainLoss(1000, 0, 0.8)).toThrow('originalRate must be positive');
+    });
+
+    it('should throw for non-positive currentRate', () => {
+      expect(() => calculateFxGainLoss(1000, 0.8, 0)).toThrow('currentRate must be positive');
     });
   });
 
@@ -206,6 +247,30 @@ describe('finance-calculations', () => {
 
     it('should handle zero places', () => {
       expect(roundToDecimal(5.7, 0)).toBe(6);
+    });
+
+    it('should throw for negative places', () => {
+      expect(() => roundToDecimal(1.5, -1)).toThrow('Places must be non-negative');
+    });
+  });
+
+  describe('reducingBalance — additional validation', () => {
+    it('should throw for year 0 (below range)', () => {
+      expect(() => reducingBalance(10000, 1000, 5, 0)).toThrow('Year must be between 1 and life');
+    });
+
+    it('should throw if salvage exceeds cost', () => {
+      expect(() => reducingBalance(1000, 5000, 5, 1)).toThrow('Salvage cannot exceed cost');
+    });
+  });
+
+  describe('straightLine — additional validation', () => {
+    it('should throw for negative cost', () => {
+      expect(() => straightLine(-1000, 0, 5)).toThrow('Cost must be non-negative');
+    });
+
+    it('should throw for negative salvage', () => {
+      expect(() => straightLine(1000, -100, 5)).toThrow('Salvage must be non-negative');
     });
   });
 });
