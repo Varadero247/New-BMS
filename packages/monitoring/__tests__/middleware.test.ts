@@ -4,6 +4,9 @@ import {
   CORRELATION_ID_HEADER,
 } from '../src/correlationId';
 import { createHealthCheck } from '../src/healthCheck';
+import { cacheControl } from '../src/cacheControl';
+import { requestLogger } from '../src/requestLogger';
+import { createDownstreamRateLimiter } from '../src/rateLimiter';
 
 // UUID v4 pattern
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -196,5 +199,89 @@ describe('createHealthCheck', () => {
     expect(responseBody.timestamp).toBeDefined();
     expect(new Date(responseBody.timestamp).toISOString()).toBe(responseBody.timestamp);
     expect(responseBody.version).toBe('1.2.3');
+  });
+});
+
+describe('cacheControl', () => {
+  it('returns a middleware function', () => {
+    expect(typeof cacheControl()).toBe('function');
+  });
+
+  it('sets Cache-Control header with default maxAge=300', () => {
+    const middleware = cacheControl();
+    const setHeader = jest.fn();
+    const next = jest.fn();
+    middleware({} as any, { setHeader } as any, next);
+    expect(setHeader).toHaveBeenCalledWith(
+      'Cache-Control',
+      'public, max-age=300, stale-while-revalidate=600'
+    );
+  });
+
+  it('uses custom maxAge when provided', () => {
+    const middleware = cacheControl(60);
+    const setHeader = jest.fn();
+    const next = jest.fn();
+    middleware({} as any, { setHeader } as any, next);
+    expect(setHeader).toHaveBeenCalledWith(
+      'Cache-Control',
+      'public, max-age=60, stale-while-revalidate=120'
+    );
+  });
+
+  it('calls next()', () => {
+    const next = jest.fn();
+    cacheControl()({} as any, { setHeader: jest.fn() } as any, next);
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('requestLogger', () => {
+  it('returns a middleware function', () => {
+    expect(typeof requestLogger()).toBe('function');
+  });
+
+  it('calls next()', () => {
+    const middleware = requestLogger();
+    const next = jest.fn();
+    const req = { method: 'GET', originalUrl: '/test', headers: {}, ip: '127.0.0.1', socket: {} } as any;
+    const res = { on: jest.fn(), statusCode: 200, getHeader: jest.fn() } as any;
+    middleware(req, res, next);
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('attaches a "finish" event listener to res', () => {
+    const middleware = requestLogger();
+    const next = jest.fn();
+    const req = { method: 'POST', originalUrl: '/api/test', headers: {}, socket: {} } as any;
+    const res = { on: jest.fn(), statusCode: 201, getHeader: jest.fn() } as any;
+    middleware(req, res, next);
+    expect(res.on).toHaveBeenCalledWith('finish', expect.any(Function));
+  });
+
+  it('finish handler does not throw', () => {
+    const middleware = requestLogger();
+    const next = jest.fn();
+    const req = { method: 'GET', originalUrl: '/health', headers: { 'user-agent': 'test' }, ip: '::1', socket: {} } as any;
+    let finishHandler: () => void = () => {};
+    const res = {
+      on: jest.fn((event, fn) => { finishHandler = fn; }),
+      statusCode: 200,
+      getHeader: jest.fn().mockReturnValue('123'),
+    } as any;
+    middleware(req, res, next);
+    expect(() => finishHandler()).not.toThrow();
+  });
+});
+
+describe('createDownstreamRateLimiter', () => {
+  it('returns a middleware function with default options', () => {
+    const limiter = createDownstreamRateLimiter();
+    expect(typeof limiter).toBe('function');
+  });
+
+  it('accepts custom max and windowMs options', () => {
+    const limiter = createDownstreamRateLimiter({ max: 100, windowMs: 60000 });
+    expect(typeof limiter).toBe('function');
   });
 });

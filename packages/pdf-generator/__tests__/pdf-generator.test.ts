@@ -22,6 +22,14 @@ describe('pdf-generator', () => {
       expect(formatCurrency(999.99, 'EUR')).toBe('\u20ac999.99');
     });
 
+    it('should format AED correctly', () => {
+      expect(formatCurrency(5000, 'AED')).toBe('AED 5000.00');
+    });
+
+    it('should format AUD correctly', () => {
+      expect(formatCurrency(250, 'AUD')).toBe('A$250.00');
+    });
+
     it('should handle unknown currency with code prefix', () => {
       expect(formatCurrency(100, 'XYZ')).toBe('XYZ 100.00');
     });
@@ -121,6 +129,117 @@ describe('pdf-generator', () => {
       expect(html).toContain('Acme Corp');
       expect(html).toContain('Q4 Report');
       expect(html).toContain('Confidential');
+    });
+
+    it('should render header section type as <h2>', () => {
+      const template: PDFTemplate = {
+        title: 'Header Section Test',
+        sections: [{ type: 'header', content: 'Section Heading' }],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      expect(html).toContain('<h2');
+      expect(html).toContain('Section Heading');
+    });
+
+    it('should render divider section as <hr>', () => {
+      const template: PDFTemplate = {
+        title: 'Divider Test',
+        sections: [{ type: 'divider' }],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      expect(html).toContain('<hr');
+    });
+
+    it('should render key-value section pairs', () => {
+      const template: PDFTemplate = {
+        title: 'KV Test',
+        sections: [{ type: 'key-value', pairs: [{ key: 'Status', value: 'Active' }] }],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      expect(html).toContain('Status');
+      expect(html).toContain('Active');
+      expect(html).toContain('kv-pair');
+    });
+
+    it('should render signature section', () => {
+      const template: PDFTemplate = {
+        title: 'Sig Test',
+        sections: [{ type: 'signature', content: 'Approved by' }],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      expect(html).toContain('Approved by');
+      expect(html).toContain('signature-line');
+    });
+
+    it('should return empty string for unknown section type', () => {
+      const template: PDFTemplate = {
+        title: 'Unknown Test',
+        sections: [{ type: 'unknown-type' as 'paragraph' }],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      // Unknown type renders nothing (empty string from default case)
+      expect(html).not.toContain('undefined');
+    });
+
+    it('should handle nested data interpolation ({{user.name}})', () => {
+      const template: PDFTemplate = {
+        title: 'Nested Test',
+        sections: [{ type: 'paragraph', content: 'Hello {{user.name}}' }],
+      };
+      const html = generatePDF(template, { user: { name: 'Alice' } }).toString('utf-8');
+      expect(html).toContain('Hello Alice');
+    });
+
+    it('should replace missing interpolation keys with empty string', () => {
+      const template: PDFTemplate = {
+        title: 'Missing Key Test',
+        sections: [{ type: 'paragraph', content: 'Value: {{nonexistent}}' }],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      expect(html).toContain('Value: ');
+      expect(html).not.toContain('{{nonexistent}}');
+    });
+
+    it('should use Letter page width when pageSize is Letter', () => {
+      const template: PDFTemplate = { title: 'Letter Test', sections: [] };
+      const html = generatePDF(template, {}, { pageSize: 'Letter' }).toString('utf-8');
+      expect(html).toContain('8.5in');
+    });
+
+    it('should use A4 width by default (210mm)', () => {
+      const template: PDFTemplate = { title: 'A4 Test', sections: [] };
+      const html = generatePDF(template, {}).toString('utf-8');
+      expect(html).toContain('210mm');
+    });
+
+    it('should render header without subtitle when subtitle is absent', () => {
+      const template: PDFTemplate = {
+        title: 'No Subtitle',
+        header: { company: 'Corp' },
+        sections: [],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      expect(html).toContain('Corp');
+      expect(html).not.toContain('undefined');
+    });
+
+    it('table section without headers returns empty string', () => {
+      const template: PDFTemplate = {
+        title: 'Empty Table',
+        sections: [{ type: 'table' }],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      // No <table> rendered when headers/rows missing
+      expect(html).not.toContain('<table>');
+    });
+
+    it('list section without items returns empty string', () => {
+      const template: PDFTemplate = {
+        title: 'Empty List',
+        sections: [{ type: 'list' }],
+      };
+      const html = generatePDF(template, {}).toString('utf-8');
+      expect(html).not.toContain('<ul');
     });
   });
 

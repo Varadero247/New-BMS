@@ -51,6 +51,20 @@ describe('tax-engine', () => {
       expect(result.incomeTax).toBeCloseTo(952.67, 1);
     });
 
+    it('should handle weekly period', () => {
+      const result = calculateUKIncomeTax(600, '1257L', 'weekly');
+      // Annual: 600*52 = 31200
+      // Tax: (31200 - 12570) * 0.20 = 3726 → weekly: 3726/52 = 71.65
+      expect(result.incomeTax).toBeCloseTo(71.65, 1);
+      expect(result.netPay).toBeLessThan(600);
+    });
+
+    it('should handle fortnightly period', () => {
+      const result = calculateUKIncomeTax(1200, '1257L', 'fortnightly');
+      // Annual: 1200*26 = 31200 — same annual as weekly test
+      expect(result.incomeTax).toBeCloseTo(3726 / 26, 1);
+    });
+
     it('should provide breakdown of tax bands', () => {
       const result = calculateUKIncomeTax(50000, '1257L', 'annual');
       expect(result.breakdown.length).toBeGreaterThan(0);
@@ -96,6 +110,23 @@ describe('tax-engine', () => {
     it('should calculate net pay correctly', () => {
       const result = calculateUAEPayroll(20000, 'IN', 0);
       expect(result.netPay).toBe(20000);
+    });
+
+    it('should have zero gratuity when yearsOfService is 0', () => {
+      const result = calculateUAEPayroll(15000, 'IN', 0);
+      expect(result.gratuity).toBe(0);
+    });
+
+    it('should apply social security for other GCC nationalities (SA)', () => {
+      const result = calculateUAEPayroll(20000, 'SA', 2);
+      // SA is a GCC nationality → 5% social security
+      expect(result.socialSecurity).toBe(1000);
+    });
+
+    it('nationality comparison is case-insensitive', () => {
+      const lower = calculateUAEPayroll(20000, 'uae', 2);
+      const upper = calculateUAEPayroll(20000, 'UAE', 2);
+      expect(lower.socialSecurity).toBe(upper.socialSecurity);
     });
   });
 
@@ -210,6 +241,13 @@ describe('tax-engine', () => {
       const result = calculateCAFederal(100000, 'annual');
       // Capped: 63200 * 0.0166 = 1049.12
       expect(result.ei).toBeCloseTo(1049.12, 1);
+    });
+
+    it('should handle monthly period', () => {
+      const result = calculateCAFederal(5000, 'monthly');
+      // Annual gross: 60000
+      expect(result.grossPay).toBe(5000);
+      expect(result.netPay).toBeLessThan(5000);
     });
   });
 
