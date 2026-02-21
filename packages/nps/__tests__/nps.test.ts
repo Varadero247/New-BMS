@@ -59,6 +59,26 @@ describe('submitResponse', () => {
     expect(r.comment).toBe('nice');
   });
 
+  it('omits comment when whitespace-only string', () => {
+    const r = submitResponse('u', 'o', 8, '   ');
+    expect(r.comment).toBeUndefined();
+  });
+
+  it('passes score 0 through unchanged (exact lower boundary)', () => {
+    const r = submitResponse('u', 'o', 0);
+    expect(r.score).toBe(0);
+  });
+
+  it('passes score 10 through unchanged (exact upper boundary)', () => {
+    const r = submitResponse('u', 'o', 10);
+    expect(r.score).toBe(10);
+  });
+
+  it('zero-pads ID to 4 digits', () => {
+    const r = submitResponse('u', 'o', 5);
+    expect(r.id).toMatch(/^nps_\d{4}$/);
+  });
+
   it('records createdAt as ISO timestamp', () => {
     const r = submitResponse('u', 'o', 7);
     expect(() => new Date(r.createdAt)).not.toThrow();
@@ -100,6 +120,24 @@ describe('getAnalytics', () => {
 
     const a = getAnalytics('org-2');
     expect(a.npsScore).toBe(33);
+  });
+
+  it('produces negative NPS when all are detractors', () => {
+    submitResponse('u1', 'org-neg', 3);
+    submitResponse('u2', 'org-neg', 2);
+    submitResponse('u3', 'org-neg', 1);
+    // 0 promoters, 3 detractors → (0-3)/3 × 100 = -100
+    const a = getAnalytics('org-neg');
+    expect(a.npsScore).toBe(-100);
+  });
+
+  it('produces NPS of 0 when all are passives', () => {
+    submitResponse('u1', 'org-pass', 7);
+    submitResponse('u2', 'org-pass', 8);
+    // 0 promoters, 0 detractors → 0
+    const a = getAnalytics('org-pass');
+    expect(a.npsScore).toBe(0);
+    expect(a.passives).toBe(2);
   });
 
   it('calculates average score', () => {
@@ -172,6 +210,26 @@ describe('listResponses', () => {
     expect(p1.responses).toHaveLength(2);
     expect(p2.responses).toHaveLength(2);
     expect(p1.total).toBe(5);
+  });
+
+  it('returns empty responses when offset exceeds total', () => {
+    submitResponse('u1', 'org-offset', 9);
+    submitResponse('u2', 'org-offset', 8);
+
+    const { responses, total } = listResponses('org-offset', 50, 100);
+    expect(responses).toHaveLength(0);
+    expect(total).toBe(2); // total reflects unsliced count
+  });
+
+  it('returns responses sorted newest-first', async () => {
+    // Submit with slight delay to ensure distinct createdAt timestamps
+    submitResponse('u1', 'org-sort', 5);
+    await new Promise((res) => setTimeout(res, 5));
+    submitResponse('u2', 'org-sort', 9);
+
+    const { responses } = listResponses('org-sort');
+    expect(responses[0].userId).toBe('u2'); // newer first
+    expect(responses[1].userId).toBe('u1');
   });
 
   it('returns all when no orgId specified', () => {

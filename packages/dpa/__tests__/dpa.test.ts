@@ -104,6 +104,24 @@ describe('acceptDpa', () => {
     expect(stored!.signerName).toBe('Second');
     expect(second!.signerName).toBe('Second');
   });
+
+  it('acceptance.id is a UUID string', () => {
+    const acc = acceptDpa({ orgId: uniqueOrg(), userId: 'u', signerName: 'N', signerTitle: 'T' });
+    expect(acc!.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+    );
+  });
+
+  it('acceptedAt is a valid ISO 8601 timestamp', () => {
+    const acc = acceptDpa({ orgId: uniqueOrg(), userId: 'u', signerName: 'N', signerTitle: 'T' });
+    expect(new Date(acc!.acceptedAt).toISOString()).toBe(acc!.acceptedAt);
+  });
+
+  it('each acceptance gets a unique id', () => {
+    const acc1 = acceptDpa({ orgId: uniqueOrg(), userId: 'u', signerName: 'N', signerTitle: 'T' });
+    const acc2 = acceptDpa({ orgId: uniqueOrg(), userId: 'u', signerName: 'N', signerTitle: 'T' });
+    expect(acc1!.id).not.toBe(acc2!.id);
+  });
 });
 
 // ─── hasAcceptedDpa ──────────────────────────────────────────────────────────

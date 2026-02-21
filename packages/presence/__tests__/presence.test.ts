@@ -91,6 +91,26 @@ describe('acquireLock', () => {
     const result = acquireLock('audit', ID, USER_B.userId, USER_B.userName);
     expect(result.acquired).toBe(true);
   });
+
+  it('allows another user to acquire after the first user\'s lock expires', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    // Manually expire A's lock
+    const users = getPresence(TYPE, ID);
+    users[0].expiresAt = new Date(Date.now() - 1);
+
+    // B should now be able to acquire (expired lock is cleaned by cleanExpired before the loop)
+    const result = acquireLock(TYPE, ID, USER_B.userId, USER_B.userName);
+    expect(result.acquired).toBe(true);
+    const present = getPresence(TYPE, ID);
+    expect(present).toHaveLength(1);
+    expect(present[0].userId).toBe(USER_B.userId);
+  });
+
+  it('stores avatar as undefined when not provided', () => {
+    acquireLock(TYPE, ID, USER_A.userId, USER_A.userName);
+    const users = getPresence(TYPE, ID);
+    expect(users[0].avatar).toBeUndefined();
+  });
 });
 
 describe('releaseLock', () => {
