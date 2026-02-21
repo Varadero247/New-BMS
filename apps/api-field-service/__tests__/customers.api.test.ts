@@ -228,3 +228,29 @@ describe('DELETE /api/customers/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcCustomer.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/customers');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcCustomer.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/customers').send({ name: 'New Customer', address: { city: 'London' } });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcCustomer.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcCustomer.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/customers/00000000-0000-0000-0000-000000000001').send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

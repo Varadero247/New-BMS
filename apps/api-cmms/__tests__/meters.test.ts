@@ -198,3 +198,34 @@ describe('Meters Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    prisma.cmmsMeterReading.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/meters');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    prisma.cmmsMeterReading.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/meters').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      meterType: 'HOURS',
+      reading: 5000,
+      readingDate: '2026-02-13T00:00:00Z',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    prisma.cmmsMeterReading.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    prisma.cmmsMeterReading.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/meters/00000000-0000-0000-0000-000000000001').send({ reading: 6000 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

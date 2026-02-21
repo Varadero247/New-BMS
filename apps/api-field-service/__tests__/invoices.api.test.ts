@@ -266,3 +266,37 @@ describe('PUT /api/invoices/:id/pay', () => {
     expect(res.status).toBe(400);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcInvoice.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/invoices');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcInvoice.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/invoices').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      lineItems: [{ description: 'Labour', amount: 200 }],
+      laborTotal: 200,
+      partsTotal: 50,
+      total: 250,
+      dueDate: '2026-03-01',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcInvoice.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcInvoice.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/invoices/00000000-0000-0000-0000-000000000001').send({ status: 'SENT' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

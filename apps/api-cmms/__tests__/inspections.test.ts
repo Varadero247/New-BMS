@@ -211,3 +211,34 @@ describe('Inspections Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    prisma.cmmsInspection.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/inspections');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    prisma.cmmsInspection.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/inspections').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      inspectionType: 'Safety Inspection',
+      inspector: 'John Smith',
+      scheduledDate: '2026-03-01T00:00:00Z',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    prisma.cmmsInspection.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    prisma.cmmsInspection.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/inspections/00000000-0000-0000-0000-000000000001').send({ notes: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

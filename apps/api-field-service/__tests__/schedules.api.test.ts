@@ -232,3 +232,33 @@ describe('DELETE /api/schedules/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcSchedule.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/schedules');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcSchedule.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/schedules').send({
+      technicianId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      date: '2026-02-13',
+      slots: [{ start: '09:00', end: '17:00' }],
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcSchedule.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcSchedule.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/schedules/00000000-0000-0000-0000-000000000001').send({ status: 'CONFIRMED' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

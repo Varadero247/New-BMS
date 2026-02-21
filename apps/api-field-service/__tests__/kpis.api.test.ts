@@ -258,3 +258,36 @@ describe('DELETE /api/kpis/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcKpi.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcKpi.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/kpis').send({
+      metricType: 'FIRST_TIME_FIX',
+      value: 92,
+      unit: '%',
+      periodStart: '2026-02-01',
+      periodEnd: '2026-02-28',
+      target: 90,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcKpi.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/kpis/00000000-0000-0000-0000-000000000001').send({ value: 95 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

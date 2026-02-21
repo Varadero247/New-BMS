@@ -229,3 +229,36 @@ describe('KPIs Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    prisma.cmmsKpi.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/kpis');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    prisma.cmmsKpi.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/kpis').send({
+      name: 'MTTR',
+      metricType: 'MTTR',
+      value: 2.5,
+      unit: 'hours',
+      periodStart: '2026-01-01T00:00:00Z',
+      periodEnd: '2026-01-31T00:00:00Z',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    prisma.cmmsKpi.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    prisma.cmmsKpi.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/kpis/00000000-0000-0000-0000-000000000001').send({ value: 3.0 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

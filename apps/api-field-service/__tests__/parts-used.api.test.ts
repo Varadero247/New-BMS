@@ -182,3 +182,36 @@ describe('DELETE /api/parts-used/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcPartUsed.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/parts-used');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcPartUsed.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/parts-used').send({
+      jobId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      partName: 'Compressor',
+      partNumber: 'CMP-001',
+      quantity: 1,
+      unitCost: 150,
+      totalCost: 150,
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcPartUsed.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcPartUsed.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/parts-used/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

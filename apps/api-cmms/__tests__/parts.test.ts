@@ -248,3 +248,29 @@ describe('Parts Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    prisma.cmmsPart.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/parts');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    prisma.cmmsPart.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/parts').send({ name: 'Ball Bearing', partNumber: 'BB-001' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    prisma.cmmsPart.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    prisma.cmmsPart.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/parts/00000000-0000-0000-0000-000000000001').send({ quantity: 10 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

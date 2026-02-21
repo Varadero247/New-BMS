@@ -212,3 +212,33 @@ describe('Downtime Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    prisma.cmmsDowntime.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/downtime');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    prisma.cmmsDowntime.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/downtime').send({
+      assetId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      startTime: '2026-02-13T08:00:00Z',
+      reason: 'Bearing failure',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    prisma.cmmsDowntime.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    prisma.cmmsDowntime.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/downtime/00000000-0000-0000-0000-000000000001').send({ reason: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

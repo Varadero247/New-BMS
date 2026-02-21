@@ -400,3 +400,34 @@ describe('DELETE /api/jobs/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.fsSvcJob.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/jobs');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.fsSvcJob.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/jobs').send({
+      title: 'Install AC',
+      customerId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      siteId: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+      type: 'INSTALLATION',
+    });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    mockPrisma.fsSvcJob.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.fsSvcJob.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/jobs/00000000-0000-0000-0000-000000000001').send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

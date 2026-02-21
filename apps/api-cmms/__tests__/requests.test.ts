@@ -232,3 +232,29 @@ describe('Requests Routes', () => {
     });
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    prisma.cmmsRequest.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/requests');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    prisma.cmmsRequest.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/requests').send({ title: 'Fix leaking pipe', requestedBy: 'John Smith' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 on DB error', async () => {
+    prisma.cmmsRequest.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    prisma.cmmsRequest.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/requests/00000000-0000-0000-0000-000000000001').send({ priority: 'HIGH' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
