@@ -110,6 +110,21 @@ describe('GET /api/linkedin/outreach', () => {
     expect(res.body.data.stats.todayCount).toBe(3);
     expect(res.body.data.stats.dailyLimit).toBe(20);
   });
+
+  it('outreach is an array', async () => {
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/linkedin/outreach');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.outreach)).toBe(true);
+  });
+
+  it('findMany is called once per request', async () => {
+    (prisma.mktLinkedInOutreach.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLinkedInOutreach.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/linkedin/outreach');
+    expect(prisma.mktLinkedInOutreach.findMany).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('PATCH /api/linkedin/outreach/:id', () => {

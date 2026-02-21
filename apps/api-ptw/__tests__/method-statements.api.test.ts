@@ -43,6 +43,22 @@ describe('GET /api/method-statements', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('returns empty list when no method statements exist', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/method-statements');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('findMany and count are each called once', async () => {
+    mockPrisma.ptwMethodStatement.findMany.mockResolvedValue([]);
+    mockPrisma.ptwMethodStatement.count.mockResolvedValue(0);
+    await request(app).get('/api/method-statements');
+    expect(mockPrisma.ptwMethodStatement.findMany).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.ptwMethodStatement.count).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('GET /api/method-statements/:id', () => {
@@ -92,6 +108,14 @@ describe('PUT /api/method-statements/:id', () => {
       .send({ title: 'Updated' });
     expect(res.status).toBe(200);
   });
+
+  it('returns 404 if method statement not found on update', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/method-statements/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+  });
 });
 
 describe('DELETE /api/method-statements/:id', () => {
@@ -107,6 +131,14 @@ describe('DELETE /api/method-statements/:id', () => {
     );
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
+  });
+
+  it('returns 404 if method statement not found on delete', async () => {
+    mockPrisma.ptwMethodStatement.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete(
+      '/api/method-statements/00000000-0000-0000-0000-000000000099'
+    );
+    expect(res.status).toBe(404);
   });
 });
 

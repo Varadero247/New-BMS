@@ -152,6 +152,15 @@ describe('GET /api/stock-levels', () => {
     expect(res.status).toBe(200);
   });
 
+  it('returns an empty array when no items exist', async () => {
+    (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventory.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/stock-levels');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
   it('returns 500 on DB error', async () => {
     (mockPrisma.inventory.findMany as jest.Mock).mockRejectedValue(new Error('fail'));
     const res = await request(app).get('/api/stock-levels');
