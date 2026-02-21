@@ -190,3 +190,28 @@ describe('PATCH /api/board-packs/:id', () => {
     expect(res.body.error.code).toBe('INVALID_TRANSITION');
   });
 });
+
+describe('Board Packs — extended', () => {
+  it('GET / findMany called once', async () => {
+    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.count as jest.Mock).mockResolvedValue(0);
+    await request(app).get('/api/board-packs');
+    expect(prisma.boardPack.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / success is true', async () => {
+    (prisma.boardPack.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.boardPack.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/board-packs');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PATCH /:id returns 404 when board pack not found', async () => {
+    (prisma.boardPack.findUnique as jest.Mock).mockResolvedValue(null);
+    const res = await request(app)
+      .patch('/api/board-packs/00000000-0000-0000-0000-000000000099')
+      .send({ status: 'FINAL' });
+    expect(res.status).toBe(404);
+  });
+});

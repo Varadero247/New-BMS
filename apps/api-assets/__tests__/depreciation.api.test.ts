@@ -124,3 +124,32 @@ describe('GET /api/depreciation', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Depreciation — extended', () => {
+  it('data length matches number of assets returned by findMany', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Pump', purchaseCost: 5000, currentValue: 3000, purchaseDate: '2023-01-01' },
+      { id: 'a-2', name: 'Motor', purchaseCost: 8000, currentValue: 6000, purchaseDate: '2024-01-01' },
+      { id: 'a-3', name: 'Valve', purchaseCost: 2000, currentValue: 1500, purchaseDate: '2025-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('currentValue is a number for each asset', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Machine', purchaseCost: 10000, currentValue: 7500, purchaseDate: '2024-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(typeof res.body.data[0].currentValue).toBe('number');
+  });
+
+  it('handles asset with currentValue zero', async () => {
+    mockPrisma.assetRegister.findMany.mockResolvedValue([
+      { id: 'a-1', name: 'Obsolete Machine', purchaseCost: 5000, currentValue: 0, purchaseDate: '2018-01-01' },
+    ]);
+    const res = await request(app).get('/api/depreciation');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].currentValue).toBe(0);
+  });
+});

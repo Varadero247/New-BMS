@@ -121,3 +121,33 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Audits Dashboard — extended', () => {
+  it('works with large count values', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(1000);
+    mockPrisma.audFinding.count.mockResolvedValue(5000);
+    mockPrisma.audChecklist.count.mockResolvedValue(250);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalAudits).toBe(1000);
+    expect(res.body.data.totalFindings).toBe(5000);
+  });
+
+  it('totalChecklists is a number', async () => {
+    mockPrisma.audAudit.count.mockResolvedValue(0);
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(8);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalChecklists).toBe('number');
+  });
+
+  it('success is false on 500 response', async () => {
+    mockPrisma.audAudit.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.audFinding.count.mockResolvedValue(0);
+    mockPrisma.audChecklist.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

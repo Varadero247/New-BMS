@@ -113,3 +113,37 @@ describe('OpenAPI Routes', () => {
     });
   });
 });
+
+describe('OpenAPI — extended', () => {
+  let app: express.Express;
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/docs', openapiRouter);
+    jest.clearAllMocks();
+    mockGenerateOpenApiSpec.mockReturnValue({
+      openapi: '3.0.3',
+      info: { title: 'Nexara IMS API', version: '1.0.0' },
+      paths: {},
+      components: { securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer' } } },
+    });
+  });
+
+  it('info.title is Nexara IMS API', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(res.body.info.title).toBe('Nexara IMS API');
+  });
+
+  it('info.version is a string', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.info.version).toBe('string');
+  });
+
+  it('openapi field is a string', async () => {
+    const res = await request(app).get('/api/docs/openapi.json');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.openapi).toBe('string');
+  });
+});

@@ -169,3 +169,34 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Collateral — extended', () => {
+  it('GET / findMany called once per list request', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/collateral');
+    expect(portalPrisma.mktPartnerCollateral.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET / data is an array', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'REFERRAL' });
+    (portalPrisma.mktPartnerCollateral.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/collateral');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET /:id/download update called once on success', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ tier: 'GCC_SPECIALIST' });
+    (portalPrisma.mktPartnerCollateral.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Guide',
+      accessTier: 'ALL',
+      fileUrl: 'https://example.com/file.pdf',
+      downloadCount: 10,
+    });
+    (portalPrisma.mktPartnerCollateral.update as jest.Mock).mockResolvedValue({ downloadCount: 11 });
+    await request(app).get('/api/collateral/00000000-0000-0000-0000-000000000001/download');
+    expect(portalPrisma.mktPartnerCollateral.update).toHaveBeenCalledTimes(1);
+  });
+});

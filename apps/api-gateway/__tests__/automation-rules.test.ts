@@ -132,3 +132,29 @@ describe('Automation Rules Routes', () => {
     });
   });
 });
+
+describe('Automation Rules — extended', () => {
+  let app: express.Express;
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/automation-rules', automationRulesRouter);
+    jest.clearAllMocks();
+  });
+
+  it('first rule has name property', async () => {
+    const res = await request(app).get('/api/automation-rules');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('name');
+  });
+
+  it('enableRule called once on enable request', async () => {
+    await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000001/enable');
+    expect(mockEnableRule).toHaveBeenCalledTimes(1);
+  });
+
+  it('disableRule called once on disable request', async () => {
+    await request(app).post('/api/automation-rules/00000000-0000-0000-0000-000000000001/disable');
+    expect(mockDisableRule).toHaveBeenCalledTimes(1);
+  });
+});

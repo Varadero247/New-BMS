@@ -139,3 +139,31 @@ describe('POST /api/partner-onboarding/enqueue/:partnerId', () => {
     expect(res2.body.data.sequenceId).toBe('partner-onboarding-partnerB');
   });
 });
+
+describe('Partner Onboarding — extended', () => {
+  it('sequenceId format is partner-onboarding-<partnerId>', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/test-partner-id')
+      .send({ email: 'x@example.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.sequenceId).toBe('partner-onboarding-test-partner-id');
+  });
+
+  it('create is called exactly 3 times for a single enqueue', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'count@example.com' });
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledTimes(3);
+  });
+
+  it('success is true on 201 response', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'success@example.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

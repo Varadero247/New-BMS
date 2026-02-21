@@ -104,3 +104,28 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Contracts Dashboard — extended', () => {
+  it('totalContracts and upcomingNotices are both numbers', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(20);
+    mockPrisma.contNotice.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalContracts).toBe('number');
+    expect(typeof res.body.data.upcomingNotices).toBe('number');
+  });
+
+  it('contContract.count is called once per request', async () => {
+    mockPrisma.contContract.count.mockResolvedValue(0);
+    mockPrisma.contNotice.count.mockResolvedValue(0);
+    await request(app).get('/api/dashboard/stats');
+    expect(mockPrisma.contContract.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.contContract.count.mockRejectedValue(new Error('fail'));
+    mockPrisma.contNotice.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

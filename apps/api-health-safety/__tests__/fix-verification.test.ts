@@ -201,3 +201,36 @@ describe('Architecture Fix Verification', () => {
     });
   });
 });
+
+describe('Architecture Fix — extended', () => {
+  let extApp: express.Express;
+  beforeAll(() => {
+    extApp = express();
+    extApp.use(express.json());
+    extApp.use('/api/risks', risksRoutes);
+  });
+
+  it('returns data array on successful GET /risks', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    const response = await request(extApp).get('/api/risks');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('data');
+  });
+
+  it('meta.page defaults to 1 when no page param', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    const response = await request(extApp).get('/api/risks');
+    expect(response.status).toBe(200);
+    expect(response.body.meta.page).toBe(1);
+  });
+
+  it('limit of 100 is accepted without error', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    mockPrisma.risk.count.mockResolvedValueOnce(0);
+    const response = await request(extApp).get('/api/risks?limit=100');
+    expect(response.status).toBe(200);
+    expect(response.body.meta.limit).toBe(100);
+  });
+});

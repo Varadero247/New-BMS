@@ -153,3 +153,31 @@ describe('POST /api/agenda/:id/generate', () => {
     expect(typeof res.body.data.generatedAt).toBe('string');
   });
 });
+
+describe('Agenda — extended', () => {
+  const reviewId = '00000000-0000-0000-0000-000000000001';
+  const mockReview = { id: reviewId, title: 'Q2 Management Review', deletedAt: null };
+
+  it('update is called once on successful generate', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(prisma.mgmtReview.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('data.title contains the review title string', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue({ ...mockReview, title: 'Special Review' });
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.title).toContain('Special Review');
+  });
+
+  it('data.items has at least 14 agenda items', async () => {
+    (prisma.mgmtReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.mgmtReview.update as jest.Mock).mockResolvedValue({});
+    const res = await request(app).post(`/api/agenda/${reviewId}/generate`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.items.length).toBeGreaterThanOrEqual(14);
+  });
+});

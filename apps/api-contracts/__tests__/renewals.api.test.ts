@@ -109,3 +109,33 @@ describe('GET /api/renewals', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Contract Renewals — extended', () => {
+  it('data length matches number of contracts returned', async () => {
+    const futureDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '1', title: 'Lease A', renewalDate: futureDate, status: 'ACTIVE' },
+      { id: '2', title: 'Lease B', renewalDate: futureDate, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('each contract has a renewalDate property', async () => {
+    const futureDate = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+    mockPrisma.contContract.findMany.mockResolvedValue([
+      { id: '1', title: 'Contract X', renewalDate: futureDate, status: 'ACTIVE' },
+    ]);
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('renewalDate');
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.contContract.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/renewals');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

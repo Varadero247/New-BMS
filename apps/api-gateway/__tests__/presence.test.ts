@@ -117,3 +117,29 @@ describe('Presence Routes', () => {
     });
   });
 });
+
+describe('Presence — extended', () => {
+  let app: express.Express;
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/presence', presenceRouter);
+    jest.clearAllMocks();
+  });
+
+  it('acquireLock called once per lock POST request', async () => {
+    await request(app).post('/api/presence/lock').send({ recordType: 'ncr', recordId: 'r1' });
+    expect(mockAcquireLock).toHaveBeenCalledTimes(1);
+  });
+
+  it('lock response data has acquired field', async () => {
+    const res = await request(app).post('/api/presence/lock').send({ recordType: 'ncr', recordId: 'r1' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('acquired');
+  });
+
+  it('refreshLock called once per PUT refresh request', async () => {
+    await request(app).put('/api/presence/refresh').send({ recordType: 'ncr', recordId: 'r1' });
+    expect(mockRefreshLock).toHaveBeenCalledTimes(1);
+  });
+});

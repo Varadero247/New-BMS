@@ -103,3 +103,31 @@ describe('GET /api/regulatory', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Regulatory — extended', () => {
+  it('data length matches the number returned by findMany', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: '1', title: 'A', isRegulatory: true },
+      { id: '2', title: 'B', isRegulatory: true },
+      { id: '3', title: 'C', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(3);
+  });
+
+  it('each complaint has a title property', async () => {
+    mockPrisma.compComplaint.findMany.mockResolvedValue([
+      { id: 'c-1', title: 'GDPR Issue', isRegulatory: true },
+    ]);
+    const res = await request(app).get('/api/regulatory');
+    expect(res.body.data[0]).toHaveProperty('title');
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.compComplaint.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/regulatory');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

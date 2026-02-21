@@ -110,3 +110,29 @@ describe('GET /api/inductions', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Training Inductions — extended', () => {
+  it('data length matches number of records from findMany', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: '1', employeeName: 'A', course: { title: 'Course 1', code: 'C-001' } },
+      { id: '2', employeeName: 'B', course: { title: 'Course 2', code: 'C-002' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(res.body.data).toHaveLength(2);
+  });
+
+  it('course has a title that is a string', async () => {
+    mockPrisma.trainRecord.findMany.mockResolvedValue([
+      { id: '1', employeeName: 'Tester', course: { title: 'Fire Safety', code: 'FS-001' } },
+    ]);
+    const res = await request(app).get('/api/inductions');
+    expect(typeof res.body.data[0].course.title).toBe('string');
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.trainRecord.findMany.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/inductions');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

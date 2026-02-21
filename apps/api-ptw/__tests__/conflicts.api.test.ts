@@ -200,3 +200,30 @@ describe('GET /api/conflicts', () => {
     expect(conflict).toHaveProperty('reason');
   });
 });
+
+describe('PTW Conflicts — extended', () => {
+  it('returns no conflicts for a single permit', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: '1', title: 'Solo Permit', location: 'Site A', area: 'Zone 1', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('conflict entry reason is a string', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([
+      { id: 'p1', title: 'A', location: 'L1', area: 'A1', startDate: new Date(), endDate: new Date(), type: 'HOT_WORK' },
+      { id: 'p2', title: 'B', location: 'L1', area: 'A1', startDate: new Date(), endDate: new Date(), type: 'ELECTRICAL' },
+    ]);
+    const res = await request(app).get('/api/conflicts');
+    expect(typeof res.body.data[0].reason).toBe('string');
+  });
+
+  it('success is true when no conflicts found', async () => {
+    mockPrisma.ptwPermit.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/conflicts');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

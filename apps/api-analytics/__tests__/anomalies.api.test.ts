@@ -100,3 +100,22 @@ describe('Anomalies Routes', () => {
     });
   });
 });
+
+describe('Anomalies — extended', () => {
+  it('kpis.kpis is an array', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.kpis)).toBe(true);
+  });
+
+  it('anomaly list anomalies field is an array', async () => {
+    const res = await request(app).get('/api/anomalies');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.anomalies)).toBe(true);
+  });
+
+  it('summary has total field as a number', async () => {
+    const res = await request(app).get('/api/anomalies/kpis');
+    expect(typeof res.body.data.summary.total).toBe('number');
+  });
+});

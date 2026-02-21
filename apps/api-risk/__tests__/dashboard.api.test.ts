@@ -137,3 +137,26 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Risk Dashboard — extended', () => {
+  it('totalCapas is a number', async () => {
+    mockAllCounts(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.totalCapas).toBe('number');
+  });
+
+  it('openCapas is a number', async () => {
+    mockAllCounts(2);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.openCapas).toBe('number');
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.riskRegister.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

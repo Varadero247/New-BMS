@@ -112,3 +112,34 @@ describe('OpenAPI Routes', () => {
     });
   });
 });
+
+describe('Status — extended', () => {
+  let app: express.Express;
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/health/status', statusRouter);
+    jest.clearAllMocks();
+  });
+
+  it('timestamp is a string in status response', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.timestamp).toBe('string');
+  });
+
+  it('services array entries have name and status fields', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(200);
+    if (res.body.data.services.length > 0) {
+      expect(res.body.data.services[0]).toHaveProperty('name');
+      expect(res.body.data.services[0]).toHaveProperty('status');
+    }
+  });
+
+  it('uptime has 7d key', async () => {
+    const res = await request(app).get('/api/health/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data.uptime).toHaveProperty('7d');
+  });
+});

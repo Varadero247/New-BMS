@@ -102,3 +102,28 @@ describe('GET /api/dashboard/stats', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('Complaints Dashboard — extended', () => {
+  it('works with large count values', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(9999);
+    mockPrisma.compAction.count.mockResolvedValue(2500);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalComplaints).toBe(9999);
+  });
+
+  it('both totalComplaints and totalActions are numbers', async () => {
+    mockPrisma.compComplaint.count.mockResolvedValue(5);
+    mockPrisma.compAction.count.mockResolvedValue(3);
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(typeof res.body.data.totalComplaints).toBe('number');
+    expect(typeof res.body.data.totalActions).toBe('number');
+  });
+
+  it('success is false on 500', async () => {
+    mockPrisma.compComplaint.count.mockRejectedValue(new Error('fail'));
+    const res = await request(app).get('/api/dashboard/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
