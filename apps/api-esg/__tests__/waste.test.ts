@@ -198,3 +198,45 @@ describe('DELETE /api/waste/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.esgWaste.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/waste');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/waste/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.esgWaste.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgWaste.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/waste').send({ wasteType: 'HAZARDOUS', quantity: 500, unit: 'kg', disposalMethod: 'INCINERATED', periodStart: '2026-01-01', periodEnd: '2026-01-31' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.esgWaste.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/waste/00000000-0000-0000-0000-000000000001').send({ quantity: 600 });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    (prisma.esgWaste.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.esgWaste.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/waste/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

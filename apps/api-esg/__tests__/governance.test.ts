@@ -224,3 +224,45 @@ describe('GET /api/governance/ethics', () => {
     expect(Array.isArray(res.body.data)).toBe(true);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    (prisma.esgGovernanceMetric.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/governance');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/governance/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    (prisma.esgGovernanceMetric.count as jest.Mock).mockResolvedValue(0);
+    (prisma.esgGovernanceMetric.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/governance').send({ category: 'BOARD', metric: 'Board Independence', value: '75%', periodStart: '2026-01-01', periodEnd: '2026-03-31' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.esgGovernanceMetric.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).put('/api/governance/00000000-0000-0000-0000-000000000001').send({ value: '80%' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    (prisma.esgGovernanceMetric.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.esgGovernanceMetric.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/governance/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

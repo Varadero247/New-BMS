@@ -184,3 +184,25 @@ describe('POST /api/metrics/:id/data-points', () => {
     expect(res.status).toBe(201);
   });
 });
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET /:id/data-points returns 500 on DB error', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.esgDataPoint.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/metrics/00000000-0000-0000-0000-000000000001/data-points');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /:id/data-points returns 500 when create fails', async () => {
+    (prisma.esgMetric.findFirst as jest.Mock).mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    (prisma.esgDataPoint.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/metrics/00000000-0000-0000-0000-000000000001/data-points')
+      .send({ periodStart: '2026-01-01', periodEnd: '2026-03-31', value: 1500, unit: 'tCO2e' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
