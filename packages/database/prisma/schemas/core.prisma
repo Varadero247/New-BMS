@@ -742,6 +742,41 @@ model TemplateInstance {
 }
 
 // ============================================
+// MSP (MANAGED SERVICE PROVIDER) LINKS
+// ============================================
+
+enum MspLinkStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+model MspLink {
+  id                     String        @id @default(cuid())
+  consultantUserId       String
+  consultantEmail        String
+  clientOrganisationId   String
+  clientOrganisationName String
+  status                 MspLinkStatus @default(ACTIVE)
+  permissions            String[]      // READ | AUDIT | MANAGE | BILLING
+  whiteLabel             Json?         // { brandName?, logoUrl?, primaryColor? }
+  linkedAt               DateTime      @default(now())
+  linkedBy               String
+  lastAccessedAt         DateTime?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  @@unique([consultantUserId, clientOrganisationId, status], name: "unique_active_link")
+  @@index([consultantUserId])
+  @@index([clientOrganisationId])
+  @@index([status])
+  @@index([consultantUserId, status])
+  @@index([linkedAt])
+  @@map("msp_links")
+}
+
+// ============================================
 // CUSTOM ROLES (user-defined RBAC roles)
 // ============================================
 

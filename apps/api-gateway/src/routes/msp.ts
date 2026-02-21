@@ -7,12 +7,11 @@ const prisma = prismaBase as unknown as PrismaClient;
 import { z } from 'zod';
 import { createLogger } from '@ims/monitoring';
 import { validateIdParam } from '@ims/shared';
-import { randomUUID, createHash } from 'crypto';
+import { createHash } from 'crypto';
 
 /**
  * Deterministic pseudo-score (70–100) derived from a stable hash of the client ID.
- * Avoids Math.random() so the dashboard is consistent across page refreshes.
- * Replace with a real query once per-client compliance tables are available.
+ * Used for mock compliance health data until per-client compliance tables are available.
  */
 function deterministicScore(clientId: string, seed: string = ''): number {
   const hash = createHash('sha256')
@@ -26,28 +25,6 @@ const router = Router();
 
 router.use(authenticate);
 router.param('id', validateIdParam());
-
-// ── In-memory MSP store (v1 — will be backed by Prisma in v2) ──────
-
-interface MspLink {
-  id: string;
-  consultantUserId: string;
-  consultantEmail: string;
-  clientOrganisationId: string;
-  clientOrganisationName: string;
-  status: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'REVOKED';
-  permissions: ('READ' | 'AUDIT' | 'MANAGE' | 'BILLING')[];
-  whiteLabel: {
-    brandName?: string;
-    logoUrl?: string;
-    primaryColor?: string;
-  } | null;
-  linkedAt: string;
-  linkedBy: string;
-  lastAccessedAt: string | null;
-}
-
-const mspLinks = new Map<string, MspLink>();
 
 // ── Validation schemas ──────────────────────────────────────────────
 
@@ -121,13 +98,14 @@ router.post('/msp-link', async (req: Request, res: Response) => {
     const { clientOrganisationId, clientOrganisationName, permissions, whiteLabel } = parsed.data;
     const userId = (req as AuthRequest).user!.id;
 
-    // Check for duplicate link
-    const existing = Array.from(mspLinks.values()).find(
-      (link) =>
-        link.consultantUserId === userId &&
-        link.clientOrganisationId === clientOrganisationId &&
-        link.status !== 'REVOKED'
-    );
+    // Check for duplicate active link
+    const existing = await prisma.mspLink.findFirst({
+      where: {
+        consultantUserId: userId,
+        clientOrganisationId,
+        status: { not: 'REVOKED' as const },
+      },
+    });
     if (existing) {
       return res.status(409).json({
         success: false,
@@ -138,24 +116,21 @@ router.post('/msp-link', async (req: Request, res: Response) => {
       });
     }
 
-    const id = randomUUID();
-    const link: MspLink = {
-      id,
-      consultantUserId: userId,
-      consultantEmail: (req as AuthRequest).user!.email || '',
-      clientOrganisationId,
-      clientOrganisationName,
-      status: 'ACTIVE',
-      permissions,
-      whiteLabel: whiteLabel || null,
-      linkedAt: new Date().toISOString(),
-      linkedBy: userId,
-      lastAccessedAt: null,
-    };
+    const link = await prisma.mspLink.create({
+      data: {
+        id: crypto.randomUUID(),
+        consultantUserId: userId,
+        consultantEmail: (req as AuthRequest).user!.email || '',
+        clientOrganisationId,
+        clientOrganisationName,
+        status: 'ACTIVE',
+        permissions,
+        ...(whiteLabel !== undefined ? { whiteLabel } : {}),
+        linkedBy: userId,
+      },
+    });
 
-    mspLinks.set(id, link);
-
-    // Persist audit entry (fire-and-forget — link creation succeeds regardless)
+    // Persist audit entry (fire-and-forget)
     void (async () => {
       try {
         await prisma.auditLog.create({
@@ -163,7 +138,7 @@ router.post('/msp-link', async (req: Request, res: Response) => {
             userId,
             action: 'MSP_LINK_CREATED',
             entity: 'msp_link',
-            entityId: id,
+            entityId: link.id,
             changes: link as unknown as never,
           },
         });
@@ -173,7 +148,7 @@ router.post('/msp-link', async (req: Request, res: Response) => {
     })();
 
     logger.info('MSP link created', {
-      linkId: id,
+      linkId: link.id,
       consultant: userId,
       client: clientOrganisationId,
     });
@@ -204,31 +179,45 @@ router.get('/msp-clients', async (req: Request, res: Response) => {
     const userId = (req as AuthRequest).user!.id;
     const { status, page = '1', limit = '20' } = req.query;
 
-    let clients = Array.from(mspLinks.values()).filter((link) => link.consultantUserId === userId);
-
-    if (status) {
-      clients = clients.filter((link) => link.status === status);
-    }
-
-    clients.sort((a, b) => new Date(b.linkedAt).getTime() - new Date(a.linkedAt).getTime());
-
     const pageNum = Math.min(10000, Math.max(1, parseInt(page as string, 10) || 1));
     const limitNum = Math.min(Math.max(1, parseInt(limit as string, 10) || 20), 100);
-    const start = (pageNum - 1) * limitNum;
+
+    const where = {
+      consultantUserId: userId,
+      ...(status ? { status: status as 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'REVOKED' } : {}),
+    };
+
+    const [items, total, statusCounts] = await Promise.all([
+      prisma.mspLink.findMany({
+        where,
+        orderBy: { linkedAt: 'desc' },
+        skip: (pageNum - 1) * limitNum,
+        take: limitNum,
+      }),
+      prisma.mspLink.count({ where }),
+      prisma.mspLink.groupBy({
+        by: ['status'],
+        where: { consultantUserId: userId },
+        _count: true,
+      }),
+    ]);
+
+    const countByStatus = (s: string) =>
+      statusCounts.find((c) => c.status === s)?._count ?? 0;
 
     res.json({
       success: true,
       data: {
-        items: clients.slice(start, start + limitNum),
-        total: clients.length,
+        items,
+        total,
         page: pageNum,
         limit: limitNum,
-        totalPages: Math.ceil(clients.length / limitNum),
+        totalPages: Math.ceil(total / limitNum),
         summary: {
-          active: clients.filter((c) => c.status === 'ACTIVE').length,
-          suspended: clients.filter((c) => c.status === 'SUSPENDED').length,
-          pending: clients.filter((c) => c.status === 'PENDING').length,
-          total: clients.length,
+          active: countByStatus('ACTIVE'),
+          suspended: countByStatus('SUSPENDED'),
+          pending: countByStatus('PENDING'),
+          total: statusCounts.reduce((sum, c) => sum + c._count, 0),
         },
       },
     });
@@ -255,12 +244,11 @@ router.get('/msp-dashboard', async (req: Request, res: Response) => {
     }
 
     const userId = (req as AuthRequest).user!.id;
-    const activeClients = Array.from(mspLinks.values()).filter(
-      (link) => link.consultantUserId === userId && link.status === 'ACTIVE'
-    );
+    const activeClients = await prisma.mspLink.findMany({
+      where: { consultantUserId: userId, status: 'ACTIVE' },
+    });
 
-    // Generate compliance health summary per client
-    // In production this would query each client's actual compliance data
+    // Generate compliance health summary per client (stub — real queries per client TBD)
     const clientHealth = activeClients.map((client) => ({
       clientId: client.clientOrganisationId,
       clientName: client.clientOrganisationName,
@@ -290,7 +278,6 @@ router.get('/msp-dashboard', async (req: Request, res: Response) => {
       alerts: [] as { type: string; message: string; severity: string }[],
     }));
 
-    // Add alerts for clients needing attention
     clientHealth.forEach((client) => {
       if (client.complianceHealth.overdueCapa > 0) {
         client.alerts.push({
@@ -358,7 +345,7 @@ router.put('/msp-link/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const link = mspLinks.get(req.params.id);
+    const link = await prisma.mspLink.findUnique({ where: { id: req.params.id } });
     if (!link) {
       return res.status(404).json({
         success: false,
@@ -387,11 +374,16 @@ router.put('/msp-link/:id', async (req: Request, res: Response) => {
 
     const { status, permissions, whiteLabel } = parsed.data;
 
-    if (status) link.status = status;
-    if (permissions) link.permissions = permissions;
-    if (whiteLabel) link.whiteLabel = { ...link.whiteLabel, ...whiteLabel };
-
-    mspLinks.set(req.params.id, link);
+    const updated = await prisma.mspLink.update({
+      where: { id: req.params.id },
+      data: {
+        ...(status ? { status } : {}),
+        ...(permissions ? { permissions } : {}),
+        ...(whiteLabel
+          ? { whiteLabel: { ...(link.whiteLabel as object | null ?? {}), ...whiteLabel } }
+          : {}),
+      },
+    });
 
     void (async () => {
       try {
@@ -411,7 +403,7 @@ router.put('/msp-link/:id', async (req: Request, res: Response) => {
 
     logger.info('MSP link updated', { linkId: req.params.id, status, consultant: (req as AuthRequest).user!.id });
 
-    res.json({ success: true, data: link });
+    res.json({ success: true, data: updated });
   } catch (error: unknown) {
     logger.error('Failed to update MSP link', {
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -434,7 +426,7 @@ router.delete('/msp-link/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const link = mspLinks.get(req.params.id);
+    const link = await prisma.mspLink.findUnique({ where: { id: req.params.id } });
     if (!link) {
       return res.status(404).json({
         success: false,
@@ -449,8 +441,10 @@ router.delete('/msp-link/:id', async (req: Request, res: Response) => {
       });
     }
 
-    link.status = 'REVOKED';
-    mspLinks.set(req.params.id, link);
+    await prisma.mspLink.update({
+      where: { id: req.params.id },
+      data: { status: 'REVOKED' },
+    });
 
     void (async () => {
       try {
@@ -492,7 +486,7 @@ router.get('/msp-link/:id/audit-log', async (req: Request, res: Response) => {
       });
     }
 
-    const link = mspLinks.get(req.params.id);
+    const link = await prisma.mspLink.findUnique({ where: { id: req.params.id } });
     if (!link) {
       return res.status(404).json({
         success: false,
@@ -507,39 +501,18 @@ router.get('/msp-link/:id/audit-log', async (req: Request, res: Response) => {
       });
     }
 
-    // Query audit log from DB; fall back to creation entry if DB unavailable
-    let entries: Array<{
-      timestamp: string;
-      action: string;
-      user: string | null;
-      details: string;
-    }> = [];
-    let total = 0;
-    try {
-      const logs = await prisma.auditLog.findMany({
-        where: { entity: 'msp_link', entityId: req.params.id },
-        orderBy: { createdAt: 'desc' },
-        take: 50,
-      });
-      entries = logs.map((log) => ({
-        timestamp: log.createdAt.toISOString(),
-        action: log.action,
-        user: log.userId,
-        details: log.action.replace(/_/g, ' ').toLowerCase(),
-      }));
-      total = entries.length;
-    } catch {
-      // Fallback: return the in-memory link creation entry
-      entries = [
-        {
-          timestamp: link.linkedAt,
-          action: 'LINK_CREATED',
-          user: link.consultantEmail,
-          details: 'MSP link established',
-        },
-      ];
-      total = 1;
-    }
+    const logs = await prisma.auditLog.findMany({
+      where: { entity: 'msp_link', entityId: req.params.id },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
+
+    const entries = logs.map((log) => ({
+      timestamp: log.createdAt.toISOString(),
+      action: log.action,
+      user: log.userId,
+      details: log.action.replace(/_/g, ' ').toLowerCase(),
+    }));
 
     res.json({
       success: true,
@@ -547,7 +520,7 @@ router.get('/msp-link/:id/audit-log', async (req: Request, res: Response) => {
         linkId: req.params.id,
         clientName: link.clientOrganisationName,
         entries,
-        total,
+        total: entries.length,
       },
     });
   } catch (error: unknown) {

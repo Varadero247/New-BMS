@@ -1,14 +1,8 @@
 import express from 'express';
 import request from 'supertest';
 
-// Mock dependencies
 const mockAuthenticate = jest.fn((req: any, _res: any, next: any) => {
-  req.user = {
-    id: '00000000-0000-0000-0000-000000000001',
-    email: 'admin@ims.local',
-    organisationId: 'org-1',
-    roles: ['SUPER_ADMIN', 'ORG_ADMIN'],
-  };
+  req.user = { id: 'user-1', email: 'consultant@ims.local', role: 'MSP_CONSULTANT' };
   next();
 });
 
@@ -17,656 +11,503 @@ jest.mock('@ims/auth', () => ({
 }));
 
 jest.mock('@ims/monitoring', () => ({
-  createLogger: () => ({
-    info: jest.fn(),
-    error: jest.fn(),
-    warn: jest.fn(),
-    debug: jest.fn(),
-  }),
+  createLogger: () => ({ info: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn() }),
 }));
 
+jest.mock('@ims/shared', () => ({
+  validateIdParam: jest.fn(() => (_req: any, _res: any, next: any) => next()),
+}));
+
+const mockMspLink = {
+  findFirst: jest.fn(),
+  findUnique: jest.fn(),
+  findMany: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  count: jest.fn(),
+  groupBy: jest.fn(),
+};
+
+const mockAuditLog = {
+  create: jest.fn().mockResolvedValue({}),
+  findMany: jest.fn(),
+};
+
 jest.mock('@ims/database', () => ({
-  prisma: {},
+  prisma: {
+    mspLink: mockMspLink,
+    auditLog: mockAuditLog,
+    $use: jest.fn(),
+  },
+  prismaMetricsMiddleware: jest.fn(),
 }));
 
 import mspRouter from '../src/routes/msp';
 
-// ==========================================
-// Tests
-// ==========================================
+const app = express();
+app.use(express.json());
+app.use('/api', mspRouter);
 
-describe('MSP Routes', () => {
-  let app: express.Express;
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockAuditLog.create.mockResolvedValue({});
+});
 
-  const validLinkPayload = {
-    clientOrganisationId: '00000000-0000-0000-0000-000000000010',
-    clientOrganisationName: 'Acme Corp',
-    permissions: ['READ', 'AUDIT'],
-  };
+const validLink = {
+  clientOrganisationId: '00000000-0000-0000-0000-000000000010',
+  clientOrganisationName: 'Acme Corp',
+  permissions: ['READ', 'AUDIT'],
+};
 
-  beforeAll(() => {
-    app = express();
-    app.use(express.json());
-    app.use('/api/organisations', mspRouter);
+const mockLinkRecord = {
+  id: 'link-1',
+  consultantUserId: 'user-1',
+  consultantEmail: 'consultant@ims.local',
+  clientOrganisationId: '00000000-0000-0000-0000-000000000010',
+  clientOrganisationName: 'Acme Corp',
+  status: 'ACTIVE',
+  permissions: ['READ', 'AUDIT'],
+  whiteLabel: null,
+  linkedAt: new Date('2026-01-01T00:00:00Z'),
+  linkedBy: 'user-1',
+  lastAccessedAt: null,
+  createdAt: new Date('2026-01-01T00:00:00Z'),
+  updatedAt: new Date('2026-01-01T00:00:00Z'),
+};
+
+// ─── POST /api/msp-link ───────────────────────────────────────────────
+
+describe('POST /api/msp-link', () => {
+  it('creates a new MSP link', async () => {
+    mockMspLink.findFirst.mockResolvedValue(null);
+    mockMspLink.create.mockResolvedValue(mockLinkRecord);
+
+    const res = await request(app).post('/api/msp-link').send(validLink);
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.id).toBe('link-1');
   });
 
-  afterEach(() => {
-    // Reset authenticate to default admin user
-    mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-      req.user = {
-        id: '00000000-0000-0000-0000-000000000001',
-        email: 'admin@ims.local',
-        organisationId: 'org-1',
-        roles: ['SUPER_ADMIN', 'ORG_ADMIN'],
-      };
+  it('returns 400 when clientOrganisationId is not a UUID', async () => {
+    const res = await request(app)
+      .post('/api/msp-link')
+      .send({ ...validLink, clientOrganisationId: 'not-a-uuid' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 400 when permissions array is empty', async () => {
+    const res = await request(app)
+      .post('/api/msp-link')
+      .send({ ...validLink, permissions: [] });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 409 when active link already exists', async () => {
+    mockMspLink.findFirst.mockResolvedValue(mockLinkRecord);
+
+    const res = await request(app).post('/api/msp-link').send(validLink);
+
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe('CONFLICT');
+    expect(mockMspLink.create).not.toHaveBeenCalled();
+  });
+
+  it('returns 403 when user does not have MSP role', async () => {
+    mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+      req.user = { id: 'user-2', email: 'regular@ims.local', role: 'USER' };
       next();
     });
+
+    const res = await request(app).post('/api/msp-link').send(validLink);
+
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('FORBIDDEN');
   });
 
-  // ==========================================
-  // POST /api/organisations/msp-link
-  // ==========================================
-  describe('POST /api/organisations/msp-link', () => {
-    it('should create MSP link successfully', async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send(validLinkPayload);
+  it('calls prisma.mspLink.create once on success', async () => {
+    mockMspLink.findFirst.mockResolvedValue(null);
+    mockMspLink.create.mockResolvedValue(mockLinkRecord);
 
-      expect(response.status).toBe(201);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toBeDefined();
-      expect(response.body.data.id).toBeDefined();
-      expect(response.body.data.consultantUserId).toBe('00000000-0000-0000-0000-000000000001');
-      expect(response.body.data.clientOrganisationId).toBe(validLinkPayload.clientOrganisationId);
-      expect(response.body.data.clientOrganisationName).toBe('Acme Corp');
-      expect(response.body.data.status).toBe('ACTIVE');
-      expect(response.body.data.permissions).toEqual(['READ', 'AUDIT']);
-    });
+    await request(app).post('/api/msp-link').send(validLink);
 
-    it('should return 409 for duplicate active link', async () => {
-      const payload = {
-        clientOrganisationId: '00000000-0000-0000-0000-000000000020',
-        clientOrganisationName: 'Duplicate Corp',
-        permissions: ['READ'],
-      };
-
-      // Create first link
-      await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send(payload);
-
-      // Attempt duplicate
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send(payload);
-
-      expect(response.status).toBe(409);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('CONFLICT');
-    });
-
-    it('should reject non-MSP users', async () => {
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000099',
-          email: 'viewer@ims.local',
-          organisationId: 'org-1',
-          roles: ['VIEWER'],
-        };
-        next();
-      });
-
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000099',
-          clientOrganisationName: 'Forbidden Corp',
-          permissions: ['READ'],
-        });
-
-      expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('FORBIDDEN');
-      expect(response.body.error.message).toBe('MSP consultant role required');
-    });
-
-    it('should validate required fields - missing clientOrganisationId', async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({ clientOrganisationName: 'Test', permissions: ['READ'] });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
-    });
-
-    it('should validate required fields - missing permissions', async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000030',
-          clientOrganisationName: 'Test',
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
-    });
-
-    it('should validate required fields - empty permissions array', async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000030',
-          clientOrganisationName: 'Test',
-          permissions: [],
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
-    });
-
-    it('should validate required fields - invalid clientOrganisationId (not UUID)', async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: 'not-a-uuid',
-          clientOrganisationName: 'Test',
-          permissions: ['READ'],
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
-    });
-
-    it('should validate required fields - missing clientOrganisationName', async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000030',
-          permissions: ['READ'],
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('VALIDATION_ERROR');
-    });
-
-    it('should support white-label config', async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000040',
-          clientOrganisationName: 'Branded Corp',
-          permissions: ['READ', 'MANAGE'],
-          whiteLabel: {
-            brandName: 'MyBrand',
-            logoUrl: 'https://example.com/logo.png',
-            primaryColor: '#FF5733',
-          },
-        });
-
-      expect(response.status).toBe(201);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.whiteLabel).toBeDefined();
-      expect(response.body.data.whiteLabel.brandName).toBe('MyBrand');
-      expect(response.body.data.whiteLabel.logoUrl).toBe('https://example.com/logo.png');
-      expect(response.body.data.whiteLabel.primaryColor).toBe('#FF5733');
-    });
-
-    it('should set whiteLabel to null when not provided', async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000041',
-          clientOrganisationName: 'No Brand Corp',
-          permissions: ['READ'],
-        });
-
-      expect(response.status).toBe(201);
-      expect(response.body.data.whiteLabel).toBeNull();
-    });
+    expect(mockMspLink.create).toHaveBeenCalledTimes(1);
   });
 
-  // ==========================================
-  // GET /api/organisations/msp-clients
-  // ==========================================
-  describe('GET /api/organisations/msp-clients', () => {
-    it('should list consultant clients', async () => {
-      const response = await request(app)
-        .get('/api/organisations/msp-clients')
-        .set('Authorization', 'Bearer token');
+  it('stores permissions from request body', async () => {
+    mockMspLink.findFirst.mockResolvedValue(null);
+    mockMspLink.create.mockResolvedValue(mockLinkRecord);
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toBeDefined();
-      expect(response.body.data.items).toBeDefined();
-      expect(Array.isArray(response.body.data.items)).toBe(true);
-      expect(response.body.data.total).toBeGreaterThanOrEqual(0);
-    });
+    await request(app).post('/api/msp-link').send(validLink);
 
-    it('should support pagination', async () => {
-      const response = await request(app)
-        .get('/api/organisations/msp-clients?page=1&limit=2')
-        .set('Authorization', 'Bearer token');
-
-      expect(response.status).toBe(200);
-      expect(response.body.data.page).toBe(1);
-      expect(response.body.data.limit).toBe(2);
-      expect(response.body.data.totalPages).toBeDefined();
-    });
-
-    it('should filter by status', async () => {
-      const response = await request(app)
-        .get('/api/organisations/msp-clients?status=ACTIVE')
-        .set('Authorization', 'Bearer token');
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      if (response.body.data.items.length > 0) {
-        response.body.data.items.forEach((item: any) => {
-          expect(item.status).toBe('ACTIVE');
-        });
-      }
-    });
-
-    it('should return summary counts', async () => {
-      const response = await request(app)
-        .get('/api/organisations/msp-clients')
-        .set('Authorization', 'Bearer token');
-
-      expect(response.status).toBe(200);
-      expect(response.body.data.summary).toBeDefined();
-      expect(response.body.data.summary).toHaveProperty('active');
-      expect(response.body.data.summary).toHaveProperty('suspended');
-      expect(response.body.data.summary).toHaveProperty('pending');
-      expect(response.body.data.summary).toHaveProperty('total');
-    });
-
-    it('should reject non-MSP users', async () => {
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000099',
-          email: 'viewer@ims.local',
-          organisationId: 'org-1',
-          roles: ['VIEWER'],
-        };
-        next();
-      });
-
-      const response = await request(app)
-        .get('/api/organisations/msp-clients')
-        .set('Authorization', 'Bearer token');
-
-      expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('FORBIDDEN');
-    });
+    expect(mockMspLink.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ permissions: ['READ', 'AUDIT'] }),
+      })
+    );
   });
 
-  // ==========================================
-  // GET /api/organisations/msp-dashboard
-  // ==========================================
-  describe('GET /api/organisations/msp-dashboard', () => {
-    it('should return dashboard with client health data', async () => {
-      const response = await request(app)
-        .get('/api/organisations/msp-dashboard')
-        .set('Authorization', 'Bearer token');
+  it('returns 500 when prisma.create throws', async () => {
+    mockMspLink.findFirst.mockResolvedValue(null);
+    mockMspLink.create.mockRejectedValue(new Error('DB error'));
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toBeDefined();
-      expect(response.body.data.consultant).toBeDefined();
-      expect(response.body.data.consultant.userId).toBe('00000000-0000-0000-0000-000000000001');
-      expect(response.body.data.clients).toBeDefined();
-      expect(Array.isArray(response.body.data.clients)).toBe(true);
-      expect(response.body.data.generatedAt).toBeDefined();
-    });
+    const res = await request(app).post('/api/msp-link').send(validLink);
 
-    it('should return summary statistics', async () => {
-      const response = await request(app)
-        .get('/api/organisations/msp-dashboard')
-        .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
 
-      expect(response.status).toBe(200);
-      expect(response.body.data.summary).toBeDefined();
-      expect(response.body.data.summary).toHaveProperty('totalActiveClients');
-      expect(response.body.data.summary).toHaveProperty('clientsNeedingAttention');
-      expect(response.body.data.summary).toHaveProperty('totalOpenActions');
-      expect(response.body.data.summary).toHaveProperty('totalOverdueCapa');
-      expect(response.body.data.summary).toHaveProperty('upcomingAuditsThisMonth');
-      expect(response.body.data.summary).toHaveProperty('averageComplianceScore');
-    });
+// ─── GET /api/msp-clients ────────────────────────────────────────────
 
-    it('should return consultant email in dashboard', async () => {
-      const response = await request(app)
-        .get('/api/organisations/msp-dashboard')
-        .set('Authorization', 'Bearer token');
+describe('GET /api/msp-clients', () => {
+  it('returns paginated client list', async () => {
+    mockMspLink.findMany.mockResolvedValue([mockLinkRecord]);
+    mockMspLink.count.mockResolvedValue(1);
+    mockMspLink.groupBy.mockResolvedValue([{ status: 'ACTIVE', _count: 1 }]);
 
-      expect(response.status).toBe(200);
-      expect(response.body.data.consultant.email).toBe('admin@ims.local');
-    });
+    const res = await request(app).get('/api/msp-clients');
 
-    it('should reject non-MSP users', async () => {
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000099',
-          email: 'viewer@ims.local',
-          organisationId: 'org-1',
-          roles: ['VIEWER'],
-        };
-        next();
-      });
-
-      const response = await request(app)
-        .get('/api/organisations/msp-dashboard')
-        .set('Authorization', 'Bearer token');
-
-      expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('FORBIDDEN');
-    });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.items).toHaveLength(1);
+    expect(res.body.data.total).toBe(1);
   });
 
-  // ==========================================
-  // PUT /api/organisations/msp-link/:id
-  // ==========================================
-  describe('PUT /api/organisations/msp-link/:id', () => {
-    let createdLinkId: string;
+  it('returns pagination metadata', async () => {
+    mockMspLink.findMany.mockResolvedValue([]);
+    mockMspLink.count.mockResolvedValue(0);
+    mockMspLink.groupBy.mockResolvedValue([]);
 
-    beforeAll(async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000050',
-          clientOrganisationName: 'Update Test Corp',
-          permissions: ['READ'],
-        });
-      createdLinkId = response.body.data.id;
-    });
+    const res = await request(app).get('/api/msp-clients?page=2&limit=5');
 
-    it('should update link status', async () => {
-      const response = await request(app)
-        .put(`/api/organisations/msp-link/${createdLinkId}`)
-        .set('Authorization', 'Bearer token')
-        .send({ status: 'SUSPENDED' });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.status).toBe('SUSPENDED');
-    });
-
-    it('should update permissions', async () => {
-      const response = await request(app)
-        .put(`/api/organisations/msp-link/${createdLinkId}`)
-        .set('Authorization', 'Bearer token')
-        .send({ permissions: ['READ', 'AUDIT', 'MANAGE'] });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.permissions).toEqual(['READ', 'AUDIT', 'MANAGE']);
-    });
-
-    it('should update white-label config', async () => {
-      const response = await request(app)
-        .put(`/api/organisations/msp-link/${createdLinkId}`)
-        .set('Authorization', 'Bearer token')
-        .send({
-          whiteLabel: {
-            brandName: 'Updated Brand',
-            primaryColor: '#00FF00',
-          },
-        });
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.whiteLabel.brandName).toBe('Updated Brand');
-      expect(response.body.data.whiteLabel.primaryColor).toBe('#00FF00');
-    });
-
-    it('should return 404 for non-existent link', async () => {
-      const response = await request(app)
-        .put('/api/organisations/msp-link/00000000-0000-0000-0000-999999999999')
-        .set('Authorization', 'Bearer token')
-        .send({ status: 'ACTIVE' });
-
-      expect(response.status).toBe(404);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('NOT_FOUND');
-    });
-
-    it('should return 403 for other user link', async () => {
-      // Create a link as a different user
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000002',
-          email: 'other@ims.local',
-          organisationId: 'org-1',
-          roles: ['SUPER_ADMIN'],
-        };
-        next();
-      });
-
-      const createRes = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000060',
-          clientOrganisationName: 'Other User Corp',
-          permissions: ['READ'],
-        });
-
-      const otherLinkId = createRes.body.data.id;
-
-      // Switch back to main user and try to update
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000001',
-          email: 'admin@ims.local',
-          organisationId: 'org-1',
-          roles: ['SUPER_ADMIN', 'ORG_ADMIN'],
-        };
-        next();
-      });
-
-      const response = await request(app)
-        .put(`/api/organisations/msp-link/${otherLinkId}`)
-        .set('Authorization', 'Bearer token')
-        .send({ status: 'SUSPENDED' });
-
-      expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('FORBIDDEN');
-      expect(response.body.error.message).toBe('You can only modify your own MSP links');
-    });
+    expect(res.status).toBe(200);
+    expect(res.body.data.page).toBe(2);
+    expect(res.body.data.limit).toBe(5);
   });
 
-  // ==========================================
-  // DELETE /api/organisations/msp-link/:id
-  // ==========================================
-  describe('DELETE /api/organisations/msp-link/:id', () => {
-    let deleteLinkId: string;
+  it('returns summary counts by status', async () => {
+    mockMspLink.findMany.mockResolvedValue([]);
+    mockMspLink.count.mockResolvedValue(2);
+    mockMspLink.groupBy.mockResolvedValue([
+      { status: 'ACTIVE', _count: 1 },
+      { status: 'SUSPENDED', _count: 1 },
+    ]);
 
-    beforeAll(async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000070',
-          clientOrganisationName: 'Delete Test Corp',
-          permissions: ['READ'],
-        });
-      deleteLinkId = response.body.data.id;
-    });
+    const res = await request(app).get('/api/msp-clients');
 
-    it('should revoke link (sets status to REVOKED)', async () => {
-      const response = await request(app)
-        .delete(`/api/organisations/msp-link/${deleteLinkId}`)
-        .set('Authorization', 'Bearer token');
-
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.message).toBe('MSP link revoked');
-      expect(response.body.data.linkId).toBe(deleteLinkId);
-    });
-
-    it('should return 404 for non-existent link', async () => {
-      const response = await request(app)
-        .delete('/api/organisations/msp-link/00000000-0000-0000-0000-999999999999')
-        .set('Authorization', 'Bearer token');
-
-      expect(response.status).toBe(404);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('NOT_FOUND');
-    });
-
-    it('should return 403 for other user link', async () => {
-      // Create a link as a different user
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000002',
-          email: 'other@ims.local',
-          organisationId: 'org-1',
-          roles: ['SUPER_ADMIN'],
-        };
-        next();
-      });
-
-      const createRes = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000071',
-          clientOrganisationName: 'Other Delete Corp',
-          permissions: ['READ'],
-        });
-
-      const otherLinkId = createRes.body.data.id;
-
-      // Switch back to main user and try to delete
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000001',
-          email: 'admin@ims.local',
-          organisationId: 'org-1',
-          roles: ['SUPER_ADMIN', 'ORG_ADMIN'],
-        };
-        next();
-      });
-
-      const response = await request(app)
-        .delete(`/api/organisations/msp-link/${otherLinkId}`)
-        .set('Authorization', 'Bearer token');
-
-      expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('FORBIDDEN');
-      expect(response.body.error.message).toBe('You can only revoke your own MSP links');
-    });
+    expect(res.body.data.summary.active).toBe(1);
+    expect(res.body.data.summary.suspended).toBe(1);
   });
 
-  // ==========================================
-  // GET /api/organisations/msp-link/:id/audit-log
-  // ==========================================
-  describe('GET /api/organisations/msp-link/:id/audit-log', () => {
-    let auditLinkId: string;
+  it('filters by status when query param provided', async () => {
+    mockMspLink.findMany.mockResolvedValue([]);
+    mockMspLink.count.mockResolvedValue(0);
+    mockMspLink.groupBy.mockResolvedValue([]);
 
-    beforeAll(async () => {
-      const response = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000080',
-          clientOrganisationName: 'Audit Test Corp',
-          permissions: ['READ', 'AUDIT'],
-        });
-      auditLinkId = response.body.data.id;
+    await request(app).get('/api/msp-clients?status=ACTIVE');
+
+    expect(mockMspLink.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'ACTIVE' }),
+      })
+    );
+  });
+
+  it('returns 403 when user lacks MSP role', async () => {
+    mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+      req.user = { id: 'u2', role: 'USER' };
+      next();
     });
 
-    it('should return audit log entries', async () => {
-      const response = await request(app)
-        .get(`/api/organisations/msp-link/${auditLinkId}/audit-log`)
-        .set('Authorization', 'Bearer token');
+    const res = await request(app).get('/api/msp-clients');
+    expect(res.status).toBe(403);
+  });
 
-      expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data).toBeDefined();
-      expect(response.body.data.linkId).toBe(auditLinkId);
-      expect(response.body.data.clientName).toBe('Audit Test Corp');
-      expect(response.body.data.entries).toBeDefined();
-      expect(Array.isArray(response.body.data.entries)).toBe(true);
-      expect(response.body.data.entries.length).toBeGreaterThanOrEqual(1);
-      expect(response.body.data.entries[0].action).toBe('LINK_CREATED');
-      expect(response.body.data.entries[0].user).toBe('admin@ims.local');
-      expect(response.body.data.entries[0].details).toBe('MSP link established');
-      expect(response.body.data.total).toBe(1);
+  it('returns 500 on DB error', async () => {
+    mockMspLink.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/msp-clients');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('items is an array', async () => {
+    mockMspLink.findMany.mockResolvedValue([]);
+    mockMspLink.count.mockResolvedValue(0);
+    mockMspLink.groupBy.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/msp-clients');
+    expect(Array.isArray(res.body.data.items)).toBe(true);
+  });
+});
+
+// ─── GET /api/msp-dashboard ──────────────────────────────────────────
+
+describe('GET /api/msp-dashboard', () => {
+  it('returns dashboard with summary', async () => {
+    mockMspLink.findMany.mockResolvedValue([mockLinkRecord]);
+
+    const res = await request(app).get('/api/msp-dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.summary).toBeDefined();
+    expect(res.body.data.clients).toHaveLength(1);
+  });
+
+  it('returns zero summary when no active clients', async () => {
+    mockMspLink.findMany.mockResolvedValue([]);
+
+    const res = await request(app).get('/api/msp-dashboard');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.totalActiveClients).toBe(0);
+    expect(res.body.data.summary.averageComplianceScore).toBe(0);
+  });
+
+  it('returns generatedAt field', async () => {
+    mockMspLink.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/msp-dashboard');
+    expect(res.body.data.generatedAt).toBeDefined();
+  });
+
+  it('each client has complianceHealth.overallScore', async () => {
+    mockMspLink.findMany.mockResolvedValue([mockLinkRecord]);
+    const res = await request(app).get('/api/msp-dashboard');
+    expect(res.body.data.clients[0].complianceHealth.overallScore).toBeGreaterThanOrEqual(70);
+  });
+
+  it('returns 403 for non-MSP user', async () => {
+    mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+      req.user = { id: 'u3', role: 'USER' };
+      next();
     });
+    const res = await request(app).get('/api/msp-dashboard');
+    expect(res.status).toBe(403);
+  });
 
-    it('should return 404 for non-existent link', async () => {
-      const response = await request(app)
-        .get('/api/organisations/msp-link/00000000-0000-0000-0000-999999999999/audit-log')
-        .set('Authorization', 'Bearer token');
+  it('returns 500 on DB error', async () => {
+    mockMspLink.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/msp-dashboard');
+    expect(res.status).toBe(500);
+  });
+});
 
-      expect(response.status).toBe(404);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('NOT_FOUND');
-    });
+// ─── PUT /api/msp-link/:id ────────────────────────────────────────────
 
-    it('should return 403 for other user link audit log', async () => {
-      // Create a link as a different user
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000002',
-          email: 'other@ims.local',
-          organisationId: 'org-1',
-          roles: ['SUPER_ADMIN'],
-        };
-        next();
-      });
+describe('PUT /api/msp-link/:id', () => {
+  it('updates status of an MSP link', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockResolvedValue({ ...mockLinkRecord, status: 'SUSPENDED' });
 
-      const createRes = await request(app)
-        .post('/api/organisations/msp-link')
-        .set('Authorization', 'Bearer token')
-        .send({
-          clientOrganisationId: '00000000-0000-0000-0000-000000000081',
-          clientOrganisationName: 'Other Audit Corp',
-          permissions: ['READ'],
-        });
+    const res = await request(app)
+      .put('/api/msp-link/link-1')
+      .send({ status: 'SUSPENDED' });
 
-      const otherLinkId = createRes.body.data.id;
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.status).toBe('SUSPENDED');
+  });
 
-      // Switch back to main user and try to access audit log
-      mockAuthenticate.mockImplementation((req: any, _res: any, next: any) => {
-        req.user = {
-          id: '00000000-0000-0000-0000-000000000001',
-          email: 'admin@ims.local',
-          organisationId: 'org-1',
-          roles: ['SUPER_ADMIN', 'ORG_ADMIN'],
-        };
-        next();
-      });
+  it('returns 404 when link not found', async () => {
+    mockMspLink.findUnique.mockResolvedValue(null);
 
-      const response = await request(app)
-        .get(`/api/organisations/msp-link/${otherLinkId}/audit-log`)
-        .set('Authorization', 'Bearer token');
+    const res = await request(app)
+      .put('/api/msp-link/nonexistent')
+      .send({ status: 'SUSPENDED' });
 
-      expect(response.status).toBe(403);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error.code).toBe('FORBIDDEN');
-    });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 403 when link belongs to different consultant', async () => {
+    mockMspLink.findUnique.mockResolvedValue({ ...mockLinkRecord, consultantUserId: 'other-user' });
+
+    const res = await request(app)
+      .put('/api/msp-link/link-1')
+      .send({ status: 'SUSPENDED' });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('FORBIDDEN');
+  });
+
+  it('returns 400 for invalid status value', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+
+    const res = await request(app)
+      .put('/api/msp-link/link-1')
+      .send({ status: 'INVALID_STATUS' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('calls prisma.mspLink.update once on success', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockResolvedValue(mockLinkRecord);
+
+    await request(app).put('/api/msp-link/link-1').send({ permissions: ['READ'] });
+
+    expect(mockMspLink.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns 500 on update DB error', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).put('/api/msp-link/link-1').send({ status: 'SUSPENDED' });
+    expect(res.status).toBe(500);
+  });
+});
+
+// ─── DELETE /api/msp-link/:id ─────────────────────────────────────────
+
+describe('DELETE /api/msp-link/:id', () => {
+  it('revokes an MSP link', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockResolvedValue({ ...mockLinkRecord, status: 'REVOKED' });
+
+    const res = await request(app).delete('/api/msp-link/link-1');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.message).toBe('MSP link revoked');
+  });
+
+  it('returns 404 when link not found', async () => {
+    mockMspLink.findUnique.mockResolvedValue(null);
+    const res = await request(app).delete('/api/msp-link/nonexistent');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 403 when link belongs to different consultant', async () => {
+    mockMspLink.findUnique.mockResolvedValue({ ...mockLinkRecord, consultantUserId: 'other-user' });
+    const res = await request(app).delete('/api/msp-link/link-1');
+    expect(res.status).toBe(403);
+  });
+
+  it('sets status to REVOKED in DB', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockResolvedValue({ ...mockLinkRecord, status: 'REVOKED' });
+
+    await request(app).delete('/api/msp-link/link-1');
+
+    expect(mockMspLink.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'REVOKED' }),
+      })
+    );
+  });
+
+  it('returns linkId in response', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockResolvedValue({ ...mockLinkRecord, status: 'REVOKED' });
+
+    const res = await request(app).delete('/api/msp-link/link-1');
+    expect(res.body.data.linkId).toBe('link-1');
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).delete('/api/msp-link/link-1');
+    expect(res.status).toBe(500);
+  });
+});
+
+// ─── GET /api/msp-link/:id/audit-log ────────────────────────────────
+
+describe('GET /api/msp-link/:id/audit-log', () => {
+  it('returns audit log entries for a link', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockAuditLog.findMany.mockResolvedValue([
+      {
+        createdAt: new Date('2026-01-01T10:00:00Z'),
+        action: 'MSP_LINK_CREATED',
+        userId: 'user-1',
+      },
+    ]);
+
+    const res = await request(app).get('/api/msp-link/link-1/audit-log');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data.entries).toHaveLength(1);
+    expect(res.body.data.total).toBe(1);
+  });
+
+  it('returns 404 when link not found', async () => {
+    mockMspLink.findUnique.mockResolvedValue(null);
+    const res = await request(app).get('/api/msp-link/nonexistent/audit-log');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('returns 403 when link belongs to different consultant', async () => {
+    mockMspLink.findUnique.mockResolvedValue({ ...mockLinkRecord, consultantUserId: 'other-user' });
+    const res = await request(app).get('/api/msp-link/link-1/audit-log');
+    expect(res.status).toBe(403);
+  });
+
+  it('returns clientName in response', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockAuditLog.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/msp-link/link-1/audit-log');
+    expect(res.body.data.clientName).toBe('Acme Corp');
+  });
+
+  it('returns empty entries when no audit logs', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockAuditLog.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/msp-link/link-1/audit-log');
+    expect(res.body.data.entries).toHaveLength(0);
+    expect(res.body.data.total).toBe(0);
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockMspLink.findUnique.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/msp-link/link-1/audit-log');
+    expect(res.status).toBe(500);
+  });
+});
+
+describe('MSP — extended', () => {
+  it('POST /msp-link: response data has consultantUserId', async () => {
+    mockMspLink.findFirst.mockResolvedValue(null);
+    mockMspLink.create.mockResolvedValue(mockLinkRecord);
+    const res = await request(app).post('/api/msp-link').send(validLink);
+    expect(res.body.data).toHaveProperty('consultantUserId');
+  });
+
+  it('GET /msp-clients: totalPages is a number', async () => {
+    mockMspLink.findMany.mockResolvedValue([]);
+    mockMspLink.count.mockResolvedValue(0);
+    mockMspLink.groupBy.mockResolvedValue([]);
+    const res = await request(app).get('/api/msp-clients');
+    expect(typeof res.body.data.totalPages).toBe('number');
+  });
+
+  it('GET /msp-dashboard: consultant field has email', async () => {
+    mockMspLink.findMany.mockResolvedValue([]);
+    const res = await request(app).get('/api/msp-dashboard');
+    expect(res.body.data.consultant.email).toBe('consultant@ims.local');
+  });
+
+  it('PUT /msp-link/:id: response data has id', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockResolvedValue(mockLinkRecord);
+    const res = await request(app).put('/api/msp-link/link-1').send({ permissions: ['MANAGE'] });
+    expect(res.body.data).toHaveProperty('id');
+  });
+
+  it('DELETE /msp-link/:id: update called once per request', async () => {
+    mockMspLink.findUnique.mockResolvedValue(mockLinkRecord);
+    mockMspLink.update.mockResolvedValue({ ...mockLinkRecord, status: 'REVOKED' });
+    await request(app).delete('/api/msp-link/link-1');
+    expect(mockMspLink.update).toHaveBeenCalledTimes(1);
   });
 });
