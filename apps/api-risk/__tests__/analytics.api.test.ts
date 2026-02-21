@@ -59,4 +59,73 @@ describe('GET /api/risks/analytics/by-module', () => {
     expect(res.body.data).toHaveLength(2);
     expect(res.body.data[0].module).toBe('MANUAL');
   });
+
+  it('returns empty array when no risks exist', async () => {
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.groupBy.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/analytics/by-module');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+describe('GET /api/risks/analytics/dashboard — extended', () => {
+  it('returns 500 on DB error', async () => {
+    mockPrisma.riskRegister.count.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('builds heatmap cells from open risks with explicit coordinates', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(2);
+    mockPrisma.riskRegister.groupBy.mockResolvedValue([]);
+    // allOpenRisks (3rd findMany call) returns two risks at different positions
+    mockPrisma.riskRegister.findMany.mockImplementation((_query: any) => {
+      // topRisks (take:5) vs recentlyChanged (take:10) vs allOpenRisks (take:1000)
+      const take = _query?.take;
+      if (take === 1000) {
+        return Promise.resolve([
+          { id: 'r1', title: 'Risk A', referenceNumber: 'RSK-001', residualRiskLevel: 'HIGH', residualLikelihoodNum: 4, residualConsequenceNum: 3 },
+          { id: 'r2', title: 'Risk B', referenceNumber: 'RSK-002', residualRiskLevel: 'MEDIUM', residualLikelihoodNum: 2, residualConsequenceNum: 2 },
+        ]);
+      }
+      return Promise.resolve([]);
+    });
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    // Cell (4,3) should have count:1
+    const cell43 = res.body.data.heatmapData.find(
+      (c: { likelihood: number; consequence: number }) => c.likelihood === 4 && c.consequence === 3
+    );
+    expect(cell43).toBeDefined();
+    expect(cell43.count).toBe(1);
+    expect(cell43.risks[0].ref).toBe('RSK-001');
+  });
+
+  it('aggregates byStatus from groupBy results', async () => {
+    mockPrisma.riskRegister.count.mockResolvedValue(3);
+    mockPrisma.riskRegister.groupBy.mockImplementation((_query: any) => {
+      const by = _query?.by?.[0];
+      if (by === 'status') return Promise.resolve([{ status: 'OPEN', _count: 2 }, { status: 'CLOSED', _count: 1 }]);
+      return Promise.resolve([]);
+    });
+    mockPrisma.riskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.riskAction.count.mockResolvedValue(0);
+    mockPrisma.riskKri.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/risks/analytics/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.data.byStatus.OPEN).toBe(2);
+    expect(res.body.data.byStatus.CLOSED).toBe(1);
+  });
 });

@@ -102,4 +102,121 @@ describe('DELETE /api/reviews/:id', () => {
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
   });
+
+  it('returns 404 when record not found', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue(null);
+    const res = await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000099');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+// ─── Validation errors ─────────────────────────────────────────────────────
+
+describe('POST /api/reviews — validation', () => {
+  it('returns 400 when title is missing', async () => {
+    const res = await request(app).post('/api/reviews').send({});
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('returns 400 when minutesUrl is not a valid URL', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    const res = await request(app)
+      .post('/api/reviews')
+      .send({ title: 'Review', minutesUrl: 'not-a-url' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+describe('PUT /api/reviews/:id — validation and not-found', () => {
+  it('returns 404 when record not found', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue(null);
+    const res = await request(app)
+      .put('/api/reviews/00000000-0000-0000-0000-000000000099')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+});
+
+// ─── 500 error paths ────────────────────────────────────────────────────────
+
+describe('500 error handling', () => {
+  it('GET / returns 500 on DB error', async () => {
+    mockPrisma.mgmtReview.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/reviews');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.mgmtReview.findFirst.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 500 when create fails', async () => {
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    mockPrisma.mgmtReview.create.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/reviews').send({ title: 'Test' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /:id returns 500 when update fails', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.mgmtReview.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .put('/api/reviews/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'Updated' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE /:id returns 500 when update fails', async () => {
+    mockPrisma.mgmtReview.findFirst.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    mockPrisma.mgmtReview.update.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).delete('/api/reviews/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ─── Query filtering ────────────────────────────────────────────────────────
+
+describe('GET /api/reviews — filtering', () => {
+  it('filters by status query param', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reviews?status=COMPLETED');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.mgmtReview.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'COMPLETED' }) })
+    );
+  });
+
+  it('searches by title keyword', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/reviews?search=quarterly');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.mgmtReview.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ title: expect.objectContaining({ contains: 'quarterly' }) }),
+      })
+    );
+  });
+
+  it('returns pagination metadata', async () => {
+    mockPrisma.mgmtReview.findMany.mockResolvedValue([]);
+    mockPrisma.mgmtReview.count.mockResolvedValue(42);
+    const res = await request(app).get('/api/reviews?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.total).toBe(42);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
 });

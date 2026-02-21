@@ -252,3 +252,72 @@ describe('Auth guard', () => {
     expect(res.status).toBe(401);
   });
 });
+
+// ============================================
+// 500 error paths
+// ============================================
+describe('500 error handling', () => {
+  it('GET /status returns 500 on DB error', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/wizard/status');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /init returns 500 when create fails', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.setupWizard.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/wizard/init');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PATCH /step/:stepIndex returns 500 when transaction fails', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.$transaction as jest.Mock).mockRejectedValue(new Error('TX failed'));
+    const res = await request(app).patch('/api/wizard/step/0').send({ data: {} });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /complete returns 500 when update fails', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.setupWizard.update as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/wizard/complete');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /skip returns 500 when create fails (no existing wizard)', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.setupWizard.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).post('/api/wizard/skip');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});
+
+// ============================================
+// Edge cases
+// ============================================
+describe('PATCH /api/wizard/step/:stepIndex edge cases', () => {
+  it('returns 400 for non-numeric step index', async () => {
+    const res = await request(app).patch('/api/wizard/step/abc').send({ data: {} });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('completes step with no data body (uses default empty object)', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    (prisma.setupWizardStep.update as jest.Mock).mockResolvedValue({
+      ...mockWizard.steps[1],
+      status: 'COMPLETED',
+    });
+    (prisma.setupWizard.update as jest.Mock).mockResolvedValue({ ...mockWizard, currentStep: 2 });
+    // Re-wire $transaction to resolve (may have been set to reject by an earlier test)
+    (prisma.$transaction as jest.Mock).mockImplementation((ops: unknown[]) => Promise.all(ops as Promise<unknown>[]));
+    const res = await request(app).patch('/api/wizard/step/1').send({});
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});
