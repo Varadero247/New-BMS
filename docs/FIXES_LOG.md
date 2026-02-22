@@ -1,5 +1,19 @@
 # IMS — Fixes Log
 
+## Phase 28 — Test Depth Expansion to ≥45 (February 22, 2026)
+
+Targeted expansion of all 623 test files with 40-44 `it()` calls up to ≥45 runtime tests each. 52 parallel agent batches (aa–bz).
+
+**Scope:** 623 test files across all API services, packages, and web apps. Each file received new `describe` blocks appended at the END. No existing tests were modified. New route stubs created for missing routes (api-partners, api-payroll, api-hr, api-suppliers, api-training, api-incidents).
+
+**Net new tests:** +2,618 (28,191 → 30,809), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (2 failures → 0):**
+- `documents.api.test.ts`: Added `mockFetch.mockReset()` to `phase28 coverage` `beforeEach` — Jest `clearAllMocks()` does not clear `mockResolvedValueOnce` queue, causing stale mock from prior describe block to shift queue by 1, swapping expected statuses (500/200 swapped)
+- `signature.test.ts`: Fixed TypeScript errors — `let passwordHash: string`, `meaning: 'RELEASED' as SignatureMeaning`, `result.signature!.meaning` (non-null assertion)
+
+---
+
 ## Phase 27 — Test Depth Expansion to ≥40 (February 22, 2026)
 
 Targeted expansion of all 604 test files with 35-39 `it()` calls up to ≥40 runtime tests each. 51 parallel agent batches (a–ay), plus 8 fix agents and 6 supplemental expansion agents.
