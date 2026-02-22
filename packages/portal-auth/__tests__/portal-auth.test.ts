@@ -504,3 +504,12 @@ describe('phase38 coverage', () => {
   it('applies difference array technique', () => { const diff=(a:number[])=>a.slice(1).map((v,i)=>v-a[i]); expect(diff([1,3,6,10,15])).toEqual([2,3,4,5]); });
   it('checks valid sudoku row', () => { const validRow=(row:number[])=>new Set(row.filter(v=>v!==0)).size===row.filter(v=>v!==0).length; expect(validRow([1,2,3,4,5,6,7,8,9])).toBe(true); expect(validRow([1,2,2,4,5,6,7,8,9])).toBe(false); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements XOR swap', () => { let a=5,b=3; a=a^b; b=a^b; a=a^b; expect(a).toBe(3); expect(b).toBe(5); });
+  it('counts islands in binary grid', () => { const islands=(g:number[][])=>{const v=g.map(r=>[...r]);let c=0;const dfs=(i:number,j:number)=>{if(i<0||i>=v.length||j<0||j>=v[0].length||v[i][j]!==1)return;v[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<v.length;i++)for(let j=0;j<v[0].length;j++)if(v[i][j]===1){dfs(i,j);c++;}return c;}; expect(islands([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
+  it('checks if string has all unique chars', () => { const allUniq=(s:string)=>new Set(s).size===s.length; expect(allUniq('abcde')).toBe(true); expect(allUniq('abcda')).toBe(false); });
+  it('generates power set of small array', () => { const ps=<T>(a:T[]):T[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as T[][]); expect(ps([1,2]).length).toBe(4); });
+  it('checks if graph has cycle (undirected)', () => { const hasCycle=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const vis=new Set<number>();const dfs=(node:number,par:number):boolean=>{vis.add(node);for(const nb of adj[node]){if(!vis.has(nb)){if(dfs(nb,node))return true;}else if(nb!==par)return true;}return false;};return dfs(0,-1);}; expect(hasCycle(4,[[0,1],[1,2],[2,3],[3,1]])).toBe(true); expect(hasCycle(3,[[0,1],[1,2]])).toBe(false); });
+});

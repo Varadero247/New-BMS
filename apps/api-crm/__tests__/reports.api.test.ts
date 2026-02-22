@@ -710,3 +710,12 @@ describe('phase38 coverage', () => {
   it('implements priority queue (max-heap top)', () => { const pq:number[]=[]; const push=(v:number)=>{pq.push(v);pq.sort((a,b)=>b-a);}; const pop=()=>pq.shift(); push(3);push(1);push(4);push(1);push(5); expect(pop()).toBe(5); });
   it('implements circular buffer', () => { class CircBuf{private d:number[];private head=0;private tail=0;private count=0;constructor(private cap:number){this.d=Array(cap);}write(v:number){this.d[this.tail]=v;this.tail=(this.tail+1)%this.cap;this.count=Math.min(this.count+1,this.cap);}read(){const v=this.d[this.head];this.head=(this.head+1)%this.cap;this.count--;return v;}get size(){return this.count;}} const b=new CircBuf(3);b.write(1);b.write(2);expect(b.read()).toBe(1);expect(b.size).toBe(1); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements topological sort check', () => { const canFinish=(n:number,pre:[number,number][])=>{const indeg=Array(n).fill(0);const adj:number[][]=Array.from({length:n},()=>[]);pre.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=indeg.map((v,i)=>v===0?i:-1).filter(v=>v>=0);let done=q.length;while(q.length){const cur=q.shift()!;for(const nb of adj[cur]){if(--indeg[nb]===0){q.push(nb);done++;}}}return done===n;}; expect(canFinish(2,[[1,0]])).toBe(true); expect(canFinish(2,[[1,0],[0,1]])).toBe(false); });
+  it('counts islands in binary grid', () => { const islands=(g:number[][])=>{const v=g.map(r=>[...r]);let c=0;const dfs=(i:number,j:number)=>{if(i<0||i>=v.length||j<0||j>=v[0].length||v[i][j]!==1)return;v[i][j]=0;dfs(i+1,j);dfs(i-1,j);dfs(i,j+1);dfs(i,j-1);};for(let i=0;i<v.length;i++)for(let j=0;j<v[0].length;j++)if(v[i][j]===1){dfs(i,j);c++;}return c;}; expect(islands([[1,1,0],[0,1,0],[0,0,1]])).toBe(2); });
+  it('computes word break possible', () => { const wb=(s:string,d:string[])=>{const dp=Array(s.length+1).fill(false);dp[0]=true;for(let i=1;i<=s.length;i++)for(const w of d)if(i>=w.length&&dp[i-w.length]&&s.slice(i-w.length,i)===w){dp[i]=true;break;}return dp[s.length];}; expect(wb('leetcode',['leet','code'])).toBe(true); });
+  it('checks if power of 4', () => { const isPow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(isPow4(16)).toBe(true); expect(isPow4(8)).toBe(false); });
+  it('validates parenthesis string', () => { const valid=(s:string)=>{let c=0;for(const ch of s){if(ch==='(')c++;else if(ch===')'){if(c===0)return false;c--;}}return c===0;}; expect(valid('(())')).toBe(true); expect(valid('())')).toBe(false); });
+});

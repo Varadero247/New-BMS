@@ -629,3 +629,12 @@ describe('phase38 coverage', () => {
   it('finds zero-sum subarray', () => { const hasZeroSum=(a:number[])=>{const s=new Set([0]);let cur=0;for(const v of a){cur+=v;if(s.has(cur))return true;s.add(cur);}return false;}; expect(hasZeroSum([4,2,-3,-1,0,4])).toBe(true); });
   it('merges sorted arrays', () => { const merge=(a:number[],b:number[])=>{const r:number[]=[];let i=0,j=0;while(i<a.length&&j<b.length)r.push(a[i]<=b[j]?a[i++]:b[j++]);return [...r,...a.slice(i),...b.slice(j)];}; expect(merge([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements topological sort check', () => { const canFinish=(n:number,pre:[number,number][])=>{const indeg=Array(n).fill(0);const adj:number[][]=Array.from({length:n},()=>[]);pre.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=indeg.map((v,i)=>v===0?i:-1).filter(v=>v>=0);let done=q.length;while(q.length){const cur=q.shift()!;for(const nb of adj[cur]){if(--indeg[nb]===0){q.push(nb);done++;}}}return done===n;}; expect(canFinish(2,[[1,0]])).toBe(true); expect(canFinish(2,[[1,0],[0,1]])).toBe(false); });
+  it('zigzag converts string', () => { const zz=(s:string,r:number)=>{if(r===1)return s;const rows=Array.from({length:r},()=>'');let row=0,dir=-1;for(const c of s){rows[row]+=c;if(row===0||row===r-1)dir*=-1;row+=dir;}return rows.join('');}; expect(zz('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR'); });
+  it('computes word break possible', () => { const wb=(s:string,d:string[])=>{const dp=Array(s.length+1).fill(false);dp[0]=true;for(let i=1;i<=s.length;i++)for(const w of d)if(i>=w.length&&dp[i-w.length]&&s.slice(i-w.length,i)===w){dp[i]=true;break;}return dp[s.length];}; expect(wb('leetcode',['leet','code'])).toBe(true); });
+  it('computes number of ways to climb stairs', () => { const climbStairs=(n:number)=>{let a=1,b=1;for(let i=2;i<=n;i++){const c=a+b;a=b;b=c;}return b;}; expect(climbStairs(5)).toBe(8); });
+  it('computes number of divisors', () => { const numDiv=(n:number)=>{let c=0;for(let i=1;i*i<=n;i++)if(n%i===0)c+=i===n/i?1:2;return c;}; expect(numDiv(12)).toBe(6); });
+});

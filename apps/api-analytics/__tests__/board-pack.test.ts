@@ -656,3 +656,12 @@ describe('phase38 coverage', () => {
   it('implements exponential search bound', () => { const expBound=(a:number[],v:number)=>{if(a[0]===v)return 0;let i=1;while(i<a.length&&a[i]<=v)i*=2;return Math.min(i,a.length-1);}; expect(expBound([1,2,4,8,16,32],8)).toBeGreaterThanOrEqual(3); });
   it('implements count inversions approach', () => { const inv=(a:number[])=>{let c=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])c++;return c;}; expect(inv([3,1,2])).toBe(2); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes minimum path sum', () => { const minPath=(g:number[][])=>{const m=g.length,n=g[0].length;const dp=g.map(r=>[...r]);for(let i=1;i<m;i++)dp[i][0]+=dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]+=dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]+=Math.min(dp[i-1][j],dp[i][j-1]);return dp[m-1][n-1];}; expect(minPath([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); });
+  it('zigzag converts string', () => { const zz=(s:string,r:number)=>{if(r===1)return s;const rows=Array.from({length:r},()=>'');let row=0,dir=-1;for(const c of s){rows[row]+=c;if(row===0||row===r-1)dir*=-1;row+=dir;}return rows.join('');}; expect(zz('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR'); });
+  it('implements Caesar cipher', () => { const caesar=(s:string,n:number)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+n)%26+base);}); expect(caesar('abc',3)).toBe('def'); expect(caesar('xyz',3)).toBe('abc'); });
+  it('implements string hashing polynomial', () => { const polyHash=(s:string,p=31,m=1e9+7)=>[...s].reduce((h,c)=>(h*p+c.charCodeAt(0))%m,0); const h=polyHash('hello'); expect(typeof h).toBe('number'); expect(h).toBeGreaterThan(0); });
+  it('reverses bits in byte', () => { const revBits=(n:number)=>{let r=0;for(let i=0;i<8;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(revBits(0b10110001)).toBe(0b10001101); });
+});

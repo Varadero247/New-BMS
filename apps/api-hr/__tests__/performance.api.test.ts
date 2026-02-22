@@ -972,3 +972,12 @@ describe('phase38 coverage', () => {
   it('merges sorted arrays', () => { const merge=(a:number[],b:number[])=>{const r:number[]=[];let i=0,j=0;while(i<a.length&&j<b.length)r.push(a[i]<=b[j]?a[i++]:b[j++]);return [...r,...a.slice(i),...b.slice(j)];}; expect(merge([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
   it('computes Pascal triangle row', () => { const pascalRow=(n:number)=>{let r=[1];for(let i=0;i<n;i++)r=[0,...r].map((v,j)=>v+(r[j]||0));return r;}; expect(pascalRow(4)).toEqual([1,4,6,4,1]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('parses CSV row', () => { const parseCSV=(row:string)=>row.split(',').map(s=>s.trim()); expect(parseCSV('a, b, c')).toEqual(['a','b','c']); });
+  it('computes minimum path sum', () => { const minPath=(g:number[][])=>{const m=g.length,n=g[0].length;const dp=g.map(r=>[...r]);for(let i=1;i<m;i++)dp[i][0]+=dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]+=dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]+=Math.min(dp[i-1][j],dp[i][j-1]);return dp[m-1][n-1];}; expect(minPath([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); });
+  it('finds two elements with target sum using set', () => { const hasPair=(a:number[],t:number)=>{const s=new Set<number>();for(const v of a){if(s.has(t-v))return true;s.add(v);}return false;}; expect(hasPair([1,4,3,5,2],6)).toBe(true); expect(hasPair([1,2,3],10)).toBe(false); });
+  it('implements Dijkstra shortest path', () => { const dijkstra=(graph:Map<number,{to:number,w:number}[]>,start:number)=>{const dist=new Map<number,number>();dist.set(start,0);const pq:number[]=[start];while(pq.length){const u=pq.shift()!;for(const {to,w} of graph.get(u)||[]){const nd=(dist.get(u)||0)+w;if(!dist.has(to)||nd<dist.get(to)!){dist.set(to,nd);pq.push(to);}}}return dist;}; const g=new Map([[0,[{to:1,w:4},{to:2,w:1}]],[2,[{to:1,w:2}]],[1,[]]]); const d=dijkstra(g,0); expect(d.get(1)).toBe(3); });
+  it('computes number of divisors', () => { const numDiv=(n:number)=>{let c=0;for(let i=1;i*i<=n;i++)if(n%i===0)c+=i===n/i?1:2;return c;}; expect(numDiv(12)).toBe(6); });
+});

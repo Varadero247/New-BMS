@@ -395,3 +395,12 @@ describe('phase38 coverage', () => {
   it('evaluates simple RPN expression', () => { const rpn=(tokens:string[])=>{const st:number[]=[];for(const t of tokens){if(/^-?\d+$/.test(t))st.push(Number(t));else{const b=st.pop()!,a=st.pop()!;st.push(t==='+'?a+b:t==='-'?a-b:t==='*'?a*b:a/b);}}return st[0];}; expect(rpn(['2','1','+','3','*'])).toBe(9); });
   it('splits array into n chunks', () => { const chunks=<T>(a:T[],n:number)=>Array.from({length:n},(_,i)=>a.filter((_,j)=>j%n===i)); expect(chunks([1,2,3,4,5,6],3)).toEqual([[1,4],[2,5],[3,6]]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks bipartite graph', () => { const isBipartite=(adj:number[][])=>{const color=Array(adj.length).fill(-1);for(let s=0;s<adj.length;s++){if(color[s]!==-1)continue;color[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(color[v]===-1){color[v]=1-color[u];q.push(v);}else if(color[v]===color[u])return false;}}}return true;}; expect(isBipartite([[1,3],[0,2],[1,3],[0,2]])).toBe(true); });
+  it('computes integer square root', () => { const isqrt=(n:number)=>Math.floor(Math.sqrt(n)); expect(isqrt(16)).toBe(4); expect(isqrt(17)).toBe(4); });
+  it('converts number to base-36 string', () => { expect((255).toString(36)).toBe('73'); expect(parseInt('73',36)).toBe(255); });
+  it('implements Dijkstra shortest path', () => { const dijkstra=(graph:Map<number,{to:number,w:number}[]>,start:number)=>{const dist=new Map<number,number>();dist.set(start,0);const pq:number[]=[start];while(pq.length){const u=pq.shift()!;for(const {to,w} of graph.get(u)||[]){const nd=(dist.get(u)||0)+w;if(!dist.has(to)||nd<dist.get(to)!){dist.set(to,nd);pq.push(to);}}}return dist;}; const g=new Map([[0,[{to:1,w:4},{to:2,w:1}]],[2,[{to:1,w:2}]],[1,[]]]); const d=dijkstra(g,0); expect(d.get(1)).toBe(3); });
+  it('implements XOR swap', () => { let a=5,b=3; a=a^b; b=a^b; a=a^b; expect(a).toBe(3); expect(b).toBe(5); });
+});

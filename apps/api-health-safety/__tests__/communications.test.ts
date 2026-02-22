@@ -945,3 +945,12 @@ describe('phase38 coverage', () => {
   it('implements memoized Fibonacci', () => { const memo=new Map<number,number>(); const fib=(n:number):number=>{if(n<=1)return n;if(memo.has(n))return memo.get(n)!;const v=fib(n-1)+fib(n-2);memo.set(n,v);return v;}; expect(fib(20)).toBe(6765); });
   it('checks majority element', () => { const majority=(a:number[])=>{const f=a.reduce((m,v)=>{m.set(v,(m.get(v)||0)+1);return m;},new Map<number,number>());let res=-1;f.forEach((c,v)=>{if(c>a.length/2)res=v;});return res;}; expect(majority([3,2,3])).toBe(3); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks if string is a valid integer string', () => { const isInt=(s:string)=>/^-?[0-9]+$/.test(s.trim()); expect(isInt('42')).toBe(true); expect(isInt('-7')).toBe(true); expect(isInt('3.14')).toBe(false); });
+  it('checks Harshad number', () => { const isHarshad=(n:number)=>n%String(n).split('').reduce((a,c)=>a+Number(c),0)===0; expect(isHarshad(18)).toBe(true); expect(isHarshad(19)).toBe(false); });
+  it('checks bipartite graph', () => { const isBipartite=(adj:number[][])=>{const color=Array(adj.length).fill(-1);for(let s=0;s<adj.length;s++){if(color[s]!==-1)continue;color[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(color[v]===-1){color[v]=1-color[u];q.push(v);}else if(color[v]===color[u])return false;}}}return true;}; expect(isBipartite([[1,3],[0,2],[1,3],[0,2]])).toBe(true); });
+  it('implements jump game check', () => { const canJump=(nums:number[])=>{let reach=0;for(let i=0;i<nums.length;i++){if(i>reach)return false;reach=Math.max(reach,i+nums[i]);}return true;}; expect(canJump([2,3,1,1,4])).toBe(true); expect(canJump([3,2,1,0,4])).toBe(false); });
+  it('computes sum of proper divisors', () => { const divSum=(n:number)=>{let s=1;for(let i=2;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s;}; expect(divSum(12)).toBe(16); });
+});

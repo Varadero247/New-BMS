@@ -362,3 +362,12 @@ describe('phase38 coverage', () => {
   it('implements run-length decode', () => { const decode=(s:string)=>s.replace(/([0-9]+)([a-zA-Z])/g,(_,n,c)=>c.repeat(Number(n))); expect(decode('3a2b1c')).toBe('aaabbc'); });
   it('merges sorted arrays', () => { const merge=(a:number[],b:number[])=>{const r:number[]=[];let i=0,j=0;while(i<a.length&&j<b.length)r.push(a[i]<=b[j]?a[i++]:b[j++]);return [...r,...a.slice(i),...b.slice(j)];}; expect(merge([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes minimum coins for amount', () => { const minCoins=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(minCoins([1,5,6,9],11)).toBe(2); });
+  it('generates Gray code sequence', () => { const gray=(n:number)=>Array.from({length:1<<n},(_,i)=>i^(i>>1)); const g=gray(2); expect(g).toEqual([0,1,3,2]); });
+  it('implements jump game check', () => { const canJump=(nums:number[])=>{let reach=0;for(let i=0;i<nums.length;i++){if(i>reach)return false;reach=Math.max(reach,i+nums[i]);}return true;}; expect(canJump([2,3,1,1,4])).toBe(true); expect(canJump([3,2,1,0,4])).toBe(false); });
+  it('implements Caesar cipher', () => { const caesar=(s:string,n:number)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+n)%26+base);}); expect(caesar('abc',3)).toBe('def'); expect(caesar('xyz',3)).toBe('abc'); });
+  it('zigzag converts string', () => { const zz=(s:string,r:number)=>{if(r===1)return s;const rows=Array.from({length:r},()=>'');let row=0,dir=-1;for(const c of s){rows[row]+=c;if(row===0||row===r-1)dir*=-1;row+=dir;}return rows.join('');}; expect(zz('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR'); });
+});

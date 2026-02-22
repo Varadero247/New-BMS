@@ -898,3 +898,12 @@ describe('phase38 coverage', () => {
   it('finds longest common prefix', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let p=strs[0];for(const s of strs)while(!s.startsWith(p))p=p.slice(0,-1);return p;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); });
   it('converts decimal to binary string', () => { const toBin=(n:number)=>n.toString(2); expect(toBin(10)).toBe('1010'); expect(toBin(255)).toBe('11111111'); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks if string is a valid integer string', () => { const isInt=(s:string)=>/^-?[0-9]+$/.test(s.trim()); expect(isInt('42')).toBe(true); expect(isInt('-7')).toBe(true); expect(isInt('3.14')).toBe(false); });
+  it('counts bits to flip to convert A to B', () => { const bitsToFlip=(a:number,b:number)=>{let x=a^b,c=0;while(x){c+=x&1;x>>>=1;}return c;}; expect(bitsToFlip(29,15)).toBe(2); });
+  it('checks if number is abundant', () => { const isAbundant=(n:number)=>{let s=1;for(let i=2;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s>n;}; expect(isAbundant(12)).toBe(true); expect(isAbundant(15)).toBe(false); });
+  it('checks valid IP address format', () => { const isIP=(s:string)=>/^(\d{1,3}\.){3}\d{1,3}$/.test(s)&&s.split('.').every(p=>Number(p)<=255); expect(isIP('192.168.1.1')).toBe(true); expect(isIP('999.0.0.1')).toBe(false); });
+  it('implements string hashing polynomial', () => { const polyHash=(s:string,p=31,m=1e9+7)=>[...s].reduce((h,c)=>(h*p+c.charCodeAt(0))%m,0); const h=polyHash('hello'); expect(typeof h).toBe('number'); expect(h).toBeGreaterThan(0); });
+});

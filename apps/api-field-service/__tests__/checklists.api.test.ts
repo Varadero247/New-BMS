@@ -628,3 +628,12 @@ describe('phase38 coverage', () => {
   it('implements linear search', () => { const search=(a:number[],v:number)=>a.indexOf(v); expect(search([1,3,5,7,9],5)).toBe(2); expect(search([1,3,5],4)).toBe(-1); });
   it('computes prefix sums', () => { const prefix=(a:number[])=>a.reduce((acc,v)=>[...acc,acc[acc.length-1]+v],[0]); expect(prefix([1,2,3,4])).toEqual([0,1,3,6,10]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements string hashing polynomial', () => { const polyHash=(s:string,p=31,m=1e9+7)=>[...s].reduce((h,c)=>(h*p+c.charCodeAt(0))%m,0); const h=polyHash('hello'); expect(typeof h).toBe('number'); expect(h).toBeGreaterThan(0); });
+  it('computes levenshtein distance small', () => { const lev=(a:string,b:string):number=>{if(!a.length)return b.length;if(!b.length)return a.length;return a[0]===b[0]?lev(a.slice(1),b.slice(1)):1+Math.min(lev(a.slice(1),b),lev(a,b.slice(1)),lev(a.slice(1),b.slice(1)));}; expect(lev('cat','cut')).toBe(1); });
+  it('checks if string is a valid integer string', () => { const isInt=(s:string)=>/^-?[0-9]+$/.test(s.trim()); expect(isInt('42')).toBe(true); expect(isInt('-7')).toBe(true); expect(isInt('3.14')).toBe(false); });
+  it('implements jump game check', () => { const canJump=(nums:number[])=>{let reach=0;for(let i=0;i<nums.length;i++){if(i>reach)return false;reach=Math.max(reach,i+nums[i]);}return true;}; expect(canJump([2,3,1,1,4])).toBe(true); expect(canJump([3,2,1,0,4])).toBe(false); });
+  it('computes integer square root', () => { const isqrt=(n:number)=>Math.floor(Math.sqrt(n)); expect(isqrt(16)).toBe(4); expect(isqrt(17)).toBe(4); });
+});

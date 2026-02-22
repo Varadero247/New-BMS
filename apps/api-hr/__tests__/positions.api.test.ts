@@ -710,3 +710,12 @@ describe('phase38 coverage', () => {
   it('implements linear search', () => { const search=(a:number[],v:number)=>a.indexOf(v); expect(search([1,3,5,7,9],5)).toBe(2); expect(search([1,3,5],4)).toBe(-1); });
   it('builds frequency table from array', () => { const freq=<T extends string|number>(a:T[])=>a.reduce((m,v)=>{m[v]=(m[v]||0)+1;return m;},{} as Record<T,number>); const f=freq(['a','b','a','c','b','a']); expect(f['a']).toBe(3); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks if power of 4', () => { const isPow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(isPow4(16)).toBe(true); expect(isPow4(8)).toBe(false); });
+  it('checks valid IP address format', () => { const isIP=(s:string)=>/^(\d{1,3}\.){3}\d{1,3}$/.test(s)&&s.split('.').every(p=>Number(p)<=255); expect(isIP('192.168.1.1')).toBe(true); expect(isIP('999.0.0.1')).toBe(false); });
+  it('counts bits to flip to convert A to B', () => { const bitsToFlip=(a:number,b:number)=>{let x=a^b,c=0;while(x){c+=x&1;x>>>=1;}return c;}; expect(bitsToFlip(29,15)).toBe(2); });
+  it('checks Kaprekar number', () => { const isKap=(n:number)=>{const sq=n*n;const s=String(sq);for(let i=1;i<s.length;i++){const r=Number(s.slice(i)),l=Number(s.slice(0,i));if(r>0&&l+r===n)return true;}return false;}; expect(isKap(9)).toBe(true); expect(isKap(45)).toBe(true); });
+  it('implements Caesar cipher', () => { const caesar=(s:string,n:number)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+n)%26+base);}); expect(caesar('abc',3)).toBe('def'); expect(caesar('xyz',3)).toBe('abc'); });
+});

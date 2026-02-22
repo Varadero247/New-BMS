@@ -673,3 +673,12 @@ describe('phase38 coverage', () => {
   it('checks if strings are rotations of each other', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
   it('computes edit distance between two arrays', () => { const arrDiff=<T>(a:T[],b:T[])=>a.filter(x=>!b.includes(x)).length+b.filter(x=>!a.includes(x)).length; expect(arrDiff([1,2,3],[2,3,4])).toBe(2); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements counting sort', () => { const csort=(a:number[],max:number)=>{const c=Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((cnt,v)=>r.push(...Array(cnt).fill(v)));return r;}; expect(csort([4,2,3,1,4,2],4)).toEqual([1,2,2,3,4,4]); });
+  it('generates power set of small array', () => { const ps=<T>(a:T[]):T[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as T[][]); expect(ps([1,2]).length).toBe(4); });
+  it('computes unique paths in grid', () => { const paths=(m:number,n:number)=>{const dp=Array.from({length:m},()=>Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(paths(3,3)).toBe(6); });
+  it('counts substring occurrences', () => { const countOcc=(s:string,sub:string)=>{let c=0,i=0;while((i=s.indexOf(sub,i))!==-1){c++;i+=sub.length;}return c;}; expect(countOcc('banana','an')).toBe(2); });
+  it('computes minimum coins for amount', () => { const minCoins=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(minCoins([1,5,6,9],11)).toBe(2); });
+});

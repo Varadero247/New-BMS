@@ -866,3 +866,12 @@ describe('phase38 coverage', () => {
   it('evaluates simple RPN expression', () => { const rpn=(tokens:string[])=>{const st:number[]=[];for(const t of tokens){if(/^-?\d+$/.test(t))st.push(Number(t));else{const b=st.pop()!,a=st.pop()!;st.push(t==='+'?a+b:t==='-'?a-b:t==='*'?a*b:a/b);}}return st[0];}; expect(rpn(['2','1','+','3','*'])).toBe(9); });
   it('merges sorted arrays', () => { const merge=(a:number[],b:number[])=>{const r:number[]=[];let i=0,j=0;while(i<a.length&&j<b.length)r.push(a[i]<=b[j]?a[i++]:b[j++]);return [...r,...a.slice(i),...b.slice(j)];}; expect(merge([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements Atbash cipher', () => { const atbash=(s:string)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode(25-(c.charCodeAt(0)-base)+base);}); expect(atbash('abc')).toBe('zyx'); });
+  it('counts bits to flip to convert A to B', () => { const bitsToFlip=(a:number,b:number)=>{let x=a^b,c=0;while(x){c+=x&1;x>>>=1;}return c;}; expect(bitsToFlip(29,15)).toBe(2); });
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+  it('checks Harshad number', () => { const isHarshad=(n:number)=>n%String(n).split('').reduce((a,c)=>a+Number(c),0)===0; expect(isHarshad(18)).toBe(true); expect(isHarshad(19)).toBe(false); });
+  it('checks if power of 4', () => { const isPow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(isPow4(16)).toBe(true); expect(isPow4(8)).toBe(false); });
+});

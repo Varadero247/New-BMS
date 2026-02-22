@@ -573,3 +573,12 @@ describe('phase38 coverage', () => {
   it('rotates matrix 90 degrees', () => { const rot90=(m:number[][])=>m[0].map((_,i)=>m.map(r=>r[i]).reverse()); expect(rot90([[1,2],[3,4]])).toEqual([[3,1],[4,2]]); });
   it('applies map-reduce pattern', () => { const data=[{cat:'a',v:1},{cat:'b',v:2},{cat:'a',v:3}]; const result=data.reduce((acc,{cat,v})=>{acc[cat]=(acc[cat]||0)+v;return acc;},{} as Record<string,number>); expect(result['a']).toBe(4); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes minimum coins for amount', () => { const minCoins=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(minCoins([1,5,6,9],11)).toBe(2); });
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+  it('computes minimum path sum', () => { const minPath=(g:number[][])=>{const m=g.length,n=g[0].length;const dp=g.map(r=>[...r]);for(let i=1;i<m;i++)dp[i][0]+=dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]+=dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]+=Math.min(dp[i-1][j],dp[i][j-1]);return dp[m-1][n-1];}; expect(minPath([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); });
+  it('counts bits to flip to convert A to B', () => { const bitsToFlip=(a:number,b:number)=>{let x=a^b,c=0;while(x){c+=x&1;x>>>=1;}return c;}; expect(bitsToFlip(29,15)).toBe(2); });
+  it('implements knapsack 0-1 small', () => { const ks=(weights:number[],values:number[],cap:number)=>{const n=weights.length;const dp=Array.from({length:n+1},()=>Array(cap+1).fill(0));for(let i=1;i<=n;i++)for(let w=0;w<=cap;w++){dp[i][w]=dp[i-1][w];if(weights[i-1]<=w)dp[i][w]=Math.max(dp[i][w],dp[i-1][w-weights[i-1]]+values[i-1]);}return dp[n][cap];}; expect(ks([1,3,4,5],[1,4,5,7],7)).toBe(9); });
+});

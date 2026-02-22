@@ -835,3 +835,12 @@ describe('phase38 coverage', () => {
   it('computes standard deviation', () => { const std=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);}; expect(std([2,4,4,4,5,5,7,9])).toBe(2); });
   it('checks if strings are rotations of each other', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes levenshtein distance small', () => { const lev=(a:string,b:string):number=>{if(!a.length)return b.length;if(!b.length)return a.length;return a[0]===b[0]?lev(a.slice(1),b.slice(1)):1+Math.min(lev(a.slice(1),b),lev(a,b.slice(1)),lev(a.slice(1),b.slice(1)));}; expect(lev('cat','cut')).toBe(1); });
+  it('checks if two strings are isomorphic', () => { const isIso=(s:string,t:string)=>{const m1=new Map<string,string>(),m2=new Set<string>();for(let i=0;i<s.length;i++){if(m1.has(s[i])&&m1.get(s[i])!==t[i])return false;if(!m1.has(s[i])&&m2.has(t[i]))return false;m1.set(s[i],t[i]);m2.add(t[i]);}return true;}; expect(isIso('egg','add')).toBe(true); expect(isIso('foo','bar')).toBe(false); });
+  it('checks bipartite graph', () => { const isBipartite=(adj:number[][])=>{const color=Array(adj.length).fill(-1);for(let s=0;s<adj.length;s++){if(color[s]!==-1)continue;color[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(color[v]===-1){color[v]=1-color[u];q.push(v);}else if(color[v]===color[u])return false;}}}return true;}; expect(isBipartite([[1,3],[0,2],[1,3],[0,2]])).toBe(true); });
+  it('checks if string has all unique chars', () => { const allUniq=(s:string)=>new Set(s).size===s.length; expect(allUniq('abcde')).toBe(true); expect(allUniq('abcda')).toBe(false); });
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+});

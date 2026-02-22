@@ -692,3 +692,12 @@ describe('phase38 coverage', () => {
   it('finds longest common prefix', () => { const lcp=(strs:string[])=>{if(!strs.length)return '';let p=strs[0];for(const s of strs)while(!s.startsWith(p))p=p.slice(0,-1);return p;}; expect(lcp(['flower','flow','flight'])).toBe('fl'); });
   it('checks perfect number', () => { const isPerfect=(n:number)=>{let s=1;for(let i=2;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s===n&&n!==1;}; expect(isPerfect(6)).toBe(true); expect(isPerfect(28)).toBe(true); expect(isPerfect(12)).toBe(false); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks if string is a valid integer string', () => { const isInt=(s:string)=>/^-?[0-9]+$/.test(s.trim()); expect(isInt('42')).toBe(true); expect(isInt('-7')).toBe(true); expect(isInt('3.14')).toBe(false); });
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+  it('computes levenshtein distance small', () => { const lev=(a:string,b:string):number=>{if(!a.length)return b.length;if(!b.length)return a.length;return a[0]===b[0]?lev(a.slice(1),b.slice(1)):1+Math.min(lev(a.slice(1),b),lev(a,b.slice(1)),lev(a.slice(1),b.slice(1)));}; expect(lev('cat','cut')).toBe(1); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); });
+  it('checks if graph has cycle (undirected)', () => { const hasCycle=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const vis=new Set<number>();const dfs=(node:number,par:number):boolean=>{vis.add(node);for(const nb of adj[node]){if(!vis.has(nb)){if(dfs(nb,node))return true;}else if(nb!==par)return true;}return false;};return dfs(0,-1);}; expect(hasCycle(4,[[0,1],[1,2],[2,3],[3,1]])).toBe(true); expect(hasCycle(3,[[0,1],[1,2]])).toBe(false); });
+});

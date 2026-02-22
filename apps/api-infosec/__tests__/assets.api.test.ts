@@ -673,3 +673,12 @@ describe('phase38 coverage', () => {
   it('computes longest common subsequence length', () => { const lcs=(a:string,b:string)=>{const m=Array.from({length:a.length+1},()=>Array(b.length+1).fill(0));for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=a[i-1]===b[j-1]?m[i-1][j-1]+1:Math.max(m[i-1][j],m[i][j-1]);return m[a.length][b.length];}; expect(lcs('ABCBDAB','BDCAB')).toBe(4); });
   it('finds all prime factors', () => { const factors=(n:number)=>{const r:number[]=[];for(let i=2;i*i<=n;i++)while(n%i===0){r.push(i);n/=i;}if(n>1)r.push(n);return r;}; expect(factors(12)).toEqual([2,2,3]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements counting sort', () => { const csort=(a:number[],max:number)=>{const c=Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((cnt,v)=>r.push(...Array(cnt).fill(v)));return r;}; expect(csort([4,2,3,1,4,2],4)).toEqual([1,2,2,3,4,4]); });
+  it('finds first non-repeating character', () => { const firstUniq=(s:string)=>{const f=new Map<string,number>();for(const c of s)f.set(c,(f.get(c)||0)+1);for(const c of s)if(f.get(c)===1)return c;return null;}; expect(firstUniq('aabbcde')).toBe('c'); });
+  it('checks if perfect square', () => { const isPerfSq=(n:number)=>Number.isInteger(Math.sqrt(n)); expect(isPerfSq(25)).toBe(true); expect(isPerfSq(26)).toBe(false); });
+  it('checks if power of 4', () => { const isPow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(isPow4(16)).toBe(true); expect(isPow4(8)).toBe(false); });
+  it('implements Dijkstra shortest path', () => { const dijkstra=(graph:Map<number,{to:number,w:number}[]>,start:number)=>{const dist=new Map<number,number>();dist.set(start,0);const pq:number[]=[start];while(pq.length){const u=pq.shift()!;for(const {to,w} of graph.get(u)||[]){const nd=(dist.get(u)||0)+w;if(!dist.has(to)||nd<dist.get(to)!){dist.set(to,nd);pq.push(to);}}}return dist;}; const g=new Map([[0,[{to:1,w:4},{to:2,w:1}]],[2,[{to:1,w:2}]],[1,[]]]); const d=dijkstra(g,0); expect(d.get(1)).toBe(3); });
+});

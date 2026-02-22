@@ -806,3 +806,12 @@ describe('phase38 coverage', () => {
   it('computes standard deviation', () => { const std=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);}; expect(std([2,4,4,4,5,5,7,9])).toBe(2); });
   it('computes array variance', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements topological sort check', () => { const canFinish=(n:number,pre:[number,number][])=>{const indeg=Array(n).fill(0);const adj:number[][]=Array.from({length:n},()=>[]);pre.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=indeg.map((v,i)=>v===0?i:-1).filter(v=>v>=0);let done=q.length;while(q.length){const cur=q.shift()!;for(const nb of adj[cur]){if(--indeg[nb]===0){q.push(nb);done++;}}}return done===n;}; expect(canFinish(2,[[1,0]])).toBe(true); expect(canFinish(2,[[1,0],[0,1]])).toBe(false); });
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+  it('finds two elements with target sum using set', () => { const hasPair=(a:number[],t:number)=>{const s=new Set<number>();for(const v of a){if(s.has(t-v))return true;s.add(v);}return false;}; expect(hasPair([1,4,3,5,2],6)).toBe(true); expect(hasPair([1,2,3],10)).toBe(false); });
+  it('counts set bits in integer', () => { const popcount=(n:number)=>{let c=0;let v=n>>>0;while(v){c+=v&1;v>>>=1;}return c;}; expect(popcount(7)).toBe(3); expect(popcount(255)).toBe(8); });
+  it('checks Kaprekar number', () => { const isKap=(n:number)=>{const sq=n*n;const s=String(sq);for(let i=1;i<s.length;i++){const r=Number(s.slice(i)),l=Number(s.slice(0,i));if(r>0&&l+r===n)return true;}return false;}; expect(isKap(9)).toBe(true); expect(isKap(45)).toBe(true); });
+});

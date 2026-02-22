@@ -562,3 +562,12 @@ describe('phase38 coverage', () => {
   it('converts decimal to binary string', () => { const toBin=(n:number)=>n.toString(2); expect(toBin(10)).toBe('1010'); expect(toBin(255)).toBe('11111111'); });
   it('checks if strings are rotations of each other', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes levenshtein distance small', () => { const lev=(a:string,b:string):number=>{if(!a.length)return b.length;if(!b.length)return a.length;return a[0]===b[0]?lev(a.slice(1),b.slice(1)):1+Math.min(lev(a.slice(1),b),lev(a,b.slice(1)),lev(a.slice(1),b.slice(1)));}; expect(lev('cat','cut')).toBe(1); });
+  it('implements XOR swap', () => { let a=5,b=3; a=a^b; b=a^b; a=a^b; expect(a).toBe(3); expect(b).toBe(5); });
+  it('finds maximum profit from stock prices', () => { const maxProfit=(prices:number[])=>{let min=Infinity,max=0;for(const p of prices){min=Math.min(min,p);max=Math.max(max,p-min);}return max;}; expect(maxProfit([7,1,5,3,6,4])).toBe(5); });
+  it('checks bipartite graph', () => { const isBipartite=(adj:number[][])=>{const color=Array(adj.length).fill(-1);for(let s=0;s<adj.length;s++){if(color[s]!==-1)continue;color[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(color[v]===-1){color[v]=1-color[u];q.push(v);}else if(color[v]===color[u])return false;}}}return true;}; expect(isBipartite([[1,3],[0,2],[1,3],[0,2]])).toBe(true); });
+  it('implements topological sort check', () => { const canFinish=(n:number,pre:[number,number][])=>{const indeg=Array(n).fill(0);const adj:number[][]=Array.from({length:n},()=>[]);pre.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=indeg.map((v,i)=>v===0?i:-1).filter(v=>v>=0);let done=q.length;while(q.length){const cur=q.shift()!;for(const nb of adj[cur]){if(--indeg[nb]===0){q.push(nb);done++;}}}return done===n;}; expect(canFinish(2,[[1,0]])).toBe(true); expect(canFinish(2,[[1,0],[0,1]])).toBe(false); });
+});

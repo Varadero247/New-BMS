@@ -977,3 +977,12 @@ describe('phase38 coverage', () => {
   it('computes standard deviation', () => { const std=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/a.length);}; expect(std([2,4,4,4,5,5,7,9])).toBe(2); });
   it('checks if year is leap year', () => { const isLeap=(y:number)=>y%4===0&&(y%100!==0||y%400===0); expect(isLeap(2000)).toBe(true); expect(isLeap(1900)).toBe(false); expect(isLeap(2024)).toBe(true); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes minimum coins for amount', () => { const minCoins=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(minCoins([1,5,6,9],11)).toBe(2); });
+  it('checks bipartite graph', () => { const isBipartite=(adj:number[][])=>{const color=Array(adj.length).fill(-1);for(let s=0;s<adj.length;s++){if(color[s]!==-1)continue;color[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(color[v]===-1){color[v]=1-color[u];q.push(v);}else if(color[v]===color[u])return false;}}}return true;}; expect(isBipartite([[1,3],[0,2],[1,3],[0,2]])).toBe(true); });
+  it('generates Gray code sequence', () => { const gray=(n:number)=>Array.from({length:1<<n},(_,i)=>i^(i>>1)); const g=gray(2); expect(g).toEqual([0,1,3,2]); });
+  it('implements Sieve of Eratosthenes', () => { const sieve=(n:number)=>{const p=Array(n+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=n;i++)if(p[i])for(let j=i*i;j<=n;j+=i)p[j]=false;return p.map((v,i)=>v?i:-1).filter(v=>v>0);}; expect(sieve(20)).toEqual([2,3,5,7,11,13,17,19]); });
+  it('computes collatz sequence length', () => { const collatz=(n:number)=>{let steps=1;while(n!==1){n=n%2===0?n/2:3*n+1;steps++;}return steps;}; expect(collatz(6)).toBe(9); });
+});

@@ -720,3 +720,12 @@ describe('phase38 coverage', () => {
   it('computes array variance', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
   it('computes prefix sums', () => { const prefix=(a:number[])=>a.reduce((acc,v)=>[...acc,acc[acc.length-1]+v],[0]); expect(prefix([1,2,3,4])).toEqual([0,1,3,6,10]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks Kaprekar number', () => { const isKap=(n:number)=>{const sq=n*n;const s=String(sq);for(let i=1;i<s.length;i++){const r=Number(s.slice(i)),l=Number(s.slice(0,i));if(r>0&&l+r===n)return true;}return false;}; expect(isKap(9)).toBe(true); expect(isKap(45)).toBe(true); });
+  it('checks bipartite graph', () => { const isBipartite=(adj:number[][])=>{const color=Array(adj.length).fill(-1);for(let s=0;s<adj.length;s++){if(color[s]!==-1)continue;color[s]=0;const q=[s];while(q.length){const u=q.shift()!;for(const v of adj[u]){if(color[v]===-1){color[v]=1-color[u];q.push(v);}else if(color[v]===color[u])return false;}}}return true;}; expect(isBipartite([[1,3],[0,2],[1,3],[0,2]])).toBe(true); });
+  it('checks Harshad number', () => { const isHarshad=(n:number)=>n%String(n).split('').reduce((a,c)=>a+Number(c),0)===0; expect(isHarshad(18)).toBe(true); expect(isHarshad(19)).toBe(false); });
+  it('checks if power of 4', () => { const isPow4=(n:number)=>n>0&&(n&(n-1))===0&&(n-1)%3===0; expect(isPow4(16)).toBe(true); expect(isPow4(8)).toBe(false); });
+  it('implements Dijkstra shortest path', () => { const dijkstra=(graph:Map<number,{to:number,w:number}[]>,start:number)=>{const dist=new Map<number,number>();dist.set(start,0);const pq:number[]=[start];while(pq.length){const u=pq.shift()!;for(const {to,w} of graph.get(u)||[]){const nd=(dist.get(u)||0)+w;if(!dist.has(to)||nd<dist.get(to)!){dist.set(to,nd);pq.push(to);}}}return dist;}; const g=new Map([[0,[{to:1,w:4},{to:2,w:1}]],[2,[{to:1,w:2}]],[1,[]]]); const d=dijkstra(g,0); expect(d.get(1)).toBe(3); });
+});

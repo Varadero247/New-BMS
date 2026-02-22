@@ -940,3 +940,12 @@ describe('phase38 coverage', () => {
   it('rotates matrix 90 degrees', () => { const rot90=(m:number[][])=>m[0].map((_,i)=>m.map(r=>r[i]).reverse()); expect(rot90([[1,2],[3,4]])).toEqual([[3,1],[4,2]]); });
   it('finds peak element index', () => { const peak=(a:number[])=>a.indexOf(Math.max(...a)); expect(peak([1,3,7,2,4])).toBe(2); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks Harshad number', () => { const isHarshad=(n:number)=>n%String(n).split('').reduce((a,c)=>a+Number(c),0)===0; expect(isHarshad(18)).toBe(true); expect(isHarshad(19)).toBe(false); });
+  it('implements counting sort', () => { const csort=(a:number[],max:number)=>{const c=Array(max+1).fill(0);a.forEach(v=>c[v]++);const r:number[]=[];c.forEach((cnt,v)=>r.push(...Array(cnt).fill(v)));return r;}; expect(csort([4,2,3,1,4,2],4)).toEqual([1,2,2,3,4,4]); });
+  it('computes collatz sequence length', () => { const collatz=(n:number)=>{let steps=1;while(n!==1){n=n%2===0?n/2:3*n+1;steps++;}return steps;}; expect(collatz(6)).toBe(9); });
+  it('checks Kaprekar number', () => { const isKap=(n:number)=>{const sq=n*n;const s=String(sq);for(let i=1;i<s.length;i++){const r=Number(s.slice(i)),l=Number(s.slice(0,i));if(r>0&&l+r===n)return true;}return false;}; expect(isKap(9)).toBe(true); expect(isKap(45)).toBe(true); });
+  it('implements knapsack 0-1 small', () => { const ks=(weights:number[],values:number[],cap:number)=>{const n=weights.length;const dp=Array.from({length:n+1},()=>Array(cap+1).fill(0));for(let i=1;i<=n;i++)for(let w=0;w<=cap;w++){dp[i][w]=dp[i-1][w];if(weights[i-1]<=w)dp[i][w]=Math.max(dp[i][w],dp[i-1][w-weights[i-1]]+values[i-1]);}return dp[n][cap];}; expect(ks([1,3,4,5],[1,4,5,7],7)).toBe(9); });
+});

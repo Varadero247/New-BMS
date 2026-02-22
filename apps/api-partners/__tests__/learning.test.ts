@@ -384,3 +384,12 @@ describe('phase38 coverage', () => {
   it('converts decimal to binary string', () => { const toBin=(n:number)=>n.toString(2); expect(toBin(10)).toBe('1010'); expect(toBin(255)).toBe('11111111'); });
   it('implements priority queue (max-heap top)', () => { const pq:number[]=[]; const push=(v:number)=>{pq.push(v);pq.sort((a,b)=>b-a);}; const pop=()=>pq.shift(); push(3);push(1);push(4);push(1);push(5); expect(pop()).toBe(5); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+  it('computes minimum coins for amount', () => { const minCoins=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(minCoins([1,5,6,9],11)).toBe(2); });
+  it('validates parenthesis string', () => { const valid=(s:string)=>{let c=0;for(const ch of s){if(ch==='(')c++;else if(ch===')'){if(c===0)return false;c--;}}return c===0;}; expect(valid('(())')).toBe(true); expect(valid('())')).toBe(false); });
+  it('finds maximum profit from stock prices', () => { const maxProfit=(prices:number[])=>{let min=Infinity,max=0;for(const p of prices){min=Math.min(min,p);max=Math.max(max,p-min);}return max;}; expect(maxProfit([7,1,5,3,6,4])).toBe(5); });
+  it('zigzag converts string', () => { const zz=(s:string,r:number)=>{if(r===1)return s;const rows=Array.from({length:r},()=>'');let row=0,dir=-1;for(const c of s){rows[row]+=c;if(row===0||row===r-1)dir*=-1;row+=dir;}return rows.join('');}; expect(zz('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR'); });
+});

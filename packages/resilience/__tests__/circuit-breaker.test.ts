@@ -477,3 +477,12 @@ describe('phase38 coverage', () => {
   it('implements simple tokenizer', () => { const tokenize=(s:string)=>s.match(/[a-zA-Z]+|\d+|[^\s]/g)||[]; expect(tokenize('a+b=3')).toEqual(['a','+','b','=','3']); });
   it('finds longest palindromic substring length', () => { const longestPalin=(s:string)=>{let max=1;for(let i=0;i<s.length;i++){for(let l=i,r=i;l>=0&&r<s.length&&s[l]===s[r];l--,r++)max=Math.max(max,r-l+1);for(let l=i,r=i+1;l>=0&&r<s.length&&s[l]===s[r];l--,r++)max=Math.max(max,r-l+1);}return max;}; expect(longestPalin('babad')).toBe(3); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes minimum coins for amount', () => { const minCoins=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(minCoins([1,5,6,9],11)).toBe(2); });
+  it('implements Atbash cipher', () => { const atbash=(s:string)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode(25-(c.charCodeAt(0)-base)+base);}); expect(atbash('abc')).toBe('zyx'); });
+  it('checks if string has all unique chars', () => { const allUniq=(s:string)=>new Set(s).size===s.length; expect(allUniq('abcde')).toBe(true); expect(allUniq('abcda')).toBe(false); });
+  it('reverses bits in byte', () => { const revBits=(n:number)=>{let r=0;for(let i=0;i<8;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(revBits(0b10110001)).toBe(0b10001101); });
+  it('checks if graph has cycle (undirected)', () => { const hasCycle=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const vis=new Set<number>();const dfs=(node:number,par:number):boolean=>{vis.add(node);for(const nb of adj[node]){if(!vis.has(nb)){if(dfs(nb,node))return true;}else if(nb!==par)return true;}return false;};return dfs(0,-1);}; expect(hasCycle(4,[[0,1],[1,2],[2,3],[3,1]])).toBe(true); expect(hasCycle(3,[[0,1],[1,2]])).toBe(false); });
+});

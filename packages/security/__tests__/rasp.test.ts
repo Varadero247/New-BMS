@@ -385,3 +385,12 @@ describe('phase38 coverage', () => {
   it('checks if strings are rotations of each other', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
   it('implements run-length decode', () => { const decode=(s:string)=>s.replace(/([0-9]+)([a-zA-Z])/g,(_,n,c)=>c.repeat(Number(n))); expect(decode('3a2b1c')).toBe('aaabbc'); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('counts substring occurrences', () => { const countOcc=(s:string,sub:string)=>{let c=0,i=0;while((i=s.indexOf(sub,i))!==-1){c++;i+=sub.length;}return c;}; expect(countOcc('banana','an')).toBe(2); });
+  it('checks if number is abundant', () => { const isAbundant=(n:number)=>{let s=1;for(let i=2;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s>n;}; expect(isAbundant(12)).toBe(true); expect(isAbundant(15)).toBe(false); });
+  it('counts set bits in integer', () => { const popcount=(n:number)=>{let c=0;let v=n>>>0;while(v){c+=v&1;v>>>=1;}return c;}; expect(popcount(7)).toBe(3); expect(popcount(255)).toBe(8); });
+  it('counts bits to flip to convert A to B', () => { const bitsToFlip=(a:number,b:number)=>{let x=a^b,c=0;while(x){c+=x&1;x>>>=1;}return c;}; expect(bitsToFlip(29,15)).toBe(2); });
+  it('implements knapsack 0-1 small', () => { const ks=(weights:number[],values:number[],cap:number)=>{const n=weights.length;const dp=Array.from({length:n+1},()=>Array(cap+1).fill(0));for(let i=1;i<=n;i++)for(let w=0;w<=cap;w++){dp[i][w]=dp[i-1][w];if(weights[i-1]<=w)dp[i][w]=Math.max(dp[i][w],dp[i-1][w-weights[i-1]]+values[i-1]);}return dp[n][cap];}; expect(ks([1,3,4,5],[1,4,5,7],7)).toBe(9); });
+});

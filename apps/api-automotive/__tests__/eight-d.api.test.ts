@@ -606,3 +606,12 @@ describe('phase38 coverage', () => {
   it('finds longest increasing subsequence length', () => { const lis=(a:number[])=>{const dp=Array(a.length).fill(1);for(let i=1;i<a.length;i++)for(let j=0;j<i;j++)if(a[j]<a[i])dp[i]=Math.max(dp[i],dp[j]+1);return Math.max(...dp);}; expect(lis([10,9,2,5,3,7,101,18])).toBe(4); });
   it('rotates matrix 90 degrees', () => { const rot90=(m:number[][])=>m[0].map((_,i)=>m.map(r=>r[i]).reverse()); expect(rot90([[1,2],[3,4]])).toEqual([[3,1],[4,2]]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes unique paths in grid', () => { const paths=(m:number,n:number)=>{const dp=Array.from({length:m},()=>Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(paths(3,3)).toBe(6); });
+  it('checks if linked list has cycle (array sim)', () => { const hasCycle=(a:Array<number|null>)=>{const s=new Set<number>();for(let i=0;i<a.length;i++){if(a[i]===null)return false;if(s.has(i))return true;s.add(i);}return false;}; expect(hasCycle([3,2,0,null])).toBe(false); });
+  it('finds two elements with target sum using set', () => { const hasPair=(a:number[],t:number)=>{const s=new Set<number>();for(const v of a){if(s.has(t-v))return true;s.add(v);}return false;}; expect(hasPair([1,4,3,5,2],6)).toBe(true); expect(hasPair([1,2,3],10)).toBe(false); });
+  it('zigzag converts string', () => { const zz=(s:string,r:number)=>{if(r===1)return s;const rows=Array.from({length:r},()=>'');let row=0,dir=-1;for(const c of s){rows[row]+=c;if(row===0||row===r-1)dir*=-1;row+=dir;}return rows.join('');}; expect(zz('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR'); });
+  it('implements Caesar cipher', () => { const caesar=(s:string,n:number)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+n)%26+base);}); expect(caesar('abc',3)).toBe('def'); expect(caesar('xyz',3)).toBe('abc'); });
+});

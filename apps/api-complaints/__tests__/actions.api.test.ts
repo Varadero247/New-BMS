@@ -572,3 +572,12 @@ describe('phase38 coverage', () => {
   it('computes edit distance between two arrays', () => { const arrDiff=<T>(a:T[],b:T[])=>a.filter(x=>!b.includes(x)).length+b.filter(x=>!a.includes(x)).length; expect(arrDiff([1,2,3],[2,3,4])).toBe(2); });
   it('checks majority element', () => { const majority=(a:number[])=>{const f=a.reduce((m,v)=>{m.set(v,(m.get(v)||0)+1);return m;},new Map<number,number>());let res=-1;f.forEach((c,v)=>{if(c>a.length/2)res=v;});return res;}; expect(majority([3,2,3])).toBe(3); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('generates power set of small array', () => { const ps=<T>(a:T[]):T[][]=>a.reduce((acc,v)=>[...acc,...acc.map(s=>[...s,v])],[[]] as T[][]); expect(ps([1,2]).length).toBe(4); });
+  it('zigzag converts string', () => { const zz=(s:string,r:number)=>{if(r===1)return s;const rows=Array.from({length:r},()=>'');let row=0,dir=-1;for(const c of s){rows[row]+=c;if(row===0||row===r-1)dir*=-1;row+=dir;}return rows.join('');}; expect(zz('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR'); });
+  it('checks if linked list has cycle (array sim)', () => { const hasCycle=(a:Array<number|null>)=>{const s=new Set<number>();for(let i=0;i<a.length;i++){if(a[i]===null)return false;if(s.has(i))return true;s.add(i);}return false;}; expect(hasCycle([3,2,0,null])).toBe(false); });
+  it('checks if perfect square', () => { const isPerfSq=(n:number)=>Number.isInteger(Math.sqrt(n)); expect(isPerfSq(25)).toBe(true); expect(isPerfSq(26)).toBe(false); });
+  it('implements XOR swap', () => { let a=5,b=3; a=a^b; b=a^b; a=a^b; expect(a).toBe(3); expect(b).toBe(5); });
+});

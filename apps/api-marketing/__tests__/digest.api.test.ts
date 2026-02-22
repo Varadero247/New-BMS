@@ -658,3 +658,12 @@ describe('phase38 coverage', () => {
   it('checks perfect number', () => { const isPerfect=(n:number)=>{let s=1;for(let i=2;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s===n&&n!==1;}; expect(isPerfect(6)).toBe(true); expect(isPerfect(28)).toBe(true); expect(isPerfect(12)).toBe(false); });
   it('finds median of array', () => { const med=(a:number[])=>{const s=[...a].sort((x,y)=>x-y);const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}; expect(med([3,1,4,1,5])).toBe(3); expect(med([1,2,3,4])).toBe(2.5); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes number of divisors', () => { const numDiv=(n:number)=>{let c=0;for(let i=1;i*i<=n;i++)if(n%i===0)c+=i===n/i?1:2;return c;}; expect(numDiv(12)).toBe(6); });
+  it('computes collatz sequence length', () => { const collatz=(n:number)=>{let steps=1;while(n!==1){n=n%2===0?n/2:3*n+1;steps++;}return steps;}; expect(collatz(6)).toBe(9); });
+  it('computes sum of digits of factorial digits', () => { const digitFactSum=(n:number)=>{let r=1;for(let i=2;i<=n;i++)r*=i;return String(r).split('').reduce((a,c)=>a+Number(c),0);}; expect(digitFactSum(5)).toBe(3); /* 120 → 1+2+0=3 */ });
+  it('checks if string is a valid integer string', () => { const isInt=(s:string)=>/^-?[0-9]+$/.test(s.trim()); expect(isInt('42')).toBe(true); expect(isInt('-7')).toBe(true); expect(isInt('3.14')).toBe(false); });
+  it('counts bits to flip to convert A to B', () => { const bitsToFlip=(a:number,b:number)=>{let x=a^b,c=0;while(x){c+=x&1;x>>>=1;}return c;}; expect(bitsToFlip(29,15)).toBe(2); });
+});

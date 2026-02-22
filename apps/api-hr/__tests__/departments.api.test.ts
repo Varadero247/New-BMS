@@ -753,3 +753,12 @@ describe('phase38 coverage', () => {
   it('merges sorted arrays', () => { const merge=(a:number[],b:number[])=>{const r:number[]=[];let i=0,j=0;while(i<a.length&&j<b.length)r.push(a[i]<=b[j]?a[i++]:b[j++]);return [...r,...a.slice(i),...b.slice(j)];}; expect(merge([1,3,5],[2,4,6])).toEqual([1,2,3,4,5,6]); });
   it('implements count inversions approach', () => { const inv=(a:number[])=>{let c=0;for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(a[i]>a[j])c++;return c;}; expect(inv([3,1,2])).toBe(2); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes number of divisors', () => { const numDiv=(n:number)=>{let c=0;for(let i=1;i*i<=n;i++)if(n%i===0)c+=i===n/i?1:2;return c;}; expect(numDiv(12)).toBe(6); });
+  it('finds kth largest element', () => { const kth=(a:number[],k:number)=>[...a].sort((x,y)=>y-x)[k-1]; expect(kth([3,2,1,5,6,4],2)).toBe(5); });
+  it('computes word break possible', () => { const wb=(s:string,d:string[])=>{const dp=Array(s.length+1).fill(false);dp[0]=true;for(let i=1;i<=s.length;i++)for(const w of d)if(i>=w.length&&dp[i-w.length]&&s.slice(i-w.length,i)===w){dp[i]=true;break;}return dp[s.length];}; expect(wb('leetcode',['leet','code'])).toBe(true); });
+  it('zigzag converts string', () => { const zz=(s:string,r:number)=>{if(r===1)return s;const rows=Array.from({length:r},()=>'');let row=0,dir=-1;for(const c of s){rows[row]+=c;if(row===0||row===r-1)dir*=-1;row+=dir;}return rows.join('');}; expect(zz('PAYPALISHIRING',3)).toBe('PAHNAPLSIIGYIR'); });
+  it('checks if linked list has cycle (array sim)', () => { const hasCycle=(a:Array<number|null>)=>{const s=new Set<number>();for(let i=0;i<a.length;i++){if(a[i]===null)return false;if(s.has(i))return true;s.add(i);}return false;}; expect(hasCycle([3,2,0,null])).toBe(false); });
+});

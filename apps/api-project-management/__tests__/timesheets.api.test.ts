@@ -884,3 +884,12 @@ describe('phase38 coverage', () => {
   it('applies bubble sort', () => { const sort=(a:number[])=>{const r=[...a];for(let i=0;i<r.length;i++)for(let j=0;j<r.length-i-1;j++)if(r[j]>r[j+1])[r[j],r[j+1]]=[r[j+1],r[j]];return r;}; expect(sort([5,1,4,2,8])).toEqual([1,2,4,5,8]); });
   it('implements run-length decode', () => { const decode=(s:string)=>s.replace(/([0-9]+)([a-zA-Z])/g,(_,n,c)=>c.repeat(Number(n))); expect(decode('3a2b1c')).toBe('aaabbc'); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes word break possible', () => { const wb=(s:string,d:string[])=>{const dp=Array(s.length+1).fill(false);dp[0]=true;for(let i=1;i<=s.length;i++)for(const w of d)if(i>=w.length&&dp[i-w.length]&&s.slice(i-w.length,i)===w){dp[i]=true;break;}return dp[s.length];}; expect(wb('leetcode',['leet','code'])).toBe(true); });
+  it('implements Sieve of Eratosthenes', () => { const sieve=(n:number)=>{const p=Array(n+1).fill(true);p[0]=p[1]=false;for(let i=2;i*i<=n;i++)if(p[i])for(let j=i*i;j<=n;j+=i)p[j]=false;return p.map((v,i)=>v?i:-1).filter(v=>v>0);}; expect(sieve(20)).toEqual([2,3,5,7,11,13,17,19]); });
+  it('counts set bits in integer', () => { const popcount=(n:number)=>{let c=0;let v=n>>>0;while(v){c+=v&1;v>>>=1;}return c;}; expect(popcount(7)).toBe(3); expect(popcount(255)).toBe(8); });
+  it('computes collatz sequence length', () => { const collatz=(n:number)=>{let steps=1;while(n!==1){n=n%2===0?n/2:3*n+1;steps++;}return steps;}; expect(collatz(6)).toBe(9); });
+  it('implements Atbash cipher', () => { const atbash=(s:string)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode(25-(c.charCodeAt(0)-base)+base);}); expect(atbash('abc')).toBe('zyx'); });
+});

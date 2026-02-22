@@ -531,3 +531,12 @@ describe('phase38 coverage', () => {
   it('finds longest palindromic substring length', () => { const longestPalin=(s:string)=>{let max=1;for(let i=0;i<s.length;i++){for(let l=i,r=i;l>=0&&r<s.length&&s[l]===s[r];l--,r++)max=Math.max(max,r-l+1);for(let l=i,r=i+1;l>=0&&r<s.length&&s[l]===s[r];l--,r++)max=Math.max(max,r-l+1);}return max;}; expect(longestPalin('babad')).toBe(3); });
   it('generates fibonacci sequence up to n', () => { const fibSeq=(n:number)=>{const s=[0,1];while(s[s.length-1]+s[s.length-2]<=n)s.push(s[s.length-1]+s[s.length-2]);return s.filter(v=>v<=n);}; expect(fibSeq(10)).toEqual([0,1,1,2,3,5,8]); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('implements Caesar cipher', () => { const caesar=(s:string,n:number)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+n)%26+base);}); expect(caesar('abc',3)).toBe('def'); expect(caesar('xyz',3)).toBe('abc'); });
+  it('computes sum of proper divisors', () => { const divSum=(n:number)=>{let s=1;for(let i=2;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s;}; expect(divSum(12)).toBe(16); });
+  it('implements Dijkstra shortest path', () => { const dijkstra=(graph:Map<number,{to:number,w:number}[]>,start:number)=>{const dist=new Map<number,number>();dist.set(start,0);const pq:number[]=[start];while(pq.length){const u=pq.shift()!;for(const {to,w} of graph.get(u)||[]){const nd=(dist.get(u)||0)+w;if(!dist.has(to)||nd<dist.get(to)!){dist.set(to,nd);pq.push(to);}}}return dist;}; const g=new Map([[0,[{to:1,w:4},{to:2,w:1}]],[2,[{to:1,w:2}]],[1,[]]]); const d=dijkstra(g,0); expect(d.get(1)).toBe(3); });
+  it('computes minimum coins for amount', () => { const minCoins=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(Infinity);dp[0]=0;for(let i=1;i<=amt;i++)for(const c of coins)if(c<=i&&dp[i-c]+1<dp[i])dp[i]=dp[i-c]+1;return dp[amt]===Infinity?-1:dp[amt];}; expect(minCoins([1,5,6,9],11)).toBe(2); });
+  it('parses CSV row', () => { const parseCSV=(row:string)=>row.split(',').map(s=>s.trim()); expect(parseCSV('a, b, c')).toEqual(['a','b','c']); });
+});

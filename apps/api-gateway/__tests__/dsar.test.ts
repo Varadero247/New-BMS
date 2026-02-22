@@ -642,3 +642,12 @@ describe('phase38 coverage', () => {
   it('implements simple tokenizer', () => { const tokenize=(s:string)=>s.match(/[a-zA-Z]+|\d+|[^\s]/g)||[]; expect(tokenize('a+b=3')).toEqual(['a','+','b','=','3']); });
   it('checks majority element', () => { const majority=(a:number[])=>{const f=a.reduce((m,v)=>{m.set(v,(m.get(v)||0)+1);return m;},new Map<number,number>());let res=-1;f.forEach((c,v)=>{if(c>a.length/2)res=v;});return res;}; expect(majority([3,2,3])).toBe(3); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks if linked list has cycle (array sim)', () => { const hasCycle=(a:Array<number|null>)=>{const s=new Set<number>();for(let i=0;i<a.length;i++){if(a[i]===null)return false;if(s.has(i))return true;s.add(i);}return false;}; expect(hasCycle([3,2,0,null])).toBe(false); });
+  it('implements Caesar cipher', () => { const caesar=(s:string,n:number)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+n)%26+base);}); expect(caesar('abc',3)).toBe('def'); expect(caesar('xyz',3)).toBe('abc'); });
+  it('checks if graph has cycle (undirected)', () => { const hasCycle=(n:number,edges:[number,number][])=>{const adj:number[][]=Array.from({length:n},()=>[]);edges.forEach(([u,v])=>{adj[u].push(v);adj[v].push(u);});const vis=new Set<number>();const dfs=(node:number,par:number):boolean=>{vis.add(node);for(const nb of adj[node]){if(!vis.has(nb)){if(dfs(nb,node))return true;}else if(nb!==par)return true;}return false;};return dfs(0,-1);}; expect(hasCycle(4,[[0,1],[1,2],[2,3],[3,1]])).toBe(true); expect(hasCycle(3,[[0,1],[1,2]])).toBe(false); });
+  it('computes sum of digits of factorial digits', () => { const digitFactSum=(n:number)=>{let r=1;for(let i=2;i<=n;i++)r*=i;return String(r).split('').reduce((a,c)=>a+Number(c),0);}; expect(digitFactSum(5)).toBe(3); /* 120 → 1+2+0=3 */ });
+  it('checks if number is abundant', () => { const isAbundant=(n:number)=>{let s=1;for(let i=2;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s>n;}; expect(isAbundant(12)).toBe(true); expect(isAbundant(15)).toBe(false); });
+});

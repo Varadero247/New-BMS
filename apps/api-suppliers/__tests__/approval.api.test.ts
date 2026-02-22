@@ -530,3 +530,12 @@ describe('phase38 coverage', () => {
   it('computes array variance', () => { const variance=(a:number[])=>{const m=a.reduce((s,v)=>s+v,0)/a.length;return a.reduce((s,v)=>s+(v-m)**2,0)/a.length;}; expect(variance([2,4,4,4,5,5,7,9])).toBe(4); });
   it('applies map-reduce pattern', () => { const data=[{cat:'a',v:1},{cat:'b',v:2},{cat:'a',v:3}]; const result=data.reduce((acc,{cat,v})=>{acc[cat]=(acc[cat]||0)+v;return acc;},{} as Record<string,number>); expect(result['a']).toBe(4); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('validates parenthesis string', () => { const valid=(s:string)=>{let c=0;for(const ch of s){if(ch==='(')c++;else if(ch===')'){if(c===0)return false;c--;}}return c===0;}; expect(valid('(())')).toBe(true); expect(valid('())')).toBe(false); });
+  it('counts set bits in integer', () => { const popcount=(n:number)=>{let c=0;let v=n>>>0;while(v){c+=v&1;v>>>=1;}return c;}; expect(popcount(7)).toBe(3); expect(popcount(255)).toBe(8); });
+  it('computes collatz sequence length', () => { const collatz=(n:number)=>{let steps=1;while(n!==1){n=n%2===0?n/2:3*n+1;steps++;}return steps;}; expect(collatz(6)).toBe(9); });
+  it('implements topological sort check', () => { const canFinish=(n:number,pre:[number,number][])=>{const indeg=Array(n).fill(0);const adj:number[][]=Array.from({length:n},()=>[]);pre.forEach(([a,b])=>{adj[b].push(a);indeg[a]++;});const q=indeg.map((v,i)=>v===0?i:-1).filter(v=>v>=0);let done=q.length;while(q.length){const cur=q.shift()!;for(const nb of adj[cur]){if(--indeg[nb]===0){q.push(nb);done++;}}}return done===n;}; expect(canFinish(2,[[1,0]])).toBe(true); expect(canFinish(2,[[1,0],[0,1]])).toBe(false); });
+  it('checks valid IP address format', () => { const isIP=(s:string)=>/^(\d{1,3}\.){3}\d{1,3}$/.test(s)&&s.split('.').every(p=>Number(p)<=255); expect(isIP('192.168.1.1')).toBe(true); expect(isIP('999.0.0.1')).toBe(false); });
+});

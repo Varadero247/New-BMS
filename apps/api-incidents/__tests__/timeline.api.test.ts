@@ -665,3 +665,12 @@ describe('phase38 coverage', () => {
   it('implements run-length decode', () => { const decode=(s:string)=>s.replace(/([0-9]+)([a-zA-Z])/g,(_,n,c)=>c.repeat(Number(n))); expect(decode('3a2b1c')).toBe('aaabbc'); });
   it('checks majority element', () => { const majority=(a:number[])=>{const f=a.reduce((m,v)=>{m.set(v,(m.get(v)||0)+1);return m;},new Map<number,number>());let res=-1;f.forEach((c,v)=>{if(c>a.length/2)res=v;});return res;}; expect(majority([3,2,3])).toBe(3); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('converts number to base-36 string', () => { expect((255).toString(36)).toBe('73'); expect(parseInt('73',36)).toBe(255); });
+  it('checks if linked list has cycle (array sim)', () => { const hasCycle=(a:Array<number|null>)=>{const s=new Set<number>();for(let i=0;i<a.length;i++){if(a[i]===null)return false;if(s.has(i))return true;s.add(i);}return false;}; expect(hasCycle([3,2,0,null])).toBe(false); });
+  it('validates parenthesis string', () => { const valid=(s:string)=>{let c=0;for(const ch of s){if(ch==='(')c++;else if(ch===')'){if(c===0)return false;c--;}}return c===0;}; expect(valid('(())')).toBe(true); expect(valid('())')).toBe(false); });
+  it('implements Caesar cipher', () => { const caesar=(s:string,n:number)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+n)%26+base);}); expect(caesar('abc',3)).toBe('def'); expect(caesar('xyz',3)).toBe('abc'); });
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+});

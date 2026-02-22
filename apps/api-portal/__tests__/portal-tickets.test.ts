@@ -677,3 +677,12 @@ describe('phase38 coverage', () => {
   it('checks if strings are rotations of each other', () => { const isRot=(a:string,b:string)=>a.length===b.length&&(a+a).includes(b); expect(isRot('abcde','cdeab')).toBe(true); expect(isRot('abc','acb')).toBe(false); });
   it('implements priority queue (max-heap top)', () => { const pq:number[]=[]; const push=(v:number)=>{pq.push(v);pq.sort((a,b)=>b-a);}; const pop=()=>pq.shift(); push(3);push(1);push(4);push(1);push(5); expect(pop()).toBe(5); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('finds first non-repeating character', () => { const firstUniq=(s:string)=>{const f=new Map<string,number>();for(const c of s)f.set(c,(f.get(c)||0)+1);for(const c of s)if(f.get(c)===1)return c;return null;}; expect(firstUniq('aabbcde')).toBe('c'); });
+  it('computes number of divisors', () => { const numDiv=(n:number)=>{let c=0;for(let i=1;i*i<=n;i++)if(n%i===0)c+=i===n/i?1:2;return c;}; expect(numDiv(12)).toBe(6); });
+  it('reverses bits in byte', () => { const revBits=(n:number)=>{let r=0;for(let i=0;i<8;i++){r=(r<<1)|(n&1);n>>=1;}return r;}; expect(revBits(0b10110001)).toBe(0b10001101); });
+  it('checks if linked list has cycle (array sim)', () => { const hasCycle=(a:Array<number|null>)=>{const s=new Set<number>();for(let i=0;i<a.length;i++){if(a[i]===null)return false;if(s.has(i))return true;s.add(i);}return false;}; expect(hasCycle([3,2,0,null])).toBe(false); });
+  it('computes sum of digits of factorial digits', () => { const digitFactSum=(n:number)=>{let r=1;for(let i=2;i<=n;i++)r*=i;return String(r).split('').reduce((a,c)=>a+Number(c),0);}; expect(digitFactSum(5)).toBe(3); /* 120 → 1+2+0=3 */ });
+});

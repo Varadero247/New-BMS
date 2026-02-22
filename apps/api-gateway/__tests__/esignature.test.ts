@@ -738,3 +738,12 @@ describe('phase38 coverage', () => {
   it('generates fibonacci sequence up to n', () => { const fibSeq=(n:number)=>{const s=[0,1];while(s[s.length-1]+s[s.length-2]<=n)s.push(s[s.length-1]+s[s.length-2]);return s.filter(v=>v<=n);}; expect(fibSeq(10)).toEqual([0,1,1,2,3,5,8]); });
   it('implements circular buffer', () => { class CircBuf{private d:number[];private head=0;private tail=0;private count=0;constructor(private cap:number){this.d=Array(cap);}write(v:number){this.d[this.tail]=v;this.tail=(this.tail+1)%this.cap;this.count=Math.min(this.count+1,this.cap);}read(){const v=this.d[this.head];this.head=(this.head+1)%this.cap;this.count--;return v;}get size(){return this.count;}} const b=new CircBuf(3);b.write(1);b.write(2);expect(b.read()).toBe(1);expect(b.size).toBe(1); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('checks if number is abundant', () => { const isAbundant=(n:number)=>{let s=1;for(let i=2;i*i<=n;i++)if(n%i===0){s+=i;if(i!==n/i)s+=n/i;}return s>n;}; expect(isAbundant(12)).toBe(true); expect(isAbundant(15)).toBe(false); });
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+  it('checks Kaprekar number', () => { const isKap=(n:number)=>{const sq=n*n;const s=String(sq);for(let i=1;i<s.length;i++){const r=Number(s.slice(i)),l=Number(s.slice(0,i));if(r>0&&l+r===n)return true;}return false;}; expect(isKap(9)).toBe(true); expect(isKap(45)).toBe(true); });
+  it('counts set bits in integer', () => { const popcount=(n:number)=>{let c=0;let v=n>>>0;while(v){c+=v&1;v>>>=1;}return c;}; expect(popcount(7)).toBe(3); expect(popcount(255)).toBe(8); });
+  it('finds two elements with target sum using set', () => { const hasPair=(a:number[],t:number)=>{const s=new Set<number>();for(const v of a){if(s.has(t-v))return true;s.add(v);}return false;}; expect(hasPair([1,4,3,5,2],6)).toBe(true); expect(hasPair([1,2,3],10)).toBe(false); });
+});

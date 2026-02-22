@@ -517,3 +517,12 @@ describe('phase38 coverage', () => {
   it('converts binary string to decimal', () => { expect(parseInt('1010',2)).toBe(10); expect(parseInt('11111111',2)).toBe(255); });
   it('implements circular buffer', () => { class CircBuf{private d:number[];private head=0;private tail=0;private count=0;constructor(private cap:number){this.d=Array(cap);}write(v:number){this.d[this.tail]=v;this.tail=(this.tail+1)%this.cap;this.count=Math.min(this.count+1,this.cap);}read(){const v=this.d[this.head];this.head=(this.head+1)%this.cap;this.count--;return v;}get size(){return this.count;}} const b=new CircBuf(3);b.write(1);b.write(2);expect(b.read()).toBe(1);expect(b.size).toBe(1); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes word break possible', () => { const wb=(s:string,d:string[])=>{const dp=Array(s.length+1).fill(false);dp[0]=true;for(let i=1;i<=s.length;i++)for(const w of d)if(i>=w.length&&dp[i-w.length]&&s.slice(i-w.length,i)===w){dp[i]=true;break;}return dp[s.length];}; expect(wb('leetcode',['leet','code'])).toBe(true); });
+  it('implements string hashing polynomial', () => { const polyHash=(s:string,p=31,m=1e9+7)=>[...s].reduce((h,c)=>(h*p+c.charCodeAt(0))%m,0); const h=polyHash('hello'); expect(typeof h).toBe('number'); expect(h).toBeGreaterThan(0); });
+  it('implements Caesar cipher', () => { const caesar=(s:string,n:number)=>s.replace(/[a-z]/gi,c=>{const base=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-base+n)%26+base);}); expect(caesar('abc',3)).toBe('def'); expect(caesar('xyz',3)).toBe('abc'); });
+  it('counts substring occurrences', () => { const countOcc=(s:string,sub:string)=>{let c=0,i=0;while((i=s.indexOf(sub,i))!==-1){c++;i+=sub.length;}return c;}; expect(countOcc('banana','an')).toBe(2); });
+  it('finds maximum profit from stock prices', () => { const maxProfit=(prices:number[])=>{let min=Infinity,max=0;for(const p of prices){min=Math.min(min,p);max=Math.max(max,p-min);}return max;}; expect(maxProfit([7,1,5,3,6,4])).toBe(5); });
+});

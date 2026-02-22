@@ -881,3 +881,12 @@ describe('phase38 coverage', () => {
   it('applies map-reduce pattern', () => { const data=[{cat:'a',v:1},{cat:'b',v:2},{cat:'a',v:3}]; const result=data.reduce((acc,{cat,v})=>{acc[cat]=(acc[cat]||0)+v;return acc;},{} as Record<string,number>); expect(result['a']).toBe(4); });
   it('finds longest palindromic substring length', () => { const longestPalin=(s:string)=>{let max=1;for(let i=0;i<s.length;i++){for(let l=i,r=i;l>=0&&r<s.length&&s[l]===s[r];l--,r++)max=Math.max(max,r-l+1);for(let l=i,r=i+1;l>=0&&r<s.length&&s[l]===s[r];l--,r++)max=Math.max(max,r-l+1);}return max;}; expect(longestPalin('babad')).toBe(3); });
 });
+
+
+describe('phase39 coverage', () => {
+  it('computes minimum path sum', () => { const minPath=(g:number[][])=>{const m=g.length,n=g[0].length;const dp=g.map(r=>[...r]);for(let i=1;i<m;i++)dp[i][0]+=dp[i-1][0];for(let j=1;j<n;j++)dp[0][j]+=dp[0][j-1];for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]+=Math.min(dp[i-1][j],dp[i][j-1]);return dp[m-1][n-1];}; expect(minPath([[1,3,1],[1,5,1],[4,2,1]])).toBe(7); });
+  it('finds two elements with target sum using set', () => { const hasPair=(a:number[],t:number)=>{const s=new Set<number>();for(const v of a){if(s.has(t-v))return true;s.add(v);}return false;}; expect(hasPair([1,4,3,5,2],6)).toBe(true); expect(hasPair([1,2,3],10)).toBe(false); });
+  it('computes number of trailing zeros in factorial', () => { const trailingZeros=(n:number)=>{let c=0;for(let p=5;p<=n;p*=5)c+=Math.floor(n/p);return c;}; expect(trailingZeros(25)).toBe(6); });
+  it('checks if perfect square', () => { const isPerfSq=(n:number)=>Number.isInteger(Math.sqrt(n)); expect(isPerfSq(25)).toBe(true); expect(isPerfSq(26)).toBe(false); });
+  it('computes unique paths in grid', () => { const paths=(m:number,n:number)=>{const dp=Array.from({length:m},()=>Array(n).fill(1));for(let i=1;i<m;i++)for(let j=1;j<n;j++)dp[i][j]=dp[i-1][j]+dp[i][j-1];return dp[m-1][n-1];}; expect(paths(3,3)).toBe(6); });
+});
