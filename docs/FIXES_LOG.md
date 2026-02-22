@@ -1,5 +1,18 @@
 # IMS — Fixes Log
 
+## Phase 44 — Test Depth Expansion to ≥120 (February 22, 2026)
+
+Targeted expansion of all 709 test files with 115-119 tests to ≥120 each.
+
+**Net new tests:** +3,540 (81,625 → 85,165), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (3 issues):**
+- `'$1'` shell-expanded to `''` in dedup replacement (40 files): replaced with arrow fn `(_,c)=>c`
+- LRU `get` comma-expression reset value to 0 (26 files): replaced with explicit block saving val before delete
+- TS2345: `m.keys().next().value` is `number|undefined` (2 strict packages): added `!` non-null assertion
+
+---
+
 ## Phase 43 — Test Depth Expansion to ≥115 (February 22, 2026)
 
 Targeted expansion of all 709 test files with 110-114 tests to ≥115 each.
