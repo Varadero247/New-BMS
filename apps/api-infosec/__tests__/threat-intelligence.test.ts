@@ -191,4 +191,10 @@ describe('ISO 27001:2022 A.5.7 Threat Intelligence Routes', () => {
     const res = await request(app).put('/ti-1').send({ confidence: 'EXTREME' });
     expect(res.status).toBe(400);
   });
+
+  it('PUT /:id returns 400 on invalid severity', async () => {
+    prisma.isThreatIntelligence.findUnique.mockResolvedValue(mockTI);
+    const res = await request(app).put('/ti-1').send({ severity: 'EXTREME' });
+    expect(res.status).toBe(400);
+  });
 });

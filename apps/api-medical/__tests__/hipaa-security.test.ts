@@ -229,4 +229,9 @@ describe('HIPAA Security Routes', () => {
       expect.objectContaining({ data: expect.objectContaining({ lastAssessed: expect.any(Date) }) })
     );
   });
+
+  it('PUT /:id/implementation returns 400 on missing implementationStatus', async () => {
+    const res = await request(app).put('/ctrl-1/implementation').send({ implementationNotes: 'note only' });
+    expect(res.status).toBe(400);
+  });
 });
