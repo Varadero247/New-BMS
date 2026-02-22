@@ -1,5 +1,45 @@
 # IMS — Fixes Log
 
+## Phase 19 — Frontend Gap Closure (February 22, 2026)
+
+Systematic audit of remaining API services. Built 17 missing frontend pages across 7 apps.
+
+**New pages — web-finance (4):**
+- `/controls` — Financial controls register (SOX/audit readiness, status filter, modal)
+- `/hmrc-calendar` — UK HMRC tax filing deadlines with urgency colour coding
+- `/ir35` — IR35 contractor status assessments (INSIDE/OUTSIDE/PENDING determinations)
+- `/sod-matrix` — Segregation of Duties conflict rules with mitigating controls
+
+**New pages — web-quality (5 + 5 client.tsx):**
+- `/issues` — ISO 9001 Cl. 4.1 issues of concern (bias/priority/status, linked parties)
+- `/opportunities` — ISO 9001 Cl. 6.1 opportunities with priority scoring formula
+- `/evidence-pack` — Audit evidence packs with clause mapping, section previews
+- `/headstart` — Pre-implementation gap assessment with SVG score rings
+- `/template-generator` — ISO 9001 document template generator (DOCX/PDF/XLSX)
+
+**New pages — web-environment (2 + 2 client.tsx):**
+- `/audits` — ISO 14001 environmental audit register with findings/NC tracking
+- `/management-reviews` — Management review register with inputs/outputs/decisions
+
+**New pages — web-esg (2):**
+- `/defra-factors` — UK DEFRA emission conversion factors browser (5 d.p. formatting)
+- `/scope-emissions` — GHG Scope 1/2/3 aggregation dashboard with percentage breakdown
+
+**New pages — web-workflows (2):**
+- `/admin` — Workflow system administration with maintenance actions + confirmation
+- `/webhooks` — Webhook management with event multi-select, toggle, delete
+
+**New pages — web-infosec (1):**
+- `/gdpr-extended` — GDPR DPIA register (risk level, legal basis, DPO review)
+
+**New pages — web-hr (1):**
+- `/gdpr` — HR GDPR employee data rights requests with 30-day deadline countdown
+
+Sidebar entries added to all 7 apps. TS: 0 errors. Tests: 17,853/674 passing.
+Commit: `efaad703`
+
+---
+
 ## Phase 18 — Frontend Gap Closure (February 22, 2026)
 
 Systematic audit of all 42 API services against frontend page directories. Identified and built 17 missing pages across 3 apps.
