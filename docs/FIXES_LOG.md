@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 40 — Test Depth Expansion to ≥100 (February 22, 2026)
+
+Targeted expansion of all 709 test files with 95-99 tests to ≥100 each.
+
+**Net new tests:** +3,534 (67,471 → 71,005), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (80 → 0):**
+- Wrong expected value in 80 files: triangle max path sum `[[2],[3,4],[6,5,7],[4,1,8,3]]` → correct answer is 21 (path 2→4→7→8), not 23.
+
+---
+
 ## Phase 39 — Test Depth Expansion to ≥95 (February 22, 2026)
 
 Targeted expansion of all 707 test files with 90-94 tests to ≥95 each.
