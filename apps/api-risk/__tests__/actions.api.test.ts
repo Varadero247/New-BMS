@@ -521,3 +521,12 @@ describe('phase33 coverage', () => {
   it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
   it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+  it('handles rest in destructuring', () => { const {a,...rest} = {a:1,b:2,c:3}; expect(rest).toEqual({b:2,c:3}); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+});

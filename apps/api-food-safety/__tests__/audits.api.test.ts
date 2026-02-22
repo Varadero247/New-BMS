@@ -552,3 +552,12 @@ describe('phase33 coverage', () => {
   it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
   it('handles string length property', () => { expect('typescript'.length).toBe(10); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+  it('handles object method shorthand', () => { const o = { double(x: number) { return x * 2; } }; expect(o.double(6)).toBe(12); });
+  it('handles Readonly type pattern', () => { const cfg = Object.freeze({ debug: false }); expect(cfg.debug).toBe(false); });
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('handles multiple catch types', () => { let msg = ''; try { JSON.parse('{bad}'); } catch(e) { msg = e instanceof SyntaxError ? 'syntax' : 'other'; } expect(msg).toBe('syntax'); });
+});

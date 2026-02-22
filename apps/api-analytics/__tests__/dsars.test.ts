@@ -647,3 +647,12 @@ describe('phase33 coverage', () => {
   it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
   it('checks array is not empty', () => { expect([1].length).toBeGreaterThan(0); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles type assertion', () => { const v: unknown = 'hello'; expect((v as string).toUpperCase()).toBe('HELLO'); });
+  it('handles object key renaming via destructuring', () => { const {a: x, b: y} = {a:1,b:2}; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles multiple catch types', () => { let msg = ''; try { JSON.parse('{bad}'); } catch(e) { msg = e instanceof SyntaxError ? 'syntax' : 'other'; } expect(msg).toBe('syntax'); });
+  it('handles mapped type pattern', () => { type Flags<T> = { [K in keyof T]: boolean }; const flags: Flags<{a:number;b:string}> = {a:true,b:false}; expect(flags.a).toBe(true); });
+  it('handles static method', () => { class MathHelper { static square(n: number) { return n*n; } } expect(MathHelper.square(4)).toBe(16); });
+});

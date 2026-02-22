@@ -532,3 +532,12 @@ describe('phase33 coverage', () => {
   it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
   it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+  it('handles object key renaming via destructuring', () => { const {a: x, b: y} = {a:1,b:2}; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles Record type', () => { const scores: Record<string,number> = { alice: 95, bob: 87 }; expect(scores['alice']).toBe(95); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+});

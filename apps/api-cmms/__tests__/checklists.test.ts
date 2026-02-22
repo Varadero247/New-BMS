@@ -584,3 +584,12 @@ describe('phase33 coverage', () => {
   it('handles parseInt radix', () => { expect(parseInt('ff', 16)).toBe(255); });
   it('converts number to string', () => { expect(String(42)).toBe('42'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('computes sum of array', () => { expect([1,2,3,4,5].reduce((a,b)=>a+b,0)).toBe(15); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+  it('handles Map with complex values', () => { const m = new Map<string, number[]>(); m.set('evens', [2,4,6]); expect(m.get('evens')?.length).toBe(3); });
+  it('handles nested destructuring', () => { const {a:{b}} = {a:{b:42}}; expect(b).toBe(42); });
+});

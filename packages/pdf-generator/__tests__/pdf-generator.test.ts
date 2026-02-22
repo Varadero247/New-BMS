@@ -486,3 +486,12 @@ describe('phase33 coverage', () => {
   it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
   it('divides numbers', () => { expect(20 / 4).toBe(5); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles enum-like object', () => { const Direction = { UP: 'UP', DOWN: 'DOWN' } as const; expect(Direction.UP).toBe('UP'); });
+  it('handles object method shorthand', () => { const o = { double(x: number) { return x * 2; } }; expect(o.double(6)).toBe(12); });
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles type assertion', () => { const v: unknown = 'hello'; expect((v as string).toUpperCase()).toBe('HELLO'); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+});

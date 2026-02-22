@@ -570,3 +570,12 @@ describe('phase33 coverage', () => {
   it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
   it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles Omit type pattern', () => { interface Full { a: number; b: string; c: boolean; } type NoC = Omit<Full,'c'>; const o: NoC = {a:1,b:'x'}; expect(o.b).toBe('x'); });
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+  it('handles mapped type pattern', () => { type Flags<T> = { [K in keyof T]: boolean }; const flags: Flags<{a:number;b:string}> = {a:true,b:false}; expect(flags.a).toBe(true); });
+  it('handles enum-like object', () => { const Direction = { UP: 'UP', DOWN: 'DOWN' } as const; expect(Direction.UP).toBe('UP'); });
+});

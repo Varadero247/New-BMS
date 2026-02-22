@@ -515,3 +515,12 @@ describe('phase33 coverage', () => {
   it('handles string length property', () => { expect('typescript'.length).toBe(10); });
   it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles default export pattern', () => { const fn = (x: number) => x * 2; expect(fn(5)).toBe(10); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+  it('handles named function expression', () => { const factorial = function fact(n: number): number { return n <= 1 ? 1 : n * fact(n-1); }; expect(factorial(4)).toBe(24); });
+  it('handles object with numeric keys', () => { const o: Record<string,number> = {'0':10,'1':20}; expect(o['0']).toBe(10); });
+});

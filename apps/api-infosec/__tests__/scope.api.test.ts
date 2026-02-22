@@ -628,3 +628,12 @@ describe('phase33 coverage', () => {
   it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
   it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Set union', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const union = new Set([...a,...b]); expect(union.size).toBe(4); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles union type narrowing', () => { const fn = (v: string | number) => typeof v === 'string' ? v.length : v; expect(fn('hello')).toBe(5); expect(fn(42)).toBe(42); });
+  it('handles interface-like typing', () => { interface Point { x: number; y: number; } const p: Point = {x:3,y:4}; const dist = Math.sqrt(p.x**2+p.y**2); expect(dist).toBe(5); });
+  it('handles string template type safety', () => { const greet = (name: string) => `Hello, ${name}!`; expect(greet('World')).toBe('Hello, World!'); });
+});

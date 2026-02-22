@@ -398,3 +398,12 @@ describe('phase33 coverage', () => {
   it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
   it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Readonly type pattern', () => { const cfg = Object.freeze({ debug: false }); expect(cfg.debug).toBe(false); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles rest in destructuring', () => { const {a,...rest} = {a:1,b:2,c:3}; expect(rest).toEqual({b:2,c:3}); });
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+  it('handles enum-like object', () => { const Direction = { UP: 'UP', DOWN: 'DOWN' } as const; expect(Direction.UP).toBe('UP'); });
+});

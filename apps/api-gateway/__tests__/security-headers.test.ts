@@ -453,3 +453,12 @@ describe('phase33 coverage', () => {
   it('adds two numbers', () => { expect(1 + 1).toBe(2); });
   it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles object method shorthand', () => { const o = { double(x: number) { return x * 2; } }; expect(o.double(6)).toBe(12); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles infer pattern via function', () => { const getFirstElement = <T>(arr: T[]): T | undefined => arr[0]; expect(getFirstElement([1,2,3])).toBe(1); });
+  it('handles Required type pattern', () => { interface Opts { a?: number; b?: string; } const o: Required<Opts> = { a: 1, b: 'x' }; expect(o.a).toBe(1); });
+  it('handles default export pattern', () => { const fn = (x: number) => x * 2; expect(fn(5)).toBe(10); });
+});

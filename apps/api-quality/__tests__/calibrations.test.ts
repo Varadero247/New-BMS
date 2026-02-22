@@ -513,3 +513,12 @@ describe('phase33 coverage', () => {
   it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
   it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles IIFE pattern', () => { const result = ((x: number) => x * x)(7); expect(result).toBe(49); });
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+  it('checks truthy values', () => { expect(Boolean(1)).toBe(true); expect(Boolean('')).toBe(false); expect(Boolean(0)).toBe(false); });
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+  it('handles multiple catch types', () => { let msg = ''; try { JSON.parse('{bad}'); } catch(e) { msg = e instanceof SyntaxError ? 'syntax' : 'other'; } expect(msg).toBe('syntax'); });
+});

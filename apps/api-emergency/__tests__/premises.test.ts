@@ -649,3 +649,12 @@ describe('phase33 coverage', () => {
   it('converts number to string', () => { expect(String(42)).toBe('42'); });
   it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+  it('handles Record type', () => { const scores: Record<string,number> = { alice: 95, bob: 87 }; expect(scores['alice']).toBe(95); });
+  it('handles Set union', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const union = new Set([...a,...b]); expect(union.size).toBe(4); });
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+});

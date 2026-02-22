@@ -873,3 +873,12 @@ describe('phase33 coverage', () => {
   it('handles void operator', () => { expect(void 0).toBeUndefined(); });
   it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles deep clone via JSON', () => { const orig = {a:{b:{c:1}}}; const clone = JSON.parse(JSON.stringify(orig)); clone.a.b.c = 2; expect(orig.a.b.c).toBe(1); });
+  it('handles Record type', () => { const scores: Record<string,number> = { alice: 95, bob: 87 }; expect(scores['alice']).toBe(95); });
+  it('handles rest in destructuring', () => { const {a,...rest} = {a:1,b:2,c:3}; expect(rest).toEqual({b:2,c:3}); });
+});

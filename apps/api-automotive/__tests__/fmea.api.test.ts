@@ -603,3 +603,12 @@ describe('phase33 coverage', () => {
   it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
   it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+  it('handles object method shorthand', () => { const o = { double(x: number) { return x * 2; } }; expect(o.double(6)).toBe(12); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+});

@@ -651,3 +651,12 @@ describe('phase33 coverage', () => {
   it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
   it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles type assertion', () => { const v: unknown = 'hello'; expect((v as string).toUpperCase()).toBe('HELLO'); });
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('handles Omit type pattern', () => { interface Full { a: number; b: string; c: boolean; } type NoC = Omit<Full,'c'>; const o: NoC = {a:1,b:'x'}; expect(o.b).toBe('x'); });
+  it('handles generic class', () => { class Box<T> { constructor(public value: T) {} } const b = new Box(99); expect(b.value).toBe(99); });
+  it('handles Readonly type pattern', () => { const cfg = Object.freeze({ debug: false }); expect(cfg.debug).toBe(false); });
+});

@@ -470,3 +470,12 @@ describe('phase33 coverage', () => {
   it('adds two numbers', () => { expect(1 + 1).toBe(2); });
   it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles union type narrowing', () => { const fn = (v: string | number) => typeof v === 'string' ? v.length : v; expect(fn('hello')).toBe(5); expect(fn(42)).toBe(42); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+});

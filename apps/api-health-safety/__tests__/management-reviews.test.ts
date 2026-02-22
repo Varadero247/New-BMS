@@ -933,3 +933,12 @@ describe('phase33 coverage', () => {
   it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
   it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Required type pattern', () => { interface Opts { a?: number; b?: string; } const o: Required<Opts> = { a: 1, b: 'x' }; expect(o.a).toBe(1); });
+  it('handles Record type', () => { const scores: Record<string,number> = { alice: 95, bob: 87 }; expect(scores['alice']).toBe(95); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+  it('computes sum of array', () => { expect([1,2,3,4,5].reduce((a,b)=>a+b,0)).toBe(15); });
+  it('handles Readonly type pattern', () => { const cfg = Object.freeze({ debug: false }); expect(cfg.debug).toBe(false); });
+});

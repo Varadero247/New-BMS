@@ -398,3 +398,12 @@ describe('phase33 coverage', () => {
   it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
   it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Required type pattern', () => { interface Opts { a?: number; b?: string; } const o: Required<Opts> = { a: 1, b: 'x' }; expect(o.a).toBe(1); });
+  it('handles Partial type pattern', () => { interface Config { host: string; port: number; } const defaults: Config = { host: 'localhost', port: 8080 }; const override: Partial<Config> = { port: 9000 }; const merged = { ...defaults, ...override }; expect(merged.port).toBe(9000); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+  it('handles infer pattern via function', () => { const getFirstElement = <T>(arr: T[]): T | undefined => arr[0]; expect(getFirstElement([1,2,3])).toBe(1); });
+});

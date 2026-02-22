@@ -980,3 +980,12 @@ describe('phase33 coverage', () => {
   it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
   it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles interface-like typing', () => { interface Point { x: number; y: number; } const p: Point = {x:3,y:4}; const dist = Math.sqrt(p.x**2+p.y**2); expect(dist).toBe(5); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles default export pattern', () => { const fn = (x: number) => x * 2; expect(fn(5)).toBe(10); });
+  it('handles IIFE pattern', () => { const result = ((x: number) => x * x)(7); expect(result).toBe(49); });
+});

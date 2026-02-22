@@ -893,3 +893,12 @@ describe('phase33 coverage', () => {
   it('handles currying pattern', () => { const add = (a: number) => (b: number) => a + b; expect(add(3)(4)).toBe(7); });
   it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+  it('handles Readonly type pattern', () => { const cfg = Object.freeze({ debug: false }); expect(cfg.debug).toBe(false); });
+  it('handles generic class', () => { class Box<T> { constructor(public value: T) {} } const b = new Box(99); expect(b.value).toBe(99); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+});

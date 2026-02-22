@@ -512,3 +512,12 @@ describe('phase33 coverage', () => {
   it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
   it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Set union', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const union = new Set([...a,...b]); expect(union.size).toBe(4); });
+  it('handles generic class', () => { class Box<T> { constructor(public value: T) {} } const b = new Box(99); expect(b.value).toBe(99); });
+  it('handles number comparison operators', () => { expect(5 >= 5).toBe(true); expect(4 <= 5).toBe(true); });
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+});

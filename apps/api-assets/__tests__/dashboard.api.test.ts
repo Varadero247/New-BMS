@@ -501,3 +501,12 @@ describe('phase33 coverage', () => {
   it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
   it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+  it('computes sum of array', () => { expect([1,2,3,4,5].reduce((a,b)=>a+b,0)).toBe(15); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+});

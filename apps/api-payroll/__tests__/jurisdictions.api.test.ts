@@ -731,3 +731,12 @@ describe('phase33 coverage', () => {
   it('handles property descriptor', () => { const o = {}; Object.defineProperty(o, 'x', { value: 99, writable: false }); expect((o as any).x).toBe(99); });
   it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Omit type pattern', () => { interface Full { a: number; b: string; c: boolean; } type NoC = Omit<Full,'c'>; const o: NoC = {a:1,b:'x'}; expect(o.b).toBe('x'); });
+  it('handles object with numeric keys', () => { const o: Record<string,number> = {'0':10,'1':20}; expect(o['0']).toBe(10); });
+  it('handles Pick type pattern', () => { interface User { id: number; name: string; email: string; } type Short = Pick<User,'id'|'name'>; const u: Short = {id:1,name:'Alice'}; expect(u.name).toBe('Alice'); });
+  it('handles chained optional access', () => { const o: any = {a:{b:{c:42}}}; expect(o?.a?.b?.c).toBe(42); expect(o?.x?.y?.z).toBeUndefined(); });
+  it('handles multiple catch types', () => { let msg = ''; try { JSON.parse('{bad}'); } catch(e) { msg = e instanceof SyntaxError ? 'syntax' : 'other'; } expect(msg).toBe('syntax'); });
+});

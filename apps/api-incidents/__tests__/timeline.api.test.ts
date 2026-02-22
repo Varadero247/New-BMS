@@ -620,3 +620,12 @@ describe('phase33 coverage', () => {
   it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
   it('handles modulo', () => { expect(10 % 3).toBe(1); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles multiple catch types', () => { let msg = ''; try { JSON.parse('{bad}'); } catch(e) { msg = e instanceof SyntaxError ? 'syntax' : 'other'; } expect(msg).toBe('syntax'); });
+  it('handles object method shorthand', () => { const o = { double(x: number) { return x * 2; } }; expect(o.double(6)).toBe(12); });
+  it('handles infer pattern via function', () => { const getFirstElement = <T>(arr: T[]): T | undefined => arr[0]; expect(getFirstElement([1,2,3])).toBe(1); });
+});

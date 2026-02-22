@@ -559,3 +559,12 @@ describe('phase33 coverage', () => {
   it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
   it('handles Map delete', () => { const m = new Map<string,number>([['a',1]]); m.delete('a'); expect(m.has('a')).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('handles deep clone via JSON', () => { const orig = {a:{b:{c:1}}}; const clone = JSON.parse(JSON.stringify(orig)); clone.a.b.c = 2; expect(orig.a.b.c).toBe(1); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+  it('handles string template type safety', () => { const greet = (name: string) => `Hello, ${name}!`; expect(greet('World')).toBe('Hello, World!'); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+});

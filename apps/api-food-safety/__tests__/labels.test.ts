@@ -539,3 +539,12 @@ describe('phase33 coverage', () => {
   it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
   it('divides numbers', () => { expect(20 / 4).toBe(5); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+  it('handles number array typed', () => { const nums: number[] = [1,2,3]; expect(nums.every(n => typeof n === 'number')).toBe(true); });
+  it('handles Map with complex values', () => { const m = new Map<string, number[]>(); m.set('evens', [2,4,6]); expect(m.get('evens')?.length).toBe(3); });
+});

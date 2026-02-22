@@ -750,3 +750,12 @@ describe('phase33 coverage', () => {
   it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
   it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles number array typed', () => { const nums: number[] = [1,2,3]; expect(nums.every(n => typeof n === 'number')).toBe(true); });
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+});

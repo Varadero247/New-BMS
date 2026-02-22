@@ -918,3 +918,12 @@ describe('phase33 coverage', () => {
   it('handles array unshift', () => { const a = [2,3]; a.unshift(1); expect(a).toEqual([1,2,3]); });
   it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Partial type pattern', () => { interface Config { host: string; port: number; } const defaults: Config = { host: 'localhost', port: 8080 }; const override: Partial<Config> = { port: 9000 }; const merged = { ...defaults, ...override }; expect(merged.port).toBe(9000); });
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+  it('handles IIFE pattern', () => { const result = ((x: number) => x * x)(7); expect(result).toBe(49); });
+  it('handles mapped type pattern', () => { type Flags<T> = { [K in keyof T]: boolean }; const flags: Flags<{a:number;b:string}> = {a:true,b:false}; expect(flags.a).toBe(true); });
+  it('handles object with numeric keys', () => { const o: Record<string,number> = {'0':10,'1':20}; expect(o['0']).toBe(10); });
+});

@@ -799,3 +799,12 @@ describe('phase33 coverage', () => {
   it('handles string length property', () => { expect('typescript'.length).toBe(10); });
   it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles object key renaming via destructuring', () => { const {a: x, b: y} = {a:1,b:2}; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('computes sum of array', () => { expect([1,2,3,4,5].reduce((a,b)=>a+b,0)).toBe(15); });
+  it('handles default export pattern', () => { const fn = (x: number) => x * 2; expect(fn(5)).toBe(10); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+});

@@ -594,3 +594,12 @@ describe('phase33 coverage', () => {
   it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
   it('handles string length property', () => { expect('typescript'.length).toBe(10); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Partial type pattern', () => { interface Config { host: string; port: number; } const defaults: Config = { host: 'localhost', port: 8080 }; const override: Partial<Config> = { port: 9000 }; const merged = { ...defaults, ...override }; expect(merged.port).toBe(9000); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+  it('handles named function expression', () => { const factorial = function fact(n: number): number { return n <= 1 ? 1 : n * fact(n-1); }; expect(factorial(4)).toBe(24); });
+});

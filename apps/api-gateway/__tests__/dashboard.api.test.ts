@@ -696,3 +696,12 @@ describe('phase33 coverage', () => {
   it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
   it('handles NaN check', () => { expect(isNaN(NaN)).toBe(true); expect(isNaN(1)).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+});

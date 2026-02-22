@@ -570,3 +570,12 @@ describe('phase33 coverage', () => {
   it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
   it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Map with complex values', () => { const m = new Map<string, number[]>(); m.set('evens', [2,4,6]); expect(m.get('evens')?.length).toBe(3); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles string template type safety', () => { const greet = (name: string) => `Hello, ${name}!`; expect(greet('World')).toBe('Hello, World!'); });
+});

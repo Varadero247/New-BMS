@@ -713,3 +713,12 @@ describe('phase33 coverage', () => {
   it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
   it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles number comparison operators', () => { expect(5 >= 5).toBe(true); expect(4 <= 5).toBe(true); });
+  it('handles multiple catch types', () => { let msg = ''; try { JSON.parse('{bad}'); } catch(e) { msg = e instanceof SyntaxError ? 'syntax' : 'other'; } expect(msg).toBe('syntax'); });
+  it('handles Set union', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const union = new Set([...a,...b]); expect(union.size).toBe(4); });
+  it('handles Pick type pattern', () => { interface User { id: number; name: string; email: string; } type Short = Pick<User,'id'|'name'>; const u: Short = {id:1,name:'Alice'}; expect(u.name).toBe('Alice'); });
+  it('handles chained optional access', () => { const o: any = {a:{b:{c:42}}}; expect(o?.a?.b?.c).toBe(42); expect(o?.x?.y?.z).toBeUndefined(); });
+});

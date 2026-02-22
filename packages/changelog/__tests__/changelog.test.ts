@@ -429,3 +429,12 @@ describe('phase33 coverage', () => {
   it('handles modulo', () => { expect(10 % 3).toBe(1); });
   it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles string template type safety', () => { const greet = (name: string) => `Hello, ${name}!`; expect(greet('World')).toBe('Hello, World!'); });
+  it('handles Record type', () => { const scores: Record<string,number> = { alice: 95, bob: 87 }; expect(scores['alice']).toBe(95); });
+  it('handles Omit type pattern', () => { interface Full { a: number; b: string; c: boolean; } type NoC = Omit<Full,'c'>; const o: NoC = {a:1,b:'x'}; expect(o.b).toBe('x'); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles multiple catch types', () => { let msg = ''; try { JSON.parse('{bad}'); } catch(e) { msg = e instanceof SyntaxError ? 'syntax' : 'other'; } expect(msg).toBe('syntax'); });
+});

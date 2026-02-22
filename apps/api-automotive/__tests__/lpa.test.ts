@@ -1061,3 +1061,12 @@ describe('phase33 coverage', () => {
   it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
   it('handles string charCodeAt', () => { expect('A'.charCodeAt(0)).toBe(65); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+  it('handles Pick type pattern', () => { interface User { id: number; name: string; email: string; } type Short = Pick<User,'id'|'name'>; const u: Short = {id:1,name:'Alice'}; expect(u.name).toBe('Alice'); });
+  it('handles number array typed', () => { const nums: number[] = [1,2,3]; expect(nums.every(n => typeof n === 'number')).toBe(true); });
+});

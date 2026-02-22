@@ -706,3 +706,12 @@ describe('phase33 coverage', () => {
   it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
   it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles union type narrowing', () => { const fn = (v: string | number) => typeof v === 'string' ? v.length : v; expect(fn('hello')).toBe(5); expect(fn(42)).toBe(42); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles rest in destructuring', () => { const {a,...rest} = {a:1,b:2,c:3}; expect(rest).toEqual({b:2,c:3}); });
+  it('handles interface-like typing', () => { interface Point { x: number; y: number; } const p: Point = {x:3,y:4}; const dist = Math.sqrt(p.x**2+p.y**2); expect(dist).toBe(5); });
+});

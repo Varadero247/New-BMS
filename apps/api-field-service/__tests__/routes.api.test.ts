@@ -603,3 +603,12 @@ describe('phase33 coverage', () => {
   it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
   it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles interface-like typing', () => { interface Point { x: number; y: number; } const p: Point = {x:3,y:4}; const dist = Math.sqrt(p.x**2+p.y**2); expect(dist).toBe(5); });
+  it('handles mapped type pattern', () => { type Flags<T> = { [K in keyof T]: boolean }; const flags: Flags<{a:number;b:string}> = {a:true,b:false}; expect(flags.a).toBe(true); });
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+});

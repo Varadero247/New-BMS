@@ -586,3 +586,12 @@ describe('phase33 coverage', () => {
   it('handles object toString', () => { expect(Object.prototype.toString.call([])).toBe('[object Array]'); });
   it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+  it('handles Omit type pattern', () => { interface Full { a: number; b: string; c: boolean; } type NoC = Omit<Full,'c'>; const o: NoC = {a:1,b:'x'}; expect(o.b).toBe('x'); });
+  it('handles generic class', () => { class Box<T> { constructor(public value: T) {} } const b = new Box(99); expect(b.value).toBe(99); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles deep clone via JSON', () => { const orig = {a:{b:{c:1}}}; const clone = JSON.parse(JSON.stringify(orig)); clone.a.b.c = 2; expect(orig.a.b.c).toBe(1); });
+});

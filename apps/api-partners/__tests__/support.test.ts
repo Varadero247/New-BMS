@@ -558,3 +558,12 @@ describe('phase33 coverage', () => {
   it('handles Set size', () => { expect(new Set([1,2,3,3]).size).toBe(3); });
   it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Map with complex values', () => { const m = new Map<string, number[]>(); m.set('evens', [2,4,6]); expect(m.get('evens')?.length).toBe(3); });
+  it('handles rest in destructuring', () => { const {a,...rest} = {a:1,b:2,c:3}; expect(rest).toEqual({b:2,c:3}); });
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+});

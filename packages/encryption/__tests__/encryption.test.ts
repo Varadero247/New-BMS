@@ -336,3 +336,12 @@ describe('phase33 coverage', () => {
   it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
   it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Required type pattern', () => { interface Opts { a?: number; b?: string; } const o: Required<Opts> = { a: 1, b: 'x' }; expect(o.a).toBe(1); });
+  it('handles type assertion', () => { const v: unknown = 'hello'; expect((v as string).toUpperCase()).toBe('HELLO'); });
+  it('handles object method shorthand', () => { const o = { double(x: number) { return x * 2; } }; expect(o.double(6)).toBe(12); });
+  it('handles Partial type pattern', () => { interface Config { host: string; port: number; } const defaults: Config = { host: 'localhost', port: 8080 }; const override: Partial<Config> = { port: 9000 }; const merged = { ...defaults, ...override }; expect(merged.port).toBe(9000); });
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+});

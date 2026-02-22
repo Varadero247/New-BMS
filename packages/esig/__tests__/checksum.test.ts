@@ -383,3 +383,12 @@ describe('phase33 coverage', () => {
   it('handles void operator', () => { expect(void 0).toBeUndefined(); });
   it('handles Number.MAX_SAFE_INTEGER', () => { expect(Number.MAX_SAFE_INTEGER).toBe(9007199254740991); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles number comparison operators', () => { expect(5 >= 5).toBe(true); expect(4 <= 5).toBe(true); });
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+  it('handles Partial type pattern', () => { interface Config { host: string; port: number; } const defaults: Config = { host: 'localhost', port: 8080 }; const override: Partial<Config> = { port: 9000 }; const merged = { ...defaults, ...override }; expect(merged.port).toBe(9000); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+});

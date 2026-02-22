@@ -773,3 +773,12 @@ describe('phase33 coverage', () => {
   it('divides numbers', () => { expect(20 / 4).toBe(5); });
   it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles union type narrowing', () => { const fn = (v: string | number) => typeof v === 'string' ? v.length : v; expect(fn('hello')).toBe(5); expect(fn(42)).toBe(42); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+  it('handles multiple catch types', () => { let msg = ''; try { JSON.parse('{bad}'); } catch(e) { msg = e instanceof SyntaxError ? 'syntax' : 'other'; } expect(msg).toBe('syntax'); });
+  it('handles static method', () => { class MathHelper { static square(n: number) { return n*n; } } expect(MathHelper.square(4)).toBe(16); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+});

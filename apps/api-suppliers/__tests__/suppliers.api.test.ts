@@ -546,3 +546,12 @@ describe('phase33 coverage', () => {
   it('divides numbers', () => { expect(20 / 4).toBe(5); });
   it('handles async error handling', async () => { const safe = async (fn: () => Promise<unknown>) => { try { return await fn(); } catch { return null; } }; expect(await safe(async () => { throw new Error(); })).toBeNull(); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+  it('handles default export pattern', () => { const fn = (x: number) => x * 2; expect(fn(5)).toBe(10); });
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+});

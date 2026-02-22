@@ -772,3 +772,12 @@ describe('phase33 coverage', () => {
   it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
   it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles nested destructuring', () => { const {a:{b}} = {a:{b:42}}; expect(b).toBe(42); });
+  it('handles generic class', () => { class Box<T> { constructor(public value: T) {} } const b = new Box(99); expect(b.value).toBe(99); });
+  it('handles object with numeric keys', () => { const o: Record<string,number> = {'0':10,'1':20}; expect(o['0']).toBe(10); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+});

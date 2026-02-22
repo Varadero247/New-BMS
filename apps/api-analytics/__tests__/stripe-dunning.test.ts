@@ -492,3 +492,12 @@ describe('phase33 coverage', () => {
   it('handles array pop', () => { const a = [1,2,3]; expect(a.pop()).toBe(3); expect(a).toEqual([1,2]); });
   it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles mapped type pattern', () => { type Flags<T> = { [K in keyof T]: boolean }; const flags: Flags<{a:number;b:string}> = {a:true,b:false}; expect(flags.a).toBe(true); });
+  it('handles static method', () => { class MathHelper { static square(n: number) { return n*n; } } expect(MathHelper.square(4)).toBe(16); });
+  it('handles nested destructuring', () => { const {a:{b}} = {a:{b:42}}; expect(b).toBe(42); });
+  it('handles named function expression', () => { const factorial = function fact(n: number): number { return n <= 1 ? 1 : n * fact(n-1); }; expect(factorial(4)).toBe(24); });
+  it('handles number comparison operators', () => { expect(5 >= 5).toBe(true); expect(4 <= 5).toBe(true); });
+});

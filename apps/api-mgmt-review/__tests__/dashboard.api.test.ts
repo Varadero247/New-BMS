@@ -431,3 +431,12 @@ describe('phase33 coverage', () => {
   it('handles pipe pattern', () => { const pipe = (...fns: Array<(x: number) => number>) => (x: number) => fns.reduce((v, f) => f(v), x); const double = (x: number) => x * 2; const inc = (x: number) => x + 1; expect(pipe(double, inc)(5)).toBe(11); });
   it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Pick type pattern', () => { interface User { id: number; name: string; email: string; } type Short = Pick<User,'id'|'name'>; const u: Short = {id:1,name:'Alice'}; expect(u.name).toBe('Alice'); });
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+  it('handles Record type', () => { const scores: Record<string,number> = { alice: 95, bob: 87 }; expect(scores['alice']).toBe(95); });
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+});

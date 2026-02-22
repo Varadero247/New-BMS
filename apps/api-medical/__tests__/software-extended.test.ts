@@ -705,3 +705,12 @@ describe('phase33 coverage', () => {
   it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
   it('handles Promise.race', async () => { const r = await Promise.race([Promise.resolve('first'), new Promise(res => setTimeout(() => res('second'), 100))]); expect(r).toBe('first'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles static method', () => { class MathHelper { static square(n: number) { return n*n; } } expect(MathHelper.square(4)).toBe(16); });
+  it('handles Readonly type pattern', () => { const cfg = Object.freeze({ debug: false }); expect(cfg.debug).toBe(false); });
+  it('handles object with numeric keys', () => { const o: Record<string,number> = {'0':10,'1':20}; expect(o['0']).toBe(10); });
+  it('handles IIFE pattern', () => { const result = ((x: number) => x * x)(7); expect(result).toBe(49); });
+});

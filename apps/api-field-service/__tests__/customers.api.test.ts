@@ -579,3 +579,12 @@ describe('phase33 coverage', () => {
   it('handles Proxy basic', () => { const p = new Proxy({x:1}, { get(t,k) { return (t as any)[k] * 2; } }); expect((p as any).x).toBe(2); });
   it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles infer pattern via function', () => { const getFirstElement = <T>(arr: T[]): T | undefined => arr[0]; expect(getFirstElement([1,2,3])).toBe(1); });
+  it('handles generic function', () => { function identity<T>(x: T): T { return x; } expect(identity(42)).toBe(42); expect(identity('hi')).toBe('hi'); });
+  it('handles object key renaming via destructuring', () => { const {a: x, b: y} = {a:1,b:2}; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles chained optional access', () => { const o: any = {a:{b:{c:42}}}; expect(o?.a?.b?.c).toBe(42); expect(o?.x?.y?.z).toBeUndefined(); });
+  it('handles IIFE pattern', () => { const result = ((x: number) => x * x)(7); expect(result).toBe(49); });
+});

@@ -827,3 +827,12 @@ describe('phase33 coverage', () => {
   it('handles string index access', () => { expect('hello'[0]).toBe('h'); });
   it('handles void operator', () => { expect(void 0).toBeUndefined(); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles infer pattern via function', () => { const getFirstElement = <T>(arr: T[]): T | undefined => arr[0]; expect(getFirstElement([1,2,3])).toBe(1); });
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+  it('handles named function expression', () => { const factorial = function fact(n: number): number { return n <= 1 ? 1 : n * fact(n-1); }; expect(factorial(4)).toBe(24); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+});

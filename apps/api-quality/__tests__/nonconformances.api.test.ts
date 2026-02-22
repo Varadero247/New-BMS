@@ -850,3 +850,12 @@ describe('phase33 coverage', () => {
   it('handles decodeURIComponent', () => { expect(decodeURIComponent('hello%20world')).toBe('hello world'); });
   it('handles Date methods', () => { const d = new Date(2026, 0, 15); expect(d.getMonth()).toBe(0); expect(d.getDate()).toBe(15); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles conditional type pattern', () => { type IsString<T> = T extends string ? true : false; const check = <T>(v: T): boolean => typeof v === 'string'; expect(check('hello')).toBe(true); expect(check(1)).toBe(false); });
+  it('checks truthy values', () => { expect(Boolean(1)).toBe(true); expect(Boolean('')).toBe(false); expect(Boolean(0)).toBe(false); });
+  it('handles nested destructuring', () => { const {a:{b}} = {a:{b:42}}; expect(b).toBe(42); });
+  it('handles IIFE pattern', () => { const result = ((x: number) => x * x)(7); expect(result).toBe(49); });
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+});

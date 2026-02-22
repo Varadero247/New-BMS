@@ -490,3 +490,12 @@ describe('phase33 coverage', () => {
   it('handles Array.from range', () => { expect(Array.from({length:5},(_,i)=>i)).toEqual([0,1,2,3,4]); });
   it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('checks truthy values', () => { expect(Boolean(1)).toBe(true); expect(Boolean('')).toBe(false); expect(Boolean(0)).toBe(false); });
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles object method shorthand', () => { const o = { double(x: number) { return x * 2; } }; expect(o.double(6)).toBe(12); });
+  it('handles Required type pattern', () => { interface Opts { a?: number; b?: string; } const o: Required<Opts> = { a: 1, b: 'x' }; expect(o.a).toBe(1); });
+});

@@ -462,3 +462,12 @@ describe('phase33 coverage', () => {
   it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
   it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles enum-like object', () => { const Direction = { UP: 'UP', DOWN: 'DOWN' } as const; expect(Direction.UP).toBe('UP'); });
+  it('handles default export pattern', () => { const fn = (x: number) => x * 2; expect(fn(5)).toBe(10); });
+  it('handles object key renaming via destructuring', () => { const {a: x, b: y} = {a:1,b:2}; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+});

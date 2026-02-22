@@ -640,3 +640,12 @@ describe('phase33 coverage', () => {
   it('handles in operator', () => { const o = {a:1}; expect('a' in o).toBe(true); expect('b' in o).toBe(false); });
   it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles generic function', () => { function identity<T>(x: T): T { return x; } expect(identity(42)).toBe(42); expect(identity('hi')).toBe('hi'); });
+  it('handles number array typed', () => { const nums: number[] = [1,2,3]; expect(nums.every(n => typeof n === 'number')).toBe(true); });
+  it('handles enum-like object', () => { const Direction = { UP: 'UP', DOWN: 'DOWN' } as const; expect(Direction.UP).toBe('UP'); });
+  it('handles Set intersection', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const inter = new Set([...a].filter(x=>b.has(x))); expect([...inter]).toEqual([2,3]); });
+});

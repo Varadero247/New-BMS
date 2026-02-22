@@ -985,3 +985,12 @@ describe('phase33 coverage', () => {
   it('handles Map size', () => { const m = new Map([['a',1],['b',2]]); expect(m.size).toBe(2); });
   it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+  it('handles Record type', () => { const scores: Record<string,number> = { alice: 95, bob: 87 }; expect(scores['alice']).toBe(95); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+});

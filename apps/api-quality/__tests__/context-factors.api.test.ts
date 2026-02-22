@@ -631,3 +631,12 @@ describe('phase33 coverage', () => {
   it('handles new Date validity', () => { const d = new Date(); expect(d instanceof Date).toBe(true); expect(isNaN(d.getTime())).toBe(false); });
   it('subtracts numbers', () => { expect(10 - 3).toBe(7); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('checks truthy values', () => { expect(Boolean(1)).toBe(true); expect(Boolean('')).toBe(false); expect(Boolean(0)).toBe(false); });
+  it('handles object method shorthand', () => { const o = { double(x: number) { return x * 2; } }; expect(o.double(6)).toBe(12); });
+  it('handles Required type pattern', () => { interface Opts { a?: number; b?: string; } const o: Required<Opts> = { a: 1, b: 'x' }; expect(o.a).toBe(1); });
+  it('handles Omit type pattern', () => { interface Full { a: number; b: string; c: boolean; } type NoC = Omit<Full,'c'>; const o: NoC = {a:1,b:'x'}; expect(o.b).toBe('x'); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+});

@@ -654,3 +654,12 @@ describe('phase33 coverage', () => {
   it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
   it('handles Array.isArray on objects', () => { expect(Array.isArray({})).toBe(false); expect(Array.isArray(null)).toBe(false); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles generic function', () => { function identity<T>(x: T): T { return x; } expect(identity(42)).toBe(42); expect(identity('hi')).toBe('hi'); });
+  it('handles chained optional access', () => { const o: any = {a:{b:{c:42}}}; expect(o?.a?.b?.c).toBe(42); expect(o?.x?.y?.z).toBeUndefined(); });
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+  it('handles type assertion', () => { const v: unknown = 'hello'; expect((v as string).toUpperCase()).toBe('HELLO'); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+});

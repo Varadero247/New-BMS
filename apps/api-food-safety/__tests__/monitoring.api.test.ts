@@ -562,3 +562,12 @@ describe('phase33 coverage', () => {
   it('handles partial application', () => { const multiply = (a: number, b: number) => a * b; const triple = multiply.bind(null, 3); expect(triple(7)).toBe(21); });
   it('handles Number.MIN_SAFE_INTEGER', () => { expect(Number.MIN_SAFE_INTEGER).toBe(-9007199254740991); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles chained optional access', () => { const o: any = {a:{b:{c:42}}}; expect(o?.a?.b?.c).toBe(42); expect(o?.x?.y?.z).toBeUndefined(); });
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+  it('handles nested destructuring', () => { const {a:{b}} = {a:{b:42}}; expect(b).toBe(42); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+});

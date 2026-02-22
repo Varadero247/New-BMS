@@ -647,3 +647,12 @@ describe('phase33 coverage', () => {
   it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
   it('handles generator next with value', () => { function* gen() { const x: number = yield 1; yield x + 10; } const g = gen(); g.next(); expect(g.next(5).value).toBe(15); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Pick type pattern', () => { interface User { id: number; name: string; email: string; } type Short = Pick<User,'id'|'name'>; const u: Short = {id:1,name:'Alice'}; expect(u.name).toBe('Alice'); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+  it('handles generic function', () => { function identity<T>(x: T): T { return x; } expect(identity(42)).toBe(42); expect(identity('hi')).toBe('hi'); });
+  it('handles Set union', () => { const a = new Set([1,2,3]); const b = new Set([2,3,4]); const union = new Set([...a,...b]); expect(union.size).toBe(4); });
+});

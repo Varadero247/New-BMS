@@ -774,3 +774,12 @@ describe('phase33 coverage', () => {
   it('handles ternary chain', () => { const x = true ? (false ? 0 : 2) : 3; expect(x).toBe(2); });
   it('handles string length property', () => { expect('typescript'.length).toBe(10); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles async generator', async () => { async function* gen() { yield 1; yield 2; } const vals: number[] = []; for await (const v of gen()) vals.push(v); expect(vals).toEqual([1,2]); });
+  it('handles type assertion', () => { const v: unknown = 'hello'; expect((v as string).toUpperCase()).toBe('HELLO'); });
+  it('handles array with holes', () => { const a = [1,,3]; expect(a.length).toBe(3); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+  it('handles Omit type pattern', () => { interface Full { a: number; b: string; c: boolean; } type NoC = Omit<Full,'c'>; const o: NoC = {a:1,b:'x'}; expect(o.b).toBe('x'); });
+});

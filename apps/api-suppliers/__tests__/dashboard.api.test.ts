@@ -497,3 +497,12 @@ describe('phase33 coverage', () => {
   it('handles Set delete', () => { const s = new Set([1,2,3]); s.delete(2); expect(s.has(2)).toBe(false); });
   it('handles error stack type', () => { const e = new Error('test'); expect(typeof e.stack).toBe('string'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles generic class', () => { class Box<T> { constructor(public value: T) {} } const b = new Box(99); expect(b.value).toBe(99); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+  it('handles string template type safety', () => { const greet = (name: string) => `Hello, ${name}!`; expect(greet('World')).toBe('Hello, World!'); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+});

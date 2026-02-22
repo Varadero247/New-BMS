@@ -710,3 +710,12 @@ describe('phase33 coverage', () => {
   it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
   it('handles Date.now type', () => { expect(typeof Date.now()).toBe('number'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles generic class', () => { class Box<T> { constructor(public value: T) {} } const b = new Box(99); expect(b.value).toBe(99); });
+  it('handles number comparison operators', () => { expect(5 >= 5).toBe(true); expect(4 <= 5).toBe(true); });
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+});

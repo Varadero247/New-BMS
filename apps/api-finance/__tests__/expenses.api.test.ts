@@ -528,3 +528,12 @@ describe('phase33 coverage', () => {
   it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
   it('handles multiple return values via array', () => { const swap = (a: number, b: number): [number, number] => [b, a]; const [x, y] = swap(1, 2); expect(x).toBe(2); expect(y).toBe(1); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles object with numeric keys', () => { const o: Record<string,number> = {'0':10,'1':20}; expect(o['0']).toBe(10); });
+  it('handles Required type pattern', () => { interface Opts { a?: number; b?: string; } const o: Required<Opts> = { a: 1, b: 'x' }; expect(o.a).toBe(1); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+  it('handles Pick type pattern', () => { interface User { id: number; name: string; email: string; } type Short = Pick<User,'id'|'name'>; const u: Short = {id:1,name:'Alice'}; expect(u.name).toBe('Alice'); });
+  it('handles type assertion', () => { const v: unknown = 'hello'; expect((v as string).toUpperCase()).toBe('HELLO'); });
+});

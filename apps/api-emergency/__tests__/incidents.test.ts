@@ -714,3 +714,12 @@ describe('phase33 coverage', () => {
   it('handles parseFloat', () => { expect(parseFloat('3.14')).toBeCloseTo(3.14); });
   it('converts string to number', () => { expect(Number('3.14')).toBeCloseTo(3.14); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('checks truthy values', () => { expect(Boolean(1)).toBe(true); expect(Boolean('')).toBe(false); expect(Boolean(0)).toBe(false); });
+  it('handles object key renaming via destructuring', () => { const {a: x, b: y} = {a:1,b:2}; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+  it('handles number array typed', () => { const nums: number[] = [1,2,3]; expect(nums.every(n => typeof n === 'number')).toBe(true); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+});

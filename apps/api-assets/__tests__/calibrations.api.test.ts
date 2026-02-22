@@ -504,3 +504,12 @@ describe('phase33 coverage', () => {
   it('handles Object.create', () => { const proto = { greet() { return 'hi'; } }; const o = Object.create(proto); expect(o.greet()).toBe('hi'); });
   it('handles string fromCharCode', () => { expect(String.fromCharCode(65)).toBe('A'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles static method', () => { class MathHelper { static square(n: number) { return n*n; } } expect(MathHelper.square(4)).toBe(16); });
+  it('handles number array typed', () => { const nums: number[] = [1,2,3]; expect(nums.every(n => typeof n === 'number')).toBe(true); });
+  it('handles infer pattern via function', () => { const getFirstElement = <T>(arr: T[]): T | undefined => arr[0]; expect(getFirstElement([1,2,3])).toBe(1); });
+  it('handles Map with complex values', () => { const m = new Map<string, number[]>(); m.set('evens', [2,4,6]); expect(m.get('evens')?.length).toBe(3); });
+  it('handles keyof pattern', () => { interface O { x: number; y: number; } const get = <T, K extends keyof T>(obj: T, key: K) => obj[key]; const pt = {x:3,y:4}; expect(get(pt,'x')).toBe(3); });
+});

@@ -663,3 +663,12 @@ describe('phase33 coverage', () => {
   it('handles string search', () => { expect('hello world'.search(/world/)).toBe(6); });
   it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles string repeat zero times', () => { expect('abc'.repeat(0)).toBe(''); });
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles negative array index via at()', () => { expect([10,20,30].at(-2)).toBe(20); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+});

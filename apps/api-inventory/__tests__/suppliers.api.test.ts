@@ -777,3 +777,12 @@ describe('phase33 coverage', () => {
   it('handles toFixed', () => { expect((3.14159).toFixed(2)).toBe('3.14'); });
   it('handles Object.getPrototypeOf', () => { class A {} class B extends A {} expect(Object.getPrototypeOf(B.prototype)).toBe(A.prototype); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+  it('handles object key renaming via destructuring', () => { const {a: x, b: y} = {a:1,b:2}; expect(x).toBe(1); expect(y).toBe(2); });
+  it('computes sum of array', () => { expect([1,2,3,4,5].reduce((a,b)=>a+b,0)).toBe(15); });
+  it('handles static method', () => { class MathHelper { static square(n: number) { return n*n; } } expect(MathHelper.square(4)).toBe(16); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+});

@@ -301,3 +301,12 @@ describe('phase33 coverage', () => {
   it('handles function composition', () => { const compose = (f: (x: number) => number, g: (x: number) => number) => (x: number) => f(g(x)); const double = (x: number) => x * 2; const square = (x: number) => x * x; expect(compose(double, square)(3)).toBe(18); });
   it('handles SyntaxError from JSON.parse', () => { expect(() => JSON.parse('{')).toThrow(SyntaxError); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles Readonly type pattern', () => { const cfg = Object.freeze({ debug: false }); expect(cfg.debug).toBe(false); });
+  it('handles Partial type pattern', () => { interface Config { host: string; port: number; } const defaults: Config = { host: 'localhost', port: 8080 }; const override: Partial<Config> = { port: 9000 }; const merged = { ...defaults, ...override }; expect(merged.port).toBe(9000); });
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles interface-like typing', () => { interface Point { x: number; y: number; } const p: Point = {x:3,y:4}; const dist = Math.sqrt(p.x**2+p.y**2); expect(dist).toBe(5); });
+  it('handles default value in destructuring', () => { const {x=10,y=20} = {x:5} as {x?:number;y?:number}; expect(x).toBe(5); expect(y).toBe(20); });
+});

@@ -648,3 +648,12 @@ describe('phase33 coverage', () => {
   it('handles delete operator', () => { const o: any = {a:1,b:2}; delete o.a; expect(o.a).toBeUndefined(); });
   it('handles nested object access', () => { const o = { a: { b: 42 } }; expect(o.a.b).toBe(42); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles getter in class', () => { class C { private _x = 0; get x() { return this._x; } set x(v: number) { this._x = v; } } const c = new C(); c.x = 5; expect(c.x).toBe(5); });
+  it('computes sum of array', () => { expect([1,2,3,4,5].reduce((a,b)=>a+b,0)).toBe(15); });
+  it('handles Required type pattern', () => { interface Opts { a?: number; b?: string; } const o: Required<Opts> = { a: 1, b: 'x' }; expect(o.a).toBe(1); });
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+});

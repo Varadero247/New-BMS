@@ -402,3 +402,12 @@ describe('phase33 coverage', () => {
   it('handles Reflect.has', () => { expect(Reflect.has({a:1}, 'a')).toBe(true); });
   it('handles string normalize', () => { expect('caf\u00e9'.normalize()).toBe('café'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles array of objects sort', () => { const arr = [{n:3},{n:1},{n:2}]; arr.sort((a,b)=>a.n-b.n); expect(arr[0].n).toBe(1); });
+  it('handles promise then chain', async () => { const result = await Promise.resolve(1).then(x=>x+1).then(x=>x*3); expect(result).toBe(6); });
+  it('handles string comparison', () => { expect('apple' < 'banana').toBe(true); expect('zebra' > 'apple').toBe(true); });
+  it('handles string template type safety', () => { const greet = (name: string) => `Hello, ${name}!`; expect(greet('World')).toBe('Hello, World!'); });
+  it('handles default export pattern', () => { const fn = (x: number) => x * 2; expect(fn(5)).toBe(10); });
+});

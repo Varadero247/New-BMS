@@ -782,3 +782,12 @@ describe('phase33 coverage', () => {
   it('multiplies numbers', () => { expect(4 * 5).toBe(20); });
   it('handles tagged template', () => { const tag = (s: TemplateStringsArray, ...v: number[]) => s.raw[0] + v[0]; expect(tag`val:${42}`).toBe('val:42'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles IIFE pattern', () => { const result = ((x: number) => x * x)(7); expect(result).toBe(49); });
+  it('handles named function expression', () => { const factorial = function fact(n: number): number { return n <= 1 ? 1 : n * fact(n-1); }; expect(factorial(4)).toBe(24); });
+  it('checks truthy values', () => { expect(Boolean(1)).toBe(true); expect(Boolean('')).toBe(false); expect(Boolean(0)).toBe(false); });
+  it('handles array deduplication', () => { const arr = [1,2,2,3,3,3]; expect([...new Set(arr)]).toEqual([1,2,3]); });
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+});

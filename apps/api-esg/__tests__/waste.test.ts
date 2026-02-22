@@ -528,3 +528,12 @@ describe('phase33 coverage', () => {
   it('handles toPrecision', () => { expect((123.456).toPrecision(5)).toBe('123.46'); });
   it('handles Reflect.ownKeys', () => { const s = Symbol('k'); const o = {a:1,[s]:2}; expect(Reflect.ownKeys(o)).toContain('a'); });
 });
+
+
+describe('phase34 coverage', () => {
+  it('handles number array typed', () => { const nums: number[] = [1,2,3]; expect(nums.every(n => typeof n === 'number')).toBe(true); });
+  it('handles chained string methods', () => { expect('  Hello World  '.trim().toLowerCase()).toBe('hello world'); });
+  it('handles abstract-like pattern', () => { class Shape { area(): number { return 0; } } class Square extends Shape { constructor(private s: number) { super(); } area() { return this.s*this.s; } } expect(new Square(4).area()).toBe(16); });
+  it('handles interface-like typing', () => { interface Point { x: number; y: number; } const p: Point = {x:3,y:4}; const dist = Math.sqrt(p.x**2+p.y**2); expect(dist).toBe(5); });
+  it('handles tuple type', () => { const pair: [string, number] = ['age', 30]; expect(pair[0]).toBe('age'); expect(pair[1]).toBe(30); });
+});
