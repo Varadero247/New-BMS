@@ -13,6 +13,14 @@ import {
   ShieldCheck,
   Users,
   Receipt,
+  MessageSquare,
+  Newspaper,
+  TrendingUp,
+  Heart,
+  Rocket,
+  Handshake,
+  CalendarClock,
+  RotateCcw,
 } from 'lucide-react';
 
 const navItems = [
@@ -25,6 +33,15 @@ const navItems = [
   { href: '/data-requests', label: 'DSARs', icon: ShieldCheck },
   { href: '/meetings', label: 'Meetings', icon: Users },
   { href: '/expenses', label: 'Expenses', icon: Receipt },
+  { href: '/leads', label: 'Leads', icon: Users },
+  { href: '/expansion', label: 'Expansion', icon: TrendingUp },
+  { href: '/health-score', label: 'Health Scores', icon: Heart },
+  { href: '/renewal', label: 'Renewals', icon: CalendarClock },
+  { href: '/winback', label: 'Win-back', icon: RotateCcw },
+  { href: '/onboarding', label: 'Onboarding', icon: Rocket },
+  { href: '/partner-onboarding', label: 'Partner Onboarding', icon: Handshake },
+  { href: '/digest', label: 'Digest', icon: Newspaper },
+  { href: '/chat', label: 'AI Assistant', icon: MessageSquare },
 ];
 
 export function Sidebar() {

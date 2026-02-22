@@ -9,6 +9,12 @@ import {
   FileText,
   ThumbsUp,
   Ticket,
+  Megaphone,
+  CheckSquare,
+  Bell,
+  ShoppingCart,
+  Star,
+  Users,
   Home,
   Settings,
 } from 'lucide-react';
@@ -21,6 +27,13 @@ const navigation = [
   { name: 'NPS Survey', href: '/nps', icon: ThumbsUp },
   { name: 'Tickets', href: '/tickets', icon: Ticket },
   { name: 'Self-Service', href: '/self-service', icon: LayoutDashboard },
+  { name: 'Announcements', href: '/announcements', icon: Megaphone },
+  { name: 'Approvals', href: '/approvals', icon: CheckSquare },
+  { name: 'Notifications', href: '/notifications', icon: Bell },
+  { name: 'Orders', href: '/orders', icon: ShoppingCart },
+  { name: 'Quality Reports', href: '/quality-reports', icon: Star },
+  { name: 'Scorecards', href: '/scorecards', icon: Star },
+  { name: 'Users', href: '/users', icon: Users },
 ];
 
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
