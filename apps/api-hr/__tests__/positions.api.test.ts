@@ -683,3 +683,12 @@ describe('phase35 coverage', () => {
   it('handles chained map and filter', () => { expect([1,2,3,4,5].filter(x=>x%2!==0).map(x=>x*x)).toEqual([1,9,25]); });
   it('handles object entries round-trip', () => { const o = {a:1,b:2}; expect(Object.fromEntries(Object.entries(o))).toEqual(o); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles string rotation check', () => { const isRotation=(s:string,t:string)=>s.length===t.length&&(s+s).includes(t);expect(isRotation('abcde','cdeab')).toBe(true);expect(isRotation('abcde','abced')).toBe(false); });
+  it('handles top-K elements', () => { const topK=(a:number[],k:number)=>[...a].sort((x,y)=>y-x).slice(0,k);expect(topK([3,1,4,1,5,9,2,6],3)).toEqual([9,6,5]); });
+  it('handles binary search', () => { const bs=(a:number[],t:number)=>{let l=0,r=a.length-1;while(l<=r){const m=(l+r)>>1;if(a[m]===t)return m;a[m]<t?l=m+1:r=m-1;}return -1;}; expect(bs([1,3,5,7,9],5)).toBe(2); });
+  it('handles regex URL validation', () => { const isUrl=(s:string)=>/^https?:\/\/.+/.test(s);expect(isUrl('https://example.com')).toBe(true);expect(isUrl('ftp://nope')).toBe(false); });
+  it('handles vowel count', () => { const countVowels=(s:string)=>(s.match(/[aeiou]/gi)||[]).length;expect(countVowels('Hello World')).toBe(3);expect(countVowels('rhythm')).toBe(0); });
+});

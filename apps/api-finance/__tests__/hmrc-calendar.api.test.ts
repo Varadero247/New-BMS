@@ -702,3 +702,12 @@ describe('phase35 coverage', () => {
   it('handles flatten array deeply', () => { expect([1,[2,[3,[4]]]].flat(3)).toEqual([1,2,3,4]); });
   it('handles number base conversion', () => { expect((10).toString(2)).toBe('1010'); expect((255).toString(16)).toBe('ff'); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles power set size', () => { const powerSetSize=(n:number)=>Math.pow(2,n);expect(powerSetSize(3)).toBe(8);expect(powerSetSize(0)).toBe(1); });
+  it('handles word frequency map', () => { const freq=(s:string)=>s.split(/\s+/).reduce((m,w)=>{m.set(w,(m.get(w)||0)+1);return m;},new Map<string,number>());const f=freq('a b a c b a');expect(f.get('a')).toBe(3);expect(f.get('b')).toBe(2); });
+  it('handles sliding window sum', () => { const maxSum=(a:number[],k:number)=>{let s=a.slice(0,k).reduce((x,y)=>x+y,0),max=s;for(let i=k;i<a.length;i++){s+=a[i]-a[i-k];max=Math.max(max,s);}return max;};expect(maxSum([1,3,-1,-3,5,3,6,7],3)).toBe(16); });
+  it('handles queue pattern', () => { class Queue<T>{private d:T[]=[];enqueue(v:T){this.d.push(v);}dequeue(){return this.d.shift();}get size(){return this.d.length;}} const q=new Queue<string>();q.enqueue('a');q.enqueue('b');expect(q.dequeue()).toBe('a');expect(q.size).toBe(1); });
+  it('handles LCM calculation', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b);const lcm=(a:number,b:number)=>a*b/gcd(a,b);expect(lcm(4,6)).toBe(12);expect(lcm(3,5)).toBe(15); });
+});

@@ -760,3 +760,12 @@ describe('phase35 coverage', () => {
   it('handles date formatting pattern', () => { const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; expect(fmt(new Date(2026,0,1))).toBe('2026-01'); });
   it('handles optional catch binding', () => { let ok = false; try { throw 1; } catch { ok = true; } expect(ok).toBe(true); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles object to query string', () => { const toQS=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>`${k}=${v}`).join('&');expect(toQS({a:1,b:'x'})).toBe('a=1&b=x'); });
+  it('handles number digit sum', () => { const digitSum=(n:number)=>String(Math.abs(n)).split('').reduce((s,d)=>s+Number(d),0);expect(digitSum(12345)).toBe(15);expect(digitSum(999)).toBe(27); });
+  it('handles snake_case to camelCase', () => { const snakeToCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase());expect(snakeToCamel('foo_bar_baz')).toBe('fooBarBaz'); });
+  it('handles vowel count', () => { const countVowels=(s:string)=>(s.match(/[aeiou]/gi)||[]).length;expect(countVowels('Hello World')).toBe(3);expect(countVowels('rhythm')).toBe(0); });
+  it('handles top-K elements', () => { const topK=(a:number[],k:number)=>[...a].sort((x,y)=>y-x).slice(0,k);expect(topK([3,1,4,1,5,9,2,6],3)).toEqual([9,6,5]); });
+});

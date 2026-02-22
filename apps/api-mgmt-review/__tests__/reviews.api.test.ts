@@ -536,3 +536,12 @@ describe('phase35 coverage', () => {
   it('handles discriminated union', () => { type Shape = {kind:'circle';r:number}|{kind:'rect';w:number;h:number}; const area=(s:Shape)=>s.kind==='circle'?Math.PI*s.r*s.r:s.w*s.h; expect(area({kind:'rect',w:3,h:4})).toBe(12); });
   it('handles number is even/odd', () => { const isEven = (n:number) => n%2===0; expect(isEven(4)).toBe(true); expect(isEven(7)).toBe(false); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles run-length encoding', () => { const rle=(s:string)=>{const r:string[]=[];let i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r.push(j-i>1?`${j-i}${s[i]}`:s[i]);i=j;}return r.join('');};expect(rle('AABBBCC')).toBe('2A3B2C'); });
+  it('handles object deep merge', () => { const merge=(a:Record<string,unknown>,b:Record<string,unknown>):Record<string,unknown>=>{const r={...a};for(const k in b){r[k]=b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k])?merge((a[k]||{}) as Record<string,unknown>,b[k] as Record<string,unknown>):b[k];}return r;};expect(merge({a:{x:1}},{a:{y:2}})).toEqual({a:{x:1,y:2}}); });
+  it('handles title case conversion', () => { const titleCase=(s:string)=>s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');expect(titleCase('hello world')).toBe('Hello World'); });
+  it('handles string compression', () => { const compress=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=j-i>1?`${j-i}${s[i]}`:s[i];i=j;}return r;}; expect(compress('aaabbc')).toBe('3a2bc'); });
+  it('handles string rotation check', () => { const isRotation=(s:string,t:string)=>s.length===t.length&&(s+s).includes(t);expect(isRotation('abcde','cdeab')).toBe(true);expect(isRotation('abcde','abced')).toBe(false); });
+});

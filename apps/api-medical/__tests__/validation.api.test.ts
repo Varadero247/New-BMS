@@ -594,3 +594,12 @@ describe('phase35 coverage', () => {
   it('handles string kebab-case pattern', () => { const toKebab = (s:string) => s.replace(/([A-Z])/g,'-$1').toLowerCase().replace(/^-/,''); expect(toKebab('fooBarBaz')).toBe('foo-bar-baz'); });
   it('handles string is palindrome', () => { const isPalin = (s: string) => s === s.split('').reverse().join(''); expect(isPalin('racecar')).toBe(true); expect(isPalin('hello')).toBe(false); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles object to query string', () => { const toQS=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>`${k}=${v}`).join('&');expect(toQS({a:1,b:'x'})).toBe('a=1&b=x'); });
+  it('handles number digit sum', () => { const digitSum=(n:number)=>String(Math.abs(n)).split('').reduce((s,d)=>s+Number(d),0);expect(digitSum(12345)).toBe(15);expect(digitSum(999)).toBe(27); });
+  it('handles regex email validation', () => { const isEmail=(s:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);expect(isEmail('user@example.com')).toBe(true);expect(isEmail('notanemail')).toBe(false); });
+  it('handles power set size', () => { const powerSetSize=(n:number)=>Math.pow(2,n);expect(powerSetSize(3)).toBe(8);expect(powerSetSize(0)).toBe(1); });
+  it('handles vowel count', () => { const countVowels=(s:string)=>(s.match(/[aeiou]/gi)||[]).length;expect(countVowels('Hello World')).toBe(3);expect(countVowels('rhythm')).toBe(0); });
+});

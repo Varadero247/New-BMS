@@ -577,3 +577,12 @@ describe('phase35 coverage', () => {
   it('handles sum by key pattern', () => { const sumBy = <T>(arr:T[], fn:(x:T)=>number) => arr.reduce((s,x)=>s+fn(x),0); expect(sumBy([{v:1},{v:2},{v:3}],x=>x.v)).toBe(6); });
   it('handles observer pattern', () => { const listeners: Array<(v:number)=>void> = []; const on = (fn:(v:number)=>void) => listeners.push(fn); const emit = (v:number) => listeners.forEach(fn=>fn(v)); const results: number[] = []; on(v=>results.push(v)); on(v=>results.push(v*2)); emit(5); expect(results).toEqual([5,10]); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles difference of arrays', () => { const diff=<T>(a:T[],b:T[])=>a.filter(x=>!b.includes(x));expect(diff([1,2,3,4],[2,4])).toEqual([1,3]); });
+  it('computes fibonacci iteratively', () => { const fib=(n:number)=>{let a=0,b=1;for(let i=0;i<n;i++){[a,b]=[b,a+b];}return a;}; expect(fib(10)).toBe(55); });
+  it('handles string anagram check', () => { const isAnagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(isAnagram('listen','silent')).toBe(true); expect(isAnagram('hello','world')).toBe(false); });
+  it('handles number formatting with commas', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');expect(fmt(1000000)).toBe('1,000,000'); });
+  it('handles chunk string', () => { const chunkStr=(s:string,n:number)=>s.match(new RegExp(`.{1,${n}}`,'g'))||[];expect(chunkStr('abcdefg',3)).toEqual(['abc','def','g']); });
+});

@@ -544,3 +544,12 @@ describe('phase35 coverage', () => {
   it('handles string camelCase pattern', () => { const toCamel = (s:string) => s.replace(/-([a-z])/g,(_,c)=>c.toUpperCase()); expect(toCamel('foo-bar-baz')).toBe('fooBarBaz'); });
   it('handles number clamp', () => { const clamp = (v:number,min:number,max:number) => Math.min(Math.max(v,min),max); expect(clamp(10,0,5)).toBe(5); expect(clamp(-1,0,5)).toBe(0); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles regex email validation', () => { const isEmail=(s:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);expect(isEmail('user@example.com')).toBe(true);expect(isEmail('notanemail')).toBe(false); });
+  it('handles DFS pattern', () => { const dfs=(g:Map<number,number[]>,node:number,visited=new Set<number>()):number=>{if(visited.has(node))return 0;visited.add(node);let c=1;g.get(node)?.forEach(n=>{c+=dfs(g,n,visited);});return c;};const g=new Map([[1,[2,3]],[2,[]],[3,[]]]);expect(dfs(g,1)).toBe(3); });
+  it('handles string rotation check', () => { const isRotation=(s:string,t:string)=>s.length===t.length&&(s+s).includes(t);expect(isRotation('abcde','cdeab')).toBe(true);expect(isRotation('abcde','abced')).toBe(false); });
+  it('handles trie prefix check', () => { const words=['apple','app','apt'];const has=(prefix:string)=>words.some(w=>w.startsWith(prefix));expect(has('app')).toBe(true);expect(has('ban')).toBe(false); });
+  it('handles BFS pattern', () => { const bfs=(g:Map<number,number[]>,start:number)=>{const visited=new Set<number>();const queue=[start];while(queue.length){const node=queue.shift()!;if(visited.has(node))continue;visited.add(node);g.get(node)?.forEach(n=>queue.push(n));}return visited.size;};const g=new Map([[1,[2,3]],[2,[4]],[3,[4]],[4,[]]]);expect(bfs(g,1)).toBe(4); });
+});

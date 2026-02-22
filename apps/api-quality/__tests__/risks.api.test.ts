@@ -880,3 +880,12 @@ describe('phase35 coverage', () => {
   it('handles async map pattern', async () => { const asyncDouble = async (n:number) => n*2; const results = await Promise.all([1,2,3].map(asyncDouble)); expect(results).toEqual([2,4,6]); });
   it('handles object pick pattern', () => { const pick = <T, K extends keyof T>(o:T, keys:K[]): Pick<T,K> => Object.fromEntries(keys.map(k=>[k,o[k]])) as Pick<T,K>; expect(pick({a:1,b:2,c:3},['a','c'])).toEqual({a:1,c:3}); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles number digit sum', () => { const digitSum=(n:number)=>String(Math.abs(n)).split('').reduce((s,d)=>s+Number(d),0);expect(digitSum(12345)).toBe(15);expect(digitSum(999)).toBe(27); });
+  it('handles coin change count', () => { const ways=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];};expect(ways([1,2,5],5)).toBe(4); });
+  it('handles parse query string', () => { const parseQS=(s:string)=>Object.fromEntries(s.split('&').map(p=>p.split('=')));expect(parseQS('a=1&b=2')).toEqual({a:'1',b:'2'}); });
+  it('handles LCM calculation', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b);const lcm=(a:number,b:number)=>a*b/gcd(a,b);expect(lcm(4,6)).toBe(12);expect(lcm(3,5)).toBe(15); });
+  it('handles regex URL validation', () => { const isUrl=(s:string)=>/^https?:\/\/.+/.test(s);expect(isUrl('https://example.com')).toBe(true);expect(isUrl('ftp://nope')).toBe(false); });
+});

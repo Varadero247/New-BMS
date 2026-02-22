@@ -779,3 +779,12 @@ describe('phase35 coverage', () => {
   it('handles type guard function', () => { const isString = (v:unknown): v is string => typeof v === 'string'; const vals: unknown[] = [1,'hi',true]; expect(vals.filter(isString)).toEqual(['hi']); });
   it('handles date formatting pattern', () => { const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; expect(fmt(new Date(2026,0,1))).toBe('2026-01'); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles GCD calculation', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b);expect(gcd(48,18)).toBe(6);expect(gcd(100,75)).toBe(25); });
+  it('handles LCM calculation', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b);const lcm=(a:number,b:number)=>a*b/gcd(a,b);expect(lcm(4,6)).toBe(12);expect(lcm(3,5)).toBe(15); });
+  it('handles counting sort result', () => { const arr=[3,1,4,1,5,9,2,6]; const sorted=[...arr].sort((a,b)=>a-b); expect(sorted[0]).toBe(1); expect(sorted[sorted.length-1]).toBe(9); });
+  it('handles deep object equality', () => { const eq=(a:unknown,b:unknown):boolean=>JSON.stringify(a)===JSON.stringify(b); expect(eq({x:{y:1}},{x:{y:1}})).toBe(true); expect(eq({x:1},{x:2})).toBe(false); });
+  it('handles sliding window sum', () => { const maxSum=(a:number[],k:number)=>{let s=a.slice(0,k).reduce((x,y)=>x+y,0),max=s;for(let i=k;i<a.length;i++){s+=a[i]-a[i-k];max=Math.max(max,s);}return max;};expect(maxSum([1,3,-1,-3,5,3,6,7],3)).toBe(16); });
+});

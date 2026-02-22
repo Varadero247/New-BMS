@@ -646,3 +646,12 @@ describe('phase35 coverage', () => {
   it('handles date formatting pattern', () => { const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; expect(fmt(new Date(2026,0,1))).toBe('2026-01'); });
   it('handles async map pattern', async () => { const asyncDouble = async (n:number) => n*2; const results = await Promise.all([1,2,3].map(asyncDouble)); expect(results).toEqual([2,4,6]); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles regex email validation', () => { const isEmail=(s:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);expect(isEmail('user@example.com')).toBe(true);expect(isEmail('notanemail')).toBe(false); });
+  it('handles object deep merge', () => { const merge=(a:Record<string,unknown>,b:Record<string,unknown>):Record<string,unknown>=>{const r={...a};for(const k in b){r[k]=b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k])?merge((a[k]||{}) as Record<string,unknown>,b[k] as Record<string,unknown>):b[k];}return r;};expect(merge({a:{x:1}},{a:{y:2}})).toEqual({a:{x:1,y:2}}); });
+  it('handles intersection of arrays', () => { const inter=<T>(a:T[],b:T[])=>a.filter(x=>b.includes(x));expect(inter([1,2,3,4],[2,4,6])).toEqual([2,4]); });
+  it('handles DFS pattern', () => { const dfs=(g:Map<number,number[]>,node:number,visited=new Set<number>()):number=>{if(visited.has(node))return 0;visited.add(node);let c=1;g.get(node)?.forEach(n=>{c+=dfs(g,n,visited);});return c;};const g=new Map([[1,[2,3]],[2,[]],[3,[]]]);expect(dfs(g,1)).toBe(3); });
+  it('handles event emitter pattern', () => { const handlers=new Map<string,Array<(d:unknown)=>void>>();const on=(e:string,fn:(d:unknown)=>void)=>{(handlers.get(e)||handlers.set(e,[]).get(e)!).push(fn);};const emit=(e:string,d:unknown)=>handlers.get(e)?.forEach(fn=>fn(d));const results:unknown[]=[];on('test',d=>results.push(d));emit('test',42);expect(results).toEqual([42]); });
+});

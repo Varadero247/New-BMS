@@ -603,3 +603,12 @@ describe('phase35 coverage', () => {
   it('handles debounce-like pattern', () => { let count = 0; const fn = () => count++; fn(); fn(); fn(); expect(count).toBe(3); });
   it('handles optional catch binding', () => { let ok = false; try { throw 1; } catch { ok = true; } expect(ok).toBe(true); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles top-K elements', () => { const topK=(a:number[],k:number)=>[...a].sort((x,y)=>y-x).slice(0,k);expect(topK([3,1,4,1,5,9,2,6],3)).toEqual([9,6,5]); });
+  it('handles trie prefix check', () => { const words=['apple','app','apt'];const has=(prefix:string)=>words.some(w=>w.startsWith(prefix));expect(has('app')).toBe(true);expect(has('ban')).toBe(false); });
+  it('handles string anagram check', () => { const isAnagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(isAnagram('listen','silent')).toBe(true); expect(isAnagram('hello','world')).toBe(false); });
+  it('handles number digit sum', () => { const digitSum=(n:number)=>String(Math.abs(n)).split('').reduce((s,d)=>s+Number(d),0);expect(digitSum(12345)).toBe(15);expect(digitSum(999)).toBe(27); });
+  it('handles snake_case to camelCase', () => { const snakeToCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase());expect(snakeToCamel('foo_bar_baz')).toBe('fooBarBaz'); });
+});

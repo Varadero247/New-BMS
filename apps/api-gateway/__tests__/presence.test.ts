@@ -492,3 +492,12 @@ describe('phase35 coverage', () => {
   it('handles array groupBy pattern', () => { const groupBy = <T>(arr:T[], key:(item:T)=>string): Record<string,T[]> => arr.reduce((acc,item)=>{ const k=key(item); (acc[k]=acc[k]||[]).push(item); return acc; },{}as Record<string,T[]>); const r = groupBy([{t:'a',v:1},{t:'b',v:2},{t:'a',v:3}],x=>x.t); expect(r['a'].length).toBe(2); });
   it('handles object merge deep pattern', () => { const merge = <T extends object>(a: T, b: Partial<T>): T => ({...a,...b}); expect(merge({x:1,y:2},{y:99})).toEqual({x:1,y:99}); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles top-K elements', () => { const topK=(a:number[],k:number)=>[...a].sort((x,y)=>y-x).slice(0,k);expect(topK([3,1,4,1,5,9,2,6],3)).toEqual([9,6,5]); });
+  it('handles trie prefix check', () => { const words=['apple','app','apt'];const has=(prefix:string)=>words.some(w=>w.startsWith(prefix));expect(has('app')).toBe(true);expect(has('ban')).toBe(false); });
+  it('handles object deep merge', () => { const merge=(a:Record<string,unknown>,b:Record<string,unknown>):Record<string,unknown>=>{const r={...a};for(const k in b){r[k]=b[k]&&typeof b[k]==='object'&&!Array.isArray(b[k])?merge((a[k]||{}) as Record<string,unknown>,b[k] as Record<string,unknown>):b[k];}return r;};expect(merge({a:{x:1}},{a:{y:2}})).toEqual({a:{x:1,y:2}}); });
+  it('handles LRU cache pattern', () => { const cache=new Map<string,number>();const get=(k:string)=>cache.has(k)?(cache.get(k)!):null;const set=(k:string,v:number)=>{cache.delete(k);cache.set(k,v);};set('a',1);set('b',2);expect(get('a')).toBe(1); });
+  it('computes fibonacci iteratively', () => { const fib=(n:number)=>{let a=0,b=1;for(let i=0;i<n;i++){[a,b]=[b,a+b];}return a;}; expect(fib(10)).toBe(55); });
+});

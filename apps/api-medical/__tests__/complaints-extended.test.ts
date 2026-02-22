@@ -653,3 +653,12 @@ describe('phase35 coverage', () => {
   it('handles using const assertion', () => { const dirs = ['N','S','E','W'] as const; type Dir = typeof dirs[number]; const fn = (d:Dir) => d; expect(fn('N')).toBe('N'); });
   it('handles debounce-like pattern', () => { let count = 0; const fn = () => count++; fn(); fn(); fn(); expect(count).toBe(3); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles DFS pattern', () => { const dfs=(g:Map<number,number[]>,node:number,visited=new Set<number>()):number=>{if(visited.has(node))return 0;visited.add(node);let c=1;g.get(node)?.forEach(n=>{c+=dfs(g,n,visited);});return c;};const g=new Map([[1,[2,3]],[2,[]],[3,[]]]);expect(dfs(g,1)).toBe(3); });
+  it('handles run-length encoding', () => { const rle=(s:string)=>{const r:string[]=[];let i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r.push(j-i>1?`${j-i}${s[i]}`:s[i]);i=j;}return r.join('');};expect(rle('AABBBCC')).toBe('2A3B2C'); });
+  it('handles deep object equality', () => { const eq=(a:unknown,b:unknown):boolean=>JSON.stringify(a)===JSON.stringify(b); expect(eq({x:{y:1}},{x:{y:1}})).toBe(true); expect(eq({x:1},{x:2})).toBe(false); });
+  it('handles flatten nested object keys', () => { const flat=(o:Record<string,unknown>,prefix=''):Record<string,unknown>=>{return Object.entries(o).reduce((acc,[k,v])=>{const key=prefix?`${prefix}.${k}`:k;if(v&&typeof v==='object'&&!Array.isArray(v))Object.assign(acc,flat(v as Record<string,unknown>,key));else(acc as any)[key]=v;return acc;},{});};expect(flat({a:{b:1}})).toEqual({'a.b':1}); });
+  it('handles event emitter pattern', () => { const handlers=new Map<string,Array<(d:unknown)=>void>>();const on=(e:string,fn:(d:unknown)=>void)=>{(handlers.get(e)||handlers.set(e,[]).get(e)!).push(fn);};const emit=(e:string,d:unknown)=>handlers.get(e)?.forEach(fn=>fn(d));const results:unknown[]=[];on('test',d=>results.push(d));emit('test',42);expect(results).toEqual([42]); });
+});

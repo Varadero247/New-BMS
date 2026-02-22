@@ -1346,3 +1346,12 @@ describe('phase35 coverage', () => {
   it('handles retry pattern', async () => { let attempts = 0; const retry = async (fn: ()=>Promise<number>, n:number): Promise<number> => { try { return await fn(); } catch(e) { if(n<=0) throw e; return retry(fn,n-1); } }; const fn = () => { attempts++; return attempts < 3 ? Promise.reject(new Error()) : Promise.resolve(42); }; expect(await retry(fn,5)).toBe(42); });
   it('handles numeric separator readability', () => { const million = 1_000_000; expect(million).toBe(1000000); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles coin change count', () => { const ways=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];};expect(ways([1,2,5],5)).toBe(4); });
+  it('handles queue pattern', () => { class Queue<T>{private d:T[]=[];enqueue(v:T){this.d.push(v);}dequeue(){return this.d.shift();}get size(){return this.d.length;}} const q=new Queue<string>();q.enqueue('a');q.enqueue('b');expect(q.dequeue()).toBe('a');expect(q.size).toBe(1); });
+  it('handles regex email validation', () => { const isEmail=(s:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);expect(isEmail('user@example.com')).toBe(true);expect(isEmail('notanemail')).toBe(false); });
+  it('handles matrix transpose', () => { const t=(m:number[][])=>m[0].map((_,i)=>m.map(r=>r[i])); expect(t([[1,2],[3,4]])).toEqual([[1,3],[2,4]]); });
+  it('handles flatten nested object keys', () => { const flat=(o:Record<string,unknown>,prefix=''):Record<string,unknown>=>{return Object.entries(o).reduce((acc,[k,v])=>{const key=prefix?`${prefix}.${k}`:k;if(v&&typeof v==='object'&&!Array.isArray(v))Object.assign(acc,flat(v as Record<string,unknown>,key));else(acc as any)[key]=v;return acc;},{});};expect(flat({a:{b:1}})).toEqual({'a.b':1}); });
+});

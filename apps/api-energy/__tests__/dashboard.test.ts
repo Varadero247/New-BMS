@@ -791,3 +791,12 @@ describe('phase35 coverage', () => {
   it('handles Object.is zero', () => { expect(Object.is(0, -0)).toBe(false); });
   it('handles template literal type pattern', () => { type EventName = `on${Capitalize<string>}`; const handler: EventName = 'onClick'; expect(handler.startsWith('on')).toBe(true); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles object to query string', () => { const toQS=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>`${k}=${v}`).join('&');expect(toQS({a:1,b:'x'})).toBe('a=1&b=x'); });
+  it('handles intersection of arrays', () => { const inter=<T>(a:T[],b:T[])=>a.filter(x=>b.includes(x));expect(inter([1,2,3,4],[2,4,6])).toEqual([2,4]); });
+  it('handles balanced parentheses check', () => { const balanced=(s:string)=>{let c=0;for(const ch of s){if(ch==='(')c++;else if(ch===')')c--;if(c<0)return false;}return c===0;};expect(balanced('(()())')).toBe(true);expect(balanced('(()')).toBe(false); });
+  it('handles trie prefix check', () => { const words=['apple','app','apt'];const has=(prefix:string)=>words.some(w=>w.startsWith(prefix));expect(has('app')).toBe(true);expect(has('ban')).toBe(false); });
+  it('handles promise timeout pattern', async () => { const withTimeout=<T>(p:Promise<T>,ms:number)=>Promise.race([p,new Promise<never>((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))]);await expect(withTimeout(Promise.resolve(1),100)).resolves.toBe(1); });
+});

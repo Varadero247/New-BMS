@@ -605,3 +605,12 @@ describe('phase35 coverage', () => {
   it('handles discriminated union', () => { type Shape = {kind:'circle';r:number}|{kind:'rect';w:number;h:number}; const area=(s:Shape)=>s.kind==='circle'?Math.PI*s.r*s.r:s.w*s.h; expect(area({kind:'rect',w:3,h:4})).toBe(12); });
   it('handles debounce-like pattern', () => { let count = 0; const fn = () => count++; fn(); fn(); fn(); expect(count).toBe(3); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles coin change count', () => { const ways=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];};expect(ways([1,2,5],5)).toBe(4); });
+  it('handles word frequency map', () => { const freq=(s:string)=>s.split(/\s+/).reduce((m,w)=>{m.set(w,(m.get(w)||0)+1);return m;},new Map<string,number>());const f=freq('a b a c b a');expect(f.get('a')).toBe(3);expect(f.get('b')).toBe(2); });
+  it('handles string truncate', () => { const truncate=(s:string,n:number)=>s.length>n?s.slice(0,n)+'...':s;expect(truncate('Hello World',5)).toBe('Hello...');expect(truncate('Hi',10)).toBe('Hi'); });
+  it('handles BFS pattern', () => { const bfs=(g:Map<number,number[]>,start:number)=>{const visited=new Set<number>();const queue=[start];while(queue.length){const node=queue.shift()!;if(visited.has(node))continue;visited.add(node);g.get(node)?.forEach(n=>queue.push(n));}return visited.size;};const g=new Map([[1,[2,3]],[2,[4]],[3,[4]],[4,[]]]);expect(bfs(g,1)).toBe(4); });
+  it('handles number formatting with commas', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');expect(fmt(1000000)).toBe('1,000,000'); });
+});

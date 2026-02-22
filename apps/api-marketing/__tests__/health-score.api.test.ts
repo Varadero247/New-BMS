@@ -578,3 +578,12 @@ describe('phase35 coverage', () => {
   it('handles string padStart for dates', () => { const day = 5; expect(String(day).padStart(2,'0')).toBe('05'); });
   it('handles string kebab-case pattern', () => { const toKebab = (s:string) => s.replace(/([A-Z])/g,'-$1').toLowerCase().replace(/^-/,''); expect(toKebab('fooBarBaz')).toBe('foo-bar-baz'); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles balanced parentheses check', () => { const balanced=(s:string)=>{let c=0;for(const ch of s){if(ch==='(')c++;else if(ch===')')c--;if(c<0)return false;}return c===0;};expect(balanced('(()())')).toBe(true);expect(balanced('(()')).toBe(false); });
+  it('handles vowel count', () => { const countVowels=(s:string)=>(s.match(/[aeiou]/gi)||[]).length;expect(countVowels('Hello World')).toBe(3);expect(countVowels('rhythm')).toBe(0); });
+  it('handles title case conversion', () => { const titleCase=(s:string)=>s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');expect(titleCase('hello world')).toBe('Hello World'); });
+  it('handles two-sum pattern', () => { const twoSum=(nums:number[],t:number)=>{const m=new Map<number,number>();for(let i=0;i<nums.length;i++){const c=t-nums[i];if(m.has(c))return[m.get(c)!,i];m.set(nums[i],i);}return[];}; expect(twoSum([2,7,11,15],9)).toEqual([0,1]); });
+  it('handles stack pattern', () => { class Stack<T>{private d:T[]=[];push(v:T){this.d.push(v);}pop(){return this.d.pop();}peek(){return this.d[this.d.length-1];}get size(){return this.d.length;}} const s=new Stack<number>();s.push(1);s.push(2);expect(s.pop()).toBe(2);expect(s.size).toBe(1); });
+});

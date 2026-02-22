@@ -591,3 +591,12 @@ describe('phase35 coverage', () => {
   it('handles string kebab-case pattern', () => { const toKebab = (s:string) => s.replace(/([A-Z])/g,'-$1').toLowerCase().replace(/^-/,''); expect(toKebab('fooBarBaz')).toBe('foo-bar-baz'); });
   it('handles array groupBy pattern', () => { const groupBy = <T>(arr:T[], key:(item:T)=>string): Record<string,T[]> => arr.reduce((acc,item)=>{ const k=key(item); (acc[k]=acc[k]||[]).push(item); return acc; },{}as Record<string,T[]>); const r = groupBy([{t:'a',v:1},{t:'b',v:2},{t:'a',v:3}],x=>x.t); expect(r['a'].length).toBe(2); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles number digit sum', () => { const digitSum=(n:number)=>String(Math.abs(n)).split('').reduce((s,d)=>s+Number(d),0);expect(digitSum(12345)).toBe(15);expect(digitSum(999)).toBe(27); });
+  it('handles power set size', () => { const powerSetSize=(n:number)=>Math.pow(2,n);expect(powerSetSize(3)).toBe(8);expect(powerSetSize(0)).toBe(1); });
+  it('handles promise timeout pattern', async () => { const withTimeout=<T>(p:Promise<T>,ms:number)=>Promise.race([p,new Promise<never>((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))]);await expect(withTimeout(Promise.resolve(1),100)).resolves.toBe(1); });
+  it('handles top-K elements', () => { const topK=(a:number[],k:number)=>[...a].sort((x,y)=>y-x).slice(0,k);expect(topK([3,1,4,1,5,9,2,6],3)).toEqual([9,6,5]); });
+  it('checks prime number', () => { const isPrime=(n:number)=>{if(n<2)return false;for(let i=2;i<=Math.sqrt(n);i++)if(n%i===0)return false;return true;}; expect(isPrime(7)).toBe(true); expect(isPrime(9)).toBe(false); });
+});

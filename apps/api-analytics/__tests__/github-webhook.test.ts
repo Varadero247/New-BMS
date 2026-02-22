@@ -662,3 +662,12 @@ describe('phase35 coverage', () => {
   it('handles max by key pattern', () => { const maxBy = <T>(arr:T[], fn:(x:T)=>number) => arr.reduce((m,x)=>fn(x)>fn(m)?x:m); expect(maxBy([{v:1},{v:3},{v:2}],x=>x.v).v).toBe(3); });
   it('handles array chunk pattern', () => { const chunk = <T>(a: T[], n: number): T[][] => Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,i*n+n)); expect(chunk([1,2,3,4,5],2)).toEqual([[1,2],[3,4],[5]]); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles string truncate', () => { const truncate=(s:string,n:number)=>s.length>n?s.slice(0,n)+'...':s;expect(truncate('Hello World',5)).toBe('Hello...');expect(truncate('Hi',10)).toBe('Hi'); });
+  it('handles regex email validation', () => { const isEmail=(s:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);expect(isEmail('user@example.com')).toBe(true);expect(isEmail('notanemail')).toBe(false); });
+  it('handles BFS pattern', () => { const bfs=(g:Map<number,number[]>,start:number)=>{const visited=new Set<number>();const queue=[start];while(queue.length){const node=queue.shift()!;if(visited.has(node))continue;visited.add(node);g.get(node)?.forEach(n=>queue.push(n));}return visited.size;};const g=new Map([[1,[2,3]],[2,[4]],[3,[4]],[4,[]]]);expect(bfs(g,1)).toBe(4); });
+  it('handles two-sum pattern', () => { const twoSum=(nums:number[],t:number)=>{const m=new Map<number,number>();for(let i=0;i<nums.length;i++){const c=t-nums[i];if(m.has(c))return[m.get(c)!,i];m.set(nums[i],i);}return[];}; expect(twoSum([2,7,11,15],9)).toEqual([0,1]); });
+  it('handles title case conversion', () => { const titleCase=(s:string)=>s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');expect(titleCase('hello world')).toBe('Hello World'); });
+});

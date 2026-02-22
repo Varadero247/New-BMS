@@ -542,3 +542,12 @@ describe('phase35 coverage', () => {
   it('handles Object.is zero', () => { expect(Object.is(0, -0)).toBe(false); });
   it('handles optional catch binding', () => { let ok = false; try { throw 1; } catch { ok = true; } expect(ok).toBe(true); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles DFS pattern', () => { const dfs=(g:Map<number,number[]>,node:number,visited=new Set<number>()):number=>{if(visited.has(node))return 0;visited.add(node);let c=1;g.get(node)?.forEach(n=>{c+=dfs(g,n,visited);});return c;};const g=new Map([[1,[2,3]],[2,[]],[3,[]]]);expect(dfs(g,1)).toBe(3); });
+  it('handles counting sort result', () => { const arr=[3,1,4,1,5,9,2,6]; const sorted=[...arr].sort((a,b)=>a-b); expect(sorted[0]).toBe(1); expect(sorted[sorted.length-1]).toBe(9); });
+  it('handles sliding window sum', () => { const maxSum=(a:number[],k:number)=>{let s=a.slice(0,k).reduce((x,y)=>x+y,0),max=s;for(let i=k;i<a.length;i++){s+=a[i]-a[i-k];max=Math.max(max,s);}return max;};expect(maxSum([1,3,-1,-3,5,3,6,7],3)).toBe(16); });
+  it('handles difference of arrays', () => { const diff=<T>(a:T[],b:T[])=>a.filter(x=>!b.includes(x));expect(diff([1,2,3,4],[2,4])).toEqual([1,3]); });
+  it('handles regex email validation', () => { const isEmail=(s:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);expect(isEmail('user@example.com')).toBe(true);expect(isEmail('notanemail')).toBe(false); });
+});

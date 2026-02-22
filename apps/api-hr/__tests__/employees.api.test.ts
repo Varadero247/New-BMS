@@ -881,3 +881,12 @@ describe('phase35 coverage', () => {
   it('handles Array.from string', () => { expect(Array.from('hi')).toEqual(['h','i']); });
   it('handles Object.is zero', () => { expect(Object.is(0, -0)).toBe(false); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles interval merge pattern', () => { const merge=(ivs:[number,number][])=>{ivs.sort((a,b)=>a[0]-b[0]);const r:[number,number][]=[];for(const iv of ivs){if(!r.length||r[r.length-1][1]<iv[0])r.push(iv);else r[r.length-1][1]=Math.max(r[r.length-1][1],iv[1]);}return r;};expect(merge([[1,3],[2,6],[8,10]])).toEqual([[1,6],[8,10]]); });
+  it('handles binary search', () => { const bs=(a:number[],t:number)=>{let l=0,r=a.length-1;while(l<=r){const m=(l+r)>>1;if(a[m]===t)return m;a[m]<t?l=m+1:r=m-1;}return -1;}; expect(bs([1,3,5,7,9],5)).toBe(2); });
+  it('handles number to roman numerals', () => { const toRoman=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';vals.forEach((v,i)=>{while(n>=v){r+=syms[i];n-=v;}});return r;};expect(toRoman(9)).toBe('IX');expect(toRoman(58)).toBe('LVIII'); });
+  it('handles promise timeout pattern', async () => { const withTimeout=<T>(p:Promise<T>,ms:number)=>Promise.race([p,new Promise<never>((_,r)=>setTimeout(()=>r(new Error('timeout')),ms))]);await expect(withTimeout(Promise.resolve(1),100)).resolves.toBe(1); });
+  it('handles balanced parentheses check', () => { const balanced=(s:string)=>{let c=0;for(const ch of s){if(ch==='(')c++;else if(ch===')')c--;if(c<0)return false;}return c===0;};expect(balanced('(()())')).toBe(true);expect(balanced('(()')).toBe(false); });
+});

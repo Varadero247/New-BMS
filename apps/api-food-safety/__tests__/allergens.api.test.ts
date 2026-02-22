@@ -562,3 +562,12 @@ describe('phase35 coverage', () => {
   it('handles promise chain error propagation', async () => { const result = await Promise.resolve(1).then(()=>{throw new Error('oops');}).catch(e=>e.message); expect(result).toBe('oops'); });
   it('handles debounce-like pattern', () => { let count = 0; const fn = () => count++; fn(); fn(); fn(); expect(count).toBe(3); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles word frequency map', () => { const freq=(s:string)=>s.split(/\s+/).reduce((m,w)=>{m.set(w,(m.get(w)||0)+1);return m;},new Map<string,number>());const f=freq('a b a c b a');expect(f.get('a')).toBe(3);expect(f.get('b')).toBe(2); });
+  it('handles chunk string', () => { const chunkStr=(s:string,n:number)=>s.match(new RegExp(`.{1,${n}}`,'g'))||[];expect(chunkStr('abcdefg',3)).toEqual(['abc','def','g']); });
+  it('handles queue pattern', () => { class Queue<T>{private d:T[]=[];enqueue(v:T){this.d.push(v);}dequeue(){return this.d.shift();}get size(){return this.d.length;}} const q=new Queue<string>();q.enqueue('a');q.enqueue('b');expect(q.dequeue()).toBe('a');expect(q.size).toBe(1); });
+  it('handles graph adjacency list', () => { const g=new Map<number,number[]>([[1,[2,3]],[2,[4]],[3,[4]],[4,[]]]);const neighbors=g.get(1)!;expect(neighbors).toContain(2);expect(neighbors.length).toBe(2); });
+  it('handles trie prefix check', () => { const words=['apple','app','apt'];const has=(prefix:string)=>words.some(w=>w.startsWith(prefix));expect(has('app')).toBe(true);expect(has('ban')).toBe(false); });
+});

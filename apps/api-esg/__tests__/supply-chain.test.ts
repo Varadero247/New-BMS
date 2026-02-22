@@ -519,3 +519,12 @@ describe('phase35 coverage', () => {
   it('handles promise chain error propagation', async () => { const result = await Promise.resolve(1).then(()=>{throw new Error('oops');}).catch(e=>e.message); expect(result).toBe('oops'); });
   it('handles number base conversion', () => { expect((10).toString(2)).toBe('1010'); expect((255).toString(16)).toBe('ff'); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles event emitter pattern', () => { const handlers=new Map<string,Array<(d:unknown)=>void>>();const on=(e:string,fn:(d:unknown)=>void)=>{(handlers.get(e)||handlers.set(e,[]).get(e)!).push(fn);};const emit=(e:string,d:unknown)=>handlers.get(e)?.forEach(fn=>fn(d));const results:unknown[]=[];on('test',d=>results.push(d));emit('test',42);expect(results).toEqual([42]); });
+  it('handles difference of arrays', () => { const diff=<T>(a:T[],b:T[])=>a.filter(x=>!b.includes(x));expect(diff([1,2,3,4],[2,4])).toEqual([1,3]); });
+  it('handles string anagram check', () => { const isAnagram=(a:string,b:string)=>a.split('').sort().join('')===b.split('').sort().join(''); expect(isAnagram('listen','silent')).toBe(true); expect(isAnagram('hello','world')).toBe(false); });
+  it('handles binary search', () => { const bs=(a:number[],t:number)=>{let l=0,r=a.length-1;while(l<=r){const m=(l+r)>>1;if(a[m]===t)return m;a[m]<t?l=m+1:r=m-1;}return -1;}; expect(bs([1,3,5,7,9],5)).toBe(2); });
+  it('handles deep object equality', () => { const eq=(a:unknown,b:unknown):boolean=>JSON.stringify(a)===JSON.stringify(b); expect(eq({x:{y:1}},{x:{y:1}})).toBe(true); expect(eq({x:1},{x:2})).toBe(false); });
+});

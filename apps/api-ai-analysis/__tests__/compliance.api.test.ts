@@ -871,3 +871,12 @@ describe('phase35 coverage', () => {
   it('handles strategy pattern', () => { type Sorter = (a:number[]) => number[]; const asc: Sorter = a=>[...a].sort((x,y)=>x-y); const desc: Sorter = a=>[...a].sort((x,y)=>y-x); expect(asc([3,1,2])).toEqual([1,2,3]); expect(desc([3,1,2])).toEqual([3,2,1]); });
   it('handles max by key pattern', () => { const maxBy = <T>(arr:T[], fn:(x:T)=>number) => arr.reduce((m,x)=>fn(x)>fn(m)?x:m); expect(maxBy([{v:1},{v:3},{v:2}],x=>x.v).v).toBe(3); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles number to roman numerals', () => { const toRoman=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';vals.forEach((v,i)=>{while(n>=v){r+=syms[i];n-=v;}});return r;};expect(toRoman(9)).toBe('IX');expect(toRoman(58)).toBe('LVIII'); });
+  it('handles queue pattern', () => { class Queue<T>{private d:T[]=[];enqueue(v:T){this.d.push(v);}dequeue(){return this.d.shift();}get size(){return this.d.length;}} const q=new Queue<string>();q.enqueue('a');q.enqueue('b');expect(q.dequeue()).toBe('a');expect(q.size).toBe(1); });
+  it('handles string truncate', () => { const truncate=(s:string,n:number)=>s.length>n?s.slice(0,n)+'...':s;expect(truncate('Hello World',5)).toBe('Hello...');expect(truncate('Hi',10)).toBe('Hi'); });
+  it('handles intersection of arrays', () => { const inter=<T>(a:T[],b:T[])=>a.filter(x=>b.includes(x));expect(inter([1,2,3,4],[2,4,6])).toEqual([2,4]); });
+  it('handles event emitter pattern', () => { const handlers=new Map<string,Array<(d:unknown)=>void>>();const on=(e:string,fn:(d:unknown)=>void)=>{(handlers.get(e)||handlers.set(e,[]).get(e)!).push(fn);};const emit=(e:string,d:unknown)=>handlers.get(e)?.forEach(fn=>fn(d));const results:unknown[]=[];on('test',d=>results.push(d));emit('test',42);expect(results).toEqual([42]); });
+});

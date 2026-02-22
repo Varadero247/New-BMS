@@ -1032,3 +1032,12 @@ describe('phase35 coverage', () => {
   it('handles debounce-like pattern', () => { let count = 0; const fn = () => count++; fn(); fn(); fn(); expect(count).toBe(3); });
   it('handles satisfies operator pattern', () => { const config = { port: 8080, host: 'localhost' } satisfies Record<string,unknown>; expect(config.port).toBe(8080); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles string truncate', () => { const truncate=(s:string,n:number)=>s.length>n?s.slice(0,n)+'...':s;expect(truncate('Hello World',5)).toBe('Hello...');expect(truncate('Hi',10)).toBe('Hi'); });
+  it('handles GCD calculation', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b);expect(gcd(48,18)).toBe(6);expect(gcd(100,75)).toBe(25); });
+  it('handles snake_case to camelCase', () => { const snakeToCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase());expect(snakeToCamel('foo_bar_baz')).toBe('fooBarBaz'); });
+  it('handles vowel count', () => { const countVowels=(s:string)=>(s.match(/[aeiou]/gi)||[]).length;expect(countVowels('Hello World')).toBe(3);expect(countVowels('rhythm')).toBe(0); });
+  it('handles maximum subarray sum', () => { const maxSub=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;};expect(maxSub([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); });
+});

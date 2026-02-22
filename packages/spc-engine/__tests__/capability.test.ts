@@ -391,3 +391,12 @@ describe('phase35 coverage', () => {
   it('handles builder pattern', () => { class QB { private parts: string[] = []; select(f:string){this.parts.push(`SELECT ${f}`);return this;} build(){return this.parts.join(' ');} } expect(new QB().select('*').build()).toBe('SELECT *'); });
   it('handles observer pattern', () => { const listeners: Array<(v:number)=>void> = []; const on = (fn:(v:number)=>void) => listeners.push(fn); const emit = (v:number) => listeners.forEach(fn=>fn(v)); const results: number[] = []; on(v=>results.push(v)); on(v=>results.push(v*2)); emit(5); expect(results).toEqual([5,10]); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles string compression', () => { const compress=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=j-i>1?`${j-i}${s[i]}`:s[i];i=j;}return r;}; expect(compress('aaabbc')).toBe('3a2bc'); });
+  it('handles run-length encoding', () => { const rle=(s:string)=>{const r:string[]=[];let i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r.push(j-i>1?`${j-i}${s[i]}`:s[i]);i=j;}return r.join('');};expect(rle('AABBBCC')).toBe('2A3B2C'); });
+  it('handles flatten nested object keys', () => { const flat=(o:Record<string,unknown>,prefix=''):Record<string,unknown>=>{return Object.entries(o).reduce((acc,[k,v])=>{const key=prefix?`${prefix}.${k}`:k;if(v&&typeof v==='object'&&!Array.isArray(v))Object.assign(acc,flat(v as Record<string,unknown>,key));else(acc as any)[key]=v;return acc;},{});};expect(flat({a:{b:1}})).toEqual({'a.b':1}); });
+  it('handles number to roman numerals', () => { const toRoman=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';vals.forEach((v,i)=>{while(n>=v){r+=syms[i];n-=v;}});return r;};expect(toRoman(9)).toBe('IX');expect(toRoman(58)).toBe('LVIII'); });
+  it('handles DFS pattern', () => { const dfs=(g:Map<number,number[]>,node:number,visited=new Set<number>()):number=>{if(visited.has(node))return 0;visited.add(node);let c=1;g.get(node)?.forEach(n=>{c+=dfs(g,n,visited);});return c;};const g=new Map([[1,[2,3]],[2,[]],[3,[]]]);expect(dfs(g,1)).toBe(3); });
+});

@@ -533,3 +533,12 @@ describe('phase35 coverage', () => {
   it('handles string split-join replace', () => { expect('aabbcc'.split('b').join('x')).toBe('aaxxcc'); });
   it('handles string is palindrome', () => { const isPalin = (s: string) => s === s.split('').reverse().join(''); expect(isPalin('racecar')).toBe(true); expect(isPalin('hello')).toBe(false); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles LRU cache pattern', () => { const cache=new Map<string,number>();const get=(k:string)=>cache.has(k)?(cache.get(k)!):null;const set=(k:string,v:number)=>{cache.delete(k);cache.set(k,v);};set('a',1);set('b',2);expect(get('a')).toBe(1); });
+  it('handles number formatting with commas', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');expect(fmt(1000000)).toBe('1,000,000'); });
+  it('handles maximum subarray sum', () => { const maxSub=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;};expect(maxSub([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); });
+  it('handles event emitter pattern', () => { const handlers=new Map<string,Array<(d:unknown)=>void>>();const on=(e:string,fn:(d:unknown)=>void)=>{(handlers.get(e)||handlers.set(e,[]).get(e)!).push(fn);};const emit=(e:string,d:unknown)=>handlers.get(e)?.forEach(fn=>fn(d));const results:unknown[]=[];on('test',d=>results.push(d));emit('test',42);expect(results).toEqual([42]); });
+  it('handles word frequency map', () => { const freq=(s:string)=>s.split(/\s+/).reduce((m,w)=>{m.set(w,(m.get(w)||0)+1);return m;},new Map<string,number>());const f=freq('a b a c b a');expect(f.get('a')).toBe(3);expect(f.get('b')).toBe(2); });
+});

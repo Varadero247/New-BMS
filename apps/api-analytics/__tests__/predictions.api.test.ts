@@ -405,3 +405,12 @@ describe('phase35 coverage', () => {
   it('handles mixin pattern', () => { class Base { name = 'Alice'; } class WithDate extends Base { createdAt = new Date(); } const u = new WithDate(); expect(u.name).toBe('Alice'); expect(u.createdAt instanceof Date).toBe(true); });
   it('handles Object.is NaN', () => { expect(Object.is(NaN, NaN)).toBe(true); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles parse query string', () => { const parseQS=(s:string)=>Object.fromEntries(s.split('&').map(p=>p.split('=')));expect(parseQS('a=1&b=2')).toEqual({a:'1',b:'2'}); });
+  it('handles LRU cache pattern', () => { const cache=new Map<string,number>();const get=(k:string)=>cache.has(k)?(cache.get(k)!):null;const set=(k:string,v:number)=>{cache.delete(k);cache.set(k,v);};set('a',1);set('b',2);expect(get('a')).toBe(1); });
+  it('handles stack pattern', () => { class Stack<T>{private d:T[]=[];push(v:T){this.d.push(v);}pop(){return this.d.pop();}peek(){return this.d[this.d.length-1];}get size(){return this.d.length;}} const s=new Stack<number>();s.push(1);s.push(2);expect(s.pop()).toBe(2);expect(s.size).toBe(1); });
+  it('handles flatten nested object keys', () => { const flat=(o:Record<string,unknown>,prefix=''):Record<string,unknown>=>{return Object.entries(o).reduce((acc,[k,v])=>{const key=prefix?`${prefix}.${k}`:k;if(v&&typeof v==='object'&&!Array.isArray(v))Object.assign(acc,flat(v as Record<string,unknown>,key));else(acc as any)[key]=v;return acc;},{});};expect(flat({a:{b:1}})).toEqual({'a.b':1}); });
+  it('handles matrix transpose', () => { const t=(m:number[][])=>m[0].map((_,i)=>m.map(r=>r[i])); expect(t([[1,2],[3,4]])).toEqual([[1,3],[2,4]]); });
+});

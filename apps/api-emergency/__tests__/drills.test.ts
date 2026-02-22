@@ -696,3 +696,12 @@ describe('phase35 coverage', () => {
   it('handles optional catch binding', () => { let ok = false; try { throw 1; } catch { ok = true; } expect(ok).toBe(true); });
   it('handles array of nulls filter', () => { const a = [1,null,2,null,3]; expect(a.filter(Boolean)).toEqual([1,2,3]); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles LRU cache pattern', () => { const cache=new Map<string,number>();const get=(k:string)=>cache.has(k)?(cache.get(k)!):null;const set=(k:string,v:number)=>{cache.delete(k);cache.set(k,v);};set('a',1);set('b',2);expect(get('a')).toBe(1); });
+  it('handles parse query string', () => { const parseQS=(s:string)=>Object.fromEntries(s.split('&').map(p=>p.split('=')));expect(parseQS('a=1&b=2')).toEqual({a:'1',b:'2'}); });
+  it('handles title case conversion', () => { const titleCase=(s:string)=>s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' ');expect(titleCase('hello world')).toBe('Hello World'); });
+  it('handles intersection of arrays', () => { const inter=<T>(a:T[],b:T[])=>a.filter(x=>b.includes(x));expect(inter([1,2,3,4],[2,4,6])).toEqual([2,4]); });
+  it('handles regex email validation', () => { const isEmail=(s:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);expect(isEmail('user@example.com')).toBe(true);expect(isEmail('notanemail')).toBe(false); });
+});

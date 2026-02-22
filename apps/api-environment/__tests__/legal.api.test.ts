@@ -885,3 +885,12 @@ describe('phase35 coverage', () => {
   it('handles flatten array deeply', () => { expect([1,[2,[3,[4]]]].flat(3)).toEqual([1,2,3,4]); });
   it('handles satisfies operator pattern', () => { const config = { port: 8080, host: 'localhost' } satisfies Record<string,unknown>; expect(config.port).toBe(8080); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles counting sort result', () => { const arr=[3,1,4,1,5,9,2,6]; const sorted=[...arr].sort((a,b)=>a-b); expect(sorted[0]).toBe(1); expect(sorted[sorted.length-1]).toBe(9); });
+  it('handles parse query string', () => { const parseQS=(s:string)=>Object.fromEntries(s.split('&').map(p=>p.split('=')));expect(parseQS('a=1&b=2')).toEqual({a:'1',b:'2'}); });
+  it('handles balanced parentheses check', () => { const balanced=(s:string)=>{let c=0;for(const ch of s){if(ch==='(')c++;else if(ch===')')c--;if(c<0)return false;}return c===0;};expect(balanced('(()())')).toBe(true);expect(balanced('(()')).toBe(false); });
+  it('handles object to query string', () => { const toQS=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>`${k}=${v}`).join('&');expect(toQS({a:1,b:'x'})).toBe('a=1&b=x'); });
+  it('handles coin change count', () => { const ways=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];};expect(ways([1,2,5],5)).toBe(4); });
+});

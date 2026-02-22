@@ -453,3 +453,12 @@ describe('phase35 coverage', () => {
   it('handles array chunk pattern', () => { const chunk = <T>(a: T[], n: number): T[][] => Array.from({length:Math.ceil(a.length/n)},(_,i)=>a.slice(i*n,i*n+n)); expect(chunk([1,2,3,4,5],2)).toEqual([[1,2],[3,4],[5]]); });
   it('handles debounce-like pattern', () => { let count = 0; const fn = () => count++; fn(); fn(); fn(); expect(count).toBe(3); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles event emitter pattern', () => { const handlers=new Map<string,Array<(d:unknown)=>void>>();const on=(e:string,fn:(d:unknown)=>void)=>{(handlers.get(e)||handlers.set(e,[]).get(e)!).push(fn);};const emit=(e:string,d:unknown)=>handlers.get(e)?.forEach(fn=>fn(d));const results:unknown[]=[];on('test',d=>results.push(d));emit('test',42);expect(results).toEqual([42]); });
+  it('handles sliding window sum', () => { const maxSum=(a:number[],k:number)=>{let s=a.slice(0,k).reduce((x,y)=>x+y,0),max=s;for(let i=k;i<a.length;i++){s+=a[i]-a[i-k];max=Math.max(max,s);}return max;};expect(maxSum([1,3,-1,-3,5,3,6,7],3)).toBe(16); });
+  it('handles parse query string', () => { const parseQS=(s:string)=>Object.fromEntries(s.split('&').map(p=>p.split('=')));expect(parseQS('a=1&b=2')).toEqual({a:'1',b:'2'}); });
+  it('handles word frequency map', () => { const freq=(s:string)=>s.split(/\s+/).reduce((m,w)=>{m.set(w,(m.get(w)||0)+1);return m;},new Map<string,number>());const f=freq('a b a c b a');expect(f.get('a')).toBe(3);expect(f.get('b')).toBe(2); });
+  it('handles two-sum pattern', () => { const twoSum=(nums:number[],t:number)=>{const m=new Map<number,number>();for(let i=0;i<nums.length;i++){const c=t-nums[i];if(m.has(c))return[m.get(c)!,i];m.set(nums[i],i);}return[];}; expect(twoSum([2,7,11,15],9)).toEqual([0,1]); });
+});

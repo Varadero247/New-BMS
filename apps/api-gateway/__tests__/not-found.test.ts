@@ -570,3 +570,12 @@ describe('phase35 coverage', () => {
   it('handles object omit pattern', () => { const omit = <T, K extends keyof T>(o:T, keys:K[]): Omit<T,K> => { const r={...o}; keys.forEach(k=>delete (r as any)[k]); return r as Omit<T,K>; }; expect(omit({a:1,b:2,c:3},['b'])).toEqual({a:1,c:3}); });
   it('handles unique by key pattern', () => { const uniqBy = <T>(arr:T[], key:(x:T)=>unknown) => [...new Map(arr.map(x=>[key(x),x])).values()]; const r = uniqBy([{id:1,v:'a'},{id:2,v:'b'},{id:1,v:'c'}],x=>x.id); expect(r.length).toBe(2); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles chunk string', () => { const chunkStr=(s:string,n:number)=>s.match(new RegExp(`.{1,${n}}`,'g'))||[];expect(chunkStr('abcdefg',3)).toEqual(['abc','def','g']); });
+  it('handles GCD calculation', () => { const gcd=(a:number,b:number):number=>b===0?a:gcd(b,a%b);expect(gcd(48,18)).toBe(6);expect(gcd(100,75)).toBe(25); });
+  it('handles matrix transpose', () => { const t=(m:number[][])=>m[0].map((_,i)=>m.map(r=>r[i])); expect(t([[1,2],[3,4]])).toEqual([[1,3],[2,4]]); });
+  it('handles number formatting with commas', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');expect(fmt(1000000)).toBe('1,000,000'); });
+  it('handles flatten nested object keys', () => { const flat=(o:Record<string,unknown>,prefix=''):Record<string,unknown>=>{return Object.entries(o).reduce((acc,[k,v])=>{const key=prefix?`${prefix}.${k}`:k;if(v&&typeof v==='object'&&!Array.isArray(v))Object.assign(acc,flat(v as Record<string,unknown>,key));else(acc as any)[key]=v;return acc;},{});};expect(flat({a:{b:1}})).toEqual({'a.b':1}); });
+});

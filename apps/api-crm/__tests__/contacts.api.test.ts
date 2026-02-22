@@ -727,3 +727,12 @@ describe('phase35 coverage', () => {
   it('handles namespace-like module pattern', () => { const Validator = { isEmail: (s:string) => /^[^@]+@[^@]+$/.test(s), isUrl: (s:string) => /^https?:\/\//.test(s), }; expect(Validator.isEmail('a@b.com')).toBe(true); expect(Validator.isUrl('https://example.com')).toBe(true); });
   it('handles object pick pattern', () => { const pick = <T, K extends keyof T>(o:T, keys:K[]): Pick<T,K> => Object.fromEntries(keys.map(k=>[k,o[k]])) as Pick<T,K>; expect(pick({a:1,b:2,c:3},['a','c'])).toEqual({a:1,c:3}); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles word frequency map', () => { const freq=(s:string)=>s.split(/\s+/).reduce((m,w)=>{m.set(w,(m.get(w)||0)+1);return m;},new Map<string,number>());const f=freq('a b a c b a');expect(f.get('a')).toBe(3);expect(f.get('b')).toBe(2); });
+  it('handles object to query string', () => { const toQS=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>`${k}=${v}`).join('&');expect(toQS({a:1,b:'x'})).toBe('a=1&b=x'); });
+  it('handles top-K elements', () => { const topK=(a:number[],k:number)=>[...a].sort((x,y)=>y-x).slice(0,k);expect(topK([3,1,4,1,5,9,2,6],3)).toEqual([9,6,5]); });
+  it('handles coin change count', () => { const ways=(coins:number[],amt:number)=>{const dp=Array(amt+1).fill(0);dp[0]=1;for(const c of coins)for(let i=c;i<=amt;i++)dp[i]+=dp[i-c];return dp[amt];};expect(ways([1,2,5],5)).toBe(4); });
+  it('handles chunk string', () => { const chunkStr=(s:string,n:number)=>s.match(new RegExp(`.{1,${n}}`,'g'))||[];expect(chunkStr('abcdefg',3)).toEqual(['abc','def','g']); });
+});

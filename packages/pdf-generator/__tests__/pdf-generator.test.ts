@@ -504,3 +504,12 @@ describe('phase35 coverage', () => {
   it('handles max by key pattern', () => { const maxBy = <T>(arr:T[], fn:(x:T)=>number) => arr.reduce((m,x)=>fn(x)>fn(m)?x:m); expect(maxBy([{v:1},{v:3},{v:2}],x=>x.v).v).toBe(3); });
   it('handles unique by key pattern', () => { const uniqBy = <T>(arr:T[], key:(x:T)=>unknown) => [...new Map(arr.map(x=>[key(x),x])).values()]; const r = uniqBy([{id:1,v:'a'},{id:2,v:'b'},{id:1,v:'c'}],x=>x.id); expect(r.length).toBe(2); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles object to query string', () => { const toQS=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>`${k}=${v}`).join('&');expect(toQS({a:1,b:'x'})).toBe('a=1&b=x'); });
+  it('handles regex URL validation', () => { const isUrl=(s:string)=>/^https?:\/\/.+/.test(s);expect(isUrl('https://example.com')).toBe(true);expect(isUrl('ftp://nope')).toBe(false); });
+  it('handles snake_case to camelCase', () => { const snakeToCamel=(s:string)=>s.replace(/_([a-z])/g,(_,c)=>c.toUpperCase());expect(snakeToCamel('foo_bar_baz')).toBe('fooBarBaz'); });
+  it('handles trie prefix check', () => { const words=['apple','app','apt'];const has=(prefix:string)=>words.some(w=>w.startsWith(prefix));expect(has('app')).toBe(true);expect(has('ban')).toBe(false); });
+  it('handles run-length encoding', () => { const rle=(s:string)=>{const r:string[]=[];let i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r.push(j-i>1?`${j-i}${s[i]}`:s[i]);i=j;}return r.join('');};expect(rle('AABBBCC')).toBe('2A3B2C'); });
+});

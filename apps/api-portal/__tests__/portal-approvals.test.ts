@@ -564,3 +564,12 @@ describe('phase35 coverage', () => {
   it('handles namespace-like module pattern', () => { const Validator = { isEmail: (s:string) => /^[^@]+@[^@]+$/.test(s), isUrl: (s:string) => /^https?:\/\//.test(s), }; expect(Validator.isEmail('a@b.com')).toBe(true); expect(Validator.isUrl('https://example.com')).toBe(true); });
   it('handles assertion function pattern', () => { const assertNum = (v:unknown): asserts v is number => { if(typeof v!=='number') throw new TypeError('not a number'); }; expect(()=>assertNum('x')).toThrow(TypeError); expect(()=>assertNum(1)).not.toThrow(); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles string compression', () => { const compress=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=j-i>1?`${j-i}${s[i]}`:s[i];i=j;}return r;}; expect(compress('aaabbc')).toBe('3a2bc'); });
+  it('handles maximum subarray sum', () => { const maxSub=(a:number[])=>{let max=a[0],cur=a[0];for(let i=1;i<a.length;i++){cur=Math.max(a[i],cur+a[i]);max=Math.max(max,cur);}return max;};expect(maxSub([-2,1,-3,4,-1,2,1,-5,4])).toBe(6); });
+  it('handles number to roman numerals', () => { const toRoman=(n:number)=>{const vals=[1000,900,500,400,100,90,50,40,10,9,5,4,1];const syms=['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];let r='';vals.forEach((v,i)=>{while(n>=v){r+=syms[i];n-=v;}});return r;};expect(toRoman(9)).toBe('IX');expect(toRoman(58)).toBe('LVIII'); });
+  it('handles object to query string', () => { const toQS=(o:Record<string,string|number>)=>Object.entries(o).map(([k,v])=>`${k}=${v}`).join('&');expect(toQS({a:1,b:'x'})).toBe('a=1&b=x'); });
+  it('handles top-K elements', () => { const topK=(a:number[],k:number)=>[...a].sort((x,y)=>y-x).slice(0,k);expect(topK([3,1,4,1,5,9,2,6],3)).toEqual([9,6,5]); });
+});

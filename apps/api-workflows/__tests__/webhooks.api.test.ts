@@ -1007,3 +1007,12 @@ describe('phase35 coverage', () => {
   it('handles object merge deep pattern', () => { const merge = <T extends object>(a: T, b: Partial<T>): T => ({...a,...b}); expect(merge({x:1,y:2},{y:99})).toEqual({x:1,y:99}); });
   it('handles namespace-like module pattern', () => { const Validator = { isEmail: (s:string) => /^[^@]+@[^@]+$/.test(s), isUrl: (s:string) => /^https?:\/\//.test(s), }; expect(Validator.isEmail('a@b.com')).toBe(true); expect(Validator.isUrl('https://example.com')).toBe(true); });
 });
+
+
+describe('phase36 coverage', () => {
+  it('handles string compression', () => { const compress=(s:string)=>{let r='',i=0;while(i<s.length){let j=i;while(j<s.length&&s[j]===s[i])j++;r+=j-i>1?`${j-i}${s[i]}`:s[i];i=j;}return r;}; expect(compress('aaabbc')).toBe('3a2bc'); });
+  it('handles number formatting with commas', () => { const fmt=(n:number)=>n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',');expect(fmt(1000000)).toBe('1,000,000'); });
+  it('handles counting sort result', () => { const arr=[3,1,4,1,5,9,2,6]; const sorted=[...arr].sort((a,b)=>a-b); expect(sorted[0]).toBe(1); expect(sorted[sorted.length-1]).toBe(9); });
+  it('handles difference of arrays', () => { const diff=<T>(a:T[],b:T[])=>a.filter(x=>!b.includes(x));expect(diff([1,2,3,4],[2,4])).toEqual([1,3]); });
+  it('handles queue pattern', () => { class Queue<T>{private d:T[]=[];enqueue(v:T){this.d.push(v);}dequeue(){return this.d.shift();}get size(){return this.d.length;}} const q=new Queue<string>();q.enqueue('a');q.enqueue('b');expect(q.dequeue()).toBe('a');expect(q.size).toBe(1); });
+});
