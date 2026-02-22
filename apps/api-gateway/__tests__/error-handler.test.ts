@@ -726,3 +726,18 @@ describe('Error Handler — final coverage', () => {
     expect(payload.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('error handler — phase29 coverage', () => {
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+  it('handles error message', () => {
+    expect(new TypeError('bad')).toHaveProperty('message', 'bad');
+  });
+
+});

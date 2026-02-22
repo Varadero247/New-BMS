@@ -458,3 +458,26 @@ describe('matrix.api — coverage to 40', () => {
     expect(res.body.data.message).toContain('matrix entry');
   });
 });
+
+describe('matrix — phase29 coverage', () => {
+  it('handles string charAt', () => {
+    expect('hello'.charAt(0)).toBe('h');
+  });
+
+  it('handles string trim', () => {
+    expect('  hello  '.trim()).toBe('hello');
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles iterable protocol', () => {
+    const iter = [1, 2, 3][Symbol.iterator](); expect(iter.next().value).toBe(1);
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+});

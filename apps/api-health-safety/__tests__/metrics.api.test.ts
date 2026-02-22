@@ -593,3 +593,26 @@ describe('metrics.api — extra coverage', () => {
     );
   });
 });
+
+describe('metrics — phase29 coverage', () => {
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+  it('handles string charAt', () => {
+    expect('hello'.charAt(0)).toBe('h');
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+});

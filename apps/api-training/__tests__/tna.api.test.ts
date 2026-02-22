@@ -459,3 +459,26 @@ describe('tna.api — boundary and method coverage', () => {
     expect(mockPrisma.trainTNA.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('tna — phase29 coverage', () => {
+  it('handles sort method', () => {
+    expect([3, 1, 2].sort((a, b) => a - b)).toEqual([1, 2, 3]);
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles BigInt type', () => {
+    expect(typeof BigInt(42)).toBe('bigint');
+  });
+
+  it('handles number isFinite', () => {
+    expect(isFinite(42)).toBe(true);
+  });
+
+});

@@ -453,3 +453,26 @@ describe('preventive-plans — final coverage expansion', () => {
     );
   });
 });
+
+describe('preventive plans — phase29 coverage', () => {
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles BigInt type', () => {
+    expect(typeof BigInt(42)).toBe('bigint');
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+});

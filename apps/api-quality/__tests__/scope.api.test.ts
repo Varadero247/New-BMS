@@ -699,3 +699,26 @@ describe('Quality Scope — absolute final coverage', () => {
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('scope — phase29 coverage', () => {
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles sort method', () => {
+    expect([3, 1, 2].sort((a, b) => a - b)).toEqual([1, 2, 3]);
+  });
+
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+});

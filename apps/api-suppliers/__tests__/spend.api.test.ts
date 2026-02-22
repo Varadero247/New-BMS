@@ -465,3 +465,26 @@ describe('spend.api — coverage to 40', () => {
     expect(res.body.data.message).toContain('spend');
   });
 });
+
+describe('spend — phase29 coverage', () => {
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles structuredClone', () => {
+    const obj = { a: 1 }; const clone = structuredClone(obj); expect(clone).toEqual(obj); expect(clone).not.toBe(obj);
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+});

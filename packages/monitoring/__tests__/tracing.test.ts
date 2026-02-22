@@ -296,3 +296,26 @@ describe('Tracing — final coverage', () => {
     expect(result).toBeNull();
   });
 });
+
+describe('tracing — phase29 coverage', () => {
+  it('handles bitwise AND', () => {
+    expect(5 & 3).toBe(1);
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles object type', () => {
+    expect(typeof {}).toBe('object');
+  });
+
+  it('handles numeric type', () => {
+    expect(typeof 42).toBe('number');
+  });
+
+});

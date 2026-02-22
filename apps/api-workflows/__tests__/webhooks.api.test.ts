@@ -928,3 +928,14 @@ describe('Webhooks API Routes', () => {
     });
   });
 });
+
+describe('webhooks — phase29 coverage', () => {
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+});

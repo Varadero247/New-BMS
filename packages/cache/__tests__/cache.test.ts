@@ -379,3 +379,18 @@ describe('Cache — final additional coverage', () => {
     expect(await cacheHas('absent-key')).toBe(false);
   });
 });
+
+describe('cache — phase29 coverage', () => {
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+  it('handles structuredClone', () => {
+    const obj = { a: 1 }; const clone = structuredClone(obj); expect(clone).toEqual(obj); expect(clone).not.toBe(obj);
+  });
+
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+});

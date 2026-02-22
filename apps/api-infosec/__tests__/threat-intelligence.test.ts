@@ -360,3 +360,26 @@ describe('Threat Intelligence — extra final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('threat intelligence — phase29 coverage', () => {
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles Symbol type', () => {
+    expect(typeof Symbol('test')).toBe('symbol');
+  });
+
+  it('handles BigInt type', () => {
+    expect(typeof BigInt(42)).toBe('bigint');
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+});

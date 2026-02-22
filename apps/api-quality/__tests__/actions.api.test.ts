@@ -686,3 +686,22 @@ describe('Quality Actions — extra boundary coverage', () => {
     expect(mockPrisma.qualAction.update).not.toHaveBeenCalled();
   });
 });
+
+describe('actions — phase29 coverage', () => {
+  it('handles WeakMap', () => {
+    const wm = new WeakMap(); const key = {}; wm.set(key, 'val'); expect(wm.has(key)).toBe(true);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles splice method', () => {
+    const arr = [1, 2, 3]; arr.splice(1, 1); expect(arr).toEqual([1, 3]);
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+});

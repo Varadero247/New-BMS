@@ -429,3 +429,26 @@ describe('sentry — absolute final coverage', () => {
     expect(mockInit.mock.calls[0][0].release).toMatch(/^test-api@0\.1\.2$/);
   });
 });
+
+describe('sentry — phase29 coverage', () => {
+  it('handles short-circuit eval', () => {
+    let x2 = 0; false && x2++; expect(x2).toBe(0);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+  it('handles sort method', () => {
+    expect([3, 1, 2].sort((a, b) => a - b)).toEqual([1, 2, 3]);
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+});

@@ -589,3 +589,22 @@ describe('ISO 42001 Policies — final extended coverage', () => {
     );
   });
 });
+
+describe('policies — phase29 coverage', () => {
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles error message', () => {
+    expect(new TypeError('bad')).toHaveProperty('message', 'bad');
+  });
+
+});

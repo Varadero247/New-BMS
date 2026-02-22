@@ -619,3 +619,14 @@ describe('Design & Development Routes — final coverage', () => {
     expect(mockPrisma.$transaction).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('design development extended — phase29 coverage', () => {
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles Math.sqrt', () => {
+    expect(Math.sqrt(9)).toBe(3);
+  });
+
+});

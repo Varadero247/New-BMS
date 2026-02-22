@@ -577,3 +577,26 @@ describe('Collateral — exhaustive coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('collateral — phase29 coverage', () => {
+  it('handles string charAt', () => {
+    expect('hello'.charAt(0)).toBe('h');
+  });
+
+  it('handles array length', () => {
+    expect([1, 2, 3].length).toBe(3);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+});

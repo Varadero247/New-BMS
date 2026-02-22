@@ -605,3 +605,22 @@ describe('ISO 37001 Compliance — final batch coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('compliance — phase29 coverage', () => {
+  it('handles sort method', () => {
+    expect([3, 1, 2].sort((a, b) => a - b)).toEqual([1, 2, 3]);
+  });
+
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+});

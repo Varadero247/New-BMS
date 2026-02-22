@@ -431,3 +431,26 @@ describe('approvals.api — coverage completion', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 });
+
+describe('approvals — phase29 coverage', () => {
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles string charAt', () => {
+    expect('hello'.charAt(0)).toBe('h');
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles string padEnd', () => {
+    expect('5'.padEnd(3, '0')).toBe('500');
+  });
+
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+});

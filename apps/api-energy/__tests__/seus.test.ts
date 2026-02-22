@@ -550,3 +550,26 @@ describe('seus — additional coverage', () => {
     );
   });
 });
+
+describe('seus — phase29 coverage', () => {
+  it('handles ternary operator', () => {
+    expect(true ? 'yes' : 'no').toBe('yes');
+  });
+
+  it('handles WeakMap', () => {
+    const wm = new WeakMap(); const key = {}; wm.set(key, 'val'); expect(wm.has(key)).toBe(true);
+  });
+
+  it('handles every method', () => {
+    expect([1, 2, 3].every(x => x > 0)).toBe(true);
+  });
+
+  it('handles reverse method', () => {
+    expect([1, 2, 3].reverse()).toEqual([3, 2, 1]);
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+});

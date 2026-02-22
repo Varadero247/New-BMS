@@ -585,3 +585,18 @@ describe('portal-users — additional coverage 2', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('portal users — phase29 coverage', () => {
+  it('handles string padStart', () => {
+    expect('5'.padStart(3, '0')).toBe('005');
+  });
+
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+});

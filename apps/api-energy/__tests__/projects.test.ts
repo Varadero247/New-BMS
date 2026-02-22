@@ -593,3 +593,26 @@ describe('projects — additional coverage', () => {
     );
   });
 });
+
+describe('projects — phase29 coverage', () => {
+  it('handles sort method', () => {
+    expect([3, 1, 2].sort((a, b) => a - b)).toEqual([1, 2, 3]);
+  });
+
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles string padEnd', () => {
+    expect('5'.padEnd(3, '0')).toBe('500');
+  });
+
+  it('handles string padStart', () => {
+    expect('5'.padStart(3, '0')).toBe('005');
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+});

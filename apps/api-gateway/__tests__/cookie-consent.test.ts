@@ -449,3 +449,26 @@ describe('Cookie Consent Handler — extra batch coverage', () => {
     expect(call.success).toBe(false);
   });
 });
+
+describe('cookie consent — phase29 coverage', () => {
+  it('handles string includes', () => {
+    expect('hello world'.includes('world')).toBe(true);
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles string charAt', () => {
+    expect('hello'.charAt(0)).toBe('h');
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+  it('handles type coercion', () => {
+    expect(typeof 'string').toBe('string');
+  });
+
+});

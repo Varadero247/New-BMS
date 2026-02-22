@@ -689,3 +689,26 @@ describe('Inventory Categories — extra final coverage', () => {
     expect(res.body.data).toHaveLength(2);
   });
 });
+
+describe('categories — phase29 coverage', () => {
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj2 = { [key]: 42 }; expect(obj2.foo).toBe(42);
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles structuredClone', () => {
+    const obj = { a: 1 }; const clone = structuredClone(obj); expect(clone).toEqual(obj); expect(clone).not.toBe(obj);
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+});

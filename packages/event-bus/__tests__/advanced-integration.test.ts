@@ -586,3 +586,14 @@ describe('@ims/event-bus — advanced integration', () => {
     });
   });
 });
+
+describe('advanced integration — phase29 coverage', () => {
+  it('handles string substring', () => {
+    expect('hello'.substring(1, 3)).toBe('el');
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+});

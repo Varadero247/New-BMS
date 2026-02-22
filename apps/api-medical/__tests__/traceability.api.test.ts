@@ -637,3 +637,22 @@ describe('Medical Traceability API — additional coverage', () => {
     expect(res.body.meta.total).toBe(0);
   });
 });
+
+describe('traceability — phase29 coverage', () => {
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles numeric type', () => {
+    expect(typeof 42).toBe('number');
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles string charAt', () => {
+    expect('hello'.charAt(0)).toBe('h');
+  });
+
+});

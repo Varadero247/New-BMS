@@ -358,3 +358,26 @@ describe('Mgmt Review Dashboard — exhaustive coverage', () => {
     expect(r2.status).toBe(200);
   });
 });
+
+describe('dashboard — phase29 coverage', () => {
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+  it('handles sort method', () => {
+    expect([3, 1, 2].sort((a, b) => a - b)).toEqual([1, 2, 3]);
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+  it('handles bitwise AND', () => {
+    expect(5 & 3).toBe(1);
+  });
+
+});

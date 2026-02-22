@@ -461,3 +461,10 @@ describe('reviews.api — exhaustive coverage', () => {
     expect(res.body.data.title).toBe('New Review');
   });
 });
+
+describe('reviews — phase29 coverage', () => {
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+});

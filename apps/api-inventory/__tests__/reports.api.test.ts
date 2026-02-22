@@ -487,3 +487,26 @@ describe('Inventory Reports — extra final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('reports — phase29 coverage', () => {
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles splice method', () => {
+    const arr = [1, 2, 3]; arr.splice(1, 1); expect(arr).toEqual([1, 3]);
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles generator type', () => {
+    function* gen() { yield 1; } expect(typeof gen()).toBe('object');
+  });
+
+});

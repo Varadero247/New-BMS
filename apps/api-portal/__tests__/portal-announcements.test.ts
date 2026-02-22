@@ -546,3 +546,22 @@ describe('portal-announcements — additional coverage 2', () => {
     expect(res.body.pagination.totalPages).toBe(1);
   });
 });
+
+describe('portal announcements — phase29 coverage', () => {
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+});

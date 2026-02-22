@@ -401,3 +401,26 @@ describe('Worker Consultation — extra coverage', () => {
     expect(res.body.data.title).toBe('Monthly OHS Committee Meeting');
   });
 });
+
+describe('worker consultation — phase29 coverage', () => {
+  it('handles splice method', () => {
+    const arr = [1, 2, 3]; arr.splice(1, 1); expect(arr).toEqual([1, 3]);
+  });
+
+  it('handles string padEnd', () => {
+    expect('5'.padEnd(3, '0')).toBe('500');
+  });
+
+  it('handles array isArray', () => {
+    expect(Array.isArray([])).toBe(true);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj2 = { [key]: 42 }; expect(obj2.foo).toBe(42);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+});

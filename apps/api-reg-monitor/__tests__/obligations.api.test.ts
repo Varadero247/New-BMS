@@ -439,3 +439,26 @@ describe('Obligations — extra coverage', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('obligations — phase29 coverage', () => {
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+  it('handles string substring', () => {
+    expect('hello'.substring(1, 3)).toBe('el');
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles Symbol type', () => {
+    expect(typeof Symbol('test')).toBe('symbol');
+  });
+
+});

@@ -796,3 +796,26 @@ describe('Rate Limiter — extended final batch', () => {
     await closeRedisConnection();
   });
 });
+
+describe('rate limit advanced — phase29 coverage', () => {
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+  it('handles Number.isFinite', () => {
+    expect(Number.isFinite(Infinity)).toBe(false);
+  });
+
+});

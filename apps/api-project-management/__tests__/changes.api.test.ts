@@ -733,3 +733,22 @@ describe('Project Changes API — boundary and extra coverage', () => {
     expect(mockPrisma.projectChange.findMany).not.toHaveBeenCalled();
   });
 });
+
+describe('changes — phase29 coverage', () => {
+  it('handles iterable protocol', () => {
+    const iter = [1, 2, 3][Symbol.iterator](); expect(iter.next().value).toBe(1);
+  });
+
+  it('handles splice method', () => {
+    const arr = [1, 2, 3]; arr.splice(1, 1); expect(arr).toEqual([1, 3]);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+});

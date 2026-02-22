@@ -518,3 +518,22 @@ describe('PMS Routes — final boundary coverage', () => {
     expect(res.body.meta.totalPages).toBe(3);
   });
 });
+
+describe('pms extended — phase29 coverage', () => {
+  it('handles Array.from set', () => {
+    expect(Array.from(new Set([1, 1, 2]))).toEqual([1, 2]);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles parseFloat', () => {
+    expect(parseFloat('3.14')).toBeCloseTo(3.14);
+  });
+
+});

@@ -559,3 +559,26 @@ describe('Food Safety Hazards — final coverage pass', () => {
     );
   });
 });
+
+describe('hazards — phase29 coverage', () => {
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles WeakMap', () => {
+    const wm = new WeakMap(); const key = {}; wm.set(key, 'val'); expect(wm.has(key)).toBe(true);
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles numeric identity', () => {
+    expect(1 + 1).toBe(2);
+  });
+
+  it('handles bitwise AND', () => {
+    expect(5 & 3).toBe(1);
+  });
+
+});

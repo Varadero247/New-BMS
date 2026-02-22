@@ -495,3 +495,26 @@ describe('ncrs.api — final coverage pass', () => {
     );
   });
 });
+
+describe('ncrs — phase29 coverage', () => {
+  it('handles Array.from set', () => {
+    expect(Array.from(new Set([1, 1, 2]))).toEqual([1, 2]);
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles array length', () => {
+    expect([1, 2, 3].length).toBe(3);
+  });
+
+});

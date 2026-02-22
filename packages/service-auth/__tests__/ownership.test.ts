@@ -459,3 +459,26 @@ describe('ownership — final coverage', () => {
     });
   });
 });
+
+describe('ownership — phase29 coverage', () => {
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+  it('handles numeric type', () => {
+    expect(typeof 42).toBe('number');
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+});

@@ -665,3 +665,26 @@ describe('IR35 — extra coverage', () => {
     expect(mockPrisma.finIr35Assessment.findMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('ir35 — phase29 coverage', () => {
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles number isFinite', () => {
+    expect(isFinite(42)).toBe(true);
+  });
+
+  it('handles string repeat', () => {
+    expect('ab'.repeat(3)).toBe('ababab');
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+});

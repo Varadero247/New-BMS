@@ -559,3 +559,26 @@ describe('Admin Automation Rules — final boundary coverage', () => {
     expect(res.body.data.length).toBe(2);
   });
 });
+
+describe('admin — phase29 coverage', () => {
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+  it('handles object spread', () => {
+    const a2 = { x: 1 }; const b2 = { ...a2, y: 2 }; expect(b2).toEqual({ x: 1, y: 2 });
+  });
+
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+});

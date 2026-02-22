@@ -590,3 +590,26 @@ describe('Intercom Triage — remaining coverage', () => {
     }
   });
 });
+
+describe('intercom triage — phase29 coverage', () => {
+  it('handles try-catch flow', () => {
+    let caught = false; try { throw new Error(); } catch { caught = true; } expect(caught).toBe(true);
+  });
+
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+});

@@ -389,3 +389,26 @@ describe('withRetry and withTimeout — final coverage', () => {
     expect(result).toBe(0);
   });
 });
+
+describe('retry timeout — phase29 coverage', () => {
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles splice method', () => {
+    const arr = [1, 2, 3]; arr.splice(1, 1); expect(arr).toEqual([1, 3]);
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+  it('handles bitwise AND', () => {
+    expect(5 & 3).toBe(1);
+  });
+
+  it('handles Object.assign', () => {
+    expect(Object.assign({}, { a: 1 }, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+
+});

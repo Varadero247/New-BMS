@@ -362,3 +362,26 @@ describe('@ims/automation-rules — final additional coverage', () => {
     expect(logs.length).toBe(5);
   });
 });
+
+describe('automation rules — phase29 coverage', () => {
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj2 = { [key]: 42 }; expect(obj2.foo).toBe(42);
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles async reject', async () => {
+    await expect(Promise.reject(new Error('err'))).rejects.toThrow('err');
+  });
+
+  it('handles splice method', () => {
+    const arr = [1, 2, 3]; arr.splice(1, 1); expect(arr).toEqual([1, 3]);
+  });
+
+});

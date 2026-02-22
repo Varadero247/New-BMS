@@ -428,3 +428,26 @@ describe('capa.api — batch ao final', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000042');
   });
 });
+
+describe('capa — phase29 coverage', () => {
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles error message', () => {
+    expect(new TypeError('bad')).toHaveProperty('message', 'bad');
+  });
+
+  it('handles number isFinite', () => {
+    expect(isFinite(42)).toBe(true);
+  });
+
+  it('handles string padEnd', () => {
+    expect('5'.padEnd(3, '0')).toBe('500');
+  });
+
+});

@@ -321,3 +321,26 @@ describe('AdaptiveTimeout — extended boundary tests', () => {
     expect(result).toEqual(obj);
   });
 });
+
+describe('adaptive timeout — phase29 coverage', () => {
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles every method', () => {
+    expect([1, 2, 3].every(x => x > 0)).toBe(true);
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+});

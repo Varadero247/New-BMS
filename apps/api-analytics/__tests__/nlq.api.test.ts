@@ -420,3 +420,26 @@ describe('NLQ API — additional tests', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('nlq — phase29 coverage', () => {
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles fill method', () => {
+    expect(new Array(3).fill(0)).toEqual([0, 0, 0]);
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+});

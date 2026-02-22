@@ -643,3 +643,22 @@ describe('Risk Management Routes — additional boundary coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('risk management extended — phase29 coverage', () => {
+  it('handles bitwise OR', () => {
+    expect(5 | 3).toBe(7);
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+});

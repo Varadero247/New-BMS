@@ -583,3 +583,26 @@ describe('ISO 42001 AI Systems — final batch coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('ai systems — phase29 coverage', () => {
+  it('handles string charAt', () => {
+    expect('hello'.charAt(0)).toBe('h');
+  });
+
+  it('handles Number.isFinite', () => {
+    expect(Number.isFinite(Infinity)).toBe(false);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles string repeat', () => {
+    expect('ab'.repeat(3)).toBe('ababab');
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+});

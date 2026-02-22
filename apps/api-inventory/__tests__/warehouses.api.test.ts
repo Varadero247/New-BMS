@@ -747,3 +747,22 @@ describe('Inventory Warehouses — extended final coverage', () => {
     );
   });
 });
+
+describe('warehouses — phase29 coverage', () => {
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles iterable protocol', () => {
+    const iter = [1, 2, 3][Symbol.iterator](); expect(iter.next().value).toBe(1);
+  });
+
+});

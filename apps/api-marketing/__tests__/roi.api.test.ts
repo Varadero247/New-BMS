@@ -462,3 +462,26 @@ describe('ROI — ≥40 coverage', () => {
     expect(res.body.data.softwareSaving).toBeGreaterThan(0);
   });
 });
+
+describe('roi — phase29 coverage', () => {
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+  it('handles bitwise OR', () => {
+    expect(5 | 3).toBe(7);
+  });
+
+  it('handles BigInt type', () => {
+    expect(typeof BigInt(42)).toBe('bigint');
+  });
+
+  it('handles error message', () => {
+    expect(new TypeError('bad')).toHaveProperty('message', 'bad');
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+});

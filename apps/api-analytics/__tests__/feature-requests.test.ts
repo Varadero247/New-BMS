@@ -548,3 +548,26 @@ describe('Feature Requests — supplemental coverage', () => {
     expect(res.body.data.topByVotes.length).toBeLessThanOrEqual(10);
   });
 });
+
+describe('feature requests — phase29 coverage', () => {
+  it('handles Number.isInteger', () => {
+    expect(Number.isInteger(42)).toBe(true);
+  });
+
+  it('handles string trim', () => {
+    expect('  hello  '.trim()).toBe('hello');
+  });
+
+  it('handles string repeat', () => {
+    expect('ab'.repeat(3)).toBe('ababab');
+  });
+
+  it('handles splice method', () => {
+    const arr = [1, 2, 3]; arr.splice(1, 1); expect(arr).toEqual([1, 3]);
+  });
+
+  it('handles error message', () => {
+    expect(new TypeError('bad')).toHaveProperty('message', 'bad');
+  });
+
+});

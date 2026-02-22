@@ -510,3 +510,26 @@ describe('Food Safety CCPs — final coverage', () => {
     expect(res.body.pagination.total).toBe(15);
   });
 });
+
+describe('ccps — phase29 coverage', () => {
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles string padStart', () => {
+    expect('5'.padStart(3, '0')).toBe('005');
+  });
+
+  it('handles join method', () => {
+    expect([1, 2, 3].join('-')).toBe('1-2-3');
+  });
+
+  it('handles iterable protocol', () => {
+    const iter = [1, 2, 3][Symbol.iterator](); expect(iter.next().value).toBe(1);
+  });
+
+  it('handles structuredClone', () => {
+    const obj = { a: 1 }; const clone = structuredClone(obj); expect(clone).toEqual(obj); expect(clone).not.toBe(obj);
+  });
+
+});

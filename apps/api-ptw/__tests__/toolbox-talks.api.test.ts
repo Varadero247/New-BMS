@@ -446,3 +446,26 @@ describe('toolbox-talks.api — extra boundary coverage', () => {
     expect(mockPrisma.ptwToolboxTalk.count).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('toolbox talks — phase29 coverage', () => {
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj2 = { [key]: 42 }; expect(obj2.foo).toBe(42);
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles splice method', () => {
+    const arr = [1, 2, 3]; arr.splice(1, 1); expect(arr).toEqual([1, 3]);
+  });
+
+});

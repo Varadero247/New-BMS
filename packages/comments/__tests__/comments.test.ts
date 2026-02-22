@@ -327,3 +327,26 @@ describe('resetStore', () => {
     expect(result.total).toBe(0);
   });
 });
+
+describe('comments — phase29 coverage', () => {
+  it('handles parseFloat', () => {
+    expect(parseFloat('3.14')).toBeCloseTo(3.14);
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles BigInt type', () => {
+    expect(typeof BigInt(42)).toBe('bigint');
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+});

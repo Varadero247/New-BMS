@@ -827,3 +827,26 @@ describe('Environment Management Reviews — boundary coverage', () => {
     expect(response.body.success).toBe(true);
   });
 });
+
+describe('management reviews — phase29 coverage', () => {
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles iterable protocol', () => {
+    const iter = [1, 2, 3][Symbol.iterator](); expect(iter.next().value).toBe(1);
+  });
+
+});

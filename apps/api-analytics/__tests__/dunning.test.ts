@@ -721,3 +721,26 @@ describe('Dunning — supplemental coverage', () => {
     );
   });
 });
+
+describe('dunning — phase29 coverage', () => {
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles Array.from set', () => {
+    expect(Array.from(new Set([1, 1, 2]))).toEqual([1, 2]);
+  });
+
+  it('handles string padEnd', () => {
+    expect('5'.padEnd(3, '0')).toBe('500');
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+});

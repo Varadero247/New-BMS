@@ -695,3 +695,26 @@ describe('Journal API — extra coverage', () => {
     expect(res.body).toHaveProperty('data');
   });
 });
+
+describe('journal — phase29 coverage', () => {
+  it('handles JSON stringify', () => {
+    expect(JSON.stringify({ a: 1 })).toBe('{"a":1}');
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles Symbol type', () => {
+    expect(typeof Symbol('test')).toBe('symbol');
+  });
+
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+});

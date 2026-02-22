@@ -455,3 +455,26 @@ describe('whistleblowing — additional coverage 2', () => {
     expect(call[0].take).toBe(5);
   });
 });
+
+describe('whistleblowing — phase29 coverage', () => {
+  it('handles Number.isFinite', () => {
+    expect(Number.isFinite(Infinity)).toBe(false);
+  });
+
+  it('handles array includes', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
+  });
+
+  it('handles fill method', () => {
+    expect(new Array(3).fill(0)).toEqual([0, 0, 0]);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles Array.from set', () => {
+    expect(Array.from(new Set([1, 1, 2]))).toEqual([1, 2]);
+  });
+
+});

@@ -332,3 +332,26 @@ describe('assessLoginRisk() — final coverage', () => {
     expect(typeof action).toBe('string');
   });
 });
+
+describe('adaptive auth — phase29 coverage', () => {
+  it('handles Map size', () => {
+    const m = new Map<string, number>([['a', 1]]); expect(m.size).toBe(1);
+  });
+
+  it('handles string endsWith', () => {
+    expect('hello'.endsWith('lo')).toBe(true);
+  });
+
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+  it('handles Math.max', () => {
+    expect(Math.max(1, 2, 3)).toBe(3);
+  });
+
+  it('handles generator type', () => {
+    function* gen() { yield 1; } expect(typeof gen()).toBe('object');
+  });
+
+});

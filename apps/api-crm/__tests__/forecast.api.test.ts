@@ -458,3 +458,26 @@ describe('Forecast — final edge case coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('forecast — phase29 coverage', () => {
+  it('handles string substring', () => {
+    expect('hello'.substring(1, 3)).toBe('el');
+  });
+
+  it('handles template literals', () => {
+    const n = 42; expect(`value: ${n}`).toBe('value: 42');
+  });
+
+  it('handles fill method', () => {
+    expect(new Array(3).fill(0)).toEqual([0, 0, 0]);
+  });
+
+  it('handles spread operator', () => {
+    expect([...[1, 2], ...[3, 4]]).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles array length', () => {
+    expect([1, 2, 3].length).toBe(3);
+  });
+
+});

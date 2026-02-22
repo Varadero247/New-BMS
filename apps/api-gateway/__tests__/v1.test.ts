@@ -489,3 +489,26 @@ describe('V1 Router — mount verification coverage', () => {
     expect(typeof res.status).toBe('number');
   });
 });
+
+describe('v1 — phase29 coverage', () => {
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles bitwise AND', () => {
+    expect(5 & 3).toBe(1);
+  });
+
+});

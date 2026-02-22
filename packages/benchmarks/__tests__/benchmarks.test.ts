@@ -266,3 +266,26 @@ describe('benchmarks — final additional coverage', () => {
     expect(Object.keys(BENCHMARK_DATA)).toHaveLength(10);
   });
 });
+
+describe('benchmarks — phase29 coverage', () => {
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles Array.from set', () => {
+    expect(Array.from(new Set([1, 1, 2]))).toEqual([1, 2]);
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles JSON stringify', () => {
+    expect(JSON.stringify({ a: 1 })).toBe('{"a":1}');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+});

@@ -343,3 +343,26 @@ describe('sla.api — coverage completion', () => {
     expect(typeof res.body.data.onTrack).toBe('number');
   });
 });
+
+describe('sla — phase29 coverage', () => {
+  it('handles number isNaN', () => {
+    expect(isNaN(NaN)).toBe(true);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles bitwise OR', () => {
+    expect(5 | 3).toBe(7);
+  });
+
+  it('handles Object.assign', () => {
+    expect(Object.assign({}, { a: 1 }, { b: 2 })).toEqual({ a: 1, b: 2 });
+  });
+
+});

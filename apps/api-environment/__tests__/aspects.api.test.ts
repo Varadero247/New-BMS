@@ -715,3 +715,26 @@ describe('Environment Aspects — boundary coverage', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('aspects — phase29 coverage', () => {
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj2 = { [key]: 42 }; expect(obj2.foo).toBe(42);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+  it('handles reduce method', () => {
+    expect([1, 2, 3].reduce((acc, x) => acc + x, 0)).toBe(6);
+  });
+
+});

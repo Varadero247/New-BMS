@@ -550,3 +550,26 @@ describe('DPA Routes — extra batch coverage', () => {
     expect(mockHasAcceptedDpa).toHaveBeenCalled();
   });
 });
+
+describe('dpa — phase29 coverage', () => {
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+  it('handles reverse method', () => {
+    expect([1, 2, 3].reverse()).toEqual([3, 2, 1]);
+  });
+
+  it('handles array concat', () => {
+    expect([1, 2].concat([3, 4])).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+});

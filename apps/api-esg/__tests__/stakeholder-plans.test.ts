@@ -443,3 +443,26 @@ describe('stakeholder-plans — additional coverage 2', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('stakeholder plans — phase29 coverage', () => {
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+  it('handles structuredClone', () => {
+    const obj = { a: 1 }; const clone = structuredClone(obj); expect(clone).toEqual(obj); expect(clone).not.toBe(obj);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+});

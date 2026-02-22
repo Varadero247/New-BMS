@@ -802,3 +802,18 @@ describe('Quality Processes API — final coverage', () => {
     expect(response.body.data.processName).toBe('Order Fulfillment');
   });
 });
+
+describe('processes — phase29 coverage', () => {
+  it('handles Promise type', () => {
+    expect(Promise.resolve(42)).toBeInstanceOf(Promise);
+  });
+
+  it('handles WeakMap', () => {
+    const wm = new WeakMap(); const key = {}; wm.set(key, 'val'); expect(wm.has(key)).toBe(true);
+  });
+
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+});

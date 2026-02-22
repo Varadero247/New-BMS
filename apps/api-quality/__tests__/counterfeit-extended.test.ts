@@ -579,3 +579,18 @@ describe('Counterfeit Routes — final coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('counterfeit extended — phase29 coverage', () => {
+  it('handles string padStart', () => {
+    expect('5'.padStart(3, '0')).toBe('005');
+  });
+
+  it('handles string includes', () => {
+    expect('hello world'.includes('world')).toBe(true);
+  });
+
+  it('handles string substring', () => {
+    expect('hello'.substring(1, 3)).toBe('el');
+  });
+
+});

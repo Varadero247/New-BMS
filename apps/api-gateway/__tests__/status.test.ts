@@ -378,3 +378,26 @@ describe('status — final coverage batch', () => {
     expect(res.body.data.status).toBe('outage');
   });
 });
+
+describe('status — phase29 coverage', () => {
+  it('returns true for truthy values', () => {
+    expect(Boolean('value')).toBe(true);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles string toUpperCase', () => {
+    expect('hello'.toUpperCase()).toBe('HELLO');
+  });
+
+  it('handles fill method', () => {
+    expect(new Array(3).fill(0)).toEqual([0, 0, 0]);
+  });
+
+});

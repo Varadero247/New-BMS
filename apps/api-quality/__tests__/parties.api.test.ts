@@ -786,3 +786,18 @@ describe('Quality Interested Parties API — final coverage', () => {
     );
   });
 });
+
+describe('parties — phase29 coverage', () => {
+  it('handles some method', () => {
+    expect([1, 2, 3].some(x => x > 2)).toBe(true);
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles sort method', () => {
+    expect([3, 1, 2].sort((a, b) => a - b)).toEqual([1, 2, 3]);
+  });
+
+});

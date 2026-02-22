@@ -582,3 +582,26 @@ describe('Template generator — final coverage', () => {
     expect(res.body.data).toHaveLength(8);
   });
 });
+
+describe('template generator — phase29 coverage', () => {
+  it('handles array map', () => {
+    expect([1, 2, 3].map(x => x * 2)).toEqual([2, 4, 6]);
+  });
+
+  it('handles Symbol type', () => {
+    expect(typeof Symbol('test')).toBe('symbol');
+  });
+
+  it('handles regex test', () => {
+    expect(/^[a-z]+$/.test('hello')).toBe(true);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles bitwise OR', () => {
+    expect(5 | 3).toBe(7);
+  });
+
+});

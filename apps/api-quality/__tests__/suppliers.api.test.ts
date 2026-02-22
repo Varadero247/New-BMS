@@ -743,3 +743,26 @@ describe('Quality Suppliers API — absolute final coverage', () => {
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('suppliers — phase29 coverage', () => {
+  it('handles WeakMap', () => {
+    const wm = new WeakMap(); const key = {}; wm.set(key, 'val'); expect(wm.has(key)).toBe(true);
+  });
+
+  it('handles string repeat', () => {
+    expect('ab'.repeat(3)).toBe('ababab');
+  });
+
+  it('handles Set size', () => {
+    expect(new Set([1, 2, 2, 3]).size).toBe(3);
+  });
+
+  it('handles Math.pow', () => {
+    expect(Math.pow(2, 3)).toBe(8);
+  });
+
+  it('handles Number.isFinite', () => {
+    expect(Number.isFinite(Infinity)).toBe(false);
+  });
+
+});

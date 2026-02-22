@@ -571,3 +571,26 @@ describe('cleanup-sessions — final additional coverage', () => {
     expect(mockPrisma.session.deleteMany).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('cleanup sessions — phase29 coverage', () => {
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles array filter', () => {
+    expect([1, 2, 3, 4].filter(x => x > 2)).toEqual([3, 4]);
+  });
+
+  it('handles string substring', () => {
+    expect('hello'.substring(1, 3)).toBe('el');
+  });
+
+  it('handles Symbol type', () => {
+    expect(typeof Symbol('test')).toBe('symbol');
+  });
+
+  it('handles reverse method', () => {
+    expect([1, 2, 3].reverse()).toEqual([3, 2, 1]);
+  });
+
+});

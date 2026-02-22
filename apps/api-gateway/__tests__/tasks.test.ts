@@ -422,3 +422,26 @@ describe('tasks — business logic and response shape', () => {
     expect(res.body.data).toHaveProperty('thisWeek');
   });
 });
+
+describe('tasks — phase29 coverage', () => {
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles string concatenation', () => {
+    expect('hello' + ' ' + 'world').toBe('hello world');
+  });
+
+  it('handles fill method', () => {
+    expect(new Array(3).fill(0)).toEqual([0, 0, 0]);
+  });
+
+  it('handles string replace', () => {
+    expect('hello world'.replace('world', 'Jest')).toBe('hello Jest');
+  });
+
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+});

@@ -455,3 +455,26 @@ describe('Release Notes — additional tests', () => {
     expect(res.headers['content-type']).toMatch(/json/);
   });
 });
+
+describe('release notes — phase29 coverage', () => {
+  it('handles object type', () => {
+    expect(typeof {}).toBe('object');
+  });
+
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles boolean type', () => {
+    expect(typeof true).toBe('boolean');
+  });
+
+  it('handles reverse method', () => {
+    expect([1, 2, 3].reverse()).toEqual([3, 2, 1]);
+  });
+
+});

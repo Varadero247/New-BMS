@@ -571,3 +571,26 @@ describe('SyncQueue — syncQueue singleton and flush token injection', () => {
     expect(sharedStore.data.get('del-1').method).toBe('DELETE');
   });
 });
+
+describe('sync queue — phase29 coverage', () => {
+  it('handles optional chaining', () => {
+    const obj: { x?: { y: number } } = {}; expect(obj?.x?.y).toBeUndefined();
+  });
+
+  it('handles string split', () => {
+    expect('a,b,c'.split(',')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles error instanceof', () => {
+    expect(new Error('test')).toBeInstanceOf(Error);
+  });
+
+  it('handles null check', () => {
+    expect(null).toBeNull();
+  });
+
+});

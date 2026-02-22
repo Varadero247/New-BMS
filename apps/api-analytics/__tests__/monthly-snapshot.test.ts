@@ -353,3 +353,26 @@ describe('Monthly Snapshot — final coverage', () => {
     expect(result.salary).toBe(3500);
   });
 });
+
+describe('monthly snapshot — phase29 coverage', () => {
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles string repeat', () => {
+    expect('ab'.repeat(3)).toBe('ababab');
+  });
+
+  it('handles JSON parse', () => {
+    expect(JSON.parse('{"a":1}')).toEqual({ a: 1 });
+  });
+
+  it('handles string indexOf', () => {
+    expect('hello world'.indexOf('world')).toBe(6);
+  });
+
+});

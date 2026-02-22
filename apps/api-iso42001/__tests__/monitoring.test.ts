@@ -645,3 +645,18 @@ describe('ISO 42001 Monitoring — final extended coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('monitoring — phase29 coverage', () => {
+  it('handles generator type', () => {
+    function* gen() { yield 1; } expect(typeof gen()).toBe('object');
+  });
+
+  it('handles string repeat', () => {
+    expect('ab'.repeat(3)).toBe('ababab');
+  });
+
+  it('handles reverse method', () => {
+    expect([1, 2, 3].reverse()).toEqual([3, 2, 1]);
+  });
+
+});

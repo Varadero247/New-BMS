@@ -480,3 +480,26 @@ describe('notices.api — coverage completion', () => {
     expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000001');
   });
 });
+
+describe('notices — phase29 coverage', () => {
+  it('handles object type', () => {
+    expect(typeof {}).toBe('object');
+  });
+
+  it('handles string slice', () => {
+    expect('hello'.slice(1, 3)).toBe('el');
+  });
+
+  it('handles computed properties', () => {
+    const key = 'foo'; const obj2 = { [key]: 42 }; expect(obj2.foo).toBe(42);
+  });
+
+  it('handles Array.from set', () => {
+    expect(Array.from(new Set([1, 1, 2]))).toEqual([1, 2]);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+});

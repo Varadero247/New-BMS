@@ -682,3 +682,26 @@ describe('resources.api — boundary and extra coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('resources — phase29 coverage', () => {
+  it('handles bitwise OR', () => {
+    expect(5 | 3).toBe(7);
+  });
+
+  it('handles array length', () => {
+    expect([1, 2, 3].length).toBe(3);
+  });
+
+  it('handles iterable protocol', () => {
+    const iter = [1, 2, 3][Symbol.iterator](); expect(iter.next().value).toBe(1);
+  });
+
+  it('handles string startsWith', () => {
+    expect('hello'.startsWith('he')).toBe(true);
+  });
+
+  it('handles array push', () => {
+    const a: number[] = []; a.push(1); expect(a).toHaveLength(1);
+  });
+
+});

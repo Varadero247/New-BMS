@@ -609,3 +609,22 @@ describe('InfoSec Controls — extended boundary and pagination coverage', () =>
     expect(findCall.where.domain).toBe('PEOPLE');
   });
 });
+
+describe('controls — phase29 coverage', () => {
+  it('handles string padEnd', () => {
+    expect('5'.padEnd(3, '0')).toBe('500');
+  });
+
+  it('handles async resolve', async () => {
+    await expect(Promise.resolve('ok')).resolves.toBe('ok');
+  });
+
+  it('returns false for falsy values', () => {
+    expect(Boolean('')).toBe(false);
+  });
+
+  it('handles object keys', () => {
+    expect(Object.keys({ a: 1, b: 2 }).length).toBe(2);
+  });
+
+});

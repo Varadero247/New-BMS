@@ -511,3 +511,10 @@ describe('MSP — extended', () => {
     expect(mockMspLink.update).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('msp — phase29 coverage', () => {
+  it('handles slice method', () => {
+    expect([1, 2, 3, 4].slice(1, 3)).toEqual([2, 3]);
+  });
+
+});

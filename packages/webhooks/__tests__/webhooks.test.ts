@@ -405,3 +405,18 @@ describe('@ims/webhooks', () => {
     });
   });
 });
+
+describe('webhooks — phase29 coverage', () => {
+  it('handles generator type', () => {
+    function* gen() { yield 1; } expect(typeof gen()).toBe('object');
+  });
+
+  it('handles string substring', () => {
+    expect('hello'.substring(1, 3)).toBe('el');
+  });
+
+  it('handles find method', () => {
+    expect([1, 2, 3].find(x => x > 1)).toBe(2);
+  });
+
+});

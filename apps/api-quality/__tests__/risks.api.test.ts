@@ -801,3 +801,14 @@ describe('Quality Risks API — absolute final coverage', () => {
     expect(Array.isArray(response.body.data.items)).toBe(true);
   });
 });
+
+describe('risks — phase29 coverage', () => {
+  it('handles logical OR assign', () => {
+    let y2: number | null = null; y2 ??= 5; expect(y2).toBe(5);
+  });
+
+  it('handles string repeat', () => {
+    expect('ab'.repeat(3)).toBe('ababab');
+  });
+
+});

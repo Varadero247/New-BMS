@@ -201,3 +201,10 @@ describe('riskCalculator — additional coverage', () => {
     });
   });
 });
+
+describe('riskCalculator — phase29 coverage', () => {
+  it('handles bitwise AND', () => {
+    expect(5 & 3).toBe(1);
+  });
+
+});

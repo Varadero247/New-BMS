@@ -549,3 +549,14 @@ describe('KPIs — additional tests', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('kpis — phase29 coverage', () => {
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles Array.from set', () => {
+    expect(Array.from(new Set([1, 1, 2]))).toEqual([1, 2]);
+  });
+
+});

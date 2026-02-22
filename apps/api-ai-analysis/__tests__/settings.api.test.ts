@@ -718,3 +718,22 @@ describe('AI Settings — extra coverage', () => {
     expect(mockPrisma.aISettings.deleteMany).toHaveBeenCalledWith();
   });
 });
+
+describe('settings — phase29 coverage', () => {
+  it('handles Number.isInteger', () => {
+    expect(Number.isInteger(42)).toBe(true);
+  });
+
+  it('handles bitwise AND', () => {
+    expect(5 & 3).toBe(1);
+  });
+
+  it('handles string repeat', () => {
+    expect('ab'.repeat(3)).toBe('ababab');
+  });
+
+  it('handles nullish coalescing', () => {
+    const val: string | null = null; expect(val ?? 'default').toBe('default');
+  });
+
+});

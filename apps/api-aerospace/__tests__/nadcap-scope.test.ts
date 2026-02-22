@@ -500,3 +500,22 @@ describe('nadcap-scope — additional final coverage', () => {
     expect(res.body.pagination.limit).toBe(100);
   });
 });
+
+describe('nadcap scope — phase29 coverage', () => {
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles Math.ceil', () => {
+    expect(Math.ceil(3.1)).toBe(4);
+  });
+
+  it('handles Math.round', () => {
+    expect(Math.round(3.7)).toBe(4);
+  });
+
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+});

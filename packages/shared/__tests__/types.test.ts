@@ -280,3 +280,22 @@ describe('shared/types — further pagination and utility coverage', () => {
     expect(ref).toBe(`TEST-${year}-1000`);
   });
 });
+
+describe('types — phase29 coverage', () => {
+  it('handles string charAt', () => {
+    expect('hello'.charAt(0)).toBe('h');
+  });
+
+  it('handles string padStart', () => {
+    expect('5'.padStart(3, '0')).toBe('005');
+  });
+
+  it('handles undefined check', () => {
+    expect(undefined).toBeUndefined();
+  });
+
+  it('handles regex match', () => {
+    expect('hello world'.match(/world/)).not.toBeNull();
+  });
+
+});

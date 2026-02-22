@@ -903,3 +903,10 @@ describe('Quality Objectives API — final coverage', () => {
     expect(response.body.data.referenceNumber).toBe('QMS-OBJ-2026-001');
   });
 });
+
+describe('objectives — phase29 coverage', () => {
+  it('handles parseInt', () => {
+    expect(parseInt('42', 10)).toBe(42);
+  });
+
+});

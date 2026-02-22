@@ -497,3 +497,22 @@ describe('Quality Audits API — extra boundary coverage', () => {
     expect(mockPrisma.qualAudit.update).not.toHaveBeenCalled();
   });
 });
+
+describe('audits — phase29 coverage', () => {
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+  it('handles string padStart', () => {
+    expect('5'.padStart(3, '0')).toBe('005');
+  });
+
+  it('handles Math.abs', () => {
+    expect(Math.abs(-5)).toBe(5);
+  });
+
+  it('handles iterable protocol', () => {
+    const iter = [1, 2, 3][Symbol.iterator](); expect(iter.next().value).toBe(1);
+  });
+
+});

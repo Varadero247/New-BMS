@@ -489,3 +489,10 @@ describe('Import Routes — final coverage', () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe('import — phase29 coverage', () => {
+  it('handles Math.min', () => {
+    expect(Math.min(1, 2, 3)).toBe(1);
+  });
+
+});

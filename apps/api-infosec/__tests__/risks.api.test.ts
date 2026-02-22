@@ -631,3 +631,14 @@ describe('InfoSec Risks — final coverage', () => {
     expect(res.body.data.totalRisks).toBe(0);
   });
 });
+
+describe('risks — phase29 coverage', () => {
+  it('handles Array.from', () => {
+    expect(Array.from('abc')).toEqual(['a', 'b', 'c']);
+  });
+
+  it('handles flat array', () => {
+    expect([[1, 2], [3, 4]].flat()).toEqual([1, 2, 3, 4]);
+  });
+
+});

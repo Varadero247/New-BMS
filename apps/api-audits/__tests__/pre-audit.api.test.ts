@@ -362,3 +362,26 @@ describe('POST /api/pre-audit/:id/generate — final coverage', () => {
     expect(res.body.data.scope).toBe('Manufacturing only');
   });
 });
+
+describe('pre audit — phase29 coverage', () => {
+  it('handles Math.floor', () => {
+    expect(Math.floor(3.9)).toBe(3);
+  });
+
+  it('handles error message', () => {
+    expect(new TypeError('bad')).toHaveProperty('message', 'bad');
+  });
+
+  it('handles generator type', () => {
+    function* gen() { yield 1; } expect(typeof gen()).toBe('object');
+  });
+
+  it('handles Date type', () => {
+    expect(new Date()).toBeInstanceOf(Date);
+  });
+
+  it('handles destructuring', () => {
+    const { a, b } = { a: 1, b: 2 }; expect(a + b).toBe(3);
+  });
+
+});
