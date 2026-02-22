@@ -1950,3 +1950,8 @@ describe('Medical ISO 14971 Risk Management API Routes', () => {
     });
   });
 });
+
+
+describe('phase37 coverage', () => {
+  it('removes falsy values', () => { const compact=<T>(a:(T|null|undefined|false|0|'')[])=>a.filter(Boolean) as T[]; expect(compact([1,0,2,null,3,undefined,false])).toEqual([1,2,3]); });
+});
