@@ -19,6 +19,8 @@ import {
   MessageSquare,
   FileText,
   ChevronDown,
+  Search,
+  ClipboardCheck,
 } from 'lucide-react';
 
 interface NavItem {
@@ -81,6 +83,15 @@ const navGroups: NavGroup[] = [
       { name: 'CAPA', href: '/capa', icon: RefreshCw },
       { name: 'Emergency Preparedness', href: '/emergency', icon: ShieldAlert },
       { name: 'Life Cycle Assessment', href: '/lifecycle', icon: Recycle },
+    ],
+  },
+  {
+    title: 'Performance (Cl. 9)',
+    clause: '9',
+    collapsible: true,
+    items: [
+      { name: 'Audits', href: '/audits', icon: ClipboardCheck },
+      { name: 'Management Reviews', href: '/management-reviews', icon: ClipboardList },
     ],
   },
   {

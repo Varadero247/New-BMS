@@ -49,6 +49,10 @@ const developmentNavigation = [
   { name: 'Documents', href: '/documents', icon: FileText },
 ];
 
+const complianceNavigation = [
+  { name: 'GDPR Requests', href: '/gdpr', icon: ClipboardList },
+];
+
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
 
 const externalLinks = [
@@ -120,6 +124,7 @@ export function Sidebar() {
         <NavSection title="Performance" items={performanceNavigation} pathname={pathname} />
         <NavSection title="Recruitment" items={recruitmentNavigation} pathname={pathname} />
         <NavSection title="Development" items={developmentNavigation} pathname={pathname} />
+        <NavSection title="Compliance" items={complianceNavigation} pathname={pathname} />
 
         {/* External Links */}
         <div className="mt-4 pt-4 border-t border-border">

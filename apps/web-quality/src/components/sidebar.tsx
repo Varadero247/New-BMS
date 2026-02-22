@@ -67,6 +67,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: 'Context (SWOT/PESTLE)', href: '/context', icon: Compass },
       { name: 'Interested Parties', href: '/interested-parties', icon: Users },
+      { name: 'Issues of Concern', href: '/issues', icon: AlertTriangle },
       { name: 'QMS Scope', href: '/scope', icon: FileText },
       { name: 'Processes', href: '/processes', icon: Workflow },
       { name: 'Process Map', href: '/process-map', icon: LayoutGrid },
@@ -89,6 +90,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: 'Risks & Opportunities', href: '/risks', icon: AlertTriangle },
       { name: 'Risk Register', href: '/risk-register', icon: ShieldAlert },
+      { name: 'Opportunities', href: '/opportunities', icon: Lightbulb },
     ],
   },
   {
@@ -130,6 +132,7 @@ const navGroups: NavGroup[] = [
       { name: 'Customer Satisfaction', href: '/customer-satisfaction', icon: Star },
       { name: 'Audits', href: '/audits', icon: Search },
       { name: 'Management Reviews', href: '/management-reviews', icon: ClipboardList },
+      { name: 'Evidence Packs', href: '/evidence-pack', icon: FileSpreadsheet },
       { name: 'Investigations', href: '/investigations', icon: Search },
     ],
   },
@@ -145,7 +148,11 @@ const navGroups: NavGroup[] = [
   {
     title: 'Tools',
     collapsible: true,
-    items: [{ name: 'Templates', href: '/templates', icon: FileText }],
+    items: [
+      { name: 'Templates', href: '/templates', icon: FileText },
+      { name: 'HeadStart Assessment', href: '/headstart', icon: ClipboardCheck },
+      { name: 'Template Generator', href: '/template-generator', icon: FileSpreadsheet },
+    ],
   },
 ];
 

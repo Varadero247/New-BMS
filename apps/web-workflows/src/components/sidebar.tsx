@@ -15,6 +15,8 @@ import {
   BarChart3,
   Settings,
   BookOpen,
+  Webhook,
+  ShieldCheck,
 } from 'lucide-react';
 
 const navigation = [
@@ -37,6 +39,10 @@ const navigation = [
 
   // Analytics
   { name: 'Reports', href: '/reports', icon: BarChart3 },
+
+  // System
+  { name: 'Webhooks', href: '/webhooks', icon: Webhook },
+  { name: 'Admin', href: '/admin', icon: ShieldCheck },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

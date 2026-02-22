@@ -18,6 +18,10 @@ import {
   Link2,
   Home,
   Settings,
+  Shield,
+  CalendarDays,
+  UserCheck,
+  LayoutGrid,
 } from 'lucide-react';
 
 const mainNavigation = [
@@ -48,6 +52,13 @@ const reportsNavigation = [
   { name: 'Budgets', href: '/budgets', icon: PiggyBank },
   { name: 'Budget Dashboard', href: '/budget-dashboard', icon: BarChart3 },
   { name: 'Integrations', href: '/integrations', icon: Link2 },
+];
+
+const complianceNavigation = [
+  { name: 'Financial Controls', href: '/controls', icon: Shield },
+  { name: 'HMRC Calendar', href: '/hmrc-calendar', icon: CalendarDays },
+  { name: 'IR35 Assessments', href: '/ir35', icon: UserCheck },
+  { name: 'SoD Matrix', href: '/sod-matrix', icon: LayoutGrid },
 ];
 
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
@@ -123,6 +134,7 @@ export function Sidebar() {
         <NavSection title="Payables" items={payablesNavigation} pathname={pathname} />
         <NavSection title="Banking & Tax" items={bankingNavigation} pathname={pathname} />
         <NavSection title="Reports" items={reportsNavigation} pathname={pathname} />
+        <NavSection title="Compliance" items={complianceNavigation} pathname={pathname} />
 
         {/* External Links */}
         <div className="mt-4 pt-4 border-t border-border">

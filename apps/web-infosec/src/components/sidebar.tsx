@@ -57,6 +57,7 @@ const privacyNavigation = [
   { name: 'DPIA', href: '/privacy/dpia', icon: Eye },
   { name: 'DSAR', href: '/privacy/dsar', icon: UserCheck },
   { name: 'Data Map', href: '/data-map', icon: Map },
+  { name: 'GDPR Extended', href: '/gdpr-extended', icon: Lock },
 ];
 
 const advancedControlsNavigation = [

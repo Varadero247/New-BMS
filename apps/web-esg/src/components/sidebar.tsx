@@ -28,6 +28,8 @@ const mainNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Emissions', href: '/emissions', icon: Cloud },
   { name: 'Emissions Dashboard', href: '/emissions-dashboard', icon: BarChart3 },
+  { name: 'Scope Emissions', href: '/scope-emissions', icon: TrendingUp },
+  { name: 'DEFRA Factors', href: '/defra-factors', icon: Target },
   { name: 'Targets', href: '/targets', icon: Target },
 ];
 
