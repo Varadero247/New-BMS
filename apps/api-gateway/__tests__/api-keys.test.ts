@@ -277,4 +277,96 @@ describe('API Keys Routes', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  describe('API Keys — boundary and business logic', () => {
+    it('POST rejects name longer than 100 characters', async () => {
+      const longName = 'A'.repeat(101);
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: longName, scopes: ['read:quality'] });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST with name exactly 100 characters succeeds', async () => {
+      const maxName = 'A'.repeat(100);
+      mockApiKey.create.mockResolvedValue({ ...mockRecord, name: maxName });
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: maxName, scopes: ['read:hr'] });
+      expect(res.status).toBe(201);
+    });
+
+    it('GET response includes meta.total field', async () => {
+      mockApiKey.findMany.mockResolvedValue([mockRecord, mockRecord]);
+      const res = await request(app).get('/api/admin/api-keys');
+      expect(res.status).toBe(200);
+      expect(res.body.meta).toHaveProperty('total', 2);
+    });
+
+    it('GET list response never includes keyHash field', async () => {
+      mockApiKey.findMany.mockResolvedValue([mockRecord]);
+      const res = await request(app).get('/api/admin/api-keys');
+      expect(res.status).toBe(200);
+      for (const item of res.body.data) {
+        expect(item).not.toHaveProperty('keyHash');
+      }
+    });
+
+    it('created key response includes status field set to active', async () => {
+      mockApiKey.create.mockResolvedValue(mockRecord);
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'Status Check', scopes: ['read:inventory'] });
+      expect(res.status).toBe(201);
+      expect(res.body.data.status).toBe('active');
+    });
+
+    it('revoked key response includes revokedAt timestamp', async () => {
+      const revokedAt = new Date('2026-01-15T12:00:00Z');
+      mockApiKey.findUnique.mockResolvedValue(mockRecord);
+      mockApiKey.update.mockResolvedValue({
+        ...mockRecord,
+        isActive: false,
+        revokedAt,
+      });
+      const res = await request(app).delete('/api/admin/api-keys/key-1');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('revokedAt');
+    });
+
+    it('GET list filters keys by orgId of authenticated user', async () => {
+      mockApiKey.findMany.mockResolvedValue([]);
+      await request(app).get('/api/admin/api-keys');
+      expect(mockApiKey.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ orgId: 'org-1' }),
+        })
+      );
+    });
+
+    it('POST with empty name string returns 400', async () => {
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: '', scopes: ['read:hr'] });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('created key response includes keyPrefix field', async () => {
+      mockApiKey.create.mockResolvedValue({ ...mockRecord, prefix: 'rxk_abcdef12' });
+      const res = await request(app)
+        .post('/api/admin/api-keys')
+        .send({ name: 'Prefix Field Test', scopes: ['read:analytics'] });
+      expect(res.status).toBe(201);
+      expect(res.body.data).toHaveProperty('keyPrefix');
+    });
+
+    it('GET list response for active keys shows status active', async () => {
+      mockApiKey.findMany.mockResolvedValue([mockRecord]);
+      const res = await request(app).get('/api/admin/api-keys');
+      expect(res.status).toBe(200);
+      expect(res.body.data[0].status).toBe('active');
+    });
+  });
 });

@@ -372,3 +372,132 @@ describe('IR35 — additional coverage', () => {
     );
   });
 });
+
+describe('IR35 — validation and field coverage', () => {
+  const basePayload = {
+    contractorName: 'David Wilson',
+    determination: 'OUTSIDE',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST returns 400 when contractorName is empty string', async () => {
+    const res = await request(app).post('/api/ir35').send({
+      contractorName: '',
+      determination: 'INSIDE',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST returns 400 when contractorEmail is not a valid email', async () => {
+    const res = await request(app).post('/api/ir35').send({
+      contractorName: 'Bob Smith',
+      contractorEmail: 'not-an-email',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST returns 400 when evidenceUrl is not a valid URL', async () => {
+    const res = await request(app).post('/api/ir35').send({
+      contractorName: 'Carol Jones',
+      evidenceUrl: 'not-a-url',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST accepts OUTSIDE determination value', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(2);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      ...basePayload,
+      referenceNumber: 'IR35-2026-0003',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    const res = await request(app).post('/api/ir35').send(basePayload);
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST accepts PENDING determination value', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000021',
+      contractorName: 'Evan Test',
+      determination: 'PENDING',
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    const res = await request(app).post('/api/ir35').send({
+      contractorName: 'Evan Test',
+      determination: 'PENDING',
+    });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('GET findMany is called with take: 500 to limit results', async () => {
+    mockPrisma.finIr35Assessment.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/ir35');
+
+    expect(mockPrisma.finIr35Assessment.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 500 })
+    );
+  });
+
+  it('POST includes optional contractorEmail when provided', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000022',
+      contractorName: 'Frank Brown',
+      contractorEmail: 'frank@consulting.com',
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/ir35').send({
+      contractorName: 'Frank Brown',
+      contractorEmail: 'frank@consulting.com',
+    });
+
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ contractorEmail: 'frank@consulting.com' }),
+      })
+    );
+  });
+
+  it('POST passes notes field through to create data', async () => {
+    mockPrisma.finIr35Assessment.count.mockResolvedValue(0);
+    mockPrisma.finIr35Assessment.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000023',
+      contractorName: 'Grace Test',
+      notes: 'Reviewed by tax team',
+      referenceNumber: 'IR35-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/ir35').send({
+      contractorName: 'Grace Test',
+      notes: 'Reviewed by tax team',
+    });
+
+    expect(mockPrisma.finIr35Assessment.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ notes: 'Reviewed by tax team' }),
+      })
+    );
+  });
+});

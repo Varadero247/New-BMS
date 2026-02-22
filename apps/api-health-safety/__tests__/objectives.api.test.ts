@@ -471,3 +471,132 @@ describe('Health & Safety Objectives API', () => {
     });
   });
 });
+
+describe('Health & Safety Objectives — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/objectives', objectivesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET returns correct total in meta', async () => {
+    (mockPrisma.ohsObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.ohsObjective.count as jest.Mock).mockResolvedValueOnce(42);
+
+    const response = await request(app)
+      .get('/api/objectives?page=1&limit=10')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.total).toBe(42);
+  });
+
+  it('GET returns empty data array when no objectives exist', async () => {
+    (mockPrisma.ohsObjective.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.ohsObjective.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app)
+      .get('/api/objectives')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+  });
+
+  it('DELETE returns 500 on update database error', async () => {
+    (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.ohsObjective.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app)
+      .delete('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+  });
+
+  it('PATCH /milestones/:mid returns 500 on database error', async () => {
+    (mockPrisma.objectiveMilestone.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '1b000000-0000-4000-a000-000000000001',
+      objectiveId: '15000000-0000-4000-a000-000000000001',
+      completed: false,
+    });
+    (mockPrisma.objectiveMilestone.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app)
+      .patch(
+        '/api/objectives/15000000-0000-4000-a000-000000000001/milestones/1b000000-0000-4000-a000-000000000001'
+      )
+      .set('Authorization', 'Bearer token')
+      .send({ completed: true });
+
+    expect(response.status).toBe(500);
+  });
+
+  it('POST returns 400 when targetDate is missing', async () => {
+    const response = await request(app)
+      .post('/api/objectives')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Reduce incidents', category: 'INCIDENT_REDUCTION' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PATCH sets status to CANCELLED without affecting progress', async () => {
+    const existing = {
+      id: '15000000-0000-4000-a000-000000000001',
+      title: 'Active objective',
+      status: 'ACTIVE',
+      milestones: [],
+    };
+    (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce(existing);
+    (mockPrisma.ohsObjective.update as jest.Mock).mockResolvedValueOnce({
+      ...existing,
+      status: 'CANCELLED',
+    });
+
+    const response = await request(app)
+      .patch('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'CANCELLED' });
+
+    expect(response.status).toBe(200);
+    expect(mockPrisma.ohsObjective.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'CANCELLED' }),
+      })
+    );
+  });
+
+  it('POST /milestones returns 400 when title is missing', async () => {
+    (mockPrisma.ohsObjective.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '15000000-0000-4000-a000-000000000001',
+      milestones: [],
+    });
+
+    const response = await request(app)
+      .post('/api/objectives/15000000-0000-4000-a000-000000000001/milestones')
+      .set('Authorization', 'Bearer token')
+      .send({ dueDate: '2026-06-30' });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('GET /:id returns 500 on database error', async () => {
+    (mockPrisma.ohsObjective.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app)
+      .get('/api/objectives/15000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+  });
+});

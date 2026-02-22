@@ -327,3 +327,135 @@ describe('HMRC Calendar — additional coverage', () => {
     );
   });
 });
+
+describe('HMRC Calendar — validation and field coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST returns 400 when title is empty string', async () => {
+    const res = await request(app).post('/api/hmrc-calendar').send({
+      title: '',
+      dueDate: '2026-04-07',
+      type: 'VAT',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST returns 400 when dueDate is missing', async () => {
+    const res = await request(app).post('/api/hmrc-calendar').send({
+      title: 'VAT Return',
+      type: 'VAT',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST returns 400 when dueDate has invalid format', async () => {
+    const res = await request(app).post('/api/hmrc-calendar').send({
+      title: 'Tax filing',
+      dueDate: 'not-a-date',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST includes optional notes when provided', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      title: 'VAT Return with notes',
+      dueDate: '2026-04-07',
+      notes: 'Reminder sent to finance team',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/hmrc-calendar').send({
+      title: 'VAT Return with notes',
+      dueDate: '2026-04-07',
+      notes: 'Reminder sent to finance team',
+    });
+
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ notes: 'Reminder sent to finance team' }),
+      })
+    );
+  });
+
+  it('GET uses take: 365 to limit results to one year', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/hmrc-calendar');
+
+    expect(mockPrisma.finHmrcDeadline.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 365 })
+    );
+  });
+
+  it('POST passes filingRef optional field to create data', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000021',
+      title: 'PAYE Filing',
+      dueDate: '2026-05-19',
+      filingRef: 'PAYE-2026-Q1',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/hmrc-calendar').send({
+      title: 'PAYE Filing',
+      dueDate: '2026-05-19',
+      filingRef: 'PAYE-2026-Q1',
+    });
+
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ filingRef: 'PAYE-2026-Q1' }),
+      })
+    );
+  });
+
+  it('POST passes submittedBy optional field to create data', async () => {
+    mockPrisma.finHmrcDeadline.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000022',
+      title: 'CT600 Filing',
+      dueDate: '2026-12-31',
+      submittedBy: 'Finance Manager',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/hmrc-calendar').send({
+      title: 'CT600 Filing',
+      dueDate: '2026-12-31',
+      submittedBy: 'Finance Manager',
+    });
+
+    expect(mockPrisma.finHmrcDeadline.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ submittedBy: 'Finance Manager' }),
+      })
+    );
+  });
+
+  it('GET data items have dueDate field from mock', async () => {
+    mockPrisma.finHmrcDeadline.findMany.mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000023',
+        title: 'Annual Accounts',
+        dueDate: '2026-09-30',
+        type: 'COMPANIES_HOUSE',
+        status: 'PENDING',
+        orgId: '00000000-0000-4000-a000-000000000100',
+      },
+    ]);
+
+    const res = await request(app).get('/api/hmrc-calendar');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('dueDate', '2026-09-30');
+  });
+});

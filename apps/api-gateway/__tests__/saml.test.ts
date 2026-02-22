@@ -370,4 +370,170 @@ describe('SAML Routes', () => {
       expect(res.body.error.code).toBe('NOT_FOUND');
     });
   });
+
+  describe('GET /auth/saml/idp-metadata', () => {
+    it('returns 400 when orgId is missing', async () => {
+      const res = await request(app).get('/auth/saml/idp-metadata');
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('returns 404 when no SSO config exists for orgId', async () => {
+      const res = await request(app).get('/auth/saml/idp-metadata').query({ orgId: 'no-such-org' });
+      expect(res.status).toBe(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    });
+
+    it('returns IdP metadata fields when config exists', async () => {
+      // Pre-populate store for this test
+      samlConfigStore.set('org-idp-meta', {
+        id: 'saml-idp-meta',
+        orgId: 'org-idp-meta',
+        entryPoint: 'https://idp.example.com/sso',
+        issuer: 'https://idp.example.com',
+        cert: 'MIIC...',
+        signatureAlgorithm: 'sha256',
+        enabled: true,
+        entityId: null,
+        assertionConsumerUrl: null,
+        idpMetadataUrl: 'https://idp.example.com/metadata',
+        nameIdFormat: null,
+        allowUnencryptedAssertions: false,
+        createdBy: 'user-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const res = await request(app)
+        .get('/auth/saml/idp-metadata')
+        .query({ orgId: 'org-idp-meta' });
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('idpEntryPoint');
+      expect(res.body.data).toHaveProperty('spEntityId');
+      expect(res.body.data).toHaveProperty('spAcsUrl');
+    });
+  });
+
+  describe('SAML login redirect and orgId validation', () => {
+    it('returns 400 for orgId with invalid characters', async () => {
+      const res = await request(app)
+        .get('/auth/saml/login')
+        .query({ orgId: '<script>alert(1)</script>' });
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 400 for orgId that is too long', async () => {
+      const longId = 'a'.repeat(200);
+      const res = await request(app).get('/auth/saml/login').query({ orgId: longId });
+      expect(res.status).toBe(400);
+    });
+
+    it('GET /admin/security/sso returns hasCert true when cert is set', async () => {
+      samlConfigStore.set('org-cert-check', {
+        id: 'saml-cert-check',
+        orgId: 'org-cert-check',
+        entryPoint: 'https://idp.example.com/sso',
+        issuer: 'https://idp.example.com',
+        cert: 'MIIC-some-cert',
+        signatureAlgorithm: 'sha256',
+        enabled: true,
+        entityId: null,
+        assertionConsumerUrl: null,
+        idpMetadataUrl: null,
+        nameIdFormat: null,
+        allowUnencryptedAssertions: false,
+        createdBy: 'user-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+        req.user = { id: 'user-1', email: 'admin@ims.local', role: 'ADMIN', orgId: 'org-cert-check' };
+        next();
+      });
+      const res = await request(app).get('/admin/security/sso');
+      expect(res.status).toBe(200);
+      expect(res.body.data.hasCert).toBe(true);
+    });
+
+    it('POST /admin/security/sso rejects http:// entryPoint (must be HTTPS)', async () => {
+      const res = await request(app).post('/admin/security/sso').send({
+        entryPoint: 'http://idp.example.com/sso/saml',
+        issuer: 'https://app.ims.local',
+        cert: 'MIIC...',
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST /admin/security/sso rejects invalid nameIdFormat', async () => {
+      const res = await request(app).post('/admin/security/sso').send({
+        entryPoint: 'https://idp.example.com/sso/saml',
+        issuer: 'https://app.ims.local',
+        cert: 'MIIC...',
+        nameIdFormat: 'urn:invalid:format',
+      });
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST /admin/security/sso accepts valid sha512 signatureAlgorithm', async () => {
+      mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+        req.user = {
+          id: 'user-1',
+          email: 'admin@ims.local',
+          role: 'ADMIN',
+          orgId: 'org-sha512-test',
+        };
+        next();
+      });
+      const res = await request(app).post('/admin/security/sso').send({
+        entryPoint: 'https://idp.example.com/sso/saml',
+        issuer: 'https://app.ims.local',
+        cert: 'MIIC...',
+        signatureAlgorithm: 'sha512',
+      });
+      expect(res.status).toBe(201);
+      expect(res.body.data.signatureAlgorithm).toBe('sha512');
+    });
+
+    it('callback returns 400 when SAML response is missing NameID', async () => {
+      // Setup config for this test org
+      samlConfigStore.set('org-no-nameid', {
+        id: 'saml-no-nameid',
+        orgId: 'org-no-nameid',
+        entryPoint: 'https://idp.example.com/sso',
+        issuer: 'https://idp.example.com',
+        cert: 'MIIC...',
+        signatureAlgorithm: 'sha256',
+        enabled: true,
+        entityId: null,
+        assertionConsumerUrl: null,
+        idpMetadataUrl: null,
+        nameIdFormat: null,
+        allowUnencryptedAssertions: true,
+        createdBy: 'user-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      // SAML XML without a NameID element
+      const samlXmlNoNameId =
+        '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"><saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"><saml:Subject></saml:Subject></saml:Assertion></samlp:Response>';
+      const samlB64 = Buffer.from(samlXmlNoNameId).toString('base64');
+
+      const res = await request(app)
+        .post('/auth/saml/callback')
+        .send({ SAMLResponse: samlB64, RelayState: 'org-no-nameid' });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('SAML_VALIDATION_FAILED');
+    });
+
+    it('GET /admin/security/sso returns spMetadataUrl field', async () => {
+      const res = await request(app).get('/admin/security/sso');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('spMetadataUrl');
+    });
+  });
 });

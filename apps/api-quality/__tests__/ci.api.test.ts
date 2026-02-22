@@ -286,4 +286,120 @@ describe('Quality Continuous Improvement (CI) API Routes', () => {
       expect(res.status).toBe(500);
     });
   });
+
+  describe('GET /api/ci — additional filtering and pagination', () => {
+    it('should filter by category', async () => {
+      mockPrisma.qualContinuousImprovement.findMany.mockResolvedValue([mockCI]);
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(1);
+
+      const res = await request(app).get('/api/ci?category=Manufacturing');
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.qualContinuousImprovement.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            category: expect.objectContaining({ contains: 'Manufacturing' }),
+          }),
+        })
+      );
+    });
+
+    it('should apply custom page and limit for pagination', async () => {
+      mockPrisma.qualContinuousImprovement.findMany.mockResolvedValue([]);
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(50);
+
+      const res = await request(app).get('/api/ci?page=2&limit=10');
+
+      expect(res.status).toBe(200);
+      expect(res.body.pagination.page).toBe(2);
+      expect(res.body.pagination.limit).toBe(10);
+    });
+
+    it('should cap limit at 100', async () => {
+      mockPrisma.qualContinuousImprovement.findMany.mockResolvedValue([]);
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(0);
+
+      const res = await request(app).get('/api/ci?limit=500');
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.qualContinuousImprovement.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 100 })
+      );
+    });
+
+    it('should return total in pagination metadata', async () => {
+      mockPrisma.qualContinuousImprovement.findMany.mockResolvedValue([mockCI, mockCI]);
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(2);
+
+      const res = await request(app).get('/api/ci');
+
+      expect(res.status).toBe(200);
+      expect(res.body.pagination.total).toBe(2);
+    });
+  });
+
+  describe('POST /api/ci — additional validation', () => {
+    it('should accept CRITICAL priority', async () => {
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(0);
+      mockPrisma.qualContinuousImprovement.create.mockResolvedValue({
+        ...mockCI,
+        priority: 'CRITICAL',
+      });
+
+      const res = await request(app).post('/api/ci').send({
+        title: 'Critical improvement',
+        description: 'Urgent change needed',
+        priority: 'CRITICAL',
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should accept optional estimatedCost field', async () => {
+      mockPrisma.qualContinuousImprovement.count.mockResolvedValue(0);
+      mockPrisma.qualContinuousImprovement.create.mockResolvedValue({
+        ...mockCI,
+        estimatedCost: 5000,
+      });
+
+      const res = await request(app).post('/api/ci').send({
+        title: 'Cost improvement',
+        description: 'Reduce waste',
+        priority: 'MEDIUM',
+        estimatedCost: 5000,
+      });
+
+      expect(res.status).toBe(201);
+    });
+
+    it('should return 400 for empty title', async () => {
+      const res = await request(app).post('/api/ci').send({
+        title: '',
+        description: 'Some description',
+        priority: 'LOW',
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+  });
+
+  describe('GET /api/ci/stats — additional coverage', () => {
+    it('should return zero counts when no CI items exist', async () => {
+      mockPrisma.qualContinuousImprovement.count
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0)
+        .mockResolvedValueOnce(0);
+      mockPrisma.qualContinuousImprovement.groupBy.mockResolvedValue([]);
+
+      const res = await request(app).get('/api/ci/stats');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.total).toBe(0);
+      expect(res.body.data.byPriority).toHaveLength(0);
+    });
+  });
 });

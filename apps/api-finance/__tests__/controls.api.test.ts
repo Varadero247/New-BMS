@@ -329,3 +329,143 @@ describe('controls.api — additional coverage', () => {
     expect(typeof res.body).toBe('object');
   });
 });
+
+describe('Financial Controls — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET filters by status=UNDER_REVIEW when provided', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/controls?status=UNDER_REVIEW');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.finControl.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'UNDER_REVIEW' }),
+      })
+    );
+  });
+
+  it('GET pagination page 2 returns correct metadata', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(30);
+
+    const res = await request(app).get('/api/controls?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.total).toBe(30);
+  });
+
+  it('GET returns empty array when no controls exist', async () => {
+    mockPrisma.finControl.findMany.mockResolvedValue([]);
+    mockPrisma.finControl.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/controls');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST create includes orgId from authenticated user', async () => {
+    mockPrisma.finControl.count.mockResolvedValue(0);
+    mockPrisma.finControl.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'Test Control',
+      referenceNumber: 'FCR-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    await request(app).post('/api/controls').send({
+      title: 'Test Control',
+      description: 'Test description',
+      controlType: 'DETECTIVE',
+      status: 'ACTIVE',
+    });
+
+    expect(mockPrisma.finControl.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          orgId: '00000000-0000-4000-a000-000000000100',
+        }),
+      })
+    );
+  });
+
+  it('POST generates reference number matching FCR-YYYY-NNNN format', async () => {
+    mockPrisma.finControl.count.mockResolvedValue(0);
+    mockPrisma.finControl.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      title: 'New Control',
+      referenceNumber: 'FCR-2026-0001',
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    const res = await request(app).post('/api/controls').send({
+      title: 'New Control',
+      description: 'Some description',
+      controlType: 'PREVENTIVE',
+      status: 'ACTIVE',
+    });
+
+    expect(res.status).toBe(201);
+    expect(mockPrisma.finControl.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          referenceNumber: expect.stringMatching(/^FCR-\d{4}-\d{4}$/),
+        }),
+      })
+    );
+  });
+
+  it('PUT update calls update with correct where clause', async () => {
+    mockPrisma.finControl.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    mockPrisma.finControl.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'UNDER_REVIEW',
+    });
+
+    await request(app)
+      .put('/api/controls/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'UNDER_REVIEW' });
+
+    expect(mockPrisma.finControl.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: '00000000-0000-0000-0000-000000000001' },
+      })
+    );
+  });
+
+  it('DELETE update is called exactly once per delete request', async () => {
+    mockPrisma.finControl.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    await request(app).delete('/api/controls/00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.finControl.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /:id returns the correct id in response data', async () => {
+    const control = {
+      id: '00000000-0000-0000-0000-000000000005',
+      referenceNumber: 'FCR-2026-0005',
+      name: 'Cash Handling Policy',
+      status: 'ACTIVE',
+    };
+    mockPrisma.finControl.findFirst.mockResolvedValue(control);
+
+    const res = await request(app).get('/api/controls/00000000-0000-0000-0000-000000000005');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000005');
+  });
+});

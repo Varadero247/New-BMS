@@ -295,4 +295,130 @@ describe('Quality Investigations API Routes', () => {
       expect(res.status).toBe(500);
     });
   });
+
+  describe('GET /api/investigations — additional filtering and pagination', () => {
+    it('should filter by severity in the where clause', async () => {
+      mockPrisma.qualInvestigation.findMany.mockResolvedValue([mockInvestigation]);
+      mockPrisma.qualInvestigation.count.mockResolvedValue(1);
+
+      const res = await request(app).get('/api/investigations?severity=HIGH');
+
+      expect(res.status).toBe(200);
+      expect(mockPrisma.qualInvestigation.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ severity: 'HIGH' }),
+        })
+      );
+    });
+
+    it('should return pagination metadata including totalPages', async () => {
+      mockPrisma.qualInvestigation.findMany.mockResolvedValue([mockInvestigation]);
+      mockPrisma.qualInvestigation.count.mockResolvedValue(40);
+
+      const res = await request(app).get('/api/investigations?page=2&limit=10');
+
+      expect(res.status).toBe(200);
+      expect(res.body.pagination.page).toBe(2);
+      expect(res.body.pagination.limit).toBe(10);
+      expect(res.body.pagination.total).toBe(40);
+    });
+
+    it('should return an empty array when no investigations exist', async () => {
+      mockPrisma.qualInvestigation.findMany.mockResolvedValue([]);
+      mockPrisma.qualInvestigation.count.mockResolvedValue(0);
+
+      const res = await request(app).get('/api/investigations');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(0);
+      expect(res.body.pagination.total).toBe(0);
+    });
+  });
+
+  describe('POST /api/investigations — additional validation', () => {
+    it('should accept MEDIUM severity', async () => {
+      mockPrisma.qualInvestigation.count.mockResolvedValue(0);
+      mockPrisma.qualInvestigation.create.mockResolvedValue({
+        ...mockInvestigation,
+        severity: 'MEDIUM',
+      });
+
+      const res = await request(app).post('/api/investigations').send({
+        title: 'Medium severity investigation',
+        description: 'Description of issue',
+        severity: 'MEDIUM',
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('should accept optional assignedTo field', async () => {
+      mockPrisma.qualInvestigation.count.mockResolvedValue(0);
+      mockPrisma.qualInvestigation.create.mockResolvedValue(mockInvestigation);
+
+      const res = await request(app).post('/api/investigations').send({
+        title: 'Assigned investigation',
+        description: 'Root cause unknown',
+        severity: 'HIGH',
+        assignedTo: 'Quality Lead',
+      });
+
+      expect(res.status).toBe(201);
+      expect(mockPrisma.qualInvestigation.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ assignedTo: 'Quality Lead' }),
+        })
+      );
+    });
+
+    it('should return 400 for empty description', async () => {
+      const res = await request(app).post('/api/investigations').send({
+        title: 'Valid title',
+        description: '',
+        severity: 'HIGH',
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+  });
+
+  describe('PUT /api/investigations/:id — field updates', () => {
+    it('should call update with rootCause field when provided', async () => {
+      mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
+      mockPrisma.qualInvestigation.update.mockResolvedValue({
+        ...mockInvestigation,
+        rootCause: 'Process failure',
+      });
+
+      await request(app)
+        .put('/api/investigations/00000000-0000-0000-0000-000000000001')
+        .send({ rootCause: 'Process failure' });
+
+      expect(mockPrisma.qualInvestigation.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ rootCause: 'Process failure' }),
+        })
+      );
+    });
+  });
+
+  describe('DELETE /api/investigations/:id — soft delete verification', () => {
+    it('should call update with deletedAt set to a Date instance', async () => {
+      mockPrisma.qualInvestigation.findFirst.mockResolvedValue(mockInvestigation);
+      mockPrisma.qualInvestigation.update.mockResolvedValue({
+        ...mockInvestigation,
+        deletedAt: new Date(),
+      });
+
+      await request(app).delete('/api/investigations/00000000-0000-0000-0000-000000000001');
+
+      expect(mockPrisma.qualInvestigation.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+        })
+      );
+    });
+  });
 });

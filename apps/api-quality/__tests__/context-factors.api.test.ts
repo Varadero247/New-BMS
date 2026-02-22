@@ -305,3 +305,128 @@ describe('context-factors.api — additional coverage', () => {
     expect(res.headers['content-type']).toBeDefined();
   });
 });
+
+describe('Quality Context Factors — additional coverage', () => {
+  const mockIssue = {
+    id: '00000000-0000-0000-0000-000000000001',
+    referenceNumber: 'QMS-CTX-2601-001',
+    issueOfConcern: 'Market competition increasing',
+    bias: 'OPPORTUNITY',
+    processesAffected: 'Sales',
+    treatmentMethod: 'Market analysis',
+    priority: 'HIGH',
+    status: 'OPEN',
+    notes: null,
+    deletedAt: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET supports search query and passes it to prisma where clause', async () => {
+    mockPrisma.qualIssue.findMany.mockResolvedValue([mockIssue]);
+    mockPrisma.qualIssue.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/context-factors?search=market');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.qualIssue.findMany).toHaveBeenCalled();
+  });
+
+  it('GET pagination: page 2 with limit 5 returns correct pagination metadata', async () => {
+    mockPrisma.qualIssue.findMany.mockResolvedValue([]);
+    mockPrisma.qualIssue.count.mockResolvedValue(20);
+
+    const res = await request(app).get('/api/context-factors?page=2&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(5);
+    expect(res.body.pagination.total).toBe(20);
+  });
+
+  it('GET returns EXTERNAL factorType when bias is OPPORTUNITY', async () => {
+    mockPrisma.qualIssue.findMany.mockResolvedValue([{ ...mockIssue, bias: 'OPPORTUNITY' }]);
+    mockPrisma.qualIssue.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/context-factors');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].factorType).toBe('EXTERNAL');
+  });
+
+  it('GET returns INTERNAL factorType when bias is RISK', async () => {
+    const riskIssue = { ...mockIssue, bias: 'RISK', issueOfConcern: 'Staff turnover risk' };
+    mockPrisma.qualIssue.findMany.mockResolvedValue([riskIssue]);
+    mockPrisma.qualIssue.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/context-factors');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0].factorType).toBe('INTERNAL');
+  });
+
+  it('POST calls count before create to generate reference number', async () => {
+    mockPrisma.qualIssue.count.mockResolvedValue(3);
+    mockPrisma.qualIssue.create.mockResolvedValue(mockIssue);
+
+    await request(app).post('/api/context-factors').send({
+      factorName: 'Supply chain disruption',
+      factorType: 'EXTERNAL',
+      impact: 'HIGH',
+    });
+
+    expect(mockPrisma.qualIssue.count).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.qualIssue.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT calls update with correct data when factor found', async () => {
+    mockPrisma.qualIssue.findFirst.mockResolvedValue(mockIssue);
+    const updated = { ...mockIssue, priority: 'MEDIUM' };
+    mockPrisma.qualIssue.update.mockResolvedValue(updated);
+
+    const res = await request(app)
+      .put('/api/context-factors/00000000-0000-0000-0000-000000000001')
+      .send({ impact: 'MEDIUM' });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.qualIssue.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('DELETE calls update with deletedAt when factor is found', async () => {
+    mockPrisma.qualIssue.findFirst.mockResolvedValue(mockIssue);
+    mockPrisma.qualIssue.update.mockResolvedValue({ ...mockIssue, deletedAt: new Date() });
+
+    await request(app).delete('/api/context-factors/00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.qualIssue.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ deletedAt: expect.any(Date) }),
+      })
+    );
+  });
+
+  it('GET returns empty array when no context factors exist', async () => {
+    mockPrisma.qualIssue.findMany.mockResolvedValue([]);
+    mockPrisma.qualIssue.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/context-factors');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+    expect(res.body.pagination.total).toBe(0);
+  });
+
+  it('POST returns 400 when factorName is empty string', async () => {
+    const res = await request(app).post('/api/context-factors').send({
+      factorName: '',
+      factorType: 'INTERNAL',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

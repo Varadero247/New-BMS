@@ -313,3 +313,123 @@ describe('SoD Matrix — additional coverage', () => {
     );
   });
 });
+
+describe('SoD Matrix — extended coverage', () => {
+  const lowConflictRule = {
+    role1: 'Report Viewer',
+    role2: 'Report Publisher',
+    conflictType: 'LOW',
+    description: 'Minor conflict between viewing and publishing reports',
+    mitigatingControl: 'Periodic access review',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST creates rule with LOW conflictType successfully', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000020',
+      ...lowConflictRule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+    });
+
+    const res = await request(app).post('/api/sod-matrix').send(lowConflictRule);
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ conflictType: 'LOW' }),
+      })
+    );
+  });
+
+  it('GET passes deletedAt: null to exclude soft-deleted rules', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/sod-matrix');
+
+    expect(mockPrisma.finSodRule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ deletedAt: null }),
+      })
+    );
+  });
+
+  it('GET returns data with role1 and role2 fields from mock', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([
+      {
+        id: '00000000-0000-0000-0000-000000000021',
+        role1: 'Invoice Approver',
+        role2: 'Payment Processor',
+        conflictType: 'HIGH',
+        orgId: '00000000-0000-4000-a000-000000000100',
+      },
+    ]);
+
+    const res = await request(app).get('/api/sod-matrix');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('role1', 'Invoice Approver');
+    expect(res.body.data[0]).toHaveProperty('role2', 'Payment Processor');
+  });
+
+  it('POST returns the created record in response body', async () => {
+    const createdRule = {
+      id: '00000000-0000-0000-0000-000000000022',
+      ...lowConflictRule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+      createdBy: '00000000-0000-0000-0000-000000000001',
+    };
+    mockPrisma.finSodRule.create.mockResolvedValue(createdRule);
+
+    const res = await request(app).post('/api/sod-matrix').send(lowConflictRule);
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.id).toBe('00000000-0000-0000-0000-000000000022');
+    expect(res.body.data.role1).toBe('Report Viewer');
+  });
+
+  it('GET passes orgId from authenticated user in where clause', async () => {
+    mockPrisma.finSodRule.findMany.mockResolvedValue([]);
+
+    await request(app).get('/api/sod-matrix');
+
+    expect(mockPrisma.finSodRule.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          orgId: '00000000-0000-4000-a000-000000000100',
+        }),
+      })
+    );
+  });
+
+  it('POST returns 500 and INTERNAL_ERROR code on database failure', async () => {
+    mockPrisma.finSodRule.create.mockRejectedValue(new Error('Constraint violation'));
+
+    const res = await request(app).post('/api/sod-matrix').send(lowConflictRule);
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST createdBy is set to authenticated user id', async () => {
+    mockPrisma.finSodRule.create.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000023',
+      ...lowConflictRule,
+      orgId: '00000000-0000-4000-a000-000000000100',
+      createdBy: '00000000-0000-0000-0000-000000000001',
+    });
+
+    await request(app).post('/api/sod-matrix').send(lowConflictRule);
+
+    expect(mockPrisma.finSodRule.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          createdBy: '00000000-0000-0000-0000-000000000001',
+        }),
+      })
+    );
+  });
+});

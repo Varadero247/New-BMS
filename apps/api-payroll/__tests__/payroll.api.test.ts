@@ -583,4 +583,166 @@ describe('Payroll API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  describe('Payroll — boundary and business logic', () => {
+    it('GET /api/payroll/runs returns meta.totalPages calculated correctly', async () => {
+      (mockPrisma.payrollRun.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(100);
+
+      const response = await request(app).get('/api/payroll/runs?limit=20');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.totalPages).toBe(5);
+    });
+
+    it('POST /api/payroll/runs returns 400 for missing periodEnd', async () => {
+      const response = await request(app).post('/api/payroll/runs').send({
+        periodStart: '2024-03-01',
+        payDate: '2024-04-01',
+        payFrequency: 'MONTHLY',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST /api/payroll/runs returns 400 for invalid periodStart date string', async () => {
+      const response = await request(app).post('/api/payroll/runs').send({
+        periodStart: 'not-a-date',
+        periodEnd: '2024-03-31',
+        payDate: '2024-04-01',
+        payFrequency: 'MONTHLY',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST /api/payroll/runs accepts WEEKLY payFrequency', async () => {
+      (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(0);
+      mockPrisma.payrollRun.create.mockResolvedValueOnce({
+        id: '30000000-0000-4000-a000-000000000124',
+        runNumber: 'PAY-2024-0001',
+        payFrequency: 'WEEKLY',
+        status: 'DRAFT',
+      });
+
+      const response = await request(app).post('/api/payroll/runs').send({
+        periodStart: '2024-03-04',
+        periodEnd: '2024-03-10',
+        payDate: '2024-03-11',
+        payFrequency: 'WEEKLY',
+      });
+
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('GET /api/payroll/payslips returns empty array when none exist', async () => {
+      mockPrisma.payslip.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.payslip.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app).get('/api/payroll/payslips');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(0);
+      expect(response.body.meta.total).toBe(0);
+    });
+
+    it('GET /api/payroll/payslips supports pagination parameters', async () => {
+      mockPrisma.payslip.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.payslip.count as jest.Mock).mockResolvedValueOnce(30);
+
+      const response = await request(app).get('/api/payroll/payslips?page=2&limit=10');
+
+      expect(response.status).toBe(200);
+      expect(response.body.meta.page).toBe(2);
+      expect(response.body.meta.totalPages).toBe(3);
+    });
+
+    it('GET /api/payroll/runs filters by DRAFT status', async () => {
+      mockPrisma.payrollRun.findMany.mockResolvedValueOnce([]);
+      (mockPrisma.payrollRun.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app).get('/api/payroll/runs?status=DRAFT');
+
+      expect(mockPrisma.payrollRun.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ status: 'DRAFT' }),
+        })
+      );
+    });
+
+    it('GET /api/payroll/stats yearlyNet is a number', async () => {
+      mockPrisma.payrollRun.count.mockResolvedValue(5);
+      mockPrisma.payrollRun.aggregate.mockResolvedValue({
+        _sum: { totalNet: 250000, totalGross: 300000 },
+      });
+
+      const response = await request(app).get('/api/payroll/stats');
+
+      expect(response.status).toBe(200);
+      expect(typeof response.body.data.yearlyNet).toBe('number');
+    });
+
+    it('GET /api/payroll/runs single run includes payslips array', async () => {
+      const mockRun = {
+        id: '35000000-0000-4000-a000-000000000001',
+        runNumber: 'PAY-2024-0001',
+        status: 'APPROVED',
+        payslips: [],
+        taxFilings: [],
+      };
+      mockPrisma.payrollRun.findUnique.mockResolvedValueOnce(mockRun);
+
+      const response = await request(app).get(
+        '/api/payroll/runs/35000000-0000-4000-a000-000000000001'
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveProperty('payslips');
+      expect(Array.isArray(response.body.data.payslips)).toBe(true);
+    });
+
+    it('GET /api/payroll/payslips/:id returns employee data inside payslip', async () => {
+      const mockPayslip = {
+        id: '4c000000-0000-4000-a000-000000000001',
+        payslipNumber: 'PS-2024-0001-0001',
+        grossEarnings: 5000,
+        netPay: 4000,
+        employee: {
+          id: '2a000000-0000-4000-a000-000000000001',
+          firstName: 'John',
+          lastName: 'Doe',
+        },
+        items: [],
+        payrollRun: { id: '35000000-0000-4000-a000-000000000001', runNumber: 'PAY-2024-0001' },
+      };
+      mockPrisma.payslip.findUnique.mockResolvedValueOnce(mockPayslip);
+
+      const response = await request(app).get(
+        '/api/payroll/payslips/4c000000-0000-4000-a000-000000000001'
+      );
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.netPay).toBe(4000);
+      expect(response.body.data.grossEarnings).toBe(5000);
+    });
+
+    it('PUT /api/payroll/runs/:id/approve returns 200 with success true', async () => {
+      mockPrisma.payrollRun.update.mockResolvedValueOnce({
+        id: '35000000-0000-4000-a000-000000000001',
+        status: 'APPROVED',
+        approvalStatus: 'APPROVED',
+      });
+      (mockPrisma.payslip.updateMany as jest.Mock).mockResolvedValueOnce({ count: 10 });
+
+      const response = await request(app)
+        .put('/api/payroll/runs/35000000-0000-4000-a000-000000000001/approve')
+        .send({});
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+  });
 });
