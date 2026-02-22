@@ -460,3 +460,81 @@ describe('ISO 42001 Controls — additional coverage', () => {
     expect(res.body.pagination).toHaveProperty('total', 1);
   });
 });
+
+describe('ISO 42001 Controls — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body data array items have controlId', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([mockControl]);
+    mockPrisma.aiControl.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/controls');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('controlId');
+  });
+
+  it('GET /soa returns compliancePercentage as number', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([mockControl]);
+    const res = await request(app).get('/api/controls/soa');
+    expect(res.status).toBe(200);
+    expect(typeof res.body.data.summary.compliancePercentage).toBe('number');
+  });
+
+  it('PUT /:id/status with PLANNED status returns 200', async () => {
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl2);
+    mockPrisma.aiControl.update.mockResolvedValue({ ...mockControl2, implementationStatus: 'PLANNED' });
+    const res = await request(app)
+      .put(`/api/controls/${UUID2}/status`)
+      .send({ implementationStatus: 'PLANNED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/status with NOT_IMPLEMENTED status returns 200', async () => {
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl2);
+    mockPrisma.aiControl.update.mockResolvedValue({ ...mockControl2, implementationStatus: 'NOT_IMPLEMENTED' });
+    const res = await request(app)
+      .put(`/api/controls/${UUID2}/status`)
+      .send({ implementationStatus: 'NOT_IMPLEMENTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id returns success:true when found', async () => {
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl);
+    const res = await request(app).get(`/api/controls/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/implementation with completionDate returns 200', async () => {
+    mockPrisma.aiControl.findUnique.mockResolvedValue(mockControl2);
+    mockPrisma.aiControl.update.mockResolvedValue({
+      ...mockControl2,
+      completionDate: new Date('2026-07-01'),
+    });
+    const res = await request(app)
+      .put(`/api/controls/${UUID2}/implementation`)
+      .send({ completionDate: '2026-07-01' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / with page=1&limit=5 returns correct pagination limit', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([]);
+    mockPrisma.aiControl.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/controls?page=1&limit=5');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(5);
+  });
+
+  it('GET /soa summary.statusCounts has FULLY_IMPLEMENTED key', async () => {
+    mockPrisma.aiControl.findMany.mockResolvedValue([
+      { ...mockControl, implementationStatus: 'FULLY_IMPLEMENTED' },
+    ]);
+    const res = await request(app).get('/api/controls/soa');
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.statusCounts).toHaveProperty('FULLY_IMPLEMENTED');
+  });
+});

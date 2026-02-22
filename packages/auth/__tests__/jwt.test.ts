@@ -279,3 +279,48 @@ describe('JWT Utilities', () => {
     });
   });
 });
+
+describe('JWT Utilities — additional coverage', () => {
+  beforeEach(() => {
+    process.env.JWT_SECRET = 'test-secret-that-is-at-least-64-characters-long-for-testing-purposes';
+    process.env.JWT_REFRESH_SECRET =
+      'test-refresh-secret-that-is-at-least-64-characters-for-testing';
+  });
+
+  it('generateToken should include orgId when provided', () => {
+    const token = generateToken({ userId: 'user-456', role: 'MANAGER' });
+    const decoded = decodeToken(token);
+    expect(decoded?.userId).toBe('user-456');
+    expect(decoded?.role).toBe('MANAGER');
+  });
+
+  it('verifyToken should return correct userId after generation', () => {
+    const token = generateToken({ userId: 'verify-test-user' });
+    const payload = verifyToken(token);
+    expect(payload.userId).toBe('verify-test-user');
+    expect(payload.email).toBeUndefined();
+  });
+
+  it('generateTokenPair expiresAt should be approximately 15 minutes from now', () => {
+    const before = Date.now();
+    const result = generateTokenPair({ userId: 'user-abc' });
+    const after = Date.now();
+
+    const expiresAtMs = result.expiresAt.getTime();
+    const fifteenMin = 15 * 60 * 1000;
+    expect(expiresAtMs).toBeGreaterThanOrEqual(before + fifteenMin - 1000);
+    expect(expiresAtMs).toBeLessThanOrEqual(after + fifteenMin + 1000);
+  });
+
+  it('getTokenExpiry should calculate expiry for seconds', () => {
+    const now = new Date();
+    const expiry = getTokenExpiry('30s');
+    const diff = expiry.getTime() - now.getTime();
+    expect(Math.abs(diff - 30 * 1000)).toBeLessThan(1000);
+  });
+
+  it('decodeToken should return null for a malformed header', () => {
+    const result = decodeToken('not.valid');
+    expect(result).toBeNull();
+  });
+});

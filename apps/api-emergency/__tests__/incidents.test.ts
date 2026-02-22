@@ -501,6 +501,62 @@ describe('POST /api/incidents/:id/timeline', () => {
   });
 });
 
+describe('POST /api/incidents/:id/close — additional', () => {
+  it('returns 500 on database error during close', async () => {
+    mockIncident.findFirst.mockResolvedValue(fakeIncident);
+    mockIncident.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .post(`/api/incidents/${INCIDENT_ID}/close`)
+      .send({ lessonsLearned: 'Learn something' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});
+
+describe('GET /api/incidents — additional filters', () => {
+  it('filters by severity', async () => {
+    mockIncident.findMany.mockResolvedValue([fakeIncident]);
+    mockIncident.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/incidents?severity=MAJOR');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('supports pagination parameters', async () => {
+    mockIncident.findMany.mockResolvedValue([]);
+    mockIncident.count.mockResolvedValue(50);
+
+    const res = await request(app).get('/api/incidents?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(50);
+  });
+
+  it('returns 500 when count fails', async () => {
+    mockIncident.findMany.mockResolvedValue([]);
+    mockIncident.count.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/incidents');
+
+    expect(res.status).toBe(500);
+  });
+
+  it('returns correct structure with success field', async () => {
+    mockIncident.findMany.mockResolvedValue([fakeIncident]);
+    mockIncident.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/incidents');
+
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+    expect(res.body).toHaveProperty('pagination');
+  });
+});
+
 describe('GET /api/incidents/:id/timeline', () => {
   it('returns the chronological timeline for an incident', async () => {
     const events = [

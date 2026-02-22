@@ -704,4 +704,48 @@ describe('Health & Safety Communications API Routes', () => {
       expect(response.body.error.code).toBe('INTERNAL_ERROR');
     });
   });
+
+  // ==========================================
+  // Additional coverage
+  // ==========================================
+  describe('GET /api/communications — additional filter', () => {
+    it('should filter by priority when provided', async () => {
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication2]);
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app)
+        .get('/api/communications?priority=HIGH')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('should return correct pagination structure', async () => {
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/communications')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveProperty('page');
+      expect(response.body.data).toHaveProperty('limit');
+      expect(response.body.data).toHaveProperty('total');
+    });
+
+    it('should return correct items array in response', async () => {
+      (mockPrisma.hSCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication]);
+      (mockPrisma.hSCommunication.count as jest.Mock).mockResolvedValueOnce(1);
+
+      const response = await request(app)
+        .get('/api/communications')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body.data.items)).toBe(true);
+      expect(response.body.data.items[0].subject).toBe('Monthly Safety Briefing');
+    });
+  });
 });

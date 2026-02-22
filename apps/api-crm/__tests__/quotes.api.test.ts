@@ -525,3 +525,15 @@ describe('GET /api/quotes/:id/pdf', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('CRM Quotes — additional coverage', () => {
+  it('GET /api/quotes pagination.totalPages reflects total and limit', async () => {
+    mockPrisma.crmQuote.findMany.mockResolvedValue([]);
+    mockPrisma.crmQuote.count.mockResolvedValue(100);
+
+    const res = await request(app).get('/api/quotes?page=1&limit=20');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(5);
+  });
+});

@@ -295,3 +295,33 @@ describe('i18n — edge cases and locale validation', () => {
     }
   });
 });
+
+describe('i18n — forms and nav section coverage', () => {
+  it('forms section has at least one key in all locales', () => {
+    // Verify that at least one forms.* key exists in every locale
+    const formsKeys = en.filter((k) => k.startsWith('forms.'));
+    expect(formsKeys.length).toBeGreaterThan(0);
+    for (const key of formsKeys.slice(0, 3)) {
+      expect(deSet.has(key)).toBe(true);
+      expect(frSet.has(key)).toBe(true);
+      expect(esSet.has(key)).toBe(true);
+    }
+  });
+
+  it('nav section has at least one key in all locales', () => {
+    const navKeys = en.filter((k) => k.startsWith('nav.'));
+    expect(navKeys.length).toBeGreaterThan(0);
+    for (const key of navKeys.slice(0, 3)) {
+      expect(deSet.has(key)).toBe(true);
+      expect(frSet.has(key)).toBe(true);
+      expect(esSet.has(key)).toBe(true);
+    }
+  });
+
+  it('flattenKeys result for a two-level object has dot-separated keys', () => {
+    const obj = { section: { keyA: 'val', keyB: 'val2' } };
+    const result = flattenKeys(obj);
+    expect(result).toContain('section.keyA');
+    expect(result).toContain('section.keyB');
+  });
+});

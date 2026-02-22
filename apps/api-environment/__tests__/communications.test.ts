@@ -657,4 +657,49 @@ describe('Environment Communications API — additional coverage', () => {
     expect(response.status).toBe(201);
     expect(response.body.success).toBe(true);
   });
+
+  it('GET / filters by priority=HIGH', async () => {
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app2)
+      .get('/api/communications?priority=HIGH')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.envCommunication.findMany).toHaveBeenCalled();
+  });
+
+  it('GET /:id returns success:true for existing communication', async () => {
+    (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(mockCommunication);
+
+    const response = await request(app2)
+      .get('/api/communications/50000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('DELETE /:id returns 404 for already deleted item', async () => {
+    (mockPrisma.envCommunication.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    const response = await request(app2)
+      .delete('/api/communications/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / returns data.total count', async () => {
+    (mockPrisma.envCommunication.findMany as jest.Mock).mockResolvedValueOnce([mockCommunication, mockCommunication2]);
+    (mockPrisma.envCommunication.count as jest.Mock).mockResolvedValueOnce(2);
+
+    const response = await request(app2)
+      .get('/api/communications')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.total).toBe(2);
+  });
 });

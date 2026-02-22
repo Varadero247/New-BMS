@@ -221,3 +221,21 @@ describe('isoStandards additional integrity checks', () => {
     expect(isoStandards['22000'].name).toMatch(/[Ff]ood/);
   });
 });
+
+describe('isoStandards — further coverage', () => {
+  it('ISO 13485 name relates to medical', () => {
+    expect(isoStandards['13485'].name).toMatch(/[Mm]edical/);
+  });
+
+  it('ISO 42001 name relates to AI or Artificial Intelligence', () => {
+    expect(isoStandards['42001'].name).toMatch(/[Aa]rtificial|[Aa][Ii]/);
+  });
+
+  it('ISO 37001 name relates to anti-bribery', () => {
+    expect(isoStandards['37001'].name).toMatch(/[Bb]rib/i);
+  });
+
+  it('ISO 21502 name relates to project management', () => {
+    expect(isoStandards['21502'].name).toMatch(/[Pp]roject/);
+  });
+});

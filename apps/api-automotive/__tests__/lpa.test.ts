@@ -849,3 +849,27 @@ describe('Automotive LPA API Routes', () => {
     });
   });
 });
+
+describe('Automotive LPA — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/lpa', lpaRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/lpa/schedules success body has meta object', async () => {
+    (mockPrisma.lpaSchedule.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.lpaSchedule.count as jest.Mock).mockResolvedValue(0);
+    const response = await request(app)
+      .get('/api/lpa/schedules')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty('meta');
+  });
+});

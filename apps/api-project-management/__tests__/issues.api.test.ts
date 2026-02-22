@@ -579,3 +579,83 @@ describe('Project Issues API — edge cases and validation', () => {
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });
+
+describe('Project Issues API — final coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/issues', issuesRouter);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /issues: filter by issueType passes in where clause', async () => {
+    (mockPrisma.projectIssue.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.projectIssue.count as jest.Mock).mockResolvedValueOnce(0);
+    await request(app)
+      .get('/api/issues?projectId=proj-1&issueType=DEFECT')
+      .set('Authorization', 'Bearer token');
+    expect(mockPrisma.projectIssue.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ projectId: 'proj-1' }),
+      })
+    );
+  });
+
+  it('PUT /issues/:id: impactOnBudget with negative value returns 400', async () => {
+    (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      status: 'OPEN',
+    });
+    const response = await request(app)
+      .put('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ impactOnBudget: -500 });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /issues: missing issueDescription returns 400', async () => {
+    const response = await request(app)
+      .post('/api/issues')
+      .set('Authorization', 'Bearer token')
+      .send({
+        projectId: 'proj-1',
+        issueCode: 'ISS-200',
+        issueTitle: 'No description',
+        issueType: 'DEFECT',
+      });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE /issues/:id: returns 500 when update throws', async () => {
+    (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.projectIssue.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const response = await request(app)
+      .delete('/api/issues/22000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /issues/:id/resolve: returns 500 when update throws', async () => {
+    (mockPrisma.projectIssue.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '22000000-0000-4000-a000-000000000001',
+      status: 'OPEN',
+    });
+    (mockPrisma.projectIssue.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+    const response = await request(app)
+      .put('/api/issues/22000000-0000-4000-a000-000000000001/resolve')
+      .set('Authorization', 'Bearer token')
+      .send({ resolutionDescription: 'Fixed it' });
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

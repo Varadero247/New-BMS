@@ -571,3 +571,82 @@ describe('Software Validation Routes (IEC 62304)', () => {
     });
   });
 });
+
+describe('Software Routes — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = buildApp();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should return 400 for invalid anomaly severity', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(mockProject);
+
+    const res = await request(app)
+      .post(`/api/software/projects/${mockProject.id}/anomalies`)
+      .send({ title: 'Bug', description: 'A bug', severity: 'CATASTROPHIC' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('should create project with CLASS_A safety class', async () => {
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.softwareProject.create as jest.Mock).mockResolvedValue({
+      ...mockProject,
+      safetyClass: 'CLASS_A',
+    });
+
+    const res = await request(app).post('/api/software/projects').send({
+      title: 'Low Risk Device Software',
+      safetyClass: 'CLASS_A',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should create project with CLASS_C safety class', async () => {
+    (mockPrisma.softwareProject.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.softwareProject.create as jest.Mock).mockResolvedValue({
+      ...mockProject,
+      safetyClass: 'CLASS_C',
+    });
+
+    const res = await request(app).post('/api/software/projects').send({
+      title: 'High Risk Device Software',
+      safetyClass: 'CLASS_C',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('should return 500 on database error when upserting phase doc', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(mockProject);
+    (mockPrisma.softwarePhaseDoc.upsert as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app)
+      .put(`/api/software/projects/${mockProject.id}/phase/REQUIREMENTS`)
+      .send({ documentRef: 'SRS-001' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('should return 500 on database error when adding SOUP item', async () => {
+    (mockPrisma.softwareProject.findUnique as jest.Mock).mockResolvedValue(mockProject);
+    (mockPrisma.soupItem.create as jest.Mock).mockRejectedValue(new Error('DB failure'));
+
+    const res = await request(app)
+      .post(`/api/software/projects/${mockProject.id}/soup`)
+      .send({ title: 'OpenSSL', version: '3.0.0', vendor: 'OpenSSL Foundation', intendedUse: 'TLS' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

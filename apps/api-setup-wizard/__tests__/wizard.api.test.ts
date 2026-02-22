@@ -419,4 +419,38 @@ describe('Wizard API — additional coverage', () => {
     expect(res.status).toBe(200);
     expect(res.body.data).toBeDefined();
   });
+
+  it('GET /status returns steps array from wizard when exists', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(mockWizard);
+    const res = await request(app).get('/api/wizard/status');
+    expect(res.body.data.steps).toHaveLength(4);
+    expect(res.body.data.steps[0].title).toBe('ISO Standard Selection');
+  });
+
+  it('POST /init create is called with steps array', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.setupWizard.create as jest.Mock).mockResolvedValue(mockWizard);
+    await request(app).post('/api/wizard/init');
+    expect(prisma.setupWizard.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ steps: expect.objectContaining({ create: expect.any(Array) }) }),
+      })
+    );
+  });
+
+  it('POST /skip returns success:true for already completed wizard', async () => {
+    const completed = { ...mockWizard, status: 'COMPLETED' };
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(completed);
+    const res = await request(app).post('/api/wizard/skip');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /init returns 500 when create throws DB error', async () => {
+    (prisma.setupWizard.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.setupWizard.create as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/api/wizard/init');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
 });

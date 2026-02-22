@@ -258,3 +258,26 @@ describe('validateIdParam — additional edge cases', () => {
     );
   });
 });
+
+describe('isValidId — further edge cases', () => {
+  it('rejects a UUID with only 4 segments', () => {
+    expect(isValidId('550e8400-e29b-41d4-a716')).toBe(false);
+  });
+
+  it('rejects an empty CUID prefix string (just "c")', () => {
+    expect(isValidId('c')).toBe(false);
+  });
+
+  it('accepts CUID2 style id (starts with c, alphanumeric, 21+ chars)', () => {
+    // cuid2 generates IDs starting with a letter and 24 alphanumeric chars
+    expect(isValidId('cjld2cyuq0001t3rmniod1foy')).toBe(true);
+  });
+
+  it('rejects a GUID with braces', () => {
+    expect(isValidId('{550e8400-e29b-41d4-a716-446655440000}')).toBe(false);
+  });
+
+  it('rejects a string of all zeros without hyphens', () => {
+    expect(isValidId('00000000000000000000000000000000')).toBe(false);
+  });
+});

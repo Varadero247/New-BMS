@@ -237,3 +237,27 @@ describe('createLogger and createRequestLogger — extended coverage', () => {
     expect(logger.level.length).toBeGreaterThan(0);
   });
 });
+
+describe('createLogger — format and transport details', () => {
+  it('logger.format is defined', () => {
+    const logger = createLogger('format-svc');
+    expect(logger.format).toBeDefined();
+  });
+
+  it('createLogger returns an object with an exceptions property', () => {
+    const logger = createLogger('exceptions-svc');
+    expect(logger).toHaveProperty('exceptions');
+  });
+
+  it('createRequestLogger child has a warn method', () => {
+    const parent = createLogger('warn-child-svc');
+    const child = createRequestLogger(parent, { correlationId: 'w-id' });
+    expect(typeof child.warn).toBe('function');
+  });
+
+  it('createRequestLogger child warn can be called without throwing', () => {
+    const parent = createLogger('warn-child-call-svc');
+    const child = createRequestLogger(parent, { correlationId: 'w2-id' });
+    expect(() => child.warn('A warning from child')).not.toThrow();
+  });
+});

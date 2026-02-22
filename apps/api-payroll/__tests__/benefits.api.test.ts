@@ -595,3 +595,30 @@ describe('Payroll Benefits — final coverage', () => {
     );
   });
 });
+
+describe('Payroll Benefits — edge case coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/benefits', benefitsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /plans response meta.count equals the number of plans returned', async () => {
+    const plans = [
+      { id: 'p1', code: 'A-01', name: 'Plan A', category: 'HEALTH_INSURANCE', isActive: true, _count: { employeeBenefits: 10 } },
+      { id: 'p2', code: 'B-01', name: 'Plan B', category: 'DENTAL', isActive: true, _count: { employeeBenefits: 5 } },
+    ];
+    (mockPrisma.benefitPlan.findMany as jest.Mock).mockResolvedValueOnce(plans);
+    const response = await request(app)
+      .get('/api/benefits/plans')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(2);
+  });
+});

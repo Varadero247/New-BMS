@@ -618,4 +618,123 @@ describe('Users API — additional coverage', () => {
     expect(response.status).toBe(200);
     expect(mockPrisma.user.findMany).toHaveBeenCalled();
   });
+
+  it('GET /:id returns 404 when user not found as admin', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    const response = await request(app2)
+      .get('/api/users/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE / returns 400 when admin tries to delete self', async () => {
+    const response = await request(app2)
+      .delete('/api/users/51000000-0000-4000-a000-000000000123')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('CANNOT_DELETE_SELF');
+  });
+
+  it('POST / returns 400 for invalid email format', async () => {
+    const response = await request(app2)
+      .post('/api/users')
+      .set('Authorization', 'Bearer token')
+      .send({
+        email: 'not-an-email',
+        password: 'Password123!',
+        firstName: 'Test',
+        lastName: 'User',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 for missing firstName', async () => {
+    const response = await request(app2)
+      .post('/api/users')
+      .set('Authorization', 'Bearer token')
+      .send({
+        email: 'user@test.com',
+        password: 'Password123!',
+        lastName: 'User',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET / with no filters returns all users for admin', async () => {
+    (mockPrisma.user.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.user.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/users')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('PATCH / returns 404 when user to update not found', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    const response = await request(app2)
+      .patch('/api/users/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token')
+      .send({ firstName: 'Updated' });
+
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('DELETE / returns 204 when deleting non-self user as admin', async () => {
+    (mockPrisma.user.delete as jest.Mock).mockResolvedValueOnce({});
+
+    const response = await request(app2)
+      .delete('/api/users/55000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(204);
+  });
+
+  it('GET / returns meta.total of 0 when DB has no users', async () => {
+    (mockPrisma.user.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.user.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/users')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.total).toBe(0);
+  });
+
+  it('POST / creates user and returns 201 with data.email', async () => {
+    (mockPrisma.user.findUnique as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.user.create as jest.Mock).mockResolvedValueOnce({
+      id: 'new-user-id',
+      email: 'brand@new.com',
+      firstName: 'Brand',
+      lastName: 'New',
+      role: 'USER',
+    });
+
+    const response = await request(app2)
+      .post('/api/users')
+      .set('Authorization', 'Bearer token')
+      .send({
+        email: 'brand@new.com',
+        password: 'Password123!',
+        firstName: 'Brand',
+        lastName: 'New',
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body.data.email).toBe('brand@new.com');
+  });
 });

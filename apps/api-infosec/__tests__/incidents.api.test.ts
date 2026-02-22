@@ -472,3 +472,57 @@ describe('InfoSec Incidents API', () => {
     });
   });
 });
+
+describe('InfoSec Incidents — additional coverage', () => {
+  describe('GET /api/incidents — additional', () => {
+    it('should support pagination', async () => {
+      (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(100);
+
+      const res = await request(app).get('/api/incidents?page=2&limit=10');
+
+      expect(res.status).toBe(200);
+      expect(res.body.pagination.total).toBe(100);
+    });
+
+    it('should filter by personalDataInvolved=true', async () => {
+      (mockPrisma.isIncident.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.isIncident.count as jest.Mock).mockResolvedValueOnce(0);
+
+      await request(app).get('/api/incidents?personalDataInvolved=true');
+
+      const findCall = (mockPrisma.isIncident.findMany as jest.Mock).mock.calls[0][0];
+      expect(findCall.where).toBeDefined();
+    });
+  });
+
+  describe('PUT /api/incidents/:id/investigate — additional', () => {
+    it('should return 500 on database error during investigation', async () => {
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: 'a4000000-0000-4000-a000-000000000001',
+      });
+      (mockPrisma.isIncident.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const res = await request(app)
+        .put('/api/incidents/a4000000-0000-4000-a000-000000000001/investigate')
+        .send({ investigationNotes: 'Test notes' });
+
+      expect(res.status).toBe(500);
+    });
+  });
+
+  describe('PUT /api/incidents/:id/close — additional', () => {
+    it('should return 500 on database error during close', async () => {
+      (mockPrisma.isIncident.findFirst as jest.Mock).mockResolvedValueOnce({
+        id: 'a4000000-0000-4000-a000-000000000001',
+      });
+      (mockPrisma.isIncident.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+      const res = await request(app)
+        .put('/api/incidents/a4000000-0000-4000-a000-000000000001/close')
+        .send({ lessonsLearned: 'Test' });
+
+      expect(res.status).toBe(500);
+    });
+  });
+});

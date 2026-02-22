@@ -393,3 +393,38 @@ describe('Health Score — edge cases', () => {
     expect(determineTrend(40, 50)).toBe('DECLINING');
   });
 });
+
+describe('Health Score — further edge cases', () => {
+  it('calculateHealthScore: records created exactly 6 = 15pts', () => {
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 6,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(15);
+  });
+
+  it('calculateHealthScore: modules visited exactly 2 = 10pts', () => {
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 0,
+        modulesVisited: 2,
+        teamMembersInvited: 0,
+      })
+    ).toBe(10);
+  });
+
+  it('calculateHealthScore: combined score does not exceed 100 for moderate activity', () => {
+    const score = calculateHealthScore({
+      loginsLast7Days: 3,
+      recordsCreated: 8,
+      modulesVisited: 5,
+      teamMembersInvited: 1,
+    });
+    expect(score).toBeGreaterThan(0);
+    expect(score).toBeLessThanOrEqual(100);
+  });
+});

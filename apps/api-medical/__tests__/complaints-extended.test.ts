@@ -393,6 +393,44 @@ describe('Complaints Routes (Medical)', () => {
     });
   });
 
+  describe('GET /api/complaints — additional filters', () => {
+    it('should filter by source', async () => {
+      (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.complaint.count as jest.Mock).mockResolvedValue(0);
+
+      const res = await request(app).get('/api/complaints?source=CUSTOMER');
+      expect(res.status).toBe(200);
+      expect(mockPrisma.complaint.findMany).toHaveBeenCalled();
+    });
+
+    it('should filter by mdrReportable when provided', async () => {
+      (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.complaint.count as jest.Mock).mockResolvedValue(0);
+
+      const res = await request(app).get('/api/complaints?mdrReportable=true');
+      expect(res.status).toBe(200);
+    });
+
+    it('should return correct pagination structure', async () => {
+      (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.complaint.count as jest.Mock).mockResolvedValue(0);
+
+      const res = await request(app).get('/api/complaints');
+      expect(res.status).toBe(200);
+      expect(res.body.meta).toBeDefined();
+      expect(res.body.meta).toHaveProperty('page');
+      expect(res.body.meta).toHaveProperty('totalPages');
+    });
+
+    it('should handle search parameter', async () => {
+      (mockPrisma.complaint.findMany as jest.Mock).mockResolvedValue([]);
+      (mockPrisma.complaint.count as jest.Mock).mockResolvedValue(0);
+
+      const res = await request(app).get('/api/complaints?search=cardiac');
+      expect(res.status).toBe(200);
+    });
+  });
+
   describe('POST /api/complaints/:id/close', () => {
     it('should close a complaint', async () => {
       (mockPrisma.complaint.findUnique as jest.Mock).mockResolvedValue({

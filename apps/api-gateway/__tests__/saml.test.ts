@@ -536,4 +536,73 @@ describe('SAML Routes', () => {
       expect(res.body.data).toHaveProperty('spMetadataUrl');
     });
   });
+
+  describe('SAML — additional coverage', () => {
+    it('GET /auth/saml/metadata returns 200 status', async () => {
+      const res = await request(app).get('/auth/saml/metadata');
+      expect(res.status).toBe(200);
+    });
+
+    it('POST /admin/security/sso accepts optional idpMetadataUrl', async () => {
+      mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+        req.user = {
+          id: 'user-1',
+          email: 'admin@ims.local',
+          role: 'ADMIN',
+          orgId: 'org-idp-url-test',
+        };
+        next();
+      });
+      const res = await request(app).post('/admin/security/sso').send({
+        entryPoint: 'https://idp.example.com/sso/saml',
+        issuer: 'https://app.ims.local',
+        cert: 'MIIC...',
+        idpMetadataUrl: 'https://idp.example.com/metadata',
+      });
+      // Route validates and stores idpMetadataUrl but the 201 response only returns core fields
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('POST /admin/security/sso accepts allowUnencryptedAssertions=true', async () => {
+      mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+        req.user = {
+          id: 'user-1',
+          email: 'admin@ims.local',
+          role: 'ADMIN',
+          orgId: 'org-unenc-test',
+        };
+        next();
+      });
+      const res = await request(app).post('/admin/security/sso').send({
+        entryPoint: 'https://idp.example.com/sso/saml',
+        issuer: 'https://app.ims.local',
+        cert: 'MIIC...',
+        allowUnencryptedAssertions: true,
+      });
+      // Route validates and stores allowUnencryptedAssertions but the 201 response only returns core fields
+      expect(res.status).toBe(201);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('GET /admin/security/sso returns spEntityId field', async () => {
+      const res = await request(app).get('/admin/security/sso');
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveProperty('spEntityId');
+    });
+
+    it('DELETE /admin/security/sso returns 403 for non-ADMIN', async () => {
+      mockAuthenticate.mockImplementationOnce((req: any, _res: any, next: any) => {
+        req.user = { id: 'u2', email: 'user@ims.local', role: 'USER', orgId: 'org-1' };
+        next();
+      });
+      const res = await request(app).delete('/admin/security/sso');
+      expect(res.status).toBe(403);
+    });
+
+    it('GET /auth/saml/login returns 400 for empty orgId string', async () => {
+      const res = await request(app).get('/auth/saml/login').query({ orgId: '' });
+      expect(res.status).toBe(400);
+    });
+  });
 });

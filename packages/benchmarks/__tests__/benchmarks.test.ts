@@ -205,3 +205,35 @@ describe('benchmarks — additional coverage', () => {
     });
   });
 });
+
+describe('benchmarks — BENCHMARK_DATA structural integrity', () => {
+  it('every KPI entry has at least one industry segment', () => {
+    for (const [, segments] of Object.entries(BENCHMARK_DATA)) {
+      expect(Object.keys(segments).length).toBeGreaterThan(0);
+    }
+  });
+
+  it('every data point has a numeric average, bestInClass, and worstInClass', () => {
+    for (const segments of Object.values(BENCHMARK_DATA)) {
+      for (const dp of Object.values(segments)) {
+        expect(typeof dp.average).toBe('number');
+        expect(typeof dp.bestInClass).toBe('number');
+        expect(typeof dp.worstInClass).toBe('number');
+      }
+    }
+  });
+
+  it('every data point has a lowerIsBetter boolean', () => {
+    for (const segments of Object.values(BENCHMARK_DATA)) {
+      for (const dp of Object.values(segments)) {
+        expect(typeof dp.lowerIsBetter).toBe('boolean');
+      }
+    }
+  });
+
+  it('getBenchmark result includes median when available', () => {
+    const result = getBenchmark('ltifr', 'manufacturing');
+    expect(result).not.toBeNull();
+    expect(typeof result!.median).toBe('number');
+  });
+});

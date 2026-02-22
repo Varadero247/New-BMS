@@ -478,3 +478,81 @@ describe('PUT /api/email-sequences/:id/enroll', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('campaigns and email-sequences — additional coverage', () => {
+  it('GET /api/campaigns supports type filter', async () => {
+    mockPrisma.crmCampaign.findMany.mockResolvedValue([mockCampaign]);
+    mockPrisma.crmCampaign.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/campaigns?type=EMAIL');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/campaigns returns pagination object', async () => {
+    mockPrisma.crmCampaign.findMany.mockResolvedValue([]);
+    mockPrisma.crmCampaign.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/campaigns?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toBeDefined();
+  });
+
+  it('POST /api/campaigns type SOCIAL is valid', async () => {
+    mockPrisma.crmCampaign.create.mockResolvedValue({ ...mockCampaign, type: 'SOCIAL' });
+
+    const res = await request(app).post('/api/campaigns').send({
+      name: 'Social Camp',
+      type: 'SOCIAL',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/campaigns type CONTENT is valid', async () => {
+    mockPrisma.crmCampaign.create.mockResolvedValue({ ...mockCampaign, type: 'CONTENT' });
+
+    const res = await request(app).post('/api/campaigns').send({
+      name: 'Content Camp',
+      type: 'CONTENT',
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/campaigns/:id/performance returns 500 on DB error', async () => {
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaignMember.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get(
+      '/api/campaigns/00000000-0000-0000-0000-000000000001/performance'
+    );
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /api/email-sequences returns 500 on DB error', async () => {
+    mockPrisma.crmEmailSequence.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/email-sequences');
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /api/email-sequences/:id returns 500 on update DB error', async () => {
+    mockPrisma.crmEmailSequence.findFirst.mockResolvedValue(mockSequence);
+    mockPrisma.crmEmailSequence.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .put('/api/email-sequences/00000000-0000-0000-0000-000000000001')
+      .send({ name: 'Updated' });
+    expect(res.status).toBe(500);
+  });
+
+  it('POST /api/campaigns/:id/contacts returns 500 on DB error', async () => {
+    mockPrisma.crmCampaign.findFirst.mockResolvedValue(mockCampaign);
+    mockPrisma.crmCampaignMember.create.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app)
+      .post('/api/campaigns/00000000-0000-0000-0000-000000000001/contacts')
+      .send({ contactIds: ['c-1'] });
+    expect(res.status).toBe(500);
+  });
+});

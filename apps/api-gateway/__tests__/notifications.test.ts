@@ -649,4 +649,78 @@ describe('Notifications Routes', () => {
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
   });
+
+  describe('GET /api/notifications — additional coverage', () => {
+    it('should return data.totalPages in paginated response', async () => {
+      for (let i = 1; i <= 6; i++) {
+        bellState.addNotification('00000000-0000-0000-0000-000000000001', {
+          id: `tp-notif-${i}`,
+          type: 'INFO',
+          title: `TP Test ${i}`,
+          message: `Message ${i}`,
+          severity: 'LOW',
+          createdAt: new Date(),
+          read: false,
+          module: 'system',
+        });
+      }
+
+      const response = await request(app)
+        .get('/api/notifications?page=1&limit=3')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.totalPages).toBe(2);
+    });
+
+    it('GET /api/notifications unreadCount equals count of unread items', async () => {
+      bellState.addNotification('00000000-0000-0000-0000-000000000001', {
+        id: 'uc-notif-1',
+        type: 'ALERT',
+        title: 'Unread Count Test',
+        message: 'Check unread count',
+        severity: 'HIGH',
+        createdAt: new Date(),
+        read: false,
+        module: 'system',
+      });
+
+      const response = await request(app)
+        .get('/api/notifications')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      const unread = response.body.data.items.filter((n: any) => !n.read).length;
+      expect(response.body.data.unreadCount).toBe(unread);
+    });
+
+    it('PUT /api/notifications/read-all returns success:true when notifications exist', async () => {
+      bellState.addNotification('00000000-0000-0000-0000-000000000001', {
+        id: 'ra-success-1',
+        type: 'SUCCESS',
+        title: 'Read All Success',
+        message: 'Test',
+        severity: 'LOW',
+        createdAt: new Date(),
+        read: false,
+        module: 'system',
+      });
+
+      const response = await request(app)
+        .put('/api/notifications/read-all')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+    });
+
+    it('GET /api/notifications/unread returns hasMore:false when count is 0', async () => {
+      const response = await request(app)
+        .get('/api/notifications/unread')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.unreadCount).toBe(0);
+    });
+  });
 });

@@ -578,3 +578,42 @@ describe('FAI Routes (AS9102)', () => {
     });
   });
 });
+
+describe('FAI Routes — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/fai should filter by status', async () => {
+    (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/fai?status=APPROVED');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.firstArticleInspection.findMany).toHaveBeenCalled();
+  });
+
+  it('GET /api/fai should filter by faiType', async () => {
+    (mockPrisma.firstArticleInspection.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.firstArticleInspection.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/fai?faiType=FULL');
+    expect(res.status).toBe(200);
+    expect(mockPrisma.firstArticleInspection.findMany).toHaveBeenCalled();
+  });
+
+  it('PUT /api/fai/:id/part3 should return 400 if FAI is APPROVED', async () => {
+    (mockPrisma.firstArticleInspection.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      status: 'APPROVED',
+    });
+
+    const res = await request(app)
+      .put('/api/fai/00000000-0000-0000-0000-000000000001/part3')
+      .send({
+        testResults: [
+          { testName: 'Hardness', testMethod: 'Rockwell', requirement: '>60', result: '62', pass: true },
+        ],
+      });
+    expect(res.status).toBe(400);
+  });
+});

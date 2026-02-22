@@ -2,6 +2,8 @@ import {
   RollingCounter,
   LatencyTracker,
   DashboardMetrics,
+  type BusinessKpiSnapshot,
+  type SystemHealthSnapshot,
 } from '../src/dashboard-metrics';
 
 // ── RollingCounter ────────────────────────────────────────────────────────────
@@ -234,5 +236,42 @@ describe('DashboardMetrics', () => {
       const snap = await metrics.getSystemHealth();
       expect(snap.timestamp).toBeInstanceOf(Date);
     });
+  });
+});
+
+describe('DashboardMetrics — additional coverage', () => {
+  const startTime = new Date(Date.now() - 5_000);
+
+  it('getBusinessKpis activeUsers defaults to 0', () => {
+    const m = new DashboardMetrics({ startTime });
+    const kpi: BusinessKpiSnapshot = m.getBusinessKpis();
+    expect(kpi.activeUsers).toBe(0);
+  });
+
+  it('recordRequest with multiple errors yields correct errorRate', () => {
+    const m = new DashboardMetrics({ startTime });
+    m.recordRequest(100, false);
+    m.recordRequest(200, true);
+    m.recordRequest(150, true);
+    // 2 errors out of 3 requests → ~66.67%
+    const kpi = m.getBusinessKpis();
+    expect(kpi.errorRatePercent).toBeCloseTo(66.67, 1);
+  });
+
+  it('marks cache degraded when latency is between 50 and 199ms', async () => {
+    const m = new DashboardMetrics({
+      startTime,
+      checkCache: async () => 100,
+    });
+    const snap: SystemHealthSnapshot = await m.getSystemHealth();
+    const cache = snap.components.find((c) => c.name === 'cache');
+    expect(cache?.status).toBe('degraded');
+  });
+
+  it('LatencyTracker errorRate is 0 when no errors are recorded', () => {
+    const t = new LatencyTracker();
+    t.record(50, false);
+    t.record(80, false);
+    expect(t.errorRate).toBe(0);
   });
 });

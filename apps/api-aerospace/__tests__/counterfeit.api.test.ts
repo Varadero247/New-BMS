@@ -504,3 +504,82 @@ describe('Aerospace Counterfeit Parts API — additional coverage', () => {
     expect(res.body.data.refNumber).toMatch(/^AERO-CF-/);
   });
 });
+
+describe('Aerospace Counterfeit Parts API — final batch coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / data items have partNumber field', async () => {
+    mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([
+      { id: '00000000-0000-0000-0000-000000000001', refNumber: 'AERO-CF-2026-001', partNumber: 'IC-123', status: 'OPEN' },
+    ]);
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/counterfeit').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('partNumber');
+  });
+
+  it('DELETE /:id already deleted returns 404 when deletedAt set', async () => {
+    mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+    const res = await request(app)
+      .delete('/api/counterfeit/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('GET / pagination limit defaults to 20', async () => {
+    mockPrisma.aeroCounterfeitReport.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroCounterfeitReport.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/counterfeit').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.limit).toBe(20);
+  });
+
+  it('PUT /:id response has success:true', async () => {
+    mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'OPEN',
+      deletedAt: null,
+    });
+    mockPrisma.aeroCounterfeitReport.update.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'INVESTIGATING',
+    });
+    const res = await request(app)
+      .put('/api/counterfeit/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'INVESTIGATING' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /suspect-parts pagination returns success:true', async () => {
+    mockPrisma.aeroSuspectPart.findMany.mockResolvedValueOnce([
+      { id: 'sp-1', partNumber: 'IC-7805', riskLevel: 'HIGH' },
+    ]);
+    mockPrisma.aeroSuspectPart.count.mockResolvedValueOnce(1);
+    const res = await request(app)
+      .get('/api/counterfeit/suspect-parts')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(1);
+  });
+
+  it('GET /:id response has refNumber field', async () => {
+    mockPrisma.aeroCounterfeitReport.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'AERO-CF-2026-001',
+      title: 'Suspect IC Chips',
+      deletedAt: null,
+    });
+    const res = await request(app)
+      .get('/api/counterfeit/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+});

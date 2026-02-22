@@ -283,3 +283,38 @@ describe('NotificationService – extended coverage', () => {
     expect(prefs.emailDigest).toBe('none');
   });
 });
+
+describe('NotificationService – priority and channel coverage', () => {
+  let service: NotificationService;
+
+  beforeEach(() => {
+    service = new NotificationService();
+  });
+
+  it('send stores the original priority on the notification', async () => {
+    const notif = createTestNotification({ id: 'prio-1', userId: 'user-p', priority: 'HIGH' });
+    await service.send(notif);
+    expect(service.getById('prio-1')!.priority).toBe('HIGH');
+  });
+
+  it('getById returns undefined for a never-stored id', () => {
+    expect(service.getById('never-stored')).toBeUndefined();
+  });
+
+  it('sendBulk stores all provided notifications', async () => {
+    const notifs = [
+      createTestNotification({ id: 'bulk-x1', userId: 'user-bulk' }),
+      createTestNotification({ id: 'bulk-x2', userId: 'user-bulk' }),
+      createTestNotification({ id: 'bulk-x3', userId: 'user-bulk' }),
+    ];
+    await service.sendBulk(notifs);
+    expect(service.getAll('user-bulk')).toHaveLength(3);
+  });
+
+  it('getUnread count decreases after markRead', async () => {
+    await service.send(createTestNotification({ id: 'dec-1', userId: 'user-dec' }));
+    await service.send(createTestNotification({ id: 'dec-2', userId: 'user-dec' }));
+    service.markRead('dec-1');
+    expect(service.getUnread('user-dec')).toHaveLength(1);
+  });
+});

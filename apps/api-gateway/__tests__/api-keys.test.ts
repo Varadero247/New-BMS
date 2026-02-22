@@ -370,3 +370,22 @@ describe('API Keys Routes', () => {
     });
   });
 });
+
+describe('API Keys — final coverage', () => {
+  let app: express.Express;
+
+  beforeEach(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/admin/api-keys', apiKeysRouter);
+    jest.clearAllMocks();
+  });
+
+  it('POST with valid name exactly 1 character succeeds when scopes provided', async () => {
+    mockApiKey.create.mockResolvedValue({ ...mockRecord, name: 'A' });
+    const res = await request(app)
+      .post('/api/admin/api-keys')
+      .send({ name: 'A', scopes: ['read:hr'] });
+    expect(res.status).toBe(201);
+  });
+});

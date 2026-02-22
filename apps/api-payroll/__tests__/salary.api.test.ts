@@ -576,4 +576,52 @@ describe('Payroll Salary API Routes — extended coverage', () => {
     expect(response.status).toBe(500);
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('PUT /api/salary/:id/components response has success:true', async () => {
+    (mockPrisma.salaryComponent.deleteMany as jest.Mock).mockResolvedValueOnce({ count: 0 });
+    (mockPrisma.employeeSalary.update as jest.Mock).mockResolvedValueOnce({
+      id: '36000000-0000-4000-a000-000000000001',
+      components: [],
+    });
+    const response = await request(app)
+      .put('/api/salary/36000000-0000-4000-a000-000000000001/components')
+      .set('Authorization', 'Bearer token')
+      .send({ components: [] });
+    expect(response.body.success).toBe(true);
+  });
+
+  it('GET /api/salary/employees/:employeeId response has success:true', async () => {
+    (mockPrisma.employeeSalary.findMany as jest.Mock).mockResolvedValueOnce([]);
+    const response = await request(app)
+      .get('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST /api/salary/component-types returns created data with id', async () => {
+    (mockPrisma.salaryComponentType.create as jest.Mock).mockResolvedValueOnce({
+      id: 'ct-new',
+      code: 'BONUS',
+      name: 'Performance Bonus',
+      category: 'EARNING',
+      type: 'ALLOWANCE',
+      isActive: true,
+    });
+    const response = await request(app)
+      .post('/api/salary/component-types')
+      .set('Authorization', 'Bearer token')
+      .send({ code: 'BONUS', name: 'Performance Bonus', category: 'EARNING', type: 'ALLOWANCE' });
+    expect(response.status).toBe(201);
+    expect(response.body.data).toHaveProperty('id');
+  });
+
+  it('POST /api/salary/employees/:employeeId returns 400 when baseSalary is zero', async () => {
+    const response = await request(app)
+      .post('/api/salary/employees/2a000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ baseSalary: 0, effectiveFrom: '2024-01-01', changeReason: 'Raise', changeType: 'ANNUAL_INCREMENT' });
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
 });

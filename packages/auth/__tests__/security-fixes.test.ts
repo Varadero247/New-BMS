@@ -285,4 +285,26 @@ describe('Security Fix Verification — additional edge cases', () => {
     const result = validatePasswordStrength('StrongP4ssword!');
     expect(Array.isArray(result.errors)).toBe(true);
   });
+
+  it('generateRefreshToken returns a three-part JWT string', () => {
+    const token = generateRefreshToken('user-rfr');
+    expect(token.split('.').length).toBe(3);
+  });
+
+  it('decodeToken returns an object with iat and exp', () => {
+    const token = generateToken({ userId: 'user-decode' });
+    const decoded = decodeToken(token);
+    expect(typeof decoded?.iat).toBe('number');
+    expect(typeof decoded?.exp).toBe('number');
+  });
+
+  it('validatePasswordStrength rejects password with only lowercase and numbers', () => {
+    const result = validatePasswordStrength('alllower123456');
+    expect(result.valid).toBe(false);
+  });
+
+  it('generateTokenPair expiresAt is a Date instance', () => {
+    const pair = generateTokenPair({ userId: 'user-exp' });
+    expect(pair.expiresAt).toBeInstanceOf(Date);
+  });
 });

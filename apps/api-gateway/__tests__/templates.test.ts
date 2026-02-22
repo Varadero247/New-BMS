@@ -713,4 +713,44 @@ describe('Templates API', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  // =========================================================================
+  // Additional coverage
+  // =========================================================================
+
+  describe('Templates API — additional coverage', () => {
+    it('GET /api/v1/templates should filter by isBuiltIn=true', async () => {
+      mockPrisma.template.findMany.mockResolvedValue([mockTemplate]);
+      mockPrisma.template.count.mockResolvedValue(1);
+
+      const res = await request(app).get('/api/v1/templates?isBuiltIn=true');
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    });
+
+    it('POST /api/v1/templates should reject missing module', async () => {
+      const res = await request(app).post('/api/v1/templates').send({
+        name: 'No Module Template',
+        category: 'RISK_ASSESSMENT',
+        fields: [{ id: 'f1', label: 'Field', type: 'text', required: true }],
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('PUT /api/v1/templates/:id should return 500 on DB error', async () => {
+      mockPrisma.template.findFirst.mockResolvedValue(mockTemplate);
+      mockPrisma.templateVersion.create.mockResolvedValue({ id: 'ver-1' });
+      mockPrisma.template.update.mockRejectedValue(new Error('DB error'));
+
+      const res = await request(app)
+        .put('/api/v1/templates/00000000-0000-0000-0000-000000000001')
+        .send({ name: 'Updated Name' });
+
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+  });
 });

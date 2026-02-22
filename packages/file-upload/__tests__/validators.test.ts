@@ -227,3 +227,11 @@ describe('File Validators', () => {
     });
   });
 });
+
+describe('File Validators — additional coverage', () => {
+  describe('validateMimeType — additional types', () => {
+    it('should accept text/plain mime type', () => {
+      expect(validateMimeType('text/plain').valid).toBe(true);
+    });
+  });
+});

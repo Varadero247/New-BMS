@@ -293,3 +293,44 @@ describe('@ims/event-bus', () => {
     });
   });
 });
+
+describe('@ims/event-bus — additional coverage', () => {
+  it('NEXARA_EVENTS calibration.out_of_tolerance has 3 triggers', () => {
+    expect(NEXARA_EVENTS['calibration.out_of_tolerance'].triggers).toHaveLength(3);
+    expect(NEXARA_EVENTS['calibration.out_of_tolerance'].triggers).toContain('inventory.batch.quarantine');
+  });
+
+  it('NEXARA_EVENTS field_service.job.completed triggers finance and cmms', () => {
+    const triggers = getEventTriggers('field_service.job.completed');
+    expect(triggers).toContain('finance.invoice.auto_create');
+    expect(triggers).toContain('cmms.asset.service_logged');
+  });
+
+  it('NEXARA_EVENTS environmental.aspect.updated triggers esg recalculation', () => {
+    expect(NEXARA_EVENTS['environmental.aspect.updated']).toBeDefined();
+    expect(NEXARA_EVENTS['environmental.aspect.updated'].triggers).toContain('esg.scope1_2.recalculate');
+  });
+
+  it('getAllEventTypes includes all expected cross-module events', () => {
+    const types = getAllEventTypes();
+    expect(types).toContain('field_service.job.completed');
+    expect(types).toContain('environmental.aspect.updated');
+    expect(types).toContain('portal.complaint.submitted');
+    expect(types).toContain('antibribery.gift.reported');
+    expect(types).toContain('quality.ncr.created');
+  });
+
+  it('EventPublisher onLocal does not call handler for unknown event type', async () => {
+    const publisher = new EventPublisher();
+    const handler = jest.fn().mockResolvedValue(undefined);
+    publisher.onLocal('energy.consumption.logged', handler);
+
+    await publisher.publish(
+      'invoice.overdue',
+      { invoiceId: 'inv-1' },
+      { source: 'finance', organisationId: 'org-1' }
+    );
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+});

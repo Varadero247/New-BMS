@@ -487,3 +487,73 @@ describe('SPC Routes — additional edge cases', () => {
     });
   });
 });
+
+describe('SPC Routes — final batch coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / data items are returned as array', async () => {
+    (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([{ id: '00000000-0000-0000-0000-000000000001' }]);
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/spc');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('GET / meta has totalPages field', async () => {
+    (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(30);
+    const res = await request(app).get('/api/spc?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('totalPages');
+  });
+
+  it('GET / meta totalPages is 3 for 30 items limit 10', async () => {
+    (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(30);
+    const res = await request(app).get('/api/spc?page=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(3);
+  });
+
+  it('GET /:id returns refNumber in response data', async () => {
+    (mockPrisma.spcChart.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+      chartType: 'XBAR_R',
+      refNumber: 'SPC-2602-0001',
+      subgroupSize: 5,
+      dataPoints: [],
+    });
+    const res = await request(app).get('/api/spc/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('refNumber');
+  });
+
+  it('POST / creates chart with ACTIVE status', async () => {
+    (mockPrisma.spcChart.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.spcChart.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'SPC-2602-0001',
+      title: 'Test Chart',
+      partNumber: 'PT-001',
+      characteristic: 'Diameter',
+      chartType: 'IMR',
+      status: 'ACTIVE',
+    });
+    const res = await request(app).post('/api/spc').send({
+      title: 'Test Chart',
+      partNumber: 'PT-001',
+      characteristic: 'Diameter',
+      chartType: 'IMR',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('ACTIVE');
+  });
+
+  it('GET /alerts response has success:true', async () => {
+    (mockPrisma.spcChart.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/spc/alerts');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

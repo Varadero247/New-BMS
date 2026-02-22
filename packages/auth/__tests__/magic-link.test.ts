@@ -281,3 +281,42 @@ describe('magic-link — extended coverage', () => {
     expect(store.size).toBe(0);
   });
 });
+
+describe('magic-link — store and verification edge cases', () => {
+  it('verifyMagicLinkToken checks "already_used" before expiry', () => {
+    // Both expired AND used: should return "already_used", not "expired"
+    const rec: MagicLinkRecord = {
+      hashedToken: hashMagicLinkToken('dual-error'),
+      email: 'u@a.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() - 10_000),
+      usedAt: new Date(Date.now() - 5_000),
+    };
+    expect(verifyMagicLinkToken('dual-error', rec)).toBe('already_used');
+  });
+
+  it('InMemoryMagicLinkStore.size is 0 after all records are deleted', () => {
+    const store = new InMemoryMagicLinkStore();
+    const rec: MagicLinkRecord = {
+      hashedToken: 'only-one',
+      email: 'x@y.com',
+      redirectUrl: '/',
+      expiresAt: new Date(Date.now() + 60_000),
+      usedAt: null,
+    };
+    store.save('only-one', rec);
+    store.delete('only-one');
+    expect(store.size).toBe(0);
+  });
+
+  it('generateMagicLink produces a different rawToken on each call', () => {
+    const { rawToken: t1 } = generateMagicLink('a@b.com');
+    const { rawToken: t2 } = generateMagicLink('a@b.com');
+    expect(t1).not.toBe(t2);
+  });
+
+  it('generateMagicLink magicLink contains the email as a query param', () => {
+    const { magicLink } = generateMagicLink('user@example.com');
+    expect(decodeURIComponent(magicLink)).toContain('user@example.com');
+  });
+});

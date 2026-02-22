@@ -519,3 +519,83 @@ describe('Aerospace Audits API', () => {
     });
   });
 });
+
+describe('Aerospace Audits API — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET / returns success:true with empty data array', async () => {
+    mockPrisma.aeroAudit.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroAudit.count.mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/audits').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toEqual([]);
+  });
+
+  it('GET / computes totalPages correctly for 40 items limit 20', async () => {
+    mockPrisma.aeroAudit.findMany.mockResolvedValueOnce([]);
+    mockPrisma.aeroAudit.count.mockResolvedValueOnce(40);
+    const res = await request(app).get('/api/audits?page=1&limit=20').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBe(2);
+  });
+
+  it('PUT /:id returns 500 when update throws after find succeeds', async () => {
+    mockPrisma.aeroAudit.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      scheduledDate: new Date(),
+      actualDate: null,
+      deletedAt: null,
+    });
+    mockPrisma.aeroAudit.update.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/audits/00000000-0000-0000-0000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'IN_PROGRESS' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /findings returns 500 on db error when creating finding', async () => {
+    mockPrisma.aeroAudit.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      refNumber: 'AERO-AUD-2026-001',
+      deletedAt: null,
+    });
+    mockPrisma.aeroAuditFinding.count.mockResolvedValueOnce(0);
+    mockPrisma.aeroAuditFinding.create.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/audits/findings')
+      .set('Authorization', 'Bearer token')
+      .send({
+        auditId: '00000000-0000-0000-0000-000000000001',
+        findingType: 'NONCONFORMITY',
+        severity: 'MAJOR',
+        description: 'Missing calibration records',
+      });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /findings/:id/close returns 500 on db error', async () => {
+    mockPrisma.aeroAuditFinding.findUnique.mockResolvedValueOnce({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'OPEN',
+    });
+    mockPrisma.aeroAuditFinding.update.mockRejectedValueOnce(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/audits/findings/00000000-0000-0000-0000-000000000001/close')
+      .set('Authorization', 'Bearer token')
+      .send({ correctiveAction: 'Fixed the issue' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /schedule/upcoming returns empty data array', async () => {
+    mockPrisma.aeroAudit.findMany.mockResolvedValueOnce([]);
+    const res = await request(app).get('/api/audits/schedule/upcoming').set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+});

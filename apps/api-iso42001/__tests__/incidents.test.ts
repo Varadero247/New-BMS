@@ -517,3 +517,53 @@ describe('DELETE /api/incidents/:id', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+// ===================================================================
+// Additional coverage
+// ===================================================================
+describe('ISO 42001 Incidents — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /api/incidents returns pagination with correct totalPages', async () => {
+    mockPrisma.aiIncident.findMany.mockResolvedValue([]);
+    mockPrisma.aiIncident.count.mockResolvedValue(40);
+
+    const res = await request(app).get('/api/incidents?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBeGreaterThanOrEqual(4);
+  });
+
+  it('PUT /api/incidents/:id returns 500 on DB update error', async () => {
+    mockPrisma.aiIncident.findFirst.mockResolvedValue(mockIncident);
+    mockPrisma.aiIncident.update.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).put(`/api/incidents/${UUID2}`).send({ severity: 'LOW' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /api/incidents response body has success:true and data array', async () => {
+    mockPrisma.aiIncident.findMany.mockResolvedValue([mockIncident]);
+    mockPrisma.aiIncident.count.mockResolvedValue(1);
+
+    const res = await request(app).get('/api/incidents');
+
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('POST /api/incidents returns 400 for invalid category', async () => {
+    const res = await request(app).post('/api/incidents').send({
+      systemId: UUID1,
+      title: 'Test incident',
+      severity: 'HIGH',
+      incidentDate: '2026-02-10',
+      category: 'COMPLETELY_INVALID_CATEGORY',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+});

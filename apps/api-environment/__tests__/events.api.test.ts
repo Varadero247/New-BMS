@@ -580,4 +580,58 @@ describe('Environment Events API — additional coverage', () => {
     const createCall = (mockPrisma.envEvent.create as jest.Mock).mock.calls[0][0];
     expect(createCall.data.referenceNumber).toMatch(/ENV-EVT-\d{4}-\d{3}/);
   });
+
+  it('GET / filters by dateFrom query param without error', async () => {
+    (mockPrisma.envEvent.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.envEvent.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/events?dateFrom=2026-01-01')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+  });
+
+  it('DELETE /:id returns 500 on DB error during findUnique', async () => {
+    (mockPrisma.envEvent.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .delete('/api/events/17000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / returns 400 for missing department field', async () => {
+    const response = await request(app2)
+      .post('/api/events')
+      .set('Authorization', 'Bearer token')
+      .send({
+        eventType: 'SPILL',
+        severity: 'MAJOR',
+        dateOfEvent: '2026-01-15',
+        location: 'Warehouse B',
+        reportedBy: 'John Doe',
+        description: 'Chemical spill in warehouse area near dock',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /:id returns success:true for existing event', async () => {
+    (mockPrisma.envEvent.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '17000000-0000-4000-a000-000000000001',
+      referenceNumber: 'ENV-EVT-2026-001',
+      eventType: 'SPILL',
+    });
+
+    const response = await request(app2)
+      .get('/api/events/17000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+  });
 });

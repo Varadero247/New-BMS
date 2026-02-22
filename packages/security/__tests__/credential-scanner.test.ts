@@ -233,6 +233,41 @@ describe('responseScanner middleware', () => {
   });
 });
 
+describe('credential-scanner — further coverage', () => {
+  it('scanString detects mysql connection string', () => {
+    const matches = scanString('mysql://admin:password@localhost:3306/mydb');
+    expect(Array.isArray(matches)).toBe(true);
+    // connection_string pattern should match
+    expect(matches.some((m) => m.type === 'connection_string')).toBe(true);
+  });
+
+  it('deepScanValue returns empty array for empty string', () => {
+    expect(deepScanValue('')).toHaveLength(0);
+  });
+
+  it('deepScanValue handles deeply nested arrays', () => {
+    const nested = { a: { b: ['AKIAIOSFODNN7EXAMPLE'] } };
+    const matches = deepScanValue(nested);
+    expect(matches.some((m) => m.type === 'aws_access_key')).toBe(true);
+  });
+
+  it('requestScanner ignores request with empty body', () => {
+    const { requestScanner } = createCredentialScanner({ onRequest: 'block' });
+    const n = jest.fn();
+    requestScanner(mockReq({}), mockRes(), n);
+    expect(n).toHaveBeenCalled();
+  });
+
+  it('responseScanner does not modify clean nested object', () => {
+    const { responseScanner } = createCredentialScanner({ onResponse: 'redact' });
+    const res = mockJsonRes();
+    responseScanner(mockReq(), res as unknown as Response, jest.fn());
+    res.json({ user: { name: 'Alice', role: 'admin' } });
+    const body = res.body as { user: { name: string } };
+    expect(body.user.name).toBe('Alice');
+  });
+});
+
 describe('credential-scanner – extended coverage', () => {
   it('scanString detects GitHub token (ghp_ prefix)', () => {
     const token = 'ghp_' + 'a'.repeat(36);

@@ -305,4 +305,37 @@ describe('HIPAA Breach Notification Routes — extended coverage', () => {
     const res = await request(app).put('/breach-1/notify-hhs');
     expect(res.status).toBe(500);
   });
+
+  it('GET / returns success:true and data array on success', async () => {
+    prisma.hipaaBreachNotification.findMany.mockResolvedValue([mockBreach]);
+    prisma.hipaaBreachNotification.count.mockResolvedValue(1);
+    const res = await request(app).get('/');
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id/close returns 500 on DB error during update', async () => {
+    prisma.hipaaBreachNotification.findUnique.mockResolvedValue(mockBreach);
+    prisma.hipaaBreachNotification.update.mockRejectedValue(new Error('close fail'));
+    const res = await request(app).put('/breach-1/close').send({ status: 'CLOSED' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /dashboard returns success:true with all count fields', async () => {
+    prisma.hipaaBreachNotification.count
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(7)
+      .mockResolvedValueOnce(2);
+    const res = await request(app).get('/dashboard');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveProperty('total');
+  });
+
+  it('POST / returns 400 on missing discoveredDate', async () => {
+    const { discoveredDate: _dd, ...body } = breachPayload;
+    const res = await request(app).post('/').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
 });

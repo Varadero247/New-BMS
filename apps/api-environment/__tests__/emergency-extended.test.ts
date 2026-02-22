@@ -464,3 +464,15 @@ describe('Emergency Routes', () => {
     });
   });
 });
+
+describe('Emergency — additional coverage', () => {
+  it('GET /api/emergency/plans returns success:true with empty list', async () => {
+    (mockPrisma.envEmergencyPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.envEmergencyPlan.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/emergency/plans');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+});

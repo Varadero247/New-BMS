@@ -414,4 +414,34 @@ describe('PMS Routes — additional coverage', () => {
     expect(res.body.data.overdueReviews).toBe(3);
     expect(res.body.data.pendingReports).toBe(7);
   });
+
+  it('POST /plans returns 400 when status is invalid enum', async () => {
+    const res = await request(app).post('/api/pms/plans').send({
+      deviceName: 'TestDevice',
+      status: 'NOT_A_VALID_STATUS',
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /plans/:id returns 500 on DB error', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/api/pms/plans/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /plans response shape has meta.total property', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/pms/plans');
+    expect(res.status).toBe(200);
+    expect(res.body.meta).toHaveProperty('total');
+  });
+
+  it('POST /reports/pmcf returns 400 for missing periodStart', async () => {
+    const res = await request(app).post('/api/pms/reports/pmcf').send({
+      planId: 'pms-1',
+      periodEnd: '2025-12-31',
+    });
+    expect(res.status).toBe(400);
+  });
 });

@@ -261,3 +261,29 @@ describe('assessLoginRisk() — extended coverage', () => {
     expect(riskScoreToAction(-5)).toBe('ALLOW');
   });
 });
+
+describe('assessLoginRisk() — boundary and metadata checks', () => {
+  it('unknown_location factor points value is 20', () => {
+    const { factors } = assessLoginRisk({ ...BASE_CTX, isKnownLocation: false });
+    const factor = factors.find((f) => f.name === 'unknown_location');
+    expect(factor?.points).toBe(20);
+  });
+
+  it('unknown_device factor points value is 25', () => {
+    const { factors } = assessLoginRisk({ ...BASE_CTX, isKnownDevice: false });
+    const factor = factors.find((f) => f.name === 'unknown_device');
+    expect(factor?.points).toBe(25);
+  });
+
+  it('tor_or_proxy factor points value is 30', () => {
+    const { factors } = assessLoginRisk({ ...BASE_CTX, isTorOrProxy: true });
+    const factor = factors.find((f) => f.name === 'tor_or_proxy');
+    expect(factor?.points).toBe(30);
+  });
+
+  it('no_mfa factor points value is 10', () => {
+    const { factors } = assessLoginRisk({ ...BASE_CTX, mfaEnabled: false });
+    const factor = factors.find((f) => f.name === 'no_mfa');
+    expect(factor?.points).toBe(10);
+  });
+});

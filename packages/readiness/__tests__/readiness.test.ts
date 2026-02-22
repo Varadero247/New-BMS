@@ -356,3 +356,65 @@ describe('readiness — additional coverage', () => {
     expect(found?.standard).toBe('ISO 27001:2022');
   });
 });
+
+describe('readiness — certificate lifecycle', () => {
+  it('createCertificate includes the provided certificationBody', () => {
+    const cert = createCertificate({
+      orgId: 'org-body',
+      standard: 'ISO 9001:2015',
+      scope: 'Body test',
+      certificationBody: 'TUV',
+      certificateNumber: 'TUV-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    expect(cert.certificationBody).toBe('TUV');
+  });
+
+  it('updateCertificate can update certificationBody', () => {
+    const cert = createCertificate({
+      orgId: 'org-body-upd',
+      standard: 'ISO 14001:2015',
+      scope: 'Body update test',
+      certificationBody: 'BSI',
+      certificateNumber: 'BU-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    const updated = updateCertificate(cert.id, { certificationBody: 'DNV' });
+    expect(updated?.certificationBody).toBe('DNV');
+  });
+
+  it('deleteCertificate returns true for a cert that was just created', () => {
+    const cert = createCertificate({
+      orgId: 'org-del3',
+      standard: 'ISO 45001:2018',
+      scope: 'Del3 test',
+      certificationBody: 'BSI',
+      certificateNumber: 'DEL3-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    expect(deleteCertificate(cert.id)).toBe(true);
+  });
+
+  it('listCertificates count increases after createCertificate for same org', () => {
+    const orgId = 'org-count-' + Date.now();
+    const before = listCertificates(orgId).length;
+    createCertificate({
+      orgId,
+      standard: 'ISO 9001:2015',
+      scope: 'Count test',
+      certificationBody: 'BSI',
+      certificateNumber: 'CNT-001',
+      issueDate: new Date('2025-01-01'),
+      expiryDate: new Date('2028-01-01'),
+      status: 'ACTIVE',
+    });
+    const after = listCertificates(orgId).length;
+    expect(after).toBe(before + 1);
+  });
+});

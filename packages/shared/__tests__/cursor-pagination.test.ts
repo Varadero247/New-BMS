@@ -243,3 +243,32 @@ describe('cursor pagination integration', () => {
     expect(result.meta.prevCursor).toBe('c');
   });
 });
+
+describe('cursor-pagination — additional coverage', () => {
+  it('parseCursorParams direction=desc is preserved', () => {
+    const params = parseCursorParams({ direction: 'desc' });
+    expect(params.direction).toBe('desc');
+  });
+
+  it('buildCursorQuery sets correct orderBy direction for desc', () => {
+    const query = buildCursorQuery({ cursor: undefined, limit: 5, direction: 'desc', sortBy: 'name' });
+    expect(query.orderBy).toEqual({ name: 'desc' });
+  });
+
+  it('formatCursorResult limit=1 with 2 items shows hasMore=true and 1 item', () => {
+    const params = { cursor: undefined, limit: 1, direction: 'desc' as const, sortBy: 'createdAt' };
+    const result = formatCursorResult([{ id: 'x1' }, { id: 'x2' }], params);
+    expect(result.data).toHaveLength(1);
+    expect(result.meta.hasMore).toBe(true);
+    expect(result.meta.nextCursor).toBe('x1');
+  });
+
+  it('parseCursorParams returns exact limit=100 when limit="100"', () => {
+    expect(parseCursorParams({ limit: '100' }).limit).toBe(100);
+  });
+
+  it('buildCursorQuery with limit=50 returns take=51', () => {
+    const query = buildCursorQuery({ cursor: undefined, limit: 50, direction: 'asc', sortBy: 'createdAt' });
+    expect(query.take).toBe(51);
+  });
+});

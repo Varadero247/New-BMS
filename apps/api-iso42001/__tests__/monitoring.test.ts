@@ -488,6 +488,68 @@ describe('PUT /api/monitoring/:id', () => {
 });
 
 // ===================================================================
+// Additional coverage
+// ===================================================================
+describe('ISO 42001 Monitoring — additional coverage', () => {
+  describe('POST /api/monitoring — additional cases', () => {
+    it('should auto-set status to WARNING for BELOW threshold violation', async () => {
+      mockPrisma.aiMonitoring.create.mockResolvedValue({ ...mockRecord, status: 'WARNING' });
+
+      await request(app).post('/api/monitoring').send({
+        systemId: UUID1,
+        metricName: 'Accuracy',
+        metricType: 'ACCURACY',
+        value: 0.7,
+        threshold: 0.85,
+        thresholdType: 'BELOW',
+      });
+
+      expect(mockPrisma.aiMonitoring.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ status: 'WARNING' }),
+        })
+      );
+    });
+
+    it('should accept DRIFT metricType', async () => {
+      mockPrisma.aiMonitoring.create.mockResolvedValue({ ...mockRecord, metricType: 'DRIFT' });
+
+      const res = await request(app).post('/api/monitoring').send({
+        systemId: UUID1,
+        metricName: 'Data Drift Score',
+        metricType: 'DRIFT',
+        value: 0.05,
+        threshold: 0.1,
+        thresholdType: 'ABOVE',
+      });
+
+      expect(res.status).toBe(201);
+    });
+  });
+
+  describe('GET /api/monitoring — further filters', () => {
+    it('should filter by isoClause when provided', async () => {
+      mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+      mockPrisma.aiMonitoring.count.mockResolvedValue(0);
+
+      await request(app).get('/api/monitoring?isoClause=9.1');
+
+      expect(mockPrisma.aiMonitoring.findMany).toHaveBeenCalled();
+    });
+
+    it('should return empty list when no records match', async () => {
+      mockPrisma.aiMonitoring.findMany.mockResolvedValue([]);
+      mockPrisma.aiMonitoring.count.mockResolvedValue(0);
+
+      const res = await request(app).get('/api/monitoring?status=CRITICAL');
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(0);
+    });
+  });
+});
+
+// ===================================================================
 // DELETE /api/monitoring/:id — Soft delete
 // ===================================================================
 describe('DELETE /api/monitoring/:id', () => {

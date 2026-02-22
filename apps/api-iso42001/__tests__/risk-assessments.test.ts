@@ -466,3 +466,94 @@ describe('GET /api/risk-assessments — pagination and filter coverage', () => {
     expect(res.body.data).toHaveProperty('category');
   });
 });
+
+describe('Risk Assessments — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items have reference field', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('reference');
+  });
+
+  it('GET / pagination page defaults to 1', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('DELETE /:id returns deleted:true', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockResolvedValue({ ...mockRisk, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/risk-assessments/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('POST / assigns IDENTIFIED status by default', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiRiskAssessment.create.mockResolvedValue({
+      id: UUID2,
+      reference: 'AI42-RSK-2602-9999',
+      systemId: UUID1,
+      title: 'Transparency Risk',
+      description: 'Explainability requirements',
+      category: 'TRANSPARENCY_EXPLAINABILITY',
+      likelihood: 'POSSIBLE',
+      impact: 'MINOR',
+      riskScore: 6,
+      riskLevel: 'LOW',
+      status: 'IDENTIFIED',
+      createdBy: 'user-123',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+      system: { id: UUID1, name: 'Test AI System', reference: 'AI42-SYS-2602-1111' },
+    });
+    const res = await request(app).post('/api/risk-assessments').send({
+      systemId: UUID1,
+      title: 'Transparency Risk',
+      description: 'Explainability requirements',
+      category: 'TRANSPARENCY_EXPLAINABILITY',
+      likelihood: 'POSSIBLE',
+      impact: 'MINOR',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('IDENTIFIED');
+  });
+
+  it('GET /:id returns riskLevel field', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    const res = await request(app).get(`/api/risk-assessments/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('riskLevel');
+  });
+
+  it('PUT /:id update with ACCEPTED status returns 200', async () => {
+    mockPrisma.aiRiskAssessment.findFirst.mockResolvedValue(mockRisk);
+    mockPrisma.aiRiskAssessment.update.mockResolvedValue({
+      ...mockRisk,
+      status: 'ACCEPTED',
+      system: { id: UUID1, name: 'Test AI System', reference: 'AI42-SYS-2602-1111' },
+    });
+    const res = await request(app)
+      .put(`/api/risk-assessments/${UUID2}`)
+      .send({ status: 'ACCEPTED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / success:true when data is returned', async () => {
+    mockPrisma.aiRiskAssessment.findMany.mockResolvedValue([mockRisk]);
+    mockPrisma.aiRiskAssessment.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/risk-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

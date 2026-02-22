@@ -631,3 +631,59 @@ describe('HR Employees API Routes', () => {
     });
   });
 });
+
+describe('HR Employees API — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/employees', employeesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/employees should return empty list when no employees exist', async () => {
+    (mockPrisma.employee.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.employee.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/employees');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+    expect(response.body.meta.total).toBe(0);
+    expect(response.body.meta.totalPages).toBe(0);
+  });
+
+  it('PUT /api/employees/:id should return 500 on DB error', async () => {
+    (mockPrisma.employee.update as jest.Mock).mockRejectedValueOnce(new Error('Unique constraint'));
+
+    const response = await request(app)
+      .put('/api/employees/2a000000-0000-4000-a000-000000000001')
+      .send({ jobTitle: 'Senior Developer' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/employees/stats should return byEmploymentType breakdown', async () => {
+    (mockPrisma.employee.count as jest.Mock).mockResolvedValue(5);
+    (mockPrisma.employee.groupBy as jest.Mock).mockResolvedValue([
+      { departmentId: 'd1', _count: { id: 3 } },
+    ]);
+    (mockPrisma.hRDepartment.findMany as jest.Mock).mockResolvedValue([
+      { id: 'd1', name: 'Engineering' },
+    ]);
+    (mockPrisma.employeeSalary.aggregate as jest.Mock).mockResolvedValue({
+      _avg: { baseSalary: 60000 },
+      _sum: { baseSalary: 300000 },
+    });
+
+    const response = await request(app).get('/api/employees/stats');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('byEmploymentType');
+  });
+});

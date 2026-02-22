@@ -496,4 +496,55 @@ describe('ISO 37001 Due Diligence API — additional coverage', () => {
     expect(res.status).toBe(201);
     expect(res.body.data.referenceNumber).toBe('AB-DD-2602-1234');
   });
+
+  it('PUT /:id/expire returns 500 on DB update error', async () => {
+    (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(mockDD);
+    (mockPrisma.abDueDiligence.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const res = await request(app).put('/api/due-diligence/00000000-0000-0000-0000-000000000001/expire');
+
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET / filter by status=COMPLETED passes WHERE clause', async () => {
+    (mockPrisma.abDueDiligence.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abDueDiligence.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app).get('/api/due-diligence?status=COMPLETED');
+
+    expect(mockPrisma.abDueDiligence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ status: 'COMPLETED' }),
+      })
+    );
+  });
+
+  it('GET / returns success:true with data array in response body', async () => {
+    (mockPrisma.abDueDiligence.findMany as jest.Mock).mockResolvedValueOnce([mockDD]);
+    (mockPrisma.abDueDiligence.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const res = await request(app).get('/api/due-diligence');
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('PUT /:id/complete with recommendation field succeeds', async () => {
+    (mockPrisma.abDueDiligence.findFirst as jest.Mock).mockResolvedValueOnce(mockDD);
+    (mockPrisma.abDueDiligence.update as jest.Mock).mockResolvedValueOnce({
+      ...mockDD,
+      status: 'COMPLETED',
+      findings: 'Minor discrepancies found',
+      recommendation: 'APPROVE_WITH_CONDITIONS',
+    });
+
+    const res = await request(app)
+      .put('/api/due-diligence/00000000-0000-0000-0000-000000000001/complete')
+      .send({ findings: 'Minor discrepancies found', riskLevel: 'MEDIUM', recommendation: 'APPROVE_WITH_CONDITIONS' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

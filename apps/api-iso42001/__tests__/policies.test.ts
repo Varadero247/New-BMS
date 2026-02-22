@@ -451,3 +451,86 @@ describe('GET /api/policies — additional pagination and shape tests', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('ISO 42001 Policies — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items have reference field', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([mockPolicy]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('reference');
+  });
+
+  it('GET / pagination has limit field', async () => {
+    mockPrisma.aiPolicy.findMany.mockResolvedValue([]);
+    mockPrisma.aiPolicy.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('limit');
+  });
+
+  it('DELETE /:id returns deleted:true', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/policies/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('PUT /:id/approve response has approvedBy field', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({
+      ...mockPolicy,
+      status: 'APPROVED',
+      approvedBy: 'user-123',
+      approvedAt: new Date(),
+    });
+    const res = await request(app).put(`/api/policies/${UUID1}/approve`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('approvedBy');
+  });
+
+  it('POST / sets status DRAFT by default', async () => {
+    mockPrisma.aiPolicy.create.mockResolvedValue({
+      id: UUID2,
+      reference: 'AI42-POL-2602-9999',
+      title: 'Accountability Policy',
+      content: 'AI accountability framework.',
+      policyType: 'ACCOUNTABILITY',
+      status: 'DRAFT',
+      version: '1.0',
+      createdBy: 'user-123',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    });
+    const res = await request(app).post('/api/policies').send({
+      title: 'Accountability Policy',
+      content: 'AI accountability framework.',
+      policyType: 'ACCOUNTABILITY',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('DRAFT');
+  });
+
+  it('GET /:id response data has owner field', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    const res = await request(app).get(`/api/policies/${UUID1}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('owner');
+  });
+
+  it('PUT /:id with summary field returns 200', async () => {
+    mockPrisma.aiPolicy.findFirst.mockResolvedValue(mockPolicy);
+    mockPrisma.aiPolicy.update.mockResolvedValue({ ...mockPolicy, summary: 'Updated summary.' });
+    const res = await request(app)
+      .put(`/api/policies/${UUID1}`)
+      .send({ summary: 'Updated summary.' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

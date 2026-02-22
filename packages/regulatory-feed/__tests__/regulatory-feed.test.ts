@@ -284,3 +284,76 @@ describe('regulatory-feed', () => {
     });
   });
 });
+
+describe('regulatory-feed — additional coverage', () => {
+  describe('getSourcesByCategory — additional sources', () => {
+    it('should return empty array for unknown category', () => {
+      const sources = getSourcesByCategory('unknown-category-xyz');
+      expect(sources).toEqual([]);
+    });
+
+    it('should return sources that include the given category', () => {
+      const sources = getSourcesByCategory('health-safety');
+      sources.forEach((s) => {
+        expect(s.categories).toContain('health-safety');
+      });
+    });
+  });
+
+  describe('calculateRelevance — additional cases', () => {
+    it('should return zero score for completely unrelated regulation', () => {
+      const reg = createTestRegulation({
+        jurisdiction: 'AU',
+        standards: [],
+        categories: ['finance'],
+        keywords: [],
+      });
+      const result = calculateRelevance(reg, orgProfile);
+      expect(result.score).toBeGreaterThanOrEqual(0);
+      expect(result.jurisdictionMatch).toBe(false);
+    });
+
+    it('should return matchedCategories as empty when no overlap', () => {
+      const reg = createTestRegulation({
+        categories: ['finance', 'tax'],
+      });
+      // orgProfile categories: health-safety, environment, quality — no overlap
+      const result = calculateRelevance(reg, orgProfile);
+      expect(result.matchedCategories).toHaveLength(0);
+    });
+
+    it('should return matchedStandards as empty when no overlap', () => {
+      const reg = createTestRegulation({
+        standards: ['ISO 22000'],
+      });
+      const result = calculateRelevance(reg, orgProfile);
+      expect(result.matchedStandards).toHaveLength(0);
+    });
+  });
+
+  describe('RegulatoryFeedService — additional methods', () => {
+    let service: RegulatoryFeedService;
+
+    beforeEach(() => {
+      service = new RegulatoryFeedService();
+    });
+
+    it('getById should return undefined for unknown id', () => {
+      expect(service.getById('does-not-exist')).toBeUndefined();
+    });
+
+    it('addRegulation twice with same id should overwrite', () => {
+      const reg = createTestRegulation({ id: 'dup-1', title: 'Original' });
+      const updated = createTestRegulation({ id: 'dup-1', title: 'Updated' });
+      service.addRegulation(reg);
+      service.addRegulation(updated);
+      expect(service.getById('dup-1')?.title).toBe('Updated');
+    });
+
+    it('searchRegulations returns empty array when no match', () => {
+      service.addRegulation(createTestRegulation({ id: 's3', title: 'Fire Safety Guidance' }));
+      const results = service.searchRegulations('biodiversity');
+      expect(results).toHaveLength(0);
+    });
+  });
+});

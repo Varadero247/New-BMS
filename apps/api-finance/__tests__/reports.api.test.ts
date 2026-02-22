@@ -574,3 +574,37 @@ describe('GET /api/reports/cash-forecast', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// ADDITIONAL COVERAGE
+// ===================================================================
+
+describe('GET /api/reports/budgets — additional', () => {
+  it('should filter by status when provided', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/reports/budgets?status=ACTIVE');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('should return 500 on database error', async () => {
+    mockPrisma.finBudget.findMany.mockRejectedValue(new Error('DB error'));
+
+    const res = await request(app).get('/api/reports/budgets');
+
+    expect(res.status).toBe(500);
+  });
+
+  it('should return correct totalPages in pagination', async () => {
+    mockPrisma.finBudget.findMany.mockResolvedValue([]);
+    mockPrisma.finBudget.count.mockResolvedValue(55);
+
+    const res = await request(app).get('/api/reports/budgets?page=1&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(6);
+  });
+});

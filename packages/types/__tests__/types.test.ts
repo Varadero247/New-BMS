@@ -213,3 +213,14 @@ describe('ISO_STANDARD_COLORS', () => {
     expect(ISO_STANDARD_COLORS['ISO_14001']).toMatch(/^#[0-9a-fA-F]{6}$/);
   });
 });
+
+describe('getRiskColor and getRiskLevel — boundary exact values', () => {
+  it('getRiskColor(8) === getRiskColor(0) (both LOW)', () => {
+    expect(getRiskColor(8)).toBe(getRiskColor(0));
+  });
+
+  it('getRiskLevel(27) === getRiskLevel(9) (both MEDIUM)', () => {
+    expect(getRiskLevel(27)).toBe(getRiskLevel(9));
+    expect(getRiskLevel(27)).toBe('MEDIUM');
+  });
+});

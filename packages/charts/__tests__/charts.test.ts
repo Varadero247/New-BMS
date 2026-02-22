@@ -339,4 +339,23 @@ describe('ParetoChart data extraction', () => {
     expect(labels).toHaveLength(0);
     expect(countData).toHaveLength(0);
   });
+
+  it('single entry produces arrays of length 1', () => {
+    const { labels, countData, cumulativeData } = buildParetoDatasets([
+      { category: 'Only Defect', count: 100, cumulative: 100 },
+    ]);
+    expect(labels).toHaveLength(1);
+    expect(countData).toHaveLength(1);
+    expect(cumulativeData).toHaveLength(1);
+  });
+});
+
+describe('getCellColor — additional boundary check', () => {
+  it('score 3 (1×3) → green', () => {
+    expect(getCellColor(1, 3)).toBe('bg-green-100 hover:bg-green-200');
+  });
+
+  it('score 6 (2×3) → yellow', () => {
+    expect(getCellColor(2, 3)).toBe('bg-yellow-100 hover:bg-yellow-200');
+  });
 });

@@ -344,3 +344,13 @@ describe('BehaviorProfileStore — additional scenarios', () => {
     expect(Array.isArray(result.reasons)).toBe(true);
   });
 });
+
+describe('BehaviorProfileStore — record and userCount', () => {
+  it('userCount increments for each new userId', () => {
+    const store = new BehaviorProfileStore();
+    store.record(makeEvent({ userId: 'user-a' }));
+    store.record(makeEvent({ userId: 'user-b' }));
+    store.record(makeEvent({ userId: 'user-c' }));
+    expect(store.userCount).toBe(3);
+  });
+});

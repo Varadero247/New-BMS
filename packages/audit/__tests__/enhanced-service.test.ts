@@ -604,3 +604,75 @@ describe('createEnhancedAuditService', () => {
     );
   });
 });
+
+// ── Additional coverage ───────────────────────────────────────────────────────
+
+describe('EnhancedAuditService — additional coverage', () => {
+  let prisma: ReturnType<typeof makePrisma>;
+  let service: EnhancedAuditService;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    prisma = makePrisma();
+    service = new EnhancedAuditService(prisma as unknown as InstanceType<typeof PrismaClient>);
+  });
+
+  it('createEntry stores userId in the persisted record', async () => {
+    getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'ext-1' });
+
+    await service.createEntry(makeParams({ userId: 'user-ext-1' }));
+
+    expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ userId: 'user-ext-1' }),
+      })
+    );
+  });
+
+  it('createEntry stores resourceType and resourceId in the persisted record', async () => {
+    getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'ext-2' });
+
+    await service.createEntry(
+      makeParams({ resourceType: 'Incident', resourceId: 'inc-77' })
+    );
+
+    expect(getAuditMock(prisma).create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ resourceType: 'Incident', resourceId: 'inc-77' }),
+      })
+    );
+  });
+
+  it('logDelete stores action DELETE and oldValues are non-null in changes', async () => {
+    getAuditMock(prisma).create.mockResolvedValueOnce({ id: 'ext-3' });
+
+    await service.logDelete({
+      userId: 'u1',
+      userEmail: 'u@test.com',
+      userFullName: 'User One',
+      resourceType: 'CAPA',
+      resourceId: 'capa-5',
+      resourceRef: 'CAPA-005',
+      ipAddress: '10.0.0.1',
+      userAgent: 'curl/7',
+      deletedData: { status: 'open', priority: 'HIGH' },
+    });
+
+    const data = getAuditMock(prisma).create.mock.calls[0][0].data;
+    const changes = data.changes as Array<{ field: string; oldValue: unknown; newValue: unknown }>;
+    for (const c of changes) {
+      expect(c.oldValue).not.toBeNull();
+      expect(c.newValue).toBeNull();
+    }
+  });
+
+  it('verifyEntry queries findUnique with the supplied entryId', async () => {
+    getAuditMock(prisma).findUnique.mockResolvedValueOnce(null);
+
+    await service.verifyEntry('lookup-id-99');
+
+    expect(getAuditMock(prisma).findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ id: 'lookup-id-99' }) })
+    );
+  });
+});

@@ -435,3 +435,37 @@ describe('Adjustments — edge cases and deeper coverage', () => {
     expect(res.body.meta.page).toBe(1);
   });
 });
+
+describe('Adjustments — pagination and optional field coverage', () => {
+  const paginationApp = express();
+  paginationApp.use(express.json());
+  paginationApp.use('/api/adjustments', router);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/adjustments with custom page and limit returns correct meta', async () => {
+    (mockPrisma.inventoryTransaction.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.inventoryTransaction.count as jest.Mock).mockResolvedValue(50);
+    const res = await request(paginationApp).get('/api/adjustments?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.page).toBe(2);
+    expect(res.body.meta.limit).toBe(10);
+  });
+
+  it('POST /api/adjustments accepts optional notes field', async () => {
+    (mockPrisma.inventory.findFirst as jest.Mock).mockResolvedValue({ id: 'inv-1', quantityOnHand: 20 });
+    (mockPrisma.$transaction as jest.Mock).mockResolvedValue([mockTransaction]);
+    const res = await request(paginationApp).post('/api/adjustments').send({
+      productId: PRODUCT_ID,
+      warehouseId: WAREHOUSE_ID,
+      adjustmentType: 'ADJUSTMENT_IN',
+      quantity: 3,
+      reason: 'Cycle count',
+      notes: 'Verified at shelf A1',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+});

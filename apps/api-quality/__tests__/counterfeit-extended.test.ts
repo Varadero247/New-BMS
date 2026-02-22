@@ -469,3 +469,67 @@ describe('Counterfeit Prevention Routes', () => {
     });
   });
 });
+
+describe('Counterfeit Routes — additional coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('should return 400 for invalid disposition value', async () => {
+    (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+
+    const res = await request(app)
+      .put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001')
+      .send({ disposition: 'INVALID_DISPOSITION' });
+    expect(res.status).toBe(400);
+  });
+
+  it('should return 500 on database error when updating report', async () => {
+    (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.counterfeitReport.update as jest.Mock).mockRejectedValue(new Error('DB'));
+
+    const res = await request(app)
+      .put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'UNDER_INVESTIGATION' });
+    expect(res.status).toBe(500);
+  });
+
+  it('should return 404 for soft-deleted report on notify', async () => {
+    (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+    });
+
+    const res = await request(app)
+      .post('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001/notify')
+      .send({ notifyGidep: false });
+    expect(res.status).toBe(404);
+  });
+
+  it('should accept QUARANTINE disposition', async () => {
+    (mockPrisma.counterfeitReport.findUnique as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: null,
+    });
+    (mockPrisma.counterfeitReport.update as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+
+    const res = await request(app)
+      .put('/api/counterfeit/reports/00000000-0000-0000-0000-000000000001')
+      .send({ disposition: 'QUARANTINE' });
+    expect(res.status).toBe(200);
+  });
+
+  it('should filter approved sources by status when queried', async () => {
+    (mockPrisma.approvedSource.findMany as jest.Mock).mockResolvedValue([{ id: 'as-1' }]);
+    (mockPrisma.approvedSource.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/counterfeit/approved-sources?status=APPROVED');
+    expect(res.status).toBe(200);
+  });
+});

@@ -214,6 +214,38 @@ describe('large payloads', () => {
   });
 });
 
+// ── Additional round-trip cases ─────────────────────────────────────────────
+
+describe('envelope encryption — additional round-trip cases', () => {
+  it('round-trips a short single-word plaintext', () => {
+    const env = encryptEnvelope('secret', TEST_KEK);
+    expect(decryptEnvelopeToString(env, TEST_KEK)).toBe('secret');
+  });
+
+  it('decryptEnvelopeToString result type is string for any plaintext', () => {
+    const env = encryptEnvelope('type-check-test', TEST_KEK);
+    expect(typeof decryptEnvelopeToString(env, TEST_KEK)).toBe('string');
+  });
+
+  it('encryptEnvelope returns different encryptedDek on repeated calls', () => {
+    const e1 = encryptEnvelope('same', TEST_KEK);
+    const e2 = encryptEnvelope('same', TEST_KEK);
+    expect(e1.encryptedDek).not.toBe(e2.encryptedDek);
+  });
+
+  it('deriveKey produces 32-byte salt by default', () => {
+    const { salt } = deriveKey('any-passphrase');
+    expect(salt.length).toBe(32);
+  });
+
+  it('rotateKek preserves the ciphertextTag', () => {
+    const env = encryptEnvelope(TEST_PLAINTEXT, TEST_KEK);
+    const newKek = randomBytes(32);
+    const rotated = rotateKek(env, TEST_KEK, newKek);
+    expect(rotated.ciphertextTag).toBe(env.ciphertextTag);
+  });
+});
+
 // ── Additional edge cases ───────────────────────────────────────────────────
 
 describe('envelope encryption — additional edge cases', () => {

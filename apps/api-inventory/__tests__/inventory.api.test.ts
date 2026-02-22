@@ -654,3 +654,111 @@ describe('Inventory API Routes', () => {
     });
   });
 });
+
+describe('Inventory API — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/inventory', inventoryRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('GET /api/inventory — additional filters', () => {
+    it('should filter by lowStock when provided', async () => {
+      (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.inventory.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/inventory?lowStock=true')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+    });
+
+    it('should return empty list when no inventory exists', async () => {
+      (mockPrisma.inventory.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.inventory.count as jest.Mock).mockResolvedValueOnce(0);
+
+      const response = await request(app)
+        .get('/api/inventory')
+        .set('Authorization', 'Bearer token');
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toHaveLength(0);
+      expect(response.body.meta.total).toBe(0);
+    });
+  });
+
+  describe('POST /api/inventory/adjust — additional', () => {
+    it('should accept CYCLE_COUNT adjustmentType', async () => {
+      (mockPrisma.inventory.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'inv-1',
+        quantityOnHand: 100,
+        binLocation: 'A1',
+        lastCountedAt: null,
+      });
+      (mockPrisma.inventory.update as jest.Mock).mockResolvedValueOnce({ id: 'inv-1', quantityOnHand: 120 });
+      (mockPrisma.inventoryTransaction.create as jest.Mock).mockResolvedValueOnce({ id: 'txn-1' });
+
+      const response = await request(app)
+        .post('/api/inventory/adjust')
+        .set('Authorization', 'Bearer token')
+        .send({
+          productId: '27000000-0000-4000-a000-000000000001',
+          warehouseId: '28000000-0000-4000-a000-000000000001',
+          adjustmentType: 'CYCLE_COUNT',
+          quantity: 120,
+          reason: 'Annual cycle count',
+        });
+
+      expect(response.status).toBe(201);
+    });
+
+    it('should reject ADJUSTMENT_OUT when inventory does not exist', async () => {
+      (mockPrisma.inventory.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .post('/api/inventory/adjust')
+        .set('Authorization', 'Bearer token')
+        .send({
+          productId: '27000000-0000-4000-a000-000000000001',
+          warehouseId: '28000000-0000-4000-a000-000000000001',
+          adjustmentType: 'ADJUSTMENT_OUT',
+          quantity: 10,
+          reason: 'Loss',
+        });
+
+      // With no existing inventory, ADJUSTMENT_OUT should fail since quantityOnHand is undefined
+      expect([400, 500]).toContain(response.status);
+    });
+
+    it('should accept DAMAGE adjustmentType with sufficient stock', async () => {
+      (mockPrisma.inventory.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: 'inv-1',
+        quantityOnHand: 50,
+        binLocation: 'A1',
+        lastCountedAt: null,
+      });
+      (mockPrisma.inventory.update as jest.Mock).mockResolvedValueOnce({ id: 'inv-1', quantityOnHand: 45 });
+      (mockPrisma.inventoryTransaction.create as jest.Mock).mockResolvedValueOnce({ id: 'txn-1' });
+
+      const response = await request(app)
+        .post('/api/inventory/adjust')
+        .set('Authorization', 'Bearer token')
+        .send({
+          productId: '27000000-0000-4000-a000-000000000001',
+          warehouseId: '28000000-0000-4000-a000-000000000001',
+          adjustmentType: 'DAMAGE',
+          quantity: 5,
+          reason: 'Water damage',
+        });
+
+      expect(response.status).toBe(201);
+    });
+  });
+});

@@ -200,3 +200,31 @@ describe('RBAC – extended coverage', () => {
     });
   });
 });
+
+describe('RBAC – mapLegacyRole and merge edge cases', () => {
+  it('mapLegacyRole returns array of length 1 for all known inputs', () => {
+    const known = ['ADMIN', 'MANAGER', 'USER', 'VIEWER'];
+    for (const role of known) {
+      expect(mapLegacyRole(role)).toHaveLength(1);
+    }
+  });
+
+  it('mergePermissions of two identical resolved permissions gives same modules', () => {
+    const a = resolvePermissions(['viewer']);
+    const b = resolvePermissions(['viewer']);
+    const merged = mergePermissions(a, b);
+    expect(merged.modules['dashboard']).toBe(PermissionLevel.VIEW);
+    expect(merged.modules['finance']).toBe(PermissionLevel.NONE);
+  });
+
+  it('resolvePermissions result has a modules property', () => {
+    const resolved = resolvePermissions(['viewer']);
+    expect(resolved).toHaveProperty('modules');
+    expect(typeof resolved.modules).toBe('object');
+  });
+
+  it('resolvePermissions result has a roles property matching input', () => {
+    const resolved = resolvePermissions(['viewer', 'accountant']);
+    expect(resolved.roles).toEqual(['viewer', 'accountant']);
+  });
+});

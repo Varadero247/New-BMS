@@ -589,3 +589,52 @@ describe('POST /api/journal/:id/post', () => {
     expect(res.status).toBe(500);
   });
 });
+
+// ===================================================================
+// Additional coverage
+// ===================================================================
+
+describe('Journal API — additional coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/journal should filter by DRAFT status', async () => {
+    mockPrisma.finJournalEntry.findMany.mockResolvedValue([]);
+    mockPrisma.finJournalEntry.count.mockResolvedValue(0);
+
+    const res = await request(app).get('/api/journal?status=DRAFT');
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.finJournalEntry.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'DRAFT' }) })
+    );
+  });
+
+  it('POST /api/journal should return 400 when date is missing', async () => {
+    const res = await request(app)
+      .post('/api/journal')
+      .send({
+        periodId: PERIOD_UUID,
+        description: 'No date',
+        lines: [
+          { accountId: ACC_UUID_1, debit: 100, credit: 0 },
+          { accountId: ACC_UUID_2, debit: 0, credit: 100 },
+        ],
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('DELETE /api/journal/:id should return 500 on transaction error', async () => {
+    mockPrisma.finJournalEntry.findUnique.mockResolvedValue({
+      id: 'f2200000-0000-4000-a000-000000000001',
+      status: 'DRAFT',
+    });
+    mockPrisma.$transaction.mockRejectedValue(new Error('Transaction failed'));
+
+    const res = await request(app).delete('/api/journal/f2200000-0000-4000-a000-000000000001');
+
+    expect(res.status).toBe(500);
+  });
+});

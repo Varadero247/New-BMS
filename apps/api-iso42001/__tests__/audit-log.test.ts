@@ -395,3 +395,95 @@ describe('Audit Log — edge cases and deeper coverage', () => {
     expect(Array.isArray(res.body.data.recent)).toBe(true);
   });
 });
+
+describe('Audit Log — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('POST /api/audit-log with REJECTION action returns 201', async () => {
+    (prisma.aiAuditLog.create as jest.Mock).mockResolvedValue({ ...mockEntry, action: 'REJECTION' });
+    const res = await request(app).post('/api/audit-log').send({
+      action: 'REJECTION',
+      description: 'AI recommendation rejected by compliance officer',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/audit-log with ESCALATION action returns 201', async () => {
+    (prisma.aiAuditLog.create as jest.Mock).mockResolvedValue({ ...mockEntry, action: 'ESCALATION' });
+    const res = await request(app).post('/api/audit-log').send({
+      action: 'ESCALATION',
+      description: 'Case escalated to senior review team',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/audit-log response data items have id field', async () => {
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([mockEntry]);
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/audit-log');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('GET /api/audit-log response data items have action field', async () => {
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([mockEntry]);
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/audit-log');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('action');
+  });
+
+  it('GET /api/audit-log pagination page defaults to 1', async () => {
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/audit-log');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /api/audit-log pagination limit defaults to a positive number', async () => {
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/audit-log');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBeGreaterThan(0);
+  });
+
+  it('POST /api/audit-log with riskScore 0 returns 201', async () => {
+    (prisma.aiAuditLog.create as jest.Mock).mockResolvedValue({ ...mockEntry, riskScore: 0 });
+    const res = await request(app).post('/api/audit-log').send({
+      action: 'DECISION',
+      description: 'Low-risk automated decision',
+      riskScore: 0,
+    });
+    expect(res.status).toBe(201);
+  });
+
+  it('GET /api/audit-log/stats returns success:true', async () => {
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(0);
+    (prisma.aiAuditLog.groupBy as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/audit-log/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/audit-log/stats totalEntries is 0 when no entries', async () => {
+    (prisma.aiAuditLog.count as jest.Mock).mockResolvedValue(0);
+    (prisma.aiAuditLog.groupBy as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    (prisma.aiAuditLog.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/audit-log/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalEntries).toBe(0);
+  });
+});

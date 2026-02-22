@@ -538,4 +538,41 @@ describe('PMS Routes — extended coverage', () => {
     expect(res.body.data.totalPlans).toBe(8);
     expect(res.body.data.activePlans).toBe(4);
   });
+
+  it('GET /api/pms/plans/:id returns 500 on DB error', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockRejectedValue(new Error('DB failure'));
+    const res = await request(app).get(`/api/pms/plans/${mockPlan.id}`);
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /api/pms/reports/psur sets reportType to PSUR', async () => {
+    (mockPrisma.pmsPlan.findUnique as jest.Mock).mockResolvedValue(mockPlan);
+    (mockPrisma.pmsReport.count as jest.Mock).mockResolvedValue(0);
+    (mockPrisma.pmsReport.create as jest.Mock).mockResolvedValue({ ...mockReport, reportType: 'PSUR' });
+    const res = await request(app).post('/api/pms/reports/psur').send({
+      planId: mockPlan.id,
+      periodStart: '2025-01-01',
+      periodEnd: '2025-12-31',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.reportType).toBe('PSUR');
+  });
+
+  it('GET /api/pms/plans returns meta.totalPages for paginated result', async () => {
+    (mockPrisma.pmsPlan.findMany as jest.Mock).mockResolvedValue([mockPlan]);
+    (mockPrisma.pmsPlan.count as jest.Mock).mockResolvedValue(100);
+    const res = await request(app).get('/api/pms/plans?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(res.body.meta.totalPages).toBeGreaterThanOrEqual(5);
+  });
+
+  it('POST /api/pms/reports/pmcf returns 400 when periodStart is missing', async () => {
+    const res = await request(app).post('/api/pms/reports/pmcf').send({
+      planId: mockPlan.id,
+      periodEnd: '2025-12-31',
+    });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
 });

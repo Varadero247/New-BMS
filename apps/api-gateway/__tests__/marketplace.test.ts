@@ -461,5 +461,37 @@ describe('Marketplace Routes', () => {
       expect(res.status).toBe(500);
       expect(res.body.success).toBe(false);
     });
+
+    it('GET /api/marketplace/plugins/:id/versions returns 500 on DB error', async () => {
+      mockPrisma.mktPluginVersion.findMany.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app).get(`/api/marketplace/plugins/${mockPlugin.id}/versions`);
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('DELETE /api/marketplace/plugins/:id/install returns 500 on DB error', async () => {
+      mockPrisma.mktPluginInstall.update.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app).delete(`/api/marketplace/plugins/${mockPlugin.id}/install`);
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
+
+    it('GET /api/marketplace/plugins search returns 400 when q missing entirely', async () => {
+      const res = await request(app).get('/api/marketplace/plugins/search');
+      expect(res.status).toBe(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('POST /api/marketplace/plugins/:id/webhooks returns 500 on DB error', async () => {
+      mockPrisma.mktWebhookSubscription.create.mockRejectedValue(new Error('DB fail'));
+
+      const res = await request(app)
+        .post(`/api/marketplace/plugins/${mockPlugin.id}/webhooks`)
+        .send({ event: 'ncr.created', targetUrl: 'https://hooks.example.com/callback' });
+      expect(res.status).toBe(500);
+      expect(res.body.success).toBe(false);
+    });
   });
 });

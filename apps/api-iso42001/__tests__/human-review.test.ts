@@ -419,3 +419,78 @@ describe('Human Review — extended coverage', () => {
     expect(res.status).toBe(200);
   });
 });
+
+describe('Human Review — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/human-review data items have id field', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+    (prisma.aiHumanReview.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/human-review');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+  });
+
+  it('GET /api/human-review data items have status field', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+    (prisma.aiHumanReview.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/human-review');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('status');
+  });
+
+  it('GET /api/human-review pagination page is 1 by default', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.aiHumanReview.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/human-review');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('DELETE /api/human-review/:id returns success:true on success', async () => {
+    (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    (prisma.aiHumanReview.update as jest.Mock).mockResolvedValue({
+      ...mockReview,
+      deletedAt: new Date(),
+    });
+    const res = await request(app).delete('/api/human-review/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /api/human-review/pending returns success:true', async () => {
+    (prisma.aiHumanReview.findMany as jest.Mock).mockResolvedValue([mockReview]);
+    const res = await request(app).get('/api/human-review/pending');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /api/human-review with REJECT aiDecision returns 201', async () => {
+    (prisma.aiHumanReview.create as jest.Mock).mockResolvedValue({ ...mockReview, aiDecision: 'REJECT' });
+    const res = await request(app).post('/api/human-review').send({
+      systemId: 'sys-1',
+      title: 'Fraud Decision Review',
+      aiDecision: 'REJECT',
+      aiConfidence: 0.85,
+      aiReasoning: 'Pattern anomaly detected',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /api/human-review/:id/decide with missing decision returns 400', async () => {
+    const res = await request(app)
+      .put('/api/human-review/00000000-0000-0000-0000-000000000001/decide')
+      .send({ justification: 'Some reason' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/human-review/:id returns the title field', async () => {
+    (prisma.aiHumanReview.findFirst as jest.Mock).mockResolvedValue(mockReview);
+    const res = await request(app).get('/api/human-review/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('title');
+  });
+});

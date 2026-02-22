@@ -418,4 +418,42 @@ describe('Quality Risk Register API Routes — extended coverage', () => {
       .send({ likelihood: 'INVALID_VALUE' });
     expect(res.status).toBe(400);
   });
+
+  it('POST /api/risk-register returns 400 for missing title', async () => {
+    const res = await request(app)
+      .post('/api/risk-register')
+      .send({ description: 'No title given', likelihood: 'POSSIBLE', impact: 'MAJOR' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /api/risk-register response has success:true and pagination', async () => {
+    mockPrisma.qualRiskRegister.findMany.mockResolvedValue([]);
+    mockPrisma.qualRiskRegister.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/risk-register');
+    expect(res.body.success).toBe(true);
+    expect(res.body).toHaveProperty('pagination');
+  });
+
+  it('PUT /api/risk-register/:id returns 400 for invalid impact value', async () => {
+    mockPrisma.qualRiskRegister.findFirst.mockResolvedValue(mockRisk);
+    const res = await request(app)
+      .put('/api/risk-register/00000000-0000-0000-0000-000000000001')
+      .send({ impact: 'SUPER_BAD' });
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /api/risk-register/stats returns byStatus array in data', async () => {
+    mockPrisma.qualRiskRegister.count
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(2)
+      .mockResolvedValueOnce(1);
+    mockPrisma.qualRiskRegister.groupBy.mockResolvedValue([
+      { status: 'OPEN', _count: { id: 2 } },
+      { status: 'MITIGATED', _count: { id: 1 } },
+    ]);
+    const res = await request(app).get('/api/risk-register/stats');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.byStatus)).toBe(true);
+  });
 });

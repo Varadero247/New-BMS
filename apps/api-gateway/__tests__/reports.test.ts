@@ -739,3 +739,28 @@ describe('Reports API Routes', () => {
     });
   });
 });
+
+describe('Reports — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/reports', reportRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/reports returns success:true with empty data', async () => {
+    (mockPrisma.generatedReport.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.generatedReport.count as jest.Mock).mockResolvedValue(0);
+
+    const response = await request(app).get('/api/reports').set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toEqual([]);
+  });
+});

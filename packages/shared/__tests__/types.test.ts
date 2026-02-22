@@ -213,3 +213,40 @@ describe('getRiskLevel', () => {
     });
   });
 });
+
+describe('shared/types — additional coverage', () => {
+  it('parsePaginationWithTake handles large page numbers', () => {
+    const result = parsePaginationWithTake({ page: '100', limit: '5' });
+    expect(result.page).toBe(100);
+    expect(result.skip).toBe(495);
+    expect(result.take).toBe(5);
+  });
+
+  it('parsePagination respects custom defaultLimit', () => {
+    const result = parsePagination({}, { defaultLimit: 50 });
+    expect(result.limit).toBe(50);
+    expect(result.skip).toBe(0);
+    expect(result.page).toBe(1);
+  });
+
+  it('paginationMeta handles exact multiple of limit', () => {
+    const meta = paginationMeta(1, 10, 100);
+    expect(meta.totalPages).toBe(10);
+    expect(meta.total).toBe(100);
+    expect(meta.limit).toBe(10);
+    expect(meta.page).toBe(1);
+  });
+
+  it('AuthUser VIEWER role is valid', () => {
+    const user: AuthUser = { id: 'u1', email: 'viewer@ims.local', role: 'VIEWER' };
+    expect(user.role).toBe('VIEWER');
+    expect(user.organisationId).toBeUndefined();
+  });
+
+  it('getRiskLevel returns correct levels for edge score values', () => {
+    expect(getRiskLevel(1)).toBe('LOW');
+    expect(getRiskLevel(10)).toBe('MEDIUM');
+    expect(getRiskLevel(30)).toBe('HIGH');
+    expect(getRiskLevel(70)).toBe('CRITICAL');
+  });
+});

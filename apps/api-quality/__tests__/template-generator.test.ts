@@ -480,4 +480,51 @@ describe('Template generator — additional coverage', () => {
     expect(res.status).toBe(201);
     expect(res.body.data.configJson).toHaveProperty('docNumber');
   });
+
+  it('DELETE /:id response has success:true on valid delete', async () => {
+    mockDelete.mockResolvedValue({ id: '00000000-0000-0000-0000-000000000001' });
+    const res = await request(app).delete(
+      '/api/template-generator/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /:id response has success:true on found template', async () => {
+    mockFindUnique.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      docNumber: 'POL-001',
+      title: 'Security Policy',
+      configJson: JSON.stringify({ sections: [], docNumber: 'POL-001' }),
+    });
+    const res = await request(app).get(
+      '/api/template-generator/00000000-0000-0000-0000-000000000001'
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / detect ISO 14001 for environmental prompts', async () => {
+    mockCount.mockResolvedValue(0);
+    mockCreate.mockResolvedValue({
+      id: 'tpl-env',
+      docNumber: 'REG-001',
+      title: 'Environmental Aspects Register',
+      category: 'REGISTER',
+      isoStandard: 'ISO 14001:2015',
+    });
+    const res = await request(app)
+      .post('/api/template-generator')
+      .send({ prompt: 'Create an environmental aspects register for waste management' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.configJson.isoRef).toBe('ISO 14001:2015');
+  });
+
+  it('GET / filter by category=AUDIT returns 200', async () => {
+    mockFindMany.mockResolvedValue([]);
+    mockCount.mockResolvedValue(0);
+    const res = await request(app).get('/api/template-generator?category=AUDIT');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
 });

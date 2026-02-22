@@ -373,3 +373,45 @@ describe('support — edge cases and extended coverage', () => {
     );
   });
 });
+
+describe('support — response body shape coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body has success:true and data property', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockResolvedValue([mockTicket]);
+    const res = await request(app).get('/api/support');
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body).toHaveProperty('data');
+  });
+
+  it('POST / response body data contains id and subject', async () => {
+    (portalPrisma.mktPartnerSupportTicket.create as jest.Mock).mockResolvedValue(mockTicket);
+    const res = await request(app)
+      .post('/api/support')
+      .send({ subject: 'Integration issue', description: 'Cannot connect to API' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('subject');
+  });
+
+  it('POST / filters status=IN_PROGRESS in GET after update', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/support?status=IN_PROGRESS');
+    expect(res.status).toBe(200);
+    expect(portalPrisma.mktPartnerSupportTicket.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'IN_PROGRESS' }) })
+    );
+  });
+
+  it('GET /:id success response includes messages array', async () => {
+    (portalPrisma.mktPartnerSupportTicket.findUnique as jest.Mock).mockResolvedValue({
+      ...mockTicket,
+      messages: [],
+    });
+    const res = await request(app).get('/api/support/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('messages');
+  });
+});

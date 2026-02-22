@@ -485,3 +485,94 @@ describe('GET /api/impact-assessments — additional pagination and shape tests'
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Impact Assessments — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / data items have title field', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([mockAssessment]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(1);
+    const res = await request(app).get('/api/impact-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('title');
+  });
+
+  it('GET / pagination page defaults to 1', async () => {
+    mockPrisma.aiImpactAssessment.findMany.mockResolvedValue([]);
+    mockPrisma.aiImpactAssessment.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/impact-assessments');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('DELETE /:id response has deleted:true', async () => {
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockResolvedValue({ ...mockAssessment, deletedAt: new Date() });
+    const res = await request(app).delete(`/api/impact-assessments/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data.deleted).toBe(true);
+  });
+
+  it('PUT /:id/approve sets approvedAt in response', async () => {
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockResolvedValue({
+      ...mockAssessment,
+      status: 'APPROVED',
+      approvedBy: 'user-123',
+      approvedAt: new Date(),
+      system: { id: UUID1, name: 'Credit Scoring AI', reference: 'AI42-SYS-2602-5555' },
+    });
+    const res = await request(app).put(`/api/impact-assessments/${UUID2}/approve`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('approvedAt');
+  });
+
+  it('PUT /:id update with scope field returns 200', async () => {
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    mockPrisma.aiImpactAssessment.update.mockResolvedValue({
+      ...mockAssessment,
+      scope: 'Updated scope definition',
+      system: { id: UUID1, name: 'Credit Scoring AI', reference: 'AI42-SYS-2602-5555' },
+    });
+    const res = await request(app)
+      .put(`/api/impact-assessments/${UUID2}`)
+      .send({ scope: 'Updated scope definition' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST / correctly sets status to DRAFT on creation', async () => {
+    mockPrisma.aiSystem.findFirst.mockResolvedValue(mockSystem);
+    mockPrisma.aiImpactAssessment.create.mockResolvedValue({
+      id: UUID2,
+      reference: 'AI42-IMP-2602-7777',
+      systemId: UUID1,
+      title: 'New Assessment',
+      impactLevel: 'MINIMAL',
+      humanRightsImpact: 'Minimal risk',
+      status: 'DRAFT',
+      createdBy: 'user-123',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+      system: { id: UUID1, name: 'Credit Scoring AI', reference: 'AI42-SYS-2602-5555' },
+    });
+    const res = await request(app).post('/api/impact-assessments').send({
+      systemId: UUID1,
+      title: 'New Assessment',
+      impactLevel: 'MINIMAL',
+      humanRightsImpact: 'Minimal risk',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.data.status).toBe('DRAFT');
+  });
+
+  it('GET /:id returns the reference field', async () => {
+    mockPrisma.aiImpactAssessment.findFirst.mockResolvedValue(mockAssessment);
+    const res = await request(app).get(`/api/impact-assessments/${UUID2}`);
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('reference');
+  });
+});

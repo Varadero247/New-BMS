@@ -399,4 +399,26 @@ describe('Unified Audit Routes', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  // ============================================
+  // Additional coverage
+  // ============================================
+  describe('Standards — additional checks', () => {
+    it('should include ISO_45001 in the standards list', async () => {
+      const res = await request(app).get('/api/v1/unified-audit/standards');
+      const iso45001 = res.body.data.find((s: any) => s.code === 'ISO_45001');
+      expect(iso45001).toBeDefined();
+    });
+
+    it('should return 404 for an empty-string standard checklist', async () => {
+      const res = await request(app).get('/api/v1/unified-audit/standards/FAKE_STD/checklist');
+      expect(res.status).toBe(404);
+    });
+
+    it('should return ISO_9001 with correct version string', async () => {
+      const res = await request(app).get('/api/v1/unified-audit/standards');
+      const iso9001 = res.body.data.find((s: any) => s.code === 'ISO_9001');
+      expect(iso9001.version).toMatch(/2015/);
+    });
+  });
 });

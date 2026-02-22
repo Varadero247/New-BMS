@@ -500,3 +500,104 @@ describe('Compliance Regulatory Intelligence Routes', () => {
     });
   });
 });
+
+describe('Compliance Regulatory Intelligence — additional coverage', () => {
+  let app2: express.Express;
+  let ids: string[] = [];
+
+  beforeAll(async () => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/compliance', complianceRouter);
+
+    const res = await request(app2)
+      .get('/api/compliance/regulations?limit=100')
+      .set('Authorization', 'Bearer token');
+    ids = res.body.data.items.map((r: any) => r.id);
+  });
+
+  it('GET /regulations returns items with relevanceScore property', async () => {
+    const response = await request(app2)
+      .get('/api/compliance/regulations')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    for (const item of response.body.data.items) {
+      expect(item).toHaveProperty('relevanceScore');
+    }
+  });
+
+  it('GET /regulations filters by jurisdiction US', async () => {
+    const response = await request(app2)
+      .get('/api/compliance/regulations?jurisdiction=US')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    response.body.data.items.forEach((item: any) => {
+      expect(['US', 'GLOBAL']).toContain(item.jurisdiction);
+    });
+  });
+
+  it('GET /regulations filters by category PRIVACY', async () => {
+    const response = await request(app2)
+      .get('/api/compliance/regulations?category=PRIVACY')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    response.body.data.items.forEach((item: any) => {
+      expect(item.category).toBe('PRIVACY');
+    });
+  });
+
+  it('GET /regulations page=2 returns valid pagination metadata', async () => {
+    const response = await request(app2)
+      .get('/api/compliance/regulations?page=2&limit=5')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.page).toBe(2);
+    expect(response.body.data.limit).toBe(5);
+  });
+
+  it('GET /summary byJurisdiction contains GLOBAL key', async () => {
+    const response = await request(app2)
+      .get('/api/compliance/summary')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.byJurisdiction).toHaveProperty('GLOBAL');
+  });
+
+  it('GET /summary byStatus contains REVIEWED key', async () => {
+    const response = await request(app2)
+      .get('/api/compliance/summary')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.byStatus).toHaveProperty('REVIEWED');
+  });
+
+  it('PUT /regulations/:id/status updates status to REVIEWED successfully', async () => {
+    const id = ids[9];
+    const response = await request(app2)
+      .put(`/api/compliance/regulations/${id}/status`)
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'REVIEWED' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.status).toBe('REVIEWED');
+  });
+
+  it('GET /regulations/:id returns all required fields', async () => {
+    const id = ids[0];
+    const response = await request(app2)
+      .get(`/api/compliance/regulations/${id}`)
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('id');
+    expect(response.body.data).toHaveProperty('title');
+    expect(response.body.data).toHaveProperty('category');
+    expect(response.body.data).toHaveProperty('impactLevel');
+  });
+});

@@ -594,3 +594,171 @@ describe('Health & Safety Incidents API Routes', () => {
     });
   });
 });
+
+describe('Health & Safety Incidents — additional coverage', () => {
+  let app2: express.Express;
+
+  beforeAll(() => {
+    app2 = express();
+    app2.use(express.json());
+    app2.use('/api/incidents', incidentsRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns correct totalPages for large dataset', async () => {
+    (mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(100);
+
+    const response = await request(app2)
+      .get('/api/incidents?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.meta.totalPages).toBe(5);
+  });
+
+  it('GET / returns success:true in response envelope', async () => {
+    (mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app2)
+      .get('/api/incidents')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.body.success).toBe(true);
+  });
+
+  it('POST / returns 400 for missing type field', async () => {
+    const response = await request(app2)
+      .post('/api/incidents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'No Type Incident',
+        description: 'Description of what happened here',
+        severity: 'MINOR',
+        dateOccurred: '2026-01-15T10:00:00Z',
+        location: 'Warehouse A',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST / returns 400 for missing dateOccurred field', async () => {
+    const response = await request(app2)
+      .post('/api/incidents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'No Date Incident',
+        description: 'Description of what happened here',
+        type: 'INJURY',
+        severity: 'MINOR',
+        location: 'Warehouse A',
+        // dateOccurred intentionally omitted — required field
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PATCH / returns 500 on update DB error after findUnique', async () => {
+    (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '11000000-0000-4000-a000-000000000001',
+      status: 'OPEN',
+      closedAt: null,
+    });
+    (mockPrisma.incident.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .patch('/api/incidents/11000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Updated Title' });
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('DELETE / returns 500 on update DB error after findUnique', async () => {
+    (mockPrisma.incident.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '11000000-0000-4000-a000-000000000001',
+    });
+    (mockPrisma.incident.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .delete('/api/incidents/11000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST / auto-sets RIDDOR for CATASTROPHIC severity', async () => {
+    (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      riddorReportable: true,
+      investigationRequired: true,
+    });
+
+    await request(app2)
+      .post('/api/incidents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Catastrophic Incident',
+        description: 'Extremely serious event at the main plant',
+        type: 'INJURY',
+        severity: 'CATASTROPHIC',
+        dateOccurred: '2026-01-15T10:00:00Z',
+        location: 'Plant A',
+      });
+
+    expect(mockPrisma.incident.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        riddorReportable: true,
+        investigationRequired: true,
+      }),
+    });
+  });
+
+  it('POST / sets reporterId from authenticated user', async () => {
+    (mockPrisma.incident.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      reporterId: '20000000-0000-4000-a000-000000000123',
+    });
+
+    await request(app2)
+      .post('/api/incidents')
+      .set('Authorization', 'Bearer token')
+      .send({
+        title: 'Reporter Test Incident',
+        description: 'Testing reporter ID assignment',
+        type: 'NEAR_MISS',
+        severity: 'MINOR',
+        dateOccurred: '2026-01-15T10:00:00Z',
+        location: 'Office B',
+      });
+
+    expect(mockPrisma.incident.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        reporterId: '20000000-0000-4000-a000-000000000123',
+      }),
+    });
+  });
+
+  it('GET / filter by type=NEAR_MISS passes to findMany', async () => {
+    (mockPrisma.incident.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.incident.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app2)
+      .get('/api/incidents?type=NEAR_MISS')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.incident.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ type: 'NEAR_MISS' }),
+      })
+    );
+  });
+});

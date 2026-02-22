@@ -354,3 +354,59 @@ describe('process-parameters – extended coverage', () => {
     expect(res.status).toBe(500);
   });
 });
+
+describe('process-parameters — final batch coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('GET /records data items have processName field', async () => {
+    (mockPrisma.aeroProcessParameterRecord.findMany as jest.Mock).mockResolvedValue([mockRecord]);
+    (mockPrisma.aeroProcessParameterRecord.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/process-parameters/records');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('processName');
+  });
+
+  it('GET /requalification data items have triggerType field', async () => {
+    (mockPrisma.aeroRequalificationTrigger.findMany as jest.Mock).mockResolvedValue([mockTrigger]);
+    (mockPrisma.aeroRequalificationTrigger.count as jest.Mock).mockResolvedValue(1);
+    const res = await request(app).get('/api/process-parameters/requalification');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('triggerType');
+  });
+
+  it('GET /records/:id returns processConforms field', async () => {
+    (mockPrisma.aeroProcessParameterRecord.findUnique as jest.Mock).mockResolvedValue(mockRecord);
+    const res = await request(app).get('/api/process-parameters/records/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('processConforms');
+  });
+
+  it('PUT /requalification/:id CLOSED status returns 200', async () => {
+    (mockPrisma.aeroRequalificationTrigger.findUnique as jest.Mock).mockResolvedValue(mockTrigger);
+    (mockPrisma.aeroRequalificationTrigger.update as jest.Mock).mockResolvedValue({
+      ...mockTrigger,
+      status: 'CLOSED',
+    });
+    const res = await request(app)
+      .put('/api/process-parameters/requalification/00000000-0000-0000-0000-000000000010')
+      .send({ status: 'CLOSED' });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET /records pagination page defaults to 1', async () => {
+    (mockPrisma.aeroProcessParameterRecord.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroProcessParameterRecord.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/process-parameters/records');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET /requalification pagination page defaults to 1', async () => {
+    (mockPrisma.aeroRequalificationTrigger.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.aeroRequalificationTrigger.count as jest.Mock).mockResolvedValue(0);
+    const res = await request(app).get('/api/process-parameters/requalification');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+});

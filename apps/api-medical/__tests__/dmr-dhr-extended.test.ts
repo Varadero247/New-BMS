@@ -489,3 +489,14 @@ describe('DMR/DHR Routes', () => {
     });
   });
 });
+
+describe('DMR/DHR — additional coverage', () => {
+  it('GET /api/dmr-dhr/dmr returns success:true', async () => {
+    (mockPrisma.deviceMasterRecord.findMany as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.deviceMasterRecord.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/dmr-dhr/dmr');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

@@ -191,3 +191,30 @@ describe('formatCurrency — additional edge cases', () => {
     expect(result).toContain('$');
   });
 });
+
+describe('ui/utils — additional coverage', () => {
+  it('cn returns empty string for all-falsy inputs', () => {
+    expect(cn(false, null, undefined, '')).toBe('');
+  });
+
+  it('formatDate with long dateStyle option', () => {
+    const result = formatDate('2026-03-15T00:00:00Z', { dateStyle: 'long' });
+    expect(result).toContain('2026');
+    expect(typeof result).toBe('string');
+  });
+
+  it('formatNumber with maximumSignificantDigits option', () => {
+    const result = formatNumber(123456.789, { maximumSignificantDigits: 4 });
+    expect(result).toContain('123');
+  });
+
+  it('formatCurrency with CAD returns a string with digits', () => {
+    const result = formatCurrency(250, 'CAD');
+    expect(result).toMatch(/\d/);
+  });
+
+  it('cn correctly merges border utilities (last wins)', () => {
+    const result = cn('border-2', 'border-4');
+    expect(result).toBe('border-4');
+  });
+});

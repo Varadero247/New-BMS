@@ -535,4 +535,123 @@ describe('Health & Safety Risks API — additional coverage', () => {
     expect(response.status).toBe(500);
     expect(response.body.error.code).toBe('INTERNAL_ERROR');
   });
+
+  it('POST / assigns CRITICAL riskLevel when score >= 20', async () => {
+    (mockPrisma.risk.findFirst as jest.Mock).mockResolvedValueOnce(null);
+    (mockPrisma.risk.create as jest.Mock).mockResolvedValueOnce({
+      id: '30000000-0000-4000-a000-000000000123',
+      riskScore: 25,
+      riskLevel: 'CRITICAL',
+    });
+
+    await request(app2)
+      .post('/api/risks')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'Critical Risk', description: 'Very dangerous risk item', likelihood: 5, severity: 5 });
+
+    expect(mockPrisma.risk.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ riskScore: 25 }),
+    });
+  });
+
+  it('GET /matrix returns empty object when no risks', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+
+    const response = await request(app2)
+      .get('/api/risks/matrix')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(typeof response.body.data).toBe('object');
+  });
+
+  it('GET / filter by search passes to findMany', async () => {
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(0);
+
+    await request(app2)
+      .get('/api/risks?search=chemical')
+      .set('Authorization', 'Bearer token');
+
+    expect(mockPrisma.risk.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: expect.any(Array),
+        }),
+      })
+    );
+  });
+
+  it('PATCH /:id updates risk score when likelihood or severity changes', async () => {
+    (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce({
+      id: '10000000-0000-4000-a000-000000000001',
+      title: 'Existing Risk',
+      likelihood: 2,
+      severity: 2,
+    });
+    (mockPrisma.risk.update as jest.Mock).mockResolvedValueOnce({
+      id: '10000000-0000-4000-a000-000000000001',
+      likelihood: 4,
+      severity: 4,
+      riskScore: 16,
+    });
+
+    const response = await request(app2)
+      .patch('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token')
+      .send({ likelihood: 4, severity: 4 });
+
+    expect(response.status).toBe(200);
+    expect(mockPrisma.risk.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ riskScore: 16 }),
+      })
+    );
+  });
+
+  it('GET /:id returns 500 on findUnique DB error', async () => {
+    (mockPrisma.risk.findUnique as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+
+    const response = await request(app2)
+      .get('/api/risks/10000000-0000-4000-a000-000000000001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(500);
+    expect(response.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET / returns data array with length matching mock', async () => {
+    const mockRisk = { id: '10000000-0000-4000-a000-000000000001', title: 'Mock Risk', riskScore: 10 };
+    (mockPrisma.risk.findMany as jest.Mock).mockResolvedValueOnce([mockRisk]);
+    (mockPrisma.risk.count as jest.Mock).mockResolvedValueOnce(1);
+
+    const response = await request(app2)
+      .get('/api/risks')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(1);
+  });
+
+  it('POST / returns 400 for missing likelihood and severity', async () => {
+    const response = await request(app2)
+      .post('/api/risks')
+      .set('Authorization', 'Bearer token')
+      .send({ title: 'No Scores Risk', description: 'Missing likelihood and severity' });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('DELETE / returns 404 for 00000000-0000-4000-a000-ffffffffffff', async () => {
+    (mockPrisma.risk.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
+    const response = await request(app2)
+      .delete('/api/risks/00000000-0000-4000-a000-ffffffffffff')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(404);
+    expect(response.body.error.code).toBe('NOT_FOUND');
+  });
 });

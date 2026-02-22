@@ -403,3 +403,36 @@ describe('resetAccountLockoutManager', () => {
     expect(manager).toBeInstanceOf(AccountLockoutManager);
   });
 });
+
+describe('AccountLockoutManager — additional coverage', () => {
+  let manager: AccountLockoutManager;
+
+  beforeEach(() => {
+    delete process.env.REDIS_URL;
+    resetAccountLockoutManager();
+    manager = new AccountLockoutManager({ maxAttempts: 4, lockoutDuration: 60 });
+  });
+
+  afterEach(async () => {
+    await manager.close();
+  });
+
+  it('recordFailedAttempt: remaining decrements correctly for 3 failures', async () => {
+    await manager.recordFailedAttempt('dec@example.com');
+    await manager.recordFailedAttempt('dec@example.com');
+    const result = await manager.recordFailedAttempt('dec@example.com');
+    expect(result.remainingAttempts).toBe(1);
+    expect(result.locked).toBe(false);
+  });
+
+  it('getRemainingAttempts returns maxAttempts for fresh email', async () => {
+    const remaining = await manager.getRemainingAttempts('fresh@example.com');
+    expect(remaining).toBe(4);
+  });
+
+  it('reset on fresh account resolves without error', async () => {
+    await expect(manager.reset('fresh2@example.com')).resolves.not.toThrow();
+    const remaining = await manager.getRemainingAttempts('fresh2@example.com');
+    expect(remaining).toBe(4);
+  });
+});

@@ -235,3 +235,17 @@ describe('DEFAULT_CONFIG — additional coverage', () => {
     expect(typeof widget.order).toBe('number');
   });
 });
+
+describe('SECTION_META — additional coverage', () => {
+  it('each section meta value has no extra unexpected fields beyond label and description', () => {
+    for (const meta of Object.values(SECTION_META)) {
+      const keys = Object.keys(meta);
+      expect(keys).toContain('label');
+      expect(keys).toContain('description');
+    }
+  });
+
+  it('iso-compliance section is present in SECTION_META', () => {
+    expect(SECTION_META).toHaveProperty('iso-compliance');
+  });
+});

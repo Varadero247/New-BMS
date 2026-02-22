@@ -660,3 +660,28 @@ describe('Payroll Expenses API Routes', () => {
     });
   });
 });
+
+describe('Payroll Expenses — additional coverage', () => {
+  let app: express.Express;
+
+  beforeAll(() => {
+    app = express();
+    app.use(express.json());
+    app.use('/api/expenses', expensesRoutes);
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET /api/expenses returns success:true with empty result', async () => {
+    (mockPrisma.expense.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.expense.count as jest.Mock).mockResolvedValueOnce(0);
+
+    const response = await request(app).get('/api/expenses').set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data).toHaveLength(0);
+  });
+});

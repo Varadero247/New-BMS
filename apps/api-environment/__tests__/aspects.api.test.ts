@@ -566,5 +566,57 @@ describe('Environment Aspects API Routes', () => {
         .set('Authorization', 'Bearer token');
       expect(response.status).toBe(204);
     });
+
+    it('GET /api/aspects filters by activityCategory', async () => {
+      (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
+      await request(app)
+        .get('/api/aspects?activityCategory=EMISSIONS_TO_AIR')
+        .set('Authorization', 'Bearer token');
+      expect(mockPrisma.envAspect.findMany).toHaveBeenCalled();
+    });
+
+    it('GET /api/aspects returns empty data array when count is zero', async () => {
+      (mockPrisma.envAspect.findMany as jest.Mock).mockResolvedValueOnce([]);
+      (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(0);
+      const response = await request(app)
+        .get('/api/aspects')
+        .set('Authorization', 'Bearer token');
+      expect(response.body.data).toHaveLength(0);
+    });
+
+    it('POST /api/aspects returns 500 on DB create error after count', async () => {
+      (mockPrisma.envAspect.count as jest.Mock).mockResolvedValueOnce(5);
+      (mockPrisma.envAspect.create as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      const response = await request(app)
+        .post('/api/aspects')
+        .set('Authorization', 'Bearer token')
+        .send({
+          activityProcess: 'Manufacturing',
+          activityCategory: 'EMISSIONS_TO_AIR',
+          department: 'Operations',
+          aspect: 'Air emissions from stack',
+          impact: 'Air quality degradation',
+          scoreSeverity: 3,
+          scoreProbability: 4,
+          scoreDuration: 2,
+          scoreExtent: 3,
+          scoreReversibility: 2,
+          scoreRegulatory: 3,
+          scoreStakeholder: 2,
+        });
+      expect(response.status).toBe(500);
+    });
+
+    it('DELETE /api/aspects/:id returns 500 on update DB error', async () => {
+      (mockPrisma.envAspect.findUnique as jest.Mock).mockResolvedValueOnce({
+        id: '16000000-0000-4000-a000-000000000001',
+      });
+      (mockPrisma.envAspect.update as jest.Mock).mockRejectedValueOnce(new Error('DB error'));
+      const response = await request(app)
+        .delete('/api/aspects/16000000-0000-4000-a000-000000000001')
+        .set('Authorization', 'Bearer token');
+      expect(response.status).toBe(500);
+    });
   });
 });

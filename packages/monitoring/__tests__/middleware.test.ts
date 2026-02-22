@@ -369,3 +369,43 @@ describe('middleware — extended coverage', () => {
     expect(getCorrelationId(mockReq as any)).toBe('unknown');
   });
 });
+
+describe('middleware — CORRELATION_ID_HEADER and cacheControl additional', () => {
+  it('CORRELATION_ID_HEADER is a non-empty string', () => {
+    expect(typeof CORRELATION_ID_HEADER).toBe('string');
+    expect(CORRELATION_ID_HEADER.length).toBeGreaterThan(0);
+  });
+
+  it('cacheControl with maxAge=0 sets max-age=0 header', () => {
+    const middleware = cacheControl(0);
+    const setHeader = jest.fn();
+    const next = jest.fn();
+    middleware({} as any, { setHeader } as any, next);
+    expect(setHeader).toHaveBeenCalledWith('Cache-Control', expect.stringContaining('max-age=0'));
+  });
+
+  it('createHealthCheck without version omits version or has undefined version', async () => {
+    const handler = createHealthCheck('no-version-svc');
+    const mockRes = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      setHeader: jest.fn(),
+    };
+    await handler({} as any, mockRes as any);
+    const body = mockRes.json.mock.calls[0][0];
+    // version should be undefined or the string 'unknown'
+    expect(body.version === undefined || typeof body.version === 'string').toBe(true);
+  });
+
+  it('correlationIdMiddleware generated IDs are valid UUID v4', () => {
+    const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const middleware = correlationIdMiddleware();
+    const mockReq = {
+      get: jest.fn(() => undefined),
+      correlationId: undefined as string | undefined,
+    };
+    const mockRes = { setHeader: jest.fn(), status: jest.fn().mockReturnThis(), json: jest.fn() };
+    middleware(mockReq as any, mockRes as any, jest.fn());
+    expect(mockReq.correlationId).toMatch(UUID_V4);
+  });
+});

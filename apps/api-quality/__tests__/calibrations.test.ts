@@ -386,3 +386,17 @@ describe('Calibrations — final coverage', () => {
     expect(res.body.pagination.total).toBe(20);
   });
 });
+
+describe('Calibrations — extra boundary coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / returns 500 success:false when count also throws', async () => {
+    (prisma.qualCalibration.findMany as jest.Mock).mockRejectedValue(new Error('err'));
+    (prisma.qualCalibration.count as jest.Mock).mockRejectedValue(new Error('err'));
+    const res = await request(app).get('/api/calibrations');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

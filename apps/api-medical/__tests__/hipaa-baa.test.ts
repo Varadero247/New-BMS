@@ -282,4 +282,30 @@ describe('HIPAA BAA — additional coverage', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data).toHaveProperty('id');
   });
+
+  it('POST / returns 400 on missing servicesProvided', async () => {
+    const { servicesProvided: _sv, ...body } = baaPayload;
+    const res = await request(app).post('/').send(body);
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id/renew returns 500 when update throws', async () => {
+    prisma.hipaaBaa.findUnique.mockResolvedValue({ id: 'b1', deletedAt: null });
+    prisma.hipaaBaa.update.mockRejectedValue(new Error('write fail'));
+    const res = await request(app).put('/b1/renew').send({ expiryDate: '2027-01-01' });
+    expect(res.status).toBe(500);
+  });
+
+  it('GET /:id returns 500 on DB findUnique error', async () => {
+    prisma.hipaaBaa.findUnique.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/b1');
+    expect(res.status).toBe(500);
+  });
+
+  it('POST / returns 500 on DB create error', async () => {
+    prisma.hipaaBaa.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/').send(baaPayload);
+    expect(res.status).toBe(500);
+  });
 });

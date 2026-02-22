@@ -276,3 +276,43 @@ describe('GDPR Extended Routes — additional coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('GDPR Extended Routes — further coverage', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('PUT /dpo/:id returns 500 when update throws', async () => {
+    prisma.isDpo.findUnique.mockResolvedValue({ id: 'dpo-1', deletedAt: null });
+    prisma.isDpo.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put('/dpo/dpo-1').send({ status: 'ACTIVE' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /privacy-by-design returns 500 on DB create error', async () => {
+    prisma.isPrivacyByDesign.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/privacy-by-design').send(pbdPayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /sa-complaints returns 500 on DB create error', async () => {
+    prisma.isSaComplaint.create.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).post('/sa-complaints').send(saComplaintPayload);
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /dpa/:id returns 500 on DB error', async () => {
+    prisma.isDpa.findUnique.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/dpa/dpa-1');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /privacy-by-design returns 500 on DB error', async () => {
+    prisma.isPrivacyByDesign.findMany.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).get('/privacy-by-design');
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+});

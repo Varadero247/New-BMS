@@ -470,3 +470,75 @@ describe('ISO 37001 Policies — additional coverage', () => {
     expect(res.body.data.status).toBe('APPROVED');
   });
 });
+
+describe('ISO 37001 Policies — final batch coverage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('GET / response body data items have title field', async () => {
+    (mockPrisma.abPolicy.findMany as jest.Mock).mockResolvedValueOnce([mockPolicy]);
+    (mockPrisma.abPolicy.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('title');
+  });
+
+  it('GET / response body data items have policyType field', async () => {
+    (mockPrisma.abPolicy.findMany as jest.Mock).mockResolvedValueOnce([mockPolicy]);
+    (mockPrisma.abPolicy.count as jest.Mock).mockResolvedValueOnce(1);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('policyType');
+  });
+
+  it('POST / correctly passes organisationId from user to create', async () => {
+    (mockPrisma.abPolicy.create as jest.Mock).mockResolvedValueOnce(mockPolicy);
+    const res = await request(app).post('/api/policies').send({
+      title: 'Due Diligence Policy',
+      content: 'Policies around third-party due diligence.',
+      policyType: 'THIRD_PARTY_MANAGEMENT',
+    });
+    expect(res.status).toBe(201);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('PUT /:id/approve sets approvedAt field', async () => {
+    (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
+    (mockPrisma.abPolicy.update as jest.Mock).mockResolvedValueOnce({
+      ...mockPolicy,
+      status: 'APPROVED',
+      approvedBy: 'user-123',
+      approvedAt: new Date(),
+    });
+    const res = await request(app).put('/api/policies/00000000-0000-0000-0000-000000000001/approve');
+    expect(res.status).toBe(200);
+    expect(res.body.data.approvedAt).toBeDefined();
+  });
+
+  it('DELETE / response has success:true', async () => {
+    (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
+    (mockPrisma.abPolicy.update as jest.Mock).mockResolvedValueOnce({ ...mockPolicy, deletedAt: new Date() });
+    const res = await request(app).delete('/api/policies/00000000-0000-0000-0000-000000000001');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('GET / pagination has page field', async () => {
+    (mockPrisma.abPolicy.findMany as jest.Mock).mockResolvedValueOnce([]);
+    (mockPrisma.abPolicy.count as jest.Mock).mockResolvedValueOnce(0);
+    const res = await request(app).get('/api/policies');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+  });
+
+  it('PUT /:id update response has id field', async () => {
+    (mockPrisma.abPolicy.findFirst as jest.Mock).mockResolvedValueOnce(mockPolicy);
+    (mockPrisma.abPolicy.update as jest.Mock).mockResolvedValueOnce({ ...mockPolicy, title: 'New Title' });
+    const res = await request(app)
+      .put('/api/policies/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New Title' });
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

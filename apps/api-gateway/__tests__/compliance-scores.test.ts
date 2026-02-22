@@ -444,4 +444,89 @@ describe('Compliance Scores API — additional coverage', () => {
       expect(std.code.length).toBeGreaterThan(0);
     }
   });
+
+  it('GET /standard/ISO_45001 returns factor names specific to ISO 45001', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores/standard/ISO_45001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    const factorNames = response.body.data.factors.map((f: any) => f.name);
+    expect(factorNames).toContain('objectives_on_track');
+  });
+
+  it('GET /standard/ISO_14001 returns factor names specific to ISO 14001', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores/standard/ISO_14001')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.factors).toHaveLength(4);
+  });
+
+  it('GET / overall status is RED when all ISO 9001 factors are 0', async () => {
+    const response = await request(app2)
+      .get(
+        '/api/dashboard/compliance-scores?override_ISO_9001_objectives_on_track=0&override_ISO_9001_open_ncs_ratio=0&override_ISO_9001_capa_closure_rate=0&override_ISO_9001_audit_findings_closed=0'
+      )
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    const iso9001 = response.body.data.standards.find((s: any) => s.code === 'ISO_9001');
+    expect(iso9001.status).toBe('RED');
+  });
+
+  it('GET / clamping negative override values to 0', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores?override_ISO_9001_objectives_on_track=-50')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    const iso9001 = response.body.data.standards.find((s: any) => s.code === 'ISO_9001');
+    const factor = iso9001.factors.find((f: any) => f.name === 'objectives_on_track');
+    expect(factor.score).toBeGreaterThanOrEqual(0);
+  });
+
+  it('GET / all factor labels are non-empty strings', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores')
+      .set('Authorization', 'Bearer token');
+
+    for (const std of response.body.data.standards) {
+      for (const factor of std.factors) {
+        expect(typeof factor.label).toBe('string');
+        expect(factor.label.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('GET /standard/AS9100D returns 200 and has factors array', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores/standard/AS9100D')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    expect(Array.isArray(response.body.data.factors)).toBe(true);
+    expect(response.body.data.factors.length).toBeGreaterThan(0);
+  });
+
+  it('GET /standard/ISO_13485 factor weights sum to ~1.0', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores/standard/ISO_13485')
+      .set('Authorization', 'Bearer token');
+
+    expect(response.status).toBe(200);
+    const weightSum = response.body.data.factors.reduce((s: number, f: any) => s + f.weight, 0);
+    expect(weightSum).toBeCloseTo(1.0, 1);
+  });
+
+  it('GET / IATF_16949 overall weight is greater than zero', async () => {
+    const response = await request(app2)
+      .get('/api/dashboard/compliance-scores')
+      .set('Authorization', 'Bearer token');
+
+    const iatf = response.body.data.standards.find((s: any) => s.code === 'IATF_16949');
+    expect(iatf).toBeDefined();
+    expect(iatf.weight).toBeGreaterThan(0);
+  });
 });
