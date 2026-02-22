@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 33 — Test Depth Expansion to ≥65 (February 22, 2026)
+
+Targeted expansion of all 691 test files with 60-64 tests to ≥65 each.
+
+**Net new tests:** +3,442 (42,970 → 46,412), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (2 → 0):**
+- TS2695 in 2 files (`packages/monitoring`): `const x = (1, 2, 3)` — left side of comma operator has no side effects → replaced with safe ternary chain
+
+---
+
 ## Phase 32 — Test Depth Expansion to ≥60 (February 22, 2026)
 
 Targeted expansion of all 688 test files with 55-59 tests to ≥60 each.
