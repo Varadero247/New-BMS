@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phase 42 — Test Depth Expansion to ≥110 (February 22, 2026)
+
+Targeted expansion of all 709 test files with 105-109 tests to ≥110 each.
+
+**Net new tests:** +3,540 (74,545 → 78,085), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (147 files, 2 issues):**
+- `rot90(1,0)` → `[-0,1]`: JS `-0 !== 0` in `toEqual` → changed to non-zero input `rot90(2,3)`
+- `isStar` incorrect closed-form formula → replaced with generative Set lookup from `6*n*(n-1)+1`
+
+---
+
 ## Phase 41 — Test Depth Expansion to ≥105 (February 22, 2026)
 
 Targeted expansion of all 709 test files with 100-104 tests to ≥105 each.
