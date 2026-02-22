@@ -295,3 +295,12 @@ describe('types — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+  it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
+  it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
+});

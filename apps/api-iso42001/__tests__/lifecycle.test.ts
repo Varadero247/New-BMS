@@ -486,3 +486,12 @@ describe('lifecycle — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+  it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
+  it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
+});

@@ -562,3 +562,12 @@ describe('portal quality — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
+  it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
+  it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
+  it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
+});

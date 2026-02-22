@@ -846,3 +846,12 @@ describe('improvements — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+  it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
+  it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+});

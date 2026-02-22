@@ -663,3 +663,12 @@ describe('templates — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
+  it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
+  it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
+});

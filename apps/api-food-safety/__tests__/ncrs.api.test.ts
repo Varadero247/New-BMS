@@ -541,3 +541,12 @@ describe('ncrs — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
+});

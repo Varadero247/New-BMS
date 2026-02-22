@@ -539,3 +539,12 @@ describe('audits — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+});

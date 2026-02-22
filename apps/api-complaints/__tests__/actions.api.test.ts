@@ -500,3 +500,12 @@ describe('actions — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
+  it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
+  it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
+  it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
+});

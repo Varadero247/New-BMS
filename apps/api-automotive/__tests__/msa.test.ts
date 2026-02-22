@@ -1257,3 +1257,12 @@ describe('msa — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
+  it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
+  it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+});

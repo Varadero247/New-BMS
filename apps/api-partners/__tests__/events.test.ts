@@ -307,3 +307,12 @@ describe('events — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+  it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
+});

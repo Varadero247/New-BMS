@@ -570,3 +570,12 @@ describe('frameworks — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+  it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
+});

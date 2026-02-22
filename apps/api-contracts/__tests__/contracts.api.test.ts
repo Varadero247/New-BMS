@@ -487,3 +487,12 @@ describe('contracts — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+  it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
+  it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+});

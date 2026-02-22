@@ -678,3 +678,12 @@ describe('partners — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
+  it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+  it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
+});

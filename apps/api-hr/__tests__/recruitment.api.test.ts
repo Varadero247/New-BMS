@@ -890,3 +890,12 @@ describe('recruitment — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
+  it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+});

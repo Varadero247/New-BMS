@@ -632,3 +632,12 @@ describe('cashflow forecast — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+  it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+});

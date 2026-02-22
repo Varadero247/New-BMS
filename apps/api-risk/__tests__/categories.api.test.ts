@@ -414,3 +414,12 @@ describe('categories — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+  it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
+  it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
+  it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
+});

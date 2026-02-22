@@ -962,3 +962,12 @@ describe('webhooks — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+  it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+});

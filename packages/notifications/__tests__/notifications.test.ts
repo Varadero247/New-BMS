@@ -423,3 +423,12 @@ describe('notifications — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+  it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
+  it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
+});

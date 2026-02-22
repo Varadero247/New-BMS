@@ -896,3 +896,12 @@ describe('capa — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
+  it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
+  it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
+  it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+});

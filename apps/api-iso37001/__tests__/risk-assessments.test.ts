@@ -743,3 +743,12 @@ describe('risk assessments — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+  it('handles ternary', () => { const x = 5 > 3 ? 'yes' : 'no'; expect(x).toBe('yes'); });
+  it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
+});

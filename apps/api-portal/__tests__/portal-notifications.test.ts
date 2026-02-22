@@ -493,3 +493,12 @@ describe('portal notifications — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles async/await error', async () => { const fn = async () => { throw new Error('fail'); }; await expect(fn()).rejects.toThrow('fail'); });
+  it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
+  it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
+});

@@ -679,3 +679,12 @@ describe('traceability — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+});

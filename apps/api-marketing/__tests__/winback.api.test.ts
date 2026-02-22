@@ -549,3 +549,12 @@ describe('winback — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+  it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
+  it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
+});

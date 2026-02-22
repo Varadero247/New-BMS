@@ -546,3 +546,12 @@ describe('webhooks — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+  it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
+  it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
+});

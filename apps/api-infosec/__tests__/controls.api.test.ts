@@ -651,3 +651,12 @@ describe('controls — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
+  it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
+  it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
+  it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+});

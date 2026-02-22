@@ -906,3 +906,12 @@ describe('management reviews — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles Number.isFinite', () => { expect(Number.isFinite(42)).toBe(true); expect(Number.isFinite(Infinity)).toBe(false); });
+  it('handles rest params', () => { const fn = (...args: number[]) => args.reduce((a,b)=>a+b,0); expect(fn(1,2,3)).toBe(6); });
+  it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
+});

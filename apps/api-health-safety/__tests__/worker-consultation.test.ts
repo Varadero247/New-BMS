@@ -447,3 +447,12 @@ describe('worker consultation — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
+  it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
+  it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+});

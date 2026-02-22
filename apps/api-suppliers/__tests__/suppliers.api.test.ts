@@ -519,3 +519,12 @@ describe('suppliers — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
+});

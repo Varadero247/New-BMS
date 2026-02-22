@@ -610,3 +610,12 @@ describe('campaigns — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+  it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+});

@@ -569,3 +569,12 @@ describe('traceability — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
+  it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
+  it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
+});

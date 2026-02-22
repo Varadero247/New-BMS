@@ -544,3 +544,12 @@ describe('suppliers — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+  it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
+  it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
+  it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
+  it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
+});

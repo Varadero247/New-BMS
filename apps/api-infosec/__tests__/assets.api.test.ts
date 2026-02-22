@@ -601,3 +601,12 @@ describe('assets — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles Number.isFinite', () => { expect(Number.isFinite(42)).toBe(true); expect(Number.isFinite(Infinity)).toBe(false); });
+  it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+  it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
+});

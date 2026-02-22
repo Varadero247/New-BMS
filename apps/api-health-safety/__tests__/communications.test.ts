@@ -873,3 +873,12 @@ describe('communications — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+  it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
+  it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
+});

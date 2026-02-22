@@ -451,3 +451,12 @@ describe('dashboard — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+  it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
+});

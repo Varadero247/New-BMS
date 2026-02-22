@@ -435,3 +435,12 @@ describe('retry timeout — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+  it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
+  it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
+  it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
+});

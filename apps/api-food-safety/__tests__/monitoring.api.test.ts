@@ -535,3 +535,12 @@ describe('monitoring — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+});

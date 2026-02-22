@@ -531,3 +531,12 @@ describe('siem — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
+  it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
+  it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
+});

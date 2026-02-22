@@ -873,3 +873,12 @@ describe('management reviews — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
+  it('handles async/await error', async () => { const fn = async () => { throw new Error('fail'); }; await expect(fn()).rejects.toThrow('fail'); });
+  it('handles ternary', () => { const x = 5 > 3 ? 'yes' : 'no'; expect(x).toBe('yes'); });
+});

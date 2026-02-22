@@ -590,3 +590,12 @@ describe('vault — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+  it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+});

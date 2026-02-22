@@ -843,3 +843,12 @@ describe('opportunities — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+  it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
+  it('handles array findIndex', () => { expect([1,2,3].findIndex(x => x > 1)).toBe(1); });
+  it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+});

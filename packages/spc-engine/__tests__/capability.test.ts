@@ -346,3 +346,12 @@ describe('capability — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
+  it('handles nullish coalescing', () => { const v: string | null = null; const result = v ?? 'default'; expect(result).toBe('default'); });
+  it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
+});

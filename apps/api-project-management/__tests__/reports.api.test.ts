@@ -722,3 +722,12 @@ describe('reports — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
+  it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
+  it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
+  it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
+});

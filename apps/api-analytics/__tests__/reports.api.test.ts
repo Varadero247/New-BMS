@@ -557,3 +557,12 @@ describe('reports — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+  it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
+});

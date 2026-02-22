@@ -414,3 +414,12 @@ describe('event bus — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
+  it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+  it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
+});

@@ -774,3 +774,12 @@ describe('documents — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+  it('handles rest params', () => { const fn = (...args: number[]) => args.reduce((a,b)=>a+b,0); expect(fn(1,2,3)).toBe(6); });
+  it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+  it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
+});

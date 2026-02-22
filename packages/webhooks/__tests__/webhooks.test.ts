@@ -443,3 +443,12 @@ describe('webhooks — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
+  it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
+  it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
+});

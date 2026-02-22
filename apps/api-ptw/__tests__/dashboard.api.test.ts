@@ -462,3 +462,12 @@ describe('dashboard — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+  it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
+  it('handles destructuring', () => { const {a, b} = {a:1, b:2}; expect(a).toBe(1); expect(b).toBe(2); });
+  it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
+  it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
+});

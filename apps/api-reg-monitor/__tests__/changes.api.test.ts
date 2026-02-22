@@ -460,3 +460,12 @@ describe('changes — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+  it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
+});

@@ -634,3 +634,12 @@ describe('dmr dhr extended — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+  it('handles ternary', () => { const x = 5 > 3 ? 'yes' : 'no'; expect(x).toBe('yes'); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+});

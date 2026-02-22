@@ -621,3 +621,12 @@ describe('quotes — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+  it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
+  it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
+  it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
+  it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
+});

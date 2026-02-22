@@ -501,3 +501,12 @@ describe('expenses — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+  it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
+  it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+});

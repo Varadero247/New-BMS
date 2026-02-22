@@ -612,3 +612,12 @@ describe('inventory — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+  it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
+  it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
+});

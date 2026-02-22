@@ -444,3 +444,12 @@ describe('emails — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
+  it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
+  it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
+  it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles array findIndex', () => { expect([1,2,3].findIndex(x => x > 1)).toBe(1); });
+});

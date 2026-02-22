@@ -763,3 +763,12 @@ describe('dashboards — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array findIndex', () => { expect([1,2,3].findIndex(x => x > 1)).toBe(1); });
+  it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+});

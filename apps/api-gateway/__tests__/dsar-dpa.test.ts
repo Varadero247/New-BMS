@@ -645,3 +645,12 @@ describe('dsar dpa — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
+  it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
+  it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+});

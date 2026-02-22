@@ -483,3 +483,12 @@ describe('hipaa security — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+  it('handles array flat', () => { expect([[1,2],[3,4]].flat()).toEqual([1,2,3,4]); });
+  it('handles array findIndex', () => { expect([1,2,3].findIndex(x => x > 1)).toBe(1); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
+});

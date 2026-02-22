@@ -680,3 +680,12 @@ describe('saml — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
+  it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
+});

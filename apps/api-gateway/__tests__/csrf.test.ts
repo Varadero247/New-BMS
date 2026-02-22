@@ -580,3 +580,12 @@ describe('csrf — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
+  it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+  it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
+});

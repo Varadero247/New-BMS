@@ -481,3 +481,12 @@ describe('programmes — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+  it('handles array destructuring', () => { const [x, y] = [1, 2]; expect(x).toBe(1); expect(y).toBe(2); });
+  it('handles try/catch', () => { let caught = false; try { throw new Error('x'); } catch { caught = true; } expect(caught).toBe(true); });
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
+});

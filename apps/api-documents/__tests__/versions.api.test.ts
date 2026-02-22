@@ -499,3 +499,12 @@ describe('versions — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+  it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
+  it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+});

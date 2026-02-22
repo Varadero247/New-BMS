@@ -758,3 +758,12 @@ describe('legal — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+  it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+});

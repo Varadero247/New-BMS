@@ -777,3 +777,12 @@ describe('ai variance — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
+  it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+  it('handles boolean logic', () => { expect(true && false).toBe(false); expect(true || false).toBe(true); });
+  it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
+});

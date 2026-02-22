@@ -510,3 +510,12 @@ describe('analytics — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
+  it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+  it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
+});

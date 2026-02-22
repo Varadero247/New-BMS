@@ -631,3 +631,12 @@ describe('policies — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
+});

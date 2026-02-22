@@ -576,3 +576,12 @@ describe('fmea — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+  it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+});

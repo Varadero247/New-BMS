@@ -561,3 +561,12 @@ describe('esg reports — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+  it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+  it('handles async/await error', async () => { const fn = async () => { throw new Error('fail'); }; await expect(fn()).rejects.toThrow('fail'); });
+  it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
+});

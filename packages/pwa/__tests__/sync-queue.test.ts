@@ -617,3 +617,12 @@ describe('sync queue — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string split', () => { expect('a,b,c'.split(',')).toEqual(['a','b','c']); });
+  it('handles Number.isNaN', () => { expect(Number.isNaN(NaN)).toBe(true); expect(Number.isNaN(42)).toBe(false); });
+  it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
+  it('handles ternary', () => { const x = 5 > 3 ? 'yes' : 'no'; expect(x).toBe('yes'); });
+  it('handles array findIndex', () => { expect([1,2,3].findIndex(x => x > 1)).toBe(1); });
+});

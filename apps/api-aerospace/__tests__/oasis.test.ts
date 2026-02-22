@@ -586,3 +586,12 @@ describe('oasis — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
+  it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+});

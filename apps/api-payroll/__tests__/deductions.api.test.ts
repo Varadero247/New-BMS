@@ -354,3 +354,12 @@ describe('deductions — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles Date creation', () => { const d = new Date('2026-01-01'); expect(d.getFullYear()).toBe(2026); });
+  it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+});

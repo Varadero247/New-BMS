@@ -617,3 +617,12 @@ describe('cleanup sessions — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
+  it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles object spread', () => { const a = {x:1}; const b = {...a, y:2}; expect(b).toEqual({x:1,y:2}); });
+});

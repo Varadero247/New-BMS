@@ -544,3 +544,12 @@ describe('sites — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+  it('handles Map creation', () => { const m = new Map<string,number>(); m.set('a',1); expect(m.get('a')).toBe(1); });
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
+});

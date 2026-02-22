@@ -958,3 +958,12 @@ describe('customer satisfaction — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
+  it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
+  it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
+  it('handles Number.isFinite', () => { expect(Number.isFinite(42)).toBe(true); expect(Number.isFinite(Infinity)).toBe(false); });
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+});

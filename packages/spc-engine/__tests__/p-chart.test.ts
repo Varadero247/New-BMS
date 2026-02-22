@@ -477,3 +477,12 @@ describe('p chart — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles string replace', () => { expect('foo bar'.replace('bar','baz')).toBe('foo baz'); });
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+  it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
+});

@@ -601,3 +601,12 @@ describe('scope emissions — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+  it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
+  it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
+});

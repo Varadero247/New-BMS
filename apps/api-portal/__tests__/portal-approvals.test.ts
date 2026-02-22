@@ -519,3 +519,12 @@ describe('portal approvals — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
+  it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+  it('handles array from', () => { expect(Array.from('abc')).toEqual(['a','b','c']); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+});

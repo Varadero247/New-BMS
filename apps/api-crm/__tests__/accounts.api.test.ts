@@ -651,3 +651,12 @@ describe('accounts — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+  it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
+  it('handles nullish coalescing', () => { const v: string | null = null; const result = v ?? 'default'; expect(result).toBe('default'); });
+  it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+});

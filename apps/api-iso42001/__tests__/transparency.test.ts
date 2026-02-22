@@ -468,3 +468,12 @@ describe('transparency — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
+  it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
+});

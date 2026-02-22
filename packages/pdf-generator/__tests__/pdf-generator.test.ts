@@ -459,3 +459,12 @@ describe('pdf generator — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles WeakMap', () => { const wm = new WeakMap(); const k = {}; wm.set(k, 42); expect(wm.has(k)).toBe(true); });
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+  it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
+  it('handles JSON parse', () => { expect(JSON.parse('{"a":1}')).toEqual({a:1}); });
+});

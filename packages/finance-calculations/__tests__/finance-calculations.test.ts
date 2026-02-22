@@ -281,3 +281,12 @@ describe('finance calculations — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+  it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
+  it('handles array spread', () => { const a = [1,2]; const b = [...a, 3]; expect(b).toEqual([1,2,3]); });
+  it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
+  it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
+});

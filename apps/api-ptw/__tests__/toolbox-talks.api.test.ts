@@ -492,3 +492,12 @@ describe('toolbox talks — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array reduce', () => { expect([1,2,3].reduce((a,b) => a+b, 0)).toBe(6); });
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+  it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
+  it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
+});

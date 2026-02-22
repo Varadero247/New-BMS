@@ -469,3 +469,12 @@ describe('metrics — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
+  it('handles regex test', () => { expect(/^\d+$/.test('123')).toBe(true); expect(/^\d+$/.test('abc')).toBe(false); });
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+});

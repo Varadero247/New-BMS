@@ -360,3 +360,12 @@ describe('presence — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+  it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
+  it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+});

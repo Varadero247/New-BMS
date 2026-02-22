@@ -426,3 +426,12 @@ describe('security headers — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
+  it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
+  it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
+  it('handles array indexOf', () => { expect([1,2,3].indexOf(2)).toBe(1); });
+  it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
+});

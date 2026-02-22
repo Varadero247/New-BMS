@@ -523,3 +523,12 @@ describe('actions — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
+  it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
+  it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
+});

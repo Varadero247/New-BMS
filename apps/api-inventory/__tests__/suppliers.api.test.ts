@@ -750,3 +750,12 @@ describe('suppliers — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+});

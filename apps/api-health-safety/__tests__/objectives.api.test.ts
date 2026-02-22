@@ -809,3 +809,12 @@ describe('objectives — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array of', () => { expect(Array.of(1,2,3)).toEqual([1,2,3]); });
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+  it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+});

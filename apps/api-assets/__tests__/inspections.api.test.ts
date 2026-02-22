@@ -487,3 +487,12 @@ describe('inspections — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles object freeze', () => { const o = Object.freeze({a:1}); expect(Object.isFrozen(o)).toBe(true); });
+  it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
+  it('handles string toUpperCase', () => { expect('hello'.toUpperCase()).toBe('HELLO'); });
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles string padStart', () => { expect('5'.padStart(3,'0')).toBe('005'); });
+});

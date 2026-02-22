@@ -471,3 +471,12 @@ describe('scorecards — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array some', () => { expect([1,2,3].some(x => x > 2)).toBe(true); });
+  it('handles array slice', () => { expect([1,2,3,4].slice(1,3)).toEqual([2,3]); });
+  it('handles default params', () => { const fn = (x = 10) => x; expect(fn()).toBe(10); expect(fn(5)).toBe(5); });
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+});

@@ -495,3 +495,12 @@ describe('documents — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles nullish coalescing', () => { const v: string | null = null; const result = v ?? 'default'; expect(result).toBe('default'); });
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+});

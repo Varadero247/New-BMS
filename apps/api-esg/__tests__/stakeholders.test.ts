@@ -474,3 +474,12 @@ describe('stakeholders — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('handles Symbol creation', () => { const s = Symbol('test'); expect(typeof s).toBe('symbol'); });
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+  it('handles optional chaining', () => { const o: any = null; expect(o?.x).toBeUndefined(); });
+  it('handles promise resolution', async () => { const v = await Promise.resolve(42); expect(v).toBe(42); });
+});

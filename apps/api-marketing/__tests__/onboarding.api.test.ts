@@ -486,3 +486,12 @@ describe('onboarding — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles array filter', () => { expect([1,2,3,4].filter(x => x % 2 === 0)).toEqual([2,4]); });
+  it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+  it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
+});

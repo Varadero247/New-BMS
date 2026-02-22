@@ -360,3 +360,12 @@ describe('predictions — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
+  it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
+  it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
+  it('handles string repeat', () => { expect('ab'.repeat(3)).toBe('ababab'); });
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+});

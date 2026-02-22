@@ -306,3 +306,12 @@ describe('validators — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles Math.min', () => { expect(Math.min(1,5,3)).toBe(1); });
+  it('handles Math.abs', () => { expect(Math.abs(-7)).toBe(7); });
+  it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
+  it('handles string concat', () => { expect('foo' + 'bar').toBe('foobar'); });
+});

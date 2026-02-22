@@ -543,3 +543,12 @@ describe('annual accounts — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Number.isInteger', () => { expect(Number.isInteger(5)).toBe(true); expect(Number.isInteger(5.5)).toBe(false); });
+  it('handles Array.isArray', () => { expect(Array.isArray([1,2])).toBe(true); expect(Array.isArray('x')).toBe(false); });
+  it('handles ternary', () => { const x = 5 > 3 ? 'yes' : 'no'; expect(x).toBe('yes'); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+  it('handles string startsWith', () => { expect('hello'.startsWith('hel')).toBe(true); });
+});

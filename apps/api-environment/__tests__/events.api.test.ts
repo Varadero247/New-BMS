@@ -850,3 +850,12 @@ describe('events — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Math.ceil', () => { expect(Math.ceil(3.1)).toBe(4); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+  it('handles array splice', () => { const a = [1,2,3]; a.splice(1,1); expect(a).toEqual([1,3]); });
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+});

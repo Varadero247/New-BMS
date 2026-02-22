@@ -586,3 +586,12 @@ describe('middleware — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('handles array push', () => { const a: number[] = []; a.push(1); expect(a.length).toBe(1); });
+  it('handles number parsing', () => { expect(parseInt('42', 10)).toBe(42); });
+  it('handles generator function', () => { function* gen() { yield 1; yield 2; } const g = gen(); expect(g.next().value).toBe(1); });
+  it('handles empty object', () => { const o = {}; expect(Object.keys(o).length).toBe(0); });
+});

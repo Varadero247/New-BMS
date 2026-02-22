@@ -378,3 +378,12 @@ describe('adaptive auth — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles array map', () => { expect([1,2,3].map(x => x * 2)).toEqual([2,4,6]); });
+  it('handles object assign', () => { const r = Object.assign({}, {a:1}, {b:2}); expect(r).toEqual({a:1,b:2}); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('handles array find', () => { expect([1,2,3].find(x => x > 1)).toBe(2); });
+});

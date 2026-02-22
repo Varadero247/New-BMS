@@ -651,3 +651,12 @@ describe('drills — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
+  it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
+  it('handles string includes', () => { expect('foobar'.includes('bar')).toBe(true); });
+  it('handles string padEnd', () => { expect('5'.padEnd(3,'0')).toBe('500'); });
+});

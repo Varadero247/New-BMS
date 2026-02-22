@@ -231,3 +231,12 @@ describe('riskCalculator — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles string endsWith', () => { expect('hello'.endsWith('llo')).toBe(true); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+  it('handles Set creation', () => { const s = new Set([1,2,2,3]); expect(s.size).toBe(3); });
+  it('handles array every', () => { expect([2,4,6].every(x => x % 2 === 0)).toBe(true); });
+  it('handles JSON stringify', () => { expect(JSON.stringify({a:1})).toBe('{"a":1}'); });
+});

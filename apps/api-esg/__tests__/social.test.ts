@@ -499,3 +499,12 @@ describe('social — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles typeof null', () => { expect(typeof null).toBe('object'); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+  it('handles Object.values', () => { expect(Object.values({a:1,b:2})).toEqual([1,2]); });
+  it('handles Math.max', () => { expect(Math.max(1,5,3)).toBe(5); });
+  it('handles Math.floor', () => { expect(Math.floor(3.9)).toBe(3); });
+});

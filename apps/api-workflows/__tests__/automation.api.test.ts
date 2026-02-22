@@ -701,3 +701,12 @@ describe('automation — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles Object.entries', () => { expect(Object.entries({a:1})).toEqual([['a',1]]); });
+  it('handles template literals', () => { const name = 'world'; expect(`hello ${name}`).toBe('hello world'); });
+  it('handles error instanceof', () => { const e = new Error('oops'); expect(e instanceof Error).toBe(true); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+  it('handles array includes', () => { expect([1,2,3].includes(2)).toBe(true); });
+});

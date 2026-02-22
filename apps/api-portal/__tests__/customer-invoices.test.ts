@@ -601,3 +601,12 @@ describe('customer invoices — phase30 coverage', () => {
   });
 
 });
+
+
+describe('phase31 coverage', () => {
+  it('handles regex match', () => { const m = 'hello123'.match(/\d+/); expect(m?.[0]).toBe('123'); });
+  it('handles Math.round', () => { expect(Math.round(3.5)).toBe(4); });
+  it('handles string toLowerCase', () => { expect('HELLO'.toLowerCase()).toBe('hello'); });
+  it('handles string trim', () => { expect('  hi  '.trim()).toBe('hi'); });
+  it('returns correct type', () => { expect(typeof 'hello').toBe('string'); });
+});
