@@ -10,6 +10,7 @@ import {
   BarChart3,
   Ticket,
   Award,
+  UserPlus,
   Home,
   Settings,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Scorecards', href: '/scorecards', icon: BarChart3 },
   { name: 'Scorecard Dashboard', href: '/scorecard-dashboard', icon: Award },
   { name: 'Tickets', href: '/tickets', icon: Ticket },
+  { name: 'Register User', href: '/register', icon: UserPlus },
 ];
 
 const APP_BASE = process.env.NEXT_PUBLIC_APP_BASE_URL || 'http://localhost';
