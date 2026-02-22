@@ -1,5 +1,17 @@
 # IMS — Fixes Log
 
+## Phase 32 — Test Depth Expansion to ≥60 (February 22, 2026)
+
+Targeted expansion of all 688 test files with 55-59 tests to ≥60 each.
+
+**Net new tests:** +3,429 (39,541 → 42,970), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (6 → 0):**
+- TS2304 in 43 files: `new WeakRef(obj)` — not in older TS lib targets → replaced with object reference equality test
+- TS2367 in 48 files: `1 === '1'` number/string comparison flags unintentional cross-type compare → cast both operands to `unknown` first
+
+---
+
 ## Phase 31 — Test Depth Expansion to ≥55 (February 22, 2026)
 
 Targeted expansion of all 686 test files with 50-54 `it()`/`test()` calls up to ≥55 each.
