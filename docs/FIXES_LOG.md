@@ -1,5 +1,13 @@
 # IMS — Fixes Log
 
+## Phase 38 — Test Depth Expansion to ≥90 (February 22, 2026)
+
+Targeted expansion of all 707 test files with 85-89 tests to ≥90 each.
+
+**Net new tests:** +3,530 (60,411 → 63,941), all 711 suites passing (0 failures, 0 TS errors).
+
+---
+
 ## Phase 37 — Test Depth Expansion to ≥85 (February 22, 2026)
 
 Targeted expansion of all 707 test files with 80-84 tests to ≥85 each.
