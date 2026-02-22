@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 43 — Test Depth Expansion to ≥115 (February 22, 2026)
+
+Targeted expansion of all 709 test files with 110-114 tests to ≥115 each.
+
+**Net new tests:** +3,540 (78,085 → 81,625), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (79 files, 1 issue):**
+- `entropy([1,0])` → `-0`: JS negation of `+0` is `-0`, `Object.is(-0,0)` is false → wrapped with `Math.abs()`
+
+---
+
 ## Phase 42 — Test Depth Expansion to ≥110 (February 22, 2026)
 
 Targeted expansion of all 709 test files with 105-109 tests to ≥110 each.
