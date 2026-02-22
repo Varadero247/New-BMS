@@ -1,5 +1,16 @@
 # IMS — Fixes Log
 
+## Phase 39 — Test Depth Expansion to ≥95 (February 22, 2026)
+
+Targeted expansion of all 707 test files with 90-94 tests to ≥95 each.
+
+**Net new tests:** +3,530 (63,941 → 67,471), all 711 suites passing (0 failures).
+
+**Post-expansion fixes (3 → 0):**
+- TS7023 in 3 packages (esig, monitoring, validation): recursive arrow function `lev` implicitly has return type `any` — added explicit `:number` return type annotation.
+
+---
+
 ## Phase 38 — Test Depth Expansion to ≥90 (February 22, 2026)
 
 Targeted expansion of all 707 test files with 85-89 tests to ≥90 each.
