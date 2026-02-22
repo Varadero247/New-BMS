@@ -1,5 +1,40 @@
 # IMS — Fixes Log
 
+## Phase 24 — TypeScript Zero-Error Sweep (February 22, 2026)
+
+Final TypeScript clean sweep to ensure 0 errors across all 42 APIs, 44 web apps, and packages.
+
+**Fix:** `apps/web-dashboard/src/lib/roi/calculations.test.ts` — Added explicit `RoiInputs` type annotation to prevent TypeScript widening `numberOfAudits: 3` from literal to `number` when assigned to a `const` variable (TS2345).
+
+**Commit:** f8557c1f | Tests: 21,796/674 | TypeScript: 0 errors
+
+---
+
+## Phase 23 — Test Expansion Pass 2 (February 22, 2026)
+
+Second test expansion pass: all 145 files in the range 21–27 tests brought to ≥28 tests each. 18 parallel agent batches (Q1–Q18), 8 files per batch.
+
+**Files expanded:** 145 test files across api-aerospace, api-chemicals, api-esg, api-infosec, api-quality, api-medical, api-payroll, packages/auth, packages/security, packages/validation, and more.
+
+**Commit:** f1219302 | Tests: 21,796/674 suites (all passing, 0 failures)
+
+---
+
+## Phase 22 — Test Expansion Pass 1 (February 22, 2026)
+
+Mass parallel test expansion: all 302 files at exactly 20 tests expanded to 28–37 tests each. 18 parallel batches (G1–P3), each handling up to 17 files.
+
+Each file received a new `describe` block appended at the END with 8–12 new `it(...)` tests covering:
+- 500 error paths (`mockRejectedValue`)
+- Pagination `totalPages` arithmetic
+- Filter params wired into Prisma `where` clauses
+- Response shape validation (`success: true`, `error.code`)
+- Field/enum validation (invalid enums → 400, missing required → 400)
+
+**Commits:** c780e8f6 (20,957 tests), 1e7156d7 (docs update) | Suites: 674
+
+---
+
 ## Phase 21 — Frontend Gap Closure (February 22, 2026)
 
 Gap analysis of web-admin, web-customer-portal, web-partners. 17 new pages + 3 sidebars updated.

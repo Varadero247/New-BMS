@@ -350,16 +350,16 @@ All routes also available under `/api/v1/` prefix.
 
 ## Test Coverage
 
-### Unit Tests (652 suites — all passing)
+### Unit Tests (674 suites — all passing)
 
-All 652 Jest test suites pass with 0 failures as of 2026-02-21. Every `.test.ts` file across all 42 API services, 44 web apps, and 61 packages has ≥20 tests. Full breakdown by service is approximate:
+All 674 Jest test suites pass with 0 failures as of 2026-02-22. Every `.test.ts` file across all 42 API services, 44 web apps, and 61 packages has ≥28 tests. Full breakdown by service is approximate:
 
 | Category               | Suites (approx) | Tests (approx) |
 | ---------------------- | --------------- | -------------- |
-| API services (42)      | ~420            | ~10,500        |
-| Web apps (44)          | ~70             | ~2,000         |
-| Shared packages (61)   | ~162            | ~4,861         |
-| **Total**              | **654**         | **17,410**     |
+| API services (42)      | ~420            | ~14,700        |
+| Web apps (44)          | ~90             | ~3,200         |
+| Shared packages (61)   | ~164            | ~3,896         |
+| **Total**              | **674**         | **21,796**     |
 
 Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api-finance (~456), api-environment (~442), api-aerospace (~553), api-automotive (~502), api-hr (~355), api-payroll (~303).
 
@@ -408,6 +408,9 @@ Notable suites: api-quality (~994), api-medical (~871), api-gateway (~861+), api
 | Sessions 21-22 | TypeScript clean sweep + CI hardening (Feb 20) | 0 TypeScript errors across all 42 APIs + 44 web apps + packages (148 projects). Fixed TS6059 rootDir in 8 packages, TS2688 uuid stub in dpa/dsar/scheduled-reports. CI: real `pnpm typecheck` replaces no-op. Dependency vulns: 17→7. Tests: 13,598.                                   |
 | Sessions 23-24 | All 61 packages with test suites + Jest config cleanup (Feb 20-21) | Added suites for 15 previously-untested packages (sdk, openapi, hubspot-client, intercom-client, stripe-client, presence, types, ui-utilities, comments, cache, dpa, dsar, scheduled-reports, testing, charts). Removed invalid per-project Jest options. Tests: 14,130 / 646 suites.  |
 | Sessions 25+  | In-memory → Prisma migrations + E2E + thin-file sweep (Feb 21) | 7 in-memory Maps migrated to Prisma (msp, api-keys, unified-audit, saml, scim, evidence-pack, headstart). 48 Playwright E2E specs (195 tests). Gateway security + cross-service integration + event-bus suites. Every `.test.ts` brought to ≥20 tests. Final: **17,361 / 652 suites**. |
+| Phases 18-21  | Frontend Gap Closure (Feb 22) | Systematic audit of all 42 API services. 58 new frontend pages across 12 apps (web-health-safety, web-environment, web-esg, web-quality, web-finance, web-infosec, web-chemicals, web-aerospace, web-emergency, web-medical, web-admin, web-customer-portal, web-partners). Sidebar navigation updated for all affected apps. Tests: 17,853 / 674 suites. |
+| Phases 22-23  | Test Expansion to ≥28 per file (Feb 22) | Two-pass expansion: 302 files at exactly 20 tests → 28-37 each (pass 1); 145 files at 21-27 tests → ≥28 each (pass 2). 18 parallel agent batches per pass. Zero files below 28 tests remaining. Final: **21,796 / 674 suites**. |
+| Phase 24      | TypeScript Zero-Error Sweep (Feb 22) | Fixed TS2345 in `web-dashboard/src/lib/roi/calculations.test.ts` (literal widening on `numberOfAudits`). 0 TS errors across all 42 APIs + 44 web apps + packages. |
 
 ---
 
