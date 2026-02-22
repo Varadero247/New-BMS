@@ -202,3 +202,66 @@ describe('Expansion — additional coverage', () => {
     expect(res.body.data.message.toLowerCase()).toContain('completed');
   });
 });
+
+describe('Expansion — edge cases', () => {
+  it('POST /check with non-object thresholds returns 400', async () => {
+    const res = await request(app)
+      .post('/api/expansion/check')
+      .send({ thresholds: 'bad-value' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /check with orgId as number returns 400', async () => {
+    const res = await request(app)
+      .post('/api/expansion/check')
+      .send({ orgId: 99 });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /triggers returns each log with id and template', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([
+      { id: 'log-3', template: 'expansion_growth_flag', email: 'c@co.com' },
+    ]);
+    const res = await request(app).get('/api/expansion/triggers');
+    expect(res.status).toBe(200);
+    expect(res.body.data[0]).toHaveProperty('id');
+    expect(res.body.data[0]).toHaveProperty('template');
+  });
+
+  it('POST /check with empty body returns 200 (all fields optional)', async () => {
+    const res = await request(app)
+      .post('/api/expansion/check')
+      .send({});
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+
+  it('POST /check unusedModuleNudge is an array', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.results.unusedModuleNudge)).toBe(true);
+  });
+
+  it('POST /check growthFlag is an array', async () => {
+    const res = await request(app).post('/api/expansion/check');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data.results.growthFlag)).toBe(true);
+  });
+
+  it('GET /triggers where clause uses startsWith expansion_', async () => {
+    (prisma.mktEmailLog.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/expansion/triggers');
+    const callArg = (prisma.mktEmailLog.findMany as jest.Mock).mock.calls[0][0];
+    expect(callArg.where.template.startsWith).toBe('expansion_');
+  });
+
+  it('POST /check with thresholds.userLimit 0 still returns 200', async () => {
+    const res = await request(app)
+      .post('/api/expansion/check')
+      .send({ thresholds: { userLimit: 0 } });
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+  });
+});

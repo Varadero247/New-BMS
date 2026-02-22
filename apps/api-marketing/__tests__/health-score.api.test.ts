@@ -303,3 +303,93 @@ describe('500 error handling', () => {
     expect(res.body.error.code).toBe('INTERNAL_ERROR');
   });
 });
+
+describe('Health Score — edge cases', () => {
+  it('calculateHealthScore: boundary login score — exactly 1 login = 10pts', () => {
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 1,
+        recordsCreated: 0,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(10);
+  });
+
+  it('calculateHealthScore: exactly 3 logins = 20pts', () => {
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 3,
+        recordsCreated: 0,
+        modulesVisited: 0,
+        teamMembersInvited: 0,
+      })
+    ).toBe(20);
+  });
+
+  it('calculateHealthScore: modules visited 2-3 = 10pts', () => {
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 0,
+        modulesVisited: 3,
+        teamMembersInvited: 0,
+      })
+    ).toBe(10);
+  });
+
+  it('calculateHealthScore: modules visited 4-6 = 20pts', () => {
+    expect(
+      calculateHealthScore({
+        loginsLast7Days: 0,
+        recordsCreated: 0,
+        modulesVisited: 4,
+        teamMembersInvited: 0,
+      })
+    ).toBe(20);
+  });
+
+  it('GET /org/:orgId: empty org returns averageScore of 0', async () => {
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get(
+      '/api/health-score/org/00000000-0000-0000-0000-000000000002'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalUsers).toBe(0);
+    expect(res.body.data.averageScore).toBe(0);
+  });
+
+  it('GET /org/:orgId: all users healthy sets distribution correctly', async () => {
+    const scores = [
+      { userId: 'u1', score: 70, trend: 'STABLE' },
+      { userId: 'u2', score: 85, trend: 'IMPROVING' },
+    ];
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue(scores);
+
+    const res = await request(app).get(
+      '/api/health-score/org/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.distribution.healthy).toBe(2);
+    expect(res.body.data.distribution.atRisk).toBe(0);
+    expect(res.body.data.distribution.critical).toBe(0);
+  });
+
+  it('POST /recalculate: body with userId triggers findMany for that user', async () => {
+    (prisma.mktHealthScore.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app)
+      .post('/api/health-score/recalculate')
+      .send({ userId: '00000000-0000-0000-0000-000000000001' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('recalculation triggered');
+  });
+
+  it('determineTrend: exactly -10 point change = DECLINING', () => {
+    expect(determineTrend(40, 50)).toBe('DECLINING');
+  });
+});

@@ -240,3 +240,95 @@ describe('winback.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Winback — edge cases', () => {
+  it('GET /active filters where reactivatedAt is null', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/winback/active');
+    expect(prisma.mktWinBackSequence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { reactivatedAt: null } })
+    );
+  });
+
+  it('GET /active orderBy is cancelledAt desc', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/winback/active');
+    expect(prisma.mktWinBackSequence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { cancelledAt: 'desc' } })
+    );
+  });
+
+  it('GET /active take is 100', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/winback/active');
+    expect(prisma.mktWinBackSequence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 100 })
+    );
+  });
+
+  it('POST /start/:orgId returns 409 error code ALREADY_EXISTS', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({ id: 'wb-1' });
+    const res = await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'dup@org.com' });
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe('ALREADY_EXISTS');
+  });
+
+  it('POST /start/:orgId with invalid email returns 400', async () => {
+    const res = await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'not-an-email' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('GET /reason/:reason schedules job with sequenceId winback-<orgId>', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({
+      id: 'wb-1',
+      orgId: 'org-xyz',
+    });
+    (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    await request(app).get('/api/winback/reason/price?token=valid-token');
+    const call = (prisma.mktEmailJob.create as jest.Mock).mock.calls[0][0];
+    expect(call.data.sequenceId).toBe('winback-org-xyz');
+  });
+
+  it('GET /reason/competitor schedules winback_day7_competitor template', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue({
+      id: 'wb-1',
+      orgId: 'org-1',
+    });
+    (prisma.mktWinBackSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    await request(app).get('/api/winback/reason/competitor?token=t');
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ template: 'winback_day7_competitor' }),
+      })
+    );
+  });
+
+  it('GET /active returns success true on empty list', async () => {
+    (prisma.mktWinBackSequence.findMany as jest.Mock).mockResolvedValue([]);
+    const res = await request(app).get('/api/winback/active');
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.data).toHaveLength(0);
+  });
+
+  it('POST /start/:orgId response data has id field on success', async () => {
+    (prisma.mktWinBackSequence.findUnique as jest.Mock).mockResolvedValue(null);
+    (prisma.mktWinBackSequence.create as jest.Mock).mockResolvedValue({
+      id: 'wb-new',
+      orgId: '00000000-0000-0000-0000-000000000001',
+    });
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    const res = await request(app)
+      .post('/api/winback/start/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'new@org.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('id');
+  });
+});

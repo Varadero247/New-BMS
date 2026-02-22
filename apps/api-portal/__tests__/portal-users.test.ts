@@ -306,3 +306,121 @@ describe('portal-users — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('portal-users — filtering, pagination, and edge cases', () => {
+  it('GET filters by status ACTIVE', async () => {
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/users?status=ACTIVE');
+
+    expect(mockPrisma.portalUser.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ status: 'ACTIVE' }) })
+    );
+  });
+
+  it('GET page=3 limit=5 passes skip=10 to Prisma', async () => {
+    mockPrisma.portalUser.findMany.mockResolvedValue([]);
+    mockPrisma.portalUser.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/users?page=3&limit=5');
+
+    expect(mockPrisma.portalUser.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('POST invite returns 400 for missing email', async () => {
+    const res = await request(app).post('/api/portal/users/invite').send({
+      name: 'Test User',
+      company: 'Acme',
+      role: 'CUSTOMER_USER',
+      portalType: 'CUSTOMER',
+      // email omitted
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST invite returns 400 for invalid email format', async () => {
+    const res = await request(app).post('/api/portal/users/invite').send({
+      email: 'not-an-email',
+      name: 'Test User',
+      company: 'Acme',
+      role: 'CUSTOMER_USER',
+      portalType: 'CUSTOMER',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PUT /:id sets status to SUSPENDED via update', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalUser.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'SUSPENDED',
+    });
+
+    const res = await request(app)
+      .put('/api/portal/users/00000000-0000-0000-0000-000000000001')
+      .send({ status: 'SUSPENDED' });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.portalUser.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'SUSPENDED' }) })
+    );
+  });
+
+  it('DELETE returns 500 on update DB error', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalUser.update.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).delete(
+      '/api/portal/users/00000000-0000-0000-0000-000000000001'
+    );
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST create returns 400 for missing company', async () => {
+    const res = await request(app).post('/api/portal/users').send({
+      email: 'new@test.com',
+      name: 'New User',
+      // company omitted
+      role: 'CUSTOMER_USER',
+      portalType: 'CUSTOMER',
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.portalUser.findFirst.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).get('/api/portal/users/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST invite returns 500 on create DB error', async () => {
+    mockPrisma.portalInvitation.create.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).post('/api/portal/users/invite').send({
+      email: 'new@test.com',
+      name: 'New User',
+      company: 'Acme',
+      role: 'SUPPLIER_USER',
+      portalType: 'SUPPLIER',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

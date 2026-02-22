@@ -271,3 +271,107 @@ describe('Marketing Leads — additional coverage', () => {
     expect(res.body.success).toBe(false);
   });
 });
+
+describe('Marketing Leads — edge cases', () => {
+  it('GET /leads filters by CHATBOT source and receives empty array', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/leads?source=CHATBOT');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.leads).toHaveLength(0);
+    expect(res.body.data.total).toBe(0);
+  });
+
+  it('GET /leads includes page in response body', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    const res = await request(app).get('/api/leads?page=3&limit=5');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.page).toBe(3);
+  });
+
+  it('GET /leads page=3 limit=5 uses skip:10', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/leads?page=3&limit=5');
+
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 5 })
+    );
+  });
+
+  it('GET /leads with invalid page param falls back to page 1', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/leads?page=notanumber&limit=10');
+
+    // page defaults to 1 => skip = 0
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 0 })
+    );
+  });
+
+  it('GET /leads enforces maximum take of 100 when limit > 100', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/leads?limit=999');
+
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 100 })
+    );
+  });
+
+  it('POST /leads/capture stores optional company field', async () => {
+    (prisma.mktLead.create as jest.Mock).mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      company: 'Acme Corp',
+    });
+
+    await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'a@b.com', name: 'Test', source: 'DIRECT', company: 'Acme Corp' });
+
+    expect(prisma.mktLead.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ company: 'Acme Corp' }) })
+    );
+  });
+
+  it('GET /leads/:id returns 500 error code on DB error', async () => {
+    (prisma.mktLead.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).get('/api/leads/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /leads count and findMany are called with the same where clause when filtering by source', async () => {
+    (prisma.mktLead.findMany as jest.Mock).mockResolvedValue([]);
+    (prisma.mktLead.count as jest.Mock).mockResolvedValue(0);
+
+    await request(app).get('/api/leads?source=ORGANIC_SEARCH');
+
+    expect(prisma.mktLead.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { source: 'ORGANIC_SEARCH' } })
+    );
+    expect(prisma.mktLead.count).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { source: 'ORGANIC_SEARCH' } })
+    );
+  });
+
+  it('POST /leads/capture returns 400 with VALIDATION_ERROR code for empty name', async () => {
+    const res = await request(app)
+      .post('/api/leads/capture')
+      .send({ email: 'test@test.com', name: '', source: 'DIRECT' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

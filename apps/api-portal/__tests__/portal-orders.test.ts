@@ -281,3 +281,115 @@ describe('portal-orders — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('portal-orders — filtering, pagination, and edge cases', () => {
+  it('GET filters by type only', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/orders?type=RETURN');
+
+    expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ type: 'RETURN' }) })
+    );
+  });
+
+  it('GET page=2 limit=5 passes skip=5 to Prisma', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/orders?page=2&limit=5');
+
+    expect(mockPrisma.portalOrder.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 5, take: 5 })
+    );
+  });
+
+  it('GET totalPages is correctly calculated', async () => {
+    mockPrisma.portalOrder.findMany.mockResolvedValue([]);
+    mockPrisma.portalOrder.count.mockResolvedValue(25);
+
+    const res = await request(app).get('/api/portal/orders?limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.totalPages).toBe(3);
+  });
+
+  it('GET /:id returns 500 on DB error', async () => {
+    mockPrisma.portalOrder.findFirst.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).get('/api/portal/orders/00000000-0000-0000-0000-000000000001');
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST returns 400 for missing type', async () => {
+    const res = await request(app).post('/api/portal/orders').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      totalAmount: 100,
+      items: [],
+      // type omitted
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('POST returns 400 for invalid type value', async () => {
+    const res = await request(app).post('/api/portal/orders').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      type: 'EXCHANGE', // not in enum
+      totalAmount: 100,
+      items: [],
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id/status sets status to CONFIRMED', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalOrder.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CONFIRMED',
+    });
+
+    const res = await request(app)
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'CONFIRMED' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.status).toBe('CONFIRMED');
+  });
+
+  it('PUT /:id/status sets status to CANCELLED', async () => {
+    mockPrisma.portalOrder.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalOrder.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      status: 'CANCELLED',
+    });
+
+    const res = await request(app)
+      .put('/api/portal/orders/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'CANCELLED' });
+
+    expect(res.status).toBe(200);
+  });
+
+  it('POST returns 500 on create DB error', async () => {
+    mockPrisma.portalOrder.create.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).post('/api/portal/orders').send({
+      portalUserId: '00000000-0000-0000-0000-000000000001',
+      type: 'PURCHASE',
+      totalAmount: 500,
+      items: [{ name: 'Widget', qty: 1, price: 500 }],
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

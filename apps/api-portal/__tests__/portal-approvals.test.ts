@@ -255,3 +255,103 @@ describe('portal-approvals — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Portal Approvals — edge cases', () => {
+  it('GET /approvals: pagination object has correct shape', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(40);
+    const res = await request(app).get('/api/portal/approvals?page=2&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(2);
+    expect(res.body.pagination.limit).toBe(10);
+    expect(res.body.pagination.total).toBe(40);
+    expect(res.body.pagination.totalPages).toBe(4);
+  });
+
+  it('GET /approvals: findMany called once per request', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/approvals');
+    expect(mockPrisma.portalApproval.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /approvals: count called once per request', async () => {
+    mockPrisma.portalApproval.findMany.mockResolvedValue([]);
+    mockPrisma.portalApproval.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/approvals');
+    expect(mockPrisma.portalApproval.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('POST /approvals: accepts CHANGE_REQUEST type', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000003', type: 'CHANGE_REQUEST', status: 'PENDING' };
+    mockPrisma.portalApproval.create.mockResolvedValue(approval);
+    const res = await request(app)
+      .post('/api/portal/approvals')
+      .send({ type: 'CHANGE_REQUEST', referenceId: 'cr-1' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('CHANGE_REQUEST');
+  });
+
+  it('POST /approvals: accepts QUALITY type', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000004', type: 'QUALITY', status: 'PENDING' };
+    mockPrisma.portalApproval.create.mockResolvedValue(approval);
+    const res = await request(app)
+      .post('/api/portal/approvals')
+      .send({ type: 'QUALITY', referenceId: 'qa-1' });
+    expect(res.status).toBe(201);
+    expect(res.body.data.type).toBe('QUALITY');
+  });
+
+  it('PUT /approve returns 500 on DB update error', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(approval);
+    mockPrisma.portalApproval.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/approve')
+      .send({});
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /reject returns 500 on DB update error', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(approval);
+    mockPrisma.portalApproval.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/reject')
+      .send({});
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT /approve: update sets status to APPROVED', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(approval);
+    mockPrisma.portalApproval.update.mockResolvedValue({ ...approval, status: 'APPROVED' });
+    await request(app)
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/approve')
+      .send({});
+    expect(mockPrisma.portalApproval.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'APPROVED' }) })
+    );
+  });
+
+  it('PUT /reject: update sets status to REJECTED', async () => {
+    const approval = { id: '00000000-0000-0000-0000-000000000001', status: 'PENDING', notes: null };
+    mockPrisma.portalApproval.findFirst.mockResolvedValue(approval);
+    mockPrisma.portalApproval.update.mockResolvedValue({ ...approval, status: 'REJECTED' });
+    await request(app)
+      .put('/api/portal/approvals/00000000-0000-0000-0000-000000000001/reject')
+      .send({ notes: 'Rejected because reasons' });
+    expect(mockPrisma.portalApproval.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ status: 'REJECTED' }) })
+    );
+  });
+
+  it('GET /approvals: 500 returns INTERNAL_ERROR code', async () => {
+    mockPrisma.portalApproval.findMany.mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/portal/approvals');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

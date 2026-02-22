@@ -336,3 +336,134 @@ describe('deals.api — additional coverage', () => {
     }
   });
 });
+
+describe('deals.api — partner auth and edge cases', () => {
+  it('POST /api/deals returns 401 when no partner on request', async () => {
+    const noAuthApp = express();
+    noAuthApp.use(express.json());
+    noAuthApp.use('/api/deals', dealsRouter);
+
+    const res = await request(noAuthApp).post('/api/deals').send({
+      companyName: 'ClientCo',
+      contactName: 'Jane',
+      contactEmail: 'jane@client.com',
+      estimatedUsers: 10,
+      isoStandards: ['9001'],
+    });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('GET /api/deals returns 401 when no partner on request', async () => {
+    const noAuthApp = express();
+    noAuthApp.use(express.json());
+    noAuthApp.use('/api/deals', dealsRouter);
+
+    const res = await request(noAuthApp).get('/api/deals');
+
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/deals summary has inProgress count', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { ...mockDeal, status: 'IN_DEMO', commissionValue: null, commissionPaid: false },
+      { ...mockDeal, id: 'deal-2', status: 'NEGOTIATING', commissionValue: null, commissionPaid: false },
+    ]);
+
+    const res = await request(app).get('/api/deals');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.inProgress).toBe(2);
+  });
+
+  it('POST /api/deals sets estimatedACV of 0 when not provided', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({
+      id: 'partner-1',
+      tier: 'REFERRAL',
+    });
+    (prisma.mktPartnerDeal.create as jest.Mock).mockResolvedValue({ ...mockDeal, estimatedACV: null });
+
+    const res = await request(app).post('/api/deals').send({
+      companyName: 'Co',
+      contactName: 'Jane',
+      contactEmail: 'jane@co.com',
+      estimatedUsers: 5,
+      isoStandards: ['9001'],
+      // estimatedACV omitted
+    });
+
+    expect(res.status).toBe(201);
+  });
+
+  it('POST /api/deals uses CO_SELL commission rate of 0.325', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({
+      id: 'partner-1',
+      tier: 'CO_SELL',
+    });
+    (prisma.mktPartnerDeal.create as jest.Mock).mockResolvedValue(mockDeal);
+
+    await request(app).post('/api/deals').send({
+      companyName: 'Co',
+      contactName: 'Jane',
+      contactEmail: 'jane@co.com',
+      estimatedUsers: 10,
+      isoStandards: ['9001'],
+    });
+
+    expect(prisma.mktPartnerDeal.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ commissionRate: 0.325 }),
+      })
+    );
+  });
+
+  it('PATCH /api/deals/:id/status returns 400 for invalid status value', async () => {
+    const res = await request(app)
+      .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'INVALID_STATUS' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('PATCH /api/deals/:id/status returns 500 on DB error', async () => {
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'IN_DEMO' });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('GET /api/deals summary pendingCommission counts only unpaid CLOSED_WON with value', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([
+      { ...mockDeal, status: 'CLOSED_WON', commissionValue: 2000, commissionPaid: false },
+      { ...mockDeal, id: 'd2', status: 'CLOSED_WON', commissionValue: 1500, commissionPaid: true },
+    ]);
+
+    const res = await request(app).get('/api/deals');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.summary.pendingCommission).toBe(2000);
+  });
+
+  it('SUBMITTED → CLOSED_LOST is a valid transition', async () => {
+    (prisma.mktPartnerDeal.findUnique as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'SUBMITTED',
+    });
+    (prisma.mktPartnerDeal.update as jest.Mock).mockResolvedValue({
+      ...mockDeal,
+      status: 'CLOSED_LOST',
+    });
+
+    const res = await request(app)
+      .patch('/api/deals/00000000-0000-0000-0000-000000000001/status')
+      .send({ status: 'CLOSED_LOST' });
+
+    expect(res.status).toBe(200);
+  });
+});

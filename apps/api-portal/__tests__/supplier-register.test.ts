@@ -222,3 +222,118 @@ describe('supplier-register — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Supplier Register — edge cases', () => {
+  it('POST register: create stores role as SUPPLIER_USER', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({
+      id: 'u-3',
+      email: 'role@co.com',
+      status: 'PENDING',
+    });
+    await request(app)
+      .post('/api/supplier/register')
+      .send({ email: 'role@co.com', name: 'Role Test', company: 'RoleCo' });
+    expect(mockPrisma.portalUser.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ role: 'SUPPLIER_USER' }),
+      })
+    );
+  });
+
+  it('POST register: create stores portalType as SUPPLIER', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({
+      id: 'u-4',
+      email: 'type@co.com',
+      status: 'PENDING',
+    });
+    await request(app)
+      .post('/api/supplier/register')
+      .send({ email: 'type@co.com', name: 'Type Test', company: 'TypeCo' });
+    expect(mockPrisma.portalUser.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ portalType: 'SUPPLIER' }),
+      })
+    );
+  });
+
+  it('POST register: optional phone field is accepted', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({
+      id: 'u-5',
+      email: 'phone@co.com',
+      status: 'PENDING',
+    });
+    const res = await request(app)
+      .post('/api/supplier/register')
+      .send({ email: 'phone@co.com', name: 'Phone Test', company: 'PhoneCo', phone: '+447900123456' });
+    expect(res.status).toBe(201);
+    expect(mockPrisma.portalUser.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ phone: '+447900123456' }),
+      })
+    );
+  });
+
+  it('POST register: phone defaults to null when not provided', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-6', email: 'nophone@co.com', status: 'PENDING' });
+    await request(app)
+      .post('/api/supplier/register')
+      .send({ email: 'nophone@co.com', name: 'NoPhone', company: 'NPC' });
+    expect(mockPrisma.portalUser.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ phone: null }),
+      })
+    );
+  });
+
+  it('POST register: returns 400 for missing company', async () => {
+    const res = await request(app)
+      .post('/api/supplier/register')
+      .send({ email: 'nocompany@co.com', name: 'NoCompany' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('GET /status returns data with id, email, name, company, role, createdAt', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue({
+      id: 'u-1',
+      email: 'test@test.com',
+      name: 'John',
+      company: 'Acme',
+      status: 'APPROVED',
+      role: 'SUPPLIER_USER',
+      createdAt: new Date('2026-01-01'),
+    });
+    const res = await request(app).get('/api/supplier/register/status');
+    expect(res.status).toBe(200);
+    expect(res.body.data).toHaveProperty('id');
+    expect(res.body.data).toHaveProperty('email');
+    expect(res.body.data).toHaveProperty('name');
+    expect(res.body.data).toHaveProperty('company');
+    expect(res.body.data).toHaveProperty('role');
+    expect(res.body.data).toHaveProperty('createdAt');
+  });
+
+  it('GET /status: error code is NOT_FOUND when user not found', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    const res = await request(app).get('/api/supplier/register/status');
+    expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('POST register: findFirst searches by email to check for duplicates', async () => {
+    mockPrisma.portalUser.findFirst.mockResolvedValue(null);
+    mockPrisma.portalUser.create.mockResolvedValue({ id: 'u-7', email: 'dup@co.com', status: 'PENDING' });
+    await request(app)
+      .post('/api/supplier/register')
+      .send({ email: 'dup@co.com', name: 'Dup', company: 'DupCo' });
+    expect(mockPrisma.portalUser.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ email: 'dup@co.com' }),
+      })
+    );
+  });
+});

@@ -257,3 +257,125 @@ describe('portal-announcements — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('portal-announcements — pagination and filtering', () => {
+  it('GET includes pagination data with total count', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(42);
+
+    const res = await request(app).get('/api/portal/announcements?page=2&limit=10');
+
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.total).toBe(42);
+    expect(res.body.pagination.page).toBe(2);
+  });
+
+  it('GET page=2 limit=10 passes skip=10 to Prisma', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/announcements?page=2&limit=10');
+
+    expect(mockPrisma.portalAnnouncement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ skip: 10, take: 10 })
+    );
+  });
+
+  it('GET always passes isActive:true in where clause', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/announcements');
+
+    expect(mockPrisma.portalAnnouncement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ isActive: true }) })
+    );
+  });
+
+  it('GET filters by CUSTOMER portalType', async () => {
+    mockPrisma.portalAnnouncement.findMany.mockResolvedValue([]);
+    mockPrisma.portalAnnouncement.count.mockResolvedValue(0);
+
+    await request(app).get('/api/portal/announcements?portalType=CUSTOMER');
+
+    expect(mockPrisma.portalAnnouncement.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ portalType: 'CUSTOMER' }) })
+    );
+  });
+
+  it('POST returns 400 for invalid priority value', async () => {
+    const res = await request(app).post('/api/portal/announcements').send({
+      title: 'Test',
+      content: 'Content',
+      portalType: 'CUSTOMER',
+      priority: 'URGENT', // invalid
+    });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('PUT /:id returns 500 on update DB error', async () => {
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalAnnouncement.update.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app)
+      .put('/api/portal/announcements/00000000-0000-0000-0000-000000000001')
+      .send({ title: 'New title' });
+
+    expect(res.status).toBe(500);
+  });
+
+  it('PUT /:id can set isActive to false', async () => {
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalAnnouncement.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      isActive: false,
+    });
+
+    const res = await request(app)
+      .put('/api/portal/announcements/00000000-0000-0000-0000-000000000001')
+      .send({ isActive: false });
+
+    expect(res.status).toBe(200);
+    expect(mockPrisma.portalAnnouncement.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isActive: false }) })
+    );
+  });
+
+  it('DELETE soft-deletes by updating deletedAt and setting isActive false', async () => {
+    mockPrisma.portalAnnouncement.findFirst.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+    });
+    mockPrisma.portalAnnouncement.update.mockResolvedValue({
+      id: '00000000-0000-0000-0000-000000000001',
+      deletedAt: new Date(),
+      isActive: false,
+    });
+
+    await request(app).delete('/api/portal/announcements/00000000-0000-0000-0000-000000000001');
+
+    expect(mockPrisma.portalAnnouncement.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ isActive: false }),
+      })
+    );
+  });
+
+  it('POST returns 500 on create DB error', async () => {
+    mockPrisma.portalAnnouncement.create.mockRejectedValue(new Error('DB crash'));
+
+    const res = await request(app).post('/api/portal/announcements').send({
+      title: 'Test',
+      content: 'Content',
+      portalType: 'CUSTOMER',
+      priority: 'HIGH',
+    });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

@@ -236,3 +236,94 @@ describe('partner-onboarding.api — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Partner Onboarding — edge cases', () => {
+  it('POST /enqueue returns 400 for malformed email', async () => {
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'not-an-email', name: 'Test Partner' });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('POST /enqueue first job has scheduledFor equal to now (delayMs 0)', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    const before = Date.now();
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'time@example.com' });
+    const after = Date.now();
+    const firstCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[0][0];
+    const scheduled = new Date(firstCall.data.scheduledFor).getTime();
+    expect(scheduled).toBeGreaterThanOrEqual(before);
+    expect(scheduled).toBeLessThanOrEqual(after + 100);
+  });
+
+  it('POST /enqueue day 7 job is scheduled ~7 days after now', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    const before = Date.now();
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'delay@example.com' });
+    const secondCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[1][0];
+    const scheduled = new Date(secondCall.data.scheduledFor).getTime();
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+    expect(scheduled).toBeGreaterThanOrEqual(before + sevenDaysMs - 1000);
+  });
+
+  it('POST /enqueue first job subject mentions Partner Programme', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'subj@example.com' });
+    const firstCall = (prisma.mktEmailJob.create as jest.Mock).mock.calls[0][0];
+    expect(firstCall.data.subject).toContain('Partner Programme');
+  });
+
+  it('POST /enqueue error code is INTERNAL_ERROR on 500', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'fail@example.com' });
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('POST /enqueue with name stores it (all 3 jobs use same email)', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'named@example.com', name: 'Alice' });
+    const calls = (prisma.mktEmailJob.create as jest.Mock).mock.calls;
+    expect(calls.every((c: any[]) => c[0].data.email === 'named@example.com')).toBe(true);
+  });
+
+  it('POST /enqueue all 3 jobs share the same sequenceId', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000005')
+      .send({ email: 'seq@example.com' });
+    const calls = (prisma.mktEmailJob.create as jest.Mock).mock.calls;
+    const seqIds = calls.map((c: any[]) => c[0].data.sequenceId);
+    expect(new Set(seqIds).size).toBe(1);
+    expect(seqIds[0]).toBe('partner-onboarding-00000000-0000-0000-0000-000000000005');
+  });
+
+  it('POST /enqueue returns 400 when email is whitespace only', async () => {
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: '   ' });
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /enqueue returns data object with sequenceId and jobsScheduled', async () => {
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({ id: 'job-1' });
+    const res = await request(app)
+      .post('/api/partner-onboarding/enqueue/00000000-0000-0000-0000-000000000001')
+      .send({ email: 'keys@example.com' });
+    expect(res.status).toBe(201);
+    expect(res.body.data).toHaveProperty('sequenceId');
+    expect(res.body.data).toHaveProperty('jobsScheduled');
+  });
+});

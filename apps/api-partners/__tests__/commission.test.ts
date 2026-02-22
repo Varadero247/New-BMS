@@ -253,3 +253,98 @@ describe('Commission — additional coverage', () => {
     expect(res.body.data[0]).toHaveProperty('commissionValue');
   });
 });
+
+describe('Commission — query parameters and aggregation edge cases', () => {
+  it('summary: totalPaid is 0 when no deals have commissionPaid=true', async () => {
+    const unpaidDeals = [
+      { ...mockDeals[1], commissionPaid: false },
+      { ...mockDeals[0], commissionPaid: false },
+    ];
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(unpaidDeals);
+
+    const res = await request(app).get('/api/commission/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPaid).toBe(0);
+  });
+
+  it('summary: totalEarned accumulates multiple CLOSED_WON commissions', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(mockDeals);
+
+    const res = await request(app).get('/api/commission/summary');
+
+    expect(res.status).toBe(200);
+    // d1 = 3000, d2 = 5000; d3 is NEGOTIATING (not counted)
+    expect(res.body.data.totalEarned).toBe(8000);
+  });
+
+  it('summary: SUBMITTED deal is counted in dealsInPipeline', async () => {
+    const submittedDeal = { ...mockDeals[2], status: 'SUBMITTED', id: 'sub-1' };
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([submittedDeal]);
+
+    const res = await request(app).get('/api/commission/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.dealsInPipeline).toBe(1);
+  });
+
+  it('summary: pipelineValue uses commissionRate × estimatedACV for NEGOTIATING deals', async () => {
+    const negotiatingDeal = {
+      ...mockDeals[2],
+      status: 'NEGOTIATING',
+      estimatedACV: 20000,
+      commissionRate: 0.375,
+    };
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([negotiatingDeal]);
+
+    const res = await request(app).get('/api/commission/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.pipelineValue).toBe(7500); // 20000 * 0.375
+  });
+
+  it('GET /pending returns 401 without partner', async () => {
+    const noAuthApp = express();
+    noAuthApp.use(express.json());
+    noAuthApp.use('/api/commission', commissionRouter);
+
+    const res = await request(noAuthApp).get('/api/commission/pending');
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /history returns 401 without partner', async () => {
+    const noAuthApp = express();
+    noAuthApp.use(express.json());
+    noAuthApp.use('/api/commission', commissionRouter);
+
+    const res = await request(noAuthApp).get('/api/commission/history');
+    expect(res.status).toBe(401);
+  });
+
+  it('summary: empty partner has all zeros', async () => {
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue([]);
+
+    const res = await request(app).get('/api/commission/summary');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalEarned).toBe(0);
+    expect(res.body.data.totalPaid).toBe(0);
+    expect(res.body.data.pendingPayout).toBe(0);
+    expect(res.body.data.dealsWon).toBe(0);
+    expect(res.body.data.dealsInPipeline).toBe(0);
+    expect(res.body.data.pipelineValue).toBe(0);
+  });
+
+  it('pending: totalPending sums commissionValue of all deals in result', async () => {
+    const deals = [
+      { ...mockDeals[1], commissionValue: 5000, commissionPaid: false },
+      { ...mockDeals[1], id: 'd-extra', commissionValue: 2500, commissionPaid: false },
+    ];
+    (prisma.mktPartnerDeal.findMany as jest.Mock).mockResolvedValue(deals);
+
+    const res = await request(app).get('/api/commission/pending');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.totalPending).toBe(7500);
+  });
+});

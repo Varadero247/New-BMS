@@ -225,3 +225,92 @@ describe('referrals — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Referrals — edge cases', () => {
+  it('GET / filters findMany by partnerId from req.partner', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/referrals');
+    expect(portalPrisma.mktPartnerReferral.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { partnerId: 'partner-1' } })
+    );
+  });
+
+  it('GET / findMany is ordered by createdAt desc', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/referrals');
+    expect(portalPrisma.mktPartnerReferral.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } })
+    );
+  });
+
+  it('POST /track: create stores partnerId from req.partner', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ referralCode: 'code-xyz' });
+    (portalPrisma.mktPartnerReferral.create as jest.Mock).mockResolvedValue(mockReferral);
+    await request(app)
+      .post('/api/referrals/track')
+      .send({ prospectEmail: 'new@prospect.com', prospectName: 'New Person' });
+    expect(portalPrisma.mktPartnerReferral.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ partnerId: 'partner-1' }),
+      })
+    );
+  });
+
+  it('POST /track: create stores the referralCode from the partner record', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ referralCode: 'CODE-ABC' });
+    (portalPrisma.mktPartnerReferral.create as jest.Mock).mockResolvedValue(mockReferral);
+    await request(app)
+      .post('/api/referrals/track')
+      .send({ prospectEmail: 'ref@prospect.com' });
+    expect(portalPrisma.mktPartnerReferral.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ referralCode: 'CODE-ABC' }),
+      })
+    );
+  });
+
+  it('GET /stats: conversionRate is converted/total when total > 0', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockResolvedValue([
+      { ...mockReferral, convertedAt: new Date() },
+      { ...mockReferral, id: 'ref-2' },
+      { ...mockReferral, id: 'ref-3' },
+      { ...mockReferral, id: 'ref-4' },
+    ]);
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(200);
+    expect(res.body.data.conversionRate).toBeCloseTo(0.25);
+  });
+
+  it('POST /track returns 401 when no partner on request', async () => {
+    const noAuthApp = express();
+    noAuthApp.use(express.json());
+    noAuthApp.use('/api/referrals', referralsRouter);
+    const res = await request(noAuthApp).post('/api/referrals/track').send({ prospectEmail: 'x@y.com' });
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('GET /stats returns 401 when no partner on request', async () => {
+    const noAuthApp = express();
+    noAuthApp.use(express.json());
+    noAuthApp.use('/api/referrals', referralsRouter);
+    const res = await request(noAuthApp).get('/api/referrals/stats');
+    expect(res.status).toBe(401);
+  });
+
+  it('POST /track: mktPartner.findUnique uses partnerId as where.id', async () => {
+    (prisma.mktPartner.findUnique as jest.Mock).mockResolvedValue({ referralCode: 'ref-code' });
+    (portalPrisma.mktPartnerReferral.create as jest.Mock).mockResolvedValue(mockReferral);
+    await request(app).post('/api/referrals/track').send({ prospectEmail: 'lookup@test.com' });
+    expect(prisma.mktPartner.findUnique).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'partner-1' } })
+    );
+  });
+
+  it('GET /stats returns 500 on DB error', async () => {
+    (portalPrisma.mktPartnerReferral.findMany as jest.Mock).mockRejectedValue(new Error('DB down'));
+    const res = await request(app).get('/api/referrals/stats');
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+});

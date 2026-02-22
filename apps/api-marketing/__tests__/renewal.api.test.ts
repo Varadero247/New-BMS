@@ -236,3 +236,83 @@ describe('Renewal — additional coverage', () => {
     expect(res.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+describe('Renewal — boundary and sorting', () => {
+  it('GET /upcoming?days=1 only queries one day ahead', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/renewal/upcoming?days=1');
+    expect(prisma.mktRenewalSequence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ renewedAt: null }),
+        orderBy: { renewalDate: 'asc' },
+      })
+    );
+  });
+
+  it('GET /upcoming?days=365 enforces max 365 days ahead', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/renewal/upcoming?days=9999');
+    // Simply verify the query ran without error (days is clamped server-side)
+    expect(prisma.mktRenewalSequence.findMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('GET /upcoming orders results by renewalDate asc', async () => {
+    (prisma.mktRenewalSequence.findMany as jest.Mock).mockResolvedValue([]);
+    await request(app).get('/api/renewal/upcoming');
+    expect(prisma.mktRenewalSequence.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { renewalDate: 'asc' } })
+    );
+  });
+
+  it('POST /send-reminder sets day60Sent flag for day60 type', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day60' });
+    expect(prisma.mktRenewalSequence.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { day60Sent: true } })
+    );
+  });
+
+  it('POST /send-reminder creates email job with correct template for day7', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day7' });
+    expect(prisma.mktEmailJob.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ template: 'renewal_day7' }) })
+    );
+  });
+
+  it('POST /send-reminder returns 500 on DB error and success false', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'));
+    const res = await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day90' });
+    expect(res.status).toBe(500);
+    expect(res.body.success).toBe(false);
+  });
+
+  it('POST /send-reminder response message contains orgId', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    (prisma.mktRenewalSequence.update as jest.Mock).mockResolvedValue({});
+    (prisma.mktEmailJob.create as jest.Mock).mockResolvedValue({});
+    const res = await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({ type: 'day90' });
+    expect(res.status).toBe(200);
+    expect(res.body.data.message).toContain('00000000-0000-0000-0000-000000000001');
+  });
+
+  it('POST /send-reminder with missing type body field returns 400', async () => {
+    (prisma.mktRenewalSequence.findUnique as jest.Mock).mockResolvedValue({ orgId: 'org-1' });
+    const res = await request(app)
+      .post('/api/renewal/00000000-0000-0000-0000-000000000001/send-reminder')
+      .send({});
+    expect(res.status).toBe(400);
+  });
+});

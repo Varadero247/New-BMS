@@ -243,3 +243,96 @@ describe('portal-notifications — additional coverage', () => {
     expect(res.status).toBeDefined();
   });
 });
+
+describe('Portal Notifications — edge cases', () => {
+  it('GET list: pagination object has page, limit, total, totalPages', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination).toHaveProperty('page');
+    expect(res.body.pagination).toHaveProperty('limit');
+    expect(res.body.pagination).toHaveProperty('total');
+    expect(res.body.pagination).toHaveProperty('totalPages');
+  });
+
+  it('GET list: default page is 1', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.page).toBe(1);
+  });
+
+  it('GET list: default limit is 20', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    const res = await request(app).get('/api/portal/notifications');
+    expect(res.status).toBe(200);
+    expect(res.body.pagination.limit).toBe(20);
+  });
+
+  it('GET list: count is called once per request', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/notifications');
+    expect(mockPrisma.portalNotification.count).toHaveBeenCalledTimes(1);
+  });
+
+  it('PUT read-all: updateMany sets isRead to true', async () => {
+    mockPrisma.portalNotification.updateMany.mockResolvedValue({ count: 3 });
+    await request(app).put('/api/portal/notifications/read-all');
+    expect(mockPrisma.portalNotification.updateMany).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ isRead: true }) })
+    );
+  });
+
+  it('PUT /:id/read returns 500 on DB update error', async () => {
+    const notification = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      isRead: false,
+    };
+    mockPrisma.portalNotification.findFirst.mockResolvedValue(notification);
+    mockPrisma.portalNotification.update.mockRejectedValue(new Error('DB error'));
+    const res = await request(app).put(
+      '/api/portal/notifications/00000000-0000-0000-0000-000000000001/read'
+    );
+    expect(res.status).toBe(500);
+    expect(res.body.error.code).toBe('INTERNAL_ERROR');
+  });
+
+  it('PUT read-all: returns 0 when no unread notifications', async () => {
+    mockPrisma.portalNotification.updateMany.mockResolvedValue({ count: 0 });
+    const res = await request(app).put('/api/portal/notifications/read-all');
+    expect(res.status).toBe(200);
+    expect(res.body.data.updated).toBe(0);
+  });
+
+  it('GET list: findMany called with orderBy createdAt desc', async () => {
+    mockPrisma.portalNotification.findMany.mockResolvedValue([]);
+    mockPrisma.portalNotification.count.mockResolvedValue(0);
+    await request(app).get('/api/portal/notifications');
+    expect(mockPrisma.portalNotification.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ orderBy: { createdAt: 'desc' } })
+    );
+  });
+
+  it('PUT /:id/read: findFirst searches by portalUserId for ownership check', async () => {
+    const notification = {
+      id: '00000000-0000-0000-0000-000000000001',
+      portalUserId: 'user-123',
+      isRead: false,
+    };
+    mockPrisma.portalNotification.findFirst.mockResolvedValue(notification);
+    mockPrisma.portalNotification.update.mockResolvedValue({ ...notification, isRead: true });
+    await request(app).put(
+      '/api/portal/notifications/00000000-0000-0000-0000-000000000001/read'
+    );
+    expect(mockPrisma.portalNotification.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ portalUserId: 'user-123' }),
+      })
+    );
+  });
+});
